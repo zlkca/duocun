@@ -12,7 +12,8 @@ import { Restaurant } from '../../commerce/commerce';
 export class AdminRestaurantFormPageComponent implements OnInit {
     restaurant: any;
 
-    constructor(private route: ActivatedRoute, private commerceSvc: CommerceService) { }
+    constructor(private route: ActivatedRoute,
+        private commerceSvc: CommerceService) { }
 
     ngOnInit() {
         const self = this;

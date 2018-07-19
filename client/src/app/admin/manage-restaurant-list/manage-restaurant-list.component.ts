@@ -2,6 +2,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Restaurant } from '../../commerce/commerce';
+import { RestaurantService } from '../../restaurant/restaurant.service';
+
 import { CommerceService } from '../../commerce/commerce.service';
 import { environment } from '../../../environments/environment';
 @Component({
@@ -10,14 +12,16 @@ import { environment } from '../../../environments/environment';
     styleUrls: ['./manage-restaurant-list.component.scss']
 })
 export class ManageRestaurantListComponent implements OnInit {
-    restaurants: Restaurant[] = [];
+    restaurants = [];
     MEDIA_URL = environment.MEDIA_URL;
 
-    constructor(private router: Router, private commerceSvc: CommerceService) { }
+    constructor(private router: Router,
+        private restaurantSvc: RestaurantService,
+        private commerceSvc: CommerceService) { }
 
     ngOnInit() {
         const self = this;
-        this.commerceSvc.getRestaurantList().subscribe((r: Restaurant[]) => {
+        this.restaurantSvc.find().subscribe(r => {
             self.restaurants = r;
         });
     }
@@ -27,15 +31,16 @@ export class ManageRestaurantListComponent implements OnInit {
     }
 
     getImageSrc(image: any) {
-        if (image.file) {
-            return image.data;
-        } else {
-            if (image.data) {
-                return this.MEDIA_URL + image.data;
-            } else {
-                return this.MEDIA_URL + 'add_photo.png';
-            }
-        }
+        // if (image.file) {
+        //     return image.data;
+        // } else {
+        //     if (image.data) {
+        //         return this.MEDIA_URL + image.data;
+        //     } else {
+        //         return this.MEDIA_URL + 'add_photo.png';
+        //     }
+        // }
+        return this.MEDIA_URL + 'add_photo.png';
     }
 
     change(r) {
