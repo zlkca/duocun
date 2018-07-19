@@ -26,10 +26,14 @@ export class RestaurantGridComponent implements OnInit {
     MEDIA_URL = environment.MEDIA_URL;
 
     ngOnInit() {
-        this.locationSvc.getCurrentPosition();
-        this.locationSvc.get().subscribe(pos => {
-            this.center = pos;
+        const self = this;
+        this.locationSvc.getCurrentLocation().subscribe(r => {
+            self.center = { lat: r.lat, lng: r.lng };
+            self.doSearchRestaurants(self.center);
         });
+        // this.locationSvc.get().subscribe(pos => {
+        //     this.center = pos;
+        // });
     }
 
     constructor(private commerceServ: CommerceService,
@@ -37,24 +41,24 @@ export class RestaurantGridComponent implements OnInit {
         private sharedServ: SharedService,
         private restaurantServ: RestaurantService,
         private locationSvc: LocationService) {
-        const self = this;
+
 
         // self.center = JSON.parse(localStorage.getItem('location-' + APP));
 
         // setup event listener
-        this.sharedServ.getMsg().subscribe(msg => {
-            if ('OnSearch' === msg.name) {
-                if (msg.query) {
-                    self.filter = msg.query;
-                    const query = { ...self.filter, ...self.query };
-                    self.doSearchRestaurants(query);
-                } else {
-                    self.doSearchRestaurants(self.query.keyword);
-                }
-            }
-        });
+        // this.sharedServ.getMsg().subscribe(msg => {
+        //     if ('OnSearch' === msg.name) {
+        //         if (msg.query) {
+        //             self.filter = msg.query;
+        //             const query = { ...self.filter, ...self.query };
+        //             self.doSearchRestaurants(query);
+        //         } else {
+        //             self.doSearchRestaurants(self.query.keyword);
+        //         }
+        //     }
+        // });
 
-        self.doSearchRestaurants(self.center);
+
     }
 
     searchByKeyword(keyword: string) {
@@ -66,15 +70,16 @@ export class RestaurantGridComponent implements OnInit {
 
 
     getImageSrc(image: any) {
-        if (image.file) {
-            return image.data;
-        } else {
-            if (image.data) {
-                return this.MEDIA_URL + image.data;
-            } else {
-                return 'http://placehold.it/400x300';
-            }
-        }
+        // if (image.file) {
+        //     return image.data;
+        // } else {
+        //     if (image.data) {
+        //         return this.MEDIA_URL + image.data;
+        //     } else {
+        //         return 'http://placehold.it/400x300';
+        //     }
+        // }
+        return 'http://placehold.it/400x300';
     }
 
     toDetail(p) {

@@ -154,10 +154,9 @@ export class HomeComponent implements OnInit {
       this.locationSvc.set(e.addr);
       this.router.navigate(['restaurants']);
     } else {
-      this.locationSvc.getCurrentPosition()
-        .then(() => {
-          this.router.navigate(['restaurants']);
-        });
+      this.locationSvc.getCurrentLocation().subscribe(r=>{
+        this.router.navigate(['restaurants']);
+      });
     }
   }
 

@@ -28,15 +28,16 @@ export class RestaurantListComponent implements OnInit {
     }
 
     getImageSrc(image: any) {
-        if (image.file) {
-            return image.data;
-        } else {
-            if (image.data) {
-                return this.MEDIA_URL + image.data;
-            } else {
-                return this.MEDIA_URL + 'add_photo.png';
-            }
-        }
+        // if (image.file) {
+        //     return image.data;
+        // } else {
+        //     if (image.data) {
+        //         return this.MEDIA_URL + image.data;
+        //     } else {
+        //         return this.MEDIA_URL + 'add_photo.png';
+        //     }
+        // }
+        return this.MEDIA_URL + 'add_photo.png';
     }
 
     change(r) {

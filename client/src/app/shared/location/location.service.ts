@@ -1,5 +1,10 @@
+
+import { throwError as observableThrowError, Observable } from 'rxjs';
+import { fromPromise } from 'rxjs/observable/fromPromise';
+import { catchError, map } from 'rxjs/operators';
+import 'rxjs/add/observable/empty';
+
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { ILocation } from './location.model';
 import { NgRedux } from '@angular-redux/store';
 import { environment } from '../../../environments/environment';
@@ -44,62 +49,83 @@ export class LocationService {
         this.ngRedux.dispatch({ type: LocationActions.CLEAR });
     }
 
-    getCurrentPosition(): Promise<any> {
-        const pos = { lat: 43.761539, lng: -79.411079 }; // default
-        if (navigator) {
-            navigator.geolocation.getCurrentPosition(geo => {
-                const lat = geo.coords.latitude;
-                const lng = geo.coords.longitude;
-                if (lat && lng) {
-                    pos.lat = lat;
-                    pos.lng = lng;
+    getLocationFromGeocode(geocodeResult): ILocation {
+        const addr = geocodeResult && geocodeResult.address_components;
+
+        if (addr && addr.length) {
+            const loc = {
+                street_number: '',
+                street_name: '',
+                sub_locality: '',
+                city: '',
+                province: '',
+                postal_code: '',
+                lat: geocodeResult.geometry.location.lat(),
+                lng: geocodeResult.geometry.location.lng()
+            };
+
+            addr.forEach(compo => {
+                if (compo.types.indexOf('street_number') !== -1) {
+                    loc.street_number = compo.long_name;
+                }
+                if (compo.types.indexOf('route') !== -1) {
+                    loc.street_name = compo.long_name;
+                }
+                if (compo.types.indexOf('postal_code') !== -1) {
+                    loc.postal_code = compo.long_name;
+                }
+                if (compo.types.indexOf('sublocality_level_1') !== -1 || compo.types.indexOf('sublocality') != -1) {
+                    loc.sub_locality = compo.long_name;
+                }
+                if (compo.types.indexOf('locality') !== -1) {
+                    loc.city = compo.long_name;
+                }
+                if (compo.types.indexOf('administrative_area_level_1') !== -1) {
+                    loc.province = compo.long_name;
                 }
             });
+            return loc;
+        } else {
+            return null;
         }
+    }
 
-        const promise = new Promise((resolve, reject) => {
-            this.geocoder.geocode({ 'location': pos }, (results) => {
-                const addr = results[0] && results[0].address_components;
-                if (addr && addr.length) {
-                    const loc = {
-                        street_number: '',
-                        street_name: '',
-                        sub_locality: '',
-                        city: '',
-                        province: '',
-                        postal_code: '',
-                        lat: pos.lat,
-                        lng: pos.lng
-                    };
+    getCurrentLocation(): Observable<ILocation> {
+        const pos = { lat: 43.761539, lng: -79.411079 }; // default
 
-                    addr.forEach(compo => {
-                        if (compo.types.indexOf('street_number') !== -1) {
-                            loc.street_number = compo.long_name;
-                        }
-                        if (compo.types.indexOf('route') !== -1) {
-                            loc.street_name = compo.long_name;
-                        }
-                        if (compo.types.indexOf('postal_code') !== -1) {
-                            loc.postal_code = compo.long_name;
-                        }
-                        if (compo.types.indexOf('sublocality_level_1') !== -1 || compo.types.indexOf('sublocality') != -1) {
-                            loc.sub_locality = compo.long_name;
-                        }
-                        if (compo.types.indexOf('locality') !== -1) {
-                            loc.city = compo.long_name;
-                        }
-                        if (compo.types.indexOf('administrative_area_level_1') !== -1) {
-                            loc.province = compo.long_name;
+        return fromPromise(new Promise((resolve, reject) => {
+
+            if (navigator) {
+                navigator.geolocation.getCurrentPosition(geo => {
+                    const lat = geo.coords.latitude;
+                    const lng = geo.coords.longitude;
+                    if (lat && lng) {
+                        pos.lat = lat;
+                        pos.lng = lng;
+                    }
+
+                    this.geocoder.geocode({ 'location': pos }, (results) => {
+                        const loc = this.getLocationFromGeocode(results[0]);
+                        if (loc) {
+                            this.set(loc);
+                            resolve(loc);
+                        } else {
+                            reject(loc);
                         }
                     });
+                });
+            } else {
+                reject();
+            }
+        }));
+    }
 
-                    this.set(loc);
-
-                }
-                resolve();
-            });
-        });
-        return promise;
+    getLocation(sAddr: string): Observable<ILocation> {
+        const url = 'http://maps.google.com/maps/api/geocode/json?address=' + sAddr + 'CA&sensor=false';
+        return this.http.get(url).pipe(map((res: any) => {
+            const loc = this.getLocationFromGeocode(res.results[0]);
+            return loc;
+        }));
     }
 
 }
