@@ -1,0 +1,55 @@
+
+<form [formGroup]="form" class="restaurant-form">
+    <div class="row">
+        <div class="label-sm">Name:</div>
+        <input name="name" formControlName="name"/>
+<!--             <div *ngIf="name.touched && name.invalid" class="alert alert-danger">
+            <div *ngIf="name.errors.required">Restaurant Name is required</div>
+            <div *ngIf="name.errors.minlength">Restaurant Name should be minimum 3 characters.</div>
+        </div> -->
+    </div>
+    <div class="row">
+        <div class="label-sm">Description</div>
+        <textarea name="description" formControlName="description"></textarea>
+        <!-- <div *ngIf="description.touched && description.invalid" class="alert alert-danger">Max Manufacory Description is 500 chars.</div> -->
+    </div>
+
+<!--         <div class="row">
+        <div class="label-sm">Category</div>
+        <div formArrayName="categories">
+            <div *ngFor="let cat of categoryList; let i=index">
+                <input type="checkbox" formControlName="{{i}}" (change)="onToggleCategory(cat)">
+                {{cat.name}}<br>
+            </div>
+        </div>
+    </div> -->
+
+    <div formGroupName="address">
+        <div class="row">
+            <div class="label-sm">Street:</div>
+            <input name="street" formControlName="street"/>
+           <!--  <div *ngIf="street.touched && street.invalid" class="alert alert-danger">
+                <div *ngIf="street.errors.required">Street is required</div>
+                <div *ngIf="street.errors.minlength">Street should be minimum 3 characters.</div>
+            </div> -->
+        </div>
+
+        <div class="row">
+            <div class="label-sm">Postal Code:</div>
+            <input name="postal_code" formControlName="postal_code"/>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="label-sm">Owner</div>
+        <select name="user" formControlName="user_id">
+            <option *ngFor="let m of users" [value]="m.id">{{m.username}}</option>
+        </select>
+    </div>
+
+    <app-image-uploader [picture]="picture" #uploader></app-image-uploader>
+
+    <button (click)="save()">Save</button>
+    
+    <button (click)="cancel()">Cancel</button>
+</form>

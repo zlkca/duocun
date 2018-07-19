@@ -1,0 +1,18 @@
+{
+  "db": {
+    "host": "localhost",
+    "port": 3306,
+    "url": "mysql://root:root@localhost:3306/etuanl",
+    "database": "etuanl",
+    "password": "root",
+    "name": "db",
+    "user": "root",
+    "connector": "mysql"
+  },
+  "filestore": {
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "uploads",
+    "nameConflict": "makeUnique"
+  }
+}

@@ -1,0 +1,33 @@
+<div class="container">
+        <p class="label-sm">Message</p>
+
+        <form class="feedback-form" #feedbackForm="ngForm" (ngSubmit)="onSubmitFeedback()">
+            <input type="hidden" name="form-type" value="contact"/>
+
+            <div class="row">
+                <div class="col-md-4 col-sm-12">
+                  <input type="text" name="name" placeholder="Name" [(ngModel)]="username" />
+                </div>
+                <div class="col-md-4 col-sm-12">
+                  <input type="text" name="email" placeholder="Email" [(ngModel)]="email" invalidChar/>
+                </div>
+                <div class="col-md-4 col-sm-12">
+                  <input type="text" name="phone" placeholder="Phone Number" [(ngModel)]="phone" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                  <textarea name="message" placeholder="Message"
+                        data-constraints="@NotEmpty" [(ngModel)]="message"></textarea>
+                </div>
+            </div>
+              
+<!--             <ngb-alert *ngIf="successMessage" type="success" (close)="successMessage = null">{{ successMessage }}</ngb-alert>
+            <ngb-alert *ngIf="failMessage" type="danger" (close)="failMessage = null">{{ failMessage }}</ngb-alert>
+ -->
+            <div class="btn-holder">
+              <button class="btn btn-primary" type="submit" [disabled]="!feedbackForm.form.valid">Send</button>
+            </div>
+        </form>
+</div>

@@ -1,0 +1,41 @@
+
+<div class="container page page-signup">
+	<form class="auth-form" [formGroup]="form" >
+		<div class="row">
+			<span class="title-md">Create New Account</span>
+		</div>
+		<div class="row">
+			<span class="error-msg">{{errMsg}}</span>
+		</div>
+
+    	<div class="row">
+			<div class="label-sm">Username</div>
+			<input formControlName="username" type="text"/>
+		</div>
+
+<!-- 		<div class="row user-type">
+			<div class="row">
+			    <input type="radio" name="user-type" value="user" [(ngModel)]="userType" />
+			    <label>Individual User</label>
+			</div>
+			<div class="row">
+			    <input type="radio" name="user-type" value="business" [(ngModel)]="userType" />
+			    <label>Business User</label>
+			</div>
+	    </div> -->
+
+		<div class="row">
+			<div class="label-sm">Email</div>
+			<input formControlName="email" type="text"/>
+		</div>
+		<div class="row">
+			<div class="label-sm">Password</div>
+			<input formControlName="password" type="password"/>
+		</div>
+
+		<div class="row btn-holder">
+			<button class="btn btn-primary" (click)="onSignup()" type="submit" block>Create</button>
+		</div>
+	</form>
+
+</div>

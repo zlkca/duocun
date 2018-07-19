@@ -1,0 +1,48 @@
+<div class="container page product-detail-page" >
+    <div class="row" *ngIf="product" >
+
+        <div class="col-sm-12 col-md-12 product-header">
+            <div class="title-lg">{{product.name}}</div>
+            <div class="subtitle">
+                <div class="w-inline w-row" style="width:130px;">
+                    <span class="w-inline title-sm">Restaurant:</span>
+                    <span class="w-inline text-sm">{{product.restaurant.name}}</span>
+                </div>
+                <div class="w-inline w-row" style="width:130px;">
+                    <span class="w-inline title-sm">Year:</span>
+                    <span class="w-inline text-sm">{{product.year}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-md-7 left-side" >
+            <app-image-viewer [pictures]="product.pictures" [frame]="frame"></app-image-viewer>
+
+            <div class="col-sm-12 col-md-12 detail-block">
+                <div class="detail-inner" >
+                    <div class="title-sm">Description:</div>
+                    <div class="text-sm">{{product.description}}</div>
+                    <div class="detail-col">
+                        <div class="w-row title-sm">Dimension:</div>
+                        <div class="w-row text-sm">{{product.dimension}}</div>
+                    </div>
+                </div>
+            </div><!-- end of detail-block -->
+        </div><!--end of left-holder -->
+
+        <div class="col-sm-12 col-md-5 right-side">
+            <div class="cart-block">
+                <div class="text-lg item-price">{{product.price | currency:'USD':true }}</div>
+                <div class="w-row text-md">{{product.name}}</div>
+                <div class="w-row">
+                    <div class="w-inline text-xs">{{product.restaurant.name}}</div>
+                    <div class="w-inline text-xs">{{product.year}}</div>
+                </div>
+                <div class="btn-holder">
+                    <button class="btn-primary" (click)="addToCart(p)" type="submit" block>Add To Cart</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

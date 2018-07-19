@@ -1,0 +1,54 @@
+<div class="page">
+	<div class="container restaurant-list">
+		<div *ngIf="restaurants.length==0">
+			<button (click)="toPage('admin/restaurant')">Add Restaurant</button>
+		</div>
+		<div class="list-body" *ngIf="restaurants.length>0">
+			<div class="row list-item" *ngFor="let m of restaurants">
+				<div class="col-md-1>">
+					<img [src]="getImageSrc(m.image)" />
+				</div>
+				<div class="col-md-3">{{m.name}}</div>
+				<div class="col-md-3">{{m.address.street}},{{m.address.sub_locality}}</div>
+				<div class="col-md-3">
+					<div class="btn" (click)="add()">Add</div>
+		            <div class="btn" (click)="change(m)">Change</div>
+		            <div class="btn" (click)="delete(m)">Delete</div>
+		        </div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+
+<!-- <div class="restaurant-list mt-5" *ngIf="data && data.length>0">
+
+  <div class="row text-center text-lg-left">
+
+    <div class="col-lg-3 col-md-4 col-xs-6" *ngFor="let p of data; let i = index;">
+			<div class="card mb-3" (click)="toDetail(p)">
+			  <img class="card-img-top" [src]="p.image.data? (MEDIA_URL+p.image.data) : 'http://placehold.it/400x300'" [alt]="p.name">
+			  <div class="card-body">
+			    <h6 class="card-title text-left">{{p.name}}</h6>
+			    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+			  </div>
+				<div class="card-footer text-muted">
+			    {{p.address.id}}
+			  </div>
+			</div>
+    </div>
+  </div>
+	<div class="restaurant" *ngFor="let p of data; let i = index;">
+		<div class="body" (click)="toDetail(p)">
+			<div class="image-frame">
+          		<img src="{{MEDIA_URL+p.image.data}}" alt="{{p.name}}" />
+			</div>
+			<div class="text-block">
+				<div class="title-sm">{{p.name}}</div>
+			  	<div class="text-xs">{{p.address.id}}</div>
+			  </div>
+		</div>
+	</div>
+</div> -->

@@ -1,0 +1,25 @@
+<div class="container">
+    <form class="post-form">
+        <div class="row">
+            <div class="label-sm">title</div>
+            <input name="title" [(ngModel)]="post.title"/>
+        </div>
+        <div class="row">
+            <div class="label-sm">body</div>
+            <input name="body" [(ngModel)]="post.body"/>
+        </div>
+        <div class="row">
+            <div class="label-sm">author</div>
+            <input name="author" [(ngModel)]="post.author"/>
+        </div>
+        <div class="row">
+            <div class="label-sm">created</div>
+            <input name="created" [(ngModel)]="post.created"/>
+        </div>
+        <div class="row">
+            <div class="label-sm">updated</div>
+            <input name="updated" [(ngModel)]="post.updated"/>
+        </div>
+        <button (click)="save()">Save</button>
+    </form>
+</div>

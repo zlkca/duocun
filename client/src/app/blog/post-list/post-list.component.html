@@ -1,0 +1,12 @@
+<div class="post-list">
+    <div class="list">
+        <div class="list-head">
+            <div *ngFor="let field of fields">{{field}}</div>
+        </div>
+        <div class="list-body">
+            <div class="item" *ngFor="let r of postList" (click)="toDetail(r)">
+                <div *ngFor="let field of fields">{{r["field"]}}</div>
+            </div>
+        </div>
+    </div>
+</div>

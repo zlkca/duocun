@@ -1,0 +1,77 @@
+.restaurant-list {
+  .card {
+    cursor: pointer;
+  }
+
+  .list-item{
+  	border-top:1px solid #eee;
+  	padding-bottom: 3px;
+  	img{
+  		width:83px;
+  	}
+  }
+}
+
+//
+// $scrollbar-w:30px;
+// $block-w-m:190px;
+// $block-h-m:220px;
+// $frame-h-m:160px;
+// .restaurant-list{
+// 	.restaurant{
+// 		width:220px;
+// 		height:280px;
+// 		border:1px solid #eee;
+// 		padding:10px;
+// 		margin:10px;
+// 		float:left;
+//
+// 		.image-frame{
+// 			width:200px;
+// 			height:150px;
+// 			border:1px solid #eee;
+// 			img{
+// 				width:100%;
+// 				height:100%;
+// 			}
+// 		}
+// 		.text-block{
+// 			padding:10px;
+// 		}
+// 	}
+// }
+//
+// @media (max-width: 767px) and (orientation: portrait){
+//     $n-cols:3;
+//
+// 	.restaurant-list{
+// 		.restaurant{
+// 			width:$block-w-m;
+// 			height:$block-h-m;
+// 			padding:0px;
+// 			margin:8px;
+// 			.image-frame{
+// 				width:$block-w-m;
+// 				height:$frame-h-m;
+// 			}
+// 		}
+// 	}
+//
+// }
+//
+// @media (max-width: 767px) and (orientation: landscape){
+//     $n-cols:4;
+//
+// 	.restaurant-list{
+// 		.restaurant{
+// 			width:$block-w-m;
+// 			height:$block-h-m;
+// 			padding:0px;
+// 			margin:8px;
+// 			.image-frame{
+// 				width:$block-w-m;
+// 				height:$frame-h-m;
+// 			}
+// 		}
+// 	}
+// }

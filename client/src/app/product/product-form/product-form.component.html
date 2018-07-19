@@ -1,0 +1,61 @@
+<div class="container">
+    <form [formGroup]="form" class="admin-form">
+        <div class="row">
+            <div class="label-sm">Name:</div>
+            <input name="name" formControlName="name"/>
+            <!-- <div *ngIf="name.touched && name.invalid" class="alert alert-danger">
+                <div *ngIf="name.errors.required">Product Name is required</div>
+                <div *ngIf="name.errors.minlength">Product Name should be minimum 3 characters.</div>
+            </div> -->
+        </div>
+        
+        <div class="row">
+            <div class="label-sm">Description</div>
+            <textarea name="description" formControlName="description"></textarea>
+            <!-- <div *ngIf="description.touched && description.invalid" class="alert alert-danger">Description should be maximum 980 chars.</div> -->
+        </div>
+        
+<!--         <div class="row">
+            <div class="label-sm">Dimension</div>
+            <input name="dimension" formControlName="dimension"/>
+            <div *ngIf="dimension.touched && dimension.invalid" class="alert alert-danger">Dimension should be num X num format.</div>
+        </div> -->
+        
+        <div class="row">
+            <div class="label-sm">Price</div>
+            <input name="price" formControlName="price"/>
+            <!-- <div *ngIf="price.touched && price.invalid" class="alert alert-danger">Price is required.</div> -->
+        </div>
+
+        <div class="row">
+            <div class="label-sm">Restaurant</div>
+            <select name="restaurant" formControlName="restaurant_id">
+                <option *ngFor="let m of restaurantList" [value]="m.id">{{m.name}}</option>
+            </select>
+        </div>
+
+<!--         <div class="row">
+            <div class="label-sm">Color</div>
+            <select name="color" formControlName="color_id">
+                <option *ngFor="let color of colorList" [value]="color.id">{{color.name}}</option>
+            </select>
+        </div> -->
+        
+<!--         <div class="row">
+            <div class="label-sm">Category</div>
+            <div formArrayName="categories">
+                <div *ngFor="let cat of categoryList; let i=index">
+                    <input type="checkbox" formControlName="{{i}}" (change)="onToggleCategory(cat)">
+                    {{cat.name}}<br>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- <app-image-uploader [data]="pictures" #uploader></app-image-uploader> -->
+        <div *ngIf="picture">
+            <app-image-uploader [picture]="picture" #uploader></app-image-uploader>
+        </div>
+        
+        <button (click)="save()">Save</button>
+    </form>
+</div>

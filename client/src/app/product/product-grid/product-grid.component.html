@@ -1,0 +1,43 @@
+<div class="product-list row">
+	<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12" *ngFor="let p of data; let i = index;">
+		<div class="card mb-3">
+			<img class="card-img-top" [src]="getImageSrc(p)" alt="{{p.name}}" (click)="onClick(p)">
+			<div class="card-body" (click)="onClick(p)">
+				<p class="text-left text-sm mb-0">
+					<span class="text-dark">{{p.name}}</span><br>
+					<span>CAD {{p.price | currency}}</span>
+				</p>
+			</div>
+			<div class="card-footer">
+				<div class="pull-right">
+					<i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(p)"></i>
+					<i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(p)"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- <div class="product-list">
+	<div class="product" *ngFor="let p of data; let i = index;">
+		<div class="body" (click)="onClick(p)">
+			<div class="image-frame">
+          		<img [src]="getImageSrc(p)" alt="{{p.name}}" />
+			</div>
+			<div class="text-block">
+				<div class="title-sm">{{p.name}}</div>
+			  	<div class="text-sm">{{p.dimension}}</div>
+				<div class="text-sm">CAD {{p.price}}</div>
+				<div class="text-sm">{{p.description}}</div>
+			</div>
+		</div>
+		<div class="item-operation pull-right">
+			<i class="fa fa-2x fa-plus-circle" (click)="addToCart(p)"></i>
+			<i class="fa fa-2x fa-minus-circle" (click)="removeFromCart(p)"></i>
+		</div>
+ 		<div class="btn-holder">
+			<div *ngIf="mode!='edit'" class="btn btn-xs pull-right" (click)="addToCart(p)">Add</div>
+			<div *ngIf="mode!='edit'" class="btn btn-xs pull-right" (click)="removeFromCart(p)">Remove</div>
+		</div>
+	</div>
+</div> -->

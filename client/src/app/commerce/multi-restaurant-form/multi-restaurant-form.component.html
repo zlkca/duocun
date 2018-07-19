@@ -1,0 +1,65 @@
+<div class="page multi-restaurant-form">
+    <form [formGroup]="form">
+	    <div class="list-body" *ngIf="restaurants">
+<!-- 	    	<div class="row list-header">
+	    		<div class="col" *ngFor="let field of fields">{{field}}</div>
+	    	</div> -->
+
+	        <div formArrayName="items" *ngFor="let ctrl of items.controls; let i=index;">
+	        	<div [formGroupName]="i" class="row">
+		            <!-- <img [src]="MEDIA_URL+c.pictures[0].image.data" /> -->
+
+		          	<div class="col-md-2">
+		            	<image-uploader [data]="pictures[i]" #uploader></image-uploader>
+		            </div>
+
+		            <div class="col-md-10">
+		            	<div class="row">
+			                <div class="col-md-1">
+			                	<input name="id" formControlName="id" readonly="true" />
+				            </div>
+
+				            <div class="col-md-3">
+				            	<div class="label-sm">Restaurant Name</div>
+				            	<input name="name" formControlName="name"/>
+				            </div>
+				           	<div class="col-md-3">
+				           		<div class="label-sm">Description</div>
+				            	<input name="description" formControlName="description"/>
+				            </div>
+			                <div class="col-md-5" formGroupName="address">
+			                	<div class="row">
+				                	<div class="col-md-7">
+				                		<div class="label-sm">Street</div>
+						                <input name="street" formControlName="street"/>
+						               <!--  <div *ngIf="street.touched && street.invalid" class="alert alert-danger">
+						                    <div *ngIf="street.errors.required">Street is required</div>
+						                    <div *ngIf="street.errors.minlength">Street should be minimum 3 characters.</div>
+						                </div> -->
+						            </div>
+						            <div class="col-md-5">
+						            	<div class="label-sm">Postal Code</div>
+						                <input name="postal_code" formControlName="postal_code"/>
+						            </div>
+						        </div>
+					        </div>
+					    </div>
+
+					    <div class="row">
+							<div class="col-md-12">
+								<div class="btn btn-secondary" (click)="toViewProducts()">View Products</div>
+								<div class="btn btn-secondary" (click)="toEditProducts()">Edit Products</div>
+								<div class="btn btn-secondary" (click)="toEditOrders()">Edit Orders</div>
+							</div>
+					    </div>
+				    </div>
+		        </div>
+
+		        <div class="row seperate-line"></div>
+
+	        </div>
+	        <div (click)="save()">Save</div>
+	    </div>
+	</form>
+</div>
+

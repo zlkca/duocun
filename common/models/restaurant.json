@@ -1,0 +1,61 @@
+{
+  "name": "Restaurant",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "location": {
+      "type": "GeoPoint"
+    },
+    "ownerId": {
+      "type": "number"
+    },
+    "created": {
+      "type": "date",
+      "defaultFn": "now"
+    },
+    "modified": {
+      "type": "date",
+      "defaultFn": "now"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "owner": {
+      "type": "belongsTo",
+      "model": "User",
+      "foreignKey": "ownerId"
+    },
+    "products": {
+      "type": "hasMany",
+      "model": "Product",
+      "foreignKey": "restaurantId"
+    },
+    "orders": {
+      "type": "hasMany",
+      "model": "Order",
+      "foreignKey": "restaurantId"
+    },
+    "pictures": {
+      "type": "hasMany",
+      "model": "Picture",
+      "polymorphic": "imageable"
+    },
+    "address": {
+      "type": "hasOne",
+      "model": "Address",
+      "polymorphic": "entity"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

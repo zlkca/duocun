@@ -1,0 +1,29 @@
+<div class="container manage-product-list">
+  <div *ngIf="products && products.length==0">
+    <button (click)="add()">Add Product</button>
+  </div>
+
+  <div class="list-body" *ngIf="products && products.length>0">
+    
+    <div class="row list-item" *ngFor="let p of products; let i = index;">
+      <div class="col-md-2">
+          <img class="img-thumbnail" [src]="getImageSrc(p)" alt="{{p.name}}" />
+      </div>
+      
+      <div class="col-md-7 text-block">
+        <div class="title-sm">{{p.name}}</div>
+        <div class="text-sm">{{p.dimension}}</div>
+        <div class="text-sm">CAD {{p.price}}</div>
+        <div class="text-sm">{{p.description}}</div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="btn" (click)="add()">Add</div>
+        <div class="btn" (click)="change(p)">Change</div>
+        <div class="btn" (click)="delete(p)">Delete</div>
+      </div>
+    </div>
+
+  </div>
+  
+</div>

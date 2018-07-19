@@ -1,0 +1,22 @@
+
+	<div class="container user-list">
+		<div *ngIf="users.length==0">
+			<button (click)="toPage('admin/users')">Add User</button>
+		</div>
+		<div class="list-body" *ngIf="users.length>0">
+			<div class="row list-item" *ngFor="let m of users">
+<!-- 				<div class="col-md-1>">
+					<img [src]="getImageSrc(m.image)" />
+				</div> -->
+				<div class="col-md-1">{{m.id}}</div>
+				<div class="col-md-3">{{m.username}}</div>
+				<div class="col-md-3">{{m.email}}</div>
+				<div class="col-md-2">{{m.type}}</div>
+				<div class="col-md-3">
+					<div class="btn btn-sm btn-secondary" (click)="add()">Add</div>
+		            <div class="btn btn-sm btn-secondary" (click)="change(m)">Change</div>
+		            <div class="btn btn-sm btn-secondary" (click)="delete(m)">Delete</div>
+		        </div>
+			</div>
+		</div>
+	</div>

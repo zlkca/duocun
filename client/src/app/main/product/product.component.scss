@@ -1,0 +1,128 @@
+$border-color:#ccc;
+.multi-lines{
+    width:560px;
+}
+
+.item-md{
+    min-height:24px;
+    div.input-wrapper{
+        height:100%;
+    }
+}
+
+.product-detail-page{
+    .product-header{
+        .subtitle{
+            width:100%;
+            float:left;
+            padding: 5px 0px;
+            span{
+                float:left;
+            }
+        }
+    }
+
+    .left-side{
+        padding-left: 80px;
+        height:auto;
+    }
+
+    .detail-block{
+        max-width:520px;
+        margin-top:20px;
+        display: inline-block;
+        float:left;
+
+        .detail-col{
+            padding-top: 10px;
+            min-width:120px;
+            max-width:150px;
+            float:left;
+
+            .w-row{
+                width:100%;
+            }
+        }
+    }
+
+    .right-side{
+        width:100%;
+        float:left;
+        padding-right:160px;
+
+        .cart-block{
+            min-height:50px;
+            border: 1px solid $border-color;
+            padding: 15px;
+
+            .item-price{
+                padding-bottom: 6px;
+            }
+            
+            .btn-holder{
+                margin-top:30px;
+            }
+
+            .btn-primary{
+                max-width: none;
+                ion-icon{
+                    font-size:1.4em;
+                }
+            }
+
+            .btn-add-to-cart{
+                padding:2px 12px;
+                width:100%;
+            }
+        }
+
+        .get-token-block{
+            padding-top:10px;
+            .product-token{
+                padding-top:10px;
+            }
+        } 
+    }     
+}
+
+$cellphone: "(max-width: 575px)";
+$mobile: "(min-width:576px) and (max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
+
+@media #{$desktop}{
+
+}
+
+@media #{$tablet}{
+
+}
+
+@media #{$mobile}{
+    .product-detail-page{
+        .left-side{
+            padding-left: 0px;
+            padding-right:0px;
+        }
+
+        .right-side{
+            padding-left:15px;
+            padding-right:15px;
+        }
+    }
+} 
+
+@media #{$cellphone}{
+    .product-detail-page{
+        .left-side{
+            padding-left: 0px;
+            padding-right:0px;
+        }
+
+        .right-side{
+            padding-left:15px;
+            padding-right:15px;
+        }
+    }
+} 
+    

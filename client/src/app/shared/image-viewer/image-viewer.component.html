@@ -1,0 +1,15 @@
+<!-- <div class="image-viewer" [ngStyle]="{'width':viewer.w+'px', 'height':viewer.h+'px'}"> -->
+<div class="image-viewer">
+	<!-- <div class="row image-frame" [ngStyle]="{'width':_frame.w+'px', 'height':_frame.h+'px'}" > -->
+	<div class="row image-frame">
+		<img src={{APP_URL}}{{image.url}} alt="{{image.name}}" [ngStyle]="{'width':image.width+'px', 'height':image.height+'px', 'padding-top': image.padding_top+'px'}" />
+	</div>
+	<div class="thumbnail-list row">
+		<ul >
+			<li *ngFor="let t of _thumbnails" class="thumbnail" (click)="onSelect(t)">
+				<!-- <img src={{APP_URL}}{{t.url}} alt="{{t.name}}" [ngStyle]="{'width':t.w+'px', 'height':t.h+'px', 'padding-top': t.padding_top+'px'}"/> -->
+				<img src={{MEDIA_URL}}{{t.url}} alt="{{t.name}}" />
+			</li>
+		</ul>
+	</div>
+</div>

@@ -1,0 +1,9 @@
+<ul class="list-unstyled">
+    <li *ngFor="let item of order?.items" class="media">
+      <img class="mr-3 my-4" [src]="" alt="">
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">{{item.product_name}}</h5>
+        {{item |json}}
+      </div>
+    </li>
+  </ul>

@@ -1,0 +1,20 @@
+<!-- Generated template for the WizardComponent component -->
+<div class="wizard">
+    <!-- titles -->
+    <ul class="header row">
+        <li *ngFor="let item of items;" [style.width.%]="item.w" [ngClass]="{'active':item.status=='active'}" (click)="onClick(item)">
+            <div class="triangle-left">
+                <div class="triangle"></div>
+                <div class="triangle-inner"></div>
+            </div>
+            <div class="rect">{{item.title}}</div>
+            <div class="triangle-right">
+                <div class="triangle"></div>
+                <div class="triangle-inner"></div>
+            </div>
+        </li>
+    </ul>
+
+    <!-- bodies -->
+    <ng-content></ng-content>
+</div>

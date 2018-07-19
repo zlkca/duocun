@@ -1,0 +1,50 @@
+{
+  "name": "Account",
+  "base": "User",
+  "idInjection": true,
+  "properties": {
+    "type": {
+      "type": "string",
+      "required": true,
+      "default": "user"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "restaurants": {
+      "type": "hasMany",
+      "model": "Restaurant",
+      "foreignKey": "ownerId"
+    },
+    "orders": {
+      "type": "hasMany",
+      "model": "Order",
+      "foreignKey": "accountId"
+    },
+    "address": {
+      "type": "hasOne",
+      "model": "Address",
+      "polymorphic": "entity"
+    }
+  },
+  "acls": [
+    {
+      "principalType": "USER",
+      "principalId": "1",
+      "permission": "ALLOW"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__restaurants"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__orders"
+    }
+  ],
+  "methods": []
+}

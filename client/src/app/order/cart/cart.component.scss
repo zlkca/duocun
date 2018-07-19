@@ -1,0 +1,24 @@
+.cart {
+  padding: 0.5rem 0.25rem;
+  border-radius: 0.25rem;
+  background-color: #ececec;
+  box-shadow: 2px 2px 5px 2px #ccc;
+  margin-bottom: 2rem;
+  position: sticky;
+  top: 80px;
+}
+.list-group-item {
+  padding: 0.25rem;
+}
+.input-group-sm {
+  width: 100px;
+  .btn {
+    height: 27px;
+    line-height: 1;
+  }
+  input {
+    height: 27px;
+    line-height: 1;
+  }
+}
+

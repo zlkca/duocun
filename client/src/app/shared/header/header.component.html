@@ -1,0 +1,50 @@
+<nav class="navbar fixed-top navbar-expand-sm navbar-light bg-light">
+  <a class="navbar-brand" (click)="toHome()">eTuan</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto" id="nav-left">
+      <!-- <li *ngFor="let item of menu" class="nav-item">
+        <a class="nav-link" [routerLink]="item.route">{{item.text}}</a>
+      </li> -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="toHome()">Home</a>
+      </li>
+      <li *ngIf="locality" class="navbar-text">
+        <span class="text-dark">{{locality}}</span>
+        &nbsp;&nbsp;|
+      </li>
+      <li *ngIf="locality" class="nav-item">
+        <a class="nav-link" routerLink="home" (click)="changeAddress()"><small>Change Address</small></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="home" (click)="toBusinessCenter()"><small>Business Center</small></a>
+      </li>
+    </ul>
+    <span *ngIf="isLogin" class="navbar-text">
+      Hello, {{user?.username}}
+    </span>
+    <ul *ngIf="isLogin" class="navbar-nav mr-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fa fa-user-circle fa-lg"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" routerLink="admin">Admin</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#" (click)="logout()">Logout</a>
+        </div>
+      </li>
+    </ul>
+    <ul *ngIf="!isLogin" class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" routerLink="login">Login</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="signup">Signup</a>
+      </li>
+    </ul>
+  </div>
+</nav>

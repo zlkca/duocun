@@ -1,0 +1,59 @@
+
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
+
+
+.multi-restaurant-form{
+	.list-body{
+		.row{
+			padding-top:0px;
+
+			input{
+				width:100%;
+				min-width:0px;
+				// width:160px;
+			}
+
+			.btn{
+				margin-right:10px;
+			}
+		}
+
+		.seperate-line{
+			border-top:1px solid #eee;
+		}
+		// input[name="id"]{
+		// 	width:40px;
+		// }
+		
+		.col{
+			input{
+				width:100%;
+				min-width:0px;
+				// width:160px;
+			}
+
+			// input[name="description"]{
+			// 	width:400px;
+			// }
+
+			// input[name="price"]{
+			// 	width:100px;
+			// }
+		}
+		.col-pic{
+			margin-left:15px;
+		}
+	}
+
+	@media #{$mobile}{
+		.list-header{
+			display:none;
+		}
+		[name='id']{
+			display:none;
+		}
+	}
+}
+

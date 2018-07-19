@@ -1,0 +1,33 @@
+<div class="user-form">
+	<form [formGroup]="form" >
+		<div class="row">
+			<span class="error-msg">{{errMsg}}</span>
+		</div>
+
+    	<div class="row">
+			<div class="label-sm">Username</div>
+			<input formControlName="username" type="text"/>
+		</div>
+
+		<div class="row">
+			<div class="label-sm">Email</div>
+			<input formControlName="email" type="text"/>
+		</div>
+
+		<div class="row">
+			<div class="label-sm">Password</div>
+			<input formControlName="password" type="password"/>
+		</div>
+
+		<div class="row">
+			<div class="label-sm">User Type</div>
+			<input formControlName="type" type="type"/>
+        </div>
+        
+		<div class="row btn-holder">
+			<button class="btn btn-primary" (click)="save()" type="submit" block>Submit</button>
+		</div>
+	</form>
+</div>
+
+

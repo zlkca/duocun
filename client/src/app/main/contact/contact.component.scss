@@ -1,0 +1,40 @@
+agm-map {
+  width:100%;
+  height:300px;
+}
+
+.contact-section{
+    margin-top:30px;
+
+    .right-side{
+		padding-top:50px;
+
+	}
+
+	.left-side{
+
+		p{
+			font-size:14px;
+		}
+		ul{
+			padding-left: 0px;
+			list-style:none;
+		}
+	}
+
+	@media (min-width:576px) and (max-width: 767px){
+
+		.right-side{
+			padding-top:10px;
+		}
+	}
+
+	@media (max-width:575px){
+
+		.right-side{
+			padding-top:10px;
+		}
+	}
+}
+
+

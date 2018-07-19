@@ -1,0 +1,57 @@
+<div class="page multi-user-form">
+    <form [formGroup]="form">
+	    <div class="list-body">
+	    	<div class="row list-header">
+	    		<div class="col-md-1">Id</div>
+	    		<div class="col-md-2">Username</div>
+	    		<div class="col-md-3">Email</div>
+	    		<div class="col-md-3">Password</div>
+	    		<div class="col-md-3">Restaurant</div>
+	    	</div>
+
+	        <div formArrayName="items" *ngFor="let ctrl of items.controls; let i=index;">
+	        	<div [formGroupName]="i" class="row">
+		            <!-- <img [src]="MEDIA_URL+c.pictures[0].image.data" /> -->
+
+		          	<!-- <div class="col-md-2">
+		            	<image-uploader [data]="pictures[i]" #uploader></image-uploader>
+		            </div>
+ -->
+		            <div class="col-md-12">
+		            	<div class="row">
+			                <div class="col-md-1">
+			                	<input name="id" formControlName="id" readonly="true" />
+				            </div>
+
+				            <div class="col-md-2">
+				            	<input name="username" formControlName="username"/>
+				            </div>
+				           	<div class="col-md-3">
+				            	<input name="email" formControlName="email"/>
+				            </div>
+				           	<div class="col-md-3">
+				            	<input name="password" formControlName="password"/>
+				            </div>
+							<div class="col-md-3">
+				            	<input name="restaurant" readonly="true" />
+				            </div>
+					    </div>
+
+					    <div class="row">
+							<div class="col-md-12">
+								<div class="btn btn-secondary" (click)="toViewRestaurant()">View Restaurant</div>
+								<div class="btn btn-secondary" (click)="toEditRestaurant()">Edit Restaurant</div>
+								<div class="btn btn-secondary" (click)="toEditOrders()">Edit Orders</div>
+							</div>
+					    </div>
+				    </div>
+		        </div>
+
+		        <div class="row seperate-line"></div>
+
+	        </div>
+	        <div (click)="save()">Save</div>
+	    </div>
+	</form>
+</div>
+

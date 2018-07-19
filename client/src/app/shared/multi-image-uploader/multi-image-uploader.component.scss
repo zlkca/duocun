@@ -1,0 +1,20 @@
+.image-uploader{
+	.upload-cell{
+		float:left;
+		display:inline-block;
+		
+		.img-frame{
+			width:240px;
+			height:180px;
+
+			img{
+				width:100px;
+				height:100px;
+			}
+		}
+		
+		.upload-input{
+			display:none;
+		}
+	}
+}

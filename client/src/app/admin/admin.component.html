@@ -1,0 +1,45 @@
+<div *ngIf="isAdminLogin" class="page">
+    <!-- <app-header></app-header> -->
+
+    <div class="container">
+        <ngb-tabset>
+          <ngb-tab title="Orders" *ngIf="account && account.type === 'business' && orders">
+            <ng-template ngbTabContent>
+                <app-manage-order-list [orders]="orders"></app-manage-order-list>
+                <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
+            </ng-template>
+          </ngb-tab>
+
+          <ngb-tab title="Restaurant" *ngIf="account && account.type === 'business' && restaurant">
+            <ng-template ngbTabContent>
+              <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
+              <app-restaurant-form [restaurant]="restaurant"></app-restaurant-form>
+            </ng-template>
+          </ngb-tab>
+
+          <ngb-tab title="Products" *ngIf="account && account.type === 'business' && products">
+            <ng-template ngbTabContent>
+              <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
+              <app-manage-product-list [products]="products"></app-manage-product-list>
+            </ng-template>
+          </ngb-tab>
+
+          <ngb-tab title="Business Users" *ngIf="account && account.type === 'super'">
+            <ng-template ngbTabContent>
+                <app-admin-business-user-list></app-admin-business-user-list>
+                <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
+            </ng-template>
+          </ngb-tab>
+
+          <ngb-tab title="Restaurants" *ngIf="account && account.type === 'super'">
+            <ng-template ngbTabContent>
+              <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
+              <app-manage-restaurant-list [restaurants]="restaurants"></app-manage-restaurant-list>
+            </ng-template>
+          </ngb-tab>
+
+        </ngb-tabset>
+    </div>
+
+    <!-- <app-footer></app-footer> -->
+</div>

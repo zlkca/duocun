@@ -1,0 +1,6 @@
+{
+  "db": {
+    "url": "${MYSQL_URL}",
+    "connector": "mysql"
+  }
+}

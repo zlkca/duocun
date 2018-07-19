@@ -1,0 +1,429 @@
+/* You can add global styles to this file, and also import other style files */
+@import "../node_modules/bootstrap/scss/bootstrap.scss";
+$fa-font-path: "../node_modules/font-awesome/fonts";
+@import '~font-awesome/scss/font-awesome.scss';
+
+$cellphone: "(max-width:480px)";
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
+
+
+$border-color:#b0b0b0;
+$text-color:#585858;//#212529
+$text-inverse-color:#fff;
+$primary-color:#003e7e;
+$primary-focus-color:#11759a;
+
+$title-color:#7c7c7c;
+$title-s-color:#414851;
+
+$item-height:40px;
+$navbar-height:80px;
+$navbar-m-height:80px;
+
+.selected{
+    display:block;
+}
+.unSelected{
+    display:none;
+}
+
+.float-left{
+	  float:left;
+}
+  .title-xl{
+      font-family: "Roboto", "Microsoft Yahei", Helvetica, Arial, sans-serif;
+      font-size: 58px;
+      font-weight: 300;
+      line-height: 64px;
+      color: #8dbf41;//#9ca1a8;
+  }
+
+  .title-lg{
+      font-family: "Microsoft Yahei", "Roboto", Helvetica, Arial, sans-serif;
+      font-size: 28px;
+      font-weight: 500;
+      color: #7c7c7c;
+  }
+
+  .title-bg{
+      font-family: "Microsoft Yahei", 'Raleway', sans-serif;
+      font-size: 25px;
+      font-weight: 300;
+      line-height: 30px;
+      color: #414851;//#8dbf41;
+  }
+
+  .title-md{
+      font-family: "Microsoft Yahei",'Raleway', sans-serif;
+      font-size: 20px;
+      line-height: 30px;
+      font-weight: 400;
+      color: #414851;
+  }
+
+  .title-sm{
+      font-family: "Microsoft Yahei",'Raleway', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 14px;
+      color: $title-s-color;
+  }
+
+  .title-xs{
+      font-family: "Microsoft Yahei", 'Raleway', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 12px;
+      color: $title-s-color;
+  }
+
+.label-md{
+  font-size:16px;
+  color:$text-color;
+}
+
+.label-sm{
+  font-size:14px;
+  color:$text-color;
+}
+
+.label-lg{
+  font-size:24px;
+  color:rgb(0, 0, 0);
+}
+
+.text-xs{
+    font-weight: 200;
+    font-size: 12px;
+    line-height: 12px;
+    font-family: Roboto, sans-serif;
+    color:#808080;
+}
+
+.text-sm{
+    font-weight: 100;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    color:#808080;
+}
+
+.text-md{
+   color:rgb(50,50,50);
+   font-family: Roboto, sans-serif;
+   font-size:16px;
+   font-weight:300;
+}
+
+.text-bg{
+  font-size:18px;
+  font-family: Roboto, sans-serif;
+  color:rgb(34, 34, 34);
+}
+
+.text-lg{
+   color:#585858;
+   font-family: Roboto, sans-serif;
+   font-size:24px;
+   font-weight:300;
+}
+
+body{
+  .btn-holder{
+    width:100%;
+    min-height:36px;
+    padding-top:15px;
+  }
+
+  .btn{
+  //   width:100%;
+  //   min-width: 150px;
+  //   height:$item-height;
+  //   border:1px solid $border-color;
+  //   font-weight:400;
+  //   text-align:center;
+     // border-radius: 0;
+     // -webkit-border-radius: 0;
+     // -moz-border-radius: 0;
+  }
+
+  .btn-light{
+    border:1px solid $border-color;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+  }
+
+  .btn-primary{
+    background-color:$primary-color;
+    color:$text-inverse-color;
+  }
+
+  .btn-primary:hover{
+    background-color:$primary-focus-color;
+  }
+
+  .btn-dt{
+    border:1px solid $border-color;
+    border-left:none;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+  }
+
+  .btn-xs{
+    height:26px;
+    font-size:14px;
+    padding-top: 0px;
+  }
+
+  .dropdown-menu{
+    outline:none;
+  }
+
+  .w-page{
+    max-width: 900px;
+    margin: auto;
+  }
+
+  .w-row{
+      width:100%;
+      min-height: 10px;
+  }
+
+  .w-inline{
+      float:left;
+  }
+
+  .w-item{
+      border:1px solid $border-color;
+      padding:15px;
+  }
+
+
+  input, input[type="text"], input[type="password"], textarea, select{
+      width:100%;
+      border: 1px solid #b1b1b1;
+      padding: 10px;
+      border-radius: 0;
+      -webkit-border-radius: 0;
+      -moz-border-radius: 0;
+      color: #212529;//#8d939b;
+
+      background: transparent;
+      outline: none;
+
+      margin: 0;
+      font-weight: 400;
+      font-family: "Roboto", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 18px;
+      display:block;
+
+      //-webkit-appearance: none; // remove safari inner shadow
+  }
+
+  textarea {
+    resize: none;
+    overflow: auto;
+    height: 160px;
+  }
+
+  input, button, select {
+    height: $item-height;
+  }
+
+  input[type="checkbox"], input[type="radio"] {
+    margin-top:3px;
+    margin-right:3px;
+    width:18px;
+    height:18px;
+  }
+
+  select{
+    .select-text{
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+  }
+
+  form{
+    .label-sm{
+      width:100%;
+      float:left;
+    }
+
+    .btn-holder{
+      padding-top:30px;
+    }
+
+    .row{
+      padding: 10px;
+      width:100%;
+
+      select{
+        width:300px;
+      }
+
+      img{
+          width:100px;
+          height:100px;
+          border:1px solid #eee;
+          margin-right:15px;
+          margin-bottom:15px;
+      }
+
+      input{
+        width:480px;
+      }
+
+      input.input-dt{
+          width:440px;
+      }
+
+      input[type="checkbox"], input[type="radio"] {
+          margin:6px;
+          width:18px;
+          height:18px;
+      }
+
+      .upload-input{
+          display:none;
+      }
+
+      .ngb-tp{
+        input.form-control{
+          width:60px;
+        }
+      }
+    }
+  }
+
+
+  .list{
+    margin-top:15px;
+
+    .list-body{
+      .row{
+        border-top:1px solid #ddd;
+        padding:6px 10px;
+
+        .btn{
+          width: 80px;
+          min-width: 80px ;
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+
+}// end of body
+
+
+.page{
+  margin-top:$navbar-height;
+  min-height:560px;
+  padding:0px;
+}
+
+.search-box{
+  .input-group-addon{
+    padding: .5rem .75rem;
+      margin-bottom: 0;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.25;
+      color: #464a4c;
+      text-align: center;
+      background-color: #eceeef;
+      border: 1px solid rgba(0,0,0,.15);
+      border-left:none;
+      border-top-right-radius: .25rem;
+      border-bottom-right-radius: .25rem;
+  }
+}
+
+
+  // for both login, google login and signup
+  .auth-form{
+    width:360px;
+    margin-left:auto;
+    margin-right:auto;
+    padding:0px;
+
+    address-input{
+      width:360px;
+    }
+
+    .row{
+      margin:0px;
+      padding:10px;
+    }
+
+    .title{
+      padding-bottom:0px;
+    }
+
+    .btn-holder{
+      padding-top:26px;
+    }
+
+    .error-msg{
+      padding-left:4px;
+      color:red;
+      height:16px;
+      min-width:50px;
+    }
+
+    .link-row{
+      margin: auto;
+    }
+
+    .link-col{
+      padding:0px 5px;
+      line-height: 19px;
+      display: inline-block;
+    }
+
+    .link-text{
+       font-size:14px;
+       text-decoration:underline;
+       color: $primary-color;
+    }
+  }// end of auth-form
+
+.pac-container:after{display:none !important;}
+
+
+  @media #{$desktop}{
+
+  }
+
+  @media #{$tablet}{
+
+   }
+
+  @media #{$mobile}{
+    .page{
+      margin-top:$navbar-m-height;
+      min-height:500px;
+    }
+
+    .auth-form{
+      width:100%;
+
+      .btn{
+        width:100%;
+      }
+    }
+  }
+  @media #{$cellphone}{
+    .page{
+      margin-top:$navbar-m-height;
+      min-height:460px;
+    }
+    .auth-form{
+      width:100%;
+    }
+  }

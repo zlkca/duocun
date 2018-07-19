@@ -1,0 +1,12 @@
+<div class="comment-list">
+    <div class="list">
+        <div class="list-head">
+            <div *ngFor="let field of fields">{{field}}</div>
+        </div>
+        <div class="list-body">
+            <div class="item" *ngFor="let r of commentList" (click)="toDetail(r)">
+                <div *ngFor="let field of fields">{{r["field"]}}</div>
+            </div>
+        </div>
+    </div>
+</div>
