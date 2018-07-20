@@ -64,41 +64,41 @@ export class ProductService {
         xhr.send(formData);
     }
 
-    saveProduct(d: Product) {
-        const token = localStorage.getItem('token-' + APP);
-        const self = this;
+    // saveProduct(d: Product) {
+    //     const token = localStorage.getItem('token-' + APP);
+    //     const self = this;
 
-        return fromPromise(new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('id', d.id ? d.id : '');
-            formData.append('name', d.name);
-            formData.append('description', d.description);
-            formData.append('status', 'active');
-            formData.append('price', d.price ? d.price.toString() : '');
-            formData.append('currency', 'CAD');
-            formData.append('categories', Array.from(d.categories, x => x.id).join(','));
-            formData.append('restaurant_id', d.restaurant.id);
+    //     return fromPromise(new Promise((resolve, reject) => {
+    //         const formData = new FormData();
+    //         formData.append('id', d.id ? d.id : '');
+    //         formData.append('name', d.name);
+    //         formData.append('description', d.description);
+    //         formData.append('status', 'active');
+    //         formData.append('price', d.price ? d.price.toString() : '');
+    //         formData.append('currency', 'CAD');
+    //         formData.append('categories', Array.from(d.categories, x => x.id).join(','));
+    //         formData.append('restaurant_id', d.restaurant.id);
 
-            formData.append('n_pictures', d.pictures.length ? d.pictures.length.toString() : '0');
-            for (let i = 0; i < d.pictures.length; i++) {
-                formData.append('name' + i, d.pictures[i].name);
-                const image = d.pictures[i].image;
-                if (!image.data) {
-                    formData.append('image_status' + i, 'removed');
-                } else {
-                    if (!image.file) {
-                        formData.append('image_status' + i, 'unchange');
-                    } else {
-                        formData.append('image_status' + i, 'changed');
-                        formData.append('image' + i, image.file);
-                    }
-                }
-            }
+    //         formData.append('n_pictures', d.pictures.length ? d.pictures.length.toString() : '0');
+    //         for (let i = 0; i < d.pictures.length; i++) {
+    //             formData.append('name' + i, d.pictures[i].name);
+    //             const image = d.pictures[i].image;
+    //             if (!image.data) {
+    //                 formData.append('image_status' + i, 'removed');
+    //             } else {
+    //                 if (!image.file) {
+    //                     formData.append('image_status' + i, 'unchange');
+    //                 } else {
+    //                     formData.append('image_status' + i, 'changed');
+    //                     formData.append('image' + i, image.file);
+    //                 }
+    //             }
+    //         }
 
-            self.sendFormData(API_URL + 'product', formData, token, resolve, reject);
+    //         self.sendFormData(API_URL + 'product', formData, token, resolve, reject);
 
-        }));
-    }
+    //     }));
+    // }
 
 
     saveMultiProducts(a: any[]) {

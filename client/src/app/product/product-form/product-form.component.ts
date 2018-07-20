@@ -122,8 +122,8 @@ export class ProductFormComponent implements OnInit, OnDestroy {
             pictures: [self.picture]// self.uploader.data
         };
 
-        const c = new Product(newV);
-        this.productSvc.saveProduct(c).subscribe((r: any) => {
+        const c: any = new Product(newV);
+        this.productSvc.create(c).subscribe((r: any) => {
             self.router.navigate(['admin']);
         });
     }

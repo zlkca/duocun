@@ -16,7 +16,7 @@ const ADD_IMAGE = 'add_photo.png';
     styleUrls: ['./product-list.component.scss']
 })
 export class ProductListComponent implements OnInit {
-    productList: Product[] = [];
+    productList;
     MEDIA_URL: string = environment.MEDIA_URL;
     subscription: any;
     cart: any;
@@ -27,7 +27,7 @@ export class ProductListComponent implements OnInit {
     ngOnInit() {
         const self = this;
         this.productSvc.find().subscribe(
-            (r: Product[]) => {
+            r => {
                 self.productList = r;
             },
             (err: any) => {
