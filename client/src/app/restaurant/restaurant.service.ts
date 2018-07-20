@@ -8,14 +8,14 @@ export class RestaurantService {
     constructor(
         private restaurantApi: RestaurantApi,
         private orderApi: OrderApi,
-    ) {}
+    ) { }
 
     create(restaurant: Restaurant): Observable<Restaurant> {
         return this.restaurantApi.create(restaurant);
     }
 
-    replaceOrCreate(restaurant: Restaurant): Observable<Restaurant> {
-        return this.restaurantApi.replaceOrCreate(restaurant);
+    replaceById(id: number, restaurant: Restaurant): Observable<Restaurant> {
+        return this.restaurantApi.replaceById(id, restaurant);
     }
 
     findById(id: number, filter: LoopBackFilter = {}): Observable<Restaurant> {
