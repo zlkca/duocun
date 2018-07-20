@@ -5,9 +5,10 @@ import { NgRedux } from '@angular-redux/store';
 import { IPicture } from '../../commerce/commerce.actions';
 
 import { ProductService } from '../product.service';
-import { CommerceService } from '../../commerce/commerce.service';
-import { Product, Category, Restaurant, Color, Picture } from '../../commerce/commerce';
+import { RestaurantService } from '../../restaurant/restaurant.service';
+//import { Product, Category, Restaurant, Color, Picture } from '../../commerce/commerce';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
+import { Restaurant, Product, Order } from '../../shared/lb-sdk';
 
 @Component({
     selector: 'app-product-form',
@@ -15,8 +16,8 @@ import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/m
     styleUrls: ['./product-form.component.scss']
 })
 export class ProductFormComponent implements OnInit, OnDestroy {
-    categoryList: Category[] = [];
-    restaurantList: Restaurant[] = [];
+    categoryList = [];
+    restaurantList;
     // colorList:Color[] = [];
     id: string = '';
     pictures: any[] = [];
@@ -36,7 +37,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     });
 
     constructor(
-        private commerceSvc: CommerceService,
+        private restaurantSvc: RestaurantService,
         private productSvc: ProductService,
         private route: ActivatedRoute,
         private rx: NgRedux<IPicture>, private router: Router) { }
@@ -44,7 +45,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     ngOnInit() {
         const self = this;
 
-        self.commerceSvc.getRestaurantList().subscribe(r => {
+        self.restaurantSvc.find().subscribe(r => {
             self.restaurantList = r;
         });
 
@@ -53,7 +54,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         self.id = p.id;
         self.pictures = p.pictures;
         self.form.patchValue(p);
-        self.form.patchValue({ restaurant_id: p.restaurant ? p.restaurant.id : 1 });
+        // self.form.patchValue({ restaurant_id: p.restaurant ? p.restaurant.id : 1 });
         // self.pictures = [{ index: 0, name: '', image: this.product.image }];
         // self.commerceServ.getCategoryList().subscribe(catList=>{
         //     self.categoryList = catList;
@@ -117,15 +118,24 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         const newV = {
             ...this.form.value,
             id: self.id,
-            categories: [{ id: 1 }], // self.getCheckedCategories(),
-            restaurant: { id: restaurant_id.value },
-            pictures: [self.picture]// self.uploader.data
+            // categories: [{ id: 1 }], // self.getCheckedCategories(),
+            // restaurant: { id: restaurant_id.value },
+            // pictures: [self.picture]// self.uploader.data
+            restaurantId: restaurant_id.value
         };
 
         const c: any = new Product(newV);
-        this.productSvc.create(c).subscribe((r: any) => {
-            self.router.navigate(['admin']);
-        });
+        const productId = parseInt(self.id, 10);
+        if (productId) {
+            this.productSvc.replaceById(productId, c).subscribe((r: any) => {
+                self.router.navigate(['admin']);
+            });
+        } else {
+            this.productSvc.create(c).subscribe((r: any) => {
+                self.router.navigate(['admin']);
+            });
+        }
+
     }
 
     // ngOnInit() {
