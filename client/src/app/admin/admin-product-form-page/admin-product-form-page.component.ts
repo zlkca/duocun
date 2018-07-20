@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Product } from '../../commerce/commerce';
+import { Product } from '../../shared/lb-sdk';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
@@ -24,7 +24,7 @@ export class AdminProductFormPageComponent implements OnInit {
 
         self.route.params.subscribe((params: any) => {
             if (params.id) {
-                this.productSvc.getProduct(params.id).subscribe(
+                this.productSvc.findById(params.id).subscribe(
                     (p: Product) => {
                         self.product = p;
                     });

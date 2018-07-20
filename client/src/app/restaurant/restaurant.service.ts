@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi } from '../shared/lb-sdk';
+import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product } from '../shared/lb-sdk';
 import { Observable } from 'rxjs';
 import { mergeMap } from '../../../node_modules/rxjs/operators';
 
@@ -37,6 +37,10 @@ export class RestaurantService {
 
     getOrders(id: any, filter: LoopBackFilter = {}): Observable<Order[]> {
         return this.restaurantApi.getOrders(id, filter);
+    }
+
+    getProducts(id: any, filter: LoopBackFilter = {}): Observable<Product[]> {
+        return this.restaurantApi.getProducts(id, filter);
     }
 
     syncOrders(id: any, filter: LoopBackFilter = {}): Observable<Order> {

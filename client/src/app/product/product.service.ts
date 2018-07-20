@@ -7,9 +7,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
-import { Product } from '../commerce/commerce';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
+import { ProductApi, Product, LoopBackFilter } from '../shared/lb-sdk';
+import { identifierModuleUrl } from '@angular/compiler';
 
 const APP = environment.APP;
 const API_URL = environment.API_URL;
@@ -20,7 +21,7 @@ const API_URL = environment.API_URL;
 })
 export class ProductService {
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private productApi: ProductApi) { }
 
     sendFormData(url, formData, token, resolve, reject) {
         const xhr = new XMLHttpRequest();
@@ -145,5 +146,17 @@ export class ProductService {
             catchError((err) => {
                 return observableThrowError(err.message || err);
             }), );
+    }
+
+    find(filter: LoopBackFilter = {}): Observable<Product[]> {
+      return this.productApi.find(filter);
+    }
+
+    findById(id: number, filter: LoopBackFilter = {}): Observable<Product> {
+      return this.productApi.findById(id, filter);
+    }
+
+    findasd(filter: LoopBackFilter = {}): Observable<Product[]> {
+      return this.productApi..find(filter);
     }
 }
