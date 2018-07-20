@@ -2,7 +2,7 @@
 import {
   Restaurant,
   Picture
-} from '../index';
+} from '..';
 
 declare var Object: any;
 export interface ProductInterface {

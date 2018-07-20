@@ -7,13 +7,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
+import { ProductApi, LoopBackFilter, Product, GeoPoint, Order, OrderApi } from '../shared/lb-sdk';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { ProductApi, Product, LoopBackFilter } from '../shared/lb-sdk';
 import { identifierModuleUrl } from '@angular/compiler';
 
 const APP = environment.APP;
 const API_URL = environment.API_URL;
+
 
 
 @Injectable({
@@ -21,7 +22,26 @@ const API_URL = environment.API_URL;
 })
 export class ProductService {
 
-    constructor(private http: HttpClient, private productApi: ProductApi) { }
+    constructor(
+        private http: HttpClient,
+        private productApi: ProductApi) { }
+
+
+    create(product: Product): Observable<Product> {
+        return this.productApi.create(product);
+    }
+
+    replaceById(id: number, product: Product): Observable<Product> {
+        return this.productApi.replaceById(id, product);
+    }
+
+    findById(id: number, filter: LoopBackFilter = {}): Observable<Product> {
+        return this.productApi.findById(id, filter);
+    }
+
+    find(filter: LoopBackFilter = {}): Observable<Product[]> {
+        return this.productApi.find(filter);
+    }
 
     sendFormData(url, formData, token, resolve, reject) {
         const xhr = new XMLHttpRequest();
@@ -45,41 +65,41 @@ export class ProductService {
         xhr.send(formData);
     }
 
-    saveProduct(d: Product) {
-        const token = localStorage.getItem('token-' + APP);
-        const self = this;
+    // saveProduct(d: Product) {
+    //     const token = localStorage.getItem('token-' + APP);
+    //     const self = this;
 
-        return fromPromise(new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('id', d.id ? d.id : '');
-            formData.append('name', d.name);
-            formData.append('description', d.description);
-            formData.append('status', 'active');
-            formData.append('price', d.price ? d.price.toString() : '');
-            formData.append('currency', 'CAD');
-            formData.append('categories', Array.from(d.categories, x => x.id).join(','));
-            formData.append('restaurant_id', d.restaurant.id);
+    //     return fromPromise(new Promise((resolve, reject) => {
+    //         const formData = new FormData();
+    //         formData.append('id', d.id ? d.id : '');
+    //         formData.append('name', d.name);
+    //         formData.append('description', d.description);
+    //         formData.append('status', 'active');
+    //         formData.append('price', d.price ? d.price.toString() : '');
+    //         formData.append('currency', 'CAD');
+    //         formData.append('categories', Array.from(d.categories, x => x.id).join(','));
+    //         formData.append('restaurant_id', d.restaurant.id);
 
-            formData.append('n_pictures', d.pictures.length ? d.pictures.length.toString() : '0');
-            for (let i = 0; i < d.pictures.length; i++) {
-                formData.append('name' + i, d.pictures[i].name);
-                const image = d.pictures[i].image;
-                if (!image.data) {
-                    formData.append('image_status' + i, 'removed');
-                } else {
-                    if (!image.file) {
-                        formData.append('image_status' + i, 'unchange');
-                    } else {
-                        formData.append('image_status' + i, 'changed');
-                        formData.append('image' + i, image.file);
-                    }
-                }
-            }
+    //         formData.append('n_pictures', d.pictures.length ? d.pictures.length.toString() : '0');
+    //         for (let i = 0; i < d.pictures.length; i++) {
+    //             formData.append('name' + i, d.pictures[i].name);
+    //             const image = d.pictures[i].image;
+    //             if (!image.data) {
+    //                 formData.append('image_status' + i, 'removed');
+    //             } else {
+    //                 if (!image.file) {
+    //                     formData.append('image_status' + i, 'unchange');
+    //                 } else {
+    //                     formData.append('image_status' + i, 'changed');
+    //                     formData.append('image' + i, image.file);
+    //                 }
+    //             }
+    //         }
 
-            self.sendFormData(API_URL + 'product', formData, token, resolve, reject);
+    //         self.sendFormData(API_URL + 'product', formData, token, resolve, reject);
 
-        }));
-    }
+    //     }));
+    // }
 
 
     saveMultiProducts(a: any[]) {
@@ -146,17 +166,5 @@ export class ProductService {
             catchError((err) => {
                 return observableThrowError(err.message || err);
             }), );
-    }
-
-    find(filter: LoopBackFilter = {}): Observable<Product[]> {
-      return this.productApi.find(filter);
-    }
-
-    findById(id: number, filter: LoopBackFilter = {}): Observable<Product> {
-      return this.productApi.findById(id, filter);
-    }
-
-    findasd(filter: LoopBackFilter = {}): Observable<Product[]> {
-      return this.productApi..find(filter);
     }
 }

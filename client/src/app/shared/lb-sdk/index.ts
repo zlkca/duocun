@@ -105,8 +105,8 @@ export class SDKBrowserModule {
 * Have Fun!!!
 * - Jon
 **/
-export * from './models/index';
-export * from './services/index';
+export * from './models';
+export * from './services';
 export * from './lb.config';
 export * from './storage/storage.swaps';
 export { CookieBrowser } from './storage/cookie.browser';

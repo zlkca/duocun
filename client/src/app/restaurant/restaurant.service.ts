@@ -1,17 +1,21 @@
 import { Injectable } from '@angular/core';
 import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product } from '../shared/lb-sdk';
 import { Observable } from 'rxjs';
-import { mergeMap } from '../../../node_modules/rxjs/operators';
+import { mergeMap } from 'rxjs/operators';
 
 @Injectable()
 export class RestaurantService {
     constructor(
         private restaurantApi: RestaurantApi,
         private orderApi: OrderApi,
-    ) {}
+    ) { }
 
     create(restaurant: Restaurant): Observable<Restaurant> {
         return this.restaurantApi.create(restaurant);
+    }
+
+    replaceById(id: number, restaurant: Restaurant): Observable<Restaurant> {
+        return this.restaurantApi.replaceById(id, restaurant);
     }
 
     findById(id: number, filter: LoopBackFilter = {}): Observable<Restaurant> {
@@ -22,7 +26,7 @@ export class RestaurantService {
         return this.restaurantApi.find(filter);
     }
 
-    getNearby(location: GeoPoint, maxDistance: number = 20, limit: number = 0): Observable<Restaurant[]> {
+    getNearby(location: GeoPoint, maxDistance: number = 20, limit: number = 10): Observable<Restaurant[]> {
         return this.restaurantApi.find({
             where: {
                 location: {

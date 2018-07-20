@@ -11,20 +11,20 @@ import { RestaurantListComponent } from './restaurant-list/restaurant-list.compo
 import { RestaurantDetailComponent } from './restaurant-detail/restaurant-detail.component';
 import { OrderModule } from '../order/order.module';
 import { RestaurantService } from './restaurant.service';
-
+import { LocationService } from '../shared/location/location.service';
 @NgModule({
-  imports: [
-    CommonModule,
-    SharedModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CommerceModule,
-    ProductModule,
-    OrderModule,
-  ],
-  schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  providers: [RestaurantService],
-  declarations: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantDetailComponent],
-  exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantDetailComponent]
+    imports: [
+        CommonModule,
+        SharedModule,
+        FormsModule,
+        ReactiveFormsModule,
+        CommerceModule,
+        ProductModule,
+        OrderModule,
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    providers: [RestaurantService, LocationService],
+    declarations: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantDetailComponent],
+    exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantDetailComponent]
 })
 export class RestaurantModule { }

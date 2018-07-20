@@ -2,13 +2,16 @@ import { Component, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 import { CommerceService } from '../../commerce/commerce.service';
-import { Restaurant, Category, Picture } from '../../commerce/commerce';
+import { LocationService } from '../../shared/location/location.service';
+import { RestaurantService } from '../restaurant.service';
+import { Category, Picture } from '../../commerce/commerce';
 import { Address } from '../../account/account';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IPicture } from '../../commerce/commerce.actions';
 import { AccountService } from '../../account/account.service';
+import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi } from '../../shared/lb-sdk';
 
 const APP = environment.APP;
 
@@ -47,6 +50,8 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
 
     constructor(private fb: FormBuilder,
         private accountSvc: AccountService,
+        private restaurantSvc: RestaurantService,
+        private locationSvc: LocationService,
         private commerceSvc: CommerceService,
         private router: Router, private route: ActivatedRoute,
         private rx: NgRedux<IPicture>) {
@@ -126,7 +131,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         //     }
         // });
 
-        self.accountSvc.find({where: {type: 'business'}}).subscribe(users => {
+        self.accountSvc.find({ where: { type: 'business' } }).subscribe(users => {
             self.users = users;
         });
 
@@ -143,7 +148,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
     save() {
         const self = this;
         const v = this.form.value;
-        const m = new Restaurant(this.form.value);
+        const restaurant = new Restaurant(this.form.value);
 
         let addr = null;
         // hardcode Toronto as default
@@ -160,22 +165,33 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         }
 
 
-        if (self.picture) {
-            m.image = self.picture.image;
-        }
+        // if (self.picture) {
+        //     restaurant.image = self.picture.image;
+        // }
 
-        m.id = self.restaurant ? self.restaurant.id : null;
+        restaurant.id = self.restaurant ? self.restaurant.id : null;
 
         const s = addr.street + ', Toronto, ' + v.address.postal_code;
-        this.commerceSvc.getLocation(s).subscribe(ret => {
+        this.locationSvc.get().subscribe(ret => {
             addr.lat = ret.lat;
             addr.lng = ret.lng;
             addr.sub_locality = ret.sub_locality;
             addr.postal_code = ret.postal_code;
-            m.address = addr;
-            self.commerceSvc.saveRestaurant(m).subscribe((r: any) => {
-                self.router.navigate(['admin']);
-            });
+            restaurant.address = addr;
+
+            // zlk
+            restaurant.location = { lat: ret.lat, lng: ret.lng };
+
+            if (restaurant.id) {
+                self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
+                    self.router.navigate(['admin']);
+                });
+            } else {
+                self.restaurantSvc.create(restaurant).subscribe((r: any) => {
+                    self.router.navigate(['admin']);
+                });
+            }
+
         });
 
     }

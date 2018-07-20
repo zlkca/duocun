@@ -1,7 +1,7 @@
 /* tslint:disable */
 import {
   GeoPoint
-} from '../index';
+} from '..';
 
 declare var Object: any;
 export interface AddressInterface {

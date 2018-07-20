@@ -26,10 +26,20 @@ export class RestaurantGridComponent implements OnInit {
     MEDIA_URL = environment.MEDIA_URL;
 
     ngOnInit() {
-        this.locationSvc.getCurrentPosition();
-        this.locationSvc.get().subscribe(pos => {
-            this.center = pos;
-        });
+        const self = this;
+
+        let s = localStorage.getItem('location-' + APP);
+
+        if (s) {
+            const location = JSON.parse(s);
+            self.center = { lat: location.lat, lng: location.lng };
+            self.doSearchRestaurants(self.center);
+        } else {
+            this.locationSvc.getCurrentLocation().subscribe(r => {
+                self.center = { lat: r.lat, lng: r.lng };
+                self.doSearchRestaurants(self.center);
+            });
+        }
     }
 
     constructor(private commerceServ: CommerceService,
@@ -37,24 +47,24 @@ export class RestaurantGridComponent implements OnInit {
         private sharedServ: SharedService,
         private restaurantServ: RestaurantService,
         private locationSvc: LocationService) {
-        const self = this;
+
 
         // self.center = JSON.parse(localStorage.getItem('location-' + APP));
 
         // setup event listener
-        this.sharedServ.getMsg().subscribe(msg => {
-            if ('OnSearch' === msg.name) {
-                if (msg.query) {
-                    self.filter = msg.query;
-                    const query = { ...self.filter, ...self.query };
-                    self.doSearchRestaurants(query);
-                } else {
-                    self.doSearchRestaurants(self.query.keyword);
-                }
-            }
-        });
+        // this.sharedServ.getMsg().subscribe(msg => {
+        //     if ('OnSearch' === msg.name) {
+        //         if (msg.query) {
+        //             self.filter = msg.query;
+        //             const query = { ...self.filter, ...self.query };
+        //             self.doSearchRestaurants(query);
+        //         } else {
+        //             self.doSearchRestaurants(self.query.keyword);
+        //         }
+        //     }
+        // });
 
-        self.doSearchRestaurants(self.center);
+
     }
 
     searchByKeyword(keyword: string) {
@@ -66,15 +76,16 @@ export class RestaurantGridComponent implements OnInit {
 
 
     getImageSrc(image: any) {
-        if (image.file) {
-            return image.data;
-        } else {
-            if (image.data) {
-                return this.MEDIA_URL + image.data;
-            } else {
-                return 'http://placehold.it/400x300';
-            }
-        }
+        // if (image.file) {
+        //     return image.data;
+        // } else {
+        //     if (image.data) {
+        //         return this.MEDIA_URL + image.data;
+        //     } else {
+        //         return 'http://placehold.it/400x300';
+        //     }
+        // }
+        return 'http://placehold.it/400x300';
     }
 
     toDetail(p) {
@@ -106,8 +117,8 @@ export class RestaurantGridComponent implements OnInit {
         let R = 6371;
         let lat1 = this.center.lat;
         let lng1 = this.center.lng;
-        let lat2 = p.address.lat;
-        let lng2 = p.address.lng;
+        let lat2 = p.location.lat;
+        let lng2 = p.location.lng;
         let dLat = (lat2 - lat1) * (Math.PI / 180);
         let dLng = (lng2 - lng1) * (Math.PI / 180);
         let a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
@@ -139,7 +150,8 @@ export class RestaurantGridComponent implements OnInit {
             s = '?' + conditions.join('&');
         }
 
-        this.restaurantServ.getNearby(this.center).subscribe(
+        // this.restaurantServ.getNearby(this.center).subscribe(
+        this.restaurantServ.find().subscribe(
             (ps: Restaurant[]) => {
                 self.restaurantList = ps;//self.toProductGrid(data);
                 const a = [];

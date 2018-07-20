@@ -2,7 +2,7 @@
 import {
   Order,
   Product
-} from '../index';
+} from '..';
 
 declare var Object: any;
 export interface OrderItemInterface {

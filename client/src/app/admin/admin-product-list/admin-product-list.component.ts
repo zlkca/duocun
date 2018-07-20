@@ -13,11 +13,11 @@ const ADD_IMAGE = 'add_photo.png';
 const MEDIA_URL: string = environment.MEDIA_URL;
 
 @Component({
-    selector: 'app-manage-product-list',
-    templateUrl: './manage-product-list.component.html',
-    styleUrls: ['./manage-product-list.component.scss']
+    selector: 'app-admin-product-list',
+    templateUrl: './admin-product-list.component.html',
+    styleUrls: ['./admin-product-list.component.scss']
 })
-export class ManageProductListComponent implements OnInit {
+export class AdminProductListComponent implements OnInit {
     subscription: any;
     @Input() products;
     ngOnInit() {

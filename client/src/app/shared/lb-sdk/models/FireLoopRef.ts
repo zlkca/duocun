@@ -1,7 +1,7 @@
 /* tslint:disable */
 import { merge, Observable, Subject } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { LoopBackFilter, StatFilter } from './index';
+import { LoopBackFilter, StatFilter } from '.';
 import { SocketConnection } from '../sockets/socket.connections';
 /**
  * @class FireLoopRef<T>

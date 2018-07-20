@@ -14,7 +14,7 @@ import { ProductService } from '../../product/product.service';
     styleUrls: ['./admin-product-form-page.component.scss']
 })
 export class AdminProductFormPageComponent implements OnInit {
-    product: Product;
+    product;
 
     constructor(private productSvc: ProductService,
         private route: ActivatedRoute, private router: Router) { }

@@ -8,12 +8,13 @@ import { IAppState } from '../../store';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 
 @Component({
-    selector: 'app-manage-product-list-page',
-    templateUrl: './manage-product-list-page.component.html',
-    styleUrls: ['./manage-product-list-page.component.scss']
+    selector: 'app-admin-product-list-page',
+    templateUrl: './admin-product-list-page.component.html',
+    styleUrls: ['./admin-product-list-page.component.scss']
 })
-export class ManageProductListPageComponent implements OnInit {
-    products: Product[];
+export class AdminProductListPageComponent implements OnInit {
+    products;
+
     constructor(private route: ActivatedRoute,
         private restaurantSvc: RestaurantService,
         private rx: NgRedux<IAppState>) {

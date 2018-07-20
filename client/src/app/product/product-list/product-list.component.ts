@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommerceService } from '../../commerce/commerce.service';
+import { ProductService } from '../product.service';
 import { Product } from '../../commerce/commerce';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
@@ -10,13 +10,13 @@ import { ICart, CartActions } from '../../commerce/commerce.actions';
 const ADD_IMAGE = 'add_photo.png';
 
 @Component({
-    providers: [CommerceService],
+    providers: [ProductService],
     selector: 'app-product-list',
     templateUrl: './product-list.component.html',
     styleUrls: ['./product-list.component.scss']
 })
 export class ProductListComponent implements OnInit {
-    productList: Product[] = [];
+    productList;
     MEDIA_URL: string = environment.MEDIA_URL;
     subscription: any;
     cart: any;
@@ -25,17 +25,17 @@ export class ProductListComponent implements OnInit {
     @Input() mode: string;
 
     ngOnInit() {
-        // let self = this;
-        // this.commerceServ.getProductList().subscribe(
-        //     (r:Product[]) => {
-        //         self.productList = r;
-        //     },
-        //     (err:any) => {
-        //         self.productList = [];
-        //     });
+        const self = this;
+        this.productSvc.find().subscribe(
+            r => {
+                self.productList = r;
+            },
+            (err: any) => {
+                self.productList = [];
+            });
     }
 
-    constructor(private commerceServ: CommerceService,
+    constructor(private productSvc: ProductService,
         private router: Router,
         private rx: NgRedux<IAppState>
         // private actions: CartActions

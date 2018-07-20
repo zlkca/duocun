@@ -18,7 +18,7 @@ const MOBILE_WIDTH: number = 767;
     styleUrls: ['./product.component.scss']
 })
 export class ProductComponent implements OnInit {
-    product: Product = new Product();
+    product;
     frame: any;
     id: string;
     constructor(private productSvc: ProductService,
@@ -32,7 +32,7 @@ export class ProductComponent implements OnInit {
             if (params.id) {
                 self.id = params.id;
                 this.productSvc.getProduct(params.id).subscribe(
-                    (r: Product) => {
+                    r => {
                         self.product = r;
                     },
                     (err: any) => {
