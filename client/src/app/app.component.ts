@@ -34,10 +34,14 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.socket.connect(this.authServ.getToken());
-        // const self = this;
+        const self = this;
 
-        // const s = localStorage.getItem('location-' + APP);
-
+        const s = localStorage.getItem('location-' + APP);
+        if (s) {
+            self.router.navigate(['restaurants']);
+        } else {
+            self.router.navigate(['home']);
+        }
         // self.authServ.hasLoggedIn().subscribe(
         //     (r: any) => {
         //         self.isLogin = r ? true : false;

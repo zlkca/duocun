@@ -27,13 +27,19 @@ export class RestaurantGridComponent implements OnInit {
 
     ngOnInit() {
         const self = this;
-        this.locationSvc.getCurrentLocation().subscribe(r => {
-            self.center = { lat: r.lat, lng: r.lng };
+
+        let s = localStorage.getItem('location-' + APP);
+
+        if (s) {
+            const location = JSON.parse(s);
+            self.center = { lat: location.lat, lng: location.lng };
             self.doSearchRestaurants(self.center);
-        });
-        // this.locationSvc.get().subscribe(pos => {
-        //     this.center = pos;
-        // });
+        } else {
+            this.locationSvc.getCurrentLocation().subscribe(r => {
+                self.center = { lat: r.lat, lng: r.lng };
+                self.doSearchRestaurants(self.center);
+            });
+        }
     }
 
     constructor(private commerceServ: CommerceService,
