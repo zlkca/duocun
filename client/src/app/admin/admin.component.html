@@ -20,7 +20,7 @@
           <ngb-tab title="Products" *ngIf="account && account.type === 'business' && products">
             <ng-template ngbTabContent>
               <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
-              <app-manage-product-list [products]="products"></app-manage-product-list>
+              <app-admin-product-list [products]="products"></app-admin-product-list>
             </ng-template>
           </ngb-tab>
 

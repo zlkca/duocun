@@ -4,7 +4,7 @@ $block-w-m:186px;
 $block-h-m:230px;
 $frame-h-m:160px;
 
-.manage-product-list{
+.admin-product-list{
 	.list-item{
         border-top:1px solid #eee;
         padding: 3px;
@@ -14,7 +14,7 @@ $frame-h-m:160px;
 @media (max-width: 767px) and (orientation: portrait){
     $n-cols:3;
 
-	.manage-product-list{
+	.admin-product-list{
 		.product{
 			width:$block-w-m;
 			height:$block-h-m;
@@ -36,7 +36,7 @@ $frame-h-m:160px;
 @media (max-width: 767px) and (orientation: landscape){
     $n-cols:4;
 
-	.manage-product-list{
+	.admin-product-list{
 		.product{
 			width:$block-w-m;
 			height:$block-h-m;

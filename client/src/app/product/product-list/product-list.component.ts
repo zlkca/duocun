@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { ProductService } from '../../product/product.service';
+import { ProductService } from '../product.service';
 import { Product } from '../../commerce/commerce';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';

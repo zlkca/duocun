@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi } from '../shared/lb-sdk';
 import { Observable } from 'rxjs';
-import { mergeMap } from '../../../node_modules/rxjs/operators';
+import { mergeMap } from 'rxjs/operators';
 
 @Injectable()
 export class RestaurantService {

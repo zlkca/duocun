@@ -3,7 +3,7 @@ import {
   Restaurant,
   Order,
   Address
-} from '../index';
+} from '..';
 
 declare var Object: any;
 export interface AccountInterface {

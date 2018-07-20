@@ -14,7 +14,7 @@ import { ProductService } from '../../product/product.service';
     styleUrls: ['./admin-product-form-page.component.scss']
 })
 export class AdminProductFormPageComponent implements OnInit {
-    product: Product;
+    product;
 
     constructor(private productSvc: ProductService,
         private route: ActivatedRoute, private router: Router) { }
@@ -24,8 +24,8 @@ export class AdminProductFormPageComponent implements OnInit {
 
         self.route.params.subscribe((params: any) => {
             if (params.id) {
-                this.productSvc.getProduct(params.id).subscribe(
-                    (p: Product) => {
+                this.productSvc.findById(params.id).subscribe(
+                    p => {
                         self.product = p;
                     });
             } else {

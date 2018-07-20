@@ -4,7 +4,7 @@ import {
   Restaurant,
   OrderItem,
   Address
-} from '../index';
+} from '..';
 
 declare var Object: any;
 export interface OrderInterface {

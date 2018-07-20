@@ -5,7 +5,7 @@ import {
   Picture,
   Address,
   GeoPoint
-} from '../index';
+} from '..';
 
 declare var Object: any;
 export interface RestaurantInterface {

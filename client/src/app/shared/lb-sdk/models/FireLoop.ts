@@ -1,5 +1,5 @@
 /* tslint:disable */
-import { FireLoopRef } from './index';
+import { FireLoopRef } from '.';
 
 export class FireLoop {
 
