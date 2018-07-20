@@ -14,7 +14,7 @@ import { ProductService } from '../../product/product.service';
     styleUrls: ['./admin-product-list-page.component.scss']
 })
 export class AdminProductListPageComponent implements OnInit {
-    products: Product[];
+    products;
 
     constructor(private route: ActivatedRoute,
         private productSvc: ProductService,
@@ -24,7 +24,7 @@ export class AdminProductListPageComponent implements OnInit {
         this.route.queryParams.subscribe(params => {
             const restaurant_id = params['restaurant_id'];
             self.productSvc.find({ 'where': { 'restaurant_id': restaurant_id } }).subscribe(
-                (ps: Product[]) => {
+                ps => {
                     self.products = ps;
                 });
         });
