@@ -150,7 +150,8 @@ export class RestaurantGridComponent implements OnInit {
             s = '?' + conditions.join('&');
         }
 
-        this.restaurantServ.getNearby(this.center).subscribe(
+        // this.restaurantServ.getNearby(this.center).subscribe(
+        this.restaurantServ.find().subscribe(
             (ps: Restaurant[]) => {
                 self.restaurantList = ps;//self.toProductGrid(data);
                 const a = [];

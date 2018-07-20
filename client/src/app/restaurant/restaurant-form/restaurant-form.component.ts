@@ -178,6 +178,10 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
             addr.sub_locality = ret.sub_locality;
             addr.postal_code = ret.postal_code;
             restaurant.address = addr;
+
+            // zlk
+            restaurant.location = { lat: ret.lat, lng: ret.lng };
+
             if (restaurant.id) {
                 self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
                     self.router.navigate(['admin']);

@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
-import { Product } from '../commerce/commerce';
+import { ProductApi, LoopBackFilter, Product, GeoPoint, Order, OrderApi } from '../shared/lb-sdk';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 
@@ -15,12 +15,32 @@ const APP = environment.APP;
 const API_URL = environment.API_URL;
 
 
+
 @Injectable({
     providedIn: 'root'
 })
 export class ProductService {
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private productApi: ProductApi) { }
+
+
+    create(product: Product): Observable<Product> {
+        return this.productApi.create(product);
+    }
+
+    replaceById(id: number, product: Product): Observable<Product> {
+        return this.productApi.replaceById(id, product);
+    }
+
+    findById(id: number, filter: LoopBackFilter = {}): Observable<Product> {
+        return this.productApi.findById(id, filter);
+    }
+
+    find(filter: LoopBackFilter = {}): Observable<Product[]> {
+        return this.productApi.find(filter);
+    }
 
     sendFormData(url, formData, token, resolve, reject) {
         const xhr = new XMLHttpRequest();

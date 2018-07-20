@@ -26,7 +26,7 @@ export class RestaurantService {
         return this.restaurantApi.find(filter);
     }
 
-    getNearby(location: GeoPoint, maxDistance: number = 20, limit: number = 0): Observable<Restaurant[]> {
+    getNearby(location: GeoPoint, maxDistance: number = 20, limit: number = 10): Observable<Restaurant[]> {
         return this.restaurantApi.find({
             where: {
                 location: {
