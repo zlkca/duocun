@@ -131,7 +131,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         //     }
         // });
 
-        self.accountSvc.find({where: {type: 'business'}}).subscribe(users => {
+        self.accountSvc.find({ where: { type: 'business' } }).subscribe(users => {
             self.users = users;
         });
 
@@ -178,10 +178,16 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
             addr.sub_locality = ret.sub_locality;
             addr.postal_code = ret.postal_code;
             restaurant.address = addr;
+            if (restaurant.id) {
+                self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
+                    self.router.navigate(['admin']);
+                });
+            } else {
+                self.restaurantSvc.create(restaurant).subscribe((r: any) => {
+                    self.router.navigate(['admin']);
+                });
+            }
 
-            self.restaurantSvc.replaceOrCreate(restaurant).subscribe((r: any) => {
-                self.router.navigate(['admin']);
-            });
         });
 
     }

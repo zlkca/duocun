@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CommerceService } from '../../commerce/commerce.service';
 import { environment } from '../../../environments/environment';
 import { Restaurant } from '../../commerce/commerce';
+import { RestaurantService } from '../../restaurant/restaurant.service';
 
 @Component({
     selector: 'app-admin-restaurant-form-page',
@@ -13,7 +14,7 @@ export class AdminRestaurantFormPageComponent implements OnInit {
     restaurant: any;
 
     constructor(private route: ActivatedRoute,
-        private commerceSvc: CommerceService) { }
+        private restaurantSvc: RestaurantService) { }
 
     ngOnInit() {
         const self = this;
@@ -21,7 +22,7 @@ export class AdminRestaurantFormPageComponent implements OnInit {
             const restaurant_id = params['id'];
 
             if (restaurant_id) {
-                self.commerceSvc.getRestaurant(restaurant_id).subscribe(r => {
+                self.restaurantSvc.findById(restaurant_id).subscribe(r => {
                     if (r) {
                         self.restaurant = r;
                     }
