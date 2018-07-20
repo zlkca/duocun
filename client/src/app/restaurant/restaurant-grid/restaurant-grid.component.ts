@@ -117,8 +117,8 @@ export class RestaurantGridComponent implements OnInit {
         let R = 6371;
         let lat1 = this.center.lat;
         let lng1 = this.center.lng;
-        let lat2 = p.address.lat;
-        let lng2 = p.address.lng;
+        let lat2 = p.location.lat;
+        let lng2 = p.location.lng;
         let dLat = (lat2 - lat1) * (Math.PI / 180);
         let dLng = (lng2 - lng1) * (Math.PI / 180);
         let a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
