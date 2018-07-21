@@ -55,18 +55,19 @@ export class AdminComponent implements OnInit, OnDestroy {
 
                 if (restaurant_id) {
                     this.unsubscribe();
-                    this.subscrList.push(self.restaurantSvc.findById(restaurant_id, {include: ['products']})
+                    this.subscrList.push(self.restaurantSvc.findById(restaurant_id, {include: [{products: 'pictures'}]})
                     .subscribe((rest: Restaurant) => {
                         self.restaurant = rest;
                         self.products = rest.products;
                     }));
 
-                    this.subscrList.push(self.restaurantSvc.getOrders(restaurant_id, {include: ['account', {items: 'product'}]})
+                    this.subscrList.push(self.restaurantSvc.getOrders(restaurant_id, {include: ['account', {items: {product: 'pictures'}}]})
                     .subscribe((orders: Order[]) => {
                         self.orders = orders;
                     }));
 
-                    this.subscrList.push(self.restaurantSvc.syncOrders(restaurant_id, {include: ['account', {items: 'product'}]})
+                    this.subscrList.push(self.restaurantSvc
+                    .syncOrders(restaurant_id, {include: ['account', {items: {product: 'pictures'}}]})
                     .subscribe((od: Order) => {
                         self.orders.push(od);
                     }));

@@ -1,13 +1,13 @@
 
 import { throwError as observableThrowError, Observable } from 'rxjs';
 import { fromPromise } from 'rxjs/observable/fromPromise';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
-import { ProductApi, LoopBackFilter, Product, GeoPoint, Order, OrderApi } from '../shared/lb-sdk';
+import { ProductApi, LoopBackFilter, Product, GeoPoint, Order, OrderApi, Picture, PictureApi } from '../shared/lb-sdk';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { identifierModuleUrl } from '@angular/compiler';
@@ -24,18 +24,72 @@ export class ProductService {
 
     constructor(
         private http: HttpClient,
+        private pictureApi: PictureApi,
         private productApi: ProductApi) { }
 
 
     create(product: Product): Observable<Product> {
-        return this.productApi.create(product);
+      let productId;
+      return this.productApi.create(product)
+        .pipe(
+          mergeMap((prod: Product) => {
+            productId = prod.id;
+            if (product.pictures && product.pictures.length) {
+              return this.updateProductImages(prod.id, product.pictures);
+            } else {
+              return new Observable(i => i.next());
+            }
+          }),
+          mergeMap(() => {
+            return this.productApi.findById(productId, { include: 'pictures' });
+          })
+        );
     }
+
+    updateProductImages(id: number, newPictures: Picture[] = null): Observable<Product> {
+      return this.productApi.getPictures(id)
+        .pipe(
+          mergeMap((pictures: Picture[]) => {
+            if (pictures && pictures.length
+                && pictures.filter(pic => newPictures.findIndex(newPic => newPic.id === pic.id) === -1).length) {
+              return Promise.all(pictures.filter(pic => newPictures.findIndex(newPic => newPic.id === pic.id) === -1).map(pic => {
+                return this.pictureApi.deleteById(pic.id).toPromise();
+              }))
+              .then(() => {
+                if (newPictures && newPictures.length && newPictures.filter(newPic => !newPic.id).length) {
+                  return this.productApi.createManyPictures(newPictures.filter(newPic => !newPic.id));
+                } else {
+                  return new Observable(i => i.next());
+                }
+              });
+            } else if (newPictures && newPictures.length && newPictures.filter(newPic => !newPic.id).length) {
+              return this.productApi.createManyPictures(id, newPictures.filter(newPic => !newPic.id));
+            } else {
+              return new Observable(i => i.next());
+            }
+          })
+        );
+  }
 
     replaceById(id: number, product: Product): Observable<Product> {
-        return this.productApi.replaceById(id, product);
+      let productId;
+        return this.productApi.replaceById(id, product)
+        .pipe(
+          mergeMap((prod: Product) => {
+            productId = prod.id;
+            if (product.pictures && product.pictures.length) {
+              return this.updateProductImages(prod.id, product.pictures);
+            } else {
+              return new Observable(i => i.next());
+            }
+          }),
+          mergeMap(() => {
+            return this.productApi.findById(productId, { include: 'pictures' });
+          })
+        );
     }
 
-    findById(id: number, filter: LoopBackFilter = {}): Observable<Product> {
+    findById(id: number, filter: LoopBackFilter = {include: 'pictures'}): Observable<Product> {
         return this.productApi.findById(id, filter);
     }
 

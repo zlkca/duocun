@@ -62,6 +62,7 @@ import { CategoryListComponent } from './commerce/category-list/category-list.co
 import { CategoryFormComponent } from './commerce/category-form/category-form.component';
 import { MultiProductFormComponent } from './commerce/multi-product-form/multi-product-form.component';
 import { OrderModule } from './order/order.module';
+import { ImageUploadModule } from 'angular2-image-upload';
 import { SDKBrowserModule, LoopBackConfig } from './shared/lb-sdk';
 
 const appRoutes: Routes = [
@@ -131,6 +132,7 @@ const appRoutes: Routes = [
             // { enableTracing: true } // <-- debugging purposes only
         ),
         SDKBrowserModule.forRoot(),
+        ImageUploadModule.forRoot(),
         NgbModule.forRoot(),
         NgReduxModule,
         SharedModule,

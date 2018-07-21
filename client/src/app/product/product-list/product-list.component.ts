@@ -18,6 +18,7 @@ const ADD_IMAGE = 'add_photo.png';
 export class ProductListComponent implements OnInit {
     productList;
     MEDIA_URL: string = environment.MEDIA_URL;
+    placeholder = environment.MEDIA_URL + ADD_IMAGE;
     subscription: any;
     cart: any;
 

@@ -43,7 +43,7 @@ export class RestaurantService {
         return this.restaurantApi.getOrders(id, filter);
     }
 
-    getProducts(id: any, filter: LoopBackFilter = {}): Observable<Product[]> {
+    getProducts(id: any, filter: LoopBackFilter = {include: 'pictures'}): Observable<Product[]> {
         return this.restaurantApi.getProducts(id, filter);
     }
 
