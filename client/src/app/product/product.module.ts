@@ -8,6 +8,7 @@ import { ProductFormComponent } from './product-form/product-form.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductGridComponent } from './product-grid/product-grid.component';
 import { OrderModule } from '../order/order.module';
+import { ImageUploadModule } from 'angular2-image-upload';
 
 @NgModule({
   imports: [
@@ -17,6 +18,7 @@ import { OrderModule } from '../order/order.module';
     CommerceModule,
     SharedModule,
     OrderModule,
+    ImageUploadModule.forRoot(),
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   declarations: [ProductFormComponent, ProductListComponent, ProductGridComponent, ProductFilterComponent],

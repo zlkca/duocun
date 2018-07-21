@@ -8,7 +8,8 @@ import { ProductService } from '../product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 //import { Product, Category, Restaurant, Color, Picture } from '../../commerce/commerce';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
-import { Restaurant, Product, Order } from '../../shared/lb-sdk';
+import { Restaurant, Product, Order, LoopBackConfig, Picture } from '../../shared/lb-sdk';
+import { Jsonp } from '../../../../node_modules/@angular/http';
 
 @Component({
     selector: 'app-product-form',
@@ -17,14 +18,18 @@ import { Restaurant, Product, Order } from '../../shared/lb-sdk';
 })
 export class ProductFormComponent implements OnInit, OnDestroy {
     categoryList = [];
-    restaurantList;
+    restaurantList = [];
     // colorList:Color[] = [];
-    id: string = '';
-    pictures: any[] = [];
+    // id: number;
+    uploadedPictures: string[] = [];
     subscriptionPicture;
-    picture;
+    uploadUrl: string = [
+      LoopBackConfig.getPath(),
+      LoopBackConfig.getApiVersion(),
+      'Containers/pictures/upload'
+    ].join('/');
 
-    @Input() product;
+    @Input() product: Product;
     @ViewChild(MultiImageUploaderComponent) uploader: any;
 
     // @ViewChild(ImageUploaderComponent) uploader: any;
@@ -33,49 +38,29 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         name: new FormControl('', [Validators.required, Validators.minLength(3)]),
         description: new FormControl('', [Validators.maxLength(980)]),
         price: new FormControl(),
-        restaurant_id: new FormControl(),
+        restaurantId: new FormControl(),
     });
 
     constructor(
         private restaurantSvc: RestaurantService,
         private productSvc: ProductService,
         private route: ActivatedRoute,
-        private rx: NgRedux<IPicture>, private router: Router) { }
+        private rx: NgRedux<IPicture>, private router: Router
+      ) { }
 
     ngOnInit() {
-        const self = this;
-
-        self.restaurantSvc.find().subscribe(r => {
-            self.restaurantList = r;
+      this.uploadedPictures = (this.product.pictures || []).map(pic => pic.url);
+      this.form.get('name').setValue(this.product.name);
+      this.form.get('description').setValue(this.product.description);
+      this.form.get('price').setValue(this.product.price);
+      this.form.get('restaurantId').setValue(this.product.restaurantId);
+        this.restaurantSvc.find().subscribe(r => {
+          this.restaurantList = r;
         });
-
-        const p: Product = this.product;
-
-        self.id = p.id;
-        self.pictures = p.pictures;
-        self.form.patchValue(p);
-        // self.form.patchValue({ restaurant_id: p.restaurant ? p.restaurant.id : 1 });
-        // self.pictures = [{ index: 0, name: '', image: this.product.image }];
-        // self.commerceServ.getCategoryList().subscribe(catList=>{
-        //     self.categoryList = catList;
-        //     for(let cat of catList){
-        //         let c = p.categories.find(x=> x.id==cat.id );
-        //         if(c){
-        //             self.categories.push(new FormControl(true));
-        //         }else{
-        //             self.categories.push(new FormControl(false));
-        //         } 
-        //         //self.categories.push(new FormControl(s.id));
-        //     }
-        // })
-        this.subscriptionPicture = this.rx.select<IPicture>('picture').subscribe(
-            pic => {
-                self.picture = pic;
-            });
     }
 
     ngOnDestroy() {
-        this.subscriptionPicture.unsubscribe();
+        // this.subscriptionPicture.unsubscribe();
     }
 
     onToggleCategory(c: FormControl) {
@@ -112,22 +97,46 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         return cs;
     }
 
+    onUploadFinished (event) {
+      try {
+        const res = JSON.parse(event.serverResponse.response._body);
+        this.product.pictures = (this.product.pictures || []).concat(res.result.files.image.map(img => {
+          return {
+            url: [
+              LoopBackConfig.getPath(),
+              LoopBackConfig.getApiVersion(),
+              'Containers',
+              img.container,
+              'download',
+              img.name
+            ].join('/')
+          };
+        }));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    onRemoved (event) {
+      this.product.pictures.splice(this.product.pictures.findIndex(pic => pic.url === event.file.src));
+    }
+
     save() {
         const self = this;
-        const restaurant_id = self.form.get('restaurant_id');
+        // const restaurant_id = self.form.get('restaurant_id');
         const newV = {
             ...this.form.value,
-            id: self.id,
+            id: this.product.id,
             // categories: [{ id: 1 }], // self.getCheckedCategories(),
             // restaurant: { id: restaurant_id.value },
             // pictures: [self.picture]// self.uploader.data
-            restaurantId: restaurant_id.value
+            // restaurantId: restaurantId.value
         };
 
-        const c: any = new Product(newV);
-        const productId = parseInt(self.id, 10);
-        if (productId) {
-            this.productSvc.replaceById(productId, c).subscribe((r: any) => {
+        const c: Product = new Product(newV);
+        c.pictures = this.product.pictures;
+        if (this.product.id) {
+            this.productSvc.replaceById(this.product.id, c).subscribe((r: any) => {
                 self.router.navigate(['admin']);
             });
         } else {

@@ -24,13 +24,13 @@ export class AdminProductFormPageComponent implements OnInit {
 
         self.route.params.subscribe((params: any) => {
             if (params.id) {
-                this.productSvc.findById(params.id).subscribe(
+                this.productSvc.findById(params.id, {include: 'pictures'}).subscribe(
                     (p: Product) => {
                         self.product = p;
                     });
             } else {
                 self.product = new Product();
-                self.product.pictures = [{ index: 0, image: { index: 0, data: 'add_photo.png', file: '' } }];
+                // self.product.pictures = [{ index: 0, image: { index: 0, data: 'add_photo.png', file: '' } }];
             }
         });
     }
