@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product } from '../shared/lb-sdk';
+import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product, Picture, PictureApi } from '../shared/lb-sdk';
 import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
@@ -7,27 +7,89 @@ import { mergeMap } from 'rxjs/operators';
 export class RestaurantService {
     constructor(
         private restaurantApi: RestaurantApi,
+        private pictureApi: PictureApi,
         private orderApi: OrderApi,
     ) { }
 
     create(restaurant: Restaurant): Observable<Restaurant> {
-        return this.restaurantApi.create(restaurant);
+      let restaurantId;
+      return this.restaurantApi.create(restaurant)
+        .pipe(
+          mergeMap((rest: Restaurant) => {
+            restaurantId = rest.id;
+            if (restaurant.pictures && restaurant.pictures.length) {
+              return this.updateRestaurantImages(rest.id, restaurant.pictures);
+            } else {
+              return new Observable(i => i.next());
+            }
+          }),
+          mergeMap(() => {
+            return this.restaurantApi.findById(restaurantId, { include: 'pictures' });
+          })
+        );
     }
 
     replaceById(id: number, restaurant: Restaurant): Observable<Restaurant> {
-        return this.restaurantApi.replaceById(id, restaurant);
+        return this.restaurantApi.replaceById(id, restaurant)
+        .pipe(
+          mergeMap((rest: Restaurant) => {
+            if (restaurant.pictures && restaurant.pictures.length) {
+              return this.updateRestaurantImages(rest.id, restaurant.pictures);
+            } else {
+              return new Observable(i => i.next());
+            }
+          }),
+          mergeMap(() => {
+            if (restaurant.address && restaurant.address.id) {
+              return this.restaurantApi.updateAddress(id, restaurant.address);
+            } else if (restaurant.address && !restaurant.address.id) {
+              return this.restaurantApi.createAddress(id, restaurant.address);
+            } else {
+              return new Observable(i => i.next());
+            }
+          }),
+          mergeMap(() => {
+            return this.restaurantApi.findById(id, { include: ['pictures', 'address'] });
+          })
+        );
     }
 
-    findById(id: number, filter: LoopBackFilter = {}): Observable<Restaurant> {
+    updateRestaurantImages(id: number, newPictures: Picture[] = null): Observable<any> {
+      return this.restaurantApi.getPictures(id)
+        .pipe(
+          mergeMap((pictures: Picture[]) => {
+            if (pictures && pictures.length
+                && pictures.filter(pic => newPictures.findIndex(newPic => newPic.id === pic.id) === -1).length) {
+              return Promise.all(pictures.filter(pic => newPictures.findIndex(newPic => newPic.id === pic.id) === -1).map(pic => {
+                return this.pictureApi.deleteById(pic.id).toPromise();
+              }))
+              .then(() => {
+                if (newPictures && newPictures.length && newPictures.filter(newPic => !newPic.id).length) {
+                  return this.restaurantApi.createManyPictures(newPictures.filter(newPic => !newPic.id));
+                } else {
+                  return new Observable(i => i.next());
+                }
+              });
+            } else if (newPictures && newPictures.length && newPictures.filter(newPic => !newPic.id).length) {
+              return this.restaurantApi.createManyPictures(id, newPictures.filter(newPic => !newPic.id));
+            } else {
+              return new Observable(i => i.next());
+            }
+          })
+        );
+  }
+
+    findById(id: number, filter: LoopBackFilter = {include: ['pictures', 'address']}): Observable<Restaurant> {
         return this.restaurantApi.findById(id, filter);
     }
 
-    find(filter: LoopBackFilter = {}): Observable<Restaurant[]> {
+    find(filter: LoopBackFilter = {include: ['pictures', 'address']}): Observable<Restaurant[]> {
         return this.restaurantApi.find(filter);
     }
 
     getNearby(location: GeoPoint, maxDistance: number = 20, limit: number = 10): Observable<Restaurant[]> {
         return this.restaurantApi.find({
+          include: 'pictures',
             where: {
                 location: {
                     near: location,

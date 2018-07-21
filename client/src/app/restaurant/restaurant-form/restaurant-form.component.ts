@@ -5,13 +5,12 @@ import { CommerceService } from '../../commerce/commerce.service';
 import { LocationService } from '../../shared/location/location.service';
 import { RestaurantService } from '../restaurant.service';
 import { Category, Picture } from '../../commerce/commerce';
-import { Address } from '../../account/account';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IPicture } from '../../commerce/commerce.actions';
 import { AccountService } from '../../account/account.service';
-import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi } from '../../shared/lb-sdk';
+import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, LoopBackConfig, Address } from '../../shared/lb-sdk';
 
 const APP = environment.APP;
 
@@ -28,6 +27,12 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
     subscriptionPicture;
     form: FormGroup;
     users;
+    uploadedPictures: string[] = [];
+    uploadUrl: string = [
+      LoopBackConfig.getPath(),
+      LoopBackConfig.getApiVersion(),
+      'Containers/pictures/upload'
+    ].join('/');
 
     @Input() restaurant: Restaurant;
     @ViewChild(MultiImageUploaderComponent) uploader: any;
@@ -42,7 +47,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
                 street: ['', [Validators.required]],
                 postal_code: ['', [Validators.required]]
             }),
-            user_id: new FormControl(),//['', Validators.required]
+            ownerId: new FormControl(),//['', Validators.required]
             // categories: this.fb.array([]),
             // delivery_fee: ''
         });
@@ -62,7 +67,13 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
     ngOnInit() {
         const self = this;
 
+        this.uploadedPictures = (this.restaurant.pictures || []).map(pic => pic.url);
         this.form.patchValue(this.restaurant);
+        if (this.restaurant.address) {
+          this.form.get('address').get('street').setValue(this.restaurant.address.formattedAddress);
+          this.form.get('address').get('postal_code').setValue(this.restaurant.address.postalCode);
+        }
+
         //localStorage.setItem('restaurant_info-' + APP, JSON.stringify(self.restaurant));
         //self.pictures = [{ index: 0, name: '', image: this.restaurant.image }];
 
@@ -134,33 +145,52 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         self.accountSvc.find({ where: { type: 'business' } }).subscribe(users => {
             self.users = users;
         });
-
-        this.subscriptionPicture = this.rx.select<IPicture>('picture').subscribe(
-            pic => {
-                self.picture = pic;
-            });
     }
 
     ngOnDestroy() {
-        this.subscriptionPicture.unsubscribe();
+    }
+
+    onUploadFinished (event) {
+      try {
+        const res = JSON.parse(event.serverResponse.response._body);
+        this.restaurant.pictures = (this.restaurant.pictures || []).concat(res.result.files.image.map(img => {
+          return {
+            url: [
+              LoopBackConfig.getPath(),
+              LoopBackConfig.getApiVersion(),
+              'Containers',
+              img.container,
+              'download',
+              img.name
+            ].join('/')
+          };
+        }));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    onRemoved (event) {
+      this.restaurant.pictures.splice(this.restaurant.pictures.findIndex(pic => pic.url === event.file.src));
     }
 
     save() {
         const self = this;
         const v = this.form.value;
         const restaurant = new Restaurant(this.form.value);
+        restaurant.pictures = this.restaurant.pictures;
 
-        let addr = null;
+        let addr: Address = null;
         // hardcode Toronto as default
         if (self.restaurant && self.restaurant.address) {
             addr = self.restaurant.address;
-            addr.street = v.address.street;
+            addr.formattedAddress = v.address.street;
         } else {
             addr = new Address({
-                id: '', city: 'Toronto',
+                city: 'Toronto',
                 province: 'ON',
-                street: v.address.street,
-                postal_code: v.address.postal_code
+                formattedAddress: v.address.street,
+                postalCode: v.address.postal_code
             });
         }
 
@@ -171,12 +201,11 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
 
         restaurant.id = self.restaurant ? self.restaurant.id : null;
 
-        const sAddr = addr.street + ', Toronto, ' + v.address.postal_code;
+        const sAddr = addr.formattedAddress + ', Toronto, ' + v.address.postal_code;
         this.locationSvc.getLocation(sAddr).subscribe(ret => {
-            addr.lat = ret.lat;
-            addr.lng = ret.lng;
-            addr.sub_locality = ret.sub_locality;
-            addr.postal_code = ret.postal_code;
+            addr.location = { lat: ret.lat, lng: ret.lng };
+            addr.sublocality = ret.sub_locality;
+            addr.postalCode = ret.postal_code;
             restaurant.address = addr;
 
             // zlk
