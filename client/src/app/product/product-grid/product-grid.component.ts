@@ -20,6 +20,7 @@ const ADD_IMAGE = 'add_photo.png';
 export class ProductGridComponent implements OnInit {
 	productList:Product[] = [];
     MEDIA_URL:string = environment.MEDIA_URL;
+    placeholder = environment.MEDIA_URL + ADD_IMAGE;
     subscription:any;
     cart:any;
 

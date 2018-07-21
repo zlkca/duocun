@@ -45,7 +45,7 @@ export class RestaurantDetailComponent implements OnInit {
         const self = this;
         self.route.paramMap.pipe(switchMap((params: ParamMap) =>
             // self.restaurant_id = params.get('id')
-            self.restaurantServ.findById(parseInt(params.get('id'), 10), {include: 'products'} )))
+            self.restaurantServ.findById(parseInt(params.get('id'), 10), {include: {products: 'pictures'}} )))
             .subscribe(
                 (restaurant: Restaurant) => {
                     self.productList = restaurant.products;

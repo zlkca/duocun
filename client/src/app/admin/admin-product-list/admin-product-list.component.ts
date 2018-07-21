@@ -18,6 +18,7 @@ const MEDIA_URL: string = environment.MEDIA_URL;
     styleUrls: ['./admin-product-list.component.scss']
 })
 export class AdminProductListComponent implements OnInit {
+    placeholder = MEDIA_URL + ADD_IMAGE;
     subscription: any;
     @Input() products;
     ngOnInit() {

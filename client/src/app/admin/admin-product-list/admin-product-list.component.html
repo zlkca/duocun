@@ -4,12 +4,12 @@
   </div>
 
   <div class="list-body" *ngIf="products && products.length>0">
-    
+
     <div class="row list-item" *ngFor="let p of products; let i = index;">
       <div class="col-md-2">
-          <img class="img-thumbnail" [src]="getImageSrc(p)" alt="{{p.name}}" />
+          <img class="img-thumbnail" [src]="p.pictures[0]?.url || placeholder" alt="{{p.name}}" />
       </div>
-      
+
       <div class="col-md-7 text-block">
         <div class="title-sm">{{p.name}}</div>
         <div class="text-sm">{{p.dimension}}</div>
@@ -25,5 +25,5 @@
     </div>
 
   </div>
-  
+
 </div>
