@@ -27,8 +27,7 @@ export class RestaurantGridComponent implements OnInit {
 
     ngOnInit() {
         const self = this;
-
-        let s = localStorage.getItem('location-' + APP);
+        const s = localStorage.getItem('location-' + APP);
 
         if (s) {
             const location = JSON.parse(s);

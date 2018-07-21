@@ -60,8 +60,8 @@ export class LocationService {
                 city: '',
                 province: '',
                 postal_code: '',
-                lat: geocodeResult.geometry.location.lat(),
-                lng: geocodeResult.geometry.location.lng()
+                lat: geocodeResult.geometry.location.lat,
+                lng: geocodeResult.geometry.location.lng
             };
 
             addr.forEach(compo => {

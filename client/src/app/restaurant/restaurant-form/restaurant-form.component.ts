@@ -171,8 +171,8 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
 
         restaurant.id = self.restaurant ? self.restaurant.id : null;
 
-        const s = addr.street + ', Toronto, ' + v.address.postal_code;
-        this.locationSvc.get().subscribe(ret => {
+        const sAddr = addr.street + ', Toronto, ' + v.address.postal_code;
+        this.locationSvc.getLocation(sAddr).subscribe(ret => {
             addr.lat = ret.lat;
             addr.lng = ret.lng;
             addr.sub_locality = ret.sub_locality;

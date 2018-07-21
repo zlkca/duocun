@@ -27,9 +27,26 @@ $desktop: "(min-width: 1200px)";
                 }
         
                 .text-body{
+                    
                     padding:0px 10px;
                 }
+
+                .title-bg{
+                    font-size:16px;
+                    font-weight:400;
+                    font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
+                }
+
+                .text-sm{
+                    font-size:12px;
+                    font-weight:400;
+                    font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
+                }
             }
+        }
+
+        .grid-item:hover{
+            background-color: #eee;
         }
     }
 
