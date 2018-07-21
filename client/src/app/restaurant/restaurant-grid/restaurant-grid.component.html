@@ -14,7 +14,7 @@
 		</div> -->
         <!-- <app-restaurant-list [data]="restaurantList"></app-restaurant-list> -->
 
-        <div class="col-md-12 col-sm-12 col-12 mt-5 restaurant-grid" *ngIf="restaurantList && restaurantList.length>0">
+        <div class="col-md-12 col-sm-12 col-12 restaurant-grid" *ngIf="restaurantList && restaurantList.length>0">
 
             <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" *ngFor="let p of restaurantList; let i = index;" (click)="toDetail(p)">
                 <div class="row grid-body">

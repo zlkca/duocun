@@ -3,7 +3,6 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
-.page{
     .product-grid{
         padding: 0px;
         margin: 0px;
@@ -64,17 +63,16 @@ $desktop: "(min-width: 1200px)";
 
 	@media #{$mobile}{
 
-        .grid-item{
-            border-bottom: 1px solid #eee;
+        .product-grid{
+            .grid-item{
+                border-bottom: 1px solid #eee;
+            }
+    
+            .grid-item:first-child{
+                border-top: 1px solid #eee;
+            }
         }
-
-        .grid-item:first-child{
-            border-top: 1px solid #eee;
-        }
-
 	}
-}
-
 
 
 //
