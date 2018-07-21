@@ -19,12 +19,12 @@
             <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" *ngFor="let p of restaurantList; let i = index;" (click)="toDetail(p)">
                 <div class="row grid-body">
                     <div class="col-md-12 col-sm-3 col-3 image-body">
-                        <img [src]="getImageSrc(p.image)" [alt]="p.name">
+                        <img src='http://placehold.it/400x300' [alt]="p.name">
                     </div>
                 
                     <div class="col-md-12 col-sm-9 col-9 text-body">
                         <h6 class="card-title text-left">{{p.name}}</h6>
-                        <h6 class="card-title text-right">{{getDistance(p)}} km</h6>
+                        <h6 class="card-title text-right">{{getDistance(center, p.location)}}</h6>
                     </div>
                 <!-- <div class="card-footer text-muted">{{p.id}}</div> -->
                 </div>
