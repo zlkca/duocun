@@ -12,6 +12,7 @@ import { RestaurantDetailComponent } from './restaurant-detail/restaurant-detail
 import { OrderModule } from '../order/order.module';
 import { RestaurantService } from './restaurant.service';
 import { LocationService } from '../shared/location/location.service';
+import { ImageUploadModule } from 'angular2-image-upload';
 @NgModule({
     imports: [
         CommonModule,
@@ -21,6 +22,7 @@ import { LocationService } from '../shared/location/location.service';
         CommerceModule,
         ProductModule,
         OrderModule,
+        ImageUploadModule.forRoot(),
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     providers: [RestaurantService, LocationService],

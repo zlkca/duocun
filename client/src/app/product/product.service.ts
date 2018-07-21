@@ -72,11 +72,9 @@ export class ProductService {
   }
 
     replaceById(id: number, product: Product): Observable<Product> {
-      let productId;
         return this.productApi.replaceById(id, product)
         .pipe(
           mergeMap((prod: Product) => {
-            productId = prod.id;
             if (product.pictures && product.pictures.length) {
               return this.updateProductImages(prod.id, product.pictures);
             } else {
@@ -84,7 +82,7 @@ export class ProductService {
             }
           }),
           mergeMap(() => {
-            return this.productApi.findById(productId, { include: 'pictures' });
+            return this.productApi.findById(id, { include: 'pictures' });
           })
         );
     }

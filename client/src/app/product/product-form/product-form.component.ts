@@ -22,7 +22,6 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     // colorList:Color[] = [];
     // id: number;
     uploadedPictures: string[] = [];
-    subscriptionPicture;
     uploadUrl: string = [
       LoopBackConfig.getPath(),
       LoopBackConfig.getApiVersion(),
@@ -60,7 +59,6 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        // this.subscriptionPicture.unsubscribe();
     }
 
     onToggleCategory(c: FormControl) {

@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IPicture } from '../../commerce/commerce.actions';
 import { AccountService } from '../../account/account.service';
-import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi } from '../../shared/lb-sdk';
+import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, LoopBackConfig } from '../../shared/lb-sdk';
 
 const APP = environment.APP;
 
@@ -28,6 +28,12 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
     subscriptionPicture;
     form: FormGroup;
     users;
+    uploadedPictures: string[] = [];
+    uploadUrl: string = [
+      LoopBackConfig.getPath(),
+      LoopBackConfig.getApiVersion(),
+      'Containers/pictures/upload'
+    ].join('/');
 
     @Input() restaurant: Restaurant;
     @ViewChild(MultiImageUploaderComponent) uploader: any;
@@ -62,6 +68,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
     ngOnInit() {
         const self = this;
 
+        this.uploadedPictures = (this.restaurant.pictures || []).map(pic => pic.url);
         this.form.patchValue(this.restaurant);
         //localStorage.setItem('restaurant_info-' + APP, JSON.stringify(self.restaurant));
         //self.pictures = [{ index: 0, name: '', image: this.restaurant.image }];
@@ -134,21 +141,40 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         self.accountSvc.find({ where: { type: 'business' } }).subscribe(users => {
             self.users = users;
         });
-
-        this.subscriptionPicture = this.rx.select<IPicture>('picture').subscribe(
-            pic => {
-                self.picture = pic;
-            });
     }
 
     ngOnDestroy() {
-        this.subscriptionPicture.unsubscribe();
+    }
+
+    onUploadFinished (event) {
+      try {
+        const res = JSON.parse(event.serverResponse.response._body);
+        this.restaurant.pictures = (this.restaurant.pictures || []).concat(res.result.files.image.map(img => {
+          return {
+            url: [
+              LoopBackConfig.getPath(),
+              LoopBackConfig.getApiVersion(),
+              'Containers',
+              img.container,
+              'download',
+              img.name
+            ].join('/')
+          };
+        }));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    onRemoved (event) {
+      this.restaurant.pictures.splice(this.restaurant.pictures.findIndex(pic => pic.url === event.file.src));
     }
 
     save() {
         const self = this;
         const v = this.form.value;
         const restaurant = new Restaurant(this.form.value);
+        restaurant.pictures = this.restaurant.pictures;
 
         let addr = null;
         // hardcode Toronto as default

@@ -47,9 +47,10 @@
         </select>
     </div>
 
-    <app-image-uploader [picture]="picture" #uploader></app-image-uploader>
+    <!-- <app-image-uploader [picture]="picture" #uploader></app-image-uploader> -->
+    <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)"></image-upload>
 
     <button (click)="save()">Save</button>
-    
+
     <button (click)="cancel()">Cancel</button>
 </form>
