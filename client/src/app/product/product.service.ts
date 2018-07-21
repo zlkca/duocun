@@ -46,7 +46,7 @@ export class ProductService {
         );
     }
 
-    updateProductImages(id: number, newPictures: Picture[] = null): Observable<Product> {
+    updateProductImages(id: number, newPictures: Picture[] = null): Observable<any> {
       return this.productApi.getPictures(id)
         .pipe(
           mergeMap((pictures: Picture[]) => {

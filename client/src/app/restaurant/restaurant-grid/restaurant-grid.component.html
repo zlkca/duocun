@@ -19,9 +19,9 @@
             <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" *ngFor="let p of restaurantList; let i = index;" (click)="toDetail(p)">
                 <div class="row grid-body">
                     <div class="col-md-12 col-sm-3 col-3 image-body">
-                        <img src='http://placehold.it/400x300' [alt]="p.name">
+                        <img [src]="p.pictures[0]?.url || 'http://placehold.it/400x300'" [alt]="p.name">
                     </div>
-                
+
                     <div class="col-md-12 col-sm-9 col-9 text-body">
                         <div class="title-bg text-left">{{p.name}}</div>
                         <div class="text-sm text-left">Free Deliver when order before 10:00am</div>

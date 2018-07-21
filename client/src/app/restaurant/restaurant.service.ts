@@ -40,12 +40,21 @@ export class RestaurantService {
             }
           }),
           mergeMap(() => {
-            return this.restaurantApi.findById(id, { include: 'pictures' });
+            if (restaurant.address && restaurant.address.id) {
+              return this.restaurantApi.updateAddress(id, restaurant.address);
+            } else if (restaurant.address && !restaurant.address.id) {
+              return this.restaurantApi.createAddress(id, restaurant.address);
+            } else {
+              return new Observable(i => i.next());
+            }
+          }),
+          mergeMap(() => {
+            return this.restaurantApi.findById(id, { include: ['pictures', 'address'] });
           })
         );
     }
 
-    updateRestaurantImages(id: number, newPictures: Picture[] = null): Observable<Product> {
+    updateRestaurantImages(id: number, newPictures: Picture[] = null): Observable<any> {
       return this.restaurantApi.getPictures(id)
         .pipe(
           mergeMap((pictures: Picture[]) => {
@@ -70,11 +79,11 @@ export class RestaurantService {
         );
   }
 
-    findById(id: number, filter: LoopBackFilter = {include: 'pictures'}): Observable<Restaurant> {
+    findById(id: number, filter: LoopBackFilter = {include: ['pictures', 'address']}): Observable<Restaurant> {
         return this.restaurantApi.findById(id, filter);
     }
 
-    find(filter: LoopBackFilter = {include: 'pictures'}): Observable<Restaurant[]> {
+    find(filter: LoopBackFilter = {include: ['pictures', 'address']}): Observable<Restaurant[]> {
         return this.restaurantApi.find(filter);
     }
 

@@ -6,6 +6,9 @@ import { RestaurantService } from '../../restaurant/restaurant.service';
 
 import { CommerceService } from '../../commerce/commerce.service';
 import { environment } from '../../../environments/environment';
+
+const ADD_IMAGE = 'add_photo.png';
+
 @Component({
     selector: 'app-manage-restaurant-list',
     templateUrl: './manage-restaurant-list.component.html',
@@ -14,6 +17,7 @@ import { environment } from '../../../environments/environment';
 export class ManageRestaurantListComponent implements OnInit {
     restaurants = [];
     MEDIA_URL = environment.MEDIA_URL;
+    placeholder = environment.MEDIA_URL + ADD_IMAGE;
 
     constructor(private router: Router,
         private restaurantSvc: RestaurantService,
