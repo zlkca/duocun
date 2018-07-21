@@ -20,7 +20,7 @@ export class RestaurantGridComponent implements OnInit {
     keyword: string;
     query: any;
     filter: any;
-    restaurantList: Restaurant[];
+    restaurantList;
     places: any[] = [];
     center: GeoPoint = { lat: 43.761539, lng: -79.411079 };
     MEDIA_URL = environment.MEDIA_URL;
@@ -113,52 +113,55 @@ export class RestaurantGridComponent implements OnInit {
     }
 
     // get distance between current location and restaurant
-    getDistance(p) {
-        let R = 6371;
-        let lat1 = this.center.lat;
-        let lng1 = this.center.lng;
-        let lat2 = p.location.lat;
-        let lng2 = p.location.lng;
-        let dLat = (lat2 - lat1) * (Math.PI / 180);
-        let dLng = (lng2 - lng1) * (Math.PI / 180);
-        let a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-            + Math.cos(lat1 * (Math.PI / 180)) * Math.cos((lat2) * (Math.PI / 180))
-            * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        let d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return d.toFixed(2);
+    getDistance(center, loc) {
+        if (loc && center && loc.lat && loc.lng && center.lat && center.lng) {
+            const R = 6371;
+            const lat1 = center.lat;
+            const lng1 = center.lng;
+            const lat2 = loc.lat;
+            const lng2 = loc.lng;
+            const dLat = (lat2 - lat1) * (Math.PI / 180);
+            const dLng = (lng2 - lng1) * (Math.PI / 180);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(lat1 * (Math.PI / 180)) * Math.cos((lat2) * (Math.PI / 180))
+                * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return d.toFixed(2) + 'km';
+        } else {
+            return '';
+        }
     }
 
     doSearchRestaurants(query?: any) {
         // query --- eg. {}
         const self = this;
-        const qs = self.getFilter(query);
-        let s = '';
-        const conditions = [];
+        // const qs = self.getFilter(query);
+        // let s = '';
+        // const conditions = [];
 
-        if (qs.length > 0) {
-            conditions.push(qs.join('&'));
-        }
-        if (query && query.keyword) {
-            conditions.push('keyword=' + query.keyword);
-        }
-        if (query && query.lat && query.lng) {
-            conditions.push('lat=' + query.lat + '&lng=' + query.lng);
-        }
+        // if (qs.length > 0) {
+        //     conditions.push(qs.join('&'));
+        // }
+        // if (query && query.keyword) {
+        //     conditions.push('keyword=' + query.keyword);
+        // }
+        // if (query && query.lat && query.lng) {
+        //     conditions.push('lat=' + query.lat + '&lng=' + query.lng);
+        // }
 
-        if (conditions.length > 0) {
-            s = '?' + conditions.join('&');
-        }
+        // if (conditions.length > 0) {
+        //     s = '?' + conditions.join('&');
+        // }
 
         // this.restaurantServ.getNearby(this.center).subscribe(
         this.restaurantServ.find().subscribe(
-            (ps: Restaurant[]) => {
+            ps => {
                 self.restaurantList = ps;//self.toProductGrid(data);
                 const a = [];
                 ps.map(restaurant => {
                     a.push({
-                        lat: restaurant.location.lat,
-                        lng: restaurant.location.lng,
+                        lat: restaurant.location ? restaurant.location.lat : 0,
+                        lng: restaurant.location ? restaurant.location.lng : 0,
                         name: restaurant.name
                     });
                 });
