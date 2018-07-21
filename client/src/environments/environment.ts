@@ -10,7 +10,7 @@ export const environment = {
    MEDIA_URL: "http://localhost:8000/media/",
    APP: "etuan",
    GOOGLE_MAP:{
-  	KEY:'AIzaSyBXEdwaQT9nbawdHKae1SSNL2RB2wkLBQI'
+  	KEY:'AIzaSyA-gMQDHCiCYKG-QQlmX7_dBC7kj-sP-uQ'
    },
   GOOGLE_LOGIN:{
   	CLIENT_ID:'489357362854-cktl4l0mnbj70b4rrcu771on38865d2v.apps.googleusercontent.com'
