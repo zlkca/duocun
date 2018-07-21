@@ -113,7 +113,7 @@ export class RestaurantGridComponent implements OnInit {
     }
 
     // get distance between current location and restaurant
-    getDistance(center, location) {
+    getDistance(center: GeoPoint, location: GeoPoint) {
         const lat1 = center.lat;
         const lng1 = center.lng;
         const lat2 = location.lat;

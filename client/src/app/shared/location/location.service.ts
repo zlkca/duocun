@@ -74,7 +74,7 @@ export class LocationService {
                 if (compo.types.indexOf('postal_code') !== -1) {
                     loc.postal_code = compo.long_name;
                 }
-                if (compo.types.indexOf('sublocality_level_1') !== -1 || compo.types.indexOf('sublocality') != -1) {
+                if (compo.types.indexOf('sublocality_level_1') !== -1 || compo.types.indexOf('sublocality') !== -1) {
                     loc.sub_locality = compo.long_name;
                 }
                 if (compo.types.indexOf('locality') !== -1) {
@@ -107,6 +107,8 @@ export class LocationService {
                     this.geocoder.geocode({ 'location': pos }, (results) => {
                         const loc = this.getLocationFromGeocode(results[0]);
                         if (loc) {
+                            loc.lat = pos.lat;
+                            loc.lng = pos.lng;
                             this.set(loc);
                             resolve(loc);
                         } else {
