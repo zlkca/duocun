@@ -19,7 +19,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     categoryList = [];
     restaurantList;
     // colorList:Color[] = [];
-    id: string = '';
+    id: number;
     pictures: any[] = [];
     subscriptionPicture;
     picture;
@@ -125,9 +125,8 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         };
 
         const c: any = new Product(newV);
-        const productId = parseInt(self.id, 10);
-        if (productId) {
-            this.productSvc.replaceById(productId, c).subscribe((r: any) => {
+        if (self.id) {
+            this.productSvc.replaceById(self.id, c).subscribe((r: any) => {
                 self.router.navigate(['admin']);
             });
         } else {
