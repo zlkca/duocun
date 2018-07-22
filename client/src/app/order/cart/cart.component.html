@@ -1,49 +1,64 @@
 <div class="cart" *ngIf="cart.items.length>0">
-	<!-- <div class="cart-title title-xs">Shopping Cart</div> -->
+  <div class="cart-title title-xs mb-3 ml-2 mt-3">Shopping Cart</div>
 
-	<ul class="list-group mb-3">
-	  <li *ngFor="let item of cart.items" class="list-group-item align-items-start">
-	    {{item.name}}
-			<div class="d-flex w-100 justify-content-between">
-				<div class="input-group input-group-sm">
-			    <span class="input-group-prepend">
-			        <button type="button" (click)="removeFromCart(item)" class="btn btn-danger btn-sm" data-type="minus" data-field="num">
-								<i class="fa fa-minus-circle"></i>
-							</button>
-			    </span>
-			    <input type="text" name="num" class="form-control" [(ngModel)]="item.quantity" (change)="updateQuantity(item)">
-			    <span class="input-group-append">
-			        <button type="button" (click)="addToCart(item)" class="btn btn-primary btn-sm" data-type="plus" data-field="num">
-								<i class="fa fa-plus-circle"></i>
-							</button>
-			    </span>
-				</div>
-				<small>{{item.price * item.quantity | currency}}</small>
-	    </div>
-	  </li>
-	</ul>
-	<div class="row">
-		<div class="col-12">
-			<p class="title-sm">Total:{{total | currency}}</p>
-		</div>
-		<div class="col-12">
-			<button type="button" class="btn btn-xs btn-secondary pull-left" (click)="clearCart()">Cancel</button>
-			<button type="button" class="btn btn-xs btn-primary pull-right" (click)="checkout()">Check out</button>
-		</div>
-	</div>
+  <div class="container list-group mb-3 ml-2 mr-2">
+    <div *ngFor="let item of cart.items" class="align-items-start bg-light">
+      <div class="row border-bottom ml-1 mr-1">
+        <div class="col-md mt-2 mb-2 ml-2 text-left">{{item.name}}</div>
+        <div class="col-md">
+          <div class="input-group input-group-sm mt-2 mb-2">
+            <span class="input-group-prepend">
+              <button type="button" (click)="removeFromCart(item)" class="btn btn-light btn-sm rounded-0" data-type="minus" data-field="num">-</button>
+            </span>
+            <input type="text" name="num" class="form-control text-center" [(ngModel)]="item.quantity" (change)="updateQuantity(item)">
+            <span class="input-group-append">
+              <button type="button" (click)="addToCart(item)" class="btn btn-light btn-sm rounded-0" data-type="plus" data-field="num">+</button>
+            </span>
+          </div>
+        </div>
+        <div class="col-md mt-2 mb-2 mr-2 text-right">{{item.price * item.quantity | currency}}</div>
+      </div>
+    </div>
+  </div>
+  <!-- <ul class="list-group mb-3">
+    <li *ngFor="let item of cart.items" class="list-group-item align-items-start">
+      <div class="d-flex w-100 ">
+        <small class="text-justify">{{item.name}}</small>
+        <div class="input-group input-group-sm">
+          <span class="input-group-prepend">
+            <button type="button" (click)="removeFromCart(item)" class="btn btn-light btn-sm rounded-0" data-type="minus" data-field="num">-</button>
+          </span>
+          <input type="text" name="num" class="form-control text-center" [(ngModel)]="item.quantity" (change)="updateQuantity(item)">
+          <span class="input-group-append">
+            <button type="button" (click)="addToCart(item)" class="btn btn-light btn-sm rounded-0" data-type="plus" data-field="num">+</button>
+          </span>
+        </div>
+        <small class="text-justify">{{item.price * item.quantity | currency}}</small>
+      </div>
+    </li>
+  </ul> -->
+  <div class="row text-right ml-2 mr-2 mb-3">
+    <div class="col-12">
+      <p class="title-sm">Total: {{total | currency}}</p>
+    </div>
+    <div class="col-12">
+      <button type="button" class="btn btn-xs btn-secondary pull-left" (click)="clearCart()">Cancel</button>
+      <button type="button" class="btn btn-xs btn-primary pull-right" (click)="checkout()">Check out</button>
+    </div>
+  </div>
 </div>
 
 <ng-template #orderDetailModal let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">Order Detail</h4>
-        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-          <app-order-detail [orderId]="orderId"></app-order-detail>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">OK</button>
-      </div>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Order Detail</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <app-order-detail [orderId]="orderId"></app-order-detail>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">OK</button>
+  </div>
 </ng-template>

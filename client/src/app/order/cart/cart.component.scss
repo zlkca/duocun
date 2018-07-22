@@ -7,18 +7,19 @@
   position: sticky;
   top: 80px;
 }
+
 .list-group-item {
   padding: 0.25rem;
 }
+
 .input-group-sm {
   width: 100px;
   .btn {
-    height: 27px;
-    line-height: 1;
+    height: 20px;
+    line-height: 10%;
   }
   input {
-    height: 27px;
-    line-height: 1;
+    height: 20px;
+    line-height: 10%;
   }
 }
-

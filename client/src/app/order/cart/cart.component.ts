@@ -72,11 +72,11 @@ export class CartComponent implements OnInit, OnDestroy {
     checkout() {
         const orders = this.createOrders(this.cart);
         this.OrderServ.create(orders[0])
-        .subscribe((newOrder: Order) => {
-            this.orderId = newOrder.id;
-            this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
-            this.modalServ.open(this.orderDetailModal);
-        });
+            .subscribe((newOrder: Order) => {
+                this.orderId = newOrder.id;
+                this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
+                this.modalServ.open(this.orderDetailModal);
+            });
     }
 
     clearCart() {
@@ -90,7 +90,7 @@ export class CartComponent implements OnInit, OnDestroy {
         const orders = [];
 
         for (const id of restaurantIds) {
-            orders.push({ restaurantId: id, items: [], accountId: this.user.id});
+            orders.push({ restaurantId: id, items: [], accountId: this.user.id });
         }
 
         for (const item of cart.items) {
