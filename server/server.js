@@ -80,11 +80,9 @@ var autoMigrateAction = function() {
 
 // If required to load data when intializing db
 var createData = function(ds) {
-  return ds.models.Account.create([
-    {username: 'admin', email: 'admin@example.com', password: 'admin', type: 'super'},
-    {username: 'sun', email: 'sun@example.com', password: 'sun', type: 'business'},
-    {username: 'user', email: 'user@example.com', password: 'user', type: 'user'},
-  ])
+  return ds.models.Account.create(
+    {username: 'admin', email: 'admin@example.com', password: 'admin', type: 'super'}
+  )
   .then(function() {
     return ds.models.Role.create({name: 'admin'});
   })
@@ -93,6 +91,12 @@ var createData = function(ds) {
       principalType: 'USER',
       principalId: 1,
     });
+  })
+  .then(function() {
+    return ds.models.Account.create([
+      {username: 'sun', email: 'sun@example.com', password: 'sun', type: 'business'},
+      {username: 'user', email: 'user@example.com', password: 'user', type: 'user'},
+    ]);
   })
   .then(function() {
     return ds.models.Restaurant.create([

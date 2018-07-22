@@ -24,7 +24,14 @@ export class RestaurantService {
             }
           }),
           mergeMap(() => {
-            return this.restaurantApi.findById(restaurantId, { include: 'pictures' });
+            if (restaurant.address) {
+              return this.restaurantApi.createAddress(restaurantId, restaurant.address);
+            } else {
+              return new Observable(i => i.next());
+            }
+          }),
+          mergeMap(() => {
+            return this.restaurantApi.findById(restaurantId, { include: ['pictures', 'address'] });
           })
         );
     }
