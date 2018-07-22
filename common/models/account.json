@@ -29,8 +29,8 @@
   },
   "acls": [
     {
-      "principalType": "USER",
-      "principalId": "1",
+      "principalType": "ROLE",
+      "principalId": "admin",
       "permission": "ALLOW"
     },
     {
