@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div *ngIf="users?.length" class="row">
         <div class="label-sm">Owner</div>
         <select name="user" formControlName="ownerId">
             <option *ngFor="let m of users" [value]="m.id">{{m.username}}</option>

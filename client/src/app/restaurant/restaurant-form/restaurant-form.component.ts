@@ -10,7 +10,7 @@ import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IPicture } from '../../commerce/commerce.actions';
 import { AccountService } from '../../account/account.service';
-import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, LoopBackConfig, Address } from '../../shared/lb-sdk';
+import { Restaurant, GeoPoint, Order, LoopBackConfig, Address, Account } from '../../shared/lb-sdk';
 
 const APP = environment.APP;
 
@@ -20,6 +20,8 @@ const APP = environment.APP;
     styleUrls: ['./restaurant-form.component.scss']
 })
 export class RestaurantFormComponent implements OnInit, OnDestroy {
+
+    currentAccount: Account;
 
     id: string = '';
     categoryList: Category[] = [];
@@ -142,9 +144,15 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         //     }
         // });
 
-        self.accountSvc.find({ where: { type: 'business' } }).subscribe(users => {
-            self.users = users;
+        this.accountSvc.getCurrent().subscribe((acc: Account) => {
+          this.currentAccount = acc;
+          if (acc.type === 'admin') {
+            self.accountSvc.find({ where: { type: 'business' } }).subscribe(users => {
+              self.users = users;
+            });
+          }
         });
+
     }
 
     ngOnDestroy() {
@@ -178,6 +186,10 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         const self = this;
         const v = this.form.value;
         const restaurant = new Restaurant(this.form.value);
+        if (!this.users || !this.users.length) {
+          restaurant.ownerId = this.currentAccount.id;
+        }
+
         restaurant.pictures = this.restaurant.pictures;
 
         let addr: Address = null;

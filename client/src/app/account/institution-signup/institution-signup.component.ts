@@ -7,7 +7,7 @@ import { AuthService } from '../auth.service';
 import { ImageUploaderComponent } from '../../shared/image-uploader/image-uploader.component';
 
 import { SharedService } from '../../shared/shared.service';
-import { Account, Restaurant } from '../../shared/lb-sdk';
+import { Account, Restaurant, Address } from '../../shared/lb-sdk';
 import { AccountService } from '../account.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 
@@ -66,6 +66,12 @@ export class InstitutionSignupComponent implements OnInit {
                     name: v.restaurant,
                     location: {lat: this.address.lat, lng: this.address.lng},
                     ownerId: user.id,
+                    address: new Address({
+                      formattedAddress: this.address.street_number + ' ' + this.address.street_name,
+                      location: {lat: this.address.lat, lng: this.address.lng},
+                      province: this.address.province,
+                      postalCode: this.address.postal_code
+                    }),
                 });
                 this.restaurantServ.create(restaurant).subscribe((res: Restaurant) => {
                     this.router.navigate(['admin']);

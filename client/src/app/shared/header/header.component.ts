@@ -136,8 +136,8 @@ export class HeaderComponent implements OnInit {
 
         // check from token
         this.accountServ.getCurrent().subscribe(
-            (r: any) => {
-                self.isLogin = r ? true : false;
+            (r: Account) => {
+                self.isLogin = r && r.id ? true : false;
                 if (self.isLogin) {
                     if (r.type === 'business') {
                         self.router.navigate(['admin']);
