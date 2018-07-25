@@ -1,7 +1,7 @@
 
 export const environment = {
     production: true,
-    API_BASE: 'http://' + window.location.hostname + ':8000',
+    API_BASE: 'http://' + window.location.hostname,
     API_URL: window.location.origin + '/api/',
     APP_URL: window.location.origin,
     MEDIA_URL: window.location.origin + '/media/',
