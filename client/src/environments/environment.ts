@@ -5,6 +5,7 @@
 
 export const environment = {
    production: false,
+   API_BASE: 'http://' + window.location.hostname + ':3000',
    API_URL: "http://localhost:8000/api/",
    APP_URL: window.location.origin,//"http://localhost:5001",
    MEDIA_URL: "http://localhost:8000/media/",

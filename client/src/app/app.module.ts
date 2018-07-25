@@ -65,6 +65,8 @@ import { OrderModule } from './order/order.module';
 import { ImageUploadModule } from 'angular2-image-upload';
 import { SDKBrowserModule, LoopBackConfig } from './shared/lb-sdk';
 
+import { environment } from '../environments/environment';
+
 const appRoutes: Routes = [
     // { path: 'login', component:LoginComponent },
 
@@ -151,7 +153,7 @@ const appRoutes: Routes = [
 export class AppModule {
     constructor(ngRedux: NgRedux<any>) {
         ngRedux.configureStore(rootReducer, INITIAL_STATE);
-        LoopBackConfig.setBaseURL('http://localhost:3000');
+        LoopBackConfig.setBaseURL(environment.API_BASE);
         LoopBackConfig.setApiVersion('api');
     }
 }
