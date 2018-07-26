@@ -17,7 +17,7 @@
             </ng-template>
           </ngb-tab>
 
-          <ngb-tab title="Products" *ngIf="account && account.type === 'business' && products">
+          <ngb-tab title="Products" *ngIf="account && account.type === 'business'">
             <ng-template ngbTabContent>
               <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
               <app-admin-product-list [products]="products"></app-admin-product-list>

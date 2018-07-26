@@ -23,12 +23,12 @@ import { Restaurant } from '../../shared/lb-sdk';
 export class RestaurantDetailComponent implements OnInit {
 
     productList: any = [];
-    restaurant_id: string;
+    restaurant: any;
     subscription;
     cart;
 
     constructor(private productSvc: ProductService,
-        private restaurantServ: RestaurantService,
+        private restaurantSvc: RestaurantService,
         private router: Router,
         private route: ActivatedRoute,
         // private ngRedux:NgRedux<IAppState>,
@@ -43,17 +43,21 @@ export class RestaurantDetailComponent implements OnInit {
 
     ngOnInit() {
         const self = this;
-        self.route.paramMap.pipe(switchMap((params: ParamMap) =>
-            // self.restaurant_id = params.get('id')
-            self.restaurantServ.findById(parseInt(params.get('id'), 10))))
-            .subscribe(
+        self.route.paramMap.subscribe((params: ParamMap) => {
+            const restaurantId = parseInt(params.get('id'), 10);
+            self.restaurantSvc.findById(restaurantId, { include: ['pictures', 'address'] }).subscribe(
                 (restaurant: Restaurant) => {
-                    self.productList = restaurant.products;
+                    self.restaurant = restaurant;
                 },
                 (err: any) => {
-                    self.productList = [];
+                    self.restaurant = null;
                 }
             );
+
+            self.restaurantSvc.getProducts(restaurantId).subscribe(products => {
+                self.productList = products;
+            });
+        });
     }
 
 }
