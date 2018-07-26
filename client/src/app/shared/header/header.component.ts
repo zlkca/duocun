@@ -25,21 +25,11 @@ export class HeaderComponent implements OnInit {
     user: any;
     keyword: string;
     locality = '';
-    unsubscribeAccount: any;
 
     constructor(private router: Router, private authSvc: AuthService,
         private locationSvc: LocationService,
         private accountServ: AccountService,
-        private sharedSvc: SharedService) {
-
-        let self = this;
-
-
-    }
-
-    ngOnDestroy() {
-        this.unsubscribeAccount();
-    }
+        private sharedSvc: SharedService) { }
 
     ngOnInit() {
         this.accountServ.getCurrent().subscribe(
@@ -57,13 +47,6 @@ export class HeaderComponent implements OnInit {
         this.locationSvc.get().subscribe((addr: ILocation) => {
             this.locality = addr && (addr.sub_locality || addr.city);
         });
-
-        // self.authServ.hasLoggedIn().subscribe(
-        //   (r)=>{
-        //     self.isLogin = r;
-        //   },(err)=>{
-        //     self.isLogin = false;
-        //   });
     }
 
     search(keyword) {
@@ -80,17 +63,6 @@ export class HeaderComponent implements OnInit {
         this.router.navigate([url]);
     }
 
-    initMenu() {
-        this.menu = [];
-        if (this.user && this.user.type === 'super') {
-            this.menu.push({ text: 'Home', route: 'super' });
-        } else if (this.user && this.user.type === 'business') {
-            this.menu.push({ text: 'Home', route: 'dashboard' });
-        } else {
-            this.menu.push({ text: 'Home', route: 'home' });
-        }
-    }
-
     changeAddress() {
         this.closeNavMenu();
         this.locationSvc.clear();
@@ -103,6 +75,7 @@ export class HeaderComponent implements OnInit {
     }
 
     logout() {
+      this.closeNavMenu();
         this.accountServ.logout()
             .subscribe((sad: any) => {
                 console.log(sad);
@@ -119,6 +92,7 @@ export class HeaderComponent implements OnInit {
         // } else if (this.user.type === 'business') {
         //     this.router.navigate(['dashboard']);
         // } else {
+        this.closeNavMenu();
         const location = localStorage.getItem('location-' + APP);
         if (location) {
             this.router.navigate(['restaurants']);
