@@ -14,10 +14,10 @@
         &nbsp;&nbsp;|
       </li>
       <li *ngIf="locality" class="nav-item">
-        <a class="nav-link" routerLink="home" (click)="changeAddress()"><small>Change Address</small></a>
+        <a class="nav-link" (click)="changeAddress()"><small>Change Address</small></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" routerLink="home" (click)="toBusinessCenter()">Business Center</a>
+        <a class="nav-link" (click)="toBusinessCenter()">Business Center</a>
       </li>
     </ul>
     <span *ngIf="isLogin" class="navbar-text">

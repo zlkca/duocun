@@ -66,7 +66,7 @@ export class HeaderComponent implements OnInit {
     changeAddress() {
         this.closeNavMenu();
         this.locationSvc.clear();
-        // this.router.navigate(['home']);
+        this.router.navigate(['home']);
     }
 
     changeLanguage(code) {
