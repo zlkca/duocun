@@ -189,49 +189,6 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     //     });
     // }
 
-    // save() {
-    //     let self = this;
-    //     self.wechatgroup.user = {'id':1, 'name':'admin'};
-    //     self.wechatgroup.id = self.id;
-    //     // self.wechatgroup.images = self.images;
-    //     self.commerceServ.saveWechatGroup(self.wechatgroup).subscribe(
-    //         (r:any) => {
-    //             //self.wechatgroup = new WechatGroup(r.data[0]);
-    //             self.router.navigate(["admin/wechatgroups"]);
-    //         },
-    //         (err:any) => {
-    //             //self.wechatgroup = new WechatGroup();
-    //             self.router.navigate(["admin/wechatgroups"]);
-    //         });
-    // }
-    // onLoadImage(i:number){
-    //   $('[name="image'+ i +'"]').click();
-    // }
 
-    // onDeleteImage(i:number){
-    //     let qr = this.wechatgroup.qrs[i];//new QR();
-    //     //qr.index = i;
-    //     qr.image.data = this.emptyImage;
-    //     qr.image.file = '';
-    //     this.wechatgroup.qrs[i] = qr;
-    // }
-
-    // onImageChange(event:any, i:number){
-    //     let self = this;
-    //     let reader = new FileReader();
-    //     if(event.target.files && event.target.files.length > 0) {
-    //       let file = event.target.files[0];
-    //       reader.readAsDataURL(file);
-    //       reader.onload = () => {
-    //           self.wechatgroup.qrs[i].image = {data: reader.result, file: event.target.files[0]};//.split(',')[1];
-    //           //self.wechatgroup.logo = event.target.files[0];
-    //       //   this.form.get('avatar').setValue({
-    //       //     filename: file.name,
-    //       //     filetype: file.type,
-    //       //     value: reader.result.split(',')[1]
-    //       //   })
-    //       }
-    //     }
-    // }
 }
 

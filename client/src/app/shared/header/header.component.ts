@@ -83,7 +83,7 @@ export class HeaderComponent implements OnInit {
     initMenu() {
         this.menu = [];
         if (this.user && this.user.type === 'super') {
-            this.menu.push({ text: 'Home', route: 'admin' });
+            this.menu.push({ text: 'Home', route: 'super' });
         } else if (this.user && this.user.type === 'business') {
             this.menu.push({ text: 'Home', route: 'dashboard' });
         } else {

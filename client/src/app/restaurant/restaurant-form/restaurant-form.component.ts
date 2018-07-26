@@ -146,7 +146,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
 
         this.accountSvc.getCurrent().subscribe((acc: Account) => {
           this.currentAccount = acc;
-          if (acc.type === 'admin') {
+          if (acc.type === 'super') {
             self.accountSvc.find({ where: { type: 'business' } }).subscribe(users => {
               self.users = users;
             });
@@ -183,6 +183,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
     }
 
     save() {
+        // This component will be used for business admin and super admin!
         const self = this;
         const v = this.form.value;
         const restaurant = new Restaurant(this.form.value);
