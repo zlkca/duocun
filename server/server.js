@@ -84,7 +84,7 @@ var createData = function(ds) {
     {username: 'admin', email: 'admin@example.com', password: 'admin', type: 'super'}
   )
   .then(function() {
-    return ds.models.Role.create({name: 'admin'});
+    return ds.models.Role.create({name: 'super'});
   })
   .then(function(role) {
     return role.principals.create({

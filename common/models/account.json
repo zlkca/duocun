@@ -30,7 +30,7 @@
   "acls": [
     {
       "principalType": "ROLE",
-      "principalId": "admin",
+      "principalId": "super",
       "permission": "ALLOW"
     },
     {
