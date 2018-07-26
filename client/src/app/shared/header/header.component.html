@@ -1,6 +1,7 @@
 <nav class="navbar fixed-top navbar-expand-sm navbar-light bg-light">
   <a class="navbar-brand" (click)="toHome()">eTuan</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+    aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
@@ -14,7 +15,9 @@
         &nbsp;&nbsp;|
       </li>
       <li *ngIf="locality" class="nav-item">
-        <a class="nav-link" (click)="changeAddress()"><small>Change Address</small></a>
+        <a class="nav-link" (click)="changeAddress()">
+          <small>Change Address</small>
+        </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" (click)="toBusinessCenter()">Business Center</a>
@@ -25,12 +28,15 @@
     </span>
     <ul *ngIf="isLogin" class="navbar-nav mr-auto">
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">
           <i class="fa fa-user-circle fa-lg"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" routerLink="admin" (click)="closeNavMenu()">Admin</a>
-          <div class="dropdown-divider"></div>
+          <div *ngIf="type==='super'">
+            <a class="dropdown-item" routerLink="admin" (click)="closeNavMenu()">Admin</a>
+            <div class="dropdown-divider"></div>
+          </div>
           <a class="dropdown-item" href="#" (click)="logout()">Logout</a>
         </div>
       </li>

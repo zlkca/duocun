@@ -20,11 +20,12 @@ const APP = environment.APP;
     styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
-    isLogin: boolean = false;
+    isLogin = false;
     menu: any[];
     user: any;
     keyword: string;
     locality = '';
+    type: string;
 
     constructor(private router: Router, private authSvc: AuthService,
         private locationSvc: LocationService,
@@ -36,6 +37,7 @@ export class HeaderComponent implements OnInit {
             (account: Account) => {
                 if (account && account.id) {
                     this.user = account;
+                    this.type = account.type;
                     this.isLogin = true;
                 } else {
                     this.user = null;
@@ -51,7 +53,7 @@ export class HeaderComponent implements OnInit {
 
     search(keyword) {
         const self = this;
-        self.sharedSvc.emitMsg({ name: 'OnSearch', query: { 'keyword': keyword } })
+        self.sharedSvc.emitMsg({ name: 'OnSearch', query: { 'keyword': keyword } });
     }
 
     closeNavMenu() {
@@ -71,11 +73,11 @@ export class HeaderComponent implements OnInit {
 
     changeLanguage(code) {
         this.closeNavMenu();
-        //this.translateServ.use(code);
+        // this.translateServ.use(code);
     }
 
     logout() {
-      this.closeNavMenu();
+        this.closeNavMenu();
         this.accountServ.logout()
             .subscribe((sad: any) => {
                 console.log(sad);
@@ -117,9 +119,9 @@ export class HeaderComponent implements OnInit {
                         self.router.navigate(['admin']);
                     } else {
                         self.accountServ.logout()
-                        .subscribe(() => {
-                            self.router.navigate(['institution-signup']);
-                        });
+                            .subscribe(() => {
+                                self.router.navigate(['institution-signup']);
+                            });
 
                     }
                 } else {
