@@ -1,9 +1,25 @@
-<ul class="list-unstyled">
-    <li *ngFor="let item of order?.items" class="media">
-      <img class="mr-3 my-4" [src]="" alt="">
-      <div class="media-body">
-        <h5 class="mt-0 mb-1">{{item.product_name}}</h5>
-        {{item |json}}
+<div class="media-body">
+  <div class="container list-group mb-3 ml-2 mr-2">
+    <div *ngFor="let item of items" class="align-items-start bg-light">
+      <div class="row border-bottom ml-2 mr-2">
+        <div class="col-4 mt-2 mb-2 text-left">{{item.product.name}}</div>
+        <div class="col-4 mt-2 mb-2 text-center">{{item.quantity}}</div>
+        <div class="col-4 mt-2 mb-2 text-right">{{item.product.price * item.quantity | currency}}</div>
       </div>
-    </li>
-  </ul>
+    </div>
+  </div>
+  <div class="row text-right ml-2 mr-2 mt-2">
+    <div class="col-12">
+      <p class="title-sm">Sub Total: {{subTotal | currency}}</p>
+    </div>
+    <div class="col-12">
+      <p class="title-sm">Delivery Fee: {{delivery | currency}}</p>
+    </div>
+    <div class="col-12">
+      <p class="title-sm">Tax: {{tax | currency}}</p>
+    </div>
+    <div class="col-12">
+      <p class="title-sm">Total: {{total | currency}}</p>
+    </div>
+  </div>
+</div>

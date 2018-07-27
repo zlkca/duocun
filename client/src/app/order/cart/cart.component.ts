@@ -7,6 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { OrderDetailComponent } from '../order-detail/order-detail.component';
 import { AccountService } from '../../account/account.service';
 import { Account, Order, OrderItem } from '../../shared/lb-sdk';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-cart',
@@ -27,7 +28,8 @@ export class CartComponent implements OnInit, OnDestroy {
         private rx: NgRedux<IAppState>,
         private OrderServ: OrderService,
         private accountServ: AccountService,
-        private modalServ: NgbModal
+        private modalServ: NgbModal,
+        private router: Router
     ) {
     }
 
@@ -43,7 +45,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
         this.subscriptionAccount = this.accountServ.getCurrent()
             .subscribe((acc: Account) => {
-                console.log(acc);
+                // console.log(acc);
                 this.user = acc;
             });
     }
@@ -71,12 +73,16 @@ export class CartComponent implements OnInit, OnDestroy {
 
     checkout() {
         const orders = this.createOrders(this.cart);
-        this.OrderServ.create(orders[0])
-            .subscribe((newOrder: Order) => {
-                this.orderId = newOrder.id;
-                this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
-                this.modalServ.open(this.orderDetailModal);
-            });
+        if (orders[0].accountId) {
+            this.OrderServ.create(orders[0])
+                .subscribe((newOrder: Order) => {
+                    this.orderId = newOrder.id;
+                    this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
+                    this.modalServ.open(this.orderDetailModal);
+                });
+        } else {
+            this.router.navigate(['login']);
+        }
     }
 
     clearCart() {
@@ -107,13 +113,12 @@ export class CartComponent implements OnInit, OnDestroy {
         return orders;
     }
 
+    comfirmed() {
+        this.router.navigate(['restaurants']);
+    }
+
     ngOnDestroy() {
         this.subscription.unsubscribe();
         this.subscriptionAccount.unsubscribe();
     }
-
-
-
-
-
 }
