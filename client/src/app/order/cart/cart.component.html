@@ -1,7 +1,10 @@
 <div class="cart" *ngIf="cart.items.length>0">
-  <div class="cart-title title-xs mb-3 ml-2 mt-3">Shopping Cart</div>
+  <div class="mb-5 mt-3 ml-2 mr-2">
+    <div class="cart-title title-sm pull-left font-weight-bold">Shopping Cart</div>
+    <div class="cart-title title-sm pull-right font-weight-bold" (click)="clearCart()">Clear Cart</div>
+  </div>
 
-  <div class="container list-group mb-3 ml-2 mr-2">
+  <div class="container list-group mb-3 mt-3 ml-2 mr-2">
     <div *ngFor="let item of cart.items" class="align-items-start bg-light">
       <div class="row border-bottom ml-2 mr-2">
         <div class="col-4 mt-2 mb-2 text-left">{{item.name}}</div>
@@ -18,29 +21,12 @@
       </div>
     </div>
   </div>
-  <!-- <ul class="list-group mb-3">
-    <li *ngFor="let item of cart.items" class="list-group-item align-items-start">
-      <div class="d-flex w-100 ">
-        <small class="text-justify">{{item.name}}</small>
-        <div class="input-group input-group-sm">
-          <span class="input-group-prepend">
-            <button type="button" (click)="removeFromCart(item)" class="btn btn-light btn-sm rounded-0" data-type="minus" data-field="num">-</button>
-          </span>
-          <input type="text" name="num" class="form-control text-center" [(ngModel)]="item.quantity" (change)="updateQuantity(item)">
-          <span class="input-group-append">
-            <button type="button" (click)="addToCart(item)" class="btn btn-light btn-sm rounded-0" data-type="plus" data-field="num">+</button>
-          </span>
-        </div>
-        <small class="text-justify">{{item.price * item.quantity | currency}}</small>
-      </div>
-    </li>
-  </ul> -->
+
   <div class="row text-right ml-2 mr-2 mb-3">
     <div class="col-12">
-      <p class="title-sm">Total: {{total | currency}}</p>
+      <p class="title-sm">{{quantity}} Items, Total: {{total | currency}}</p>
     </div>
     <div class="col-12">
-      <button type="button" class="btn btn-xs btn-secondary pull-left" (click)="clearCart()">Cancel</button>
       <button type="button" class="btn btn-xs btn-primary pull-right" (click)="checkout()">Check out</button>
     </div>
   </div>

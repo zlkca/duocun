@@ -16,6 +16,7 @@ import { Router } from '@angular/router';
 })
 export class CartComponent implements OnInit, OnDestroy {
     total = 0;
+    quantity = 0;
     subscription;
     subscriptionAccount;
     cart: any;
@@ -37,15 +38,17 @@ export class CartComponent implements OnInit, OnDestroy {
         this.subscription = this.rx.select<ICart>('cart').subscribe(
             cart => {
                 this.total = 0;
+                this.quantity = 0;
                 this.cart = cart;
                 this.cart.items.map(x => {
                     this.total += x.price * x.quantity;
+                    this.quantity += x.quantity;
                 });
             });
 
         this.subscriptionAccount = this.accountServ.getCurrent()
             .subscribe((acc: Account) => {
-                // console.log(acc);
+                console.log(acc);
                 this.user = acc;
             });
     }
