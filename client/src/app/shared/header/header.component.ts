@@ -122,10 +122,10 @@ export class HeaderComponent implements OnInit {
                             .subscribe(() => {
                                 self.router.navigate(['institution-signup']);
                             });
-
                     }
                 } else {
-                    self.router.navigate(['institution-login']);
+                    self.router.navigate(['institution-signup']);
+                    // self.router.navigate(['institution-login']);
                 }
             });
     }
