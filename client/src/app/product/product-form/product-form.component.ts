@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormArray, FormGroup, FormControl, Validators } from '@angular/forms';
 import { NgRedux } from '@angular-redux/store';
@@ -6,10 +6,9 @@ import { IPicture } from '../../commerce/commerce.actions';
 
 import { ProductService } from '../product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-//import { Product, Category, Restaurant, Color, Picture } from '../../commerce/commerce';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
 import { Restaurant, Product, Order, LoopBackConfig, Picture } from '../../shared/lb-sdk';
-import { Jsonp } from '../../../../node_modules/@angular/http';
+import { Jsonp } from '@angular/http';
 
 @Component({
     selector: 'app-product-form',
@@ -23,12 +22,13 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     // id: number;
     uploadedPictures: string[] = [];
     uploadUrl: string = [
-      LoopBackConfig.getPath(),
-      LoopBackConfig.getApiVersion(),
-      'Containers/pictures/upload'
+        LoopBackConfig.getPath(),
+        LoopBackConfig.getApiVersion(),
+        'Containers/pictures/upload'
     ].join('/');
 
     @Input() product: Product;
+    @Output() afterSave: EventEmitter<any> = new EventEmitter();
     @ViewChild(MultiImageUploaderComponent) uploader: any;
 
     // @ViewChild(ImageUploaderComponent) uploader: any;
@@ -45,16 +45,16 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         private productSvc: ProductService,
         private route: ActivatedRoute,
         private rx: NgRedux<IPicture>, private router: Router
-      ) { }
+    ) { }
 
     ngOnInit() {
-      this.uploadedPictures = (this.product.pictures || []).map(pic => pic.url);
-      this.form.get('name').setValue(this.product.name);
-      this.form.get('description').setValue(this.product.description);
-      this.form.get('price').setValue(this.product.price);
-      this.form.get('restaurantId').setValue(this.product.restaurantId);
+        this.uploadedPictures = (this.product.pictures || []).map(pic => pic.url);
+        this.form.get('name').setValue(this.product.name);
+        this.form.get('description').setValue(this.product.description);
+        this.form.get('price').setValue(this.product.price);
+        this.form.get('restaurantId').setValue(this.product.restaurantId);
         this.restaurantSvc.find().subscribe(r => {
-          this.restaurantList = r;
+            this.restaurantList = r;
         });
     }
 
@@ -95,28 +95,28 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         return cs;
     }
 
-    onUploadFinished (event) {
-      try {
-        const res = JSON.parse(event.serverResponse.response._body);
-        this.product.pictures = (this.product.pictures || []).concat(res.result.files.image.map(img => {
-          return {
-            url: [
-              LoopBackConfig.getPath(),
-              LoopBackConfig.getApiVersion(),
-              'Containers',
-              img.container,
-              'download',
-              img.name
-            ].join('/')
-          };
-        }));
-      } catch (error) {
-        console.error(error);
-      }
+    onUploadFinished(event) {
+        try {
+            const res = JSON.parse(event.serverResponse.response._body);
+            this.product.pictures = (this.product.pictures || []).concat(res.result.files.image.map(img => {
+                return {
+                    url: [
+                        LoopBackConfig.getPath(),
+                        LoopBackConfig.getApiVersion(),
+                        'Containers',
+                        img.container,
+                        'download',
+                        img.name
+                    ].join('/')
+                };
+            }));
+        } catch (error) {
+            console.error(error);
+        }
     }
 
-    onRemoved (event) {
-      this.product.pictures.splice(this.product.pictures.findIndex(pic => pic.url === event.file.src));
+    onRemoved(event) {
+        this.product.pictures.splice(this.product.pictures.findIndex(pic => pic.url === event.file.src));
     }
 
     save() {
@@ -131,16 +131,17 @@ export class ProductFormComponent implements OnInit, OnDestroy {
             // restaurantId: restaurantId.value
         };
 
-        const c: Product = new Product(newV);
-        c.pictures = this.product.pictures;
+        const p: Product = new Product(newV);
+        p.pictures = this.product.pictures;
+        const restaurant_id = p.restaurantId;
         if (this.product.id) {
-            this.productSvc.replaceById(this.product.id, c).subscribe((r: any) => {
-                self.router.navigate(['admin']);
+            this.productSvc.replaceById(this.product.id, p).subscribe((r: any) => {
+                self.afterSave.emit();
             });
         } else {
-            this.productSvc.create(c).subscribe((r: any) => {
-                self.router.navigate(['admin']);
-            });
+            this.productSvc.create(p).subscribe((r: any) => {
+                self.afterSave.emit();
+           });
         }
 
     }

@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { ProductService } from '../../product/product.service';
+import { AccountService } from '../../account/account.service';
 
 
 @Component({
@@ -15,16 +16,24 @@ import { ProductService } from '../../product/product.service';
 })
 export class AdminProductFormPageComponent implements OnInit {
     product;
+    account;
+    subscrAccount;
 
-    constructor(private productSvc: ProductService,
-        private route: ActivatedRoute, private router: Router) { }
+    constructor(
+        private accountSvc: AccountService,
+        private productSvc: ProductService,
+        private route: ActivatedRoute,
+        private router: Router) { }
 
     ngOnInit() {
         const self = this;
+        this.subscrAccount = this.accountSvc.getCurrent().subscribe(account => {
+            self.account = account;
+        });
 
         self.route.params.subscribe((params: any) => {
             if (params.id) {
-                this.productSvc.findById(params.id, {include: 'pictures'}).subscribe(
+                this.productSvc.findById(params.id, { include: 'pictures' }).subscribe(
                     (p: Product) => {
                         self.product = p;
                     });
@@ -33,5 +42,14 @@ export class AdminProductFormPageComponent implements OnInit {
                 // self.product.pictures = [{ index: 0, image: { index: 0, data: 'add_photo.png', file: '' } }];
             }
         });
+    }
+
+    onAfterSave() {
+        const restaurant_id = this.product.restaurantId;
+        if (this.account.type === 'super') {
+            this.router.navigate(['admin/products'], { queryParams: { restaurant_id: restaurant_id } });
+        } else if (this.account.type === 'business') {
+            this.router.navigate(['admin']);
+        }
     }
 }
