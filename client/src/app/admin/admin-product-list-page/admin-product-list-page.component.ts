@@ -14,6 +14,7 @@ import { RestaurantService } from '../../restaurant/restaurant.service';
 })
 export class AdminProductListPageComponent implements OnInit {
     products;
+    restaurantId;
 
     constructor(private route: ActivatedRoute,
         private restaurantSvc: RestaurantService,
@@ -21,8 +22,8 @@ export class AdminProductListPageComponent implements OnInit {
         const self = this;
 
         this.route.queryParams.subscribe(params => {
-            const restaurant_id = params['restaurant_id'];
-            self.restaurantSvc.getProducts(restaurant_id).subscribe(
+            self.restaurantId = params['restaurant_id'];
+            self.restaurantSvc.getProducts(self.restaurantId).subscribe(
                 (ps: Product[]) => {
                     self.products = ps;
                 });

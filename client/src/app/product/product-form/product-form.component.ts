@@ -133,14 +133,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
         const p: Product = new Product(newV);
         p.pictures = this.product.pictures;
-        const restaurant_id = p.restaurantId;
+        const restaurantId = p.restaurantId;
         if (this.product.id) {
             this.productSvc.replaceById(this.product.id, p).subscribe((r: any) => {
-                self.afterSave.emit();
+                self.afterSave.emit({restaurant_id: restaurantId});
             });
         } else {
             this.productSvc.create(p).subscribe((r: any) => {
-                self.afterSave.emit();
+                self.afterSave.emit({restaurant_id: restaurantId});
            });
         }
 

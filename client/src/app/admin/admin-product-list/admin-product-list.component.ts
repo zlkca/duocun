@@ -21,6 +21,8 @@ export class AdminProductListComponent implements OnInit {
     placeholder = MEDIA_URL + ADD_IMAGE;
     subscription: any;
     @Input() products;
+    @Input() restaurantId;
+
     ngOnInit() {
 
     }
@@ -47,7 +49,8 @@ export class AdminProductListComponent implements OnInit {
     }
 
     add() {
-        this.router.navigate(['admin/product']);
+        // this.router.navigate(['admin/product']);
+        this.router.navigate(['admin/product'], { queryParams: { restaurant_id: this.restaurantId } });
     }
 
     getImageSrc(p) {

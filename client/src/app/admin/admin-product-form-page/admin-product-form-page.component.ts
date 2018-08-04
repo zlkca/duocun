@@ -18,6 +18,7 @@ export class AdminProductFormPageComponent implements OnInit {
     product;
     account;
     subscrAccount;
+    // restaurantId;
 
     constructor(
         private accountSvc: AccountService,
@@ -31,9 +32,14 @@ export class AdminProductFormPageComponent implements OnInit {
             self.account = account;
         });
 
+        // this.route.queryParams.subscribe(params => {
+        //     self.restaurantId = params['restaurant_id'];
+        // });
+
         self.route.params.subscribe((params: any) => {
-            if (params.id) {
-                this.productSvc.findById(params.id, { include: 'pictures' }).subscribe(
+            const productId = params.id;
+            if (productId) {
+                this.productSvc.findById(productId, { include: 'pictures' }).subscribe(
                     (p: Product) => {
                         self.product = p;
                     });
@@ -44,10 +50,10 @@ export class AdminProductFormPageComponent implements OnInit {
         });
     }
 
-    onAfterSave() {
-        const restaurant_id = this.product.restaurantId;
+    onAfterSave(event) {
+        const restaurantId = event.restaurant_id;
         if (this.account.type === 'super') {
-            this.router.navigate(['admin/products'], { queryParams: { restaurant_id: restaurant_id } });
+            this.router.navigate(['admin/products'], { queryParams: { restaurant_id: restaurantId } });
         } else if (this.account.type === 'business') {
             this.router.navigate(['admin']);
         }
