@@ -1,0 +1,22 @@
+
+    <div class="container manage-restaurant-list">
+      <div class="row btn-holder">
+        <div class="btn btn-sm btn-secondary" (click)="add()">Add Restaurant</div>
+        <div class="btn btn-sm btn-secondary hide">Edit Multi-Products</div>
+      </div>
+      <div class="list-body" *ngIf="restaurants.length>0">
+        <div class="row list-item" *ngFor="let m of restaurants">
+          <div class="col-md-1>">
+            <img [src]="m.pictures[0]?.url || placeholder"/>
+          </div>
+          <div class="col-md-2">{{m.name}}</div>
+          <!-- <div class="col-md-3">{{m.address.street}},{{m.address.sub_locality}}</div> -->
+          <div class="col-md-6">
+              <div class="btn btn-sm btn-secondary" (click)="change(m)">Change</div>
+              <div class="btn btn-sm btn-secondary" (click)="delete(m)">Delete</div>
+              <div class="btn btn-sm btn-secondary" (click)="viewProducts(m)">View Products</div>
+            </div>
+        </div>
+      </div>
+
+    </div>
