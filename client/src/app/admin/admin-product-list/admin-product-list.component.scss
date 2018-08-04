@@ -3,52 +3,88 @@ $scrollbar-w:30px;
 $block-w-m:186px;
 $block-h-m:230px;
 $frame-h-m:160px;
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
 
+// .admin-product-list{
+// 	.list-item{
+//         border-top:1px solid #eee;
+//         padding: 3px;
+// 	}
+// }
+
+// @media (max-width: 767px) and (orientation: portrait){
+//     $n-cols:3;
+
+// 	.admin-product-list{
+// 		.product{
+// 			width:$block-w-m;
+// 			height:$block-h-m;
+// 			padding:0px;
+// 			margin:8px 5px;
+// 			.image-frame{
+// 				width:$block-w-m;
+// 				height:$frame-h-m;
+// 			}
+
+// 			.btn-holder{
+// 				padding-top:0px;
+// 			}
+// 		}
+// 	}
+
+// }
+
+// @media (max-width: 767px) and (orientation: landscape){
+//     $n-cols:4;
+
+// 	.admin-product-list{
+// 		.product{
+// 			width:$block-w-m;
+// 			height:$block-h-m;
+// 			padding:0px;
+// 			margin:8px;
+// 			.image-frame{
+// 				width:$block-w-m;
+// 				height:$frame-h-m;
+// 			}
+// 			.btn-holder{
+// 				padding-top:0px;
+// 			}
+// 		}
+// 	}
+// }
 .admin-product-list{
-	.list-item{
+    .list-item{
         border-top:1px solid #eee;
-        padding: 3px;
-	}
+        padding-bottom: 3px;
+        img{
+            width:83px;
+        }
+    }
 }
 
-@media (max-width: 767px) and (orientation: portrait){
-    $n-cols:3;
+	@media #{$desktop}{
 
-	.admin-product-list{
-		.product{
-			width:$block-w-m;
-			height:$block-h-m;
-			padding:0px;
-			margin:8px 5px;
-			.image-frame{
-				width:$block-w-m;
-				height:$frame-h-m;
-			}
-
-			.btn-holder{
-				padding-top:0px;
-			}
-		}
 	}
 
-}
+	@media #{$tablet}{
 
-@media (max-width: 767px) and (orientation: landscape){
-    $n-cols:4;
+	 }
 
-	.admin-product-list{
-		.product{
-			width:$block-w-m;
-			height:$block-h-m;
-			padding:0px;
-			margin:8px;
-			.image-frame{
-				width:$block-w-m;
-				height:$frame-h-m;
-			}
-			.btn-holder{
-				padding-top:0px;
-			}
-		}
+	@media #{$mobile}{
+
+        .admin-product-list{
+            .list-item{
+                border-top:1px solid #eee;
+                padding-bottom: 3px;
+                img{
+                    width:83px;
+                }
+                .btn{
+                    margin:3px;
+                }
+            }
+        }
 	}
-}

@@ -118,10 +118,9 @@ export class HeaderComponent implements OnInit {
                     if (r.type === 'business') {
                         self.router.navigate(['admin']);
                     } else {
-                        self.accountServ.logout()
-                            .subscribe(() => {
-                                self.router.navigate(['institution-signup']);
-                            });
+                        self.accountServ.logout().subscribe(() => {
+                            self.router.navigate(['institution-signup']);
+                        });
                     }
                 } else {
                     self.router.navigate(['institution-signup']);
