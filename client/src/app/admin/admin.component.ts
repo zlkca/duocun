@@ -72,6 +72,10 @@ export class AdminComponent implements OnInit, OnDestroy {
                         self.orders.push(od);
                     }));
 
+                    self.restaurantSvc.getProducts(restaurant_id).subscribe(
+                        (ps: Product[]) => {
+                            self.products = ps;
+                        });
                 }
 
             } else if (account.type === 'super') {
