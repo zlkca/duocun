@@ -1,7 +1,7 @@
 
 	<div class="container user-list">
-		<div *ngIf="users.length==0">
-			<button (click)="toPage('admin/users')">Add User</button>
+		<div class="row btn-holder">
+            <div class="btn btn-sm btn-secondary" (click)="add()">Add User</div>
 		</div>
 		<div class="list-body" *ngIf="users.length>0">
 			<div class="row list-item" *ngFor="let m of users">
@@ -13,7 +13,7 @@
 				<div class="col-md-3">{{m.email}}</div>
 				<div class="col-md-2">{{m.type}}</div>
 				<div class="col-md-3">
-					<div class="btn btn-sm btn-secondary" (click)="add()">Add</div>
+					
 		            <div class="btn btn-sm btn-secondary" (click)="change(m)">Change</div>
 		            <div class="btn btn-sm btn-secondary" (click)="delete(m)">Delete</div>
 		        </div>

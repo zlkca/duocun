@@ -1,6 +1,6 @@
 <div class="container admin-product-list">
-  <div *ngIf="products && products.length==0">
-    <button (click)="add()">Add Product</button>
+  <div class="row btn-holder">
+    <div class="btn btn-sm btn-secondary" (click)="add()">Add Product</div>
   </div>
 
   <div class="list-body" *ngIf="products && products.length>0">
@@ -18,9 +18,8 @@
       </div>
 
       <div class="col-md-3">
-        <div class="btn" (click)="add()">Add</div>
-        <div class="btn" (click)="change(p)">Change</div>
-        <div class="btn" (click)="delete(p)">Delete</div>
+        <div class="btn btn-sm btn-secondary" (click)="change(p)">Change</div>
+        <div class="btn btn-sm btn-secondary" (click)="delete(p)">Delete</div>
       </div>
     </div>
 

@@ -178,6 +178,13 @@ body{
     padding-top: 0px;
   }
 
+  .btn-holder{
+    padding-bottom:15px;
+    .btn{
+        margin-right: 8px;
+    }
+  }
+
   .dropdown-menu{
     outline:none;
   }
@@ -318,6 +325,12 @@ body{
     }
   }
 
+  .list-item{
+    .btn{
+        margin-right: 5px;
+    }
+  }
+  
 }// end of body
 
 
