@@ -41,7 +41,10 @@ export class AdminBusinessUserFormComponent implements OnInit {
         const self = this;
         const v = new Account(this.form.value);
         v.id = this.user.id;
-        this.accountSvc.create(v).subscribe((r: Account) => {
+        if (!v.password) {
+            v.password = this.accountSvc.DEFAULT_PASSWORD;
+        }
+        this.accountSvc.replaceOrCreate(v).subscribe((r: Account) => {
             if (r.id) {
                 self.router.navigate(['admin']);
             } else {

@@ -15,6 +15,7 @@ const API_URL = environment.API_URL;
 export class AccountService {
     private API_URL = environment.API_URL;
     private account;
+    DEFAULT_PASSWORD = '123456';
 
     constructor(private ngRedux: NgRedux<Account>, private accountApi: AccountApi) { }
 
@@ -110,11 +111,11 @@ export class AccountService {
 
     signup(account: Account): Observable<any> {
         return this.accountApi.create(account)
-        .pipe(
-            mergeMap(() => {
-                return this.login(account.username, account.password);
-            })
-        );
+            .pipe(
+                mergeMap(() => {
+                    return this.login(account.username, account.password);
+                })
+            );
     }
 
     login(username: string, password: string, rememberMe: boolean = true): Observable<any> {
@@ -123,21 +124,21 @@ export class AccountService {
             password: password
         };
         return this.accountApi.login(credentials, null, rememberMe)
-        .pipe(
-            mergeMap(() => {
-                return this.accountApi.getCurrent({include: 'restaurants'});
-            }),
-            map((acc: Account) => {
-                this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
-                return acc;
-            })
-        );
+            .pipe(
+                mergeMap(() => {
+                    return this.accountApi.getCurrent({ include: 'restaurants' });
+                }),
+                map((acc: Account) => {
+                    this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
+                    return acc;
+                })
+            );
     }
 
     logout(): Observable<any> {
         const state = this.ngRedux.getState();
         if (state && state.id) {
-          this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: new Account() });
+            this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: new Account() });
         }
         return this.accountApi.logout();
     }
@@ -151,7 +152,7 @@ export class AccountService {
     }
 
     updateCurrent() {
-        this.accountApi.getCurrent({include: 'restaurants'})
+        this.accountApi.getCurrent({ include: 'restaurants' })
             .subscribe((acc: Account) => {
                 this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
             });
@@ -173,5 +174,8 @@ export class AccountService {
         return this.accountApi.create(account);
     }
 
+    replaceOrCreate(account: Account): Observable<any> {
+        return this.accountApi.replaceOrCreate(account);
+    }
 }
 
