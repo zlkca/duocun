@@ -16,13 +16,18 @@ $desktop: "(min-width: 1200px)";
             padding: 0px;
             float: left;
 
-            .grid-body{
+            .grid-item-body{
                 padding:5px 20px;
 
                 .image-body{
                     padding:0px;
+                    padding-top:75%;
                     img{
                         width:100%;
+                        height:100%;
+                        position: absolute;
+                        top:0;
+                        left:0;
                     }    
                 }
         
@@ -87,18 +92,24 @@ $desktop: "(min-width: 1200px)";
 	 }
 
 	@media #{$mobile}{
+        .restaurant-grid{
+            .grid-item{
+                border-bottom: 1px solid #eee;
 
-        .grid-item{
-            border-bottom: 1px solid #eee;
+                .grid-item-body{
+                    .image-body{
+                        padding-top:0px;
+                    }
+                }
+            }
+
+            .grid-item:first-child{
+                border-top: 1px solid #eee;
+            }
         }
-
-        .grid-item:first-child{
-            border-top: 1px solid #eee;
-        }
-
-		.left-side{
-			min-height:40px;
-		}
+		// .left-side{
+		// 	min-height:40px;
+		// }
 		.map-col{
 			padding:0px;
 		}
