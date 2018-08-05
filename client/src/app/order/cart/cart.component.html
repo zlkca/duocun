@@ -18,16 +18,15 @@
             </span>
         </div>
 
-        <div class="col-8">
+        <div class="col-8 text-area">
             <div class="col-12 text-left">{{item.name}}</div>
             <div class="col-12 text-right">{{item.price * item.quantity | currency}}</div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <div class="row text-right ml-2 mr-2 mb-3">
+  <div class="row text-right ml-2 mr-1 mb-3">
     <div class="col-12">
       <p class="title-sm">{{quantity}} Items, Total: {{total | currency}}</p>
     </div>

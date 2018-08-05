@@ -27,12 +27,13 @@
 }
 
 .list-group{
-    .text-left{
-        font-size: 14px;
-        line-height: 20px;
-    }
-    .text-right{
-        font-size: 14px;
-        line-height: 20px;
+    .text-area{
+        padding-right:0px;
+
+        .text-left, .text-right{
+            padding-right:3px;
+            font-size: 14px;
+            line-height: 20px;
+        }
     }
 }
