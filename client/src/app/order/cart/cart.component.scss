@@ -12,13 +12,27 @@
   padding: 0.25rem;
 }
 
-.input-group-sm {
+.quantity-input {
   width: auto;
+  margin-top: 5px;
+  padding:0px 3px;
+
   .btn {
-    height: 20px;
+    height: 30px;
     line-height: 10px;
   }
   input {
-    height: 20px;
+    height: 30px;
   }
+}
+
+.list-group{
+    .text-left{
+        font-size: 14px;
+        line-height: 20px;
+    }
+    .text-right{
+        font-size: 14px;
+        line-height: 20px;
+    }
 }
