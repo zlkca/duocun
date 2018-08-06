@@ -20,8 +20,6 @@ import { InstitutionSignupComponent } from './account/institution-signup/institu
 import { InstitutionLoginComponent } from './account/institution-login/institution-login.component';
 import { ForgetPasswordComponent } from './account/forget-password/forget-password.component';
 
-import { OrderListComponent } from './commerce/order-list/order-list.component';
-
 // import { ProfileComponent } from './users/profile/profile.component';
 // import { ProfileEditComponent } from './users/profile-edit/profile-edit.component';
 // import { ChangePasswordComponent } from './users/change-password/change-password.component';

@@ -51,7 +51,7 @@ export class LocationService {
 
     getLocationFromGeocode(geocodeResult): ILocation {
         const addr = geocodeResult && geocodeResult.address_components;
-
+        const oLocation = geocodeResult.geometry.location;
         if (addr && addr.length) {
             const loc = {
                 street_number: '',
@@ -60,8 +60,8 @@ export class LocationService {
                 city: '',
                 province: '',
                 postal_code: '',
-                lat: geocodeResult.geometry.location.lat,
-                lng: geocodeResult.geometry.location.lng
+                lat: typeof oLocation.lat === 'function' ? oLocation.lat() : oLocation.lat,
+                lng: typeof oLocation.lng === 'function' ? oLocation.lng() : oLocation.lng
             };
 
             addr.forEach(compo => {
@@ -95,7 +95,7 @@ export class LocationService {
 
         return fromPromise(new Promise((resolve, reject) => {
 
-            if (navigator) {
+            if (navigator && navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(geo => {
                     const lat = geo.coords.latitude;
                     const lng = geo.coords.longitude;

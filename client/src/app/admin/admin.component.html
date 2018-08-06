@@ -5,7 +5,7 @@
         <ngb-tabset>
           <ngb-tab title="Orders" *ngIf="account && account.type === 'business' && orders">
             <ng-template ngbTabContent>
-                <app-manage-order-list [orders]="orders"></app-manage-order-list>
+                <app-admin-order-list [orders]="orders"></app-admin-order-list>
                 <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
             </ng-template>
           </ngb-tab>
