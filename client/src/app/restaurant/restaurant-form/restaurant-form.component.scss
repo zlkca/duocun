@@ -1,10 +1,27 @@
-  .restaurant-form{
-    .row{
-      padding:10px;
-      .btn{
+  .restaurant-form {
+    .row {
+      padding: 10px;
+      .btn {
         width: 80px;
         min-width: 80px;
         margin-left: 10px;
       }
     }
+  }
+
+  #main {
+    width: 800px;
+  }
+
+  #main>div {
+    float: left;
+  }
+
+  #d1 {
+    width: 500px;
+    margin-right: 20px;
+  }
+
+  #d2 {
+    width: 20px;
   }
