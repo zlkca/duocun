@@ -24,26 +24,24 @@
     </div> -->
 
   <div formGroupName="address">
-    <div id="main">
-      <div class="row" id="d1">
-        <div class="label-sm">Street:</div>
-        <input name="street" formControlName="street" />
-        <!--  <div *ngIf="street.touched && street.invalid" class="alert alert-danger">
+    <div class="row">
+      <div class="label-sm">Street:</div>
+      <input name="street" formControlName="street" />
+      <!--  <div *ngIf="street.touched && street.invalid" class="alert alert-danger">
                           <div *ngIf="street.errors.required">Street is required</div>
                           <div *ngIf="street.errors.minlength">Street should be minimum 3 characters.</div>
                       </div> -->
-      </div>
-
-      <div class="row" id="d2">
-        <div class="label-sm">Unit/Suite:</div>
-        <input name="unit" formControlName="unit" />
-      </div>
     </div>
 
     <div class="row">
-      <div class="label-sm">Postal Code:</div>
-      <input name="postal_code" formControlName="postal_code" />
+      <div class="label-sm">Unit/Suite:</div>
+      <input name="unit" formControlName="unit" />
     </div>
+  </div>
+
+  <div class="row">
+    <div class="label-sm">Postal Code:</div>
+    <input name="postal_code" formControlName="postal_code" />
   </div>
 
   <div *ngIf="users?.length" class="row">
