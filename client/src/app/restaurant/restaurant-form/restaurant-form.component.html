@@ -1,20 +1,19 @@
-
 <form [formGroup]="form" class="restaurant-form">
-    <div class="row">
-        <div class="label-sm">Name:</div>
-        <input name="name" formControlName="name"/>
-<!--             <div *ngIf="name.touched && name.invalid" class="alert alert-danger">
+  <div class="row">
+    <div class="label-sm">Name:</div>
+    <input name="name" formControlName="name" />
+    <!--             <div *ngIf="name.touched && name.invalid" class="alert alert-danger">
             <div *ngIf="name.errors.required">Restaurant Name is required</div>
             <div *ngIf="name.errors.minlength">Restaurant Name should be minimum 3 characters.</div>
         </div> -->
-    </div>
-    <div class="row">
-        <div class="label-sm">Description</div>
-        <textarea name="description" formControlName="description"></textarea>
-        <!-- <div *ngIf="description.touched && description.invalid" class="alert alert-danger">Max Manufacory Description is 500 chars.</div> -->
-    </div>
+  </div>
+  <div class="row">
+    <div class="label-sm">Description</div>
+    <textarea name="description" formControlName="description"></textarea>
+    <!-- <div *ngIf="description.touched && description.invalid" class="alert alert-danger">Max Manufacory Description is 500 chars.</div> -->
+  </div>
 
-<!--         <div class="row">
+  <!--         <div class="row">
         <div class="label-sm">Category</div>
         <div formArrayName="categories">
             <div *ngFor="let cat of categoryList; let i=index">
@@ -24,33 +23,38 @@
         </div>
     </div> -->
 
-    <div formGroupName="address">
-        <div class="row">
-            <div class="label-sm">Street:</div>
-            <input name="street" formControlName="street"/>
-           <!--  <div *ngIf="street.touched && street.invalid" class="alert alert-danger">
-                <div *ngIf="street.errors.required">Street is required</div>
-                <div *ngIf="street.errors.minlength">Street should be minimum 3 characters.</div>
-            </div> -->
-        </div>
-
-        <div class="row">
-            <div class="label-sm">Postal Code:</div>
-            <input name="postal_code" formControlName="postal_code"/>
-        </div>
+  <div formGroupName="address">
+    <div class="row">
+      <div class="label-sm">Street:</div>
+      <input name="street" formControlName="street" />
+      <!--  <div *ngIf="street.touched && street.invalid" class="alert alert-danger">
+                          <div *ngIf="street.errors.required">Street is required</div>
+                          <div *ngIf="street.errors.minlength">Street should be minimum 3 characters.</div>
+                      </div> -->
     </div>
 
-    <div *ngIf="users?.length" class="row">
-        <div class="label-sm">Owner</div>
-        <select name="user" formControlName="ownerId">
-            <option *ngFor="let m of users" [value]="m.id">{{m.username}}</option>
-        </select>
+    <div class="row">
+      <div class="label-sm">Unit/Suite:</div>
+      <input name="unit" formControlName="unit" />
     </div>
+  </div>
 
-    <!-- <app-image-uploader [picture]="picture" #uploader></app-image-uploader> -->
-    <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)"></image-upload>
+  <div class="row">
+    <div class="label-sm">Postal Code:</div>
+    <input name="postal_code" formControlName="postal_code" />
+  </div>
 
-    <button (click)="save()">Save</button>
+  <div *ngIf="users?.length" class="row">
+    <div class="label-sm">Owner</div>
+    <select name="user" formControlName="ownerId">
+      <option *ngFor="let m of users" [value]="m.id">{{m.username}}</option>
+    </select>
+  </div>
 
-    <button (click)="cancel()">Cancel</button>
+  <!-- <app-image-uploader [picture]="picture" #uploader></app-image-uploader> -->
+  <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)"></image-upload>
+
+  <button (click)="save()">Save</button>
+
+  <button (click)="cancel()">Cancel</button>
 </form>

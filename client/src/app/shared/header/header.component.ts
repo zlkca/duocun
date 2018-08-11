@@ -115,7 +115,7 @@ export class HeaderComponent implements OnInit {
             (r: Account) => {
                 self.isLogin = r && r.id ? true : false;
                 if (self.isLogin) {
-                    if (r.type === 'business') {
+                    if (r.type === 'business' || r.type === 'super') {
                         self.router.navigate(['admin']);
                     } else {
                         self.accountServ.logout().subscribe(() => {

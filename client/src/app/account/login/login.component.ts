@@ -31,7 +31,7 @@ export class LoginComponent implements OnInit {
         private router: Router,
         private sharedServ: SharedService,
         private accountServ: AccountService,
-        ) {
+    ) {
 
         this.form = this.fb.group({
             account: ['', Validators.required],
@@ -79,17 +79,17 @@ export class LoginComponent implements OnInit {
         const v = this.form.value;
         // if (this.form.valid) {
         this.accountServ.login(v.account, v.password)
-        .subscribe((account: Account) => {
-            if (account.restaurants.length) {
-                this.router.navigate(['admin']);
-            } else {
-                this.router.navigate(['restaurants']);
-            }
-        },
-        (error) => {
-            this.errMsg = error.message || 'login failed.';
-            console.error('An error occurred', error);
-        });
+            .subscribe((account: Account) => {
+                if (account.restaurants.length) {
+                    this.router.navigate(['admin']);
+                } else {
+                    this.router.navigate(['restaurants']);
+                }
+            },
+                (error) => {
+                    this.errMsg = error.message || 'login failed.';
+                    console.error('An error occurred', error);
+                });
     }
 
 
