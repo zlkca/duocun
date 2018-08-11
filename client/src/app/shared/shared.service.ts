@@ -18,11 +18,10 @@ export class SharedService {
 
     // scale image inside frame
     resizeImage(frame_w: number, frame_h: number, w: number, h: number) {
-        var rw = 0;
-        var rh = 0;
+        let rw = 0;
+        let rh = 0;
 
-        var h1 = h * frame_w / w;
-        if (h1 > frame_h) {
+        if (h * frame_w / w > frame_h) {
             rh = frame_h;
             rw = w * frame_h / h;
         } else {
@@ -30,6 +29,19 @@ export class SharedService {
             rh = h * frame_w / w;
         }
         return { 'w': Math.round(rw), 'h': Math.round(rh), 'padding_top': Math.round((frame_h - rh) / 2) };
+    }
+
+    toDateTimeString(s) {
+        // s --- dd-mm-yyy:hh:mm:ss.z000
+        return s.split('.')[0].replace('T', ' ');
+    }
+
+    getTotal(items) {
+        let total = 0;
+        items.forEach(item => {
+            total += item.price * item.quantity;
+        });
+        return total.toFixed(2);
     }
 }
 

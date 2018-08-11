@@ -2,11 +2,12 @@ import { Component, OnInit, Input } from '@angular/core';
 import { SharedService } from '../../shared/shared.service';
 
 @Component({
-    selector: 'app-admin-order-list',
-    templateUrl: './admin-order-list.component.html',
-    styleUrls: ['./admin-order-list.component.scss']
+  selector: 'app-order-list',
+  templateUrl: './order-list.component.html',
+  styleUrls: ['./order-list.component.scss']
 })
-export class AdminOrderListComponent implements OnInit {
+export class OrderListComponent implements OnInit {
+
     @Input() orders;
 
     constructor(private sharedSvc: SharedService) { }
@@ -22,5 +23,5 @@ export class AdminOrderListComponent implements OnInit {
     toDateTimeString(s) {
         return this.sharedSvc.toDateTimeString(s);
     }
-}
 
+}
