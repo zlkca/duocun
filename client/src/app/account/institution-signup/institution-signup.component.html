@@ -1,50 +1,55 @@
 <div class="page institution-signup-page">
-	<form class="auth-form" [formGroup]="formGroup" >
-		<div class="row">
-			<span class="title-md">Create New Account</span>
-		</div>
-		<div class="row">
-			<span class="error-msg">{{errMsg}}</span>
-		</div>
+  <form class="auth-form" [formGroup]="formGroup">
+    <div class="row">
+      <span class="title-md">Create New Account</span>
+    </div>
+    <div class="row">
+      <span class="error-msg">{{errMsg}}</span>
+    </div>
 
-    	<div class="row">
-			<div class="label-sm">Username</div>
-			<input name="username" type="text" formControlName="username" />
-		</div>
+    <div class="row">
+      <div class="label-sm">Username</div>
+      <input name="username" type="text" formControlName="username" />
+    </div>
 
-		<div class="row">
-			<div class="label-sm">Email</div>
-			<input name="email" type="text" formControlName="email" />
-		</div>
+    <div class="row">
+      <div class="label-sm">Email</div>
+      <input name="email" type="text" formControlName="email" />
+    </div>
 
-		<div class="row">
-			<div class="label-sm">Password</div>
-			<input name="password" type="password" formControlName="password" />
-		</div>
+    <div class="row">
+      <div class="label-sm">Password</div>
+      <input name="password" type="password" formControlName="password" />
+    </div>
 
-		<div class="row">
-			<div class="label-sm">Restaurant Name</div>
-			<input name="restaurant" type="text" formControlName="restaurant" />
-		</div>
+    <div class="row">
+      <div class="label-sm">Restaurant Name</div>
+      <input name="restaurant" type="text" formControlName="restaurant" />
+    </div>
 
-    	<div class="row">
-    		<div class="label-sm">Restaurant Address</div>
-			<address-input (addrChange)="setAddr($event)"></address-input>
-		</div>
+    <div class="row">
+      <div class="label-sm">Restaurant Address</div>
+      <address-input id="address" (addrChange)="setAddr($event)"></address-input>
+    </div>
 
-		<div class="row">
-			<div class="label-sm">Restaurant Phone #</div>
-			<input name="phone" type="text" formControlName="phone" />
-		</div>
+    <div class="row">
+      <div class="label-sm">Unit/Suite</div>
+      <input name="unit" type="text" formControlName="unit" />
+    </div>
 
-		<div class="row">
-			<div class="label-sm">Restaurant Picture</div>		
-			<image-uploader [data]="picture" #uploader></image-uploader>
-		</div>
-		
-		<div class="row btn-holder">
-			<button class="btn btn-primary" (click)="onSignup()" type="submit" block>Create</button>
-		</div>
-	</form>
-	
+    <div class="row">
+      <div class="label-sm">Restaurant Phone #</div>
+      <input name="phone" type="text" formControlName="phone" />
+    </div>
+
+    <div class="row">
+      <div class="label-sm">Restaurant Picture</div>
+      <image-uploader [data]="picture" #uploader></image-uploader>
+    </div>
+
+    <div class="row btn-holder">
+      <button class="btn btn-primary" (click)="onSignup()" type="submit" block>Create</button>
+    </div>
+  </form>
+
 </div>
