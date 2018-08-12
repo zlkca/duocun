@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { OrderService } from '../order.service';
-import { Order } from '../../shared/lb-sdk';
+import { Order, Restaurant } from '../../shared/lb-sdk';
 
 @Component({
     selector: 'app-order-detail',
@@ -29,9 +29,12 @@ export class OrderDetailComponent implements OnInit {
                 this.items.map(x => {
                     this.subTotal += x.price * x.quantity;
                 });
-                this.delivery = 0;
-                this.tax = (this.subTotal + this.delivery) * 0.13;
-                this.total = this.subTotal + this.tax;
+                this.orderServ.findRestaurant(this.orderId, true)
+                    .subscribe((r: Restaurant) => {
+                        this.delivery = r.delivery_fee;
+                        this.tax = (this.subTotal + this.delivery) * 0.13;
+                        this.total = this.subTotal + this.delivery + this.tax;
+                    });
             });
     }
 }

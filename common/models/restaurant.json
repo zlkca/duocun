@@ -19,6 +19,9 @@
     "ownerId": {
       "type": "number"
     },
+    "delivery_fee": {
+      "type": "number"
+    },
     "created": {
       "type": "date",
       "defaultFn": "now"

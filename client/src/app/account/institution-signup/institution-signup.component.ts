@@ -17,28 +17,28 @@ import { RestaurantService } from '../../restaurant/restaurant.service';
   styleUrls: ['./institution-signup.component.scss']
 })
 export class InstitutionSignupComponent implements OnInit {
-  errMsg:string;
-  formGroup:FormGroup;
-  address:any;
-  picture:any = {image:{data:'', file:''}};
+  errMsg: string;
+  formGroup: FormGroup;
+  address: any;
+  picture: any = { image: { data: '', file: '' } };
   @ViewChild(ImageUploaderComponent)
-  uploader:any;
+  uploader: any;
 
   constructor(
-    private fb:FormBuilder,
-    private authServ:AuthService,
+    private fb: FormBuilder,
+    private authServ: AuthService,
     private accountServ: AccountService,
     private restaurantServ: RestaurantService,
-    private router:Router,
-    private sharedServ:SharedService) {
+    private router: Router,
+    private sharedServ: SharedService) {
 
     this.formGroup = this.fb.group({
-      username:['', Validators.required],
-      email:['', Validators.required],
-      password:['', Validators.required],
-      restaurant:['', Validators.required],
-      //address:[''],
-      phone:['']
+      username: ['', Validators.required],
+      email: ['', Validators.required],
+      password: ['', Validators.required],
+      restaurant: ['', Validators.required],
+      // address:[''],
+      phone: ['']
     });
   }
 
@@ -46,45 +46,46 @@ export class InstitutionSignupComponent implements OnInit {
 
   }
 
-  setAddr(obj){
-  	this.address = obj.addr;
-  	let sAddr = obj.sAddr;
+  setAddr(obj) {
+    this.address = obj.addr;
+    const sAddr = obj.sAddr;
 
   }
 
-    onSignup() {
-        const v = this.formGroup.value;
-        const account = new Account({
-            username: v.username,
-            email: v.email,
-            password: v.password,
-            type: 'business'
+  onSignup() {
+    const v = this.formGroup.value;
+    const account = new Account({
+      username: v.username,
+      email: v.email,
+      password: v.password,
+      type: 'business'
+    });
+    this.accountServ.signup(account).subscribe((user: Account) => {
+      if (user.id) {
+        const restaurant = new Restaurant({
+          name: v.restaurant,
+          location: { lat: this.address.lat, lng: this.address.lng },
+          ownerId: user.id,
+          address: new Address({
+            formattedAddress: this.address.street_number + ' ' + this.address.street_name,
+            location: { lat: this.address.lat, lng: this.address.lng },
+            province: this.address.province,
+            postalCode: this.address.postal_code
+          }),
+          delivery_fee: 0,
         });
-        this.accountServ.signup(account).subscribe((user: Account) => {
-            if (user.id) {
-                const restaurant = new Restaurant({
-                    name: v.restaurant,
-                    location: {lat: this.address.lat, lng: this.address.lng},
-                    ownerId: user.id,
-                    address: new Address({
-                      formattedAddress: this.address.street_number + ' ' + this.address.street_name,
-                      location: {lat: this.address.lat, lng: this.address.lng},
-                      province: this.address.province,
-                      postalCode: this.address.postal_code
-                    }),
-                });
-                this.restaurantServ.create(restaurant).subscribe((res: Restaurant) => {
-                    this.router.navigate(['admin']);
-                });
-            }
-        },
-            err => {
-                this.errMsg = err.message || 'Create Account Failed';
-            });
-    }
+        this.restaurantServ.create(restaurant).subscribe((res: Restaurant) => {
+          this.router.navigate(['admin']);
+        });
+      }
+    },
+      err => {
+        this.errMsg = err.message || 'Create Account Failed';
+      });
+  }
 
 
-  save(){
+  save() {
     // let self = this;
     // let v = this.form.value;
     // let picture = self.uploader.data[0]
