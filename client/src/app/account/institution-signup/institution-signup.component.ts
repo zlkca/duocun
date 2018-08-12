@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NgRedux } from '@angular-redux/store';
@@ -16,6 +16,7 @@ import { RestaurantService } from '../../restaurant/restaurant.service';
   templateUrl: './institution-signup.component.html',
   styleUrls: ['./institution-signup.component.scss']
 })
+
 export class InstitutionSignupComponent implements OnInit {
   errMsg: string;
   formGroup: FormGroup;
@@ -37,8 +38,9 @@ export class InstitutionSignupComponent implements OnInit {
       email: ['', Validators.required],
       password: ['', Validators.required],
       restaurant: ['', Validators.required],
-      // address:[''],
-      phone: ['']
+      // address: ['', Validators.required],
+      unit: ['', Validators.required],
+      phone: ['', Validators.required],
     });
   }
 
@@ -48,8 +50,6 @@ export class InstitutionSignupComponent implements OnInit {
 
   setAddr(obj) {
     this.address = obj.addr;
-    const sAddr = obj.sAddr;
-
   }
 
   onSignup() {
@@ -68,6 +68,7 @@ export class InstitutionSignupComponent implements OnInit {
           ownerId: user.id,
           address: new Address({
             formattedAddress: this.address.street_number + ' ' + this.address.street_name,
+            unit: v.unit,
             location: { lat: this.address.lat, lng: this.address.lng },
             province: this.address.province,
             postalCode: this.address.postal_code

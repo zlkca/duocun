@@ -6,6 +6,7 @@ import {
 declare var Object: any;
 export interface AddressInterface {
   "formattedAddress": string;
+  "unit"?: number;
   "location"?: GeoPoint;
   "sublocality"?: string;
   "city"?: string;
@@ -22,6 +23,7 @@ export interface AddressInterface {
 
 export class Address implements AddressInterface {
   "formattedAddress": string;
+  "unit": number;
   "location": GeoPoint;
   "sublocality": string;
   "city": string;
@@ -50,7 +52,7 @@ export class Address implements AddressInterface {
   * @license MIT
   * This method creates an instance of Address for dynamic purposes.
   **/
-  public static factory(data: AddressInterface): Address{
+  public static factory(data: AddressInterface): Address {
     return new Address(data);
   }
   /**
@@ -70,6 +72,10 @@ export class Address implements AddressInterface {
         "formattedAddress": {
           name: 'formattedAddress',
           type: 'string'
+        },
+        "unit": {
+          name: 'unit',
+          type: 'number'
         },
         "location": {
           name: 'location',
@@ -122,7 +128,7 @@ export class Address implements AddressInterface {
           type: 'any',
           model: '',
           relationType: 'belongsTo',
-                  keyFrom: 'entityId',
+          keyFrom: 'entityId',
           keyTo: 'id'
         },
       }

@@ -23,7 +23,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
 
     currentAccount: Account;
 
-    id: string = '';
+    id = '';
     categoryList: Category[] = [];
     picture;
     subscriptionPicture;
@@ -31,9 +31,9 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
     users;
     uploadedPictures: string[] = [];
     uploadUrl: string = [
-      LoopBackConfig.getPath(),
-      LoopBackConfig.getApiVersion(),
-      'Containers/pictures/upload'
+        LoopBackConfig.getPath(),
+        LoopBackConfig.getApiVersion(),
+        'Containers/pictures/upload'
     ].join('/');
 
     @Input() restaurant: Restaurant;
@@ -47,9 +47,10 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
             // postal_code:['', Validators.required]
             address: this.fb.group({
                 street: ['', [Validators.required]],
-                postal_code: ['', [Validators.required]]
+                unit: ['', [Validators.required]],
+                postalCode: ['', [Validators.required]],
             }),
-            ownerId: new FormControl(),//['', Validators.required]
+            ownerId: new FormControl(), // ['', Validators.required]
             // categories: this.fb.array([]),
             // delivery_fee: ''
         });
@@ -72,14 +73,15 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         this.uploadedPictures = (this.restaurant.pictures || []).map(pic => pic.url);
         this.form.patchValue(this.restaurant);
         if (this.restaurant.address) {
-          this.form.get('address').get('street').setValue(this.restaurant.address.formattedAddress);
-          this.form.get('address').get('postal_code').setValue(this.restaurant.address.postalCode);
+            this.form.get('address').get('street').setValue(this.restaurant.address.formattedAddress);
+            this.form.get('address').get('unit').setValue(this.restaurant.address.unit);
+            this.form.get('address').get('postalCode').setValue(this.restaurant.address.postalCode);
         }
 
-        //localStorage.setItem('restaurant_info-' + APP, JSON.stringify(self.restaurant));
-        //self.pictures = [{ index: 0, name: '', image: this.restaurant.image }];
+        // localStorage.setItem('restaurant_info-' + APP, JSON.stringify(self.restaurant));
+        // self.pictures = [{ index: 0, name: '', image: this.restaurant.image }];
 
-        //self.route.params.subscribe((params:any)=>{
+        // self.route.params.subscribe((params:any)=>{
         // self.commerceServ.getRestaurant(params.id).subscribe(
         //     (r:Restaurant) => {
         //     	self.restaurant = r;
@@ -134,9 +136,9 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         //         //self.categories.push(new FormControl(s.id));
         //     }
         // })
-        //});
+        // });
 
-        //create new
+        // create new
         // self.commerceServ.getCategoryList().subscribe(catList=>{
         //     self.categoryList = catList;
         //     for(let cat of catList){
@@ -145,12 +147,12 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         // });
 
         this.accountSvc.getCurrent().subscribe((acc: Account) => {
-          this.currentAccount = acc;
-          if (acc.type === 'super') {
-            self.accountSvc.find({ where: { type: 'business' } }).subscribe(users => {
-              self.users = users;
-            });
-          }
+            this.currentAccount = acc;
+            if (acc.type === 'super') {
+                self.accountSvc.find({ where: { type: 'business' } }).subscribe(users => {
+                    self.users = users;
+                });
+            }
         });
 
     }
@@ -158,28 +160,28 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
     }
 
-    onUploadFinished (event) {
-      try {
-        const res = JSON.parse(event.serverResponse.response._body);
-        this.restaurant.pictures = (this.restaurant.pictures || []).concat(res.result.files.image.map(img => {
-          return {
-            url: [
-              LoopBackConfig.getPath(),
-              LoopBackConfig.getApiVersion(),
-              'Containers',
-              img.container,
-              'download',
-              img.name
-            ].join('/')
-          };
-        }));
-      } catch (error) {
-        console.error(error);
-      }
+    onUploadFinished(event) {
+        try {
+            const res = JSON.parse(event.serverResponse.response._body);
+            this.restaurant.pictures = (this.restaurant.pictures || []).concat(res.result.files.image.map(img => {
+                return {
+                    url: [
+                        LoopBackConfig.getPath(),
+                        LoopBackConfig.getApiVersion(),
+                        'Containers',
+                        img.container,
+                        'download',
+                        img.name
+                    ].join('/')
+                };
+            }));
+        } catch (error) {
+            console.error(error);
+        }
     }
 
-    onRemoved (event) {
-      this.restaurant.pictures.splice(this.restaurant.pictures.findIndex(pic => pic.url === event.file.src));
+    onRemoved(event) {
+        this.restaurant.pictures.splice(this.restaurant.pictures.findIndex(pic => pic.url === event.file.src));
     }
 
     save() {
@@ -188,7 +190,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
         const v = this.form.value;
         const restaurant = new Restaurant(this.form.value);
         if (!this.users || !this.users.length) {
-          restaurant.ownerId = this.currentAccount.id;
+            restaurant.ownerId = this.currentAccount.id;
         }
 
         restaurant.pictures = this.restaurant.pictures;
@@ -203,6 +205,7 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
                 city: 'Toronto',
                 province: 'ON',
                 formattedAddress: v.address.street,
+                unit: null,
                 postalCode: v.address.postal_code
             });
         }

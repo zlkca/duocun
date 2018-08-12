@@ -44,7 +44,10 @@ export class AdminProductFormPageComponent implements OnInit {
                         self.product = p;
                     });
             } else {
-                self.product = new Product();
+                // self.product = new Product();
+                self.product = {
+                    restaurantId: self.account.id,
+                };
                 // self.product.pictures = [{ index: 0, image: { index: 0, data: 'add_photo.png', file: '' } }];
             }
         });
