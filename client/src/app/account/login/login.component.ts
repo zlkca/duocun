@@ -80,10 +80,14 @@ export class LoginComponent implements OnInit {
         // if (this.form.valid) {
         this.accountServ.login(v.account, v.password)
             .subscribe((account: Account) => {
-                if (account.restaurants.length) {
-                    this.router.navigate(['admin']);
+                if (account.type === 'user') {
+                    this.router.navigate(['home']);
                 } else {
-                    this.router.navigate(['restaurants']);
+                    if (account.restaurants.length) {
+                        this.router.navigate(['admin']);
+                    } else {
+                        this.router.navigate(['home']);
+                    }
                 }
             },
                 (error) => {

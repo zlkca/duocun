@@ -68,27 +68,6 @@ import { SDKBrowserModule, LoopBackConfig } from './shared/lb-sdk';
 import { environment } from '../environments/environment';
 
 const appRoutes: Routes = [
-    // { path: 'login', component:LoginComponent },
-
-    // { path: 'contact-us', component:ContactComponent },
-    // { path: 'product-list', component:ProductListComponent },
-    // { path: 'product/:id', component:ProductDetailComponent },
-    // { path: 'shopping-cart', component:ShoppingCartComponent },
-
-    // { path: 'profiles', component:ProfileComponent },
-    // { path: 'profile-edit', component:ProfileEditComponent },
-    // { path: 'change-password', component:ChangePasswordComponent },
-    // { path: 'payment', component:PaymentComponent },
-    // { path: '', component:HomeComponent }
-    // { path: '', component:LayoutComponent,
-    //     children:[
-    //       { path: 'products', component:ProductListComponent },
-    //       //{ path: 'product/:id', component:ProductComponent },
-    //       { path: 'login', component:LoginComponent },
-    //       { path: 'home', component:HomeComponent }
-    //     ]
-    // }
-
     { path: 'admin', component: AdminComponent },
     // { path: 'admin/restaurants', component:RestaurantListComponent },
     { path: 'admin/restaurant/:id', component: AdminRestaurantFormPageComponent },
@@ -102,9 +81,6 @@ const appRoutes: Routes = [
     { path: 'admin/edit-products', component: MultiProductFormComponent },
     { path: 'admin/user', component: AdminBusinessUserFormPageComponent },
     { path: 'admin/users/:id', component: AdminBusinessUserFormPageComponent },
-    // { path: 'business-center/restaurants', component:RestaurantFormComponent},
-    // { path: 'business-center/products', component:ProductListComponent},
-
 
     { path: 'restaurants', component: RestaurantGridComponent },
     { path: 'restaurant-detail/:id', component: RestaurantDetailComponent },
@@ -116,7 +92,8 @@ const appRoutes: Routes = [
     { path: 'institution-login', component: InstitutionLoginComponent },
     { path: 'signup', component: SignupComponent },
     { path: 'institution-signup', component: InstitutionSignupComponent },
-    { path: 'home', component: HomeComponent }
+    { path: 'home', component: HomeComponent },
+    { path: '', component: HomeComponent}
 ];
 
 
@@ -132,6 +109,7 @@ const appRoutes: Routes = [
         FormsModule,
         RouterModule.forRoot(
             appRoutes,
+            {useHash: true}
             // { enableTracing: true } // <-- debugging purposes only
         ),
         SDKBrowserModule.forRoot(),

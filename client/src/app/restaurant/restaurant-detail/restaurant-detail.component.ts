@@ -29,7 +29,6 @@ export class RestaurantDetailComponent implements OnInit {
 
     constructor(private productSvc: ProductService,
         private restaurantSvc: RestaurantService,
-        private router: Router,
         private route: ActivatedRoute,
         // private ngRedux:NgRedux<IAppState>,
         // private actions: CartActions
@@ -43,8 +42,8 @@ export class RestaurantDetailComponent implements OnInit {
 
     ngOnInit() {
         const self = this;
-        self.route.paramMap.subscribe((params: ParamMap) => {
-            const restaurantId = parseInt(params.get('id'), 10);
+        self.route.params.subscribe(params => {
+            const restaurantId = parseInt(params['id'], 10);
             self.restaurantSvc.findById(restaurantId, { include: ['pictures', 'address'] }).subscribe(
                 (restaurant: Restaurant) => {
                     self.restaurant = restaurant;

@@ -29,10 +29,15 @@ export class HomeComponent implements OnInit {
     @ViewChild('div') div: ElementRef;
 
     ngOnInit() {
+        const self = this;
 
+        const s = localStorage.getItem('location-' + APP);
+        if (s) {
+            self.router.navigate(['restaurants']);
+        } else {
+            self.router.navigate(['home']);
+        }
     }
-
-
 
     constructor(private router: Router,
         private commerceServ: CommerceService,

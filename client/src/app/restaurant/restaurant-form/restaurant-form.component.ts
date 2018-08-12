@@ -226,11 +226,11 @@ export class RestaurantFormComponent implements OnInit, OnDestroy {
 
             if (restaurant.id) {
                 self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
-                    self.router.navigate(['admin']);
+                    // self.router.navigate(['admin']);
                 });
             } else {
                 self.restaurantSvc.create(restaurant).subscribe((r: any) => {
-                    self.router.navigate(['admin']);
+                    // self.router.navigate(['admin']);
                 });
             }
 
