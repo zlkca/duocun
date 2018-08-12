@@ -9,7 +9,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { OrderApi, Order, OrderItem, LoopBackFilter } from '../shared/lb-sdk';
+import { OrderApi, Order, OrderItem, LoopBackFilter, Restaurant } from '../shared/lb-sdk';
 
 const APP = environment.APP;
 const API_URL = environment.API_URL;
@@ -18,6 +18,10 @@ const API_URL = environment.API_URL;
 export class OrderService {
 
     constructor(private orderApi: OrderApi) { }
+
+    findRestaurant(id: any, find: boolean): Observable<Restaurant> {
+        return this.orderApi.getRestaurant(id, find);
+    }
 
     findById(id: any, filter: LoopBackFilter = {}): Observable<Order> {
         return this.orderApi.findById(id, filter);
@@ -35,7 +39,7 @@ export class OrderService {
                     return this.orderApi.createManyItems(newOrder.id, order.items);
                 }),
                 mergeMap((items: OrderItem[]) => {
-                    return this.orderApi.findById(items[0].orderId, {include: 'items'});
+                    return this.orderApi.findById(items[0].orderId, { include: 'items' });
                 })
             );
     }

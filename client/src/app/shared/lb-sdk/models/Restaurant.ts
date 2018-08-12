@@ -16,6 +16,7 @@ export interface RestaurantInterface {
   "created"?: Date;
   "modified"?: Date;
   "id"?: number;
+  "delivery_fee"?: number;
   products?: Product[];
   orders?: Order[];
   pictures?: Picture[];
@@ -30,6 +31,7 @@ export class Restaurant implements RestaurantInterface {
   "created": Date;
   "modified": Date;
   "id": number;
+  "delivery_fee": number;
   products: Product[];
   orders: Order[];
   pictures: Picture[];
@@ -50,7 +52,7 @@ export class Restaurant implements RestaurantInterface {
   * @license MIT
   * This method creates an instance of Restaurant for dynamic purposes.
   **/
-  public static factory(data: RestaurantInterface): Restaurant{
+  public static factory(data: RestaurantInterface): Restaurant {
     return new Restaurant(data);
   }
   /**
@@ -95,6 +97,10 @@ export class Restaurant implements RestaurantInterface {
           name: 'id',
           type: 'number'
         },
+        "delivery_fee": {
+          name: 'delivery_fee',
+          type: 'number'
+        },
       },
       relations: {
         products: {
@@ -102,7 +108,7 @@ export class Restaurant implements RestaurantInterface {
           type: 'Product[]',
           model: 'Product',
           relationType: 'hasMany',
-                  keyFrom: 'id',
+          keyFrom: 'id',
           keyTo: 'restaurantId'
         },
         orders: {
@@ -110,7 +116,7 @@ export class Restaurant implements RestaurantInterface {
           type: 'Order[]',
           model: 'Order',
           relationType: 'hasMany',
-                  keyFrom: 'id',
+          keyFrom: 'id',
           keyTo: 'restaurantId'
         },
         pictures: {
@@ -118,7 +124,7 @@ export class Restaurant implements RestaurantInterface {
           type: 'Picture[]',
           model: 'Picture',
           relationType: 'hasMany',
-                  keyFrom: 'id',
+          keyFrom: 'id',
           keyTo: 'imageableId'
         },
         address: {
@@ -126,7 +132,7 @@ export class Restaurant implements RestaurantInterface {
           type: 'Address',
           model: 'Address',
           relationType: 'hasOne',
-                  keyFrom: 'id',
+          keyFrom: 'id',
           keyTo: 'entityId'
         },
       }
