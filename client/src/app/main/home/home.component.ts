@@ -25,7 +25,8 @@ export class HomeComponent implements OnInit {
     places: any[] = [];
     center: any;
     gAutocomplete: any;
-
+    coords: any;
+    geoError: any;
     @ViewChild('div') div: ElementRef;
 
     ngOnInit() {
@@ -37,6 +38,16 @@ export class HomeComponent implements OnInit {
         } else {
             self.router.navigate(['home']);
         }
+
+        // testing
+        // Chrome no longer supports obtaining the user's location using
+        // the HTML5 Geolocation API from pages delivered by non-secure connections.
+        navigator.geolocation.getCurrentPosition(geo => {
+          this.coords = geo;
+        }, err => {
+          this.geoError = err;
+        }
+      );
     }
 
     constructor(private router: Router,

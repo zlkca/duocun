@@ -115,7 +115,20 @@ export class LocationService {
                             reject(loc);
                         }
                     });
-                });
+                }, err => { // if mobile browser doesn't support
+                    this.geocoder.geocode({ 'location': pos }, (results) => {
+                      const loc = this.getLocationFromGeocode(results[0]);
+                      if (loc) {
+                          loc.lat = pos.lat;
+                          loc.lng = pos.lng;
+                          this.set(loc);
+                          resolve(loc);
+                      } else {
+                          reject(loc);
+                      }
+                  });
+                }
+              );
             } else {
                 reject();
             }
