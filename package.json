@@ -29,7 +29,7 @@
     "@mean-expert/loopback-sdk-builder": "git://github.com/sunsq1991/loopback-sdk-builder.git",
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
-    "nsp": "^2.1.0"
+    "nsp": "^3.2.1"
   },
   "repository": {
     "type": "",
