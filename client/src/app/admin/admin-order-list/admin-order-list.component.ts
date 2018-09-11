@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { SharedService } from '../../shared/shared.service';
 import { OrderService } from '../../order/order.service';
 import { Router } from '@angular/router';
+import { Order } from '../../shared/lb-sdk';
 
 @Component({
     selector: 'app-admin-order-list',
@@ -26,13 +27,15 @@ export class AdminOrderListComponent implements OnInit {
     }
 
     toDeliver(order) {
-        this.orderSvc.delivery(order);
-        return this.router.navigate(['admin']);
+        return this.orderSvc.delivery(order).subscribe((newOrder: Order) => {
+            window.location.reload();
+        });
     }
 
     toCancel(order) {
-        this.orderSvc.cancel(order);
-        return this.router.navigate(['admin']);
+        return this.orderSvc.cancel(order).subscribe((newOrder: Order) => {
+            window.location.reload();
+        });
     }
 }
 

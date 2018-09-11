@@ -53,14 +53,10 @@ export class OrderService {
     }
 
     delivery(order: Order) {
-        const newOrder = order;
-        newOrder.status = 'delivered';
-        console.log('Delivered!');
-        return this.orderApi.patchAttributes(newOrder.id, newOrder);
+        return this.orderApi.patchAttributes(order.id, { status: 'delivered' });
     }
 
     cancel(order: Order) {
-        console.log('Canceled!');
         return this.orderApi.deleteById(order.id);
     }
 

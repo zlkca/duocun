@@ -1,38 +1,43 @@
 <div class="order-list">
     <div class="order" *ngFor="let order of orders; let i = index;">
-        <!-- <div class="body" (click)="toDetail(p)"> -->
-        <div class="body">
-            <div class="row order-header">
-                <div class="col-4">
-                    <span class="title-xs">Id: </span>
-                    <span class="title-xs">{{order.id}}</span>
+        <div class="body" (click)="delivered(order.status)">
+            <div class="body">
+                <div class="row order-header">
+                    <div class="col-4">
+                        <span class="title-xs">Id: </span>
+                        <span class="title-xs">{{order.id}}</span>
+                    </div>
+                    <div class="col-8">
+                        <span class="title-xs">Customer: </span>
+                        <span class="title-xs">{{order.account.username}}</span>
+                    </div>
+                    <div class="col-4">
+                        <span class="title-xs">Status: </span>
+                        <span class="text-xs">{{order.status}}</span>
+                    </div>
+                    <div class="col-8">
+                        <span class="title-xs">Order Date: </span>
+                        <span class="text-xs">{{toDateTimeString(order.created)}}</span>
+                    </div>
                 </div>
-                <div class="col-8">
-                    <span class="title-xs">Customer: </span>
-                    <span class="title-xs">{{order.account.username}}</span>
+
+                <div *ngFor="let it of order.items">
+                    <div class="text-xs">{{it.product.name}} ${{it.price}} x {{it.quantity}}</div>
                 </div>
-                <div class="col-4">
-                    <span class="title-xs">Status: </span>
-                    <span class="text-xs">{{order.status}}</span>
-                </div>
-                <div class="col-8">
-                    <span class="title-xs">Order Date: </span>
-                    <span class="text-xs">{{toDateTimeString(order.created)}}</span>
+
+                <div class="row">
+                    <div class="col-6 text-sm total">Total: ${{getTotal(order)}}</div>
+                    <div class="col-6" *ngIf="order.status === 'delivered';else delivered">
+                        <div class="btn btn-secondary btn-xs pull-right m-1">Delivered</div>
+                    </div>
+                    <ng-template #delivered>
+                        <div class="col-6">
+                            <div class="btn btn-secondary btn-xs pull-right m-1" (click)="toDeliver(order)">Deliver</div>
+                            <div class="btn btn-secondary btn-xs pull-right m-1" (click)="toCancel(order)">Cancel</div>
+                        </div>
+                    </ng-template>
                 </div>
             </div>
-
-            <div *ngFor="let it of order.items">
-                <div class="text-xs">{{it.product.name}} ${{it.price}} x {{it.quantity}}</div>
-            </div>
-
-            <div class="row">
-                <div class="col-6 text-sm total">Total: ${{getTotal(order)}}</div>
-                <div class="col-6">
-                    <div class="btn btn-secondary btn-xs pull-right m-1" (click)="toDeliver(order)">Deliver</div>
-                    <div class="btn btn-secondary btn-xs pull-right m-1" (click)="toCancel(order)">Cancel</div>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>
