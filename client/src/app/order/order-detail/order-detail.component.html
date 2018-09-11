@@ -2,9 +2,9 @@
   <div class="container list-group mb-3 ml-2 mr-2">
     <div *ngFor="let item of items" class="align-items-start bg-light">
       <div class="row border-bottom ml-2 mr-2">
-        <div class="col-6 mt-2 mb-2 text-left">{{item.product.name}}</div>
+        <div class="col-6 mt-2 mb-2 text-left">{{item.name}}</div>
         <div class="col-2 mt-2 mb-2 text-center">{{item.quantity}}</div>
-        <div class="col-4 mt-2 mb-2 text-right">{{item.product.price * item.quantity | currency}}</div>
+        <div class="col-4 mt-2 mb-2 text-right">{{item.price * item.quantity | currency}}</div>
       </div>
     </div>
   </div>

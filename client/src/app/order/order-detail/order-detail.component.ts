@@ -15,26 +15,26 @@ export class OrderDetailComponent implements OnInit {
     tax = 0;
     delivery = 0;
 
-    @Input() orderId: number;
+    // @Input() orderId: number;
+    @Input() cart: any;
 
     constructor(
-        private orderServ: OrderService,
+        private orderServ: OrderService
     ) { }
 
     ngOnInit() {
-        this.orderServ.findById(this.orderId, { include: { items: 'product' } })
-            .subscribe((data: Order) => {
-                this.order = data;
-                this.items = this.order.items;
-                this.items.map(x => {
-                    this.subTotal += x.price * x.quantity;
-                });
-                this.orderServ.findRestaurant(this.orderId, true)
-                    .subscribe((r: Restaurant) => {
-                        this.delivery = r.delivery_fee;
-                        this.tax = (this.subTotal + this.delivery) * 0.13;
-                        this.total = this.subTotal + this.delivery + this.tax;
-                    });
+        this.items = Object.values(this.cart);
+        this.items = this.items[0];
+
+        this.items.map(item => {
+            this.subTotal += item.price * item.quantity;
+        });
+
+        this.orderServ.findRestaurant(this.items[0].restaurant_id, { include: 'products' })
+            .subscribe((r: Restaurant) => {
+                this.delivery = r.delivery_fee;
+                this.tax = (this.subTotal + this.delivery) * 0.13;
+                this.total = this.subTotal + this.delivery + this.tax;
             });
     }
 }

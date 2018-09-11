@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { SharedService } from '../../shared/shared.service';
+import { OrderService } from '../../order/order.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-admin-order-list',
@@ -9,7 +11,7 @@ import { SharedService } from '../../shared/shared.service';
 export class AdminOrderListComponent implements OnInit {
     @Input() orders;
 
-    constructor(private sharedSvc: SharedService) { }
+    constructor(private sharedSvc: SharedService, private orderSvc: OrderService, private router: Router, ) { }
 
     ngOnInit() {
 
@@ -21,6 +23,16 @@ export class AdminOrderListComponent implements OnInit {
 
     toDateTimeString(s) {
         return this.sharedSvc.toDateTimeString(s);
+    }
+
+    toDeliver(order) {
+        this.orderSvc.delivery(order);
+        return this.router.navigate(['admin']);
+    }
+
+    toCancel(order) {
+        this.orderSvc.cancel(order);
+        return this.router.navigate(['admin']);
     }
 }
 
