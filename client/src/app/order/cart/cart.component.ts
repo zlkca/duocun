@@ -110,7 +110,7 @@ export class CartComponent implements OnInit, OnDestroy {
         return orders;
     }
 
-    comfirmed() {
+    confirmed() {
         const orders = this.createOrders(this.cart);
         this.OrderServ.create(orders[0])
             .subscribe((newOrder: Order) => {
