@@ -79,9 +79,14 @@ export class AdminComponent implements OnInit, OnDestroy {
                 }
 
             } else if (account.type === 'super') {
-                self.restaurantSvc.find().subscribe((restaurants: Restaurant[]) => {
+                this.subscrList.push(self.restaurantSvc.find().subscribe((restaurants: Restaurant[]) => {
                     self.restaurants = restaurants;
-                });
+                }));
+
+                this.subscrList.push(self.orderSvc.find({include: ['account', 'restaurant', {items: {product: 'pictures'}}]})
+                .subscribe((orders: Order[]) => {
+                    self.orders = orders;
+                }));
             }
         });
 

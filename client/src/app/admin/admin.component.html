@@ -3,7 +3,7 @@
 
     <div class="container">
         <ngb-tabset>
-          <ngb-tab title="Orders" *ngIf="account && account.type === 'business' && orders">
+          <ngb-tab title="Orders" *ngIf="account && (account.type === 'business' || account.type === 'super') && orders">
             <ng-template ngbTabContent>
                 <app-admin-order-list [orders]="orders"></app-admin-order-list>
                 <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
