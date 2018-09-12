@@ -21,7 +21,6 @@ export class CartComponent implements OnInit, OnDestroy {
     subscriptionAccount;
     cart: any;
     user: Account;
-    orderId: number;
 
     @ViewChild('orderDetailModal') orderDetailModal;
 
@@ -77,12 +76,7 @@ export class CartComponent implements OnInit, OnDestroy {
     checkout() {
         const orders = this.createOrders(this.cart);
         if (orders[0].accountId) {
-            this.OrderServ.create(orders[0])
-                .subscribe((newOrder: Order) => {
-                    this.orderId = newOrder.id;
-                    this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
-                    this.modalServ.open(this.orderDetailModal);
-                });
+            this.modalServ.open(this.orderDetailModal);
         } else {
             this.router.navigate(['login']);
         }
@@ -116,7 +110,12 @@ export class CartComponent implements OnInit, OnDestroy {
         return orders;
     }
 
-    comfirmed() {
+    confirmed() {
+        const orders = this.createOrders(this.cart);
+        this.OrderServ.create(orders[0])
+            .subscribe((newOrder: Order) => {
+                this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
+            });
         this.router.navigate(['restaurants']);
     }
 

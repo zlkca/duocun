@@ -1,7 +1,7 @@
 
 import { throwError as observableThrowError, Observable } from 'rxjs';
 import { fromPromise } from 'rxjs/observable/fromPromise';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { catchError, map, mergeMap, filter } from 'rxjs/operators';
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -9,7 +9,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { OrderApi, Order, OrderItem, LoopBackFilter, Restaurant } from '../shared/lb-sdk';
+import { OrderApi, Order, OrderItem, LoopBackFilter, Restaurant, RestaurantApi } from '../shared/lb-sdk';
 
 const APP = environment.APP;
 const API_URL = environment.API_URL;
@@ -17,18 +17,18 @@ const API_URL = environment.API_URL;
 @Injectable()
 export class OrderService {
 
-    constructor(private orderApi: OrderApi) { }
+    constructor(private orderApi: OrderApi, private restaurantApi: RestaurantApi) { }
 
-    findRestaurant(id: any, find: boolean): Observable<Restaurant> {
-        return this.orderApi.getRestaurant(id, find);
+    findRestaurant(id: any, filters: LoopBackFilter): Observable<Restaurant> {
+        return this.restaurantApi.findById(id, filters);
     }
 
-    findById(id: any, filter: LoopBackFilter = {}): Observable<Order> {
-        return this.orderApi.findById(id, filter);
+    findById(id: any, filters: LoopBackFilter = {}): Observable<Order> {
+        return this.orderApi.findById(id, filters);
     }
 
-    find(filter: LoopBackFilter = {}): Observable<Order[]> {
-        return this.orderApi.find(filter);
+    find(filters: LoopBackFilter = {}): Observable<Order[]> {
+        return this.orderApi.find(filters);
     }
 
     create(order: Order): Observable<Order> {
@@ -50,6 +50,14 @@ export class OrderService {
 
     createManyItems(orderId: number, orderItems: OrderItem[]): Observable<OrderItem[]> {
         return this.orderApi.createManyItems(orderId, orderItems);
+    }
+
+    delivery(order: Order) {
+        return this.orderApi.patchAttributes(order.id, { status: 'delivered' });
+    }
+
+    cancel(order: Order) {
+        return this.orderApi.deleteById(order.id);
     }
 
     // private API_URL = environment.API_URL;

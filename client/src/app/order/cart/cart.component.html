@@ -9,18 +9,20 @@
       <div class="row border-bottom ml-2 mr-2">
 
         <div class="col-4 input-group input-group-sm quantity-input">
-            <span class="input-group-prepend">
-                <button type="button" (click)="removeFromCart(item)" class="btn btn-light btn-sm rounded-0" data-type="minus" data-field="num">-</button>
-            </span>
-            <input type="text" name="num" class="input form-control text-center" [(ngModel)]="item.quantity" (change)="updateQuantity(item)">
-            <span class="input-group-append">
-                <button type="button" (click)="addToCart(item)" class="btn btn-light btn-sm rounded-0" data-type="plus" data-field="num">+</button>
-            </span>
+          <span class="input-group-prepend">
+            <button type="button" (click)="removeFromCart(item)" class="btn btn-light btn-sm rounded-0" data-type="minus"
+              data-field="num">-</button>
+          </span>
+          <input type="text" name="num" class="input form-control text-center" [(ngModel)]="item.quantity" (change)="updateQuantity(item)">
+          <span class="input-group-append">
+            <button type="button" (click)="addToCart(item)" class="btn btn-light btn-sm rounded-0" data-type="plus"
+              data-field="num">+</button>
+          </span>
         </div>
 
         <div class="col-8 text-area">
-            <div class="col-12 text-left">{{item.name}}</div>
-            <div class="col-12 text-right">{{item.price * item.quantity | currency}}</div>
+          <div class="col-12 text-left">{{item.name}}</div>
+          <div class="col-12 text-right">{{item.price * item.quantity | currency}}</div>
         </div>
       </div>
     </div>
@@ -41,10 +43,11 @@
     <h4 class="modal-title">Order Detail</h4>
   </div>
   <div class="modal-body">
-    <app-order-detail [orderId]="orderId"></app-order-detail>
+    <!-- <app-order-detail [orderId]="orderId"></app-order-detail> -->
+    <app-order-detail [cart]="cart"></app-order-detail>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-xs btn-secondary pull-left" (click)="d('Cross click');comfirmed()">Cancel</button>
-    <button type="button" class="btn btn-xs btn-primary pull-right" (click)="c('Save click');comfirmed()">OK</button>
+    <button type="button" class="btn btn-xs btn-secondary pull-left" (click)="d('Cross click')">Cancel</button>
+    <button type="button" class="btn btn-xs btn-primary pull-right" (click)="c('Save click');confirmed()">Confirm</button>
   </div>
 </ng-template>
