@@ -21,7 +21,7 @@ module.exports = function(server) {
     if (hash === signature) {
       res.send(req.echostr);
     } else {
-      res.send('');
+      res.send('hello');
     }
   });
 
