@@ -19,9 +19,13 @@ const geocodeURL = 'http://maps.googleapis.com/maps/api/geocode/json';
 export class LocationService {
     private geocoder;
     constructor(private ngRedux: NgRedux<ILocation>, private http: HttpClient) {
+      try {
         if (google) {
-            this.geocoder = new google.maps.Geocoder();
+          this.geocoder = new google.maps.Geocoder();
         }
+      } catch (error) {
+        this.geocoder = null;
+      }
     }
 
     get(): Observable<ILocation> {

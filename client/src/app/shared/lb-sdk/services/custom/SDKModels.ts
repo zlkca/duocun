@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Account } from '../../models/Account';
 import { Container } from '../../models/Container';
 import { Restaurant } from '../../models/Restaurant';
+import { Category } from '../../models/Category';
 import { Product } from '../../models/Product';
 import { Order } from '../../models/Order';
 import { OrderItem } from '../../models/OrderItem';
@@ -18,6 +19,7 @@ export class SDKModels {
     Account: Account,
     Container: Container,
     Restaurant: Restaurant,
+    Category: Category,
     Product: Product,
     Order: Order,
     OrderItem: OrderItem,

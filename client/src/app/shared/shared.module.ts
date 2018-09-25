@@ -37,7 +37,9 @@ import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-
     MultiImageUploaderComponent
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  exports:[ WizardComponent, ImageViewerComponent, FeedbackComponent, MapComponent, HeaderComponent, FooterComponent,
-  AddressInputComponent, ImageUploaderComponent, MultiImageUploaderComponent]
+  exports:[
+    WizardComponent, ImageViewerComponent, FeedbackComponent, MapComponent, HeaderComponent, FooterComponent,
+    AddressInputComponent, ImageUploaderComponent, MultiImageUploaderComponent
+  ]
 })
 export class SharedModule { }

@@ -3,9 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
-import { CategoryListComponent } from './category-list/category-list.component';
-import { CategoryFormComponent } from './category-form/category-form.component';
-
 import { ProductFilterComponent } from './product-filter/product-filter.component';
 
 import { SharedService } from '../shared/shared.service';
@@ -50,10 +47,10 @@ import { SharedModule } from '../shared/shared.module';
             useClass: TokenInterceptor,
             multi: true
         }],
-    exports: [CategoryListComponent, CategoryFormComponent,
+    exports: [
         ProductFilterComponent,
         MultiUserFormComponent, MultiProductFormComponent, MultiRestaurantFormComponent],
-    declarations: [CategoryListComponent, CategoryFormComponent,
+    declarations: [
         ProductFilterComponent,
         MultiUserFormComponent, MultiProductFormComponent, MultiRestaurantFormComponent]
 })

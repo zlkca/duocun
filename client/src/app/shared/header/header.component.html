@@ -8,7 +8,7 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto" id="nav-left">
       <li class="nav-item">
-        <a class="nav-link" (click)="toHome()">Home</a>
+        <a class="nav-link" (click)="toHome()" i18n='@@Home'>Home</a>
       </li>
       <li *ngIf="locality" class="navbar-text">
         <span class="text-dark">{{locality}}</span>
@@ -20,7 +20,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" (click)="toBusinessCenter()">Business Center</a>
+        <a class="nav-link" (click)="toBusinessCenter()" i18n='@@BusinessCenter'>Business Center</a>
       </li>
     </ul>
     <span *ngIf="isLogin" class="navbar-text">

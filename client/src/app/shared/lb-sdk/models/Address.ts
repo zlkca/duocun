@@ -16,8 +16,6 @@ export interface AddressInterface {
   "created"?: Date;
   "modified"?: Date;
   "id"?: number;
-  "entityId"?: number;
-  "entityType"?: string;
   entity?: any;
 }
 
@@ -33,8 +31,6 @@ export class Address implements AddressInterface {
   "created": Date;
   "modified": Date;
   "id": number;
-  "entityId": number;
-  "entityType": string;
   entity: any;
   constructor(data?: AddressInterface) {
     Object.assign(this, data);

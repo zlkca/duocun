@@ -11,7 +11,6 @@ import { AccountModule } from '../account/account.module';
 import { OrderModule } from '../order/order.module';
 import { environment } from '../../environments/environment';
 
-import { HomeComponent } from './home/home.component';
 import { ContactComponent } from './contact/contact.component';
 import { LayoutComponent } from './layout/layout.component';
 
@@ -35,7 +34,6 @@ import { CommentComponent } from './comment/comment.component';
         OrderModule
     ],
     declarations: [
-        HomeComponent,
         ContactComponent,
         LayoutComponent,
         ProductComponent,
@@ -46,7 +44,6 @@ import { CommentComponent } from './comment/comment.component';
     providers: [CommerceService, AccountService],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
-        ContactComponent,
-        HomeComponent]
+        ContactComponent]
 })
 export class MainModule { }

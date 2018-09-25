@@ -11,8 +11,10 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
 
+import { MyAddressComponent } from './page/my-address/my-address.component';
+import { HomeComponent } from './page/home/home.component';
 
-import { HomeComponent } from './main/home/home.component';
+
 // import { ContactComponent } from './main/contact/contact.component';
 import { LoginComponent } from './account/login/login.component';
 import { SignupComponent } from './account/signup/signup.component';
@@ -26,7 +28,6 @@ import { ForgetPasswordComponent } from './account/forget-password/forget-passwo
 // import { PaymentComponent } from './products/payment/payment.component';
 import { RestaurantFormComponent } from './restaurant/restaurant-form/restaurant-form.component';
 
-import { RestaurantGridComponent } from './restaurant/restaurant-grid/restaurant-grid.component';
 import { RestaurantListComponent } from './restaurant/restaurant-list/restaurant-list.component';
 import { RestaurantDetailComponent } from './restaurant/restaurant-detail/restaurant-detail.component';
 import { AdminRestaurantFormPageComponent } from './admin/admin-restaurant-form-page/admin-restaurant-form-page.component';
@@ -58,10 +59,11 @@ import { LayoutComponent } from './main/layout/layout.component';
 
 import { OrderListPageComponent } from './main/order-list-page/order-list-page.component';
 
-import { CategoryListComponent } from './commerce/category-list/category-list.component';
-import { CategoryFormComponent } from './commerce/category-form/category-form.component';
+import { AdminCategoryPageComponent } from './admin/admin-category-page/admin-category-page.component';
 import { MultiProductFormComponent } from './commerce/multi-product-form/multi-product-form.component';
 import { OrderModule } from './order/order.module';
+import { PageModule } from './page/page.module';
+
 import { ImageUploadModule } from 'angular2-image-upload';
 import { SDKBrowserModule, LoopBackConfig } from './shared/lb-sdk';
 
@@ -69,12 +71,8 @@ import { environment } from '../environments/environment';
 
 const appRoutes: Routes = [
     { path: 'admin', component: AdminComponent },
-    // { path: 'admin/restaurants', component:RestaurantListComponent },
     { path: 'admin/restaurant/:id', component: AdminRestaurantFormPageComponent },
     { path: 'admin/restaurant', component: AdminRestaurantFormPageComponent },
-    { path: 'admin/categories', component: CategoryListComponent },
-    { path: 'admin/category/:id', component: CategoryFormComponent },
-    { path: 'admin/category', component: CategoryFormComponent },
     { path: 'admin/products/:id', component: AdminProductFormPageComponent },
     { path: 'admin/product', component: AdminProductFormPageComponent },
     { path: 'admin/products', component: AdminProductListPageComponent },
@@ -82,7 +80,7 @@ const appRoutes: Routes = [
     { path: 'admin/user', component: AdminBusinessUserFormPageComponent },
     { path: 'admin/users/:id', component: AdminBusinessUserFormPageComponent },
 
-    { path: 'restaurants', component: RestaurantGridComponent },
+    { path: 'restaurants', component: HomeComponent },
     { path: 'restaurant-detail/:id', component: RestaurantDetailComponent },
     { path: 'products', component: ProductListComponent },
     { path: 'product/:id', component: ProductComponent },
@@ -92,8 +90,8 @@ const appRoutes: Routes = [
     { path: 'institution-login', component: InstitutionLoginComponent },
     { path: 'signup', component: SignupComponent },
     { path: 'institution-signup', component: InstitutionSignupComponent },
-    { path: 'home', component: HomeComponent },
-    { path: '', component: HomeComponent}
+    { path: 'home', component: MyAddressComponent },
+    { path: '', component: MyAddressComponent}
 ];
 
 
@@ -123,7 +121,8 @@ const appRoutes: Routes = [
         AdminModule,
         RestaurantModule,
         ProductModule,
-        OrderModule
+        OrderModule,
+        PageModule,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     bootstrap: [AppComponent],

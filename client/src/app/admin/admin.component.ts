@@ -10,7 +10,7 @@ import { ProductService } from '../product/product.service';
 
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { RestaurantService } from '../restaurant/restaurant.service';
-import { Restaurant, Product, Order } from '../shared/lb-sdk';
+import { Restaurant, Product, Order, Category } from '../shared/lb-sdk';
 import { OrderService } from '../order/order.service';
 
 @Component({
@@ -33,7 +33,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     // for super admin
     businessUsers: Account[] = [];
     restaurants: Restaurant[] = [];
-
+    categories: Category[] = [];
 
     constructor(private router: Router,
         private sharedServ: SharedService,
@@ -87,6 +87,10 @@ export class AdminComponent implements OnInit, OnDestroy {
                 .subscribe((orders: Order[]) => {
                     self.orders = orders;
                 }));
+
+                this.subscrList.push(self.productSvc.findCategories().subscribe((categories: Category[]) => {
+                  self.categories = categories;
+              }));
             }
         });
 

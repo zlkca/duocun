@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommerceService } from '../../commerce/commerce.service';
 import { SharedService } from '../../shared/shared.service';
@@ -20,26 +20,14 @@ export class RestaurantGridComponent implements OnInit {
     keyword: string;
     query: any;
     filter: any;
-    restaurantList: Restaurant[];
     places: any[] = [];
-    center: GeoPoint = { lat: 43.761539, lng: -79.411079 };
     MEDIA_URL = environment.MEDIA_URL;
 
+    @Input() restaurantList; // : Restaurant[];
+    @Input() center;
+
     ngOnInit() {
-        const self = this;
-
-        const s = localStorage.getItem('location-' + APP);
-
-        if (s) {
-            const location = JSON.parse(s);
-            self.center = { lat: location.lat, lng: location.lng };
-            self.doSearchRestaurants(self.center);
-        } else {
-            this.locationSvc.getCurrentLocation().subscribe(r => {
-                self.center = { lat: r.lat, lng: r.lng };
-                self.doSearchRestaurants(self.center);
-            });
-        }
+      // let x = this.restaurantList;
     }
 
     constructor(private commerceServ: CommerceService,
@@ -68,12 +56,32 @@ export class RestaurantGridComponent implements OnInit {
     }
 
     searchByKeyword(keyword: string) {
-        const self = this;
-        this.query = { 'keyword': keyword };
-        const query = { ...self.filter, ...self.query };
-        self.doSearchRestaurants(query);
+        // const self = this;
+        // this.query = { 'keyword': keyword };
+        // const query = { ...self.filter, ...self.query };
+        // self.doSearchRestaurants(query);
     }
 
+    searchRestaurant(keyword: string) {
+      // let self = this;
+      // this.restaurantServ.find().subscribe(
+      //   (ps: Restaurant[]) => {
+      //       self.restaurantList = ps; // self.toProductGrid(data);
+      //       const a = [];
+      //       ps.map(restaurant => {
+      //           a.push({
+      //               lat: restaurant.location.lat,
+      //               lng: restaurant.location.lng,
+      //               name: restaurant.name
+      //           });
+      //       });
+      //       self.places = a;
+      //   },
+      //   (err: any) => {
+      //       self.restaurantList = [];
+      //   }
+      // );
+    }
 
     getImageSrc(image: any) {
         // if (image.file) {
@@ -128,44 +136,44 @@ export class RestaurantGridComponent implements OnInit {
         return d.toFixed(2) + ' km';
     }
 
-    doSearchRestaurants(query?: any) {
-        // query --- eg. {}
-        const self = this;
-        const qs = self.getFilter(query);
-        let s = '';
-        const conditions = [];
+    // doSearchRestaurants(query?: any) {
+    //     // query --- eg. {}
+    //     const self = this;
+    //     const qs = self.getFilter(query);
+    //     let s = '';
+    //     const conditions = [];
 
-        if (qs.length > 0) {
-            conditions.push(qs.join('&'));
-        }
-        if (query && query.keyword) {
-            conditions.push('keyword=' + query.keyword);
-        }
-        if (query && query.lat && query.lng) {
-            conditions.push('lat=' + query.lat + '&lng=' + query.lng);
-        }
+    //     if (qs.length > 0) {
+    //         conditions.push(qs.join('&'));
+    //     }
+    //     if (query && query.keyword) {
+    //         conditions.push('keyword=' + query.keyword);
+    //     }
+    //     if (query && query.lat && query.lng) {
+    //         conditions.push('lat=' + query.lat + '&lng=' + query.lng);
+    //     }
 
-        if (conditions.length > 0) {
-            s = '?' + conditions.join('&');
-        }
+    //     if (conditions.length > 0) {
+    //         s = '?' + conditions.join('&');
+    //     }
 
-        // this.restaurantServ.getNearby(this.center).subscribe(
-        this.restaurantServ.find().subscribe(
-            (ps: Restaurant[]) => {
-                self.restaurantList = ps; // self.toProductGrid(data);
-                const a = [];
-                ps.map(restaurant => {
-                    a.push({
-                        lat: restaurant.location.lat,
-                        lng: restaurant.location.lng,
-                        name: restaurant.name
-                    });
-                });
-                self.places = a;
-            },
-            (err: any) => {
-                self.restaurantList = [];
-            }
-        );
-    }
+    //     // this.restaurantServ.getNearby(this.center).subscribe(
+    //     this.restaurantServ.find().subscribe(
+    //         (ps: Restaurant[]) => {
+    //             self.restaurantList = ps; // self.toProductGrid(data);
+    //             const a = [];
+    //             ps.map(restaurant => {
+    //                 a.push({
+    //                     lat: restaurant.location.lat,
+    //                     lng: restaurant.location.lng,
+    //                     name: restaurant.name
+    //                 });
+    //             });
+    //             self.places = a;
+    //         },
+    //         (err: any) => {
+    //             self.restaurantList = [];
+    //         }
+    //     );
+    // }
 }

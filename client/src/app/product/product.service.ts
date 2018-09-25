@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
-import { ProductApi, LoopBackFilter, Product, GeoPoint, Order, OrderApi, Picture, PictureApi } from '../shared/lb-sdk';
+import { ProductApi, LoopBackFilter, Product, Category, CategoryApi, Picture, PictureApi } from '../shared/lb-sdk';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { identifierModuleUrl } from '@angular/compiler';
@@ -25,6 +25,7 @@ export class ProductService {
     constructor(
         private http: HttpClient,
         private pictureApi: PictureApi,
+        private categoryApi: CategoryApi,
         private productApi: ProductApi) { }
 
 
@@ -195,10 +196,10 @@ export class ProductService {
         const url = API_URL + 'products' + (query ? query : '');
         const headers = new HttpHeaders().set('Content-Type', 'application/json');
         return this.http.get(url, { 'headers': headers }).pipe(map((res: any) => {
-            let a: Product[] = [];
-            let d = res.data;
+            const a: Product[] = [];
+            const d = res.data;
             if (d && d.length > 0) {
-                for (var i = 0; i < d.length; i++) {
+                for (let i = 0; i < d.length; i++) {
                     a.push(new Product(d[i]));
                 }
             }
@@ -209,14 +210,26 @@ export class ProductService {
             }), );
     }
 
-    getProduct(id: number): Observable<Product> {
-        const url = API_URL + 'product/' + id;
-        const headers = new HttpHeaders().set('Content-Type', 'application/json');
-        return this.http.get(url, { 'headers': headers }).pipe(map((res: any) => {
-            return new Product(res.data);
-        }),
-            catchError((err) => {
-                return observableThrowError(err.message || err);
-            }), );
-    }
+  getProduct(id: number): Observable<Product> {
+      const url = API_URL + 'product/' + id;
+      const headers = new HttpHeaders().set('Content-Type', 'application/json');
+      return this.http.get(url, { 'headers': headers }).pipe(map((res: any) => {
+          return new Product(res.data);
+      }),
+          catchError((err) => {
+              return observableThrowError(err.message || err);
+          }), );
+  }
+
+  createCategory(category: Category): Observable<Category> {
+    return this.categoryApi.create(category);
+  }
+
+  replaceCategoryById(id: number, category: Category): Observable<Category> {
+    return this.categoryApi.replaceById(id, category);
+  }
+
+  findCategories(filter: LoopBackFilter = {}): Observable<Category[]> {
+    return this.categoryApi.find(filter);
+  }
 }

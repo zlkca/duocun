@@ -2,6 +2,7 @@
 export * from './Account';
 export * from './Container';
 export * from './Restaurant';
+export * from './Category';
 export * from './Product';
 export * from './Order';
 export * from './OrderItem';

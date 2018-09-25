@@ -1,0 +1,5 @@
+<div class="list-group category-list">
+    <div class="list-group-item category" *ngFor="let c of categories" >
+        <div (click)="onSelect(c)">{{c.name}}</div>
+    </div>
+</div>

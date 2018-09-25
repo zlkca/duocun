@@ -51,6 +51,7 @@ import { RealTime } from './services/core/real.time';
 import { AccountApi } from './services/custom/Account';
 import { ContainerApi } from './services/custom/Container';
 import { RestaurantApi } from './services/custom/Restaurant';
+import { CategoryApi } from './services/custom/Category';
 import { ProductApi } from './services/custom/Product';
 import { OrderApi } from './services/custom/Order';
 import { OrderItemApi } from './services/custom/OrderItem';
@@ -89,6 +90,7 @@ export class SDKBrowserModule {
         AccountApi,
         ContainerApi,
         RestaurantApi,
+        CategoryApi,
         ProductApi,
         OrderApi,
         OrderItemApi,

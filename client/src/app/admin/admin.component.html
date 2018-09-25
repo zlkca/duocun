@@ -31,6 +31,13 @@
             </ng-template>
           </ngb-tab>
 
+          <ngb-tab title="Categories" *ngIf="account && (account.type === 'business' || account.type === 'super') && orders">
+            <ng-template ngbTabContent>
+                <app-admin-category-page [categories]="categories"></app-admin-category-page>
+                <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
+            </ng-template>
+          </ngb-tab>
+
           <ngb-tab title="Restaurants" *ngIf="account && account.type === 'super'">
             <ng-template ngbTabContent>
               <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->

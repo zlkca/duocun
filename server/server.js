@@ -60,6 +60,7 @@ var autoMigrateValidate = function() {
   prompt.get([{name: 'reply', description: 'Do you want to reset database? (y/n)',
   }], function(err, res) {
     if (res.reply == 'y') {
+      // reset data in database
       autoMigrateAction();
     } else {
       console.log('skipping automigrate');
@@ -118,25 +119,37 @@ var createData = function(ds) {
     ]);
   })
   .then(function() {
+    return ds.models.Category.create([
+      {
+        name: 'category 1',
+        description: 'category 1',
+      },
+    ]);
+  })
+  .then(function() {
     return ds.models.Product.create([
       {
         name: 'prod 1',
         restaurantId: 1,
+        categoryId: 1,
         price: 13,
       },
       {
         name: 'prod 2',
         restaurantId: 1,
+        categoryId: 1,
         price: 12,
       },
       {
         name: 'prod 3',
         restaurantId: 1,
+        categoryId: 1,
         price: 4,
       },
       {
         name: 'prod 4',
         restaurantId: 2,
+        categoryId: 1,
         price: 18,
       },
     ]);

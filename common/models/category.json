@@ -1,5 +1,5 @@
 {
-  "name": "Product",
+  "name": "Category",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
@@ -13,19 +13,6 @@
     "description": {
       "type": "string"
     },
-    "price": {
-      "type": "number",
-      "required": true,
-      "default": 0
-    },
-    "restaurantId": {
-      "type": "number",
-      "required": true
-    },
-    "categoryId": {
-      "type": "number",
-      "required": true
-    },
     "created": {
       "type": "date",
       "defaultFn": "now"
@@ -37,15 +24,10 @@
   },
   "validations": [],
   "relations": {
-    "owner": {
-      "type": "belongsTo",
-      "model": "Restaurant",
-      "foreignKey": "restaurantId"
-    },
-    "pictures": {
+    "products": {
       "type": "hasMany",
-      "model": "Picture",
-      "polymorphic": "imageable"
+      "model": "Product",
+      "foreignKey": "restaurantId"
     }
   },
   "acls": [],

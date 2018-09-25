@@ -1,0 +1,37 @@
+<div class="page container">
+  <div class="row">
+      <div class="col-sm-12 col-12 map-col">
+        <div class="map-area">
+            <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
+        </div>
+      </div>
+      <!-- <div class="col-xs-12 col-4 search-col">
+        <div class="input-group search-box">
+          <input type="text" class="form-control" [(ngModel)]="keyword" placeholder="Search Restaurant" aria-describedby="basic-addon2">
+          <span class="input-group-addon" (click)="searchRestaurant(keyword)"><i class="fa fa-search"></i></span>
+        </div>
+      </div> -->
+
+      <div class="row">
+        <div class="col-md-12 col-sm-12 col-12 mt-2 grid">
+          <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" (click)="toDetail()">
+              <div class="row grid-item-body">
+                  <div class="col-md-12 col-sm-3 col-3 image-body">
+                      <img [src]="'http://placehold.it/400x300'">
+                  </div>
+  
+                  <div class="col-md-12 col-sm-9 col-9 text-body">
+                      <div class="title-bg text-left">Hefan</div>
+                      <div class="text-sm text-left">Free Deliver when order before 10:00am</div>
+                      <div class="text-sm text-left">5km</div>
+                  </div>
+              <!-- <div class="card-footer text-muted">{{p.id}}</div> -->
+              </div>
+          </div>
+      </div>
+
+      <div class="col-12">
+        <app-restaurant-grid [restaurantList]="restaurants" [center]="center" *ngIf="restaurants"></app-restaurant-grid>
+      </div>   
+  </div>
+</div>

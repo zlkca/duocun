@@ -20,6 +20,7 @@ import { AdminRestaurantListComponent } from './admin-restaurant-list/admin-rest
 import { AdminOrderListComponent } from './admin-order-list/admin-order-list.component';
 import { AdminProductListPageComponent } from './admin-product-list-page/admin-product-list-page.component';
 import { EditRestaurantComponent } from './edit-restaurant/edit-restaurant.component';
+import { AdminCategoryPageComponent } from './admin-category-page/admin-category-page.component';
 
 @NgModule({
     imports: [
@@ -43,7 +44,9 @@ import { EditRestaurantComponent } from './edit-restaurant/edit-restaurant.compo
         AdminOrderListComponent,
         AdminProductListPageComponent,
         AdminProductFormPageComponent,
-        EditRestaurantComponent],
+        EditRestaurantComponent,
+        AdminCategoryPageComponent
+      ],
     exports: [AdminComponent, EditRestaurantComponent]
 })
 export class AdminModule { }

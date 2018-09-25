@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ochid": {
+    "etuan": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -47,24 +47,35 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+            "zh-Hans":{
+              "aot":true,
+              "outputPath": "dist/etuan-zh-Hans",
+              "i18nFile": "src/locale/messages.zh-Hans.xlf",
+              "i18nFormat": "xlf",
+              "i18nLocale": "zh-Hans",
+              "i18nMissingTranslation": "error"
             }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "ochid:build"
+            "browserTarget": "etuan:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "ochid:build:production"
+              "browserTarget": "etuan:build:production"
+            },
+            "zh-Hans":{
+              "browserTarget": "etuan:build:zh-Hans"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ochid:build"
+            "browserTarget": "etuan:build"
           }
         },
         "test": {
@@ -101,7 +112,7 @@
         }
       }
     },
-    "ochid-e2e": {
+    "etuan-e2e": {
       "root": "",
       "sourceRoot": "e2e",
       "projectType": "application",
@@ -110,7 +121,7 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "ochid:serve"
+            "devServerTarget": "etuan:serve"
           }
         },
         "lint": {
@@ -125,7 +136,7 @@
       }
     }
   },
-  "defaultProject": "ochid",
+  "defaultProject": "etuan",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

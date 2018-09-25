@@ -61,15 +61,15 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
     }
 
-    onToggleCategory(c: FormControl) {
-        // let v = c.value;
-        // if(c.value.checked){
-        //     v.checked = false;
-        // }else{
-        //     v.checked = true;
-        // }
-        // c.patchValue(v);
+  onToggleCategory(c: FormControl) {
+    const v = c.value;
+    if (c.value.checked) {
+      v.checked = false;
+    } else {
+      v.checked = true;
     }
+    c.patchValue(v);
+  }
 
     onSelectRestaurant(id: string) {
         // let obj = this.restaurantList.find( x => { return x.id == id });
@@ -85,14 +85,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     }
 
     getCheckedCategories() {
-        const cs = [];
-        // for (let i = 0; i < this.categoryList.length; i++) {
-        //     let c = this.categoryList[i];
-        //     if (this.categories.get(i.toString()).value) {
-        //         cs.push(c);
-        //     }
-        // }
-        return cs;
+      const cs = [];
+      for (let i = 0; i < this.categoryList.length; i++) {
+          let c = this.categoryList[i];
+          // if (this.categories.get(i.toString()).value) {
+          //     cs.push(c);
+          // }
+      }
+      return cs;
     }
 
     onUploadFinished(event) {
@@ -125,7 +125,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         const newV = {
             ...this.form.value,
             id: this.product.id,
-            // categories: [{ id: 1 }], // self.getCheckedCategories(),
+            categories: [{ id: 1 }], // self.getCheckedCategories(),
             // restaurant: { id: restaurant_id.value },
             // pictures: [self.picture]// self.uploader.data
             // restaurantId: restaurantId.value

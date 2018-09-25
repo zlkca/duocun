@@ -41,15 +41,15 @@
             </select>
         </div> -->
 
-<!--         <div class="row">
-            <div class="label-sm">Category</div>
-            <div formArrayName="categories">
-                <div *ngFor="let cat of categoryList; let i=index">
-                    <input type="checkbox" formControlName="{{i}}" (change)="onToggleCategory(cat)">
-                    {{cat.name}}<br>
-                </div>
-            </div>
-        </div> -->
+        <div class="row">
+          <div class="label-sm">Category</div>
+          <div formArrayName="categories">
+              <div *ngFor="let cat of categoryList; let i=index">
+                  <input type="checkbox" formControlName="{{i}}" (change)="onToggleCategory(cat)">
+                  {{cat.name}}<br>
+              </div>
+          </div>
+        </div>
 
         <!-- <app-image-uploader [data]="pictures" #uploader></app-image-uploader> -->
         <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)"></image-upload>

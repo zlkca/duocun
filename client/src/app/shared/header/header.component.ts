@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../account/auth.service';
 import { SharedService } from '../shared.service';
-import { CategoryListComponent } from '../../commerce/category-list/category-list.component';
-
 import { environment } from '../../../environments/environment';
 import { LocationService } from '../location/location.service';
 import { ILocation } from '../location/location.model';
@@ -43,7 +41,6 @@ export class HeaderComponent implements OnInit {
                     this.user = null;
                     this.isLogin = false;
                 }
-
             });
 
         this.locationSvc.get().subscribe((addr: ILocation) => {

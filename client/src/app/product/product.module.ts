@@ -9,6 +9,8 @@ import { ProductListComponent } from './product-list/product-list.component';
 import { ProductGridComponent } from './product-grid/product-grid.component';
 import { OrderModule } from '../order/order.module';
 import { ImageUploadModule } from 'angular2-image-upload';
+import { CategoryFormComponent } from './category-form/category-form.component';
+import { CategoryListComponent } from './category-list/category-list.component';
 
 @NgModule({
   imports: [
@@ -20,8 +22,13 @@ import { ImageUploadModule } from 'angular2-image-upload';
     OrderModule,
     ImageUploadModule.forRoot(),
   ],
-  schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [ProductFormComponent, ProductListComponent, ProductGridComponent, ProductFilterComponent],
-  exports: [ProductFormComponent, ProductListComponent, ProductGridComponent, ProductFilterComponent]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  declarations: [ProductFormComponent, ProductListComponent, ProductGridComponent, ProductFilterComponent,
+    CategoryFormComponent,
+    CategoryListComponent],
+  exports: [ProductFormComponent, ProductListComponent, ProductGridComponent, ProductFilterComponent,
+    CategoryFormComponent,
+    CategoryListComponent
+  ]
 })
 export class ProductModule { }
