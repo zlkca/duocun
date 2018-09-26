@@ -1,7 +1,9 @@
 
 <div class="row admin-category-page">
   <div class="col-4 col-xs-12">
-    <app-category-list [categories]="categories" (select)="onSelect($event)"></app-category-list>
+    <app-category-list [categories]="categories" 
+      (select)="onSelect($event)"
+      (afterDelete)="onAfterDelete($event)"></app-category-list>
     <div class="btn btn-secondary btn-add" (click)="add()">Add Category</div>
   </div>
   <div class="col-8 col-xs-12">

@@ -21,49 +21,49 @@ export class AdminRestaurantPageComponent implements OnInit {
   placeholder = environment.MEDIA_URL + ADD_IMAGE;
 
   constructor(private router: Router,
-      private restaurantSvc: RestaurantService,
-      private commerceSvc: CommerceService) { }
+    private restaurantSvc: RestaurantService,
+    private commerceSvc: CommerceService) { }
 
   toPage(url: string) {
-      this.router.navigate([url]);
+    this.router.navigate([url]);
   }
 
   getImageSrc(image: any) {
-      // if (image.file) {
-      //     return image.data;
-      // } else {
-      //     if (image.data) {
-      //         return this.MEDIA_URL + image.data;
-      //     } else {
-      //         return this.MEDIA_URL + 'add_photo.png';
-      //     }
-      // }
-      return this.MEDIA_URL + 'add_photo.png';
+    // if (image.file) {
+    //     return image.data;
+    // } else {
+    //     if (image.data) {
+    //         return this.MEDIA_URL + image.data;
+    //     } else {
+    //         return this.MEDIA_URL + 'add_photo.png';
+    //     }
+    // }
+    return this.MEDIA_URL + 'add_photo.png';
   }
 
   delete(restaurant) {
-      const self = this;
-      // this.commerceSvc.rmRestaurant(r.id).subscribe(
-      //     (r:Restaurant[]) => {
-      //         self.restaurantList = r;
-      //         if(r.length){
-      //             //
-      //         }else{
-      //             self.router.navigate(['admin/restaurant']);
-      //         }
-      //     },
-      //     (err)=>{
+    const self = this;
+    // this.commerceSvc.rmRestaurant(r.id).subscribe(
+    //     (r:Restaurant[]) => {
+    //         self.restaurantList = r;
+    //         if(r.length){
+    //             //
+    //         }else{
+    //             self.router.navigate(['admin/restaurant']);
+    //         }
+    //     },
+    //     (err)=>{
 
-      //     }
-      // )
+    //     }
+    // )
   }
 
   viewProducts(restaurant) {
-      this.router.navigate(['admin/products'], { queryParams: { restaurant_id: restaurant.id } });
+    this.router.navigate(['admin/products'], { queryParams: { restaurant_id: restaurant.id } });
   }
 
   editMultiProducts(restaurant) {
-      this.router.navigate(['admin/edit-products']);
+    this.router.navigate(['admin/edit-products']);
   }
 
 
@@ -79,6 +79,17 @@ export class AdminRestaurantPageComponent implements OnInit {
     this.loadRestaurantList();
   }
 
+  onAfterDelete(event) {
+    this.loadRestaurantList();
+    this.restaurant = new Restaurant();
+    this.restaurant.id = null;
+    this.restaurant.name = '';
+    this.restaurant.description = '';
+    this.restaurant.address = null;
+    this.restaurant.user = null;
+    this.restaurant.image = null;
+  }
+
   onSelect(event) {
     this.restaurant = event.restaurant;
   }
@@ -86,7 +97,7 @@ export class AdminRestaurantPageComponent implements OnInit {
   loadRestaurantList() {
     const self = this;
     this.restaurantSvc.find({ include: ['pictures', 'address'] }).subscribe(r => {
-        self.restaurants = r;
+      self.restaurants = r;
     });
   }
 }

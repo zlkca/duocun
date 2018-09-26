@@ -38,6 +38,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     description: new FormControl('', [Validators.maxLength(980)]),
     price: new FormControl(),
     restaurantId: new FormControl(),
+    categories: new FormArray([]),
   });
 
   constructor(
@@ -57,6 +58,10 @@ export class ProductFormComponent implements OnInit, OnChanges {
       this.restaurantList = r;
     });
 
+    this.loadCategoryList();
+  }
+
+  loadCategoryList() {
     const self = this;
     this.productSvc.findCategories().subscribe(
       (r: Category[]) => {
@@ -71,7 +76,9 @@ export class ProductFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes) {
-    this.form.patchValue(changes.product.currentValue);
+    if (this.form) {
+      this.form.patchValue(changes.product.currentValue);
+    }
   }
 
   onToggleCategory(c: FormControl) {

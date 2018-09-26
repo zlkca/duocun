@@ -24,7 +24,7 @@ export class AdminProductPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.updateProductList();
+    this.loadProductList();
   }
 
   add() {
@@ -32,14 +32,24 @@ export class AdminProductPageComponent implements OnInit {
   }
 
   onAfterSave(event) {
-    this.updateProductList();
+    this.loadProductList();
+  }
+
+  onAfterDelete(event) {
+    this.loadProductList();
+    this.product = new Product();
+    this.product.id = null;
+    this.product.name = '';
+    this.product.description = '';
+    this.product.price = null;
+    this.product.restaurantId = null;
   }
 
   onSelect(event) {
     this.product = event.product;
   }
 
-  updateProductList() {
+  loadProductList() {
     const self = this;
     this.route.queryParams.subscribe(params => {
         self.restaurantId = params['restaurant_id'];

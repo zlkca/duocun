@@ -1,69 +1,67 @@
 
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-import { Restaurant } from '../../commerce/commerce';
-import { CommerceService } from '../../commerce/commerce.service';
+import { Restaurant } from '../../shared/lb-sdk';
+import { RestaurantService } from '../restaurant.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
-    selector: 'app-restaurant-list',
-    templateUrl: './restaurant-list.component.html',
-    styleUrls: ['./restaurant-list.component.scss']
+  selector: 'app-restaurant-list',
+  templateUrl: './restaurant-list.component.html',
+  styleUrls: ['./restaurant-list.component.scss']
 })
 export class RestaurantListComponent implements OnInit {
   @Input() restaurants: Restaurant[];
   @Output() select = new EventEmitter();
-    MEDIA_URL = environment.MEDIA_URL;
+  @Output() afterDelete = new EventEmitter();
 
-    constructor(private router: Router, private commerceSvc: CommerceService) { }
+  MEDIA_URL = environment.MEDIA_URL;
 
-    ngOnInit() {
-        // const self = this;
-        // this.commerceSvc.getRestaurantList().subscribe((r: Restaurant[]) => {
-        //     self.restaurants = r;
-        // });
-    }
+  constructor(private router: Router,
+    private restaurantSvc: RestaurantService) { }
 
-    toPage(url: string) {
-        this.router.navigate([url]);
-    }
+  ngOnInit() {
+    // const self = this;
+    // this.commerceSvc.getRestaurantList().subscribe((r: Restaurant[]) => {
+    //     self.restaurants = r;
+    // });
+  }
 
-    getImageSrc(image: any) {
-        // if (image.file) {
-        //     return image.data;
-        // } else {
-        //     if (image.data) {
-        //         return this.MEDIA_URL + image.data;
-        //     } else {
-        //         return this.MEDIA_URL + 'add_photo.png';
-        //     }
-        // }
-        return this.MEDIA_URL + 'add_photo.png';
-    }
+  toPage(url: string) {
+    this.router.navigate([url]);
+  }
+
+  getImageSrc(image: any) {
+    // if (image.file) {
+    //     return image.data;
+    // } else {
+    //     if (image.data) {
+    //         return this.MEDIA_URL + image.data;
+    //     } else {
+    //         return this.MEDIA_URL + 'add_photo.png';
+    //     }
+    // }
+    return this.MEDIA_URL + 'add_photo.png';
+  }
 
 
-    onSelect(r) {
-      this.select.emit({ restaurant: r });
-    }
+  onSelect(r) {
+    this.select.emit({ restaurant: r });
+  }
 
-    viewProducts(restaurant) {
-      this.router.navigate(['admin/products'], { queryParams: { restaurant_id: restaurant.id } });
-    }
+  viewProducts(restaurant) {
+    this.router.navigate(['admin/products'], { queryParams: { restaurant_id: restaurant.id } });
+  }
 
-    delete(r) {
-        // let self = this;
-        // this.commerceSvc.rmRestaurant(r.id).subscribe(
-        //     (r:Restaurant[]) => {
-        //         self.restaurantList = r;
-        //         if(r.length){
-        //             //
-        //         }else{
-        //             self.router.navigate(["admin/restaurant"]);
-        //         }
-        //     },
-        //     (err)=>{
+  delete(r) {
+    const self = this;
+    this.restaurantSvc.rmRestaurant(r.id).subscribe(
+      (x: Restaurant) => {
+        self.afterDelete.emit({ restaurant: r });
+      },
+      (err) => {
 
-        //     }
-        // )
-    }
+      }
+    );
+  }
 }

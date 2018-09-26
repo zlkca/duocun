@@ -1,5 +1,12 @@
 <div class="list-group category-list">
-    <div class="list-group-item category" *ngFor="let c of categories" >
-        <div (click)="onSelect(c)">{{c.name}}</div>
+  <div class="list-group-item category" *ngFor="let c of categories" >
+    <div class="row">
+      <div class="col-8">
+          <div (click)="onSelect(c)">{{c.name}}</div>
+      </div>
+      <div class="col-4">
+        <div class="btn btn-sm btn-secondary" (click)="delete(c)">Delete</div>
+      </div>
     </div>
+  </div>
 </div>

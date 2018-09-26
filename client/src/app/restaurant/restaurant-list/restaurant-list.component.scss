@@ -1,19 +1,15 @@
 .restaurant-list {
-  .card {
-    cursor: pointer;
-  }
-
-  .list-item{
-  	border-top:1px solid #eee;
-  	padding-bottom: 3px;
-  	img{
-  		width:83px;
-  	}
-  }
+  padding-top: 30px;
 }
+
 .btn{
   float:left;
-  margin-right:10px;
+  margin-right:5px;
+}
+.list-group-item{
+  .col-6{
+    padding-right:0px;
+  }
 }
 //
 // $scrollbar-w:30px;

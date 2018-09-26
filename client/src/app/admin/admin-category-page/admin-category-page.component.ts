@@ -14,22 +14,35 @@ export class AdminCategoryPageComponent implements OnInit {
   constructor(private productSvc: ProductService) { }
 
   ngOnInit() {
-    this.updateCategoryList();
+    this.loadCategoryList();
   }
 
   add() {
     this.category = new Category();
+    this.category.id = null;
+    this.category.name = '';
+    this.category.description = '';
   }
 
   onAfterSave(event) {
-    this.updateCategoryList();
+    this.loadCategoryList();
+  }
+
+  onAfterDelete(event) {
+    this.loadCategoryList();
+    if (event.category.id === this.category.id) {
+      this.category = new Category();
+      this.category.id = null;
+      this.category.name = '';
+      this.category.description = '';
+    }
   }
 
   onSelect(event) {
     this.category = event.category;
   }
 
-  updateCategoryList() {
+  loadCategoryList() {
     const self = this;
     this.productSvc.findCategories().subscribe(
       (r: Category[]) => {

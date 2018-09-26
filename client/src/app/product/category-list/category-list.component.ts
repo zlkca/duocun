@@ -12,6 +12,8 @@ import { SharedService } from '../../shared/shared.service';
 export class CategoryListComponent implements OnInit {
   @Input() categories: Category[];
   @Output() select = new EventEmitter();
+  @Output() afterDelete = new EventEmitter();
+
   fields: string[] = [];
 
   constructor(private sharedServ: SharedService,
@@ -27,5 +29,12 @@ export class CategoryListComponent implements OnInit {
   onSelect(c) {
     this.select.emit({ category: c });
   }
+
+  delete(c) {
+    this.productSvc.rmCategory(c.id).subscribe(x => {
+      this.afterDelete.emit({category: c});
+    });
+  }
+
 }
 
