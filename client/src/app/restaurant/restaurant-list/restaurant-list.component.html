@@ -1,8 +1,5 @@
 
 <div class="restaurant-list">
-  <div *ngIf="restaurants.length==0">
-    <button (click)="toPage('admin/restaurant')">Add Restaurant</button>
-  </div>
   <div class="list-group" *ngIf="restaurants.length>0">
     <div class="list-group-item" *ngFor="let m of restaurants" (click)="onSelect(m)">
       <div class="row">

@@ -13,9 +13,12 @@ import { OrderModule } from '../order/order.module';
 import { RestaurantService } from './restaurant.service';
 import { LocationService } from '../shared/location/location.service';
 import { ImageUploadModule } from 'angular2-image-upload';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 @NgModule({
     imports: [
         CommonModule,
+        NgbModule,
         SharedModule,
         FormsModule,
         ReactiveFormsModule,

@@ -38,7 +38,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     description: new FormControl('', [Validators.maxLength(980)]),
     price: new FormControl(),
     restaurantId: new FormControl(),
-    categories: new FormArray([]),
+    categoryId: new FormControl(),
   });
 
   constructor(
@@ -49,11 +49,15 @@ export class ProductFormComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.uploadedPictures = (this.product.pictures || []).map(pic => pic.url);
-    this.form.get('name').setValue(this.product.name);
-    this.form.get('description').setValue(this.product.description);
-    this.form.get('price').setValue(this.product.price);
-    this.form.get('restaurantId').setValue(this.product.restaurantId);
+    if (this.product) {
+      this.uploadedPictures = (this.product.pictures || []).map(pic => pic.url);
+      this.form.get('name').setValue(this.product.name);
+      this.form.get('description').setValue(this.product.description);
+      this.form.get('price').setValue(this.product.price);
+      this.form.get('restaurantId').setValue(this.product.restaurantId);
+      this.form.get('categroyId').setValue(this.product.categoryId);
+    }
+
     this.restaurantSvc.find().subscribe(r => {
       this.restaurantList = r;
     });
@@ -66,9 +70,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
     this.productSvc.findCategories().subscribe(
       (r: Category[]) => {
         self.categoryList = r;
-        for (let i = 0; i < r.length; i++) {
-          self.form.get('categories').get(i.toString()).patchValue('');
-        }
       },
       (err: any) => {
         self.categoryList = [];
@@ -142,19 +143,12 @@ export class ProductFormComponent implements OnInit, OnChanges {
   save() {
     const self = this;
     // const restaurant_id = self.form.get('restaurant_id');
-    const newV = {
-      ...this.form.value,
-      id: this.product.id,
-      categories: [{ id: 1 }], // self.getCheckedCategories(),
-      // restaurant: { id: restaurant_id.value },
-      // pictures: [self.picture]// self.uploader.data
-      // restaurantId: restaurantId.value
-    };
-
+    const newV = this.form.value;
     const p: Product = new Product(newV);
-    p.pictures = this.product.pictures;
     const restaurantId = p.restaurantId;
-    if (this.product.id) {
+
+    if (this.product) {
+      p.pictures = this.product.pictures;
       this.productSvc.replaceById(this.product.id, p).subscribe((r: any) => {
         self.afterSave.emit({ restaurant_id: restaurantId });
       });

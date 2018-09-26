@@ -15,49 +15,53 @@ import { Restaurant } from '../../shared/lb-sdk';
 
 
 @Component({
-    selector: 'app-restaurant-detail',
-    templateUrl: './restaurant-detail.component.html',
-    providers: [AuthService, ProductService],
-    styleUrls: ['./restaurant-detail.component.scss']
+  selector: 'app-restaurant-detail',
+  templateUrl: './restaurant-detail.component.html',
+  providers: [AuthService, ProductService],
+  styleUrls: ['./restaurant-detail.component.scss']
 })
 export class RestaurantDetailComponent implements OnInit {
+  categories;
+  productList: any = [];
+  restaurant: any;
+  subscription;
+  cart;
 
-    productList: any = [];
-    restaurant: any;
-    subscription;
-    cart;
+  constructor(private productSvc: ProductService,
+    private restaurantSvc: RestaurantService,
+    private route: ActivatedRoute,
+    // private ngRedux:NgRedux<IAppState>,
+    // private actions: CartActions
+  ) {
 
-    constructor(private productSvc: ProductService,
-        private restaurantSvc: RestaurantService,
-        private route: ActivatedRoute,
-        // private ngRedux:NgRedux<IAppState>,
-        // private actions: CartActions
-    ) {
+    // this.subscription = ngRedux.select<ICartItem[]>('cart').subscribe(
+    //   cart=> this.cart = cart);
 
-        // this.subscription = ngRedux.select<ICartItem[]>('cart').subscribe(
-        //   cart=> this.cart = cart);
+    // let self = this;
+  }
 
-        // let self = this;
-    }
+  ngOnInit() {
+    const self = this;
+    self.route.params.subscribe(params => {
+      const restaurantId = parseInt(params['id'], 10);
+      self.restaurantSvc.findById(restaurantId, { include: ['pictures', 'address'] }).subscribe(
+        (restaurant: Restaurant) => {
+          self.restaurant = restaurant;
+        },
+        (err: any) => {
+          self.restaurant = null;
+        }
+      );
 
-    ngOnInit() {
-        const self = this;
-        self.route.params.subscribe(params => {
-            const restaurantId = parseInt(params['id'], 10);
-            self.restaurantSvc.findById(restaurantId, { include: ['pictures', 'address'] }).subscribe(
-                (restaurant: Restaurant) => {
-                    self.restaurant = restaurant;
-                },
-                (err: any) => {
-                    self.restaurant = null;
-                }
-            );
+      self.restaurantSvc.getProducts(restaurantId).subscribe(products => {
+        self.productList = products;
+      });
 
-            self.restaurantSvc.getProducts(restaurantId).subscribe(products => {
-                self.productList = products;
-            });
-        });
-    }
+      self.productSvc.findCategories().subscribe(res => {
+        self.categories = res;
+      });
+    });
+  }
 }
 
 

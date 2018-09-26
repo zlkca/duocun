@@ -21,6 +21,7 @@ export class Product implements ProductInterface {
   "name": string;
   "description": string;
   "price": number;
+  "categoryId": number;
   "restaurantId": number;
   "created": Date;
   "modified": Date;

@@ -1,16 +1,15 @@
-import { Component, OnInit, ViewChild, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 import { CommerceService } from '../../commerce/commerce.service';
 import { LocationService } from '../../shared/location/location.service';
 import { RestaurantService } from '../restaurant.service';
-import { Category, Picture } from '../../commerce/commerce';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IPicture } from '../../commerce/commerce.actions';
 import { AccountService } from '../../account/account.service';
-import { Restaurant, GeoPoint, Order, LoopBackConfig, Address, Account } from '../../shared/lb-sdk';
+import { Restaurant, Category, LoopBackConfig, Address, Account } from '../../shared/lb-sdk';
 
 const APP = environment.APP;
 
@@ -36,6 +35,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     'Containers/pictures/upload'
   ].join('/');
 
+  @Output() afterSave: EventEmitter<any> = new EventEmitter();
   @Input() restaurant: Restaurant;
   @ViewChild(MultiImageUploaderComponent) uploader: any;
 
@@ -223,21 +223,24 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
 
     const sAddr = addr.formattedAddress + ', Toronto, ' + v.address.postal_code;
     this.locationSvc.getLocation(sAddr).subscribe(ret => {
-      addr.location = { lat: ret.lat, lng: ret.lng };
-      addr.sublocality = ret.sub_locality;
-      addr.postalCode = ret.postal_code;
-      restaurant.address = addr;
+      if (ret) {
+        addr.location = { lat: ret.lat, lng: ret.lng };
+        addr.sublocality = ret.sub_locality;
+        addr.postalCode = ret.postal_code;
 
-      // zlk
-      restaurant.location = { lat: ret.lat, lng: ret.lng };
+        restaurant.location = { lat: ret.lat, lng: ret.lng };
+      }
+      restaurant.address = addr;
 
       if (restaurant.id) {
         self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
           // self.router.navigate(['admin']);
+          self.afterSave.emit({ restaurant: r });
         });
       } else {
         self.restaurantSvc.create(restaurant).subscribe((r: any) => {
           // self.router.navigate(['admin']);
+          self.afterSave.emit({ restaurant: r });
         });
       }
 

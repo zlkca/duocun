@@ -77,6 +77,13 @@ export class AdminRestaurantPageComponent implements OnInit {
 
   onAfterSave(event) {
     this.loadRestaurantList();
+    this.restaurant = new Restaurant();
+    this.restaurant.id = null;
+    this.restaurant.name = '';
+    this.restaurant.description = '';
+    this.restaurant.address = null;
+    this.restaurant.user = null;
+    this.restaurant.image = null;
   }
 
   onAfterDelete(event) {

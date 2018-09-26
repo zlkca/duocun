@@ -29,6 +29,12 @@
         </div>
 
         <div class="row">
+            <div class="label-sm">Category</div>
+            <select name="category" formControlName="categoryId">
+                <option *ngFor="let c of categoryList" [value]="c.id">{{c.name}}</option>
+            </select>
+        </div>
+        <!-- <div class="row">
           <div class="label-sm">Category</div>
           <div formArrayName="categories" class="row categroy-group">
               <div class="col-2 col-xs-12" *ngFor="let cat of categoryList; let i=index">
@@ -36,7 +42,7 @@
                   <div class="checkbox-label">{{cat.name}}</div>
               </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- <app-image-uploader [data]="pictures" #uploader></app-image-uploader> -->
         <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)"></image-upload>
