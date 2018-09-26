@@ -1,5 +1,5 @@
 
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { Restaurant } from '../../commerce/commerce';
 import { CommerceService } from '../../commerce/commerce.service';
@@ -11,16 +11,17 @@ import { environment } from '../../../environments/environment';
     styleUrls: ['./restaurant-list.component.scss']
 })
 export class RestaurantListComponent implements OnInit {
-    restaurants: Restaurant[] = [];
+  @Input() restaurants: Restaurant[];
+  @Output() select = new EventEmitter();
     MEDIA_URL = environment.MEDIA_URL;
 
     constructor(private router: Router, private commerceSvc: CommerceService) { }
 
     ngOnInit() {
-        const self = this;
-        this.commerceSvc.getRestaurantList().subscribe((r: Restaurant[]) => {
-            self.restaurants = r;
-        });
+        // const self = this;
+        // this.commerceSvc.getRestaurantList().subscribe((r: Restaurant[]) => {
+        //     self.restaurants = r;
+        // });
     }
 
     toPage(url: string) {
@@ -40,12 +41,13 @@ export class RestaurantListComponent implements OnInit {
         return this.MEDIA_URL + 'add_photo.png';
     }
 
-    change(r) {
-        this.router.navigate(['admin/restaurant/' + r.id]);
+
+    onSelect(r) {
+      this.select.emit({ restaurant: r });
     }
 
-    add() {
-        this.router.navigate(['admin/restaurant']);
+    viewProducts(restaurant) {
+      this.router.navigate(['admin/products'], { queryParams: { restaurant_id: restaurant.id } });
     }
 
     delete(r) {

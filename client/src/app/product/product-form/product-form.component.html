@@ -1,4 +1,4 @@
-<div class="container">
+
     <form [formGroup]="form" class="admin-form">
         <div class="row">
             <div class="label-sm">Name:</div>
@@ -15,12 +15,6 @@
             <!-- <div *ngIf="description.touched && description.invalid" class="alert alert-danger">Description should be maximum 980 chars.</div> -->
         </div>
 
-<!--         <div class="row">
-            <div class="label-sm">Dimension</div>
-            <input name="dimension" formControlName="dimension"/>
-            <div *ngIf="dimension.touched && dimension.invalid" class="alert alert-danger">Dimension should be num X num format.</div>
-        </div> -->
-
         <div class="row">
             <div class="label-sm">Price</div>
             <input type="number" name="price" formControlName="price"/>
@@ -34,19 +28,12 @@
             </select>
         </div>
 
-<!--         <div class="row">
-            <div class="label-sm">Color</div>
-            <select name="color" formControlName="color_id">
-                <option *ngFor="let color of colorList" [value]="color.id">{{color.name}}</option>
-            </select>
-        </div> -->
-
         <div class="row">
           <div class="label-sm">Category</div>
-          <div formArrayName="categories">
-              <div *ngFor="let cat of categoryList; let i=index">
+          <div formArrayName="categories" class="row categroy-group">
+              <div class="col-2 col-xs-12" *ngFor="let cat of categoryList; let i=index">
                   <input type="checkbox" formControlName="{{i}}" (change)="onToggleCategory(cat)">
-                  {{cat.name}}<br>
+                  <div class="checkbox-label">{{cat.name}}</div>
               </div>
           </div>
         </div>
@@ -56,4 +43,3 @@
 
         <button (click)="save()">Save</button>
     </form>
-</div>

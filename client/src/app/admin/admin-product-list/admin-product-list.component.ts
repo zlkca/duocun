@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Product } from '../../commerce/commerce';
@@ -20,8 +20,11 @@ const MEDIA_URL: string = environment.MEDIA_URL;
 export class AdminProductListComponent implements OnInit {
     placeholder = MEDIA_URL + ADD_IMAGE;
     subscription: any;
+    product;
+
     @Input() products;
     @Input() restaurantId;
+    @Output() select = new EventEmitter();
 
     ngOnInit() {
 
@@ -36,12 +39,8 @@ export class AdminProductListComponent implements OnInit {
 
     }
 
-    onClick(p) {
-        // if (this.mode === 'edit') {
-
-        // } else {
-        //     this.router.navigate(["product/" + p.id]);
-        // }
+    onSelect(p) {
+      this.select.emit({ product: p });
     }
 
     change(p: Product) {

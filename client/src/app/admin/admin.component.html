@@ -41,7 +41,7 @@
           <ngb-tab title="Restaurants" *ngIf="account && account.type === 'super'">
             <ng-template ngbTabContent>
               <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
-              <app-admin-restaurant-list [restaurants]="restaurants"></app-admin-restaurant-list>
+              <app-admin-restaurant-page [restaurants]="restaurants"></app-admin-restaurant-page>
             </ng-template>
           </ngb-tab>
 

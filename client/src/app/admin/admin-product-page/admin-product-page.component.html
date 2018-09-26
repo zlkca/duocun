@@ -1,0 +1,11 @@
+<div class="page admin-product-page">
+  <div class="row">
+    <div class="col-4 col-xs-12">
+      <app-admin-product-list [products]="products" (select)="onSelect($event)" [restaurantId]="restaurantId"></app-admin-product-list>
+      <div class="btn btn-secondary btn-add" (click)="add()">Add Product</div>
+    </div>
+    <div class="col-8 col-xs-12">
+      <app-product-form [product]="product" (afterSave)="onAfterSave($event)"></app-product-form>
+    </div>
+  </div>
+</div>

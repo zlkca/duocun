@@ -1,20 +1,19 @@
 <div class="page">
-	<div class="container restaurant-list">
+	<div class="">
 		<div *ngIf="restaurants.length==0">
 			<button (click)="toPage('admin/restaurant')">Add Restaurant</button>
 		</div>
-		<div class="list-body" *ngIf="restaurants.length>0">
-			<div class="row list-item" *ngFor="let m of restaurants">
-				<div class="col-md-1>">
+		<div class="list-group" *ngIf="restaurants.length>0">
+			<div class="row list-group-item" *ngFor="let m of restaurants" (click)="onSelect(m)">
+				<div class="col-4>">
 					<img [src]="getImageSrc(m.image)" />
 				</div>
-				<div class="col-md-3">{{m.name}}</div>
-				<div class="col-md-3">{{m.address.street}},{{m.address.sub_locality}}</div>
-				<div class="col-md-3">
-					<div class="btn" (click)="add()">Add</div>
-		            <div class="btn" (click)="change(m)">Change</div>
-		            <div class="btn" (click)="delete(m)">Delete</div>
-		        </div>
+				<div class="col-4">{{m.name}}</div>
+				<!-- <div class="col-md-3">{{m.address.street}},{{m.address.sub_locality}}</div> -->
+				<div class="col-4">
+            <div class="btn btn-sm btn-secondary" (click)="viewProducts(m)">View Products</div>
+            <div class="btn btn-sm btn-secondary" (click)="delete(m)">Delete</div>
+        </div>
 			</div>
 		</div>
 
