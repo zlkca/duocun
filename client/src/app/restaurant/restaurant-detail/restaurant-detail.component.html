@@ -19,7 +19,7 @@
         <ngb-tabset>
             <ngb-tab *ngFor="let cat of categories" title="{{cat.name}}" >
               <ng-template ngbTabContent>
-                  <product-grid [products]="productList"></product-grid>
+                  <app-product-grid [products]="groupedProducts[cat.id]"></app-product-grid>
               </ng-template>
             </ngb-tab>
         </ngb-tabset>

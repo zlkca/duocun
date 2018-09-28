@@ -37,15 +37,11 @@ export class SignupComponent implements OnInit {
 
     }
 
-    ngOnDestroy() {
-
-    }
-
     onSignup() {
         const v = this.form.value;
         const account = new Account({
             username: v.username,
-            email: v.email,
+            email: 'test@etuan.ca', // v.email,
             password: v.password,
             type: 'user'
         });

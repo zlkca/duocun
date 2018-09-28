@@ -28,14 +28,14 @@ export class HomeComponent implements OnInit {
     const s = localStorage.getItem('location-' + APP);
 
     if (s) {
-        const location = JSON.parse(s);
-        self.center = { lat: location.lat, lng: location.lng };
-        self.doSearchRestaurants(self.center);
+      const location = JSON.parse(s);
+      self.center = { lat: location.lat, lng: location.lng };
+      self.doSearchRestaurants(self.center);
     } else {
-        this.locationSvc.getCurrentLocation().subscribe(r => {
-            self.center = { lat: r.lat, lng: r.lng };
-            self.doSearchRestaurants(self.center);
-        });
+      this.locationSvc.getCurrentLocation().subscribe(r => {
+        self.center = { lat: r.lat, lng: r.lng };
+        self.doSearchRestaurants(self.center);
+      });
     }
   }
 
@@ -47,8 +47,8 @@ export class HomeComponent implements OnInit {
     const qs = [];
 
     if (query.categories && query.categories.length > 0) {
-        const s = query.categories.join(',');
-        qs.push('cats=' + s);
+      const s = query.categories.join(',');
+      qs.push('cats=' + s);
     }
 
     // if(query.restaurants && query.restaurants.length>0){
@@ -71,36 +71,38 @@ export class HomeComponent implements OnInit {
     const conditions = [];
 
     if (qs.length > 0) {
-        conditions.push(qs.join('&'));
+      conditions.push(qs.join('&'));
     }
     if (query && query.keyword) {
-        conditions.push('keyword=' + query.keyword);
+      conditions.push('keyword=' + query.keyword);
     }
     if (query && query.lat && query.lng) {
-        conditions.push('lat=' + query.lat + '&lng=' + query.lng);
+      conditions.push('lat=' + query.lat + '&lng=' + query.lng);
     }
 
     if (conditions.length > 0) {
-        s = '?' + conditions.join('&');
+      s = '?' + conditions.join('&');
     }
 
     // this.restaurantServ.getNearby(this.center).subscribe(
     this.restaurantSvc.find().subscribe(
-        (ps: Restaurant[]) => {
-            self.restaurants = ps; // self.toProductGrid(data);
-            const a = [];
-            ps.map(restaurant => {
-                a.push({
-                    lat: restaurant.location.lat,
-                    lng: restaurant.location.lng,
-                    name: restaurant.name
-                });
+      (ps: Restaurant[]) => {
+        self.restaurants = ps; // self.toProductGrid(data);
+        const a = [];
+        ps.map(restaurant => {
+          if (restaurant.location) {
+            a.push({
+              lat: restaurant.location.lat,
+              lng: restaurant.location.lng,
+              name: restaurant.name
             });
-            self.places = a;
-        },
-        (err: any) => {
-            self.restaurants = [];
-        }
+          }
+        });
+        self.places = a;
+      },
+      (err: any) => {
+        self.restaurants = [];
+      }
     );
   }
 }

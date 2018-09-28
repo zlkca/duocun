@@ -27,7 +27,7 @@
     "products": {
       "type": "hasMany",
       "model": "Product",
-      "foreignKey": "restaurantId"
+      "foreignKey": "categoryId"
     }
   },
   "acls": [],

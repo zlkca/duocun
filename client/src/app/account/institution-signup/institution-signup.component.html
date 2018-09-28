@@ -1,54 +1,54 @@
 <div class="page institution-signup-page">
   <form class="auth-form" [formGroup]="formGroup">
     <div class="row">
-      <span class="title-md">Create New Account</span>
+      <span class="title-md" i18n="@@CreateNewAccount">Create New Account</span>
     </div>
     <div class="row">
       <span class="error-msg">{{errMsg}}</span>
     </div>
 
     <div class="row">
-      <div class="label-sm">Username</div>
+      <div class="label-sm" i18n="@@Username">Username</div>
       <input name="username" type="text" formControlName="username" />
     </div>
 
     <div class="row">
-      <div class="label-sm">Email</div>
+      <div class="label-sm" i18n="@@Email">Email</div>
       <input name="email" type="text" formControlName="email" />
     </div>
 
     <div class="row">
-      <div class="label-sm">Password</div>
+      <div class="label-sm" i18n="@@Password">Password</div>
       <input name="password" type="password" formControlName="password" />
     </div>
 
     <div class="row">
-      <div class="label-sm">Restaurant Name</div>
+      <div class="label-sm" i18n="@@RestaurantName">Restaurant Name</div>
       <input name="restaurant" type="text" formControlName="restaurant" />
     </div>
 
     <div class="row">
-      <div class="label-sm">Restaurant Address</div>
+      <div class="label-sm" i18n="@@RestaurantAddress">Restaurant Address</div>
       <address-input id="address" (addrChange)="setAddr($event)"></address-input>
     </div>
 
     <div class="row">
-      <div class="label-sm">Unit/Suite</div>
+      <div class="label-sm" i18n="@@Suite">Suite</div>
       <input name="unit" type="text" formControlName="unit" />
     </div>
 
     <div class="row">
-      <div class="label-sm">Restaurant Phone #</div>
+      <div class="label-sm" i18n="@@PhoneNumber">Restaurant Phone #</div>
       <input name="phone" type="text" formControlName="phone" />
     </div>
 
     <div class="row">
-      <div class="label-sm">Restaurant Picture</div>
+      <div class="label-sm" i18n="@@RestaurantLogo">Restaurant Logo</div>
       <image-uploader [data]="picture" #uploader></image-uploader>
     </div>
 
     <div class="row btn-holder">
-      <button class="btn btn-primary" (click)="onSignup()" type="submit" block>Create</button>
+      <button class="btn btn-primary" (click)="onSignup()" type="submit" i18n="@@CreateAccount">Create Account</button>
     </div>
   </form>
 

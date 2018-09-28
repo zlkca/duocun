@@ -2,14 +2,14 @@
 <div class="container page page-signup">
 	<form class="auth-form" [formGroup]="form" >
 		<div class="row">
-			<span class="title-md">Create New Account</span>
+			<span class="title-md" i18n="@@CreateNewAccount">Create New Account</span>
 		</div>
 		<div class="row">
 			<span class="error-msg">{{errMsg}}</span>
 		</div>
 
     	<div class="row">
-			<div class="label-sm">Username</div>
+			<div class="label-sm" i18n="@@Username">Username</div>
 			<input formControlName="username" type="text"/>
 		</div>
 
@@ -24,17 +24,17 @@
 			</div>
 	    </div> -->
 
-		<div class="row">
+		<!-- <div class="row">
 			<div class="label-sm">Email</div>
 			<input formControlName="email" type="text"/>
-		</div>
+		</div> -->
 		<div class="row">
-			<div class="label-sm">Password</div>
+			<div class="label-sm" i18n="@@Password">Password</div>
 			<input formControlName="password" type="password"/>
 		</div>
 
 		<div class="row btn-holder">
-			<button class="btn btn-primary" (click)="onSignup()" type="submit" block>Create</button>
+			<button class="btn btn-primary" (click)="onSignup()" type="submit" i18n="@@CreateAccount">Create Account</button>
 		</div>
 	</form>
 

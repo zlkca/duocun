@@ -69,12 +69,6 @@ export class LoginComponent implements OnInit {
 
     }
 
-    ngOnDestroy() {
-        // if(this.subscription){
-        //   this.subscription.unsubscribe();
-        // }
-    }
-
     onLogin() {
         const v = this.form.value;
         // if (this.form.valid) {

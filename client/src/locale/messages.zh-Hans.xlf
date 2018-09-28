@@ -219,6 +219,14 @@
           <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="ChangeDeliveryAddress" datatype="html">
+        <source>Change Address</source>
+        <target>更改送餐地址</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/header/header.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="BusinessCenter" datatype="html">
         <source>Business Center</source>
         <target>商户中心</target>
@@ -233,6 +241,54 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/main/home/home.component.ts</context>
           <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Admin" datatype="html">
+        <source>Admin</source>
+        <target>管理员</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/header/header.component.ts</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="MyOrder" datatype="html">
+        <source>My Order</source>
+        <target>我的订单</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/header/header.component.ts</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Logout" datatype="html">
+        <source>Logout</source>
+        <target>退出</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/header/header.component.ts</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Login" datatype="html">
+        <source>Login</source>
+        <target>登录</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/header/header.component.ts</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/login/login.component.ts</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/login/login.component.ts</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Signup" datatype="html">
+        <source>Signup</source>
+        <target>注册</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/header/header.component.ts</context>
+          <context context-type="linenumber">53</context>
         </context-group>
       </trans-unit>
       <trans-unit id="ngb.datepicker.previous-month" datatype="html">
@@ -257,6 +313,102 @@
         <context-group purpose="location">
           <context context-type="sourcefile">../node_modules/@ng-bootstrap/ng-bootstrap/datepicker/datepicker-navigation.d.ts</context>
           <context context-type="linenumber">27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Username" datatype="html">
+        <source>Username</source>
+        <target>用户名</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/login/login.component.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/signup/signup.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Password" datatype="html">
+        <source>Password</source>
+        <target>密码</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/login/login.component.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/signup/signup.component.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="CreateAnAccount" datatype="html">
+        <source>Create An Account</source>
+        <target>创建账号</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/login/login.component.ts</context>
+          <context context-type="linenumber">28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="CreateNewAccount" datatype="html">
+        <source>Create New Account</source>
+        <target>创建新账号</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/signup/signup.component.ts</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="CreateAccount" datatype="html">
+        <source>Create Account</source>
+        <target>创建账号</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/signup/signup.component.ts</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Email" datatype="html">
+        <source>Email</source>
+        <target>电子邮箱</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="RestaurantName" datatype="html">
+        <source>Restaurant Name</source>
+        <target>餐馆名称</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="RestaurantAddress" datatype="html">
+        <source>Restaurant Address</source>
+        <target>餐馆地址</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Suite" datatype="html">
+        <source>Suite</source>
+        <target>地址单元号</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="PhoneNumber" datatype="html">
+        <source>Restaurant Phone #</source>
+        <target>餐馆电话号码</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="RestaurantLogo" datatype="html">
+        <source>Restaurant Logo</source>
+        <target>餐馆商标</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">46</context>
         </context-group>
       </trans-unit>
     </body>

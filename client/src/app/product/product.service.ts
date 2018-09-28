@@ -240,4 +240,8 @@ export class ProductService {
   deleteById(id): Observable<Product> {
     return this.productApi.deleteById(id);
   }
+
+  findByRestaurant(resturantId): Observable<Product[]> {
+    return this.productApi.find({ where: {restaurantId: resturantId}, include: ['category', 'pictures'] });
+  }
 }

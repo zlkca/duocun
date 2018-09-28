@@ -22,7 +22,7 @@ import { Restaurant } from '../../shared/lb-sdk';
 })
 export class RestaurantDetailComponent implements OnInit {
   categories;
-  productList: any = [];
+  groupedProducts: any = [];
   restaurant: any;
   subscription;
   cart;
@@ -54,13 +54,23 @@ export class RestaurantDetailComponent implements OnInit {
       );
 
       self.restaurantSvc.getProducts(restaurantId).subscribe(products => {
-        self.productList = products;
+        self.groupedProducts = self.groupByCategory(products);
+        const categoryIds = Object.keys(self.groupedProducts);
+        self.productSvc.findCategories().subscribe(res => {
+          self.categories = res.filter(cat => categoryIds.includes(cat.id.toString()) );
+        });
       });
 
-      self.productSvc.findCategories().subscribe(res => {
-        self.categories = res;
-      });
+
     });
+  }
+
+  groupByCategory(products) {
+    return products.reduce( (r, p) => {
+      r[p.category.id] = r[p.category.id] || [];
+      r[p.category.id].push(p);
+      return r;
+    }, Object.create(null));
   }
 }
 

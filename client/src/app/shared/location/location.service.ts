@@ -10,22 +10,32 @@ import { NgRedux } from '@angular-redux/store';
 import { environment } from '../../../environments/environment';
 import { LocationActions } from './location.actions';
 import { HttpClient } from '@angular/common/http';
+import { GoogleMapsLoader } from '../map-api-loader.service';
 
 declare let google: any;
 const APP = environment.APP;
+
 const geocodeURL = 'http://maps.googleapis.com/maps/api/geocode/json';
 
 @Injectable()
 export class LocationService {
   private geocoder;
+
   constructor(private ngRedux: NgRedux<ILocation>, private http: HttpClient) {
-    try {
-      if (google) {
-        this.geocoder = new google.maps.Geocoder();
-      }
-    } catch (error) {
-      this.geocoder = null;
-    }
+    // try {
+    //   if (google) {
+    //     this.geocoder = new google.maps.Geocoder();
+    //   }
+    // } catch (error) {
+    //   this.geocoder = null;
+    // }
+
+    GoogleMapsLoader.load().then((_mapsApi) => {
+                // debugger;
+                this.geocoder       = new _mapsApi.Geocoder();
+                // this.geocoderStatus = _mapsApi.GeocoderStatus;
+            });
+
   }
 
   get(): Observable<ILocation> {

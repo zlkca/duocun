@@ -26,9 +26,6 @@ import { ForgetPasswordComponent } from './account/forget-password/forget-passwo
 // import { ProfileEditComponent } from './users/profile-edit/profile-edit.component';
 // import { ChangePasswordComponent } from './users/change-password/change-password.component';
 // import { PaymentComponent } from './products/payment/payment.component';
-import { RestaurantFormComponent } from './restaurant/restaurant-form/restaurant-form.component';
-
-import { RestaurantListComponent } from './restaurant/restaurant-list/restaurant-list.component';
 import { RestaurantDetailComponent } from './restaurant/restaurant-detail/restaurant-detail.component';
 import { AdminRestaurantFormPageComponent } from './admin/admin-restaurant-form-page/admin-restaurant-form-page.component';
 

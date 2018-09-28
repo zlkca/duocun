@@ -37,7 +37,7 @@
   },
   "validations": [],
   "relations": {
-    "owner": {
+    "restaurant": {
       "type": "belongsTo",
       "model": "Restaurant",
       "foreignKey": "restaurantId"
@@ -46,6 +46,11 @@
       "type": "hasMany",
       "model": "Picture",
       "polymorphic": "imageable"
+    },
+    "category": {
+      "type": "belongsTo",
+      "model": "Category",
+      "foreignKey": "categoryId"
     }
   },
   "acls": [],

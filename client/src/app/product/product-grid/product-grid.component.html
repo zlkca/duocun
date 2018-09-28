@@ -2,7 +2,7 @@
         <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" *ngFor="let p of products; let i = index;">
             <div class="row grid-body">
                 <div class="col-md-12 col-sm-3 col-3 image-body">
-                    <img class="card-img-top" [src]="p.pictures[0]?.url || placeholder" alt="{{p.name}}" (click)="onClick(p)">
+                    <img [src]="p.pictures[0]?.url || defaultPicture" alt="{{p.name}}" (click)="onClick(p)">
                 </div>
                 <div class="col-md-12 col-sm-9 col-9 text-body">
                     <div class="title-bg">{{p.name}}</div>

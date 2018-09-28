@@ -13,14 +13,14 @@ const ADD_IMAGE = 'add_photo.png';
 
 @Component({
     providers: [CommerceService],
-    selector: 'product-grid',
+    selector: 'app-product-grid',
     templateUrl: './product-grid.component.html',
     styleUrls: ['./product-grid.component.scss']
 })
 export class ProductGridComponent implements OnInit {
     productList: Product[] = [];
     MEDIA_URL: string = environment.MEDIA_URL;
-    placeholder = environment.MEDIA_URL + ADD_IMAGE;
+    defaultPicture = 'http://placehold.it/400x300';
     subscription: any;
     cart: any;
 
