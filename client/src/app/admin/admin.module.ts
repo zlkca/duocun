@@ -11,16 +11,13 @@ import { AdminProductListComponent } from './admin-product-list/admin-product-li
 import { AdminProductFormPageComponent } from './admin-product-form-page/admin-product-form-page.component';
 
 
-import { AdminBusinessUserFormComponent } from './admin-business-user-form/admin-business-user-form.component';
-import { AdminBusinessUserFormPageComponent } from './admin-business-user-form-page/admin-business-user-form-page.component';
-
 import { AdminRestaurantFormPageComponent } from './admin-restaurant-form-page/admin-restaurant-form-page.component';
-import { AdminBusinessUserListComponent } from './admin-business-user-list/admin-business-user-list.component';
 import { AdminRestaurantPageComponent } from './admin-restaurant-page/admin-restaurant-page.component';
 import { AdminOrderListComponent } from './admin-order-list/admin-order-list.component';
 import { AdminProductPageComponent } from './admin-product-page/admin-product-page.component';
 import { EditRestaurantComponent } from './edit-restaurant/edit-restaurant.component';
 import { AdminCategoryPageComponent } from './admin-category-page/admin-category-page.component';
+import { AdminAccountPageComponent } from './admin-account-page/admin-account-page.component';
 
 @NgModule({
     imports: [
@@ -35,9 +32,7 @@ import { AdminCategoryPageComponent } from './admin-category-page/admin-category
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     declarations: [AdminComponent,
-        AdminBusinessUserListComponent,
-        AdminBusinessUserFormComponent,
-        AdminBusinessUserFormPageComponent,
+        AdminAccountPageComponent,
         AdminRestaurantFormPageComponent,
         AdminProductListComponent,
         AdminRestaurantPageComponent,

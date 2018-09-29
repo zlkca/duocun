@@ -1,0 +1,23 @@
+<form [formGroup]="form" class="account-form">
+  <div class="row">
+    <div class="label-sm" i18n="@@Username">Username</div>
+    <input name="name" formControlName="name" />
+  </div>
+  <div class="row">
+    <div class="label-sm" i18n="@@Password">Password</div>
+    <input type="password" name="password" formControlName="password" />
+  </div>
+
+  <div class="row">
+    <div class="label-sm" i18n="@@Email">Email</div>
+    <input name="email" formControlName="email" type="text" />
+  </div>
+
+  <div class="row">
+    <div class="label-sm" i18n="@@Type">Type</div>
+    <input name="type" formControlName="type" type="type" />
+  </div>
+
+  <button (click)="save()" i18n="@@Save">Save</button>
+  <button (click)="cancel()" i18n="@@Cancel">Cancel</button>
+</form>

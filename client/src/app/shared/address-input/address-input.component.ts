@@ -1,6 +1,6 @@
 // output addrChange({addr:x, sAddr:'Formatted address string'})
 
-import { Component, OnInit, ViewChild, AfterViewInit, OnChanges, ElementRef, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnChanges, ElementRef, Output, EventEmitter, forwardRef, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { LocationService } from '../location/location.service';
 declare var google;
@@ -12,82 +12,86 @@ declare var google;
 // };
 
 @Component({
-    selector: 'address-input',
-    templateUrl: './address-input.component.html',
-    styleUrls: ['./address-input.component.scss']
+  selector: 'address-input',
+  templateUrl: './address-input.component.html',
+  styleUrls: ['./address-input.component.scss']
 })
 export class AddressInputComponent implements OnInit {
 
-    @ViewChild('div') div: ElementRef;
-    @Output() addrChange = new EventEmitter();
+  @ViewChild('div') div: ElementRef;
+  @Output() addrChange = new EventEmitter();
+  @Input() placeholder;
+  @Input() value;
 
-    gAutocomplete: any;
+  gAutocomplete: any;
 
-    // The internal data model for form control value access
-    private innerValue: any = '';
+  // The internal data model for form control value access
+  private innerValue: any = '';
 
-    constructor(private locationSvc: LocationService) { }
+  constructor(private locationSvc: LocationService) { }
 
-    ngOnInit() {
-        const self = this;
-        if (typeof google !== 'undefined') {
-            // var defaultBounds = new google.maps.LatLngBounds(
-            //   new google.maps.LatLng(43.821662, -79.928525),
-            //   new google.maps.LatLng(43.494848, -79.133542));
+  ngOnInit() {
+    const self = this;
+    this.div.nativeElement.value = this.value;
 
-            const options = {
-                // strictBounds to GTA area
-                bounds: new google.maps.LatLngBounds(
-                    new google.maps.LatLng(43.468068, -79.963410),
-                    new google.maps.LatLng(44.301441, -78.730195)
-                ),
-                componentRestrictions: { country: 'ca' },
-                strictBounds: true
-            };
+    if (typeof google !== 'undefined') {
+      // var defaultBounds = new google.maps.LatLngBounds(
+      //   new google.maps.LatLng(43.821662, -79.928525),
+      //   new google.maps.LatLng(43.494848, -79.133542));
 
-            if (this.div) {
-                var input = this.div.nativeElement;
-                // var searchBox = new google.maps.places.SearchBox(input, {
-                //   bounds: defaultBounds
-                // });
+      const options = {
+        // strictBounds to GTA area
+        bounds: new google.maps.LatLngBounds(
+          new google.maps.LatLng(43.468068, -79.963410),
+          new google.maps.LatLng(44.301441, -78.730195)
+        ),
+        componentRestrictions: { country: 'ca' },
+        strictBounds: true
+      };
 
-                //   this.gAutocomplete = new google.maps.places.Autocomplete(input, {bounds:defaultBounds});
-                this.gAutocomplete = new google.maps.places.Autocomplete(input, options);
-                this.gAutocomplete.addListener('place_changed', () => {
-                    const geocodeResult = self.gAutocomplete.getPlace();
-                    const addr = self.locationSvc.getLocationFromGeocode(geocodeResult);
-                    if (addr) {
-                        const sAddr = `${addr.street_number} ${addr.street_name}, ${addr.sub_locality}, ${addr.province}, ${addr.postal_code}`;
+      if (this.div) {
+        var input = this.div.nativeElement;
+        // var searchBox = new google.maps.places.SearchBox(input, {
+        //   bounds: defaultBounds
+        // });
 
-                        self.addrChange.emit({ addr: addr, sAddr: sAddr });
-                    } else {
-                        self.addrChange.emit(null);
-                    }
-                });
-            }
+        //   this.gAutocomplete = new google.maps.places.Autocomplete(input, {bounds:defaultBounds});
+        this.gAutocomplete = new google.maps.places.Autocomplete(input, options);
+        this.gAutocomplete.addListener('place_changed', () => {
+          const geocodeResult = self.gAutocomplete.getPlace();
+          const addr = self.locationSvc.getLocationFromGeocode(geocodeResult);
+          if (addr) {
+            const sAddr = `${addr.street_number} ${addr.street_name}, ${addr.sub_locality}, ${addr.province}, ${addr.postal_code}`;
 
-        }
+            self.addrChange.emit({ addr: addr, sAddr: sAddr });
+          } else {
+            self.addrChange.emit(null);
+          }
+        });
+      }
 
     }
 
+  }
 
-    // onChange(v){
-    // 	let k = v;
-    // }
-    //  //From ControlValueAccessor interface
 
-    //  writeValue(value: any) {
-    //      this.innerValue = value;
-    //  }
+  // onChange(v){
+  // 	let k = v;
+  // }
+  //  //From ControlValueAccessor interface
 
-    //  //From ControlValueAccessor interface
-    //  registerOnChange(fn: any) {
-    //      this.onChange = fn;
-    //  }
+  //  writeValue(value: any) {
+  //      this.innerValue = value;
+  //  }
 
-    //  //From ControlValueAccessor interface
-    //  registerOnTouched(fn: any) {
+  //  //From ControlValueAccessor interface
+  //  registerOnChange(fn: any) {
+  //      this.onChange = fn;
+  //  }
 
-    //  }
+  //  //From ControlValueAccessor interface
+  //  registerOnTouched(fn: any) {
+
+  //  }
 
 }

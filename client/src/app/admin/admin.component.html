@@ -1,52 +1,70 @@
 <div *ngIf="isAdminLogin" class="page">
-    <!-- <app-header></app-header> -->
+  <!-- <app-header></app-header> -->
 
-    <div class="container">
-        <ngb-tabset>
-          <ngb-tab title="Orders" *ngIf="account && (account.type === 'business' || account.type === 'super') && orders">
-            <ng-template ngbTabContent>
-                <app-admin-order-list [orders]="orders"></app-admin-order-list>
-                <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
-            </ng-template>
-          </ngb-tab>
+  <div class="container">
+    <ngb-tabset>
+      <ngb-tab *ngIf="account && (account.type === 'business' || account.type === 'super') && orders">
+        <ng-template ngbTabTitle>
+          <span class="tab-title" i18n="@@Orders">Orders</span>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <app-admin-order-list [orders]="orders"></app-admin-order-list>
+          <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
+        </ng-template>
+      </ngb-tab>
 
-          <ngb-tab title="Restaurant" *ngIf="account && account.type === 'business' && restaurant">
-            <ng-template ngbTabContent>
-              <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
-              <app-restaurant-form [restaurant]="restaurant"></app-restaurant-form>
-            </ng-template>
-          </ngb-tab>
+      <ngb-tab *ngIf="account && account.type === 'business' && restaurant">
+        <ng-template ngbTabTitle>
+          <span class="tab-title" i18n="@@Restaurant">Restaurant</span>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
+          <app-restaurant-form [restaurant]="restaurant"></app-restaurant-form>
+        </ng-template>
+      </ngb-tab>
 
-          <ngb-tab title="Products" *ngIf="account && account.type === 'business'">
-            <ng-template ngbTabContent>
-              <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
-              <app-admin-product-list [products]="products"></app-admin-product-list>
-            </ng-template>
-          </ngb-tab>
+      <ngb-tab *ngIf="account && account.type === 'business'">
+        <ng-template ngbTabTitle>
+          <span class="tab-title" i18n="@@Products">Products</span>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
+          <app-admin-product-list [products]="products"></app-admin-product-list>
+        </ng-template>
+      </ngb-tab>
 
-          <ngb-tab title="Business Users" *ngIf="account && account.type === 'super'">
-            <ng-template ngbTabContent>
-                <app-admin-business-user-list></app-admin-business-user-list>
-                <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
-            </ng-template>
-          </ngb-tab>
+      <ngb-tab *ngIf="account && account.type === 'super'">
+        <ng-template ngbTabTitle>
+          <span class="tab-title" i18n="@@BusinessUsers">Business Users</span>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <app-admin-account-page></app-admin-account-page>
+          <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
+        </ng-template>
+      </ngb-tab>
 
-          <ngb-tab title="Categories" *ngIf="account && (account.type === 'business' || account.type === 'super') && orders">
-            <ng-template ngbTabContent>
-                <app-admin-category-page [categories]="categories"></app-admin-category-page>
-                <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
-            </ng-template>
-          </ngb-tab>
+      <ngb-tab *ngIf="account && (account.type === 'business' || account.type === 'super') && orders">
+        <ng-template ngbTabTitle>
+          <span class="tab-title" i18n="@@Categories">Categories</span>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <app-admin-category-page [categories]="categories"></app-admin-category-page>
+          <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
+        </ng-template>
+      </ngb-tab>
 
-          <ngb-tab title="Restaurants" *ngIf="account && account.type === 'super'">
-            <ng-template ngbTabContent>
-              <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
-              <app-admin-restaurant-page [restaurants]="restaurants"></app-admin-restaurant-page>
-            </ng-template>
-          </ngb-tab>
+      <ngb-tab *ngIf="account && account.type === 'super'">
+        <ng-template ngbTabTitle>
+          <span class="tab-title" i18n="@@Restaurants">Restaurants</span>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
+          <app-admin-restaurant-page [restaurants]="restaurants"></app-admin-restaurant-page>
+        </ng-template>
+      </ngb-tab>
 
-        </ngb-tabset>
-    </div>
+    </ngb-tabset>
+  </div>
 
-    <!-- <app-footer></app-footer> -->
+  <!-- <app-footer></app-footer> -->
 </div>

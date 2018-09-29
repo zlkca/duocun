@@ -249,6 +249,264 @@
           <context context-type="linenumber">53</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Delete" datatype="html">
+        <source>Delete</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-list/account-list.component.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/product-list/product-list.component.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/category-list/category-list.component.ts</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Username" datatype="html">
+        <source>Username</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-form/account-form.component.ts</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/login/login.component.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/signup/signup.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Password" datatype="html">
+        <source>Password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-form/account-form.component.ts</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/login/login.component.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/signup/signup.component.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Email" datatype="html">
+        <source>Email</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-form/account-form.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Type" datatype="html">
+        <source>Type</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-form/account-form.component.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Save" datatype="html">
+        <source>Save</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-form/account-form.component.ts</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-form/restaurant-form.component.ts</context>
+          <context context-type="linenumber">57</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/product-form/product-form.component.ts</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/category-form/category-form.component.ts</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Cancel" datatype="html">
+        <source>Cancel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-form/account-form.component.ts</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-form/restaurant-form.component.ts</context>
+          <context context-type="linenumber">59</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/category-form/category-form.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/cart/cart.component.ts</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-order-list/admin-order-list.component.ts</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Orders" datatype="html">
+        <source>Orders</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin.component.ts</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Restaurant" datatype="html">
+        <source>Restaurant</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin.component.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/product-form/product-form.component.ts</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-list/order-list.component.ts</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-order-list/admin-order-list.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Products" datatype="html">
+        <source>Products</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin.component.ts</context>
+          <context context-type="linenumber">28</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-list/restaurant-list.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-list/restaurant-list.component.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="BusinessUsers" datatype="html">
+        <source>Business Users</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin.component.ts</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Categories" datatype="html">
+        <source>Categories</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin.component.ts</context>
+          <context context-type="linenumber">48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Restaurants" datatype="html">
+        <source>Restaurants</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin.component.ts</context>
+          <context context-type="linenumber">58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Name" datatype="html">
+        <source>Name:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-form/restaurant-form.component.ts</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/product-form/product-form.component.ts</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/category-form/category-form.component.ts</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Description" datatype="html">
+        <source>Description</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-form/restaurant-form.component.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/product-form/product-form.component.ts</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/category-form/category-form.component.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Street" datatype="html">
+        <source>Street:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-form/restaurant-form.component.ts</context>
+          <context context-type="linenumber">28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Suite" datatype="html">
+        <source>Suite:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-form/restaurant-form.component.ts</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="PostalCode" datatype="html">
+        <source>Postal Code:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-form/restaurant-form.component.ts</context>
+          <context context-type="linenumber">42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Owner" datatype="html">
+        <source>Owner</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-form/restaurant-form.component.ts</context>
+          <context context-type="linenumber">48</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="FreeDeliverWhen" datatype="html">
+        <source>Free Deliver when order before 10:00am</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-grid/restaurant-grid.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Price" datatype="html">
+        <source>Price</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/product-form/product-form.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Category" datatype="html">
+        <source>Category</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/product/product-form/product-form.component.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="ngb.datepicker.previous-month" datatype="html">
         <source>Previous month</source>
         <context-group purpose="location">
@@ -271,34 +529,83 @@
           <context context-type="linenumber">27</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Username" datatype="html">
-        <source>Username</source>
+      <trans-unit id="Subtotal" datatype="html">
+        <source>Sub Total</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">app/account/login/login.component.ts</context>
+          <context context-type="sourcefile">app/order/order-detail/order-detail.component.ts</context>
           <context context-type="linenumber">13</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="DeliveryFee" datatype="html">
+        <source>Delivery Fee</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">app/account/signup/signup.component.ts</context>
-          <context context-type="linenumber">12</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
-          <context context-type="linenumber">11</context>
+          <context context-type="sourcefile">app/order/order-detail/order-detail.component.ts</context>
+          <context context-type="linenumber">16</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Password" datatype="html">
-        <source>Password</source>
+      <trans-unit id="Tax" datatype="html">
+        <source>Tax</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">app/account/login/login.component.ts</context>
+          <context context-type="sourcefile">app/order/order-detail/order-detail.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Total" datatype="html">
+        <source>Total</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-detail/order-detail.component.ts</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-list/order-list.component.ts</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-order-list/admin-order-list.component.ts</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Status" datatype="html">
+        <source>Status</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-list/order-list.component.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-order-list/admin-order-list.component.ts</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="OrderDate" datatype="html">
+        <source>Order Date</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-list/order-list.component.ts</context>
           <context context-type="linenumber">18</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">app/account/signup/signup.component.ts</context>
-          <context context-type="linenumber">32</context>
+          <context context-type="sourcefile">app/admin/admin-order-list/admin-order-list.component.ts</context>
+          <context context-type="linenumber">23</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="Checkout" datatype="html">
+        <source>Check out</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
-          <context context-type="linenumber">21</context>
+          <context context-type="sourcefile">app/order/cart/cart.component.ts</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="OrderDetail" datatype="html">
+        <source>Order Detail</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/cart/cart.component.ts</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Submit" datatype="html">
+        <source>Submit</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/cart/cart.component.ts</context>
+          <context context-type="linenumber">51</context>
         </context-group>
       </trans-unit>
       <trans-unit id="CreateAnAccount" datatype="html">
@@ -330,13 +637,6 @@
           <context context-type="linenumber">51</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Email" datatype="html">
-        <source>Email</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
-          <context context-type="linenumber">16</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="RestaurantName" datatype="html">
         <source>Restaurant Name</source>
         <context-group purpose="location">
@@ -349,13 +649,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
           <context context-type="linenumber">31</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Suite" datatype="html">
-        <source>Suite</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
-          <context context-type="linenumber">36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="PhoneNumber" datatype="html">
@@ -372,8 +665,54 @@
           <context context-type="linenumber">46</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="AddAccount" datatype="html">
+        <source>Add Account</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-account-page/admin-account-page.component.ts</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="AddRestaurant" datatype="html">
+        <source>Add restaurant</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-restaurant-page/admin-restaurant-page.component.ts</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Customer" datatype="html">
+        <source>Customer</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-order-list/admin-order-list.component.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Deliver" datatype="html">
+        <source>Deliver</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-order-list/admin-order-list.component.ts</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="AddProduct" datatype="html">
+        <source>Add Product</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-product-page/admin-product-page.component.ts</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="AddCategory" datatype="html">
+        <source>Add Category</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin-category-page/admin-category-page.component.ts</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="searchRestuarant" datatype="html">
         <source>Search Restaurant</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/my-address/my-address.component.ts</context>
           <context context-type="linenumber">9</context>

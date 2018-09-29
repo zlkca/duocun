@@ -28,6 +28,9 @@ export class MyAddressComponent implements OnInit {
   gAutocomplete: any;
   coords: any;
   geoError: any;
+  placeholder = 'Delivery Address';
+  deliveryAddress = '';
+
   @ViewChild('div') div: ElementRef;
 
   ngOnInit() {

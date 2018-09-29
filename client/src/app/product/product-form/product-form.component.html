@@ -1,7 +1,7 @@
 
     <form [formGroup]="form" class="admin-form">
         <div class="row">
-            <div class="label-sm">Name:</div>
+            <div class="label-sm" i18n="@@Name">Name:</div>
             <input name="name" formControlName="name"/>
             <!-- <div *ngIf="name.touched && name.invalid" class="alert alert-danger">
                 <div *ngIf="name.errors.required">Product Name is required</div>
@@ -10,26 +10,26 @@
         </div>
 
         <div class="row">
-            <div class="label-sm">Description</div>
+            <div class="label-sm" i18n="@@Description">Description</div>
             <textarea name="description" formControlName="description"></textarea>
             <!-- <div *ngIf="description.touched && description.invalid" class="alert alert-danger">Description should be maximum 980 chars.</div> -->
         </div>
 
         <div class="row">
-            <div class="label-sm">Price</div>
+            <div class="label-sm" i18n="@@Price">Price</div>
             <input type="number" name="price" formControlName="price"/>
             <!-- <div *ngIf="price.touched && price.invalid" class="alert alert-danger">Price is required.</div> -->
         </div>
 
         <div class="row">
-            <div class="label-sm">Restaurant</div>
+            <div class="label-sm" i18n="@@Restaurant">Restaurant</div>
             <select name="restaurant" formControlName="restaurantId">
                 <option *ngFor="let m of restaurantList" [value]="m.id">{{m.name}}</option>
             </select>
         </div>
 
         <div class="row">
-            <div class="label-sm">Category</div>
+            <div class="label-sm" i18n="@@Category">Category</div>
             <select name="category" formControlName="categoryId">
                 <option *ngFor="let c of categoryList" [value]="c.id">{{c.name}}</option>
             </select>
@@ -47,5 +47,5 @@
         <!-- <app-image-uploader [data]="pictures" #uploader></app-image-uploader> -->
         <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)"></image-upload>
 
-        <button (click)="save()">Save</button>
+        <button (click)="save()" i18n="@@Save">Save</button>
     </form>

@@ -47,7 +47,6 @@ import { SharedModule } from './shared/shared.module';
 import { CommerceModule } from './commerce/commerce.module';
 
 import { AdminComponent } from './admin/admin.component';
-import { AdminBusinessUserFormPageComponent } from './admin/admin-business-user-form-page/admin-business-user-form-page.component';
 
 import { AdminProductPageComponent } from './admin/admin-product-page/admin-product-page.component';
 import { AdminProductFormPageComponent } from './admin/admin-product-form-page/admin-product-form-page.component';
@@ -55,8 +54,8 @@ import { AdminProductFormPageComponent } from './admin/admin-product-form-page/a
 import { LayoutComponent } from './main/layout/layout.component';
 
 import { OrderListPageComponent } from './main/order-list-page/order-list-page.component';
-
-import { AdminCategoryPageComponent } from './admin/admin-category-page/admin-category-page.component';
+import { AdminAccountPageComponent } from './admin/admin-account-page/admin-account-page.component';
+// import { AdminCategoryPageComponent } from './admin/admin-category-page/admin-category-page.component';
 import { MultiProductFormComponent } from './commerce/multi-product-form/multi-product-form.component';
 import { OrderModule } from './order/order.module';
 import { PageModule } from './page/page.module';
@@ -74,8 +73,8 @@ const appRoutes: Routes = [
     { path: 'admin/product', component: AdminProductFormPageComponent },
     { path: 'admin/products', component: AdminProductPageComponent },
     { path: 'admin/edit-products', component: MultiProductFormComponent },
-    { path: 'admin/user', component: AdminBusinessUserFormPageComponent },
-    { path: 'admin/users/:id', component: AdminBusinessUserFormPageComponent },
+    { path: 'admin/user', component: AdminAccountPageComponent },
+    { path: 'admin/users/:id', component: AdminAccountPageComponent },
 
     { path: 'restaurants', component: HomeComponent },
     { path: 'restaurant-detail/:id', component: RestaurantDetailComponent },

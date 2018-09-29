@@ -1,6 +1,6 @@
 <form [formGroup]="form" class="restaurant-form">
   <div class="row">
-    <div class="label-sm">Name:</div>
+    <div class="label-sm" i18n="@@Name">Name:</div>
     <input name="name" formControlName="name" />
     <!--             <div *ngIf="name.touched && name.invalid" class="alert alert-danger">
             <div *ngIf="name.errors.required">Restaurant Name is required</div>
@@ -8,7 +8,7 @@
         </div> -->
   </div>
   <div class="row">
-    <div class="label-sm">Description</div>
+    <div class="label-sm" i18n="@@Description">Description</div>
     <textarea name="description" formControlName="description"></textarea>
     <!-- <div *ngIf="description.touched && description.invalid" class="alert alert-danger">Max Manufacory Description is 500 chars.</div> -->
   </div>
@@ -25,7 +25,7 @@
 
   <div formGroupName="address">
     <div class="row">
-      <div class="label-sm">Street:</div>
+      <div class="label-sm" i18n="@@Street">Street:</div>
       <input name="street" formControlName="street" />
       <!--  <div *ngIf="street.touched && street.invalid" class="alert alert-danger">
                           <div *ngIf="street.errors.required">Street is required</div>
@@ -34,18 +34,18 @@
     </div>
 
     <div class="row">
-      <div class="label-sm">Unit/Suite:</div>
+      <div class="label-sm" i18n="@@Suite">Suite:</div>
       <input name="unit" formControlName="unit" />
     </div>
 
     <div class="row">
-      <div class="label-sm">Postal Code:</div>
+      <div class="label-sm" i18n="@@PostalCode">Postal Code:</div>
       <input name="postalCode" formControlName="postalCode" />
     </div>
   </div>
 
   <div *ngIf="users?.length" class="row">
-    <div class="label-sm">Owner</div>
+    <div class="label-sm" i18n="@@Owner">Owner</div>
     <select name="user" formControlName="ownerId">
       <option *ngFor="let m of users" [value]="m.id">{{m.username}}</option>
     </select>
@@ -54,7 +54,7 @@
   <!-- <app-image-uploader [picture]="picture" #uploader></app-image-uploader> -->
   <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)"></image-upload>
 
-  <button (click)="save()">Save</button>
+  <button (click)="save()" i18n="@@Save">Save</button>
 
-  <button (click)="cancel()">Cancel</button>
+  <button (click)="cancel()" i18n="@@Cancel">Cancel</button>
 </form>

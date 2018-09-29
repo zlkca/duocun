@@ -17,6 +17,8 @@ export class HomeComponent implements OnInit {
   center: GeoPoint = { lat: 43.761539, lng: -79.411079 };
   restaurants;
   places;
+  deliveryAddress = '';
+  placeholder = 'Delivery Address';
 
   constructor(
     private locationSvc: LocationService,
@@ -29,6 +31,8 @@ export class HomeComponent implements OnInit {
 
     if (s) {
       const location = JSON.parse(s);
+      self.deliveryAddress = location.street_number + ' ' + location.street_name + ' ' +
+        location.sub_locality + ', ' + location.province;
       self.center = { lat: location.lat, lng: location.lng };
       self.doSearchRestaurants(self.center);
     } else {
@@ -84,6 +88,11 @@ export class HomeComponent implements OnInit {
       s = '?' + conditions.join('&');
     }
 
+    this.loadRestaurants();
+  }
+
+  loadRestaurants() {
+    const self = this;
     // this.restaurantServ.getNearby(this.center).subscribe(
     this.restaurantSvc.find().subscribe(
       (ps: Restaurant[]) => {
@@ -104,5 +113,20 @@ export class HomeComponent implements OnInit {
         self.restaurants = [];
       }
     );
+  }
+
+  search(e?) {
+    const self = this;
+    if (e && e.addr) {
+      self.locationSvc.set(e.addr);
+      self.loadRestaurants();
+    } else {
+      this.locationSvc.getCurrentLocation().subscribe(r => {
+        self.loadRestaurants();
+      },
+        err => {
+          alert('Do you want to turn on your GPS to find the nearest restaurants?');
+        });
+    }
   }
 }

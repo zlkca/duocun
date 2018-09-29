@@ -41,7 +41,7 @@ export class SignupComponent implements OnInit {
         const v = this.form.value;
         const account = new Account({
             username: v.username,
-            email: 'test@etuan.ca', // v.email,
+            email: v.email,
             password: v.password,
             type: 'user'
         });

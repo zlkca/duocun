@@ -7,21 +7,21 @@
                         <span class="title-xs">{{order.id}}</span>
                     </div>
                     <div class="col-8">
-                        <span class="title-xs">Restaurant: </span>
+                        <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
                         <span class="title-xs">{{order.restaurant.name}}</span>
                     </div>
                     <div class="col-4">
-                        <span class="title-xs">Status: </span>
+                        <span class="title-xs" i18n="@@Status">Status</span>:
                         <span class="text-xs">{{order.status}}</span>
                     </div>
                     <div class="col-8">
-                        <span class="title-xs">Order Date: </span>
+                        <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
                         <span class="text-xs">{{toDateTimeString(order.created)}}</span>
                     </div>
                 </div>
     
                 <div class="row">
-                    <div class="col-6 text-sm total">Total: ${{getTotal(order)}}</div>
+                    <div class="col-6 text-sm total"><span i18n="@@Total">Total</span>: ${{getTotal(order)}}</div>
                 </div>
                 
             </div>

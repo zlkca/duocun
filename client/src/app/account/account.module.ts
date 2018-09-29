@@ -13,6 +13,8 @@ import { ForgetPasswordComponent } from './forget-password/forget-password.compo
 import { ProfileFormComponent } from './profile-form/profile-form.component';
 import { InstitutionSignupComponent } from './institution-signup/institution-signup.component';
 import { InstitutionLoginComponent } from './institution-login/institution-login.component';
+import { AccountListComponent } from './account-list/account-list.component';
+import { AccountFormComponent } from './account-form/account-form.component';
 
 @NgModule({
     imports: [
@@ -23,12 +25,17 @@ import { InstitutionLoginComponent } from './institution-login/institution-login
         SharedModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    exports: [],
+    exports: [
+      AccountListComponent,
+      AccountFormComponent
+    ],
     declarations: [LoginComponent, SignupComponent, ChangePasswordComponent,
         ForgetPasswordComponent,
         ProfileFormComponent,
         InstitutionSignupComponent,
         InstitutionLoginComponent,
+        AccountListComponent,
+        AccountFormComponent
     ]
 })
 export class AccountModule { }

@@ -5,6 +5,14 @@
             <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
         </div>
       </div>
+      <div class="col-sm-6 col-xl-12 input-group search-bar">
+        <address-input (addrChange)="search($event)" [placeholder]="placeholder" [value]="deliveryAddress"></address-input>
+        <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
+        <div class="input-group-append">
+          <button type="button" name="button" class="btn btn-primary btn-search" (click)="search()" i18n="@@searchRestuarant">Search Restaurant</button>
+        </div>
+      </div>
+
       <!-- <div class="col-xs-12 col-4 search-col">
         <div class="input-group search-box">
           <input type="text" class="form-control" [(ngModel)]="keyword" placeholder="Search Restaurant" aria-describedby="basic-addon2">

@@ -31,10 +31,10 @@ export class LocationService {
     // }
 
     GoogleMapsLoader.load().then((_mapsApi) => {
-                // debugger;
-                this.geocoder       = new _mapsApi.Geocoder();
-                // this.geocoderStatus = _mapsApi.GeocoderStatus;
-            });
+      // debugger;
+      this.geocoder = new _mapsApi.Geocoder();
+      // this.geocoderStatus = _mapsApi.GeocoderStatus;
+    });
 
   }
 
@@ -130,17 +130,21 @@ export class LocationService {
             }
           });
         }, err => { // if mobile browser doesn't support
-          this.geocoder.geocode({ 'location': pos }, (results) => {
-            const loc = this.getLocationFromGeocode(results[0]);
-            if (loc) {
-              loc.lat = pos.lat;
-              loc.lng = pos.lng;
-              this.set(loc);
-              resolve(loc);
-            } else {
-              reject(loc);
-            }
-          });
+          if (this.geocoder) {
+            this.geocoder.geocode({ 'location': pos }, (results) => {
+              const loc = this.getLocationFromGeocode(results[0]);
+              if (loc) {
+                loc.lat = pos.lat;
+                loc.lng = pos.lng;
+                this.set(loc);
+                resolve(loc);
+              } else {
+                reject(loc);
+              }
+            });
+          } else { // no internet
+            reject();
+          }
         }
         );
       } else {
