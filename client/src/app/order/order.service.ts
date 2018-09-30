@@ -56,7 +56,7 @@ export class OrderService {
         return this.orderApi.patchAttributes(order.id, { status: 'delivered' });
     }
 
-    cancel(order: Order) {
+    rmOrder(order: Order) {
         return this.orderApi.deleteById(order.id);
     }
 

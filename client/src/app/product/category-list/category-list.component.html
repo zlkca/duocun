@@ -1,5 +1,5 @@
 <div class="list-group category-list">
-  <div class="list-group-item category" *ngFor="let c of categories" >
+  <div class="list-group-item category" *ngFor="let c of categories" [ngClass]="{'active': selected == c}">
     <div class="row">
       <div class="col-8">
           <div (click)="onSelect(c)">{{c.name}}</div>

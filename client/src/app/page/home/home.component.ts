@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Restaurant, GeoPoint } from '../../shared/lb-sdk';
 import { LocationService } from '../../shared/location/location.service';
-import { Local } from '../../../../node_modules/protractor/built/driverProviders';
 import { environment } from '../../../environments/environment';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 // import { RestaurantGridComponent } from '../../restaurant/restaurant-grid/restaurant-grid.component';

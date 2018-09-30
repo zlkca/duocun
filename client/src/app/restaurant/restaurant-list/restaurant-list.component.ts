@@ -14,7 +14,7 @@ export class RestaurantListComponent implements OnInit {
   @Input() restaurants: Restaurant[];
   @Output() select = new EventEmitter();
   @Output() afterDelete = new EventEmitter();
-
+  selected = null;
   MEDIA_URL = environment.MEDIA_URL;
 
   constructor(private router: Router,
@@ -46,6 +46,7 @@ export class RestaurantListComponent implements OnInit {
 
 
   onSelect(r) {
+    this.selected = r;
     this.select.emit({ restaurant: r });
   }
 
@@ -58,6 +59,7 @@ export class RestaurantListComponent implements OnInit {
     this.restaurantSvc.rmRestaurant(r.id).subscribe(
       (x: Restaurant) => {
         self.afterDelete.emit({ restaurant: r });
+        this.selected = null;
       },
       (err) => {
 

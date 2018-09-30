@@ -22,6 +22,8 @@ export class ProductListComponent implements OnInit {
   @Input() mode: string;
   @Output() select = new EventEmitter();
   @Output() afterDelete = new EventEmitter();
+  selected = null;
+
   ngOnInit() {
 
   }
@@ -65,6 +67,7 @@ export class ProductListComponent implements OnInit {
   }
 
   onSelect(p) {
+    this.selected = p;
     this.select.emit({ 'product': p });
   }
 
@@ -80,6 +83,7 @@ export class ProductListComponent implements OnInit {
   delete(p) {
     const self = this;
     this.productSvc.deleteById(p.id).subscribe(x => {
+      self.selected = null;
       self.afterDelete.emit({ product: p });
     });
   }

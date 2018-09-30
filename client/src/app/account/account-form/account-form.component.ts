@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AccountService } from '../account.service';
 import { Account } from '../../shared/lb-sdk';
 
+
 @Component({
   selector: 'app-account-form',
   templateUrl: './account-form.component.html',
@@ -12,6 +13,12 @@ import { Account } from '../../shared/lb-sdk';
 export class AccountFormComponent implements OnInit, OnChanges {
   currentAccount: Account;
   form: FormGroup;
+  accountTypes: string[] = [
+    'super',
+    'business',
+    'user',
+    'deliver'
+  ];
 
   @Input() account: Account;
   @Output() valueSave = new EventEmitter();

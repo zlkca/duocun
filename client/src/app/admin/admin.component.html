@@ -3,12 +3,12 @@
 
   <div class="container">
     <ngb-tabset>
-      <ngb-tab *ngIf="account && (account.type === 'business' || account.type === 'super') && orders">
+      <ngb-tab *ngIf="account">
         <ng-template ngbTabTitle>
           <span class="tab-title" i18n="@@Orders">Orders</span>
         </ng-template>
         <ng-template ngbTabContent>
-          <app-admin-order-list [orders]="orders"></app-admin-order-list>
+          <app-admin-order-page [restaurant]="restaurant"></app-admin-order-page>
           <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
         </ng-template>
       </ngb-tab>
@@ -35,7 +35,7 @@
 
       <ngb-tab *ngIf="account && account.type === 'super'">
         <ng-template ngbTabTitle>
-          <span class="tab-title" i18n="@@BusinessUsers">Business Users</span>
+          <span class="tab-title" i18n="@@Account">Account</span>
         </ng-template>
         <ng-template ngbTabContent>
           <app-admin-account-page></app-admin-account-page>
@@ -48,7 +48,7 @@
           <span class="tab-title" i18n="@@Categories">Categories</span>
         </ng-template>
         <ng-template ngbTabContent>
-          <app-admin-category-page [categories]="categories"></app-admin-category-page>
+          <app-admin-category-page></app-admin-category-page>
           <!-- <multi-user-form [users]="businessUsers"></multi-user-form> -->
         </ng-template>
       </ngb-tab>
@@ -59,7 +59,7 @@
         </ng-template>
         <ng-template ngbTabContent>
           <!-- <multi-restaurant-form [restaurants]="restaurants"></multi-restaurant-form> -->
-          <app-admin-restaurant-page [restaurants]="restaurants"></app-admin-restaurant-page>
+          <app-admin-restaurant-page></app-admin-restaurant-page>
         </ng-template>
       </ngb-tab>
 

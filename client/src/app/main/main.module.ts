@@ -17,7 +17,6 @@ import { LayoutComponent } from './layout/layout.component';
 import { CommerceService } from '../commerce/commerce.service';
 import { AccountService } from '../account/account.service';
 
-import { OrderListPageComponent } from './order-list-page/order-list-page.component';
 import { ProductComponent } from './product/product.component';
 import { BlogComponent } from './blog/blog.component';
 import { CommentComponent } from './comment/comment.component';
@@ -37,7 +36,6 @@ import { CommentComponent } from './comment/comment.component';
         ContactComponent,
         LayoutComponent,
         ProductComponent,
-        OrderListPageComponent,
         BlogComponent,
         CommentComponent
     ],

@@ -1,6 +1,6 @@
 <div class="product-list">
     <div class="list-group list-body" *ngIf="products && products.length>0">
-      <div class="list-group-item" *ngFor="let p of products; let i = index;" (click)="onSelect(p)">
+      <div class="list-group-item" *ngFor="let p of products; let i = index;" (click)="onSelect(p)" [ngClass]="{'active': selected == p}">
         <div class="row">
           <div class="col-4">
               <!-- <img [src]="p.pictures[0]?.url || placeholder" alt="{{p.name}}" /> -->

@@ -1,7 +1,7 @@
 
 <div class="restaurant-list">
   <div class="list-group" *ngIf="restaurants.length>0">
-    <div class="list-group-item" *ngFor="let m of restaurants" (click)="onSelect(m)">
+    <div class="list-group-item" *ngFor="let m of restaurants" (click)="onSelect(m)" [ngClass]="{'active': selected == m}">
       <div class="row">
         <!-- <div class="col-3>">
           <img [src]="getImageSrc(m.image)" />

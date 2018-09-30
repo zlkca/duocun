@@ -186,5 +186,6 @@ export class AccountService {
   rmAccount(id): Observable<any> {
     return this.accountApi.deleteById(id);
   }
+
 }
 

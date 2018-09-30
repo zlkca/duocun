@@ -19,6 +19,15 @@
       "required": true,
       "default": "new"
     },
+    "notes": {
+      "type": "string",
+      "required": true,
+      "default": ""
+    },
+    "delivered": {
+      "type": "date",
+      "defaultFn": "now"
+    },
     "created": {
       "type": "date",
       "defaultFn": "now"

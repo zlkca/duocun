@@ -1,30 +1,80 @@
 <div class="order-list">
-        <div class="order" *ngFor="let order of orders; let i = index;">
-            <div class="body" (click)="toDetail(p)">
-                <div class="row order-header">
-                    <div class="col-4">
-                        <span class="title-xs">Id: </span>
-                        <span class="title-xs">{{order.id}}</span>
-                    </div>
-                    <div class="col-8">
-                        <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
-                        <span class="title-xs">{{order.restaurant.name}}</span>
-                    </div>
-                    <div class="col-4">
-                        <span class="title-xs" i18n="@@Status">Status</span>:
-                        <span class="text-xs">{{order.status}}</span>
-                    </div>
-                    <div class="col-8">
-                        <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
-                        <span class="text-xs">{{toDateTimeString(order.created)}}</span>
-                    </div>
-                </div>
-    
-                <div class="row">
-                    <div class="col-6 text-sm total"><span i18n="@@Total">Total</span>: ${{getTotal(order)}}</div>
-                </div>
-                
-            </div>
+  <div class="order" *ngFor="let order of orders; let i = index;">
+    <div class="body" (click)="delivered(order.status)">
+      <div class="body">
+        <div class="row order-header">
+          <div class="col-sm-4">
+            <span class="title-xs" i18n="@@OrderId">Order Id</span>:
+            <span class="title-xs">{{order.id}}</span>
+          </div>
+          <div class="col-sm-4">
+            <span class="title-xs" i18n="@@Customer">Customer</span>:
+            <span class="title-xs">{{order.account.username}}</span>
+          </div>
+          <div class="col-sm-4">
+            <span class="title-xs" i18n="@@Status">Status</span>:
+            <span class="text-xs">{{order.status}}</span>
+          </div>
+          <div class="col-sm-4" *ngIf="order.restaurant">
+            <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
+            <span class="text-xs">{{order.restaurant.name}}</span>
+          </div>
+          <div class="col-sm-4">
+            <span class="title-xs" i18n="@@DeliverDate">Deliver Date</span>:
+            <span class="text-xs">{{toDateTimeString(order.delivered)}}</span>
+          </div>
+          <div class="col-sm-4">
+            <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
+            <span class="text-xs">{{toDateTimeString(order.created)}}</span>
+          </div>
         </div>
+        <div *ngFor="let it of order.items">
+          <div class="text-xs">{{it.product.name}} ${{it.price}} x {{it.quantity}}</div>
+        </div>
+
+        <div class="row">
+          <div class="col-6 text-sm total">
+            <span i18n="@@Total">Total</span>: ${{getTotal(order)}}</div>
+          <div class="col-6" *ngIf="order.status === 'delivered';else delivered">
+            <div class="btn btn-secondary btn-xs pull-right m-1">Delivered</div>
+          </div>
+          <ng-template #delivered>
+            <div class="col-6">
+              <div class="btn btn-secondary btn-xs pull-right m-1" (click)="toDeliver(order)" i18n="@@Deliver">Deliver</div>
+              <div class="btn btn-secondary btn-xs pull-right m-1" (click)="delete(order)" i18n="@@Delete">Delete</div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
     </div>
-        
+  </div>
+</div>
+
+<!-- <div class="order-list">
+  <div class="order" *ngFor="let order of orders; let i = index;">
+    <div class="body" (click)="toDetail(p)">
+      <div class="row order-header">
+        <div class="col-4">
+          <span class="title-xs" i18n="@@OrderId">Order Id</span>:
+          <span class="title-xs">{{order.id}}</span>
+        </div>
+        <div class="col-8">
+          <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
+          <span class="title-xs">{{order.restaurant.name}}</span>
+        </div>
+        <div class="col-4">
+          <span class="title-xs" i18n="@@Status">Status</span>:
+          <span class="text-xs">{{order.status}}</span>
+        </div>
+        <div class="col-8">
+          <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
+          <span class="text-xs">{{toDateTimeString(order.created)}}</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 text-sm total">
+          <span i18n="@@Total">Total</span>: ${{getTotal(order)}}</div>
+      </div>
+    </div>
+  </div>
+</div> -->

@@ -11,6 +11,8 @@ export interface OrderInterface {
   "accountId": number;
   "restaurantId": number;
   "status": string;
+  "notes": string;
+  "delivered"?: Date;
   "created"?: Date;
   "modified"?: Date;
   "id"?: number;
@@ -24,6 +26,8 @@ export class Order implements OrderInterface {
   "accountId": number;
   "restaurantId": number;
   "status": string;
+  "notes": string;
+  "delivered"?: Date;
   "created": Date;
   "modified": Date;
   "id": number;
@@ -76,6 +80,15 @@ export class Order implements OrderInterface {
           name: 'status',
           type: 'string',
           default: 'new'
+        },
+        "notes": {
+          name: 'status',
+          type: 'string',
+          default: ''
+        },
+        "delivered": {
+          name: 'delivered',
+          type: 'Date'
         },
         "created": {
           name: 'created',

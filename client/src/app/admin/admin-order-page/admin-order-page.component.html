@@ -1,0 +1,18 @@
+<div class="page admin-order-page">
+  <div class="row">
+    <div class="col-sm-2 col-xs-12">
+      <div class="list-group list-body">
+        <div class="row list-group-item" [ngClass]="{'active': selectedRange == 'daily'}" (click)="onFilterOrders('daily')">Daily</div>
+        <div class="row list-group-item" [ngClass]="{'active': selectedRange == 'weekly'}" (click)="onFilterOrders('weekly')">Weekly</div>
+        <div class="row list-group-item" [ngClass]="{'active': selectedRange == 'monthly'}" (click)="onFilterOrders('monthly')">Monthly</div>
+        <div class="row list-group-item" [ngClass]="{'active': selectedRange == 'all'}" (click)="onFilterOrders('all')">All</div>
+      </div>
+    </div>
+    <div class="col-sm-10 col-xs-12">
+      <app-order-list [orders]="orders" 
+      (select)="onSelect($event)"
+      (afterDelete)="onAfterDelete($event)"
+      [restaurant]="restaurant"></app-order-list>
+    </div>
+  </div>
+</div>
