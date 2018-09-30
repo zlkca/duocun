@@ -61,36 +61,36 @@ export class AdminComponent implements OnInit, OnDestroy {
                         self.products = rest.products;
                     }));
 
-                    this.subscrList.push(self.restaurantSvc.getOrders(restaurant_id, {include: ['account', {items: {product: 'pictures'}}]})
-                    .subscribe((orders: Order[]) => {
-                        self.orders = orders;
-                    }));
+                    // this.subscrList.push(self.restaurantSvc.getOrders(restaurant_id, {include: ['account', {items: {product: 'pictures'}}]})
+                    // .subscribe((orders: Order[]) => {
+                    //     self.orders = orders;
+                    // }));
 
-                    this.subscrList.push(self.restaurantSvc
-                    .syncOrders(restaurant_id, {include: ['account', {items: {product: 'pictures'}}]})
-                    .subscribe((od: Order) => {
-                        self.orders.push(od);
-                    }));
+                    // this.subscrList.push(self.restaurantSvc
+                    // .syncOrders(restaurant_id, {include: ['account', {items: {product: 'pictures'}}]})
+                    // .subscribe((od: Order) => {
+                    //     self.orders.push(od);
+                    // }));
 
-                    self.restaurantSvc.getProducts(restaurant_id).subscribe(
-                        (ps: Product[]) => {
-                            self.products = ps;
-                        });
+                    // self.restaurantSvc.getProducts(restaurant_id).subscribe(
+                    //     (ps: Product[]) => {
+                    //         self.products = ps;
+                    //     });
                 }
 
             } else if (account.type === 'super') {
-                this.subscrList.push(self.restaurantSvc.find().subscribe((restaurants: Restaurant[]) => {
-                    self.restaurants = restaurants;
-                }));
+                // this.subscrList.push(self.restaurantSvc.find().subscribe((restaurants: Restaurant[]) => {
+                //     self.restaurants = restaurants;
+                // }));
 
-                this.subscrList.push(self.orderSvc.find({include: ['account', 'restaurant', {items: {product: 'pictures'}}]})
-                .subscribe((orders: Order[]) => {
-                    self.orders = orders;
-                }));
+                // this.subscrList.push(self.orderSvc.find({include: ['account', 'restaurant', {items: {product: 'pictures'}}]})
+                // .subscribe((orders: Order[]) => {
+                //     self.orders = orders;
+                // }));
 
-                this.subscrList.push(self.productSvc.findCategories().subscribe((categories: Category[]) => {
-                  self.categories = categories;
-              }));
+              //   this.subscrList.push(self.productSvc.findCategories().subscribe((categories: Category[]) => {
+              //     self.categories = categories;
+              // }));
             }
         });
 
