@@ -31,7 +31,7 @@ import { AdminRestaurantFormPageComponent } from './admin/admin-restaurant-form-
 
 import { ProductListComponent } from './product/product-list/product-list.component';
 import { ProductComponent } from './main/product/product.component';
-
+import { MyOrderComponent } from './page/my-order/my-order.component';
 
 import { CoreModule } from './core/core.module';
 
@@ -74,12 +74,13 @@ const appRoutes: Routes = [
     { path: 'admin/edit-products', component: MultiProductFormComponent },
     { path: 'admin/user', component: AdminAccountPageComponent },
     { path: 'admin/users/:id', component: AdminAccountPageComponent },
+    { path: 'admin/orders', component: AdminComponent },
 
     { path: 'restaurants', component: HomeComponent },
     { path: 'restaurant-detail/:id', component: RestaurantDetailComponent },
     { path: 'products', component: ProductListComponent },
     { path: 'product/:id', component: ProductComponent },
-    { path: 'orders', component: AdminComponent },
+    { path: 'orders', component: MyOrderComponent },
     { path: 'forget-password', component: ForgetPasswordComponent },
     { path: 'login', component: LoginComponent },
     { path: 'institution-login', component: InstitutionLoginComponent },

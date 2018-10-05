@@ -8,3 +8,12 @@
         padding-top:8px;
     }
 }
+
+@media (max-width: 767px){
+  .order{
+    .col-6, .col-12{
+      padding-left: 0px;
+      padding-right: 0px;
+    }
+  }
+}

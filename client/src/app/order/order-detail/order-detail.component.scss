@@ -1,0 +1,8 @@
+
+
+// Bootstrap's .modal z-index is by default 1050.
+// jQuery UI's .ui-autocomplete z-index is by default 3.
+.pac-container {
+  z-index: 1054 !important;
+  display: block;
+}

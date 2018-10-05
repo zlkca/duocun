@@ -3,30 +3,39 @@
     <div class="body" (click)="delivered(order.status)">
       <div class="body">
         <div class="row order-header">
-          <div class="col-sm-4">
+          <div class="col-6 col-sm-2">
             <span class="title-xs" i18n="@@OrderId">Order Id</span>:
             <span class="title-xs">{{order.id}}</span>
           </div>
-          <div class="col-sm-4">
-            <span class="title-xs" i18n="@@Customer">Customer</span>:
-            <span class="title-xs">{{order.account.username}}</span>
-          </div>
-          <div class="col-sm-4">
+          <div class="col-6 col-sm-2">
             <span class="title-xs" i18n="@@Status">Status</span>:
             <span class="text-xs">{{order.status}}</span>
           </div>
-          <div class="col-sm-4" *ngIf="order.restaurant">
+          <div class="col-6 col-sm-2" *ngIf="order.restaurant">
             <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
             <span class="text-xs">{{order.restaurant.name}}</span>
           </div>
-          <div class="col-sm-4">
-            <span class="title-xs" i18n="@@DeliverDate">Deliver Date</span>:
-            <span class="text-xs">{{toDateTimeString(order.delivered)}}</span>
+          <div class="col-6 col-sm-2">
+            <span class="title-xs" i18n="@@Customer">Customer</span>:
+            <span class="title-xs">{{order.account.username}}</span>
           </div>
-          <div class="col-sm-4">
+          <div class="col-12 col-sm-4">
+            <span class="title-xs" i18n="@@NotesToMerchant">Notes</span>:
+            <span class="text-xs">{{(order.notes)}}</span>
+          </div>
+          <div class="col-12 col-sm-3">
             <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
             <span class="text-xs">{{toDateTimeString(order.created)}}</span>
           </div>
+          <div class="col-12 col-sm-3">
+            <span class="title-xs" i18n="@@DeliverDate">Deliver Date</span>:
+            <span class="text-xs">{{toDateTimeString(order.delivered)}}</span>
+          </div>
+          <div class="col-12 col-sm-6">
+            <span class="title-xs" i18n="@@DeliverAddress">Deliver Address</span>:
+            <span class="text-xs">{{(order.address)}}</span>
+          </div>
+
         </div>
         <div *ngFor="let it of order.items">
           <div class="text-xs">{{it.product.name}} ${{it.price}} x {{it.quantity}}</div>

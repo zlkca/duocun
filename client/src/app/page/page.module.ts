@@ -5,9 +5,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from '../shared/shared.module';
 import { RestaurantModule } from '../restaurant/restaurant.module';
+import { OrderModule } from '../order/order.module';
 
 import { HomeComponent } from './home/home.component';
 import { MyAddressComponent } from './my-address/my-address.component';
+import { MyOrderComponent } from './my-order/my-order.component';
 
 @NgModule({
   imports: [
@@ -17,10 +19,12 @@ import { MyAddressComponent } from './my-address/my-address.component';
     NgbModule,
     SharedModule,
     RestaurantModule,
+    OrderModule
   ],
   declarations: [
     HomeComponent,
     MyAddressComponent,
+    MyOrderComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

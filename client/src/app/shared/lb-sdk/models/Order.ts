@@ -12,6 +12,7 @@ export interface OrderInterface {
   "restaurantId": number;
   "status": string;
   "notes": string;
+  "address": string;
   "delivered"?: Date;
   "created"?: Date;
   "modified"?: Date;
@@ -27,6 +28,7 @@ export class Order implements OrderInterface {
   "restaurantId": number;
   "status": string;
   "notes": string;
+  "address": string;
   "delivered"?: Date;
   "created": Date;
   "modified": Date;
@@ -82,6 +84,11 @@ export class Order implements OrderInterface {
           default: 'new'
         },
         "notes": {
+          name: 'status',
+          type: 'string',
+          default: ''
+        },
+        "address": {
           name: 'status',
           type: 'string',
           default: ''

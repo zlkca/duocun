@@ -19,6 +19,11 @@
       "required": true,
       "default": "new"
     },
+    "address": {
+      "type": "string",
+      "required": true,
+      "default": ""
+    },
     "notes": {
       "type": "string",
       "required": true,

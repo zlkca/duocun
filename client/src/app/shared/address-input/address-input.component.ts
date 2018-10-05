@@ -50,7 +50,7 @@ export class AddressInputComponent implements OnInit {
       };
 
       if (this.div) {
-        var input = this.div.nativeElement;
+        const input = this.div.nativeElement;
         // var searchBox = new google.maps.places.SearchBox(input, {
         //   bounds: defaultBounds
         // });

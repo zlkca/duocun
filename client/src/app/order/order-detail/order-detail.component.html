@@ -1,5 +1,11 @@
-<div class="media-body">
+<form [formGroup]="form">
   <div class="container list-group mb-3 ml-2 mr-2">
+    <div class="row">
+      <div class="label-sm" i18n="@@DeliverAddress">Deliver Address</div>:
+      <!-- <input name="address" formControlName="address" /> -->
+      <address-input (addrChange)="onAddressChange($event)" [placeholder]="placeholder" [value]="deliveryAddress"></address-input>
+    </div>
+
     <div *ngFor="let item of items" class="align-items-start bg-light">
       <div class="row border-bottom ml-2 mr-2">
         <div class="col-6 mt-2 mb-2 text-left">{{item.name}}</div>
@@ -10,16 +16,46 @@
   </div>
   <div class="row text-right ml-2 mr-2 mt-2">
     <div class="col-12">
-      <p class="title-sm"><span i18n="@@Subtotal">Sub Total</span>: {{subTotal | currency}}</p>
+      <p class="title-sm">
+        <span i18n="@@Subtotal">Sub Total</span>: {{subTotal | currency}}</p>
     </div>
     <div class="col-12">
-      <p class="title-sm"><span i18n="@@DeliveryFee">Delivery Fee</span>: {{delivery | currency}}</p>
+      <p class="title-sm">
+        <span i18n="@@DeliveryFee">Delivery Fee</span>: {{delivery | currency}}</p>
     </div>
     <div class="col-12">
-      <p class="title-sm"><span i18n="@@Tax">Tax</span>: {{tax | currency}}</p>
+      <p class="title-sm">
+        <span i18n="@@Tax">Tax</span>: {{tax | currency}}</p>
     </div>
     <div class="col-12">
-      <p class="title-sm"><span i18n="@@Total">Total</span>: {{total | currency}}</p>
+      <p class="title-sm">
+        <span i18n="@@Total">Total</span>: {{total | currency}}</p>
     </div>
   </div>
-</div>
+
+  <!-- <div class="row">
+    <label for="date">Delivery Date</label>:
+    <div class="input-group">
+      <input class="form-control" placeholder="yyyy-mm-dd" name="dp" ngbDatepicker #dp="ngbDatepicker" formControlName="date">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary calendar" (click)="dp.toggle()" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <label for="dateOfBirth">Delivery Time</label>:
+    <ngb-timepicker formControlName="time"></ngb-timepicker>
+  </div> -->
+
+  <div class="row">
+    <!-- <div class="label-sm" i18n="@@NotesToMerchant">Notes to Merchant</div>:
+      <input name="notes" formControlName="notes" /> -->
+    Payment Method: Paid when delivered
+  </div>
+  <div class="row">
+    <div class="label-sm" i18n="@@NotesToMerchant">Notes to Merchant</div>:
+    <textarea name="notes" formControlName="notes"></textarea>
+  </div>
+
+</form>

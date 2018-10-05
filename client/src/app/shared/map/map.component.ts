@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges } from '@angular/core';
 
 declare let google: any;
 declare let MarkerClusterer: any;
@@ -8,7 +8,7 @@ declare let MarkerClusterer: any;
     templateUrl: './map.component.html',
     styleUrls: ['./map.component.scss']
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements OnInit, OnChanges {
     @Input()
     center: any;
 

@@ -71,5 +71,10 @@ export class SharedService {
   getNextMonday() {
     return moment().weekday(7).format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
   }
+
+  getNextDay() {
+    const d = moment(new Date()).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
+    return { day: d.date(), month: d.month() + 1, year: d.year() };
+  }
 }
 
