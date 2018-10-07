@@ -75,12 +75,12 @@ export class LoginComponent implements OnInit {
         this.accountServ.login(v.account, v.password)
             .subscribe((account: Account) => {
                 if (account.type === 'user') {
-                    this.router.navigate(['home']);
+                    this.router.navigate(['my-address']);
                 } else {
                     if (account.restaurants.length) {
                         this.router.navigate(['admin']);
                     } else {
-                        this.router.navigate(['home']);
+                        this.router.navigate(['my-address']);
                     }
                 }
             },

@@ -1,18 +1,37 @@
 <div class="page container">
   <div class="row">
-      <div class="col-sm-12 col-12 map-col">
+      <div class="col-12 map-col">
         <div class="map-area">
             <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
         </div>
       </div>
-      <div class="col-sm-6 col-xl-12 input-group search-bar">
-        <address-input (addrChange)="search($event)" [placeholder]="placeholder" [value]="deliveryAddress"></address-input>
-        <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
-        <div class="input-group-append">
-          <button type="button" name="button" class="btn btn-primary btn-search" (click)="search()" i18n="@@searchRestuarant">Search Restaurant</button>
+
+      <div class="col-12 deliver-address-row">
+        <div class="row">
+          <div class="col-12 col-sm-6 search-bar-wrapper">
+            <div class="input-group search-bar">
+              <app-address-input (addrChange)="onAddressChange($event)" [placeholder]="placeholder" 
+                [value]="deliveryAddress"></app-address-input>
+              <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
+              <div class="input-group-append">
+                <button type="button" name="button" class="btn btn-primary btn-search" (click)="search()" i18n="@@searchRestuarant">Search Restaurant</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 default-addr-wrapper">
+            <div class="btn-group default-addr" role="group" aria-label="Set Current Location as Address">
+              <button type="button" class="btn btn-secondary btn-home" (click)="setHomeAddr()">
+                <div class="title">Home</div>
+                <div class="sub-title">Use Current Location</div>
+              </button>
+              <button type="button" class="btn btn-secondary btn-work" (click)="setWorkAddr()">
+                <div class="title">Work</div>
+                <div class="sub-title">Use Current Location</div>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-
       <!-- <div class="col-xs-12 col-4 search-col">
         <div class="input-group search-box">
           <input type="text" class="form-control" [(ngModel)]="keyword" placeholder="Search Restaurant" aria-describedby="basic-addon2">

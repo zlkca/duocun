@@ -44,7 +44,7 @@ export class InstitutionLoginComponent implements OnInit {
         if (account.restaurants.length) {
             this.router.navigate(['admin']);
         } else {
-            this.router.navigate(['restaurants']);
+            this.router.navigate(['home']);
         }
     },
     (error) => {

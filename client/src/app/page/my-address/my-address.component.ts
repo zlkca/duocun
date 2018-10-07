@@ -34,44 +34,44 @@ export class MyAddressComponent implements OnInit {
   @ViewChild('div') div: ElementRef;
 
   ngOnInit() {
-      const self = this;
+    const self = this;
 
-      const s = localStorage.getItem('location-' + APP);
-      if (s) {
-          self.router.navigate(['restaurants']);
-      } else {
-          self.router.navigate(['home']);
-      }
+    const s = localStorage.getItem('location-' + APP);
+    if (s) {
+      self.router.navigate(['home']);
+    }
 
-      // testing
-      // Chrome no longer supports obtaining the user's location using
-      // the HTML5 Geolocation API from pages delivered by non-secure connections.
-      navigator.geolocation.getCurrentPosition(geo => {
-        this.coords = geo;
-      }, err => {
-        this.geoError = err;
-      }
-    );
+    // Chrome no longer supports obtaining the user's location using
+    // the HTML5 Geolocation API from pages delivered by non-secure connections.
+    // navigator.geolocation.getCurrentPosition(geo => {
+    //   this.coords = geo;
+    // }, err => {
+    //   this.geoError = err;
+    // });
   }
 
   constructor(private router: Router,
-      private commerceServ: CommerceService,
-      private sharedServ: SharedService,
-      private locationSvc: LocationService) {}
+    private commerceServ: CommerceService,
+    private sharedServ: SharedService,
+    private locationSvc: LocationService) { }
 
-  search(e?) {
-      const self = this;
-      if (e && e.addr) {
-          this.locationSvc.set(e.addr);
-          this.router.navigate(['restaurants']);
-      } else {
-          this.locationSvc.getCurrentLocation().subscribe(r => {
-              self.router.navigate(['restaurants']);
-          },
-          err => {
-              alert('Do you want to turn on your GPS to find the nearest restaurants?');
-          });
-      }
+  onAddressChange(e) {
+    localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
+    this.deliveryAddress = e.sAddr;
+  }
+
+  search() {
+    const self = this;
+    if (this.deliveryAddress) {
+      this.router.navigate(['home']);
+    } else {
+      this.locationSvc.getCurrentLocation().subscribe(r => {
+        self.router.navigate(['home']);
+      },
+      err => {
+        alert('Do you want to turn on your GPS to find the nearest restaurants?');
+      });
+    }
   }
 
 

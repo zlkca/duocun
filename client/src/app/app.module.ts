@@ -86,7 +86,8 @@ const appRoutes: Routes = [
     { path: 'institution-login', component: InstitutionLoginComponent },
     { path: 'signup', component: SignupComponent },
     { path: 'institution-signup', component: InstitutionSignupComponent },
-    { path: 'home', component: MyAddressComponent },
+    { path: 'home', component: HomeComponent },
+    { path: 'my-address', component: MyAddressComponent },
     { path: '', component: MyAddressComponent}
 ];
 

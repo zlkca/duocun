@@ -47,7 +47,7 @@ export class SignupComponent implements OnInit {
         });
         this.accountServ.signup(account).subscribe((user: Account) => {
             if (user.id) {
-                this.router.navigate(['restaurants']);
+                this.router.navigate(['home']);
             }
         },
             err => {

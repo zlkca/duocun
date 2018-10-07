@@ -154,7 +154,8 @@ export class LocationService {
   }
 
   getLocation(sAddr: string): Observable<ILocation> {
-    const url = 'http://maps.google.com/maps/api/geocode/json?address=' + sAddr + 'CA&sensor=false';
+    const url = 'http://maps.google.com/maps/api/geocode/json?address=' + sAddr
+      + 'CA&sensor=false&key=AIzaSyBotSR2YeQMWKxPl4bN1wuwxNTvtWaT_xc';
     return this.http.get(url)
       .pipe(map((res: any) => {
         if (res.results && res.results.length > 0) {
@@ -168,5 +169,9 @@ export class LocationService {
       }));
   }
 
+  getAddrString(location) {
+    const city = location.sub_locality ? location.sub_locality + ', ' + location.city : location.city;
+    return location.street_number + ' ' + location.street_name + ', ' + city + ', ' + location.province + ', ' + location.postal_code;
+  }
 }
 

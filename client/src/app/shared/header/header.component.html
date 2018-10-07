@@ -10,11 +10,11 @@
       <li class="nav-item">
         <a class="nav-link" (click)="toHome()" i18n='@@Home'>Home</a>
       </li>
-      <li *ngIf="locality" class="navbar-text">
-        <span class="text-dark">{{locality}}</span>
+      <li *ngIf="addr" class="navbar-text">
+        <span class="text-dark">{{addr.locality}}</span>
         &nbsp;&nbsp;|
       </li>
-      <li *ngIf="locality" class="nav-item">
+      <li *ngIf="addr" class="nav-item">
         <a class="nav-link" (click)="changeAddress()">
           <small i18n="@@ChangeDeliveryAddress">Change Address</small>
         </a>

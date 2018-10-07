@@ -30,8 +30,7 @@ export class HomeComponent implements OnInit {
 
     if (s) {
       const location = JSON.parse(s);
-      self.deliveryAddress = location.street_number + ' ' + location.street_name + ' ' +
-        location.sub_locality + ', ' + location.province;
+      self.deliveryAddress = self.locationSvc.getAddrString(location);
       self.center = { lat: location.lat, lng: location.lng };
       self.doSearchRestaurants(self.center);
     } else {
@@ -114,18 +113,72 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  search(e?) {
+  loadNearbyRestaurants(center) {
     const self = this;
-    if (e && e.addr) {
-      self.locationSvc.set(e.addr);
-      self.loadRestaurants();
+    this.restaurantSvc.getNearby(center).subscribe(
+      (ps: Restaurant[]) => {
+        self.restaurants = ps; // self.toProductGrid(data);
+        const a = [];
+        ps.map(restaurant => {
+          if (restaurant.location) {
+            a.push({
+              lat: restaurant.location.lat,
+              lng: restaurant.location.lng,
+              name: restaurant.name
+            });
+          }
+        });
+        self.places = a;
+      },
+      (err: any) => {
+        self.restaurants = [];
+      }
+    );
+  }
+
+  search() {
+    const self = this;
+    if (self.deliveryAddress) {
+      // self.locationSvc.set(e.addr);
+      self.locationSvc.getLocation(this.deliveryAddress).subscribe(r => {
+        this.center = { lat: r.lat, lng: r.lng };
+        localStorage.setItem('location-' + APP, JSON.stringify(r));
+        self.loadNearbyRestaurants(this.center);
+      });
     } else {
       this.locationSvc.getCurrentLocation().subscribe(r => {
-        self.loadRestaurants();
+        localStorage.setItem('location-' + APP, JSON.stringify(r));
+        self.loadNearbyRestaurants(this.center);
       },
         err => {
           alert('Do you want to turn on your GPS to find the nearest restaurants?');
         });
     }
+  }
+
+  onAddressChange(e) {
+    localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
+    this.deliveryAddress = e.sAddr;
+  }
+
+  setAddrString(location) {
+    const self = this;
+    self.deliveryAddress = self.locationSvc.getAddrString(location);
+    self.center = { lat: location.lat, lng: location.lng };
+  }
+
+  setHomeAddr() {
+    const self = this;
+    this.locationSvc.getCurrentLocation().subscribe(r => {
+      self.setAddrString(r);
+      self.loadNearbyRestaurants(this.center);
+    },
+    err => {
+      alert('Do you want to turn on your GPS to find the nearest restaurants?');
+    });
+  }
+
+  setWorkAddr() {
+
   }
 }

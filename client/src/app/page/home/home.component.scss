@@ -69,22 +69,44 @@ $desktop: "(min-width: 1200px)";
     padding: 0px;
 }
 
-.search-bar{
+.deliver-address-row{
   margin-top:20px;
+}
 
+.search-bar{
+  margin-top: 0px;
   #userlocationinput{ //input.form-control
     outline:none;
     width:calc(100% - 80px);
     float:left;
   }
+}
 
-  .btn-search{
+.search-bar-wrapper{
+  padding-left: 0px;
+}
+
+address-input {
+  width: 82%;
+}
+
+.btn-home, .btn-work{
+  padding-top: 0px;
+  .title{
+    padding-top: 2px;
+    line-height: 20px;
+  }
+  .sub-title{
+    font-size:10px;
   }
 }
-address-input {
-  width: 75%;
-}
 
+.btn-home{
+  border-right: 1px solid #eee;
+}
+.btn-work{
+  border-left: 1px solid #eee;
+}
 
 @media #{$desktop}{
 
@@ -100,14 +122,33 @@ address-input {
   }
   .search-bar{
     width:100%;
-    padding: 0px 10px;
+    padding: 0px;
     #userlocationinput{
       width:calc(100% - 80px);
     }
   }
+  
+  app-address-input {
+    width: 73%;
+  }
+  
+  .search-bar-wrapper{
+    padding-right:0px;
+  }
 
   .map-area{
     height: 220px;
+  }
+
+  .default-addr{
+    width: 100%;
+    margin-top:10px;
+    .btn{
+      width:50%;
+    }
+  }
+  .default-addr-wrapper{
+    padding: 0px;
   }
 }
 

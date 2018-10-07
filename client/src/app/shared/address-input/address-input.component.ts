@@ -12,7 +12,7 @@ declare var google;
 // };
 
 @Component({
-  selector: 'address-input',
+  selector: 'app-address-input',
   templateUrl: './address-input.component.html',
   styleUrls: ['./address-input.component.scss']
 })
@@ -61,7 +61,8 @@ export class AddressInputComponent implements OnInit {
           const geocodeResult = self.gAutocomplete.getPlace();
           const addr = self.locationSvc.getLocationFromGeocode(geocodeResult);
           if (addr) {
-            const sAddr = `${addr.street_number} ${addr.street_name}, ${addr.sub_locality}, ${addr.province}, ${addr.postal_code}`;
+            const sAddr = self.locationSvc.getAddrString(addr);
+            // `${addr.street_number} ${addr.street_name}, ${addr.sub_locality}, ${addr.province}, ${addr.postal_code}`;
 
             self.addrChange.emit({ addr: addr, sAddr: sAddr });
           } else {

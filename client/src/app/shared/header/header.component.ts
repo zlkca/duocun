@@ -24,6 +24,7 @@ export class HeaderComponent implements OnInit {
     keyword: string;
     locality = '';
     type: string;
+    addr = null;
 
     constructor(private router: Router, private authSvc: AuthService,
         private locationSvc: LocationService,
@@ -43,9 +44,15 @@ export class HeaderComponent implements OnInit {
                 }
             });
 
-        this.locationSvc.get().subscribe((addr: ILocation) => {
-            this.locality = addr && (addr.sub_locality || addr.city);
-        });
+        // this.locationSvc.get().subscribe((addr: ILocation) => {
+        //     this.locality = addr && (addr.sub_locality || addr.city);
+        // });
+        const self = this;
+        const s = localStorage.getItem('location-' + APP);
+
+        if (s) {
+          this.addr = JSON.parse(s);
+        }
     }
 
     search(keyword) {
@@ -65,7 +72,7 @@ export class HeaderComponent implements OnInit {
     changeAddress() {
         this.closeNavMenu();
         this.locationSvc.clear();
-        this.router.navigate(['home']);
+        this.router.navigate(['my-address']);
     }
 
     changeLanguage(code) {
@@ -80,7 +87,7 @@ export class HeaderComponent implements OnInit {
                 console.log(sad);
                 this.user = null;
                 this.isLogin = false;
-                this.router.navigate(['restaurants']);
+                this.router.navigate(['home']);
             });
     }
 
@@ -94,9 +101,9 @@ export class HeaderComponent implements OnInit {
         this.closeNavMenu();
         const location = localStorage.getItem('location-' + APP);
         if (location) {
-            this.router.navigate(['restaurants']);
-        } else {
             this.router.navigate(['home']);
+        } else {
+            this.router.navigate(['my-address']);
         }
         // }
         // }
