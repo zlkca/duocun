@@ -33,8 +33,8 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.socket.connect(this.authServ.getToken());
-        const self = this;
+        // this.socket.connect(this.authServ.getToken());
+        // const self = this;
 
         // const s = localStorage.getItem('location-' + APP);
         // if (s) {

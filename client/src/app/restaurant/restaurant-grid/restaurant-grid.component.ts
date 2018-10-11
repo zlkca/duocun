@@ -22,6 +22,7 @@ export class RestaurantGridComponent implements OnInit {
   filter: any;
   places: any[] = [];
   MEDIA_URL = environment.MEDIA_URL;
+  defaultPicture = location.protocol + '//placehold.it/400x300';
 
   @Input() restaurantList; // : Restaurant[];
   @Input() center;
@@ -93,7 +94,7 @@ export class RestaurantGridComponent implements OnInit {
     //         return 'http://placehold.it/400x300';
     //     }
     // }
-    return 'http://placehold.it/400x300';
+    return this.defaultPicture;
   }
 
   toDetail(p) {

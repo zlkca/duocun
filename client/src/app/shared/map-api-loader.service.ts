@@ -1,6 +1,6 @@
 import { environment } from '../../environments/environment';
 const API_KEY = environment.GOOGLE_MAP.KEY;
-const url = 'https://maps.googleapis.com/maps/api/js?callback=__onGoogleMapsLoaded&key=' + API_KEY + '&libraries=places';
+const url = location.protocol + '//maps.googleapis.com/maps/api/js?callback=__onGoogleMapsLoaded&key=' + API_KEY + '&libraries=places';
 
 export class GoogleMapsLoader {
   private static promise;

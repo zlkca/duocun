@@ -15,7 +15,7 @@ import { GoogleMapsLoader } from '../map-api-loader.service';
 declare let google: any;
 const APP = environment.APP;
 
-const geocodeURL = 'http://maps.googleapis.com/maps/api/geocode/json';
+const geocodeURL = location.protocol + '//maps.googleapis.com/maps/api/geocode/json';
 
 @Injectable()
 export class LocationService {
@@ -154,8 +154,9 @@ export class LocationService {
   }
 
   getLocation(sAddr: string): Observable<ILocation> {
-    const url = 'http://maps.google.com/maps/api/geocode/json?address=' + sAddr
-      + 'CA&sensor=false&key=AIzaSyBotSR2YeQMWKxPl4bN1wuwxNTvtWaT_xc';
+    const url = encodeURI(location.protocol + '//maps.google.com/maps/api/geocode/json?address='
+      + sAddr.replace(/\s/g, '+')
+      + 'CA&sensor=false&key=AIzaSyBotSR2YeQMWKxPl4bN1wuwxNTvtWaT_xc');
     return this.http.get(url)
       .pipe(map((res: any) => {
         if (res.results && res.results.length > 0) {
@@ -171,7 +172,8 @@ export class LocationService {
 
   getAddrString(location) {
     const city = location.sub_locality ? location.sub_locality + ', ' + location.city : location.city;
-    return location.street_number + ' ' + location.street_name + ', ' + city + ', ' + location.province + ', ' + location.postal_code;
+    return location.street_number + ' ' + location.street_name + ', ' + city + ', ' + location.province;
+    // + ', ' + location.postal_code;
   }
 }
 

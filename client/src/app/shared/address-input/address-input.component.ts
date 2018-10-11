@@ -1,6 +1,6 @@
 // output addrChange({addr:x, sAddr:'Formatted address string'})
 
-import { Component, OnInit, ViewChild, AfterViewInit, OnChanges, ElementRef, Output, EventEmitter, forwardRef, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, OnChanges, ElementRef, Output, EventEmitter, forwardRef, Input, SimpleChange } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { LocationService } from '../location/location.service';
 declare var google;
@@ -16,7 +16,7 @@ declare var google;
   templateUrl: './address-input.component.html',
   styleUrls: ['./address-input.component.scss']
 })
-export class AddressInputComponent implements OnInit {
+export class AddressInputComponent implements OnInit, OnChanges {
 
   @ViewChild('div') div: ElementRef;
   @Output() addrChange = new EventEmitter();
@@ -76,9 +76,9 @@ export class AddressInputComponent implements OnInit {
   }
 
 
-  // onChange(v){
-  // 	let k = v;
-  // }
+  ngOnChanges(changes) {
+    this.div.nativeElement.value = changes.value.currentValue;
+  }
   //  //From ControlValueAccessor interface
 
   //  writeValue(value: any) {

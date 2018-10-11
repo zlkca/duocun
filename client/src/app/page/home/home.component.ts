@@ -4,6 +4,7 @@ import { LocationService } from '../../shared/location/location.service';
 import { environment } from '../../../environments/environment';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 // import { RestaurantGridComponent } from '../../restaurant/restaurant-grid/restaurant-grid.component';
+import { SharedService } from '../../shared/shared.service';
 
 const APP = environment.APP;
 
@@ -22,6 +23,7 @@ export class HomeComponent implements OnInit {
   constructor(
     private locationSvc: LocationService,
     private restaurantSvc: RestaurantService,
+    private sharedSvc: SharedService
   ) { }
 
   ngOnInit() {
@@ -138,27 +140,28 @@ export class HomeComponent implements OnInit {
 
   search() {
     const self = this;
-    if (self.deliveryAddress) {
-      // self.locationSvc.set(e.addr);
-      self.locationSvc.getLocation(this.deliveryAddress).subscribe(r => {
-        this.center = { lat: r.lat, lng: r.lng };
-        localStorage.setItem('location-' + APP, JSON.stringify(r));
-        self.loadNearbyRestaurants(this.center);
-      });
+    const s = localStorage.getItem('location-' + APP);
+
+    if (s) {
+      const location = JSON.parse(s);
+      self.deliveryAddress = self.locationSvc.getAddrString(location);
+      this.center = { lat: location.lat, lng: location.lng };
+      self.loadNearbyRestaurants(this.center);
     } else {
       this.locationSvc.getCurrentLocation().subscribe(r => {
         localStorage.setItem('location-' + APP, JSON.stringify(r));
-        self.loadNearbyRestaurants(this.center);
+        self.loadNearbyRestaurants(self.center);
       },
-        err => {
-          alert('Do you want to turn on your GPS to find the nearest restaurants?');
-        });
+      err => {
+        alert('Do you want to turn on your GPS to find the nearest restaurants?');
+      });
     }
   }
 
   onAddressChange(e) {
     localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
     this.deliveryAddress = e.sAddr;
+    this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
   }
 
   setAddrString(location) {
@@ -170,6 +173,7 @@ export class HomeComponent implements OnInit {
   setHomeAddr() {
     const self = this;
     this.locationSvc.getCurrentLocation().subscribe(r => {
+      this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       self.setAddrString(r);
       self.loadNearbyRestaurants(this.center);
     },
@@ -179,6 +183,14 @@ export class HomeComponent implements OnInit {
   }
 
   setWorkAddr() {
-
+    const self = this;
+    this.locationSvc.getCurrentLocation().subscribe(r => {
+      this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
+      self.setAddrString(r);
+      self.loadNearbyRestaurants(this.center);
+    },
+    err => {
+      alert('Do you want to turn on your GPS to find the nearest restaurants?');
+    });
   }
 }

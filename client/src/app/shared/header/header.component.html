@@ -11,7 +11,7 @@
         <a class="nav-link" (click)="toHome()" i18n='@@Home'>Home</a>
       </li>
       <li *ngIf="addr" class="navbar-text">
-        <span class="text-dark">{{addr.locality}}</span>
+        <span class="text-dark">{{getCurrentCity()}}</span>
         &nbsp;&nbsp;|
       </li>
       <li *ngIf="addr" class="nav-item">

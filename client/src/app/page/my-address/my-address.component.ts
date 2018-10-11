@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommerceService } from '../../commerce/commerce.service';
 import { Restaurant } from '../../commerce/commerce';
 import { SharedService } from '../../shared/shared.service';
 import { AuthService } from '../../account/auth.service';
@@ -51,13 +50,13 @@ export class MyAddressComponent implements OnInit {
   }
 
   constructor(private router: Router,
-    private commerceServ: CommerceService,
-    private sharedServ: SharedService,
+    private sharedSvc: SharedService,
     private locationSvc: LocationService) { }
 
   onAddressChange(e) {
     localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
     this.deliveryAddress = e.sAddr;
+    this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
   }
 
   search() {
