@@ -1,6 +1,6 @@
 // output addrChange({addr:x, sAddr:'Formatted address string'})
 
-import { Component, OnInit, ViewChild, OnChanges, ElementRef, Output, EventEmitter, forwardRef, Input, SimpleChange } from '@angular/core';
+import { Component, OnInit, ViewChild, OnChanges, ElementRef, Output, EventEmitter, Input, SimpleChange } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { LocationService } from '../location/location.service';
 declare var google;
@@ -28,7 +28,9 @@ export class AddressInputComponent implements OnInit, OnChanges {
   // The internal data model for form control value access
   private innerValue: any = '';
 
-  constructor(private locationSvc: LocationService) { }
+  constructor(private locationSvc: LocationService, elm: ElementRef) {
+    const placeholder = elm.nativeElement.getAttribute('placeholder');
+  }
 
   ngOnInit() {
     const self = this;

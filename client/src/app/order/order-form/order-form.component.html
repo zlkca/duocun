@@ -52,7 +52,9 @@
     <div class="label-sm">
       <span i18n="@@DeliverAddress">Deliver Address</span>:
     </div>
-    <address-input (addrChange)="onAddressChange($event)" [placeholder]="placeholder" [value]="deliveryAddress"></address-input>
+    <app-address-input (addrChange)="onAddressChange($event)" 
+    placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address"
+    [value]="deliveryAddress"></app-address-input>
   </div>
 
   <div class="row">

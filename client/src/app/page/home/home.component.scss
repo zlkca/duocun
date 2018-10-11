@@ -1,4 +1,4 @@
-
+$cellphone: "(max-width:480px)";
 $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
@@ -86,10 +86,19 @@ $desktop: "(min-width: 1200px)";
   padding-left: 0px;
 }
 
-app-address-input {
-  width: 80%;
+.input-group-append{
+  width: 92px;
 }
 
+app-address-input {
+  width: calc(100% - 92px);
+}
+
+.use-current-location{
+  padding: 0px;
+}
+
+// obsolete start
 .btn-home, .btn-work{
   padding-top: 0px;
   .title{
@@ -107,6 +116,7 @@ app-address-input {
 .btn-work{
   border-left: 1px solid #eee;
 }
+// obsolete end
 
 @media #{$desktop}{
 
@@ -120,9 +130,6 @@ app-address-input {
 and (max-width: 767px)
 and (orientation: landscape) {
 
-  app-address-input {
-    width: 70%;
-  }
 }
 
 @media #{$mobile}{
@@ -135,10 +142,6 @@ and (orientation: landscape) {
     #userlocationinput{
       width:calc(100% - 80px);
     }
-  }
-  
-  app-address-input {
-    width: 73%;
   }
   
   .search-bar-wrapper{
@@ -156,8 +159,21 @@ and (orientation: landscape) {
       width:50%;
     }
   }
-  .default-addr-wrapper{
-    padding: 0px;
+  .use-current-location{
+    padding: 15px 0px;
+    .btn{
+      width:100%;
+    }
   }
+  
+  @media #{$cellphone}{
+    .use-current-location{
+      padding: 15px 0px;
+      .btn{
+        width:100%;
+      }
+    }
+  }
+
 }
 

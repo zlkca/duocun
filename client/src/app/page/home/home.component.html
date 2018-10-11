@@ -10,7 +10,8 @@
         <div class="row">
           <div class="col-12 col-sm-7 search-bar-wrapper">
             <div class="input-group search-bar">
-              <app-address-input (addrChange)="onAddressChange($event)" [placeholder]="placeholder" 
+              <app-address-input (addrChange)="onAddressChange($event)"
+                placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
                 [value]="deliveryAddress"></app-address-input>
               <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
               <div class="input-group-append">
@@ -18,7 +19,10 @@
               </div>
             </div>
           </div>
-          <div class="col-12 col-sm-5 default-addr-wrapper">
+          <div class="col-12 col-sm-5 use-current-location">
+            <div class="btn btn-secondary" i18n="@@UseCurrentLocation" (click)="useCurrentLocation()">Use Current Location</div>
+          </div>
+          <!-- <div class="col-12 col-sm-5 use-current-location">
             <div class="btn-group default-addr" role="group" aria-label="Set Current Location as Address">
               <button type="button" class="btn btn-secondary btn-home" (click)="setHomeAddr()">
                 <div class="title">Home</div>
@@ -29,7 +33,7 @@
                 <div class="sub-title">Use Current Location</div>
               </button>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
       <!-- <div class="col-xs-12 col-4 search-col">

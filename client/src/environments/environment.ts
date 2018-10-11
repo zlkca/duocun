@@ -4,22 +4,22 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-   production: false,
-   API_BASE: 'http://' + window.location.hostname + ':3000',
-   API_URL: "http://localhost:8000/api/",
-   APP_URL: window.location.origin,//"http://localhost:5001",
-   MEDIA_URL: "http://localhost:8000/media/",
-   APP: "etuan",
-   GOOGLE_MAP:{
-  	KEY:'AIzaSyA-gMQDHCiCYKG-QQlmX7_dBC7kj-sP-uQ'
-   },
-  GOOGLE_LOGIN:{
-  	CLIENT_ID:'489357362854-cktl4l0mnbj70b4rrcu771on38865d2v.apps.googleusercontent.com'
+  production: false,
+  API_BASE: 'http://' + window.location.hostname + ':3000',
+  API_URL: 'http://localhost:8000/api/',
+  APP_URL: window.location.origin,
+  MEDIA_URL: 'http://localhost:8000/media/',
+  APP: 'etuan',
+  GOOGLE_MAP: {
+    KEY: ''
   },
-  GOOGLE_ANALYTICS:{
-    CLIENT_ID:'UA-113187324-2'
+  GOOGLE_LOGIN: {
+    CLIENT_ID: '489357362854-cktl4l0mnbj70b4rrcu771on38865d2v.apps.googleusercontent.com'
   },
-  STRIPE:{
-    CLIENT_KEY:'pk_test_RzVW9LLaIZANExpYhNg2x4Zu'
+  GOOGLE_ANALYTICS: {
+    CLIENT_ID: 'UA-113187324-2'
+  },
+  STRIPE: {
+    CLIENT_KEY: 'pk_test_RzVW9LLaIZANExpYhNg2x4Zu'
   }
 };

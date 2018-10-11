@@ -22,7 +22,7 @@ export class RestaurantGridComponent implements OnInit {
   filter: any;
   places: any[] = [];
   MEDIA_URL = environment.MEDIA_URL;
-  defaultPicture = location.protocol + '//placehold.it/400x300';
+  defaultPicture = window.location.protocol + '//placehold.it/400x300';
 
   @Input() restaurantList; // : Restaurant[];
   @Input() center;

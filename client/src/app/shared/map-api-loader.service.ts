@@ -1,9 +1,25 @@
 import { environment } from '../../environments/environment';
 const API_KEY = environment.GOOGLE_MAP.KEY;
-const url = location.protocol + '//maps.googleapis.com/maps/api/js?callback=__onGoogleMapsLoaded&key=' + API_KEY + '&libraries=places';
+const url = window.location.protocol
+  + '//maps.googleapis.com/maps/api/js?callback=__onGoogleMapsLoaded&key='
+  + API_KEY + '&libraries=places';
 
 export class GoogleMapsLoader {
   private static promise;
+  private static ApiLoaded;
+  public static loadJs() {
+
+    if (!this.ApiLoaded) {
+      // Add script tag to load google maps, which then triggers the callback, which resolves the promise with windows.google.maps.
+      console.log('loading..');
+      const node = document.createElement('script');
+      node.src = url;
+      node.type = 'text/javascript';
+      document.getElementsByTagName('head')[0].appendChild(node);
+      this.ApiLoaded = true;
+    }
+  }
+
   public static load() {
 
     // First time 'load' is called?
@@ -17,13 +33,6 @@ export class GoogleMapsLoader {
           console.log('google maps api loaded');
           resolve(window['google']['maps']);
         };
-
-        // Add script tag to load google maps, which then triggers the callback, which resolves the promise with windows.google.maps.
-        console.log('loading..');
-        const node = document.createElement('script');
-        node.src = url;
-        node.type = 'text/javascript';
-        document.getElementsByTagName('head')[0].appendChild(node);
       });
     }
 

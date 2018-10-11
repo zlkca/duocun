@@ -432,7 +432,13 @@ body{
       }
     }
   }
+  
   @media #{$cellphone}{
+    .container{
+      padding-left:0px;
+      padding-right:0px;
+    }
+
     .page{
       margin-top:$navbar-m-height;
       min-height:460px;

@@ -1,11 +1,11 @@
-
+$cellphone: "(max-width:480px)";
 $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
 	.pac-container:after {
-	    background-image: none !important;
-	    height: 0px;
+    background-image: none !important;
+    height: 0px;
   }
   
 	.row{
@@ -14,25 +14,36 @@ $desktop: "(min-width: 1200px)";
 	}
 
 	.map-area{
-	    width: 100%;
-	    height: 380px;
-	    padding: 0px;
+    width: 100%;
+    height: 380px;
+    padding: 0px;
 	}
 
 	.search-bar{
-		margin-top:180px;
+    margin-top:180px;
+    padding:0px;
 
 		#userlocationinput{ //input.form-control
 		  outline:none;
 		  width:calc(100% - 80px);
 		  float:left;
 		}
-
 	}
+
+  .input-group-append{
+    width: 92px;
+  }
 
   app-address-input {
-		width: 70%;
+		width: calc(100% - 92px);
 	}
+
+  .use-current-location{
+    padding-top: 15px;
+    .btn{
+      width:100%;
+    }
+  }
 
 	@media #{$desktop}{
 
@@ -45,9 +56,9 @@ $desktop: "(min-width: 1200px)";
   @media only screen
   and (max-width: 767px)
   and (orientation: landscape) {
-    app-address-input {
-      width: 73%;
-    }
+    // app-address-input {
+    //   width: 72%;
+    // }
   }
 
 	@media #{$mobile}{
@@ -56,9 +67,14 @@ $desktop: "(min-width: 1200px)";
 		}
 		.search-bar{
 			width:100%;
-			padding: 0px 10px;
 			#userlocationinput{
 				width:calc(100% - 80px);
 			}
 		}
-	}
+  }
+  
+  @media #{$cellphone}{
+    // app-address-input{
+    //   width: 68%;
+    // }
+  }

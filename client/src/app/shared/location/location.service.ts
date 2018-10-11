@@ -15,26 +15,28 @@ import { GoogleMapsLoader } from '../map-api-loader.service';
 declare let google: any;
 const APP = environment.APP;
 
-const geocodeURL = location.protocol + '//maps.googleapis.com/maps/api/geocode/json';
+const geocodeURL = window.location.protocol + '//maps.googleapis.com/maps/api/geocode/json';
 
 @Injectable()
 export class LocationService {
   private geocoder;
+  private google;
 
   constructor(private ngRedux: NgRedux<ILocation>, private http: HttpClient) {
-    // try {
-    //   if (google) {
-    //     this.geocoder = new google.maps.Geocoder();
-    //   }
-    // } catch (error) {
-    //   this.geocoder = null;
-    // }
+    try {
+      if (google) {
+        this.geocoder = new google.maps.Geocoder();
+      }
+    } catch (error) {
+      this.geocoder = null;
+    }
 
-    GoogleMapsLoader.load().then((_mapsApi) => {
-      // debugger;
-      this.geocoder = new _mapsApi.Geocoder();
-      // this.geocoderStatus = _mapsApi.GeocoderStatus;
-    });
+    // GoogleMapsLoader.load().then((_mapsApi) => {
+    //   // debugger;
+    //   this.geocoder = new _mapsApi.Geocoder();
+    //   this.google = google;
+    //   // this.geocoderStatus = _mapsApi.GeocoderStatus;
+    // });
 
   }
 

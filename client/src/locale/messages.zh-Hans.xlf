@@ -906,6 +906,27 @@
           <context context-type="linenumber">8</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="fc5831a0172847c3b2ac4a700ce31e4deacfa6bf" datatype="html">
+        <source>Input Delivery Address</source>
+        <target>输入送餐地址</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/my-address/my-address.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+        <note priority="1" from="description">Input Delivery Address</note>
+      </trans-unit>
+      <trans-unit id="UseCurrentLocation" datatype="html">
+        <source>Use Current Location</source>
+        <target>使用当前的位置</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/my-address/my-address.component.html</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

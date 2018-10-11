@@ -170,7 +170,7 @@ export class HomeComponent implements OnInit {
     self.center = { lat: location.lat, lng: location.lng };
   }
 
-  setHomeAddr() {
+  useCurrentLocation() {
     const self = this;
     this.locationSvc.getCurrentLocation().subscribe(r => {
       this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});

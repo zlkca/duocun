@@ -56,7 +56,7 @@ export class MyAddressComponent implements OnInit {
   onAddressChange(e) {
     localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
     this.deliveryAddress = e.sAddr;
-    this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
+    this.sharedSvc.emitMsg({ name: 'OnUpdateAddress', addr: e.addr });
   }
 
   search() {
@@ -64,13 +64,21 @@ export class MyAddressComponent implements OnInit {
     if (this.deliveryAddress) {
       this.router.navigate(['home']);
     } else {
-      this.locationSvc.getCurrentLocation().subscribe(r => {
-        self.router.navigate(['home']);
-      },
-      err => {
-        alert('Do you want to turn on your GPS to find the nearest restaurants?');
-      });
+      this.useCurrentLocation();
     }
+  }
+
+  useCurrentLocation() {
+    const self = this;
+    this.locationSvc.getCurrentLocation().subscribe(r => {
+      localStorage.setItem('location-' + APP, JSON.stringify(r));
+      self.deliveryAddress = self.locationSvc.getAddrString(r);
+      self.sharedSvc.emitMsg({ name: 'OnUpdateAddress', addr: r });
+      self.router.navigate(['home']);
+    },
+    err => {
+      alert('Do you want to turn on your GPS to find the nearest restaurants?');
+    });
   }
 
 

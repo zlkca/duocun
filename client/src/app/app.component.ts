@@ -7,6 +7,7 @@ import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { environment } from '../environments/environment';
 import { SocketConnection } from './shared/lb-sdk/sockets/socket.connections';
+import { GoogleMapsLoader } from './shared/map-api-loader.service';
 
 const APP = environment.APP;
 
@@ -30,6 +31,9 @@ export class AppComponent implements OnInit {
         window.addEventListener("orientationchange", function () {
             window.location.reload();
         }, false);
+
+        // load google api lib
+        // GoogleMapsLoader.loadJs();
     }
 
     ngOnInit() {
