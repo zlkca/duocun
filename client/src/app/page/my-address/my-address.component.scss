@@ -40,7 +40,15 @@ $desktop: "(min-width: 1200px)";
 
 	@media #{$tablet}{
 
-	}
+  }
+  
+  @media only screen
+  and (max-width: 767px)
+  and (orientation: landscape) {
+    app-address-input {
+      width: 73%;
+    }
+  }
 
 	@media #{$mobile}{
 		.left-side{

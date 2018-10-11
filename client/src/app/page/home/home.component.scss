@@ -87,7 +87,7 @@ $desktop: "(min-width: 1200px)";
 }
 
 app-address-input {
-  width: 82%;
+  width: 80%;
 }
 
 .btn-home, .btn-work{
@@ -114,7 +114,16 @@ app-address-input {
 
 @media #{$tablet}{
 
+}
+
+@media only screen
+and (max-width: 767px)
+and (orientation: landscape) {
+
+  app-address-input {
+    width: 70%;
   }
+}
 
 @media #{$mobile}{
   .left-side{
