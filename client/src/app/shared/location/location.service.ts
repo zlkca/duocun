@@ -1,28 +1,30 @@
 
 import { throwError as observableThrowError, Observable } from 'rxjs';
 import { fromPromise } from 'rxjs/observable/fromPromise';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import 'rxjs/add/observable/empty';
 
 import { Injectable } from '@angular/core';
-import { ILocation } from './location.model';
+import { ILocation, ILatLng } from './location.model';
 import { NgRedux } from '@angular-redux/store';
 import { environment } from '../../../environments/environment';
 import { LocationActions } from './location.actions';
 import { HttpClient } from '@angular/common/http';
-import { GoogleMapsLoader } from '../map-api-loader.service';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+
+// import { GoogleMapsLoader } from '../map-api-loader.service';
 
 declare let google: any;
 const APP = environment.APP;
-
-const geocodeURL = window.location.protocol + '//maps.googleapis.com/maps/api/geocode/json';
+const GEOCODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json';
+const GEOCODE_KEY = 'AIzaSyAjpSxjBTkdzKMcqAAmq72UY1-DTjl8b0s';
 
 @Injectable()
 export class LocationService {
   private geocoder;
-  private google;
 
-  constructor(private ngRedux: NgRedux<ILocation>, private http: HttpClient) {
+  constructor(private ngRedux: NgRedux<ILocation>,
+    private http: Http) {
     try {
       if (google) {
         this.geocoder = new google.maps.Geocoder();
@@ -69,7 +71,7 @@ export class LocationService {
     const addr = geocodeResult && geocodeResult.address_components;
     const oLocation = geocodeResult.geometry.location;
     if (addr && addr.length) {
-      const loc = {
+      const loc: ILocation = {
         street_number: '',
         street_name: '',
         sub_locality: '',
@@ -90,7 +92,7 @@ export class LocationService {
         if (compo.types.indexOf('postal_code') !== -1) {
           loc.postal_code = compo.long_name;
         }
-        if (compo.types.indexOf('sublocality_level_1') !== -1 || compo.types.indexOf('sublocality') !== -1) {
+        if (compo.types.indexOf('sublocality_level_1') !== -1 && compo.types.indexOf('sublocality') !== -1) {
           loc.sub_locality = compo.long_name;
         }
         if (compo.types.indexOf('locality') !== -1) {
@@ -107,58 +109,119 @@ export class LocationService {
   }
 
   getCurrentLocation(): Observable<ILocation> {
-    const pos = { lat: 43.761539, lng: -79.411079 }; // default
+    const self = this;
+    return this.getCurrentPosition().pipe(mergeMap(pos => {
+      return self.reqLocationByLatLng(pos);
+    }));
+    // const pos = { lat: 43.761539, lng: -79.411079 }; // default
 
+    // return fromPromise(new Promise((resolve, reject) => {
+
+    //   if (navigator && navigator.geolocation) {
+    //     navigator.geolocation.getCurrentPosition(geo => {
+    //       const lat = geo.coords.latitude;
+    //       const lng = geo.coords.longitude;
+    //       if (lat && lng) {
+    //         pos.lat = lat;
+    //         pos.lng = lng;
+    //       }
+
+    //       this.geocoder.geocode({ 'location': pos }, (results) => {
+    //         const loc: ILocation = this.getLocationFromGeocode(results[0]);
+    //         if (loc) {
+    //           loc.lat = pos.lat;
+    //           loc.lng = pos.lng;
+    //           this.set(loc);
+    //           resolve(loc);
+    //         } else {
+    //           reject(loc);
+    //         }
+    //       });
+    //     }, err => { // if mobile browser doesn't support
+    //       if (this.geocoder) {
+    //         this.geocoder.geocode({ 'location': pos }, (results) => {
+    //           const loc: ILocation = this.getLocationFromGeocode(results[0]);
+    //           if (loc) {
+    //             loc.lat = pos.lat;
+    //             loc.lng = pos.lng;
+    //             this.set(loc);
+    //             resolve(loc);
+    //           } else {
+    //             reject(loc);
+    //           }
+    //         });
+    //       } else { // no internet
+    //         reject();
+    //       }
+    //     }
+    //     );
+    //   } else {
+    //     reject();
+    //   }
+    // }));
+  }
+
+  getCurrentPosition(): Observable<ILatLng> {
+    const pos: ILatLng = { lat: 43.761539, lng: -79.411079 }; // default
     return fromPromise(new Promise((resolve, reject) => {
-
-      if (navigator && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(geo => {
+      if (window.navigator && window.navigator.geolocation) {
+        window.navigator.geolocation.getCurrentPosition(geo => {
           const lat = geo.coords.latitude;
           const lng = geo.coords.longitude;
           if (lat && lng) {
             pos.lat = lat;
             pos.lng = lng;
           }
-
-          this.geocoder.geocode({ 'location': pos }, (results) => {
-            const loc = this.getLocationFromGeocode(results[0]);
-            if (loc) {
-              loc.lat = pos.lat;
-              loc.lng = pos.lng;
-              this.set(loc);
-              resolve(loc);
-            } else {
-              reject(loc);
-            }
-          });
-        }, err => { // if mobile browser doesn't support
-          if (this.geocoder) {
-            this.geocoder.geocode({ 'location': pos }, (results) => {
-              const loc = this.getLocationFromGeocode(results[0]);
-              if (loc) {
-                loc.lat = pos.lat;
-                loc.lng = pos.lng;
-                this.set(loc);
-                resolve(loc);
-              } else {
-                reject(loc);
-              }
-            });
-          } else { // no internet
-            reject();
-          }
-        }
-        );
+          resolve(pos);
+        });
       } else {
-        reject();
+        reject(pos);
       }
     }));
   }
 
+  reqLocationByLatLngV1(pos): Observable<ILocation> {
+    return fromPromise(new Promise((resolve, reject) => {
+      this.geocoder.geocode({ 'location': pos }, (results) => {
+        if (results && results.length > 0) {
+          const loc: ILocation = this.getLocationFromGeocode(results[0]);
+          resolve(loc);
+        } else {
+          reject();
+        }
+      }, err => {
+        console.log(err);
+        reject();
+      });
+    }));
+  }
+
+  // obsolete cross domain issue
+  reqLocationByLatLng(pos): Observable<any> {
+    const url = encodeURI(GEOCODE_URL + '?latlng=' + pos.lat + ',' + pos.lng + '&sensor=false&key=' + GEOCODE_KEY);
+    const header: Headers = new Headers();
+    const options = new RequestOptions({ headers: header, method: 'get'});
+    return this.http.get(url, options).pipe(map((res: any) => {
+      const geoCode = JSON.parse(res._body).results[0];
+      return this.getLocationFromGeocode(geoCode);
+    }));
+    // return fromPromise(new Promise((resolve, reject) => {
+    //   this.http.get(url).pipe(map((res: any) => {
+    //     if (res.results && res.results.length > 0) {
+    //       const loc: ILocation = this.getLocationFromGeocode(res.results[0]);
+    //       resolve(loc);
+    //     } else {
+    //       reject();
+    //     }
+    //   }, err => {
+    //     reject();
+    //   }));
+    // }));
+  }
+
+  // obsolete cross domain issue
   getLocation(sAddr: string): Observable<ILocation> {
-    const url = encodeURI(location.protocol + '//maps.google.com/maps/api/geocode/json?address='
-      + sAddr.replace(/\s/g, '+')
-      + 'CA&sensor=false&key=AIzaSyBotSR2YeQMWKxPl4bN1wuwxNTvtWaT_xc');
+    const url = encodeURI(GEOCODE_URL + '?address=' + sAddr.replace(/\s/g, '+') + '&sensor=false&key=' + GEOCODE_KEY);
     return this.http.get(url)
       .pipe(map((res: any) => {
         if (res.results && res.results.length > 0) {
@@ -172,8 +235,8 @@ export class LocationService {
       }));
   }
 
-  getAddrString(location) {
-    const city = location.sub_locality ? location.sub_locality + ', ' + location.city : location.city;
+  getAddrString(location: ILocation) {
+    const city = location.sub_locality ? location.sub_locality : location.city;
     return location.street_number + ' ' + location.street_name + ', ' + city + ', ' + location.province;
     // + ', ' + location.postal_code;
   }

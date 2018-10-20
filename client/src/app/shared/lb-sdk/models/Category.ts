@@ -81,7 +81,7 @@ export class Category implements CategoryInterface {
           model: 'Product',
           relationType: 'hasMany',
                   keyFrom: 'id',
-          keyTo: 'restaurantId'
+          keyTo: 'categoryId'
         },
       }
     }

@@ -69,6 +69,8 @@ export class InstitutionSignupComponent implements OnInit {
           address: new Address({
             formattedAddress: this.address.street_number + ' ' + this.address.street_name,
             unit: v.unit,
+            streetName: this.address.street_name,
+            streetNumber: this.address.street_number,
             location: { lat: this.address.lat, lng: this.address.lng },
             province: this.address.province,
             postalCode: this.address.postal_code

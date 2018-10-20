@@ -12,7 +12,7 @@ import { AdminProductListComponent } from './admin-product-list/admin-product-li
 import { AdminProductFormPageComponent } from './admin-product-form-page/admin-product-form-page.component';
 
 
-import { AdminRestaurantFormPageComponent } from './admin-restaurant-form-page/admin-restaurant-form-page.component';
+// import { AdminRestaurantFormPageComponent } from './admin-restaurant-form-page/admin-restaurant-form-page.component';
 import { AdminRestaurantPageComponent } from './admin-restaurant-page/admin-restaurant-page.component';
 import { AdminOrderPageComponent } from './admin-order-page/admin-order-page.component';
 import { AdminProductPageComponent } from './admin-product-page/admin-product-page.component';
@@ -35,7 +35,7 @@ import { AdminAccountPageComponent } from './admin-account-page/admin-account-pa
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     declarations: [AdminComponent,
         AdminAccountPageComponent,
-        AdminRestaurantFormPageComponent,
+        // AdminRestaurantFormPageComponent,
         AdminProductListComponent,
         AdminRestaurantPageComponent,
         AdminOrderPageComponent,

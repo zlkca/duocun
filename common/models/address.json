@@ -13,6 +13,12 @@
     "unit": {
       "type": "number"
     },
+    "streetName": {
+      "type": "string"
+    },
+    "streetNumber": {
+      "type": "string"
+    },
     "location": {
       "type": "GeoPoint"
     },

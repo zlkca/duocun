@@ -20,9 +20,9 @@ export class AddressInputComponent implements OnInit, OnChanges {
 
   @ViewChild('div') div: ElementRef;
   @Output() addrChange = new EventEmitter();
-  @Input() placeholder;
   @Input() value;
 
+  placeholder: string;
   gAutocomplete: any;
 
   // The internal data model for form control value access

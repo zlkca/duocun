@@ -162,7 +162,7 @@ export class ProductService {
     return fromPromise(new Promise((resolve, reject) => {
       const formData = new FormData();
       let i = 0;
-      for (const d of a) {
+      for (let d of a) {
         const pic = d.pictures ? d.pictures[0] : null;
         const product = {
           id: d.id ? d.id : '',

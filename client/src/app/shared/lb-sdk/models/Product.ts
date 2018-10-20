@@ -1,5 +1,6 @@
 /* tslint:disable */
 import {
+  Category,
   Restaurant,
   Picture
 } from '..';
@@ -10,10 +11,13 @@ export interface ProductInterface {
   "description"?: string;
   "price": number;
   "restaurantId": number;
+  "categoryId": number;
   "created"?: Date;
   "modified"?: Date;
   "id"?: number;
   owner?: Restaurant;
+  restaurant?: Restaurant;
+  category?: Category;
   pictures?: Picture[];
 }
 
@@ -27,6 +31,8 @@ export class Product implements ProductInterface {
   "modified": Date;
   "id": number;
   owner: Restaurant;
+  restaurant: Restaurant;
+  category: Category;
   pictures: Picture[];
   constructor(data?: ProductInterface) {
     Object.assign(this, data);
@@ -78,6 +84,10 @@ export class Product implements ProductInterface {
           name: 'restaurantId',
           type: 'number'
         },
+        "categoryId": {
+          name: 'categoryId',
+          type: 'number'
+        },
         "created": {
           name: 'created',
           type: 'Date'
@@ -98,6 +108,22 @@ export class Product implements ProductInterface {
           model: 'Restaurant',
           relationType: 'belongsTo',
                   keyFrom: 'restaurantId',
+          keyTo: 'id'
+        },
+        restaurant: {
+          name: 'restaurant',
+          type: 'Restaurant',
+          model: 'Restaurant',
+          relationType: 'belongsTo',
+                  keyFrom: 'restaurantId',
+          keyTo: 'id'
+        },
+        category: {
+          name: 'category',
+          type: 'Category',
+          model: 'Category',
+          relationType: 'belongsTo',
+                  keyFrom: 'categoryId',
           keyTo: 'id'
         },
         pictures: {

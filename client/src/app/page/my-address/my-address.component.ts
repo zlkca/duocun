@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { ILocation, ILatLng } from '../../shared/location/location.model';
+
 import { Restaurant } from '../../commerce/commerce';
 import { SharedService } from '../../shared/shared.service';
 import { AuthService } from '../../account/auth.service';
@@ -70,14 +72,15 @@ export class MyAddressComponent implements OnInit {
 
   useCurrentLocation() {
     const self = this;
-    this.locationSvc.getCurrentLocation().subscribe(r => {
+    this.locationSvc.getCurrentLocation().subscribe((r: any) => {
       localStorage.setItem('location-' + APP, JSON.stringify(r));
       self.deliveryAddress = self.locationSvc.getAddrString(r);
       self.sharedSvc.emitMsg({ name: 'OnUpdateAddress', addr: r });
       self.router.navigate(['home']);
     },
     err => {
-      alert('Do you want to turn on your GPS to find the nearest restaurants?');
+      console.log(err);
+      // alert('Do you want to turn on your GPS to find the nearest restaurants?');
     });
   }
 

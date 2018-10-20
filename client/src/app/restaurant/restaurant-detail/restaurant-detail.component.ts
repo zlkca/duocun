@@ -1,13 +1,7 @@
 
-import { switchMap } from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { Observable } from 'rxjs';
-
-
+import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../product/product.service';
-import { Product } from '../../commerce/commerce';
-import { SharedService } from '../../shared/shared.service';
 import { AuthService } from '../../account/auth.service';
 import { environment } from '../../../environments/environment';
 import { RestaurantService } from '../restaurant.service';
@@ -56,12 +50,10 @@ export class RestaurantDetailComponent implements OnInit {
       self.restaurantSvc.getProducts(restaurantId).subscribe(products => {
         self.groupedProducts = self.groupByCategory(products);
         const categoryIds = Object.keys(self.groupedProducts);
-        self.productSvc.findCategories().subscribe(res => {
-          self.categories = res.filter(cat => categoryIds.includes(cat.id.toString()) );
+        self.productSvc.findCategories({where: {id: { inq: categoryIds}}}).subscribe(res => {
+          self.categories = res;
         });
       });
-
-
     });
   }
 

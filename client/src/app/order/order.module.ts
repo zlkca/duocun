@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { SharedModule } from '../shared/shared.module';
-import { OrderDetailComponent } from './order-detail/order-detail.component';
 import { OrderListComponent } from './order-list/order-list.component';
 import { CartComponent } from './cart/cart.component';
 import { OrderService } from './order.service';
@@ -19,7 +18,6 @@ import { OrderFormComponent } from './order-form/order-form.component';
     SharedModule
   ],
   exports: [
-    OrderDetailComponent,
     OrderListComponent,
     CartComponent,
     OrderFormComponent,
@@ -28,7 +26,6 @@ import { OrderFormComponent } from './order-form/order-form.component';
     OrderService,
   ],
   declarations: [
-    OrderDetailComponent,
     OrderListComponent,
     CartComponent,
     OrderFormComponent,

@@ -26,11 +26,9 @@
   <div formGroupName="address">
     <div class="row">
       <div class="label-sm" i18n="@@Street">Street:</div>
-      <input name="street" formControlName="street" />
-      <!--  <div *ngIf="street.touched && street.invalid" class="alert alert-danger">
-                          <div *ngIf="street.errors.required">Street is required</div>
-                          <div *ngIf="street.errors.minlength">Street should be minimum 3 characters.</div>
-                      </div> -->
+      <!-- <input name="street" formControlName="street" /> -->
+      <app-address-input (addrChange)="onAddressChange($event)" 
+        placeholder="" [value]="address"></app-address-input>
     </div>
 
     <div class="row">

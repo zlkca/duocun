@@ -8,3 +8,8 @@ export interface ILocation {
     street_number: string;
     sub_locality: string;
 }
+
+export interface ILatLng {
+  lat: number;
+  lng: number;
+}

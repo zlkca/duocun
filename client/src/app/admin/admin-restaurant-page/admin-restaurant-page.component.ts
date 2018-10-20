@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
 
 const ADD_IMAGE = 'add_photo.png';
 
+
 @Component({
   selector: 'app-admin-restaurant-page',
   templateUrl: './admin-restaurant-page.component.html',
@@ -19,6 +20,11 @@ export class AdminRestaurantPageComponent implements OnInit {
   restaurant = new Restaurant();
   MEDIA_URL = environment.MEDIA_URL;
   placeholder = environment.MEDIA_URL + ADD_IMAGE;
+  alert = {
+    type: 'success',
+    message: 'This is an success alert',
+  };
+  alertClosed = false;
 
   constructor(private router: Router,
     private restaurantSvc: RestaurantService,
@@ -95,6 +101,7 @@ export class AdminRestaurantPageComponent implements OnInit {
     this.restaurant.address = null;
     this.restaurant.user = null;
     this.restaurant.image = null;
+    setTimeout(() => this.alertClosed = true, 2000);
   }
 
   onSelect(event) {

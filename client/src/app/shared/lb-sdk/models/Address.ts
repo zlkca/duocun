@@ -7,6 +7,8 @@ declare var Object: any;
 export interface AddressInterface {
   "formattedAddress": string;
   "unit"?: number;
+  "streetName": string;
+  "streetNumber": string;
   "location"?: GeoPoint;
   "sublocality"?: string;
   "city"?: string;
@@ -16,12 +18,16 @@ export interface AddressInterface {
   "created"?: Date;
   "modified"?: Date;
   "id"?: number;
+  "entityId"?: number;
+  "entityType"?: string;
   entity?: any;
 }
 
 export class Address implements AddressInterface {
   "formattedAddress": string;
   "unit": number;
+  "streetName": string;
+  "streetNumber": string;
   "location": GeoPoint;
   "sublocality": string;
   "city": string;
@@ -31,6 +37,8 @@ export class Address implements AddressInterface {
   "created": Date;
   "modified": Date;
   "id": number;
+  "entityId": number;
+  "entityType": string;
   entity: any;
   constructor(data?: AddressInterface) {
     Object.assign(this, data);
@@ -48,7 +56,7 @@ export class Address implements AddressInterface {
   * @license MIT
   * This method creates an instance of Address for dynamic purposes.
   **/
-  public static factory(data: AddressInterface): Address {
+  public static factory(data: AddressInterface): Address{
     return new Address(data);
   }
   /**
@@ -72,6 +80,14 @@ export class Address implements AddressInterface {
         "unit": {
           name: 'unit',
           type: 'number'
+        },
+        "streetName": {
+          name: 'streetName',
+          type: 'string'
+        },
+        "streetNumber": {
+          name: 'streetNumber',
+          type: 'string'
         },
         "location": {
           name: 'location',
@@ -124,7 +140,7 @@ export class Address implements AddressInterface {
           type: 'any',
           model: '',
           relationType: 'belongsTo',
-          keyFrom: 'entityId',
+                  keyFrom: 'entityId',
           keyTo: 'id'
         },
       }

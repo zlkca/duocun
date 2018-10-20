@@ -126,9 +126,9 @@ export class AccountService {
     };
     return this.accountApi.login(credentials, null, rememberMe)
       .pipe(
-        mergeMap(() => {
-          return this.accountApi.getCurrent({ include: 'restaurants' });
-        }),
+        // mergeMap(() => {
+        //   return this.accountApi.getCurrent({ include: 'restaurants' });
+        // }),
         map((acc: Account) => {
           this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
           return acc;
@@ -145,18 +145,18 @@ export class AccountService {
   }
 
   getCurrent(forceGet: boolean = false): Observable<Account> {
-    const state = this.ngRedux.getState();
+    const state: any = this.ngRedux.getState();
     if (!state || !state.email || forceGet) {
-      this.updateCurrent();
+      this.updateCurrent(state.account);
     }
     return this.ngRedux.select<Account>('account');
   }
 
-  updateCurrent() {
-    this.accountApi.getCurrent({ include: 'restaurants' })
-      .subscribe((acc: Account) => {
+  updateCurrent(acc) {
+    // this.accountApi.getCurrent({ include: 'restaurants' })
+    //   .subscribe((acc: Account) => {
         this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
-      });
+      // });
   }
 
   isAuthenticated(): boolean {

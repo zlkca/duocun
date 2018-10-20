@@ -153,7 +153,8 @@ export class HomeComponent implements OnInit {
         self.loadNearbyRestaurants(self.center);
       },
       err => {
-        alert('Do you want to turn on your GPS to find the nearest restaurants?');
+        console.log(err);
+        // alert('Do you want to turn on your GPS to find the nearest restaurants?');
       });
     }
   }
@@ -178,7 +179,7 @@ export class HomeComponent implements OnInit {
       self.loadNearbyRestaurants(this.center);
     },
     err => {
-      alert('Do you want to turn on your GPS to find the nearest restaurants?');
+      console.log(err);
     });
   }
 
@@ -190,7 +191,8 @@ export class HomeComponent implements OnInit {
       self.loadNearbyRestaurants(this.center);
     },
     err => {
-      alert('Do you want to turn on your GPS to find the nearest restaurants?');
+      console.log(err);
+      // alert('Do you want to turn on your GPS to find the nearest restaurants?');
     });
   }
 }

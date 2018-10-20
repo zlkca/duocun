@@ -27,7 +27,7 @@ import { ForgetPasswordComponent } from './account/forget-password/forget-passwo
 // import { ChangePasswordComponent } from './users/change-password/change-password.component';
 // import { PaymentComponent } from './products/payment/payment.component';
 import { RestaurantDetailComponent } from './restaurant/restaurant-detail/restaurant-detail.component';
-import { AdminRestaurantFormPageComponent } from './admin/admin-restaurant-form-page/admin-restaurant-form-page.component';
+// import { AdminRestaurantFormPageComponent } from './admin/admin-restaurant-form-page/admin-restaurant-form-page.component';
 
 import { ProductListComponent } from './product/product-list/product-list.component';
 import { ProductComponent } from './main/product/product.component';
@@ -66,8 +66,8 @@ import { environment } from '../environments/environment';
 
 const appRoutes: Routes = [
     { path: 'admin', component: AdminComponent },
-    { path: 'admin/restaurant/:id', component: AdminRestaurantFormPageComponent },
-    { path: 'admin/restaurant', component: AdminRestaurantFormPageComponent },
+    // { path: 'admin/restaurant/:id', component: AdminRestaurantFormPageComponent },
+    // { path: 'admin/restaurant', component: AdminRestaurantFormPageComponent },
     { path: 'admin/products/:id', component: AdminProductFormPageComponent },
     { path: 'admin/product', component: AdminProductFormPageComponent },
     { path: 'admin/products', component: AdminProductPageComponent },

@@ -34,7 +34,7 @@ export class OrderFormComponent implements OnInit {
     const s = JSON.parse(localStorage.getItem('location-' + APP));
     const tomorrow = this.sharedSvc.getNextDay();
     this.form = this.fb.group({
-      notes: ['', []],
+      notes: [''],
       date: [tomorrow, [Validators.required]],
       time: [{ hour: 12, minute: 30 }, [Validators.required]],
       // address: [s, [Validators.required]]
@@ -76,8 +76,8 @@ export class OrderFormComponent implements OnInit {
 
   createOrders() {
     const v = this.form.value;
-    const restaurantSet = new Set(this.items.map(x => x.restaurant_id));
-    const restaurantIds = [...restaurantSet];
+    const ids = this.items.map( x => x.restaurant_id );
+    const restaurantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
     const orders = [];
 
     for (const id of restaurantIds) {

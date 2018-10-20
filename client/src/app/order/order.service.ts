@@ -32,16 +32,15 @@ export class OrderService {
     }
 
     create(order: Order): Observable<Order> {
-        console.log(order);
-        return this.orderApi.create(order)
-            .pipe(
-                mergeMap((newOrder: Order) => {
-                    return this.orderApi.createManyItems(newOrder.id, order.items);
-                }),
-                mergeMap((items: OrderItem[]) => {
-                    return this.orderApi.findById(items[0].orderId, { include: 'items' });
-                })
-            );
+        return this.orderApi.create(order);
+            // .pipe(
+            //     mergeMap((newOrder: Order) => {
+            //         return this.orderApi.createManyItems(newOrder.id, order.items);
+            //     }),
+            //     mergeMap((items: OrderItem[]) => {
+            //         return this.orderApi.findById(items[0].orderId, { include: 'items' });
+            //     })
+            // );
     }
 
     createMany(orders: Order[]): Observable<Order[]> {

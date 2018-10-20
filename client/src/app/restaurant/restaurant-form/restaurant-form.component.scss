@@ -1,10 +1,17 @@
   .restaurant-form {
     .row {
       padding: 10px;
+      margin-left:0px;
+      margin-right:0px;
+      
       .btn {
         width: 80px;
         min-width: 80px;
         margin-left: 10px;
       }
+    }
+
+    app-address-input{
+      width:100%;
     }
   }

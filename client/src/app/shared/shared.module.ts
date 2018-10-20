@@ -1,8 +1,8 @@
 
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule }   from '@angular/forms';
-import { RouterModule }  from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 
 
@@ -36,8 +36,8 @@ import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-
     ImageUploaderComponent,
     MultiImageUploaderComponent
   ],
-  schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  exports:[
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  exports: [
     WizardComponent, ImageViewerComponent, FeedbackComponent, MapComponent, HeaderComponent, FooterComponent,
     AddressInputComponent, ImageUploaderComponent, MultiImageUploaderComponent
   ]

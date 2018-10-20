@@ -187,7 +187,7 @@ export class Product {
 
             if (o.categories && o.categories.length > 0) {
                 const cs = [];
-                for (const c of o.categories) {
+                for (let c of o.categories) {
                     cs.push(new Category(c));
                 }
                 this.categories = cs;
