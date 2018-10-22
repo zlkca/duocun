@@ -19,10 +19,14 @@ import { AdminProductPageComponent } from './admin-product-page/admin-product-pa
 import { EditRestaurantComponent } from './edit-restaurant/edit-restaurant.component';
 import { AdminCategoryPageComponent } from './admin-category-page/admin-category-page.component';
 import { AdminAccountPageComponent } from './admin-account-page/admin-account-page.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
     imports: [
         CommonModule,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot(),
         NgbModule,
         FormsModule,
         ReactiveFormsModule,

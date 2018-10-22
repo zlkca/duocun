@@ -76,5 +76,11 @@ export class SharedService {
     const d = moment(new Date()).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
     return { day: d.date(), month: d.month() + 1, year: d.year() };
   }
+
+  // s --- image url in database
+  toDisplayUrl(s: string) {
+    const index = s.lastIndexOf('/pictures/');
+    return s.slice(0, index + 10) + 'download/' + s.slice(index + 10);
+  }
 }
 

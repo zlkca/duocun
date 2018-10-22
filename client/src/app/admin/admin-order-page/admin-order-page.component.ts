@@ -62,7 +62,6 @@ export class AdminOrderPageComponent implements OnInit {
 
   loadOrders(account, start, end) {
     const self = this;
-    const restaurant_id = account.restaurants[0] ? account.restaurants[0].id : null;
 
     if (account.type === 'user') {
       self.orderSvc.find({

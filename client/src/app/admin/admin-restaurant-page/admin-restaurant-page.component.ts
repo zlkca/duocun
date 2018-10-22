@@ -1,11 +1,10 @@
 
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Restaurant } from '../../commerce/commerce';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-
-import { CommerceService } from '../../commerce/commerce.service';
 import { environment } from '../../../environments/environment';
+import { ToastrService } from 'ngx-toastr';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -28,7 +27,7 @@ export class AdminRestaurantPageComponent implements OnInit {
 
   constructor(private router: Router,
     private restaurantSvc: RestaurantService,
-    private commerceSvc: CommerceService) { }
+    private toastSvc: ToastrService) { }
 
   toPage(url: string) {
     this.router.navigate([url]);
@@ -90,6 +89,8 @@ export class AdminRestaurantPageComponent implements OnInit {
     this.restaurant.address = null;
     this.restaurant.user = null;
     this.restaurant.image = null;
+
+    this.toastSvc.success('Save Restaurant Successfully!', '', { timeOut: 2000 });
   }
 
   onAfterDelete(event) {

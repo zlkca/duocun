@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommerceService } from '../../commerce/commerce.service';
 import { Product } from '../../commerce/commerce';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
@@ -8,11 +7,11 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IAppState } from '../../store';
 import { ProductComponent } from '../../main/product/product.component';
 import { CartActions } from '../../order/order.actions';
+import { SharedService } from '../../shared/shared.service';
 
 const ADD_IMAGE = 'add_photo.png';
 
 @Component({
-    providers: [CommerceService],
     selector: 'app-product-grid',
     templateUrl: './product-grid.component.html',
     styleUrls: ['./product-grid.component.scss']
@@ -38,10 +37,11 @@ export class ProductGridComponent implements OnInit {
         //     });
     }
 
-    constructor(private commerceServ: CommerceService,
+    constructor(
         private router: Router,
         private modalService: NgbModal,
-        private ngRedux: NgRedux<IAppState>//,
+        private ngRedux: NgRedux<IAppState>,
+        private sharedSvc: SharedService
         // private actions: CartActions
     ) {
 
@@ -63,11 +63,16 @@ export class ProductGridComponent implements OnInit {
     }
 
     getImageSrc(p) {
-        if (p.fpath) {
-            return this.MEDIA_URL + p.fpath;
+        if (p.pictures && p.pictures[0] && p.pictures[0].url) {
+          return this.sharedSvc.toDisplayUrl(p.pictures[0].url);
         } else {
-            return this.MEDIA_URL + ADD_IMAGE;
+          return this.defaultPicture;
         }
+        // if (p.fpath) {
+        //   return this.MEDIA_URL + p.fpath;
+        // } else {
+        //     return this.MEDIA_URL + ADD_IMAGE;
+        // }
     }
 
 }

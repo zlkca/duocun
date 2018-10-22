@@ -927,6 +927,22 @@
           <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="OpeningHours" datatype="html">
+        <source>Opening Hours</source>
+        <target>营业时间</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-detail/restaurant-detail.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Address" datatype="html">
+        <source>Address</source>
+        <target>地址</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/restaurant/restaurant-detail/restaurant-detail.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

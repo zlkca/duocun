@@ -124,13 +124,14 @@ export class AccountService {
       username: username,
       password: password
     };
+    const self = this;
     return this.accountApi.login(credentials, null, rememberMe)
       .pipe(
-        // mergeMap(() => {
-        //   return this.accountApi.getCurrent({ include: 'restaurants' });
-        // }),
+        mergeMap(() => {
+          return self.accountApi.getCurrent({ include: 'restaurants' });
+        }),
         map((acc: Account) => {
-          this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
+          self.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
           return acc;
         })
       );
@@ -147,16 +148,17 @@ export class AccountService {
   getCurrent(forceGet: boolean = false): Observable<Account> {
     const state: any = this.ngRedux.getState();
     if (!state || !state.email || forceGet) {
-      this.updateCurrent(state.account);
+      this.updateCurrent();
     }
     return this.ngRedux.select<Account>('account');
   }
 
-  updateCurrent(acc) {
-    // this.accountApi.getCurrent({ include: 'restaurants' })
-    //   .subscribe((acc: Account) => {
-        this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
-      // });
+  updateCurrent() {
+    const self = this;
+    this.accountApi.getCurrent({ include: 'restaurants' })
+      .subscribe((acc: Account) => {
+        self.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
+      });
   }
 
   isAuthenticated(): boolean {

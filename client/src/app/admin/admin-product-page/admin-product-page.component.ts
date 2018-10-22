@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { RestaurantService } from '../../restaurant/restaurant.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-admin-product-page',
@@ -19,6 +20,7 @@ export class AdminProductPageComponent implements OnInit {
 
   constructor(private route: ActivatedRoute,
       private restaurantSvc: RestaurantService,
+      private toastSvc: ToastrService,
       private rx: NgRedux<IAppState>) {
 
   }
@@ -33,6 +35,7 @@ export class AdminProductPageComponent implements OnInit {
 
   onAfterSave(event) {
     this.loadProductList();
+    this.toastSvc.success('Save Product Successfully!', '', { timeOut: 2000 });
   }
 
   onAfterDelete(event) {

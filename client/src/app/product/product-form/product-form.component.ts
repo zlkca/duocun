@@ -77,7 +77,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes) {
-    if (this.form) {
+    if (this.form && changes.product.currentValue) {
       this.form.patchValue(changes.product.currentValue);
     }
   }
@@ -126,7 +126,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
             LoopBackConfig.getApiVersion(),
             'Containers',
             img.container,
-            'download',
             img.name
           ].join('/')
         };

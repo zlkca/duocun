@@ -65,8 +65,7 @@ export class RestaurantService {
     return this.restaurantApi.getPictures(id)
       .pipe(
         mergeMap((pictures: Picture[]) => {
-          if (pictures && pictures.length
-            && pictures.filter(pic => newPictures.findIndex(newPic => newPic.id === pic.id) === -1).length) {
+          if (pictures && pictures.length && pictures.filter(pic => newPictures.findIndex(newPic => newPic.id === pic.id) === -1).length) {
             return Promise.all(pictures.filter(pic => newPictures.findIndex(newPic => newPic.id === pic.id) === -1).map(pic => {
               return this.pictureApi.deleteById(pic.id).toPromise();
             }))

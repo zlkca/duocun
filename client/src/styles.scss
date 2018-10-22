@@ -2,6 +2,8 @@
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
 $fa-font-path: "../node_modules/font-awesome/fonts";
 @import '~font-awesome/scss/font-awesome.scss';
+// regular style toast 
+@import '~ngx-toastr/toastr.css';
 
 $cellphone: "(max-width:480px)";
 $mobile: "(max-width: 767px)";
@@ -136,18 +138,6 @@ body{
     padding-top:15px;
   }
 
-  .btn{
-  //   width:100%;
-  //   min-width: 150px;
-  //   height:$item-height;
-  //   border:1px solid $border-color;
-  //   font-weight:400;
-  //   text-align:center;
-     // border-radius: 0;
-     // -webkit-border-radius: 0;
-     // -moz-border-radius: 0;
-  }
-
   .btn-light{
     border:1px solid $border-color;
     border-radius: 0;
@@ -155,28 +145,11 @@ body{
     -moz-border-radius: 0;
   }
 
-  .btn-primary{
-    background-color:$primary-color;
-    color:$text-inverse-color;
-  }
-
-  .btn-primary:hover{
-    background-color:$primary-focus-color;
-  }
-
-  .btn-dt{
-    border:1px solid $border-color;
-    border-left:none;
-    border-radius: 0;
-    -webkit-border-radius: 0;
-    -moz-border-radius: 0;
-  }
-
-  // checkout button
+  // buttons in list item for the admin
   .btn-xs{
-    height: 34px;
+    height: 36px;
     font-size: 14px;
-    padding-top: 5px;
+    padding-top: 8px;
   }
 
   .btn-holder{

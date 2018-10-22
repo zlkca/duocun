@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
-import { CommerceService } from '../../commerce/commerce.service';
 import { LocationService } from '../../shared/location/location.service';
 import { RestaurantService } from '../restaurant.service';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
@@ -14,6 +13,7 @@ import { ILocation } from '../../shared/location/location.model';
 import { getComponentViewDefinitionFactory } from '../../../../node_modules/@angular/core/src/view';
 
 const APP = environment.APP;
+const PICTURES_FOLDER = 'pictures';
 
 @Component({
   selector: 'app-restaurant-form',
@@ -73,7 +73,6 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     private accountSvc: AccountService,
     private restaurantSvc: RestaurantService,
     private locationSvc: LocationService,
-    private commerceSvc: CommerceService,
     private router: Router, private route: ActivatedRoute,
     private rx: NgRedux<IPicture>) {
 
@@ -136,41 +135,6 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     //     (err:any) => {
     //     });
 
-    // self.commerceServ.getCategoryList().subscribe(catList=>{
-    //     self.categoryList = catList;
-    //     for(let cat of catList){
-    //         let c = p.categories.find(x=> x.id==cat.id );
-    //         if(c){
-    //             self.categories.push(new FormControl(true));
-    //         }else{
-    //             self.categories.push(new FormControl(false));
-    //         }
-    //         //self.categories.push(new FormControl(s.id));
-    //     }
-    // })
-
-    // self.commerceServ.getCategoryList().subscribe(catList=>{
-    //     self.categoryList = catList;
-    //     for(let cat of catList){
-    //         let c = p.categories.find(x=> x.id==cat.id );
-    //         if(c){
-    //             self.categories.push(new FormControl(true));
-    //         }else{
-    //             self.categories.push(new FormControl(false));
-    //         }
-    //         //self.categories.push(new FormControl(s.id));
-    //     }
-    // })
-    // });
-
-    // create new
-    // self.commerceServ.getCategoryList().subscribe(catList=>{
-    //     self.categoryList = catList;
-    //     for(let cat of catList){
-    //         self.categories.push(new FormControl(false));
-    //     }
-    // });
-
     this.accountSvc.getCurrent().subscribe((acc: Account) => {
       this.currentAccount = acc;
       if (acc.type === 'super') {
@@ -183,7 +147,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes) {
-    if (this.form) {
+    if (this.form && changes.restaurant.currentValue.id) {
       this.form.patchValue(changes.restaurant.currentValue);
 
       const addr = changes.restaurant.currentValue.address;
@@ -213,19 +177,20 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
 
   onUploadFinished(event) {
     try {
+      const self = this;
       const res = JSON.parse(event.serverResponse.response._body);
-      this.restaurant.pictures = (this.restaurant.pictures || []).concat(res.result.files.image.map(img => {
+      this.restaurant.pictures = res.result.files.image.map(img => {
         return {
+          name: self.restaurant.name,
           url: [
             LoopBackConfig.getPath(),
             LoopBackConfig.getApiVersion(),
             'Containers',
-            img.container,
-            'download',
+            img.container, // pictures folder
             img.name
           ].join('/')
         };
-      }));
+      });
     } catch (error) {
       console.error(error);
     }
@@ -247,7 +212,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     restaurant.pictures = this.restaurant.pictures;
     restaurant.location = { lat: this.location.lat, lng: this.location.lng };
     restaurant.address = new Address({
-      id: this.restaurant.address.id,
+      id: this.restaurant.address ? this.restaurant.address.id : null,
       streetName: this.location.street_name,
       streetNumber: this.location.street_number,
       sublocality: this.location.sub_locality,
@@ -286,12 +251,12 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     if (restaurant.id) {
       self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
         // self.router.navigate(['admin']);
-        self.afterSave.emit({ restaurant: r });
+        self.afterSave.emit({ restaurant: r, action: 'update' });
       });
     } else {
       self.restaurantSvc.create(restaurant).subscribe((r: any) => {
         // self.router.navigate(['admin']);
-        self.afterSave.emit({ restaurant: r });
+        self.afterSave.emit({ restaurant: r, action: 'save' });
       });
     }
     // const sAddr = addr.formattedAddress + ', Toronto, ' + v.address.postalCode;

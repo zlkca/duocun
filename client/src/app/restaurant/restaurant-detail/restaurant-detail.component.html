@@ -2,8 +2,8 @@
   <div class="container">
     <div class="restaurant-info" *ngIf="restaurant">
       <div>{{restaurant.name}}</div>
-      <div>Hours: 11:30 - 23:00</div>
-      <div>Address: {{restaurant.address.formattedAddress}}</div>
+      <div><span i18n="@@OpeningHours">Opening Hours</span>: 11:30 - 23:00</div>
+      <div><span i18n="@@Address">Address</span>: {{restaurant.address.formattedAddress}}</div>
     </div>
 
     <div class="row">

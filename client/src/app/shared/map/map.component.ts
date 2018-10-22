@@ -35,7 +35,8 @@ export class MapComponent implements OnInit, OnChanges {
                 zoom: self.zoom,
                 center: self.center,
                 mapTypeControl: false,
-                streetViewControl: false
+                streetViewControl: false,
+                fullscreenControl: false
             });
 
             const marker = new google.maps.Marker({

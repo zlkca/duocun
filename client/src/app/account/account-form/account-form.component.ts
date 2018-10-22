@@ -40,7 +40,9 @@ export class AccountFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes) {
-    this.form.patchValue(changes.account.currentValue);
+    if (this.form && changes.account.currentValue) {
+      this.form.patchValue(changes.account.currentValue);
+    }
   }
 
   ngOnInit() {

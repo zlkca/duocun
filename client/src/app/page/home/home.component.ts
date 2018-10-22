@@ -174,9 +174,9 @@ export class HomeComponent implements OnInit {
   useCurrentLocation() {
     const self = this;
     this.locationSvc.getCurrentLocation().subscribe(r => {
-      this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
+      self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       self.setAddrString(r);
-      self.loadNearbyRestaurants(this.center);
+      self.loadNearbyRestaurants(self.center);
     },
     err => {
       console.log(err);
@@ -186,9 +186,9 @@ export class HomeComponent implements OnInit {
   setWorkAddr() {
     const self = this;
     this.locationSvc.getCurrentLocation().subscribe(r => {
-      this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
+      self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       self.setAddrString(r);
-      self.loadNearbyRestaurants(this.center);
+      self.loadNearbyRestaurants(self.center);
     },
     err => {
       console.log(err);

@@ -33,8 +33,8 @@ export class RestaurantGridComponent implements OnInit {
 
   constructor(private commerceServ: CommerceService,
     private router: Router,
-    private sharedServ: SharedService,
-    private restaurantServ: RestaurantService,
+    private sharedSvc: SharedService,
+    private restaurantSvc: RestaurantService,
     private locationSvc: LocationService) {
 
 
@@ -84,7 +84,7 @@ export class RestaurantGridComponent implements OnInit {
     // );
   }
 
-  getImageSrc(image: any) {
+  getImageSrc(restaurant: any) {
     // if (image.file) {
     //     return image.data;
     // } else {
@@ -94,7 +94,12 @@ export class RestaurantGridComponent implements OnInit {
     //         return 'http://placehold.it/400x300';
     //     }
     // }
-    return this.defaultPicture;
+    // p.pictures[0]?.url || defaultPicture
+    if (restaurant.pictures && restaurant.pictures[0] && restaurant.pictures[0].url) {
+      return this.sharedSvc.toDisplayUrl(restaurant.pictures[0].url);
+    } else {
+      return this.defaultPicture;
+    }
   }
 
   toDetail(p) {

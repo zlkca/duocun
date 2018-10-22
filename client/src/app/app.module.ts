@@ -6,7 +6,6 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 
 import { NgReduxModule, NgRedux } from '@angular-redux/store';
 import { rootReducer, IAppState, INITIAL_STATE } from './store';
-
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
