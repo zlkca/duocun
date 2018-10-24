@@ -4,7 +4,7 @@ var path = require('path');
 var crypto = require('crypto');
 var https = require('https');
 
-module.exports = function(server) {
+module.exports = function (server) {
   // Install a `/` route that returns server status
   var router = server.loopback.Router();
   // router.get('/', server.loopback.status());
@@ -38,9 +38,17 @@ module.exports = function(server) {
         data += d;
       });
 
-      res1.on('end', ()=>{
-        const s = JSON.parse(data);
-        res.send(s.results[0]);
+      res1.on('end', () => {
+        if (data) {
+          const s = JSON.parse(data);
+          if (s.results && s.results.length > 0) {
+            res.send(s.results[0]);
+          } else {
+            res.send();
+          }
+        } else {
+          res.send('');
+        }
       });
     });
   });
