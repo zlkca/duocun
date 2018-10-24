@@ -14,28 +14,5 @@
     "provider": "filesystem",
     "root": "uploads",
     "nameConflict": "makeUnique"
-  },
-  "geo":{
-    "connector": "rest",
-    "debug": "false",
-    "operations":[{
-      "template": {
-        "method": "GET",
-        "url": "https://maps.googleapis.com/maps/api/geocode/json",
-        "query": {
-          "latlng": "{lat},{lng}",
-          "key": "AIzaSyAjpSxjBTkdzKMcqAAmq72UY1-DTjl8b0s",
-          "sensor": "{sensor=false}"
-        },
-        "options": {
-          "strictSSL": true,
-          "useQuerystring": true
-        },
-        "responsePath": "$.results[0].geometry.location"
-      },
-      "functions": {
-        "geocode": ["lat", "lng"]
-      }
-    }]
   }
 }
