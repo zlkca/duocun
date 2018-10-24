@@ -9,6 +9,7 @@ import { Order } from '../../models/Order';
 import { OrderItem } from '../../models/OrderItem';
 import { Picture } from '../../models/Picture';
 import { Address } from '../../models/Address';
+import { Location } from '../../models/Location';
 
 export interface Models { [name: string]: any }
 
@@ -25,6 +26,7 @@ export class SDKModels {
     OrderItem: OrderItem,
     Picture: Picture,
     Address: Address,
+    Location: Location,
     
   };
 

@@ -11,7 +11,8 @@ import { environment } from '../../../environments/environment';
 import { LocationActions } from './location.actions';
 import { HttpClient } from '@angular/common/http';
 import { Http, Headers, Response, RequestOptions } from '@angular/http';
-
+import { LocationApi, LoopBackFilter, Location, GeoPoint } from '../lb-sdk';
+import { last } from '../../../../node_modules/@angular/router/src/utils/collection';
 // import { GoogleMapsLoader } from '../map-api-loader.service';
 
 declare let google: any;
@@ -24,7 +25,9 @@ export class LocationService {
   private geocoder;
 
   constructor(private ngRedux: NgRedux<ILocation>,
-    private http: Http) {
+    private http: Http,
+    private locationApi: LocationApi
+    ) {
     try {
       if (google) {
         this.geocoder = new google.maps.Geocoder();
@@ -180,6 +183,30 @@ export class LocationService {
     }));
   }
 
+  reqLocationByLatLng(pos): Observable<any> {
+    return this.locationApi.geocode(pos.lat, pos.lng).pipe(map((res: any) => {
+      return this.getLocationFromGeocode(res);
+    }));
+    // const url = encodeURI('?latlng=' + pos.lat + ',' + pos.lng + '&sensor=false&key=' + GEOCODE_KEY);
+    // const header: Headers = new Headers();
+    // const options = new RequestOptions({ headers: header, method: 'get'});
+    // return this.http.get(url, options).pipe(map((res: any) => {
+    //   const geoCode = JSON.parse(res._body).results[0];
+    //   return this.getLocationFromGeocode(geoCode);
+    // }));
+    // return fromPromise(new Promise((resolve, reject) => {
+    //   this.http.get(url).pipe(map((res: any) => {
+    //     if (res.results && res.results.length > 0) {
+    //       const loc: ILocation = this.getLocationFromGeocode(res.results[0]);
+    //       resolve(loc);
+    //     } else {
+    //       reject();
+    //     }
+    //   }, err => {
+    //     reject();
+    //   }));
+    // }));
+  }
   reqLocationByLatLngV1(pos): Observable<ILocation> {
     return fromPromise(new Promise((resolve, reject) => {
       this.geocoder.geocode({ 'location': pos }, (results) => {
@@ -197,7 +224,7 @@ export class LocationService {
   }
 
   // obsolete cross domain issue
-  reqLocationByLatLng(pos): Observable<any> {
+  reqLocationByLatLngv2(pos): Observable<any> {
     const url = encodeURI(GEOCODE_URL + '?latlng=' + pos.lat + ',' + pos.lng + '&sensor=false&key=' + GEOCODE_KEY);
     const header: Headers = new Headers();
     const options = new RequestOptions({ headers: header, method: 'get'});

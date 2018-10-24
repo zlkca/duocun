@@ -57,6 +57,7 @@ import { OrderApi } from './services/custom/Order';
 import { OrderItemApi } from './services/custom/OrderItem';
 import { PictureApi } from './services/custom/Picture';
 import { AddressApi } from './services/custom/Address';
+import { LocationApi } from './services/custom/Location';
 /**
 * @module SDKBrowserModule
 * @description
@@ -96,6 +97,7 @@ export class SDKBrowserModule {
         OrderItemApi,
         PictureApi,
         AddressApi,
+        LocationApi,
         internalStorageProvider,
         { provide: SDKStorage, useClass: StorageBrowser },
         { provide: SocketDriver, useClass: SocketBrowser }
