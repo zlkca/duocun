@@ -66,9 +66,5 @@
   "Address": {
     "dataSource": "db",
     "public": true
-  },
-  "Location": {
-    "dataSource": "geo",
-    "public": true
   }
 }

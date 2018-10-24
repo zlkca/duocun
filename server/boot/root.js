@@ -5,21 +5,6 @@ var crypto = require('crypto');
 var https = require('https');
 
 module.exports = function(server) {
-  // var ds = server.loopback.createDataSource({
-  //   connector: require("loopback-connector-rest"),
-  //   debug: false,
-  //   baseURL: 'http://localhost:3000'
-  // });
-
-  // var Location = ds.createModel('location', {
-  //   streetName: String,
-  //   streetNumber: String,
-  // });
-
-  // Location.geocode(function(err, user) {
-  //   console.log(user);
-  // });
-
   // Install a `/` route that returns server status
   var router = server.loopback.Router();
   // router.get('/', server.loopback.status());
