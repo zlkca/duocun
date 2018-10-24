@@ -25,3 +25,8 @@ run `ng serve --port 5004 --configuration=zh-Hans`
 
 #### Build production locale version
 run `ng build --prod --i18n-file src/locale/messages.zh-Hans.xlf --i18n-format xlf --i18n-locale zh-Hans`
+
+
+
+## Generate Client
+https://github.com/mean-expert-official/loopback-sdk-builder/wiki
