@@ -47,5 +47,5 @@
         <!-- <app-image-uploader [data]="pictures" #uploader></app-image-uploader> -->
         <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)"></image-upload>
 
-        <button (click)="save()" i18n="@@Save">Save</button>
+        <button class="btn btn-primary" (click)="save()" i18n="@@Save">Save</button>
     </form>

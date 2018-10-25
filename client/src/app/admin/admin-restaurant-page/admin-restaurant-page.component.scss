@@ -1,6 +1,27 @@
 .admin-restaurant-page{
-  
+  padding:0px 15px;
+  margin-top: 10px;
+
+  .row{
+    margin-left:-1px;
+    margin-right:-1px;
+  }
+
   .btn-add{
     margin-top:20px;
+  }
+}
+
+@media (max-width: 767px){
+  .col-xs-12{
+    padding-left:0px;
+    padding-right:0px;
+  }
+}
+
+@media (max-width:480px){
+  .col-xs-12{
+    padding-left:0px;
+    padding-right:0px;
   }
 }

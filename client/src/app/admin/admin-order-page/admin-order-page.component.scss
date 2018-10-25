@@ -1,7 +1,27 @@
 .admin-order-page{
-  padding: 20px;
+  padding:0px 10px;
+  margin-top: 20px;
+}
 
-  .btn-add{
-    margin-top:20px;
+@media (max-width: 767px){
+  .admin-order-page{
+    padding-top: 0px;
+    margin-top:10px;
+
+    .row{
+      margin-left:-1px;
+      margin-right:-1px;
+    }
+  }
+}
+
+@media (max-width:480px){
+  .admin-order-page{
+    padding-top: 0px;
+    margin-top:10px;
+  }
+  .row{
+    margin-left:-1px;
+    margin-right:-1px;
   }
 }

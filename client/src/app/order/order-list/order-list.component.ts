@@ -42,4 +42,7 @@ export class OrderListComponent implements OnInit {
     return this.sharedSvc.toDateTimeString(s);
   }
 
+  toDeliver(order){
+    // this.orderSvc.update
+  }
 }
