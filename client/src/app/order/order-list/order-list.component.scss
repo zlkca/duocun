@@ -1,4 +1,4 @@
-.order{
+.list-item{
     padding: 5px 0px;
     border-bottom: 1px solid #eee;
     .order-header{
@@ -10,7 +10,7 @@
 }
 
 @media (max-width: 767px){
-  .order{
+  .list-item{
     .col-6, .col-12{
       padding-left: 0px;
       padding-right: 0px;

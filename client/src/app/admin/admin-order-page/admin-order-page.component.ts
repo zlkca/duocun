@@ -3,6 +3,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { SharedService } from '../../shared/shared.service';
 import { OrderService } from '../../order/order.service';
 import { Order } from '../../shared/lb-sdk';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-admin-order-page',
@@ -20,7 +21,8 @@ export class AdminOrderPageComponent implements OnInit {
 
   constructor(
     private sharedSvc: SharedService,
-    private orderSvc: OrderService) { }
+    private orderSvc: OrderService,
+    private toastSvc: ToastrService) { }
 
   ngOnInit() {
     this.onFilterOrders('daily');
@@ -35,11 +37,13 @@ export class AdminOrderPageComponent implements OnInit {
   }
 
   onAfterSave(event) {
-    this.onFilterOrders('daily');
+    this.onFilterOrders(this.selectedRange);
+    this.toastSvc.success('Update Order Successfully!', '', { timeOut: 2000 });
   }
 
   onAfterDelete(event) {
-    this.onFilterOrders('daily');
+    this.toastSvc.success('Delete Order Successfully!', '', { timeOut: 2000 });
+    this.onFilterOrders(this.selectedRange);
     if (event.order.id === this.order.id) {
       this.order = new Order();
       this.order.id = null;
@@ -98,6 +102,7 @@ export class AdminOrderPageComponent implements OnInit {
   onFilterOrders(s) {
     const self = this;
     this.selectedRange = s;
+    const restaurant = this.restaurant;
 
     if (s === 'daily') {
       const start = this.sharedSvc.getToday();
@@ -112,11 +117,28 @@ export class AdminOrderPageComponent implements OnInit {
       const end = this.sharedSvc.getLastDayOfMonth();
       this.loadOrders(this.account, start, end);
     } else { // all
-      self.orderSvc.find({
-        include: ['account', { items: { product: 'pictures' } }, 'restaurant']
-      }).subscribe((orders: Order[]) => {
-        self.orders = orders;
-      });
+      const account = this.account;
+      if (account.type === 'super' || account.type === 'deliver') {
+        self.orderSvc.find({
+          include: ['account', { items: { product: 'pictures' } }, 'restaurant']
+        }).subscribe((orders: Order[]) => {
+          self.orders = orders;
+        });
+      } else if (account.type === 'restaurant') {
+        self.orderSvc.find({
+          where: { and: [{restaurantId: restaurant.id}] },
+          include: ['account', { items: { product: 'pictures' } }, 'restaurant']
+        }).subscribe((orders: Order[]) => {
+          self.orders = orders;
+        });
+      } else {
+        self.orderSvc.find({
+          where: { and: [{accountId: account.id}] },
+          include: ['account', { items: { product: 'pictures' } }, 'restaurant']
+        }).subscribe((orders: Order[]) => {
+          self.orders = orders;
+        });
+      }
     }
   }
 

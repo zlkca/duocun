@@ -42,6 +42,10 @@ export class OrderService {
             );
     }
 
+    replaceById(id: number, order: Order): Observable<Order> {
+      return this.orderApi.replaceById(id, order);
+    }
+
     createMany(orders: Order[]): Observable<Order[]> {
         return this.orderApi.createMany(orders);
     }
@@ -54,8 +58,8 @@ export class OrderService {
         return this.orderApi.patchAttributes(order.id, { status: 'delivered' });
     }
 
-    rmOrder(order: Order) {
-        return this.orderApi.deleteById(order.id);
+    deleteById(id: number): Observable<Order> {
+        return this.orderApi.deleteById(id);
     }
 
     // private API_URL = environment.API_URL;

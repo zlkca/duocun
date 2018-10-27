@@ -12,25 +12,26 @@ export class OrderListComponent implements OnInit {
 
   @Input() orders: Order[];
   @Input() restaurant;
+  @Input() account;
   @Output() select = new EventEmitter();
   @Output() afterDelete = new EventEmitter();
+  @Output() afterSave = new EventEmitter();
 
-  constructor(private sharedSvc: SharedService,
+  constructor(
+    private sharedSvc: SharedService,
     private orderSvc: OrderService) { }
 
   ngOnInit() {
     const self = this;
-    const order = new Order();
-
   }
 
   onSelect(c) {
     this.select.emit({ order: c });
   }
 
-  delete(c) {
-    this.orderSvc.rmOrder(c.id).subscribe(x => {
-      this.afterDelete.emit({ order: c });
+  delete(order) {
+    this.orderSvc.deleteById(order.id).subscribe(x => {
+      this.afterDelete.emit({ order: order });
     });
   }
 
@@ -42,7 +43,11 @@ export class OrderListComponent implements OnInit {
     return this.sharedSvc.toDateTimeString(s);
   }
 
-  toDeliver(order){
-    // this.orderSvc.update
+  deliver(order) {
+    const self = this;
+    order.status = 'delivered';
+    this.orderSvc.replaceById(order.id, order).subscribe(x => {
+      self.afterSave.emit({name: 'OnUpdateOrder'});
+    });
   }
 }
