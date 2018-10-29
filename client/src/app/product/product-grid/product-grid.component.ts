@@ -58,7 +58,7 @@ export class ProductGridComponent implements OnInit {
     }
 
     removeFromCart(p) {
-        this.ngRedux.dispatch({ type: CartActions.REMOVE_FROM_CART, 
+        this.ngRedux.dispatch({ type: CartActions.REMOVE_FROM_CART,
             payload: { pid: p.id, name: p.name, price: p.price, restaurant_id: p.restaurantId } });
     }
 

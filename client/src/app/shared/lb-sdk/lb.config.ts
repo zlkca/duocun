@@ -26,7 +26,7 @@ export class LoopBackConfig {
   private static debug: boolean = true;
   private static filterOn: string = 'headers';
   private static whereOn: string = 'headers';
-  private static secure: boolean = false;
+  private static secure: boolean = location.protocol === 'https:'; //false;
   private static withCredentials: boolean = false;
 
   public static setApiVersion(version: string = 'api'): void {

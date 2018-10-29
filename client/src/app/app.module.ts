@@ -2,40 +2,28 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 
 import { NgReduxModule, NgRedux } from '@angular-redux/store';
-import { rootReducer, IAppState, INITIAL_STATE } from './store';
+import { rootReducer, INITIAL_STATE } from './store';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
-
 import { MyAddressComponent } from './page/my-address/my-address.component';
 import { HomeComponent } from './page/home/home.component';
 
-
-// import { ContactComponent } from './main/contact/contact.component';
 import { LoginComponent } from './account/login/login.component';
 import { SignupComponent } from './account/signup/signup.component';
 import { InstitutionSignupComponent } from './account/institution-signup/institution-signup.component';
 import { InstitutionLoginComponent } from './account/institution-login/institution-login.component';
 import { ForgetPasswordComponent } from './account/forget-password/forget-password.component';
 
-// import { ProfileComponent } from './users/profile/profile.component';
-// import { ProfileEditComponent } from './users/profile-edit/profile-edit.component';
-// import { ChangePasswordComponent } from './users/change-password/change-password.component';
-// import { PaymentComponent } from './products/payment/payment.component';
 import { RestaurantDetailComponent } from './restaurant/restaurant-detail/restaurant-detail.component';
-// import { AdminRestaurantFormPageComponent } from './admin/admin-restaurant-form-page/admin-restaurant-form-page.component';
-
 import { ProductListComponent } from './product/product-list/product-list.component';
 import { ProductComponent } from './main/product/product.component';
 import { MyOrderComponent } from './page/my-order/my-order.component';
 
 import { CoreModule } from './core/core.module';
-
-// import { MainModule } from './main/main.module';
-// import { ProductsModule } from './products/products.module';
 import { AccountModule } from './account/account.module';
 import { MainModule } from './main/main.module';
 import { AdminModule } from './admin/admin.module';
@@ -49,11 +37,7 @@ import { AdminComponent } from './admin/admin.component';
 
 import { AdminProductPageComponent } from './admin/admin-product-page/admin-product-page.component';
 import { AdminProductFormPageComponent } from './admin/admin-product-form-page/admin-product-form-page.component';
-
-import { LayoutComponent } from './main/layout/layout.component';
-
 import { AdminAccountPageComponent } from './admin/admin-account-page/admin-account-page.component';
-// import { AdminCategoryPageComponent } from './admin/admin-category-page/admin-category-page.component';
 import { MultiProductFormComponent } from './commerce/multi-product-form/multi-product-form.component';
 import { OrderModule } from './order/order.module';
 import { PageModule } from './page/page.module';
@@ -106,7 +90,7 @@ const appRoutes: Routes = [
             {useHash: true}
             // { enableTracing: true } // <-- debugging purposes only
         ),
-        SDKBrowserModule.forRoot(),
+        SDKBrowserModule.forRoot(), // for socket
         ImageUploadModule.forRoot(),
         NgbModule.forRoot(),
         NgReduxModule,

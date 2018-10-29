@@ -2,6 +2,9 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { SDKBrowserModule, LoopBackConfig } from '../shared/lb-sdk';
+
+
 import { CommerceModule } from '../commerce/commerce.module';
 import { RestaurantModule } from '../restaurant/restaurant.module';
 import { AccountModule } from '../account/account.module';
@@ -27,6 +30,7 @@ import { ToastrModule } from 'ngx-toastr';
         CommonModule,
         BrowserAnimationsModule,
         ToastrModule.forRoot(),
+        SDKBrowserModule.forRoot(), // for socket
         NgbModule,
         FormsModule,
         ReactiveFormsModule,

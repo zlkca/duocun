@@ -1,6 +1,6 @@
 'use strict';
-
-var baseUrl = process.env.baseUrl || 'http://localhost:3000';
+var cfg = require('./config');
+var baseUrl = process.env.baseUrl || ('http://localhost:' + cfg.port);
 
 // Writing pubsub module for socket.io
 module.exports = {
@@ -12,7 +12,8 @@ module.exports = {
       var data = options.data;
       var modelId = options.modelId;
       if (method === 'POST') {
-        var postEventName = '[' + method + ']' + baseUrl + '/api/' + collectionName;
+        // eg. "[POST]http://localhost:3000/api/Orders"
+        var postEventName = 'updateOrders'; // '[' + method + ']' + baseUrl + '/api/' + collectionName;
         socket.emit(postEventName, data);
       } else {
         var name = '[' + method + ']' + baseUrl + '/api/' + collectionName + '/' + modelId;
