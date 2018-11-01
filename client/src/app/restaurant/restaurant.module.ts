@@ -8,7 +8,6 @@ import { CommerceModule } from '../commerce/commerce.module';
 import { RestaurantFormComponent } from './restaurant-form/restaurant-form.component';
 import { RestaurantGridComponent } from './restaurant-grid/restaurant-grid.component';
 import { RestaurantListComponent } from './restaurant-list/restaurant-list.component';
-import { RestaurantDetailComponent } from './restaurant-detail/restaurant-detail.component';
 import { OrderModule } from '../order/order.module';
 import { RestaurantService } from './restaurant.service';
 import { LocationService } from '../shared/location/location.service';
@@ -29,7 +28,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     providers: [RestaurantService, LocationService],
-    declarations: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantDetailComponent],
-    exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantDetailComponent]
+    declarations: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent],
+    exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent]
 })
 export class RestaurantModule { }

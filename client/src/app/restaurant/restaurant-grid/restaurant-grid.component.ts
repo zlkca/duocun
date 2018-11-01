@@ -103,7 +103,7 @@ export class RestaurantGridComponent implements OnInit {
   }
 
   toDetail(p) {
-    this.router.navigate(['restaurant-detail/' + p.id]);
+    this.router.navigate(['restaurants/' + p.id]);
   }
 
   getFilter(query?: any) {

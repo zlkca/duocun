@@ -18,7 +18,8 @@ import { InstitutionSignupComponent } from './account/institution-signup/institu
 import { InstitutionLoginComponent } from './account/institution-login/institution-login.component';
 import { ForgetPasswordComponent } from './account/forget-password/forget-password.component';
 
-import { RestaurantDetailComponent } from './restaurant/restaurant-detail/restaurant-detail.component';
+import { RestaurantComponent } from './page/restaurant/restaurant.component';
+
 import { ProductListComponent } from './product/product-list/product-list.component';
 import { ProductComponent } from './main/product/product.component';
 import { MyOrderComponent } from './page/my-order/my-order.component';
@@ -59,8 +60,8 @@ const appRoutes: Routes = [
     { path: 'admin/users/:id', component: AdminAccountPageComponent },
     { path: 'admin/orders', component: AdminComponent },
 
-    { path: 'restaurants', component: HomeComponent },
-    { path: 'restaurant-detail/:id', component: RestaurantDetailComponent },
+    { path: 'restaurants/:id', component: RestaurantComponent },
+    // { path: 'restaurant-detail/:id', component: RestaurantDetailComponent },
     { path: 'products', component: ProductListComponent },
     { path: 'product/:id', component: ProductComponent },
     { path: 'orders', component: MyOrderComponent },
