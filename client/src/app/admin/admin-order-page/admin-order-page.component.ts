@@ -6,6 +6,8 @@ import { OrderService } from '../../order/order.service';
 import { Order } from '../../shared/lb-sdk';
 import { ToastrService } from 'ngx-toastr';
 import { SocketConnection } from '../../shared/lb-sdk/sockets/socket.connections';
+import { environment } from '../../../environments/environment';
+declare var io;
 
 @Component({
   selector: 'app-admin-order-page',
@@ -20,6 +22,7 @@ export class AdminOrderPageComponent implements OnInit {
   @Input() account;
 
   selectedRange = 'daily';
+  // socket;
 
   constructor(
     private sharedSvc: SharedService,
@@ -39,6 +42,11 @@ export class AdminOrderPageComponent implements OnInit {
       self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });
       self.onFilterOrders(this.selectedRange);
     });
+    // this.socket = io.connect(environment.API_BASE);
+    // this.socket.on('updateOrders', x => {
+    //   self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });
+    //   self.onFilterOrders(this.selectedRange);
+    // });
   }
 
   add() {

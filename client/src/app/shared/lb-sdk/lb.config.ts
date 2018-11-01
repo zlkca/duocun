@@ -19,14 +19,16 @@
 *   }
 * }
 **/
+import { environment } from '../../../environments/environment';
+
 export class LoopBackConfig {
-  private static path: string = '//0.0.0.0:3000';
+  private static path: string = environment.API_BASE;
   private static version: string | number = 'api';
   private static authPrefix: string = '';
   private static debug: boolean = true;
   private static filterOn: string = 'headers';
   private static whereOn: string = 'headers';
-  private static secure: boolean = location.protocol === 'https:'; //false;
+  private static secure: boolean = environment.SECURE;
   private static withCredentials: boolean = false;
 
   public static setApiVersion(version: string = 'api'): void {

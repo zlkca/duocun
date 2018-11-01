@@ -1,6 +1,7 @@
 export const environment = {
   production: true,
-  API_BASE: '//' + window.location.hostname,
+  SECURE: window.location.protocol === 'https:',
+  API_BASE: window.location.protocol + '//' + window.location.hostname,
   API_URL: window.location.origin + '/api/',
   APP_URL: window.location.origin,
   MEDIA_URL: window.location.origin + '/media/',
