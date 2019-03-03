@@ -3,11 +3,6 @@
   "base": "User",
   "idInjection": true,
   "properties": {
-    "email":{
-      "type": "string",
-      "required": false,
-      "default": null
-    },
     "type": {
       "type": "string",
       "required": true,

@@ -24,6 +24,12 @@ $item-height:40px;
 $navbar-height:60px;
 $navbar-m-height:60px;
 
+// google map label
+.gm-style-cc{
+  display: none !important;
+}
+a[href^="https://maps.google.com/maps"]{display:none !important}
+
 .selected{
     display:block;
 }

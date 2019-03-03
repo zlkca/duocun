@@ -44,8 +44,12 @@ export class AddressInputComponent implements OnInit, OnChanges {
       const options = {
         // strictBounds to GTA area
         bounds: new google.maps.LatLngBounds(
+          // GTA
           new google.maps.LatLng(43.468068, -79.963410),
           new google.maps.LatLng(44.301441, -78.730195)
+          // Ontario -95.16 | 41.66 |  -74.34 | 56.86
+          //new google.maps.LatLng(41.668068, -95.163410),
+          //new google.maps.LatLng(56.861441, -74.340195)
         ),
         componentRestrictions: { country: 'ca' },
         strictBounds: true
@@ -61,9 +65,9 @@ export class AddressInputComponent implements OnInit, OnChanges {
         this.gAutocomplete = new google.maps.places.Autocomplete(input, options);
         this.gAutocomplete.addListener('place_changed', () => {
           const geocodeResult = self.gAutocomplete.getPlace();
-          const addr = self.locationSvc.getLocationFromGeocode(geocodeResult);
+          const addr = self.getLocationFromGeocode(geocodeResult);
           if (addr) {
-            const sAddr = self.locationSvc.getAddrString(addr);
+            const sAddr = self.getAddrString(addr);
             // `${addr.street_number} ${addr.street_name}, ${addr.sub_locality}, ${addr.province}, ${addr.postal_code}`;
 
             self.addrChange.emit({ addr: addr, sAddr: sAddr });
@@ -96,5 +100,53 @@ export class AddressInputComponent implements OnInit, OnChanges {
   //  registerOnTouched(fn: any) {
 
   //  }
+
+
+  getLocationFromGeocode(geocodeResult): any {
+    const addr = geocodeResult && geocodeResult.address_components;
+    const oLocation = geocodeResult.geometry.location;
+    if (addr && addr.length) {
+      const loc: any = {
+        street_number: '',
+        street_name: '',
+        sub_locality: '',
+        city: '',
+        province: '',
+        postal_code: '',
+        lat: typeof oLocation.lat === 'function' ? oLocation.lat() : oLocation.lat,
+        lng: typeof oLocation.lng === 'function' ? oLocation.lng() : oLocation.lng
+      };
+
+      addr.forEach(compo => {
+        if (compo.types.indexOf('street_number') !== -1) {
+          loc.street_number = compo.long_name;
+        }
+        if (compo.types.indexOf('route') !== -1) {
+          loc.street_name = compo.long_name;
+        }
+        if (compo.types.indexOf('postal_code') !== -1) {
+          loc.postal_code = compo.long_name;
+        }
+        if (compo.types.indexOf('sublocality_level_1') !== -1 && compo.types.indexOf('sublocality') !== -1) {
+          loc.sub_locality = compo.long_name;
+        }
+        if (compo.types.indexOf('locality') !== -1) {
+          loc.city = compo.long_name;
+        }
+        if (compo.types.indexOf('administrative_area_level_1') !== -1) {
+          loc.province = compo.long_name;
+        }
+      });
+      return loc;
+    } else {
+      return null;
+    }
+  }
+
+  getAddrString(location: any) {
+    const city = location.sub_locality ? location.sub_locality : location.city;
+    return location.street_number + ' ' + location.street_name + ', ' + city + ', ' + location.province;
+    // + ', ' + location.postal_code;
+  }
 
 }

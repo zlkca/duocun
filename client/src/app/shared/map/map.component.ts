@@ -42,7 +42,7 @@ export class MapComponent implements OnInit, OnChanges {
             const marker = new google.maps.Marker({
                 position: self.center,
                 map: map,
-                label: 'Me'
+                label: ''
             });
 
 

@@ -4,11 +4,8 @@ import { Router } from '@angular/router';
 import { AuthService } from '../account/auth.service';
 import { AccountService } from '../account/account.service';
 import { SharedService } from '../shared/shared.service';
-import { HeaderComponent } from '../shared/header/header.component';
-import { FooterComponent } from '../shared/footer/footer.component';
 import { ProductService } from '../product/product.service';
 
-import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { Restaurant, Product, Order, Category } from '../shared/lb-sdk';
 import { OrderService } from '../order/order.service';
@@ -36,12 +33,8 @@ export class AdminComponent implements OnInit, OnDestroy {
     categories: Category[] = [];
 
     constructor(private router: Router,
-        private sharedServ: SharedService,
         private accountSvc: AccountService,
-        private productSvc: ProductService,
         private restaurantSvc: RestaurantService,
-        private orderSvc: OrderService,
-        private authServ: AuthService,
         ) { }
 
     ngOnInit() {
