@@ -1,7 +1,25 @@
 <footer>
-    <div class="copyright">
-        <a href="#">YoCompute Inc.</a> &#169;<span id="copyright-year">{{year}}</span>
-        <!-- <a href="index-5.html">Privacy Policy</a> -->
-        <span class="created">Created by <a rel="nofollow" href="http://www.yocompute.com">yocompute.com</a></span>
+  <div class="row bottom-nav-menus">
+    <div class="col-3" (click)="toHome()">
+        <i class="fa fa-2x fa-home"></i>
+        <div class="icon-text">Home</div>
     </div>
+    <div class="col-3" (click)="toOrder()">
+        <i class="fa fa-2x fa-sticky-note"></i>
+        <div class="icon-text">Order</div>
+    </div>
+    <div class="col-3" (click)="toCart()">
+        <i class="fa fa-2x fa-shopping-cart"></i>
+        <div class="icon-text">Cart</div>
+    </div>
+    <div class="col-3" (click)="toAccount()">
+        <i class="fa fa-2x fa-user"></i>
+        <div class="icon-text">Account</div>
+    </div>
+  </div>
+  <div class="copyright">
+      <a href="#">YoCompute Inc.</a> &#169;<span id="copyright-year">{{year}}</span>
+      <!-- <a href="index-5.html">Privacy Policy</a> -->
+      <span class="created">Created by <a rel="nofollow" href="http://www.yocompute.com">yocompute.com</a></span>
+  </div>
 </footer>

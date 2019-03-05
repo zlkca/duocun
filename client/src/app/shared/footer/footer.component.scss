@@ -31,18 +31,29 @@ footer{
 
 }
 
-    @media #{$tablet}{
+@media #{$tablet}{
 
+}
+
+@media #{$mobile}{
+  footer{
+    height:200px;
+    padding: 10px;
+    line-height: 15px;
+    font-size: 14px;
+
+    .bottom-nav-menus{
+      width: 100%;
     }
 
-    @media #{$mobile}{
-        footer{
-            height:200px;
-            padding-left:20px;
-            .copyright{
-                font-size:14px;
-                padding-top: 90px;
-            }
-        }
-
+    i, .icon-text {
+      float: left;
+      width: 100%;
+      margin: 0px;
+      text-align: center;
     }
+    .copyright{
+      display: none;
+    }
+  }
+}

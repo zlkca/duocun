@@ -7,3 +7,12 @@ app-footer{
 #container{
 	height:100%;
 }
+
+@media (max-width:575px){
+  app-footer{
+    height:100px;
+    position: fixed;
+    bottom: -38px;
+    width: 100%;
+  }
+}
