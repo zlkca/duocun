@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "etuan": {
+    "duocun": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -50,7 +50,7 @@
             },
             "zh-Hans":{
               "aot":true,
-              "outputPath": "dist/etuan-zh-Hans",
+              "outputPath": "dist/duocun-zh-Hans",
               "i18nFile": "src/locale/messages.zh-Hans.xlf",
               "i18nFormat": "xlf",
               "i18nLocale": "zh-Hans",
@@ -61,21 +61,21 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "etuan:build"
+            "browserTarget": "duocun:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "etuan:build:production"
+              "browserTarget": "duocun:build:production"
             },
             "zh-Hans":{
-              "browserTarget": "etuan:build:zh-Hans"
+              "browserTarget": "duocun:build:zh-Hans"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "etuan:build"
+            "browserTarget": "duocun:build"
           }
         },
         "test": {
@@ -112,7 +112,7 @@
         }
       }
     },
-    "etuan-e2e": {
+    "duocun-e2e": {
       "root": "",
       "sourceRoot": "e2e",
       "projectType": "application",
@@ -121,7 +121,7 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "etuan:serve"
+            "devServerTarget": "duocun:serve"
           }
         },
         "lint": {
@@ -136,7 +136,7 @@
       }
     }
   },
-  "defaultProject": "etuan",
+  "defaultProject": "duocun",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

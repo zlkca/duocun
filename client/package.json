@@ -1,5 +1,5 @@
 {
-  "name": "etuan",
+  "name": "duocun",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
@@ -30,7 +30,7 @@
     "moment": "^2.22.2",
     "ngx-toastr": "^9.1.1",
     "popper.js": "1.12.9",
-    "redux": "^4.0.0",
+    "redux": "^4.0.1",
     "rxjs": "^6.3.3",
     "rxjs-compat": "^6.3.3",
     "snazzy-info-window": "1.1.1",
