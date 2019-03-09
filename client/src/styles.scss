@@ -139,7 +139,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 
 body{
 
-  .btn{
+  .btn:focus{
     outline: none;
   }
 
