@@ -138,6 +138,11 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 }
 
 body{
+
+  .btn{
+    outline: none;
+  }
+
   .btn-holder{
     width:100%;
     min-height:36px;

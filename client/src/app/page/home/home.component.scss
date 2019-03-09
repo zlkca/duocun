@@ -3,6 +3,7 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
+$current-loc-btn-width: 92px;
 
 .grid{
   padding: 0px;
@@ -77,7 +78,7 @@ $desktop: "(min-width: 1200px)";
   margin-top: 0px;
   #userlocationinput{ //input.form-control
     outline:none;
-    width:calc(100% - 80px);
+    width:calc(100% - #{$current-loc-btn-width});
     float:left;
   }
 }
@@ -87,15 +88,15 @@ $desktop: "(min-width: 1200px)";
 }
 
 .input-group-append{
-  width: 92px;
+  width: $current-loc-btn-width;
 }
 
 app-address-input {
-  width: calc(100% - 92px);
+  width: calc(100% - #{$current-loc-btn-width} - 14px);
 }
 
-.use-current-location{
-  padding: 0px;
+.btn-current-location{
+  border-radius: 0px;
 }
 
 // obsolete start
@@ -139,9 +140,6 @@ and (orientation: landscape) {
   .search-bar{
     width:100%;
     padding: 0px;
-    #userlocationinput{
-      width:calc(100% - 80px);
-    }
   }
   
   .search-bar-wrapper{

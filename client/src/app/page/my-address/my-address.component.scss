@@ -38,13 +38,6 @@ $desktop: "(min-width: 1200px)";
 		width: calc(100% - 92px);
 	}
 
-  .use-current-location{
-    padding-top: 15px;
-    .btn{
-      width:100%;
-    }
-  }
-
 	@media #{$desktop}{
 
 	}
