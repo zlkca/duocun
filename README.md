@@ -1,4 +1,6 @@
-# etuan2
+# Duocun
+
+Duocun is a food delivery website
 
 ## Config
 1.Copy client/src/environments/environment.ts and save as client/src/environments/environment.prod.ts, change with your own google map api key and google analitics api key.
