@@ -149,4 +149,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
     // + ', ' + location.postal_code;
   }
 
+  clearAddr() {
+    this.div.nativeElement.value = '';
+  }
 }
