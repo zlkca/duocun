@@ -40,6 +40,9 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 .float-left{
 	  float:left;
 }
+
+
+
   .title-xl{
       font-family: "Roboto", "Microsoft Yahei", Helvetica, Arial, sans-serif;
       font-size: 58px;
@@ -404,7 +407,7 @@ body{
 
   @media #{$mobile}{
     .page{
-      margin-top:$navbar-m-height;
+      margin-top:0px;
       min-height:500px;
     }
 
@@ -424,7 +427,7 @@ body{
     }
 
     .page{
-      margin-top:$navbar-m-height;
+      margin-top:0px;
       min-height:460px;
     }
     .auth-form{
