@@ -1,7 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/bootstrap/scss/bootstrap.scss";
-$fa-font-path: "../node_modules/font-awesome/fonts";
-@import '~font-awesome/scss/font-awesome.scss';
+// $fa-font-path: "../node_modules/line-awesome/fonts";
+@import '~line-awesome/css/line-awesome.css';
 // regular style toast 
 @import '~ngx-toastr/toastr.css';
 
