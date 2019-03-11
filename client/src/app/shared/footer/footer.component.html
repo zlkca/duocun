@@ -8,9 +8,13 @@
         <i class="fa fa-2x fa-sticky-note"></i>
         <div class="icon-text">Order</div>
     </div>
-    <div class="col-3" (click)="toCart()">
+    <div *ngIf="account && account.type !== 'super'" class="col-3" (click)="toCart()">
         <i class="fa fa-2x fa-shopping-cart"></i>
         <div class="icon-text">Cart</div>
+    </div>
+    <div *ngIf="account && account.type === 'super'" class="col-3" (click)="toAdmin()">
+        <i class="fa fa-2x fa-cog"></i>
+        <div class="icon-text">Admin</div>
     </div>
     <div class="col-3" (click)="toAccount()">
         <i class="fa fa-2x fa-user"></i>

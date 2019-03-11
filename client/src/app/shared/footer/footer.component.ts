@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { NgRedux } from '@angular-redux/store';
+import { AccountService } from '../../account/account.service';
+import { Account } from '../../lb-sdk';
 
 @Component({
   selector: 'app-footer',
@@ -7,10 +10,17 @@ import { Router } from '@angular/router';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent implements OnInit {
-  year: number = 2018;
+  year = 2018;
+  account: Account;
 
-  constructor(private router: Router) {
-
+  constructor(
+    private router: Router,
+    private ngRedux: NgRedux<Account>
+  ) {
+    const self = this;
+    this.ngRedux.select('account').subscribe((account: Account) => {
+      self.account = account;
+    });
   }
 
   ngOnInit() {
@@ -30,5 +40,9 @@ export class FooterComponent implements OnInit {
 
   toAccount() {
     this.router.navigate(['login']);
+  }
+
+  toAdmin() {
+    this.router.navigate(['admin']);
   }
 }

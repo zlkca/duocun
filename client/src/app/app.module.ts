@@ -12,7 +12,7 @@ import { AppComponent } from './app.component';
 import { MyAddressComponent } from './page/my-address/my-address.component';
 import { HomeComponent } from './page/home/home.component';
 
-import { LoginComponent } from './account/login/login.component';
+import { LoginFormComponent } from './account/login-form/login-form.component';
 import { SignupComponent } from './account/signup/signup.component';
 import { InstitutionSignupComponent } from './account/institution-signup/institution-signup.component';
 import { InstitutionLoginComponent } from './account/institution-login/institution-login.component';
@@ -66,7 +66,7 @@ const appRoutes: Routes = [
     { path: 'product/:id', component: ProductComponent },
     { path: 'orders', component: MyOrderComponent },
     { path: 'forget-password', component: ForgetPasswordComponent },
-    { path: 'login', component: LoginComponent },
+    { path: 'login', component: LoginFormComponent },
     { path: 'institution-login', component: InstitutionLoginComponent },
     { path: 'signup', component: SignupComponent },
     { path: 'institution-signup', component: InstitutionSignupComponent },

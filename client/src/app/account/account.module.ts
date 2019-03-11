@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { SharedModule } from '../shared/shared.module';
 
-import { LoginComponent } from './login/login.component';
+import { LoginFormComponent } from './login-form/login-form.component';
 import { SignupComponent } from './signup/signup.component';
 import { ChangePasswordComponent } from './change-password/change-password.component';
 import { ForgetPasswordComponent } from './forget-password/forget-password.component';
@@ -29,7 +29,7 @@ import { AccountFormComponent } from './account-form/account-form.component';
       AccountListComponent,
       AccountFormComponent
     ],
-    declarations: [LoginComponent, SignupComponent, ChangePasswordComponent,
+    declarations: [LoginFormComponent, SignupComponent, ChangePasswordComponent,
         ForgetPasswordComponent,
         ProfileFormComponent,
         InstitutionSignupComponent,
