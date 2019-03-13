@@ -6,7 +6,7 @@ import { AuthService } from '../../account/auth.service';
 import { environment } from '../../../environments/environment';
 import { LocationService } from '../../shared/location/location.service';
 import { RestaurantService } from '../restaurant.service';
-import { Restaurant, GeoPoint } from '../../shared/lb-sdk';
+import { Restaurant, GeoPoint } from '../../lb-sdk';
 
 const APP = environment.APP;
 
@@ -85,18 +85,8 @@ export class RestaurantGridComponent implements OnInit {
   }
 
   getImageSrc(restaurant: any) {
-    // if (image.file) {
-    //     return image.data;
-    // } else {
-    //     if (image.data) {
-    //         return this.MEDIA_URL + image.data;
-    //     } else {
-    //         return 'http://placehold.it/400x300';
-    //     }
-    // }
-    // p.pictures[0]?.url || defaultPicture
     if (restaurant.pictures && restaurant.pictures[0] && restaurant.pictures[0].url) {
-      return this.sharedSvc.toDisplayUrl(restaurant.pictures[0].url);
+      return this.sharedSvc.getContainerUrl() + restaurant.pictures[0].url;
     } else {
       return this.defaultPicture;
     }

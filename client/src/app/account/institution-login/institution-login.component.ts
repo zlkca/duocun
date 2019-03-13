@@ -8,7 +8,7 @@ import { AuthService } from '../auth.service';
 import { SharedService } from '../../shared/shared.service';
 import { AccountActions } from '../account.actions';
 import { AccountService } from '../account.service';
-import { Account } from '../../shared/lb-sdk/models/Account';
+import { Account } from '../../lb-sdk/models/Account';
 
 @Component({
   selector: 'app-institution-login',

@@ -32,25 +32,41 @@
     </div>
 
     <div class="row">
-      <div class="label-sm" i18n="@@Suite">Suite:</div>
-      <input name="unit" formControlName="unit" />
-    </div>
-
-    <div class="row">
-      <div class="label-sm" i18n="@@PostalCode">Postal Code:</div>
-      <input name="postalCode" formControlName="postalCode" />
+      <div class="col-6">
+          <div class="label-sm" i18n="@@Suite">Suite:</div>
+          <input name="unit" formControlName="unit" />
+      </div>
+      <div class="col-6">
+          <div class="label-sm" i18n="@@PostalCode">Postal Code:</div>
+          <input name="postalCode" formControlName="postalCode" />
+      </div>
     </div>
   </div>
 
   <div *ngIf="users?.length" class="row">
-    <div class="label-sm" i18n="@@Owner">Owner</div>
-    <select name="user" formControlName="ownerId">
-      <option *ngFor="let m of users" [value]="m.id">{{m.username}}</option>
-    </select>
+    <div class="col-6">
+      <div class="label-sm" i18n="@@Owner">Owner</div>
+      <select name="user" formControlName="ownerId">
+        <option *ngFor="let m of users" [value]="m.id">{{m.username}}</option>
+      </select>
+    </div>
+    <div class="col-6">
+    </div>
   </div>
 
   <!-- <app-image-uploader [picture]="picture" #uploader></app-image-uploader> -->
-  <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)"></image-upload>
+  <!-- <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" 
+    (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)">
+  </image-upload> -->
+
+  <div class="row image-uploader">
+    <app-image-uploader [size]="'lg'" [urls]="urls"
+      [uploadUrl]="uploadUrl" 
+      [images]="uploadedPictures" 
+      (afterUpload)="onAfterPictureUpload($event)">
+    </app-image-uploader>
+  </div>
+
   <div class="row btn-holder">
     <button class="btn btn-primary" (click)="save()" i18n="@@Save">Save</button>
     <button class="btn btn-secondary" (click)="cancel()" i18n="@@Cancel">Cancel</button>  

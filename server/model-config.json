@@ -36,7 +36,7 @@
     "public": false
   },
   "Container": {
-    "dataSource": "filestore",
+    "dataSource": "imageStorage",
     "public": true
   },
   "Restaurant": {

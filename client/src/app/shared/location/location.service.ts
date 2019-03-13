@@ -3,16 +3,14 @@ import { throwError as observableThrowError, Observable } from 'rxjs';
 import { fromPromise } from 'rxjs/observable/fromPromise';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import 'rxjs/add/observable/empty';
-
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ILocation, ILatLng } from './location.model';
 import { NgRedux } from '@angular-redux/store';
 import { environment } from '../../../environments/environment';
 import { LocationActions } from './location.actions';
-import { HttpClient } from '@angular/common/http';
-import { Http, Headers, Response, RequestOptions } from '@angular/http';
-import { LocationApi, LoopBackFilter, Location, GeoPoint } from '../lb-sdk';
-import { last } from '../../../../node_modules/@angular/router/src/utils/collection';
+
+import { LocationApi, LoopBackFilter, Location, GeoPoint } from '../../lb-sdk';
 // import { GoogleMapsLoader } from '../map-api-loader.service';
 
 declare let google: any;
@@ -24,10 +22,11 @@ const GEOCODE_KEY = 'AIzaSyAjpSxjBTkdzKMcqAAmq72UY1-DTjl8b0s';
 export class LocationService {
   private geocoder;
 
-  constructor(private ngRedux: NgRedux<ILocation>,
-    private http: Http,
+  constructor(
+    private ngRedux: NgRedux<ILocation>,
+    private http: HttpClient,
     private locationApi: LocationApi
-    ) {
+  ) {
     try {
       if (google) {
         this.geocoder = new google.maps.Geocoder();
@@ -221,29 +220,6 @@ export class LocationService {
         reject();
       });
     }));
-  }
-
-  // obsolete cross domain issue
-  reqLocationByLatLngv2(pos): Observable<any> {
-    const url = encodeURI(GEOCODE_URL + '?latlng=' + pos.lat + ',' + pos.lng + '&sensor=false&key=' + GEOCODE_KEY);
-    const header: Headers = new Headers();
-    const options = new RequestOptions({ headers: header, method: 'get'});
-    return this.http.get(url, options).pipe(map((res: any) => {
-      const geoCode = JSON.parse(res._body).results[0];
-      return this.getLocationFromGeocode(geoCode);
-    }));
-    // return fromPromise(new Promise((resolve, reject) => {
-    //   this.http.get(url).pipe(map((res: any) => {
-    //     if (res.results && res.results.length > 0) {
-    //       const loc: ILocation = this.getLocationFromGeocode(res.results[0]);
-    //       resolve(loc);
-    //     } else {
-    //       reject();
-    //     }
-    //   }, err => {
-    //     reject();
-    //   }));
-    // }));
   }
 
   // obsolete cross domain issue

@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+// import { HttpClientModule } from '@angular/common/http';
 
 import { NgReduxModule, NgRedux } from '@angular-redux/store';
 import { rootReducer, INITIAL_STATE } from './store';
@@ -43,10 +43,8 @@ import { MultiProductFormComponent } from './commerce/multi-product-form/multi-p
 import { OrderModule } from './order/order.module';
 import { PageModule } from './page/page.module';
 
-import { ImageUploadModule } from 'angular2-image-upload';
-import { SDKBrowserModule, LoopBackConfig } from './shared/lb-sdk';
-
 import { environment } from '../environments/environment';
+import { SDKBrowserModule, LoopBackConfig } from './lb-sdk';
 
 const appRoutes: Routes = [
     { path: 'admin', component: AdminComponent },
@@ -84,7 +82,6 @@ const appRoutes: Routes = [
     imports: [
         BrowserModule,
         CoreModule,
-        HttpClientModule,
         FormsModule,
         RouterModule.forRoot(
             appRoutes,
@@ -92,7 +89,6 @@ const appRoutes: Routes = [
             // { enableTracing: true } // <-- debugging purposes only
         ),
         SDKBrowserModule.forRoot(), // for socket
-        ImageUploadModule.forRoot(),
         NgbModule.forRoot(),
         NgReduxModule,
         SharedModule,

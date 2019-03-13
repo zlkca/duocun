@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../../account/account.service';
-import { Account } from '../../shared/lb-sdk';
+import { Account } from '../../lb-sdk';
 
 @Component({
   selector: 'app-admin-account-page',

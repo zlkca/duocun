@@ -4,7 +4,7 @@ import { ProductService } from '../product.service';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { Product } from '../../shared/lb-sdk';
+import { Product } from '../../lb-sdk';
 
 const ADD_IMAGE = 'add_photo.png';
 

@@ -13,8 +13,8 @@ import { MapComponent } from './map/map.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { AddressInputComponent } from './address-input/address-input.component';
-import { ImageUploaderComponent } from './image-uploader/image-uploader.component';
 import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-uploader.component';
+import { LocationService } from './location/location.service';
 
 // import { PageService } from '../pages/page.service';
 // import { PagesModule } from '../pages/pages.module';
@@ -33,13 +33,14 @@ import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-
     HeaderComponent,
     FooterComponent,
     AddressInputComponent,
-    ImageUploaderComponent,
     MultiImageUploaderComponent
   ],
+  providers: [LocationService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
-    WizardComponent, ImageViewerComponent, FeedbackComponent, MapComponent, HeaderComponent, FooterComponent,
-    AddressInputComponent, ImageUploaderComponent, MultiImageUploaderComponent
+    WizardComponent, ImageViewerComponent, FeedbackComponent,
+    MapComponent, HeaderComponent, FooterComponent,
+    AddressInputComponent, MultiImageUploaderComponent
   ]
 })
 export class SharedModule { }

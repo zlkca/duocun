@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { OrderService } from '../order.service';
-import { Order } from '../../shared/lb-sdk';
+import { Order } from '../../lb-sdk';
 import { SharedService } from '../../shared/shared.service';
 
 @Component({

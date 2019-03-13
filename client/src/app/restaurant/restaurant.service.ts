@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product, Picture, PictureApi } from '../shared/lb-sdk';
+import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product, Picture, PictureApi } from '../lb-sdk';
 import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 

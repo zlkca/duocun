@@ -5,7 +5,7 @@ import { ICart, CartActions, ICartItem } from '../order.actions';
 import { OrderService } from '../order.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from '../../account/account.service';
-import { Account, Order, OrderItem } from '../../shared/lb-sdk';
+import { Account, Order, OrderItem } from '../../lb-sdk';
 import { Router } from '@angular/router';
 
 @Component({

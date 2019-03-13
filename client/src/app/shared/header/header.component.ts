@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 import { LocationService } from '../location/location.service';
 import { ILocation } from '../location/location.model';
 import { AccountService } from '../../account/account.service';
-import { Account } from '../lb-sdk';
+import { Account } from '../../lb-sdk';
 declare var $: any;
 
 const APP = environment.APP;

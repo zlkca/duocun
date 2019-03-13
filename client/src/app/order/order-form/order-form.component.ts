@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { OrderService } from '../order.service';
 import { SharedService } from '../../shared/shared.service';
 
-import { Order, Restaurant } from '../../shared/lb-sdk';
+import { Order, Restaurant } from '../../lb-sdk';
 import { FormBuilder, Validators } from '../../../../node_modules/@angular/forms';
 import { environment } from '../../../environments/environment';
 

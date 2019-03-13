@@ -19,7 +19,7 @@
 *   }
 * }
 **/
-import { environment } from '../../../environments/environment';
+import { environment } from '../../environments/environment';
 
 export class LoopBackConfig {
   private static path: string = environment.API_BASE;

@@ -4,7 +4,7 @@ import { ProductService } from '../../product/product.service';
 import { AuthService } from '../../account/auth.service';
 import { environment } from '../../../environments/environment';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-import { Restaurant } from '../../shared/lb-sdk';
+import { Restaurant } from '../../lb-sdk';
 
 
 @Component({

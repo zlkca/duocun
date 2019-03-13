@@ -7,8 +7,9 @@ import { IPicture } from '../../commerce/commerce.actions';
 import { ProductService } from '../product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
-import { Restaurant, Product, Category, LoopBackConfig, Picture } from '../../shared/lb-sdk';
+import { Restaurant, Product, Category, LoopBackConfig, Picture } from '../../lb-sdk';
 import { Jsonp } from '@angular/http';
+import { SharedService } from '../../shared/shared.service';
 
 @Component({
   selector: 'app-product-form',
@@ -27,6 +28,9 @@ export class ProductFormComponent implements OnInit, OnChanges {
     'Containers/pictures/upload'
   ].join('/');
 
+  urls = [];
+  pictures = [];
+
   @Input() product: Product;
   @Output() afterSave: EventEmitter<any> = new EventEmitter();
   @ViewChild(MultiImageUploaderComponent) uploader: any;
@@ -44,8 +48,10 @@ export class ProductFormComponent implements OnInit, OnChanges {
   constructor(
     private restaurantSvc: RestaurantService,
     private productSvc: ProductService,
+    private sharedSvc: SharedService,
     private route: ActivatedRoute,
-    private rx: NgRedux<IPicture>, private router: Router
+    private rx: NgRedux<IPicture>,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -108,7 +114,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
   getCheckedCategories() {
     const cs = [];
     for (let i = 0; i < this.categoryList.length; i++) {
-      let c = this.categoryList[i];
+      // let c = this.categoryList[i];
       // if (this.categories.get(i.toString()).value) {
       //     cs.push(c);
       // }
@@ -116,23 +122,56 @@ export class ProductFormComponent implements OnInit, OnChanges {
     return cs;
   }
 
-  onUploadFinished(event) {
-    try {
-      const res = JSON.parse(event.serverResponse.response._body);
-      this.product.pictures = (this.product.pictures || []).concat(res.result.files.image.map(img => {
-        return {
-          url: [
-            LoopBackConfig.getPath(),
-            LoopBackConfig.getApiVersion(),
-            'Containers',
-            img.container,
-            img.name
-          ].join('/')
-        };
-      }));
-    } catch (error) {
-      console.error(error);
+
+  fillForm(event) {
+    this.form.get('name').setValue(event.name);
+    this.form.get('description').setValue(event.description);
+    // this.form.get('ownerId').setValue(event.ownerId);
+    // if (event.groups && event.groups.length > 0) {
+    //   this.form.get('groupId').setValue(event.groups[0].id);
+    // } else {
+    //   this.form.get('groupId').setValue(null);
+    // }
+    if (event.categories && event.categories.length > 0) {
+      this.form.get('categoryId').setValue(event.categories[0].id);
+    } else {
+      this.form.get('categoryId').setValue(null);
     }
+    // this.form.get('eventDate').setValue(this.sharedSvc.getDate(event.fromDateTime));
+    // this.form.get('categories')['controls'][0].setValue(group.categories[0].id);
+  }
+
+  setPictures(restaurant: Restaurant) {
+    if (restaurant.pictures && restaurant.pictures.length > 0) {
+      const picture = restaurant.pictures[0]; // fix me
+      this.pictures = [
+        this.sharedSvc.getContainerUrl() + picture.url,
+      ];
+    } else {
+      this.pictures = [''];
+    }
+  }
+
+  onAfterPictureUpload(e) {
+    const self = this;
+    const path = 'pictures/download/' + e.name;
+    this.pictures = [
+      self.sharedSvc.getContainerUrl() + path,
+    ];
+
+    this.product.pictures = [
+      new Picture({
+        name: e.name,
+        // entityType: 'Event',
+        // entityId: self.event.id,
+        // index: 1,
+        url: path,
+      })
+    ];
+
+    this.urls = [
+      this.sharedSvc.getContainerUrl() + path,
+    ];
   }
 
   onRemoved(event) {

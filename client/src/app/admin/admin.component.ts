@@ -7,7 +7,7 @@ import { SharedService } from '../shared/shared.service';
 import { ProductService } from '../product/product.service';
 
 import { RestaurantService } from '../restaurant/restaurant.service';
-import { Restaurant, Product, Order, Category } from '../shared/lb-sdk';
+import { Restaurant, Product, Order, Category } from '../lb-sdk';
 import { OrderService } from '../order/order.service';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ProductService } from '../product.service';
-import { Category } from '../../shared/lb-sdk';
+import { Category } from '../../lb-sdk';
 import { SharedService } from '../../shared/shared.service';
 
 @Component({

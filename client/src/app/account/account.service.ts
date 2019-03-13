@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 
 import { environment } from '../../environments/environment';
-import { AccountApi, Account, LoopBackFilter } from '../shared/lb-sdk';
+import { AccountApi, Account, LoopBackFilter } from '../lb-sdk';
 import { NgRedux } from '@angular-redux/store';
 import { AccountActions } from './account.actions';
 import { identifierModuleUrl } from '../../../node_modules/@angular/compiler';

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 declare var moment: any;
 declare var io: any;
@@ -90,6 +91,10 @@ export class SharedService {
   toDisplayUrl(s: string) {
     const index = s.lastIndexOf('/pictures/');
     return s.slice(0, index + 10) + 'download/' + s.slice(index + 10);
+  }
+
+  getContainerUrl() {
+    return environment.API_BASE + '/' + environment.API_VERSION + '/Containers/';
   }
 }
 

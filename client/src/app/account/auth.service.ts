@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { LoopBackAuth, InternalStorage } from '../shared/lb-sdk';
+import { LoopBackAuth, InternalStorage } from '../lb-sdk';
 
 @Injectable()
 export class AuthService extends LoopBackAuth {

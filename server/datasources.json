@@ -9,7 +9,8 @@
     "user": "root",
     "connector": "mysql"
   },
-  "filestore": {
+  "imageStorage": {
+    "name": "imageStorage",
     "connector": "loopback-component-storage",
     "provider": "filesystem",
     "root": "uploads",

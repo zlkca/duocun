@@ -3,9 +3,9 @@ import { Component, OnInit, Input } from '@angular/core';
 import { AuthService } from '../../account/auth.service';
 import { SharedService } from '../../shared/shared.service';
 import { OrderService } from '../../order/order.service';
-import { Order } from '../../shared/lb-sdk';
+import { Order } from '../../lb-sdk';
 import { ToastrService } from 'ngx-toastr';
-import { SocketConnection } from '../../shared/lb-sdk/sockets/socket.connections';
+import { SocketConnection } from '../../lb-sdk/sockets/socket.connections';
 import { environment } from '../../../environments/environment';
 declare var io;
 

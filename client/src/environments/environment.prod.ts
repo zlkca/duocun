@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  API_VERSION: 'api',
   SECURE: window.location.protocol === 'https:',
   API_BASE: window.location.protocol + '//' + window.location.hostname,
   API_URL: window.location.origin + '/api/',

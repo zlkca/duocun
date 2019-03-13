@@ -7,7 +7,7 @@ import { AccountActions } from '../account.actions';
 
 import { SharedService } from '../../shared/shared.service';
 import { AccountService } from '../account.service';
-import { Account } from '../../shared/lb-sdk';
+import { Account } from '../../lb-sdk';
 
 @Component({
     providers: [AuthService],

@@ -8,9 +8,10 @@ import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IPicture } from '../../commerce/commerce.actions';
 import { AccountService } from '../../account/account.service';
-import { GeoPoint, Restaurant, Category, LoopBackConfig, Address, Account } from '../../shared/lb-sdk';
+import { GeoPoint, Restaurant, Category, LoopBackConfig, Address, Account, Picture } from '../../lb-sdk';
 import { ILocation } from '../../shared/location/location.model';
 import { getComponentViewDefinitionFactory } from '../../../../node_modules/@angular/core/src/view';
+import { SharedService } from '../../shared/shared.service';
 
 const APP = environment.APP;
 const PICTURES_FOLDER = 'pictures';
@@ -37,7 +38,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
   address = '';
   id = '';
   categoryList: Category[] = [];
-  picture;
+  picture: Picture;
   subscriptionPicture;
   form: FormGroup;
   users;
@@ -47,6 +48,9 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     LoopBackConfig.getApiVersion(),
     'Containers/pictures/upload'
   ].join('/');
+
+  urls = [];
+  pictures: any[] = [];
 
   @Output() afterSave: EventEmitter<any> = new EventEmitter();
   @Input() restaurant: Restaurant;
@@ -73,9 +77,11 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     private accountSvc: AccountService,
     private restaurantSvc: RestaurantService,
     private locationSvc: LocationService,
-    private router: Router, private route: ActivatedRoute,
-    private rx: NgRedux<IPicture>) {
-
+    private sharedSvc: SharedService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private rx: NgRedux<IPicture>
+  ) {
     this.form = this.createForm();
   }
 
@@ -148,6 +154,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes) {
     if (this.form && changes.restaurant.currentValue.id) {
+      const restaurant = changes.restaurant.currentValue;
       this.form.patchValue(changes.restaurant.currentValue);
 
       const addr = changes.restaurant.currentValue.address;
@@ -163,7 +170,60 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
 
         this.address = this.locationSvc.getAddrString(this.location);
       }
+
+      this.setPictures(restaurant);
     }
+  }
+
+  fillForm(event) {
+    this.form.get('name').setValue(event.name);
+    this.form.get('description').setValue(event.description);
+    // this.form.get('ownerId').setValue(event.ownerId);
+    // if (event.groups && event.groups.length > 0) {
+    //   this.form.get('groupId').setValue(event.groups[0].id);
+    // } else {
+    //   this.form.get('groupId').setValue(null);
+    // }
+    if (event.categories && event.categories.length > 0) {
+      this.form.get('categoryId').setValue(event.categories[0].id);
+    } else {
+      this.form.get('categoryId').setValue(null);
+    }
+    // this.form.get('eventDate').setValue(this.sharedSvc.getDate(event.fromDateTime));
+    // this.form.get('categories')['controls'][0].setValue(group.categories[0].id);
+  }
+
+  setPictures(restaurant: Restaurant) {
+    if (restaurant.pictures && restaurant.pictures.length > 0) {
+      const picture = restaurant.pictures[0]; // fix me
+      this.pictures = [
+        this.sharedSvc.getContainerUrl() + picture.url,
+      ];
+    } else {
+      this.pictures = [''];
+    }
+  }
+
+  onAfterPictureUpload(e) {
+    const self = this;
+    const path = 'pictures/download/' + e.name;
+    this.pictures = [
+      self.sharedSvc.getContainerUrl() + path,
+    ];
+
+    this.restaurant.pictures = [
+      new Picture({
+        name: e.name,
+        // entityType: 'Event',
+        // entityId: self.event.id,
+        // index: 1,
+        url: path,
+      })
+    ];
+
+    this.urls = [
+      this.sharedSvc.getContainerUrl() + path,
+    ];
   }
 
   // callback of app-address-input
@@ -173,27 +233,6 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     this.address = e.sAddr;
     this.form.get('address').patchValue({ postalCode: this.location.postal_code });
     // this.sharedSvc.emitMsg({ name: 'OnUpdateAddress', addr: e.addr });
-  }
-
-  onUploadFinished(event) {
-    try {
-      const self = this;
-      const res = JSON.parse(event.serverResponse.response._body);
-      this.restaurant.pictures = res.result.files.image.map(img => {
-        return {
-          name: self.restaurant.name,
-          url: [
-            LoopBackConfig.getPath(),
-            LoopBackConfig.getApiVersion(),
-            'Containers',
-            img.container, // pictures folder
-            img.name
-          ].join('/')
-        };
-      });
-    } catch (error) {
-      console.error(error);
-    }
   }
 
   onRemoved(event) {

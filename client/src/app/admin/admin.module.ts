@@ -2,7 +2,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SDKBrowserModule, LoopBackConfig } from '../shared/lb-sdk';
+import { SDKBrowserModule, LoopBackConfig } from '../lb-sdk';
 
 
 import { CommerceModule } from '../commerce/commerce.module';

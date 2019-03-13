@@ -1,5 +1,5 @@
 import { AccountActions } from './account.actions';
-import { Account } from '../shared/lb-sdk';
+import { Account } from '../lb-sdk';
 
 
 export const DEFAULT_ACCOUNT = new Account();

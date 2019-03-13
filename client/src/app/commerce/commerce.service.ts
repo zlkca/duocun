@@ -18,21 +18,20 @@ const API_URL = environment.API_URL;
 export class TokenInterceptor implements HttpInterceptor {
   constructor() {}
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {    
-    let index = request.url.indexOf('maps.google.com/maps/api');
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const index = request.url.indexOf('maps.google.com/maps/api');
 
-    if(index == -1){
-        let token = localStorage.getItem('token-' + APP);
-        request = request.clone({
-          setHeaders: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': 'Bearer ' + btoa(token)
-          }
-        });
-    }else{
-        request = request.clone({
-          setHeaders: {}
-        });
+    if (index === -1) {
+      const token = localStorage.getItem('token-' + APP);
+      request = request.clone({
+        setHeaders: {
+          'Authorization': 'Bearer ' + btoa(token)
+        }
+      });
+    } else {
+      request = request.clone({
+        setHeaders: {}
+      });
     }
     return next.handle(request);
   }
@@ -40,7 +39,7 @@ export class TokenInterceptor implements HttpInterceptor {
 
 @Injectable()
 export class CommerceService {
-    
+
     private API_URL = environment.API_URL;
     private APP = environment.APP;
     MEDIA_URL = environment.APP_URL+'/media/';

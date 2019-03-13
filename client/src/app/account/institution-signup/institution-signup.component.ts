@@ -4,10 +4,9 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NgRedux } from '@angular-redux/store';
 import { AccountActions } from '../account.actions';
 import { AuthService } from '../auth.service';
-import { ImageUploaderComponent } from '../../shared/image-uploader/image-uploader.component';
 
 import { SharedService } from '../../shared/shared.service';
-import { Account, Restaurant, Address } from '../../shared/lb-sdk';
+import { Account, Restaurant, Address } from '../../lb-sdk';
 import { AccountService } from '../account.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 
@@ -22,7 +21,6 @@ export class InstitutionSignupComponent implements OnInit {
   formGroup: FormGroup;
   address: any;
   picture: any = { image: { data: '', file: '' } };
-  @ViewChild(ImageUploaderComponent)
   uploader: any;
 
   constructor(

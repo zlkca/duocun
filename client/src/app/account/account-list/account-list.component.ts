@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { AccountService } from '../account.service';
-import { Account } from '../../shared/lb-sdk';
+import { Account } from '../../lb-sdk';
 import { SharedService } from '../../shared/shared.service';
 
 @Component({

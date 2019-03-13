@@ -7,7 +7,7 @@ import { ILocation } from './shared/location/location.model';
 import { ICart } from './order/order.actions';
 import { IPicture, DEFAULT_PICTURE } from './commerce/commerce.actions';
 import { cartReducer } from './order/order.reducers';
-import { Account } from './shared/lb-sdk';
+import { Account } from './lb-sdk';
 
 export interface IAppState {
     cart: ICart;

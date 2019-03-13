@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Restaurant, GeoPoint } from '../../shared/lb-sdk';
+import { Restaurant, GeoPoint } from '../../lb-sdk';
 import { LocationService } from '../../shared/location/location.service';
 import { environment } from '../../../environments/environment';
 import { RestaurantService } from '../../restaurant/restaurant.service';

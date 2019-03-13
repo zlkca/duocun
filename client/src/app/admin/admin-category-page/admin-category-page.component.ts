@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../product/product.service';
-import { Category } from '../../shared/lb-sdk';
+import { Category } from '../../lb-sdk';
 
 @Component({
   selector: 'app-admin-category-page',

@@ -1,4 +1,4 @@
-<div class="row image-uploader" *ngIf="picture">
+<!-- <div class="row image-uploader" *ngIf="picture">
         <div class="upload-cell" *ngIf="pic.image && pic.image.data">
             <input class="upload-input" name="image" type="file" (change)="onImageChange($event)" />
             <div class="row img-frame">
@@ -13,4 +13,17 @@
         <div class="upload-cell upload-new-area">
             <input #uploadInput class="upload-input" name="image" type="file" (change)="onImageChange($event)" />
         </div>
+</div> -->
+
+<div class="row uploader">
+  <div class="col-5 left-side preview">
+    <img *ngIf="urls && urls.length > 0" [src]="urls[0]" />
+  </div>
+  <div class="col-7 right-side">
+    <input hidden type="file" #uploader (change)="onFileChange($event)" />
+    <div class="row btn-holder">
+      <div class="btn btn-primary btn-file" (click)="uploader.click()" i18n="@@ChooseFile">Choose File</div>
+      <!-- <div class="btn btn-primary btn-clear" (click)="onDelete()" i18n="@@WriteToUs">Clear</div> -->
+    </div>
+  </div>
 </div>

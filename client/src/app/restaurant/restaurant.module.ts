@@ -11,8 +11,9 @@ import { RestaurantListComponent } from './restaurant-list/restaurant-list.compo
 import { OrderModule } from '../order/order.module';
 import { RestaurantService } from './restaurant.service';
 import { LocationService } from '../shared/location/location.service';
-import { ImageUploadModule } from 'angular2-image-upload';
+// import { ImageUploadModule } from 'angular2-image-upload';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
 
 @NgModule({
     imports: [
@@ -24,7 +25,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
         CommerceModule,
         ProductModule,
         OrderModule,
-        ImageUploadModule.forRoot(),
+        // ImageUploadModule.forRoot(),
+        ImageUploaderModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     providers: [RestaurantService, LocationService],

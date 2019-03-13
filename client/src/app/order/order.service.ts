@@ -9,7 +9,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { OrderApi, Order, OrderItem, LoopBackFilter, Restaurant, RestaurantApi } from '../shared/lb-sdk';
+import { OrderApi, Order, OrderItem, LoopBackFilter, Restaurant, RestaurantApi } from '../lb-sdk';
 
 const APP = environment.APP;
 const API_URL = environment.API_URL;
