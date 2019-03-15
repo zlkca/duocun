@@ -1,14 +1,17 @@
 {
   "name": "duocun",
   "version": "1.0.0",
-  "main": "server/server.js",
+  "main": "server/server.ts",
   "engines": {
     "node": ">=4"
   },
   "scripts": {
+    "build": "tsc",
+    "prestart": "npm run build",
     "lint": "eslint .",
-    "start": "NODE_ENV=development node .",
-    "posttest": "npm run lint"
+    "start": "node ./dist/server.js",
+    "posttest": "npm run lint",
+    "prod": "npm run build && npm run start"
   },
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "^1.0.2",
@@ -35,8 +38,14 @@
   },
   "devDependencies": {
     "@mean-expert/loopback-sdk-builder": "^2.3.1",
+    "@types/express": "^4.16.1",
+    "@types/mongodb": "^3.1.22",
+    "@types/node": "^11.11.3",
     "eslint-config-loopback": "^8.0.0",
-    "mongodb": "^3.1.13"
+    "express": "^4.16.4",
+    "mongodb": "^3.1.13",
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.3333"
   },
   "repository": {
     "type": "",
