@@ -35,7 +35,8 @@
   },
   "devDependencies": {
     "@mean-expert/loopback-sdk-builder": "^2.3.1",
-    "eslint-config-loopback": "^8.0.0"
+    "eslint-config-loopback": "^8.0.0",
+    "mongodb": "^3.1.13"
   },
   "repository": {
     "type": "",

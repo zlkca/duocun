@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product, Picture, PictureApi } from '../lb-sdk';
 import { Observable } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { mergeMap, flatMap } from 'rxjs/operators';
 
 @Injectable()
 export class RestaurantService {
@@ -36,32 +36,51 @@ export class RestaurantService {
       );
   }
 
-  replaceById(id: number, restaurant: Restaurant): Observable<Restaurant> {
-    return this.restaurantApi.replaceById(id, restaurant)
-      .pipe(
-        mergeMap((rest: Restaurant) => {
-          if (restaurant.pictures && restaurant.pictures.length) {
-            return this.updateRestaurantImages(rest.id, restaurant.pictures);
-          } else {
-            return new Observable(i => i.next());
-          }
-        }),
-        mergeMap(() => {
-          if (restaurant.address && restaurant.address.id) {
-            return this.restaurantApi.updateAddress(id, restaurant.address);
-          } else if (restaurant.address && !restaurant.address.id) {
-            return this.restaurantApi.createAddress(id, restaurant.address);
-          } else {
-            return new Observable(i => i.next());
-          }
-        }),
-        mergeMap(() => {
-          return this.restaurantApi.findById(id, { include: ['pictures', 'address'] });
-        })
-      );
+  replaceById(id: number, data: Restaurant): Observable<Restaurant> {
+    return this.replace(id, data).pipe(
+      flatMap((restaurant: Restaurant) => {
+        if (restaurant.pictures && restaurant.pictures.length) {
+          return this.updateRestaurantImages(restaurant.id, data.pictures);
+        } else {
+          return new Observable(i => i.next(restaurant));
+        }
+      })
+    );
   }
 
-  updateRestaurantImages(id: number, newPictures: Picture[] = null): Observable<any> {
+  // internal function to merge address and replace
+  private replace(id: number, data: Restaurant): Observable<Restaurant> {
+    return this.restaurantApi.replaceById(id, data).pipe(
+      flatMap((restaurant: Restaurant) => {
+        if (restaurant.address && restaurant.address.id) {
+          return this.restaurantApi.updateAddress(id, data.address);
+        } else if (restaurant.address && !restaurant.address.id) {
+          return this.restaurantApi.createAddress(id, data.address);
+        } else {
+          return new Observable(observer => observer.next(restaurant));
+        }
+      })
+    );
+  }
+
+  // There is only one picture for restaurant for now!
+  private updatePhotos(id: number, restaurant: Restaurant, newPictures: Picture[] = null): Observable<Restaurant> {
+    const pictures = restaurant.pictures;
+
+    if (pictures && pictures.length) {
+      newPictures[0].id = pictures[0].id;
+    }
+
+    return this.pictureApi.replaceOrCreate(newPictures[0]).pipe(
+      flatMap((pic: Picture) => {
+        restaurant.pictures = [pic];
+        return new Observable<Restaurant>(observer => observer.next(restaurant));
+      })
+    );
+  }
+
+
+  private updateRestaurantImages(id: number, newPictures: Picture[] = null): Observable<any> {
     return this.restaurantApi.getPictures(id)
       .pipe(
         mergeMap((pictures: Picture[]) => {

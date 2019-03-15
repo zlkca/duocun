@@ -993,7 +993,7 @@
       </trans-unit>
       <trans-unit id="CurrentLocation" datatype="html">
         <source>Current Location</source>
-        <target>当前的位置</target>
+        <target>当前位置</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/my-address/my-address.component.html</context>
           <context context-type="linenumber">18</context>
