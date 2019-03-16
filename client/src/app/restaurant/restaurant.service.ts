@@ -70,7 +70,6 @@ export class RestaurantService {
     if (pictures && pictures.length) {
       newPictures[0].id = pictures[0].id;
     }
-
     return this.pictureApi.replaceOrCreate(newPictures[0]).pipe(
       flatMap((pic: Picture) => {
         restaurant.pictures = [pic];
