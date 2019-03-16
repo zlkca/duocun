@@ -1,34 +1,132 @@
-import { Db } from "mongodb";
+
 import { Request, Response } from "express";
+import { ObjectID } from "mongodb";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 import { Entity } from "./entity";
+import { DB } from "./db";
+
+const saltRounds = 10;
+const JWT_PRIVATE_KEY = 'lois2019';
+
+export interface IAccessToken {
+  'id'?: string;
+  'ttl'?: number;
+  'created'?: Date;
+  'userId'?: string;
+}
 
 export class User extends Entity{
-  	constructor(db: Db) {
-		super(db, 'users');
+  constructor(dbo: DB) {
+		super(dbo, 'users');
 	}
+
+  get(req: Request, res: Response){
+    const self = this;
+    const id = req.params.id;
+    
+    this.findOne({_id: new ObjectID(id)}).then((r: any) => {
+      if(r){
+        r.password = '';
+        res.send(JSON.stringify(r, null, 3));
+      }else{
+        res.send(JSON.stringify(null, null, 3))
+      }
+    });
+  }
 
 	signup(req: Request, rsp: Response){
 		const user = req.body;
-		const dt = new Date();
-		user['created'] = dt.toISOString();
-		
-		if(user.hasOwnProperty('_id')){
-			this.findOne({_id: user._id}).then((r: any){
-				if(r != null){
-					// validateSignup(user, function(errors){
-					// 	saveUser(user, errors, rsp);
-					// });
-				}else{
-					//rsp.json({'errors': [Error.UPDATE_USER_EXCEPTION], 'token':''});
-				}
-			});
-		}else{
-			// validateSignup(user, function(errors){
-			// 	saveUser(user, errors, rsp);
-			// });
-		}
-	}
+    const dt = new Date();
+    const self = this;
+    user['created'] = dt.toISOString();
+    user['type'] = 'user';
+      this.findOne({username: user.username}).then((r: any) => {
+        if(r != null){
+          // validateSignup(user, function(errors){
+          //self.saveUser(user, errors, rsp);
+          // });
+          return rsp.json(null);
+        }else{
+          bcrypt.hash(user.password, saltRounds, (err, hash) => {
+            user['password'] = hash;
+            self.insertOne(user).then(x => {
+              const ret = x.ops[0];
+              ret.id = ret._id;
+              ret.password = '';
+              delete ret._id;
+              return rsp.json(ret);
+            });
+          });
+        }
+      });
+  }
+
+  // cb --- function(errors)
+	// validateLoginPassword( user, hashedPassword, cb ){
+	// 	const errors = [];
+	// 	if( user.password ){
+	// 		ut.checkHash(user.password, hashedPassword, function(err, bMatch){
+	// 			if(!bMatch){
+	// 				errors.push(Error.PASSWORD_MISMATCH);
+	// 			}
+	// 			if(cb){
+	// 				cb(errors);
+	// 			}
+	// 		});
+	// 	}else{
+	// 		if(cb){
+	// 			cb(errors);
+	// 		}
+	// 	}
+	// }
+
+  	login(req: Request, res: Response){
+      const self = this;
+      const credential = {username: req.body.username, password: req.body.password};
+      
+      this.findOne({username: credential.username}).then((r: any) => {
+        if(r != null){
+          bcrypt.compare(credential.password, r.password, (err, matched) => {
+            if(matched){
+              res.setHeader('Content-Type', 'application/json');
+              r.password = '';
+              const tokenId = jwt.sign(r, JWT_PRIVATE_KEY); // SHA256
+              const token = {id: tokenId, ttl: 10000, userId: r._id.toString()};
+              res.send(JSON.stringify(token, null, 3));
+            }else{
+              res.send(JSON.stringify(null, null, 3));
+            }
+          });
+        }else{
+          return res.json({'errors': [], 'token': 'token', 'decoded': 'user'});
+        }
+      });
+    }
+	// 		validateLoginAccount(credential, function(accountErrors, doc){
+	// 			if(accountErrors && accountErrors.length > 0){
+	// 				return rsp.json({'errors':accountErrors, 'token':'', 'decoded':''});
+	// 			}else{
+	// 				validateLoginPassword(credential, doc.password, function(passwordErrors){
+	// 					var errors = accountErrors.concat(passwordErrors);
+	// 					if(errors && errors.length > 0){
+	// 						return rsp.json({'errors':errors, 'token': '', 'decoded':''});
+	// 					}else{
+	// 						var user = { id: doc._id, username: doc.username, 
+	// 								//email: doc.email, 
+	// 								role: doc.role, photo:doc.photo };
+							
+	// 						ut.signToken(user, function(token){	
+	// 							delete user.email;
+	// 							return rsp.json({'errors': errors, 'token': token, 'decoded': user});
+	// 						});
+	// 					}
+	// 				});	
+	// 			}
+	// 		});
+	// 	},
+	// };
 }
 
 
@@ -59,32 +157,7 @@ export class User extends Entity{
 // 	// 	// req --- req object
 // 	// 	// rsp
 // 	// 	//-------------------------------------------------------------------------
-// 	// 	login: function(req, rsp){
-// 	// 		var credential = {account: req.body.account, password: req.body.password};
-// 	// 		validateLoginAccount(credential, function(accountErrors, doc){
-// 	// 			if(accountErrors && accountErrors.length > 0){
-// 	// 				return rsp.json({'errors':accountErrors, 'token':'', 'decoded':''});
-// 	// 			}else{
-// 	// 				validateLoginPassword(credential, doc.password, function(passwordErrors){
-// 	// 					var errors = accountErrors.concat(passwordErrors);
-// 	// 					if(errors && errors.length > 0){
-// 	// 						return rsp.json({'errors':errors, 'token': '', 'decoded':''});
-// 	// 					}else{
-// 	// 						var user = { id: doc._id, username: doc.username, 
-// 	// 								//email: doc.email, 
-// 	// 								role: doc.role, photo:doc.photo };
-							
-// 	// 						ut.signToken(user, function(token){	
-// 	// 							delete user.email;
-// 	// 							return rsp.json({'errors': errors, 'token': token, 'decoded': user});
-// 	// 						});
-// 	// 					}
-// 	// 				});	
-// 	// 			}
-// 	// 		});
-// 	// 	},
-// 	// };
-// }
+
 
 // //var Statistic = require("../models/statistic");
 // //var statistic_model = Statistic();
@@ -191,24 +264,7 @@ export class User extends Entity{
 // 		}
 // 	}
 	
-// 	// cb --- function(errors)
-// 	function validateLoginPassword( user, hashedPassword, cb ){
-// 		var errors = [];
-// 		if( user.password ){
-// 			ut.checkHash(user.password, hashedPassword, function(err, bMatch){
-// 				if(!bMatch){
-// 					errors.push(Error.PASSWORD_MISMATCH);
-// 				}
-// 				if(cb){
-// 					cb(errors);
-// 				}
-// 			});
-// 		}else{
-// 			if(cb){
-// 				cb(errors);
-// 			}
-// 		}
-// 	}
+
 	
 // 	function isInvalidEmail(errors){
 // 		return (errors.indexOf(Error.EMAIL_EMPTY)!==-1 || errors.indexOf(Error.INVALID_EMAIL)!==-1

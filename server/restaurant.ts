@@ -1,8 +1,9 @@
-import { Db } from "mongodb";
+
+import { DB } from "./db";
 import { Entity } from "./entity";
 
 export class User extends Entity{
-  	constructor(db: Db) {
-		super(db, 'users');
+  	constructor(db: DB) {
+		super(db, 'restaurants');
 	}
 }

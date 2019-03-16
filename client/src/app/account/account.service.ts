@@ -5,10 +5,16 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 
 import { environment } from '../../environments/environment';
-import { AccountApi, Account, LoopBackFilter } from '../lb-sdk';
+import { AccountApi, Account, LoopBackFilter, LoopBackConfig } from '../lb-sdk';
 import { NgRedux } from '@angular-redux/store';
 import { AccountActions } from './account.actions';
-import { identifierModuleUrl } from '../../../node_modules/@angular/compiler';
+
+export interface IAccessToken {
+  'id'?: string;
+  'ttl'?: number;
+  'created'?: Date;
+  'userId'?: string;
+}
 
 const API_URL = environment.API_URL;
 
@@ -18,7 +24,11 @@ export class AccountService {
   private account;
   DEFAULT_PASSWORD = '123456';
 
-  constructor(private ngRedux: NgRedux<Account>, private accountApi: AccountApi) { }
+  constructor(
+    private ngRedux: NgRedux<Account>,
+    private accountApi: AccountApi,
+    private http: HttpClient
+  ) { }
 
   // getUserList(query?: string): Observable<User[]> {
   //     const url = API_URL + 'users' + (query ? query : '');
@@ -111,12 +121,13 @@ export class AccountService {
   // }
 
   signup(account: Account): Observable<any> {
-    return this.accountApi.create(account)
-      .pipe(
-        mergeMap(() => {
-          return this.login(account.username, account.password);
-        })
-      );
+    // return this.accountApi.create(account)
+    //   .pipe(
+    //     mergeMap(() => {
+    //       return this.login(account.username, account.password);
+    //     })
+    //   );
+    return this.http.post(LoopBackConfig.getPath() + '/' + LoopBackConfig.getApiVersion() + '/Accounts/signup', account);
   }
 
   login(username: string, password: string, rememberMe: boolean = true): Observable<any> {

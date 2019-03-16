@@ -1,5 +1,8 @@
 
 import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+
 import fs from "fs";
 import path from "path";
 
@@ -13,17 +16,46 @@ const ROUTE_PREFIX = SERVER.ROUTE_PREFIX;
 const app = express();
 const dbo = new DB();
 
-dbo.init(cfg.DATABASE).then(dbClient => {});
-
-app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
-  const db = dbo.getDb();
-  const user = new User(db);
-  user.insertOne('Jack').then((x: any) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3))
+dbo.init(cfg.DATABASE).then(dbClient => {
+  const user = new User(dbo);
+  user.findOne({username: 'admin'}).then(x => {
+    if(x){
+      console.log('database duocun exists ...');
+    }else{
+      user.insertOne({username:'guest', password:'', type:'user'}).then((x: any) => {
+        console.log('create database duocun and guest account ...');
+        // res.setHeader('Content-Type', 'application/json');
+        // res.end(JSON.stringify(x.ops[0], null, 3))
+      });
+    }
   });
 });
 
+app.use(cors());
+
+app.use(bodyParser.urlencoded({ extended: false, limit: '1mb' }));
+app.use(bodyParser.json({ limit: '1mb' }));
+
+app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
+  const user = new User(dbo);
+  // user.insertOne('Jack').then((x: any) => {
+  //   res.setHeader('Content-Type', 'application/json');
+  //   res.end(JSON.stringify(x.ops[0], null, 3))
+  // });
+});
+
+app.post('/' + ROUTE_PREFIX + '/Accounts/login', (req, res) => {
+  const user = new User(dbo);
+  user.login(req, res);
+});
+app.post('/' + ROUTE_PREFIX + '/Accounts/signup', (req, res) => {
+  const user = new User(dbo);
+  user.signup(req, res);
+});
+app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
+  const user = new User(dbo);
+  user.get(req, res);
+});
 app.set('port', process.env.PORT || SERVER.PORT)
 
 const server = app.listen(app.get("port"), () => {
@@ -46,15 +78,6 @@ const server = app.listen(app.get("port"), () => {
 // const db = DB().init(cfg.DATABASE);
 
 
-// // body-parser does not handle multipart bodies
-// var bodyParser = require('body-parser');
-// var cookieParser = require('cookie-parser');
-
-// //parse application/x-www-form-urlencoded
-// app.use(bodyParser.urlencoded({ extended: false, limit: '1mb' }));
-
-// // parse application/json
-// app.use(bodyParser.json({ limit: '1mb' }));
 
 // console.log(__dirname + '/dist');
 
