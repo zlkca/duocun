@@ -75,7 +75,7 @@ export class InstitutionSignupComponent implements OnInit {
           }),
           delivery_fee: 0,
         });
-        this.restaurantServ.create(restaurant).subscribe((res: Restaurant) => {
+        this.restaurantServ.save(restaurant).subscribe((res: Restaurant) => {
           this.router.navigate(['admin']);
         });
       }

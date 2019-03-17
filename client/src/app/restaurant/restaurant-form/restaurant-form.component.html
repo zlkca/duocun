@@ -57,12 +57,12 @@
   <!-- <app-image-uploader [picture]="picture" #uploader></app-image-uploader> -->
   <!-- <image-upload [url]="uploadUrl" [uploadedFiles]="uploadedPictures" 
     (uploadFinished)="onUploadFinished($event)" (removed)="onRemoved($event)">
-  </image-upload> -->
+  </image-upload> 
+      [images]="uploadedPictures" -->
 
   <div class="row image-uploader">
     <app-image-uploader [size]="'lg'" [urls]="urls"
       [uploadUrl]="uploadUrl" 
-      [images]="uploadedPictures" 
       (afterUpload)="onAfterPictureUpload($event)">
     </app-image-uploader>
   </div>

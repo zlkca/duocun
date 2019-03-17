@@ -50,7 +50,6 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
   ].join('/');
 
   urls = [];
-  pictures: any[] = [];
   file;
 
   @Output() afterSave: EventEmitter<any> = new EventEmitter();
@@ -100,8 +99,8 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
         this.location.sub_locality = addr.sublocality;
         this.location.postal_code = addr.postalCode;
         this.location.province = addr.province;
-        this.location.lat = addr.location.lat;
-        this.location.lng = addr.location.lng;
+        this.location.lat = this.restaurant.location.lat;
+        this.location.lng = this.restaurant.location.lng;
 
         this.form.get('address').get('street').setValue(this.restaurant.address.formattedAddress);
         this.form.get('address').get('unit').setValue(this.restaurant.address.unit);
@@ -166,8 +165,8 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
         this.location.sub_locality = addr.sublocality;
         this.location.postal_code = addr.postalCode;
         this.location.province = addr.province;
-        this.location.lat = addr.location.lat;
-        this.location.lng = addr.location.lng;
+        this.location.lat = restaurant.location.lat;
+        this.location.lng = restaurant.location.lng;
 
         this.address = this.locationSvc.getAddrString(this.location);
       }
@@ -197,20 +196,17 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
   setPictures(restaurant: Restaurant) {
     if (restaurant.pictures && restaurant.pictures.length > 0) {
       const picture = restaurant.pictures[0]; // fix me
-      this.pictures = [
-        this.sharedSvc.getApiUrl() + picture.url,
+      this.urls = [
+        this.sharedSvc.getApiBaseUrl() + picture.url,
       ];
     } else {
-      this.pictures = [''];
+      this.urls = [''];
     }
   }
 
   onAfterPictureUpload(e) {
     const self = this;
     const path = e.name;
-    this.pictures = [
-      self.sharedSvc.getApiUrl() + path,
-    ];
 
     this.restaurant.pictures = [
       new Picture({
@@ -225,7 +221,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     this.file = e.file;
 
     this.urls = [
-      self.sharedSvc.getApiUrl() + path,
+      self.sharedSvc.getApiBaseUrl() + path,
     ];
   }
 

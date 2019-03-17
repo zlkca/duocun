@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
-import { ProductApi, LoopBackFilter, Product, Category, CategoryApi, Picture, PictureApi } from '../lb-sdk';
+import { ProductApi, LoopBackFilter, Product, Category, CategoryApi, Picture, PictureApi, LoopBackConfig } from '../lb-sdk';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { identifierModuleUrl } from '@angular/compiler';
@@ -26,26 +26,36 @@ export class ProductService {
     private http: HttpClient,
     private pictureApi: PictureApi,
     private categoryApi: CategoryApi,
-    private productApi: ProductApi) { }
+    private productApi: ProductApi
+  ) {}
 
+  save(product: Product): Observable<any> {
+    const url = [
+      LoopBackConfig.getPath(),
+      LoopBackConfig.getApiVersion(),
+      'Products'
+    ].join('/');
 
-  create(product: Product): Observable<Product> {
-    let productId;
-    return this.productApi.create(product)
-      .pipe(
-        mergeMap((prod: Product) => {
-          productId = prod.id;
-          if (product.pictures && product.pictures.length) {
-            return this.updateProductImages(prod.id, product.pictures);
-          } else {
-            return new Observable(i => i.next());
-          }
-        }),
-        mergeMap(() => {
-          return this.productApi.findById(productId, { include: 'pictures' });
-        })
-      );
+    return this.http.post(url, product);
   }
+
+  // create(product: Product): Observable<Product> {
+  //   let productId;
+  //   return this.productApi.create(product)
+  //     .pipe(
+  //       mergeMap((prod: Product) => {
+  //         productId = prod.id;
+  //         if (product.pictures && product.pictures.length) {
+  //           return this.updateProductImages(prod.id, product.pictures);
+  //         } else {
+  //           return new Observable(i => i.next());
+  //         }
+  //       }),
+  //       mergeMap(() => {
+  //         return this.productApi.findById(productId, { include: 'pictures' });
+  //       })
+  //     );
+  // }
 
   updateProductImages(id: number, newPictures: Picture[] = null): Observable<any> {
     return this.productApi.getPictures(id)

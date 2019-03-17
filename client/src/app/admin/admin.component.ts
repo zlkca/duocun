@@ -48,7 +48,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
                 if (restaurant_id) {
                     this.unsubscribe();
-                    this.subscrList.push(self.restaurantSvc.findById(restaurant_id)
+                    this.subscrList.push(self.restaurantSvc.findById(restaurant_id.toString())
                     .subscribe((rest: Restaurant) => {
                         self.restaurant = rest;
                         self.products = rest.products;

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormArray, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormArray, FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { NgRedux } from '@angular-redux/store';
 import { IPicture } from '../../commerce/commerce.actions';
 
@@ -25,11 +25,12 @@ export class ProductFormComponent implements OnInit, OnChanges {
   uploadUrl: string = [
     LoopBackConfig.getPath(),
     LoopBackConfig.getApiVersion(),
-    'Containers/pictures/upload'
+    'files/upload'
   ].join('/');
 
   urls = [];
   pictures = [];
+  file;
 
   @Input() product: Product;
   @Output() afterSave: EventEmitter<any> = new EventEmitter();
@@ -46,23 +47,39 @@ export class ProductFormComponent implements OnInit, OnChanges {
   });
 
   constructor(
+    private fb: FormBuilder,
     private restaurantSvc: RestaurantService,
     private productSvc: ProductService,
     private sharedSvc: SharedService,
     private route: ActivatedRoute,
     private rx: NgRedux<IPicture>,
     private router: Router
-  ) { }
+  ) {
+    this.form = this.createForm();
+  }
+
+  createForm() {
+    return this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      description: ['', Validators.maxLength(750)],
+      price: ['', Validators.required],
+      restaurantId: ['', Validators.required],
+      categoryId: [''],
+      // ownerId: new FormControl(),
+    });
+  }
 
   ngOnInit() {
-    if (this.product) {
-      this.uploadedPictures = (this.product.pictures || []).map(pic => pic.url);
-      this.form.get('name').setValue(this.product.name);
-      this.form.get('description').setValue(this.product.description);
-      this.form.get('price').setValue(this.product.price);
-      this.form.get('restaurantId').setValue(this.product.restaurantId);
-      this.form.get('categroyId').setValue(this.product.categoryId);
+    if (!this.product) {
+      this.product = new Product();
+      this.product.categoryId = 1;
     }
+    this.uploadedPictures = (this.product.pictures || []).map(pic => pic.url);
+    this.form.get('name').setValue(this.product.name);
+    this.form.get('description').setValue(this.product.description);
+    this.form.get('price').setValue(this.product.price);
+    this.form.get('restaurantId').setValue(this.product.restaurantId);
+    this.form.get('categroyId').setValue(this.product.categoryId);
 
     this.restaurantSvc.find().subscribe(r => {
       this.restaurantList = r;
@@ -154,23 +171,20 @@ export class ProductFormComponent implements OnInit, OnChanges {
 
   onAfterPictureUpload(e) {
     const self = this;
-    const path = 'pictures/download/' + e.name;
     this.pictures = [
-      self.sharedSvc.getApiUrl() + path,
+      self.sharedSvc.getApiUrl() + e.name,
     ];
 
     this.product.pictures = [
       new Picture({
         name: e.name,
-        // entityType: 'Event',
-        // entityId: self.event.id,
         // index: 1,
-        url: path,
+        url: e.name,
       })
     ];
-
+    this.file = e.file;
     this.urls = [
-      this.sharedSvc.getApiUrl() + path,
+      this.sharedSvc.getApiBaseUrl() + e.name,
     ];
   }
 
@@ -180,7 +194,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
 
   save() {
     const self = this;
-    // const restaurant_id = self.form.get('restaurant_id');
     const newV = this.form.value;
     const p: Product = new Product(newV);
     const restaurantId = p.restaurantId;
@@ -191,9 +204,9 @@ export class ProductFormComponent implements OnInit, OnChanges {
         self.afterSave.emit({ restaurant_id: restaurantId });
       });
     } else {
-      this.productSvc.create(p).subscribe((r: any) => {
-        self.afterSave.emit({ restaurant_id: restaurantId });
+      this.productSvc.save(p).subscribe((r: any) => {
       });
+      self.afterSave.emit({ restaurant_id: restaurantId });
     }
 
   }

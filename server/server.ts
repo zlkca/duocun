@@ -9,7 +9,7 @@ import path from "path";
 import { DB } from "./db";
 import { User } from "./user";
 import { Restaurant } from "./restaurant";
-import { ObjectId } from "../node_modules/@types/bson";
+import { Product } from "./product";
 
 const cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
 const SERVER = cfg.API_SERVER;
@@ -91,6 +91,35 @@ app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
 app.get('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
   const restaurant = new Restaurant(dbo);
   restaurant.get(req, res);
+});
+
+app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
+  const product = new Product(dbo);
+  product.find({restaurantId: req.params.id}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3))
+  });
+});
+
+app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
+  const product = new Product(dbo);
+  product.insertOne(req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.ops[0], null, 3))
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Products', (req, res) => {
+  const product = new Product(dbo);
+  product.find({}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3))
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
+  const product = new Product(dbo);
+  product.get(req, res);
 });
 
 app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
