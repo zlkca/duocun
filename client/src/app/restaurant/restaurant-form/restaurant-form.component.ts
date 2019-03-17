@@ -198,7 +198,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     if (restaurant.pictures && restaurant.pictures.length > 0) {
       const picture = restaurant.pictures[0]; // fix me
       this.pictures = [
-        this.sharedSvc.getContainerUrl() + picture.url,
+        this.sharedSvc.getApiUrl() + picture.url,
       ];
     } else {
       this.pictures = [''];
@@ -207,9 +207,9 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
 
   onAfterPictureUpload(e) {
     const self = this;
-    const path = 'pictures/download/' + e.name;
+    const path = e.name;
     this.pictures = [
-      self.sharedSvc.getContainerUrl() + path,
+      self.sharedSvc.getApiUrl() + path,
     ];
 
     this.restaurant.pictures = [
@@ -225,7 +225,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     this.file = e.file;
 
     this.urls = [
-      this.sharedSvc.getContainerUrl() + path,
+      self.sharedSvc.getApiUrl() + path,
     ];
   }
 

@@ -37,13 +37,14 @@ export class ImageUploaderComponent implements OnInit {
         const ext = file.name.split('.').pop();
         const fname = uuid.v4() + '.' + ext;
         self.postFile(self.uploadUrl, fname, picFile).subscribe(x => {
-          self.afterUpload.emit({
-            name: fname, // x.result.files.file[0].name,
-            file: picFile
-            // originalFilename: "alashijiaxueyu.jpg"
-            // size: 17353
-            // type: "image/jpeg"
-          });
+          console.log('postFile called');
+        });
+        self.afterUpload.emit({
+          name: fname, // x.result.files.file[0].name,
+          file: picFile
+          // originalFilename: "alashijiaxueyu.jpg"
+          // size: 17353
+          // type: "image/jpeg"
         });
       };
 

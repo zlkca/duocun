@@ -93,8 +93,12 @@ export class SharedService {
     return s.slice(0, index + 10) + 'download/' + s.slice(index + 10);
   }
 
-  getContainerUrl() {
-    return environment.API_BASE + '/' + environment.API_VERSION + '/Containers/';
+  getApiUrl() {
+    return environment.API_BASE + '/' + environment.API_VERSION + '/';
+  }
+
+  getApiBaseUrl() {
+    return environment.API_BASE + '/';
   }
 }
 

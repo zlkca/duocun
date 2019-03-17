@@ -46,6 +46,10 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false, limit: '1mb' }));
 app.use(bodyParser.json({ limit: '1mb' }));
 
+const uploadsPath = path.resolve('uploads');
+console.log(uploadsPath);
+app.use(express.static(uploadsPath));
+
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
   const user = new User(dbo);
   // user.insertOne('Jack').then((x: any) => {

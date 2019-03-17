@@ -86,7 +86,7 @@ export class RestaurantGridComponent implements OnInit {
 
   getImageSrc(restaurant: any) {
     if (restaurant.pictures && restaurant.pictures[0] && restaurant.pictures[0].url) {
-      return this.sharedSvc.getContainerUrl() + restaurant.pictures[0].url;
+      return this.sharedSvc.getApiBaseUrl() + restaurant.pictures[0].url;
     } else {
       return this.defaultPicture;
     }

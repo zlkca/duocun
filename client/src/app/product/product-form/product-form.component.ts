@@ -145,7 +145,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     if (restaurant.pictures && restaurant.pictures.length > 0) {
       const picture = restaurant.pictures[0]; // fix me
       this.pictures = [
-        this.sharedSvc.getContainerUrl() + picture.url,
+        this.sharedSvc.getApiUrl() + picture.url,
       ];
     } else {
       this.pictures = [''];
@@ -156,7 +156,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     const self = this;
     const path = 'pictures/download/' + e.name;
     this.pictures = [
-      self.sharedSvc.getContainerUrl() + path,
+      self.sharedSvc.getApiUrl() + path,
     ];
 
     this.product.pictures = [
@@ -170,7 +170,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     ];
 
     this.urls = [
-      this.sharedSvc.getContainerUrl() + path,
+      this.sharedSvc.getApiUrl() + path,
     ];
   }
 
