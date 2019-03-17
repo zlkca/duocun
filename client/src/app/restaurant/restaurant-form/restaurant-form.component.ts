@@ -46,11 +46,12 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
   uploadUrl: string = [
     LoopBackConfig.getPath(),
     LoopBackConfig.getApiVersion(),
-    'Containers/pictures/upload'
+    'files/upload'
   ].join('/');
 
   urls = [];
   pictures: any[] = [];
+  file;
 
   @Output() afterSave: EventEmitter<any> = new EventEmitter();
   @Input() restaurant: Restaurant;
@@ -221,6 +222,8 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
       })
     ];
 
+    this.file = e.file;
+
     this.urls = [
       this.sharedSvc.getContainerUrl() + path,
     ];
@@ -239,7 +242,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     this.restaurant.pictures.splice(this.restaurant.pictures.findIndex(pic => pic.url === event.file.src));
   }
 
-  save() {
+  save_old() {
     // This component will be used for business admin and super admin!
     const self = this;
     const v = this.form.value;
@@ -323,6 +326,51 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
 
     // });
 
+  }
+
+  save() {
+    const self = this;
+    const v = this.form.value;
+    const restaurant = new Restaurant(this.form.value);
+    if (!this.users || !this.users.length) {
+      restaurant.ownerId = this.currentAccount.id;
+    }
+
+    restaurant.pictures = this.restaurant.pictures;
+    restaurant.location = { lat: this.location.lat, lng: this.location.lng };
+    restaurant.address = new Address({
+      id: this.restaurant.address ? this.restaurant.address.id : null,
+      streetName: this.location.street_name,
+      streetNumber: this.location.street_number,
+      sublocality: this.location.sub_locality,
+      city: this.location.city,
+      province: this.location.province,
+      formattedAddress: this.locationSvc.getAddrString(this.location),
+      unit: this.form.get('address').get('unit').value,
+      postalCode: this.location.postal_code,
+      // location: {
+      //   lat: this.location.lat,
+      //   lng: this.location.lng
+      // },
+    });
+    restaurant.location = { lat: this.location.lat, lng: this.location.lng };
+    restaurant.id = self.restaurant ? self.restaurant.id : null;
+    // if (restaurant.id) {
+    //   self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
+    //     // self.router.navigate(['admin']);
+    //     self.afterSave.emit({ restaurant: r, action: 'update' });
+    //   });
+    // } else {
+    //   self.restaurantSvc.create(restaurant).subscribe((r: any) => {
+    //     // self.router.navigate(['admin']);
+    //     self.afterSave.emit({ restaurant: r, action: 'save' });
+    //   });
+    // }
+
+    // formData.append('restaurant', JSON.stringify(restaurant));
+    return this.restaurantSvc.save(restaurant).subscribe(x => {
+      const kkk = x;
+    });
   }
 
   cancel() {

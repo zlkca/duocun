@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product, Picture, PictureApi } from '../lb-sdk';
+import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product, Picture, PictureApi, LoopBackConfig } from '../lb-sdk';
 import { Observable } from 'rxjs';
 import { mergeMap, flatMap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class RestaurantService {
@@ -9,7 +10,18 @@ export class RestaurantService {
     private restaurantApi: RestaurantApi,
     private pictureApi: PictureApi,
     private orderApi: OrderApi,
+    private http: HttpClient
   ) { }
+
+  save(restaurant: Restaurant): Observable<any> {
+    const url = [
+      LoopBackConfig.getPath(),
+      LoopBackConfig.getApiVersion(),
+      'Restaurants'
+    ].join('/');
+
+    return this.http.post(url, restaurant);
+  }
 
   create(restaurant: Restaurant): Observable<Restaurant> {
     let restaurantId;

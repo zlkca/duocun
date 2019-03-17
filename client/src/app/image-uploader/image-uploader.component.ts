@@ -2,6 +2,7 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
+import * as uuid from 'uuid';
 
 @Component({
   selector: 'app-image-uploader',
@@ -33,10 +34,12 @@ export class ImageUploaderComponent implements OnInit {
       image.onload = function(imageEvent) {
         const blob = self.getBlob(image, self.size); // type:x, size:y
         const picFile = new File([blob], file.name);
-
-        self.postFile(self.uploadUrl, picFile).subscribe(x => {
+        const ext = file.name.split('.').pop();
+        const fname = uuid.v4() + '.' + ext;
+        self.postFile(self.uploadUrl, fname, picFile).subscribe(x => {
           self.afterUpload.emit({
-            name: x.result.files.file[0].name,
+            name: fname, // x.result.files.file[0].name,
+            file: picFile
             // originalFilename: "alashijiaxueyu.jpg"
             // size: 17353
             // type: "image/jpeg"
@@ -49,21 +52,17 @@ export class ImageUploaderComponent implements OnInit {
         image.src = readerEvent.target.result;
       };
 
-
       reader.readAsDataURL(file);
     }
   }
 
+  // ---------------------------------------------------------------------
+  // url --- api/files/upload
   // file --- { name:x, size:y, type: z }
-  public postFile(url: string, file: File): Observable<any> {
+  public postFile(url: string, fname: string, file: File): Observable<any> {
     const formData = new FormData();
-    // for (const key in customData) {
-    //   if (customData.hasOwnProperty(key)) {
-    //     formData.append(key, customData[key]);
-    //   }
-    // }
+    formData.append('fname', fname);
     formData.append('file', file);
-
     return this.http.post(url, formData);
   }
 

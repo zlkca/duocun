@@ -2,12 +2,13 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-
+import multer from "multer";
 import fs from "fs";
 import path from "path";
 
 import { DB } from "./db";
 import { User } from "./user";
+import { Restaurant } from "./restaurant";
 
 const cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
 const SERVER = cfg.API_SERVER;
@@ -15,6 +16,15 @@ const ROUTE_PREFIX = SERVER.ROUTE_PREFIX;
 
 const app = express();
 const dbo = new DB();
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+      cb(null, 'uploads/')
+  },
+  filename: function (req: any, file, cb) {
+      cb(null, req.body.fname);
+  }
+});
+const upload = multer({ storage: storage });
 
 dbo.init(cfg.DATABASE).then(dbClient => {
   const user = new User(dbo);
@@ -56,6 +66,27 @@ app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
   const user = new User(dbo);
   user.get(req, res);
 });
+
+app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
+  const restaurant = new Restaurant(dbo);
+  restaurant.insertOne(req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.ops[0], null, 3))
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
+  const restaurant = new Restaurant(dbo);
+  restaurant.find({}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3))
+  });
+});
+
+app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
+  res.send('upload file success');
+});
+
 app.set('port', process.env.PORT || SERVER.PORT)
 
 const server = app.listen(app.get("port"), () => {

@@ -11,13 +11,19 @@ export class Entity {
   }
 
   getCollection(): Promise<Collection> {
-    const collection: Collection = this.db.collection(this.collectionName);
-    if (collection) {
+    if(this.db){
+      const collection: Collection = this.db.collection(this.collectionName);
+      if (collection) {
+        return new Promise((resolve, reject) => {
+          resolve(collection);
+        });
+      } else {
+        return this.db.createCollection(this.collectionName);
+      }
+    }else{
       return new Promise((resolve, reject) => {
-        resolve(collection);
+        reject(null);
       });
-    } else {
-      return this.db.createCollection(this.collectionName);
     }
   }
 
@@ -40,6 +46,17 @@ export class Entity {
       self.getCollection().then((c: Collection) => {
         c.findOne(query, options, (err, doc) => {
           resolve(doc);
+        });
+      });
+    });
+  }
+
+  find(query: any, options?: any): Promise<any> {
+    const self = this;
+    return new Promise((resolve, reject) => {
+      self.getCollection().then((c: Collection) => {
+        c.find(query, options).toArray((err, docs) => {
+          resolve(docs);
         });
       });
     });
