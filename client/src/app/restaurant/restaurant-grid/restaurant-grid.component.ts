@@ -92,8 +92,8 @@ export class RestaurantGridComponent implements OnInit {
     }
   }
 
-  toDetail(p) {
-    this.router.navigate(['restaurants/' + p.id]);
+  toDetail(r: Restaurant) {
+    this.router.navigate(['restaurants/' + r.id]);
   }
 
   getFilter(query?: any) {

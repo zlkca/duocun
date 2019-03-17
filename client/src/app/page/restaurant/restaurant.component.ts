@@ -36,7 +36,7 @@ export class RestaurantComponent implements OnInit {
   ngOnInit() {
     const self = this;
     self.route.params.subscribe(params => {
-      const restaurantId = parseInt(params['id'], 10);
+      const restaurantId = params['id'];
       self.restaurantSvc.findById(restaurantId, { include: ['pictures', 'address'] }).subscribe(
         (restaurant: Restaurant) => {
           self.restaurant = restaurant;

@@ -56,7 +56,13 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.find(query, options).toArray((err, docs) => {
-          resolve(docs);
+          let s:any[] = [];
+          docs.map((v, i) => {
+            v.id = v._id;
+            delete(v._id);
+            s.push(v);
+          })
+          resolve(s);
         });
       });
     });

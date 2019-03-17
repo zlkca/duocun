@@ -242,91 +242,47 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     this.restaurant.pictures.splice(this.restaurant.pictures.findIndex(pic => pic.url === event.file.src));
   }
 
-  save_old() {
-    // This component will be used for business admin and super admin!
-    const self = this;
-    const v = this.form.value;
-    const restaurant = new Restaurant(this.form.value);
-    if (!this.users || !this.users.length) {
-      restaurant.ownerId = this.currentAccount.id;
-    }
+  // save_old() {
+  //   // This component will be used for business admin and super admin!
+  //   const self = this;
+  //   const v = this.form.value;
+  //   const restaurant = new Restaurant(this.form.value);
+  //   if (!this.users || !this.users.length) {
+  //     restaurant.ownerId = this.currentAccount.id;
+  //   }
 
-    restaurant.pictures = this.restaurant.pictures;
-    restaurant.location = { lat: this.location.lat, lng: this.location.lng };
-    restaurant.address = new Address({
-      id: this.restaurant.address ? this.restaurant.address.id : null,
-      streetName: this.location.street_name,
-      streetNumber: this.location.street_number,
-      sublocality: this.location.sub_locality,
-      city: this.location.city,
-      province: this.location.province,
-      formattedAddress: this.locationSvc.getAddrString(this.location),
-      unit: this.form.get('address').get('unit').value,
-      postalCode: this.location.postal_code,
-      location: {
-        lat: this.location.lat,
-        lng: this.location.lng
-      },
-    }); // {
-    // city: ''
-    // });
-    // hardcode Toronto as default
-    // if (self.restaurant && self.restaurant.address) {
-    //   addr = self.restaurant.address;
-    //   addr.formattedAddress = v.address.street;
-    // } else {
-    //   addr = new Address({
-    //     city: 'Toronto',
-    //     province: 'ON',
-    //     formattedAddress: v.address.street,
-    //     unit: null,
-    //     postalCode: v.address.postal_code
-    //   });
-    // }
+  //   restaurant.pictures = this.restaurant.pictures;
+  //   restaurant.location = { lat: this.location.lat, lng: this.location.lng };
+  //   restaurant.address = new Address({
+  //     id: this.restaurant.address ? this.restaurant.address.id : null,
+  //     streetName: this.location.street_name,
+  //     streetNumber: this.location.street_number,
+  //     sublocality: this.location.sub_locality,
+  //     city: this.location.city,
+  //     province: this.location.province,
+  //     formattedAddress: this.locationSvc.getAddrString(this.location),
+  //     unit: this.form.get('address').get('unit').value,
+  //     postalCode: this.location.postal_code,
+  //     location: {
+  //       lat: this.location.lat,
+  //       lng: this.location.lng
+  //     },
+  //   });
 
-
-    // if (self.picture) {
-    //     restaurant.image = self.picture.image;
-    // }
-    restaurant.location = { lat: this.location.lat, lng: this.location.lng };
-    restaurant.id = self.restaurant ? self.restaurant.id : null;
-    if (restaurant.id) {
-      self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
-        // self.router.navigate(['admin']);
-        self.afterSave.emit({ restaurant: r, action: 'update' });
-      });
-    } else {
-      self.restaurantSvc.create(restaurant).subscribe((r: any) => {
-        // self.router.navigate(['admin']);
-        self.afterSave.emit({ restaurant: r, action: 'save' });
-      });
-    }
-    // const sAddr = addr.formattedAddress + ', Toronto, ' + v.address.postalCode;
-    // this.locationSvc.getLocation(sAddr).subscribe(ret => {
-    //   if (ret) {
-    //     addr.location = { lat: ret.lat, lng: ret.lng };
-    //     addr.sublocality = ret.sub_locality;
-    //     addr.postalCode = ret.postal_code;
-
-    //     restaurant.location = { lat: ret.lat, lng: ret.lng };
-    //   }
-    //   restaurant.address = addr;
-
-    //   if (restaurant.id) {
-    //     self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
-    //       // self.router.navigate(['admin']);
-    //       self.afterSave.emit({ restaurant: r });
-    //     });
-    //   } else {
-    //     self.restaurantSvc.create(restaurant).subscribe((r: any) => {
-    //       // self.router.navigate(['admin']);
-    //       self.afterSave.emit({ restaurant: r });
-    //     });
-    //   }
-
-    // });
-
-  }
+  //   restaurant.location = { lat: this.location.lat, lng: this.location.lng };
+  //   restaurant.id = self.restaurant ? self.restaurant.id : null;
+  //   if (restaurant.id) {
+  //     self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
+  //       // self.router.navigate(['admin']);
+  //       self.afterSave.emit({ restaurant: r, action: 'update' });
+  //     });
+  //   } else {
+  //     self.restaurantSvc.create(restaurant).subscribe((r: any) => {
+  //       // self.router.navigate(['admin']);
+  //       self.afterSave.emit({ restaurant: r, action: 'save' });
+  //     });
+  //   }
+  // }
 
   save() {
     const self = this;

@@ -9,6 +9,7 @@ import path from "path";
 import { DB } from "./db";
 import { User } from "./user";
 import { Restaurant } from "./restaurant";
+import { ObjectId } from "../node_modules/@types/bson";
 
 const cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
 const SERVER = cfg.API_SERVER;
@@ -85,6 +86,11 @@ app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3))
   });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
+  const restaurant = new Restaurant(dbo);
+  restaurant.get(req, res);
 });
 
 app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {

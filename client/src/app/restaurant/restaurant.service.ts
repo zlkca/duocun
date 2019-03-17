@@ -23,30 +23,30 @@ export class RestaurantService {
     return this.http.post(url, restaurant);
   }
 
-  create(restaurant: Restaurant): Observable<Restaurant> {
-    let restaurantId;
-    return this.restaurantApi.create(restaurant)
-      .pipe(
-        mergeMap((rest: Restaurant) => {
-          restaurantId = rest.id;
-          if (restaurant.pictures && restaurant.pictures.length) {
-            return this.updateRestaurantImages(rest.id, restaurant.pictures);
-          } else {
-            return new Observable(i => i.next());
-          }
-        }),
-        mergeMap(() => {
-          if (restaurant.address) {
-            return this.restaurantApi.createAddress(restaurantId, restaurant.address);
-          } else {
-            return new Observable(i => i.next());
-          }
-        }),
-        mergeMap(() => {
-          return this.restaurantApi.findById(restaurantId, { include: ['pictures', 'address'] });
-        })
-      );
-  }
+  // create(restaurant: Restaurant): Observable<Restaurant> {
+  //   let restaurantId;
+  //   return this.restaurantApi.create(restaurant)
+  //     .pipe(
+  //       mergeMap((rest: Restaurant) => {
+  //         restaurantId = rest.id;
+  //         if (restaurant.pictures && restaurant.pictures.length) {
+  //           return this.updateRestaurantImages(rest.id, restaurant.pictures);
+  //         } else {
+  //           return new Observable(i => i.next());
+  //         }
+  //       }),
+  //       mergeMap(() => {
+  //         if (restaurant.address) {
+  //           return this.restaurantApi.createAddress(restaurantId, restaurant.address);
+  //         } else {
+  //           return new Observable(i => i.next());
+  //         }
+  //       }),
+  //       mergeMap(() => {
+  //         return this.restaurantApi.findById(restaurantId, { include: ['pictures', 'address'] });
+  //       })
+  //     );
+  // }
 
   replaceById(id: number, data: Restaurant): Observable<Restaurant> {
     return this.replace(id, data).pipe(
@@ -115,7 +115,7 @@ export class RestaurantService {
       );
   }
 
-  findById(id: number, filter: LoopBackFilter = { include: ['pictures', 'address'] }): Observable<Restaurant> {
+  findById(id: string, filter: LoopBackFilter = { include: ['pictures', 'address'] }): Observable<Restaurant> {
     return this.restaurantApi.findById(id, filter);
   }
 
