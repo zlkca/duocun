@@ -204,7 +204,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     }
   }
 
-  onAfterPictureUpload(e) {
+  onAfterPictureUpload(e: any) {
     const self = this;
     const path = e.name;
 
@@ -305,24 +305,19 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
       //   lng: this.location.lng
       // },
     });
+
     restaurant.location = { lat: this.location.lat, lng: this.location.lng };
     restaurant.id = self.restaurant ? self.restaurant.id : null;
-    // if (restaurant.id) {
-    //   self.restaurantSvc.replaceById(restaurant.id, restaurant).subscribe((r: any) => {
-    //     // self.router.navigate(['admin']);
-    //     self.afterSave.emit({ restaurant: r, action: 'update' });
-    //   });
-    // } else {
-    //   self.restaurantSvc.create(restaurant).subscribe((r: any) => {
-    //     // self.router.navigate(['admin']);
-    //     self.afterSave.emit({ restaurant: r, action: 'save' });
-    //   });
-    // }
 
-    // formData.append('restaurant', JSON.stringify(restaurant));
-    return this.restaurantSvc.save(restaurant).subscribe(x => {
-      const kkk = x;
-    });
+    if (restaurant.id) {
+      this.restaurantSvc.replace(restaurant).subscribe(r => {
+        self.afterSave.emit({ restaurant: r, action: 'update' });
+      });
+    } else {
+      this.restaurantSvc.save(restaurant).subscribe(r => {
+        self.afterSave.emit({ restaurant: r, action: 'save' });
+      });
+    }
   }
 
   cancel() {

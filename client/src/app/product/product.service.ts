@@ -39,6 +39,15 @@ export class ProductService {
     return this.http.post(url, product);
   }
 
+  replace(product: Product): Observable<any> {
+    const url = [
+      LoopBackConfig.getPath(),
+      LoopBackConfig.getApiVersion(),
+      'Products'
+    ].join('/');
+
+    return this.http.post(url, product);
+  }
   // create(product: Product): Observable<Product> {
   //   let productId;
   //   return this.productApi.create(product)

@@ -23,6 +23,16 @@ export class RestaurantService {
     return this.http.post(url, restaurant);
   }
 
+  replace(restaurant: Restaurant): Observable<any> {
+    const url = [
+      LoopBackConfig.getPath(),
+      LoopBackConfig.getApiVersion(),
+      'Restaurants'
+    ].join('/');
+
+    return this.http.put(url, restaurant);
+  }
+
   // create(restaurant: Restaurant): Observable<Restaurant> {
   //   let restaurantId;
   //   return this.restaurantApi.create(restaurant)
@@ -49,7 +59,7 @@ export class RestaurantService {
   // }
 
   replaceById(id: number, data: Restaurant): Observable<Restaurant> {
-    return this.replace(id, data).pipe(
+    return this.doReplaceById(id, data).pipe(
       flatMap((restaurant: Restaurant) => {
         if (restaurant.pictures && restaurant.pictures.length) {
           return this.updateRestaurantImages(restaurant.id, data.pictures);
@@ -61,7 +71,7 @@ export class RestaurantService {
   }
 
   // internal function to merge address and replace
-  private replace(id: number, data: Restaurant): Observable<Restaurant> {
+  private doReplaceById(id: number, data: Restaurant): Observable<Restaurant> {
     return this.restaurantApi.replaceById(id, data).pipe(
       flatMap((restaurant: Restaurant) => {
         if (restaurant.address && restaurant.address.id) {

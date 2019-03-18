@@ -92,7 +92,7 @@ $current-loc-btn-width: 92px;
 }
 
 app-address-input {
-  width: calc(100% - #{$current-loc-btn-width} - 14px);
+  width: calc(100% - #{$current-loc-btn-width});
 }
 
 .btn-current-location{

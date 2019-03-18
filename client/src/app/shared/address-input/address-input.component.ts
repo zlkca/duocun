@@ -27,7 +27,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
 
   // The internal data model for form control value access
   private innerValue: any = '';
-
+  // private cleared = true;
   constructor(private locationSvc: LocationService, elm: ElementRef) {
     const placeholder = elm.nativeElement.getAttribute('placeholder');
   }
@@ -35,7 +35,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
   ngOnInit() {
     const self = this;
     this.div.nativeElement.value = this.value;
-
+    // this.cleared = !this.value;
     if (typeof google !== 'undefined') {
       // var defaultBounds = new google.maps.LatLngBounds(
       //   new google.maps.LatLng(43.821662, -79.928525),
@@ -48,8 +48,8 @@ export class AddressInputComponent implements OnInit, OnChanges {
           new google.maps.LatLng(43.468068, -79.963410),
           new google.maps.LatLng(44.301441, -78.730195)
           // Ontario -95.16 | 41.66 |  -74.34 | 56.86
-          //new google.maps.LatLng(41.668068, -95.163410),
-          //new google.maps.LatLng(56.861441, -74.340195)
+          // new google.maps.LatLng(41.668068, -95.163410),
+          // new google.maps.LatLng(56.861441, -74.340195)
         ),
         componentRestrictions: { country: 'ca' },
         strictBounds: true
@@ -84,6 +84,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes) {
     this.div.nativeElement.value = changes.value.currentValue;
+    // this.cleared = !this.div.nativeElement.value;
   }
   //  //From ControlValueAccessor interface
 
@@ -151,5 +152,6 @@ export class AddressInputComponent implements OnInit, OnChanges {
 
   clearAddr() {
     this.div.nativeElement.value = '';
+    // this.cleared = true;
   }
 }

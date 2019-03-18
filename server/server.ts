@@ -10,6 +10,8 @@ import { DB } from "./db";
 import { User } from "./user";
 import { Restaurant } from "./restaurant";
 import { Product } from "./product";
+import { Category } from "./category";
+import { Order } from "./order";
 
 const cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
 const SERVER = cfg.API_SERVER;
@@ -76,7 +78,15 @@ app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
   const restaurant = new Restaurant(dbo);
   restaurant.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3))
+    res.end(JSON.stringify(x.ops[0], null, 3));
+  });
+});
+
+app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
+  const restaurant = new Restaurant(dbo);
+  restaurant.replaceById(req.body.id, req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.ops[0], null, 3));
   });
 });
 
@@ -84,7 +94,7 @@ app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
   const restaurant = new Restaurant(dbo);
   restaurant.find({}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x, null, 3))
+    res.end(JSON.stringify(x, null, 3));
   });
 });
 
@@ -97,7 +107,15 @@ app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
   const product = new Product(dbo);
   product.find({restaurantId: req.params.id}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x, null, 3))
+    res.end(JSON.stringify(x, null, 3));
+  });
+});
+
+app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
+  const product = new Product(dbo);
+  product.replaceById(req.body.id, req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.ops[0], null, 3));
   });
 });
 
@@ -105,7 +123,7 @@ app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
   const product = new Product(dbo);
   product.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3))
+    res.end(JSON.stringify(x.ops[0], null, 3));
   });
 });
 
@@ -113,13 +131,56 @@ app.get('/' + ROUTE_PREFIX + '/Products', (req, res) => {
   const product = new Product(dbo);
   product.find({}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x, null, 3))
+    res.end(JSON.stringify(x, null, 3));
   });
 });
 
 app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
   const product = new Product(dbo);
   product.get(req, res);
+});
+
+
+app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
+  const category = new Category(dbo);
+  category.insertOne(req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.ops[0], null, 3))
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
+  const category = new Category(dbo);
+  category.find({}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3))
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Categories/:id', (req, res) => {
+  const category = new Category(dbo);
+  category.get(req, res);
+});
+
+app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
+  const order = new Order(dbo);
+  order.insertOne(req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.ops[0], null, 3))
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
+  const order = new Order(dbo);
+  order.find({}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3))
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Categories/:id', (req, res) => {
+  const order = new Order(dbo);
+  order.get(req, res);
 });
 
 app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {

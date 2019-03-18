@@ -4,7 +4,7 @@ import { ProductService } from '../../product/product.service';
 import { AuthService } from '../../account/auth.service';
 import { environment } from '../../../environments/environment';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-import { Restaurant } from '../../lb-sdk';
+import { Restaurant, Product } from '../../lb-sdk';
 
 
 @Component({
@@ -56,10 +56,11 @@ export class RestaurantComponent implements OnInit {
     });
   }
 
-  groupByCategory(products) {
-    return products.reduce( (r, p) => {
-      r[p.category.id] = r[p.category.id] || [];
-      r[p.category.id].push(p);
+  groupByCategory(products: Product[]) {
+    return products.reduce( (r, p: Product) => {
+      const catId = p.categoryId;
+      r[catId] = r[catId] || [];
+      r[catId].push(p);
       return r;
     }, Object.create(null));
   }

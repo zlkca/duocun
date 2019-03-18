@@ -79,7 +79,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     this.form.get('description').setValue(this.product.description);
     this.form.get('price').setValue(this.product.price);
     this.form.get('restaurantId').setValue(this.product.restaurantId);
-    this.form.get('categroyId').setValue(this.product.categoryId);
+    this.form.get('categoryId').setValue(this.product.categoryId);
 
     this.restaurantSvc.find().subscribe(r => {
       this.restaurantList = r;
@@ -169,7 +169,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     }
   }
 
-  onAfterPictureUpload(e) {
+  onAfterPictureUpload(e: any) {
     const self = this;
     this.pictures = [
       self.sharedSvc.getApiUrl() + e.name,
@@ -198,17 +198,14 @@ export class ProductFormComponent implements OnInit, OnChanges {
     const p: Product = new Product(newV);
     const restaurantId = p.restaurantId;
 
-    if (this.product) {
-      p.pictures = this.product.pictures;
-      this.productSvc.replaceById(this.product.id, p).subscribe((r: any) => {
-        self.afterSave.emit({ restaurant_id: restaurantId });
-      });
+    p.id = self.product ? self.product.id : null;
+    p.pictures = this.product.pictures;
+    if (this.product && this.product.id) {
+      this.productSvc.replace(p).subscribe(r => {});
     } else {
-      this.productSvc.save(p).subscribe((r: any) => {
-      });
-      self.afterSave.emit({ restaurant_id: restaurantId });
+      this.productSvc.save(p).subscribe(r => {});
     }
-
+    self.afterSave.emit({ restaurant_id: restaurantId });
   }
 
   // ngOnInit() {

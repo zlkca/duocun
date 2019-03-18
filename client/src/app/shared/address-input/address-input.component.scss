@@ -1,6 +1,7 @@
 input.address-input{
-  width:100%;
+  width:calc(100% - 36px);
   display: inline-block;
+  border-right: none;
 }
 
 // Bootstrap's .modal z-index is by default 1050.
@@ -16,7 +17,8 @@ input.address-input{
 
 button.clear-btn{
   background: none;
-  border: none;
+  border: solid 1px #b1b1b1;
+  border-left: 0px;
   position: absolute;
   top: 0px;
   right: 0px;

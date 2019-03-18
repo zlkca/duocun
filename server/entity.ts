@@ -1,4 +1,4 @@
-import { Collection } from "mongodb";
+import { Collection, ObjectId } from "mongodb";
 import { DB } from "./db";
 
 export class Entity {
@@ -71,8 +71,18 @@ export class Entity {
   replaceOne(query: any, doc: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
-        c.replaceOne(query, doc, options, (x: any) => {
-          resolve(x);
+        c.replaceOne(query, doc, options, (err, result) => {
+          resolve(result);
+        });
+      });
+    });
+  }
+
+  replaceById(id: string, doc: any, options?: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.getCollection().then((c: Collection) => {
+        c.replaceOne({_id: new ObjectId(id)}, doc, options, (err, result) => {
+          resolve(result);
         });
       });
     });

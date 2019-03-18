@@ -54,7 +54,8 @@ export class AdminComponent implements OnInit, OnDestroy {
                         self.products = rest.products;
                     }));
 
-                    // this.subscrList.push(self.restaurantSvc.getOrders(restaurant_id, {include: ['account', {items: {product: 'pictures'}}]})
+                    // this.subscrList.push(self.restaurantSvc.getOrders(restaurant_id, {include: ['account', 
+                    //  {items: {product: 'pictures'}}]})
                     // .subscribe((orders: Order[]) => {
                     //     self.orders = orders;
                     // }));
