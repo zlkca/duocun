@@ -111,8 +111,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   confirmed() {
     const orders = this.createOrders(this.cart);
-    this.OrderServ.create(orders[0])
-      .subscribe((newOrder: Order) => {
+    this.OrderServ.save(orders[0]).subscribe((order: Order) => {
         this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
       });
     this.router.navigate(['restaurants']);

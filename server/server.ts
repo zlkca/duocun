@@ -143,7 +143,6 @@ app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
   product.get(req, res);
 });
 
-
 app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
   const category = new Category(dbo);
   category.insertOne(req.body).then((x: any) => {
@@ -173,18 +172,36 @@ app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
   });
 });
 
-app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
+app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
   const order = new Order(dbo);
-  order.find({}).then((x: any) => {
+  order.replaceById(req.body.id, req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x, null, 3))
+    res.end(JSON.stringify(x.ops[0], null, 3));
   });
 });
 
-app.get('/' + ROUTE_PREFIX + '/Categories/:id', (req, res) => {
+app.post('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
+  const order = new Order(dbo);
+  order.insertOne(req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.ops[0], null, 3));
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Orders', (req: any, res) => {
+  const order = new Order(dbo);
+  const query = req.headers? JSON.parse(req.headers.filter) : null;
+  order.find(query ? query.where: {}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
   const order = new Order(dbo);
   order.get(req, res);
 });
+
 
 app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
   res.send('upload file success');

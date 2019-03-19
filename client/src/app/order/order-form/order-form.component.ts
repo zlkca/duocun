@@ -54,7 +54,7 @@ export class OrderFormComponent implements OnInit {
       this.orderSvc.findRestaurant(this.items[0].restaurant_id, { include: 'products' })
         .subscribe((r: Restaurant) => {
           this.restaurant = r;
-          this.deliveryFee = r.delivery_fee;
+          this.deliveryFee = r.delivery_fee ? r.delivery_fee : 0;
           this.tax = (this.subTotal + this.deliveryFee) * 0.13;
           this.total = this.subTotal + this.deliveryFee + this.tax;
         });
@@ -109,8 +109,7 @@ export class OrderFormComponent implements OnInit {
     const orders = this.createOrders();
     const self = this;
     // orders.map(order => {
-    self.orderSvc.create(orders[0])
-      .subscribe((newOrder: Order) => {
+    self.orderSvc.save(orders[0]).subscribe((order: Order) => {
         self.afterSubmit.emit(orders[0]);
         // self.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
       });

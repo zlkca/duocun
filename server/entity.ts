@@ -31,8 +31,10 @@ export class Entity {
     const self = this;
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
-        c.insertOne(doc).then((x: any) => {
-          resolve(x);
+        c.insertOne(doc).then((result: any) => {
+          result.id = result._id;
+          delete(result._id);
+          resolve(result);
         }, err => {
           reject(err);
         });
@@ -45,6 +47,8 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.findOne(query, options, (err, doc) => {
+          doc.id = doc._id;
+          delete(doc._id);
           resolve(doc);
         });
       });
@@ -71,7 +75,9 @@ export class Entity {
   replaceOne(query: any, doc: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
-        c.replaceOne(query, doc, options, (err, result) => {
+        c.replaceOne(query, doc, options, (err, result:any) => {
+          result.id = result._id;
+          delete(result._id);
           resolve(result);
         });
       });
@@ -81,7 +87,9 @@ export class Entity {
   replaceById(id: string, doc: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
-        c.replaceOne({_id: new ObjectId(id)}, doc, options, (err, result) => {
+        c.replaceOne({_id: new ObjectId(id)}, doc, options, (err, result: any) => {
+          result.id = result._id;
+          delete(result._id);
           resolve(result);
         });
       });
