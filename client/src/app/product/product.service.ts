@@ -21,6 +21,11 @@ const API_URL = environment.API_URL;
   providedIn: 'root'
 })
 export class ProductService {
+  private url = [
+    LoopBackConfig.getPath(),
+    LoopBackConfig.getApiVersion(),
+    'Products'
+  ].join('/');
 
   constructor(
     private http: HttpClient,
@@ -30,24 +35,17 @@ export class ProductService {
   ) {}
 
   save(product: Product): Observable<any> {
-    const url = [
-      LoopBackConfig.getPath(),
-      LoopBackConfig.getApiVersion(),
-      'Products'
-    ].join('/');
-
-    return this.http.post(url, product);
+    return this.http.post(this.url, product);
   }
 
   replace(product: Product): Observable<any> {
-    const url = [
-      LoopBackConfig.getPath(),
-      LoopBackConfig.getApiVersion(),
-      'Products'
-    ].join('/');
-
-    return this.http.post(url, product);
+    return this.http.post(this.url, product);
   }
+
+  // find(query: any):Observable<Product[]>{
+  //   const url = 
+  //   return this.http.get(this.url);
+  // }
   // create(product: Product): Observable<Product> {
   //   let productId;
   //   return this.productApi.create(product)

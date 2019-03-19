@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
+import { Request, Response } from "express";
 
 import { DB } from "./db";
 import { User } from "./user";
@@ -49,9 +50,10 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false, limit: '1mb' }));
 app.use(bodyParser.json({ limit: '1mb' }));
 
-const uploadsPath = path.resolve('uploads');
-console.log(uploadsPath);
-app.use(express.static(uploadsPath));
+// const staticPath = path.resolve('client/dist');
+const staticPath = path.resolve('uploads');
+console.log(staticPath);
+app.use(express.static(staticPath));
 
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
   const user = new User(dbo);
@@ -127,9 +129,10 @@ app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
   });
 });
 
-app.get('/' + ROUTE_PREFIX + '/Products', (req, res) => {
+app.get('/' + ROUTE_PREFIX + '/Products', (req: any, res) => {
   const product = new Product(dbo);
-  product.find({}).then((x: any) => {
+  const query = req.headers? JSON.parse(req.headers.filter) : null;
+  product.find(query ? query.where: {}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3));
   });

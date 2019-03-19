@@ -46,7 +46,8 @@ export class RestaurantComponent implements OnInit {
         }
       );
 
-      self.restaurantSvc.getProducts(restaurantId).subscribe(products => {
+      self.productSvc.find({where: {restaurantId: restaurantId}}).subscribe(products => {
+      // self.restaurantSvc.getProducts(restaurantId).subscribe(products => {
         self.groupedProducts = self.groupByCategory(products);
         const categoryIds = Object.keys(self.groupedProducts);
         self.productSvc.findCategories({where: {id: { inq: categoryIds}}}).subscribe(res => {
