@@ -29,9 +29,10 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage: storage });
+let user: User;
 
 dbo.init(cfg.DATABASE).then(dbClient => {
-  const user = new User(dbo);
+  user = new User(dbo);
   user.findOne({username: 'admin'}).then(x => {
     if(x){
       console.log('database duocun exists ...');
@@ -64,15 +65,12 @@ app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
 });
 
 app.post('/' + ROUTE_PREFIX + '/Accounts/login', (req, res) => {
-  const user = new User(dbo);
   user.login(req, res);
 });
 app.post('/' + ROUTE_PREFIX + '/Accounts/signup', (req, res) => {
-  const user = new User(dbo);
   user.signup(req, res);
 });
 app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
-  const user = new User(dbo);
   user.get(req, res);
 });
 

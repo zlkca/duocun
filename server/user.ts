@@ -25,15 +25,18 @@ export class User extends Entity{
   get(req: Request, res: Response){
     const self = this;
     const id = req.params.id;
-    
-    this.findOne({_id: new ObjectID(id)}).then((r: any) => {
-      if(r){
-        r.password = '';
-        res.send(JSON.stringify(r, null, 3));
-      }else{
-        res.send(JSON.stringify(null, null, 3))
-      }
-    });
+    if(id === '__anonymous__'){
+      res.send(JSON.stringify(null, null, 3));
+    }else{
+      this.findOne({_id: new ObjectID(id)}).then((r: any) => {
+        if(r){
+          r.password = '';
+          res.send(JSON.stringify(r, null, 3));
+        }else{
+          res.send(JSON.stringify(null, null, 3))
+        }
+      });
+    }
   }
 
 	signup(req: Request, rsp: Response){
@@ -93,7 +96,7 @@ export class User extends Entity{
               res.setHeader('Content-Type', 'application/json');
               r.password = '';
               const tokenId = jwt.sign(r, JWT_PRIVATE_KEY); // SHA256
-              const token = {id: tokenId, ttl: 10000, userId: r._id.toString()};
+              const token = {id: tokenId, ttl: 10000, userId: r.id};
               res.send(JSON.stringify(token, null, 3));
             }else{
               res.send(JSON.stringify(null, null, 3));

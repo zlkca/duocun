@@ -32,8 +32,10 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.insertOne(doc).then((result: any) => {
-          result.id = result._id;
-          delete(result._id);
+          if(result && result._id){
+            result.id = result._id;
+            delete(result._id);
+          }
           resolve(result);
         }, err => {
           reject(err);
@@ -47,8 +49,10 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.findOne(query, options, (err, doc) => {
-          doc.id = doc._id;
-          delete(doc._id);
+          if(doc && doc._id){
+            doc.id = doc._id;
+            delete(doc._id);
+          }
           resolve(doc);
         });
       });
@@ -62,8 +66,10 @@ export class Entity {
         c.find(query, options).toArray((err, docs) => {
           let s:any[] = [];
           docs.map((v, i) => {
-            v.id = v._id;
-            delete(v._id);
+            if(v && v._id){
+              v.id = v._id;
+              delete(v._id);
+            }
             s.push(v);
           })
           resolve(s);
@@ -76,8 +82,10 @@ export class Entity {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         c.replaceOne(query, doc, options, (err, result:any) => {
-          result.id = result._id;
-          delete(result._id);
+          if(result && result._id){
+            result.id = result._id;
+            delete(result._id);
+          }
           resolve(result);
         });
       });
@@ -88,8 +96,10 @@ export class Entity {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         c.replaceOne({_id: new ObjectId(id)}, doc, options, (err, result: any) => {
-          result.id = result._id;
-          delete(result._id);
+          if(result && result._id){
+            result.id = result._id;
+            delete(result._id);
+          }
           resolve(result);
         });
       });
