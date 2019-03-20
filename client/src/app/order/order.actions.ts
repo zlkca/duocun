@@ -9,8 +9,8 @@ export class CartActions {
 }
 
 export interface ICartItem {
-    pid: string; // product id
-    rid: string; // restaurant id
+    productId: string;
+    restaurantId: string;
     name: string; // product name
     price: number;
     quantity: number;

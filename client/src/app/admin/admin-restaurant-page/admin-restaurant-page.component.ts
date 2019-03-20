@@ -90,7 +90,7 @@ export class AdminRestaurantPageComponent implements OnInit {
     this.restaurant.user = null;
     this.restaurant.image = null;
 
-    this.toastSvc.success('Save Restaurant Successfully!', '', { timeOut: 2000 });
+    this.toastSvc.success('Save Restaurant Successfully!', '', { timeOut: 2000, positionClass: 'toast-bottom-right' });
   }
 
   onAfterDelete(event) {

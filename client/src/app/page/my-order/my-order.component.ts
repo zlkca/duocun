@@ -4,6 +4,7 @@ import { IAppState } from '../../store';
 import { ICart, CartActions, ICartItem } from '../../order/order.actions';
 import { AccountService } from '../../account/account.service';
 import { Router } from '@angular/router';
+import { ToastrService } from '../../../../node_modules/ngx-toastr';
 
 @Component({
   selector: 'app-my-order',
@@ -19,7 +20,9 @@ export class MyOrderComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private rx: NgRedux<IAppState>,
-    private accountSvc: AccountService) { }
+    private accountSvc: AccountService,
+    private toastSvc: ToastrService
+  ) { }
 
   ngOnInit() {
     const self = this;
@@ -44,8 +47,9 @@ export class MyOrderComponent implements OnInit, OnDestroy {
     // this.subscriptionAccount.unsubscribe();
   }
 
-  onCheckout(e) {
+  onAfterCheckout(e) {
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
+    this.toastSvc.success('Save Restaurant Successfully!', '', { timeOut: 2000, positionClass: 'toast-bottom-right' });
     this.router.navigate(['restaurants']);
   }
 }

@@ -30,7 +30,7 @@
     "line-awesome": "^1.0.2",
     "moment": "^2.22.2",
     "ng-bootstrap": "^1.6.3",
-    "ngx-toastr": "^9.1.1",
+    "ngx-toastr": "^9.2.0",
     "redux": "^4.0.1",
     "rxjs": "6.0.0",
     "rxjs-compat": "6.2.2",

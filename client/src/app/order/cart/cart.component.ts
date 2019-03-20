@@ -18,7 +18,7 @@ export class CartComponent implements OnInit, OnDestroy {
   quantity = 0;
   subscription;
   subscriptionAccount;
-  cart: any;
+  cart: ICart;
   user: Account;
 
   @ViewChild('orderDetailModal') orderDetailModal;
@@ -54,21 +54,22 @@ export class CartComponent implements OnInit, OnDestroy {
   addToCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
-      payload: { pid: item.pid, name: item.name, price: item.price, restaurant_id: item.rid }
+      payload: { productId: item.productId, name: item.name, price: item.price, restaurantId: item.restaurantId }
     });
   }
 
   removeFromCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: { pid: item.pid, name: item.name, price: item.price, restaurant_id: item.rid }
+      payload: { productId: item.productId, name: item.name, price: item.price, restaurantId: item.restaurantId }
     });
   }
 
-  updateQuantity(item) {
+  updateQuantity(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.UPDATE_QUANTITY,
-      payload: { pid: item.pid, name: item.name, price: item.price, restaurant_id: item.rid, quantity: parseInt(item.quantity, 10) }
+      payload: { productId: item.productId, name: item.name, price: item.price,
+        restaurantId: item.restaurantId, quantity: item.quantity }
     });
   }
 
@@ -86,8 +87,8 @@ export class CartComponent implements OnInit, OnDestroy {
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
   }
 
-  createOrders(cart: any) {
-    const ids = cart.items.map(x => x.restaurant_id);
+  createOrders(cart: ICart) {
+    const ids = cart.items.map(x => x.restaurantId);
     const restaurantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
     const orders = [];
 
@@ -97,11 +98,13 @@ export class CartComponent implements OnInit, OnDestroy {
 
     for (const item of cart.items) {
       for (const order of orders) {
-        if (item.restaurant_id === order.restaurantId) {
+        if (item.restaurantId === order.restaurantId) {
           order.items.push({
+            name: item.name,
             price: item.price,
             quantity: item.quantity,
-            productId: item.pid,
+            productId: item.productId,
+            restaurantId: item.restaurantId
           });
         }
       }

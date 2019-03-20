@@ -3,9 +3,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import multer from "multer";
-import fs from "fs";
 import path from "path";
-import { Request, Response } from "express";
 
 import { DB } from "./db";
 import { User } from "./user";
@@ -13,8 +11,10 @@ import { Restaurant } from "./restaurant";
 import { Product } from "./product";
 import { Category } from "./category";
 import { Order } from "./order";
+import { Utils } from "./utils";
 
-const cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
+const utils = new Utils();
+const cfg = utils.cfg;
 const SERVER = cfg.API_SERVER;
 const ROUTE_PREFIX = SERVER.ROUTE_PREFIX;
 
@@ -30,9 +30,18 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 let user: User;
+let order: Order;
+let category: Category;
+let restaurant: Restaurant;
+let product: Product;
 
 dbo.init(cfg.DATABASE).then(dbClient => {
   user = new User(dbo);
+  order = new Order(dbo);
+  category = new Category(dbo);
+  restaurant = new Restaurant(dbo);
+  product = new Product(dbo);
+
   user.findOne({username: 'admin'}).then(x => {
     if(x){
       console.log('database duocun exists ...');
@@ -56,6 +65,15 @@ const staticPath = path.resolve('uploads');
 console.log(staticPath);
 app.use(express.static(staticPath));
 
+
+app.get('/wx', (req, res) => {
+  utils.genWechatToken(req, res);
+});
+
+app.get('/' + ROUTE_PREFIX + '/geocode', (req, res) => {
+  utils.getGeocode(req, res);
+});
+
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
   const user = new User(dbo);
   // user.insertOne('Jack').then((x: any) => {
@@ -75,7 +93,6 @@ app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
 });
 
 app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-  const restaurant = new Restaurant(dbo);
   restaurant.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x.ops[0], null, 3));
@@ -83,7 +100,6 @@ app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
 });
 
 app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-  const restaurant = new Restaurant(dbo);
   restaurant.replaceById(req.body.id, req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x.ops[0], null, 3));
@@ -91,7 +107,6 @@ app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
 });
 
 app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-  const restaurant = new Restaurant(dbo);
   restaurant.find({}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3));
@@ -99,12 +114,10 @@ app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
 });
 
 app.get('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
-  const restaurant = new Restaurant(dbo);
   restaurant.get(req, res);
 });
 
 app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
-  const product = new Product(dbo);
   product.find({restaurantId: req.params.id}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3));
@@ -112,7 +125,6 @@ app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
 });
 
 app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
-  const product = new Product(dbo);
   product.replaceById(req.body.id, req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x.ops[0], null, 3));
@@ -120,7 +132,6 @@ app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
 });
 
 app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
-  const product = new Product(dbo);
   product.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x.ops[0], null, 3));
@@ -128,7 +139,6 @@ app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
 });
 
 app.get('/' + ROUTE_PREFIX + '/Products', (req: any, res) => {
-  const product = new Product(dbo);
   const query = req.headers? JSON.parse(req.headers.filter) : null;
   product.find(query ? query.where: {}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
@@ -137,12 +147,10 @@ app.get('/' + ROUTE_PREFIX + '/Products', (req: any, res) => {
 });
 
 app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
-  const product = new Product(dbo);
   product.get(req, res);
 });
 
 app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-  const category = new Category(dbo);
   category.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x.ops[0], null, 3))
@@ -150,7 +158,6 @@ app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
 });
 
 app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-  const category = new Category(dbo);
   category.find({}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3))
@@ -158,12 +165,10 @@ app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
 });
 
 app.get('/' + ROUTE_PREFIX + '/Categories/:id', (req, res) => {
-  const category = new Category(dbo);
   category.get(req, res);
 });
 
 app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-  const order = new Order(dbo);
   order.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x.ops[0], null, 3))
@@ -171,7 +176,6 @@ app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
 });
 
 app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
-  const order = new Order(dbo);
   order.replaceById(req.body.id, req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x.ops[0], null, 3));
@@ -179,7 +183,6 @@ app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
 });
 
 app.post('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
-  const order = new Order(dbo);
   order.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x.ops[0], null, 3));
@@ -187,7 +190,6 @@ app.post('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
 });
 
 app.get('/' + ROUTE_PREFIX + '/Orders', (req: any, res) => {
-  const order = new Order(dbo);
   const query = req.headers? JSON.parse(req.headers.filter) : null;
   order.find(query ? query.where: {}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
@@ -196,7 +198,6 @@ app.get('/' + ROUTE_PREFIX + '/Orders', (req: any, res) => {
 });
 
 app.get('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
-  const order = new Order(dbo);
   order.get(req, res);
 });
 

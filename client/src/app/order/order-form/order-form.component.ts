@@ -76,7 +76,7 @@ export class OrderFormComponent implements OnInit {
 
   createOrders() {
     const v = this.form.value;
-    const ids = this.items.map( x => x.restaurant_id );
+    const ids = this.items.map(x => x.restaurant_id);
     const restaurantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
     const orders = [];
 
@@ -95,6 +95,7 @@ export class OrderFormComponent implements OnInit {
       for (const order of orders) {
         if (item.restaurant_id === order.restaurantId) {
           order.items.push({
+            name: item.name,
             price: item.price,
             quantity: item.quantity,
             productId: item.pid,
@@ -108,11 +109,11 @@ export class OrderFormComponent implements OnInit {
   checkout() {
     const orders = this.createOrders();
     const self = this;
-    // orders.map(order => {
-    self.orderSvc.save(orders[0]).subscribe((order: Order) => {
+    if (orders && orders.length > 0) {
+      self.orderSvc.save(orders[0]).subscribe((order: Order) => {
         self.afterSubmit.emit(orders[0]);
         // self.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
       });
-    // });
+    }
   }
 }
