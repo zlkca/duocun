@@ -1,12 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Product } from '../../commerce/commerce';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { ICart, CartActions } from '../../commerce/commerce.actions';
-import { CommerceService } from '../../commerce/commerce.service';
+import { Product } from '../../lb-sdk';
 
 
 const ADD_IMAGE = 'add_photo.png';
@@ -33,7 +31,6 @@ export class AdminProductListComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private commerceSvc: CommerceService,
         private rx: NgRedux<IAppState>) {
         const self = this;
 

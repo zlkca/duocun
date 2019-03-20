@@ -32,11 +32,12 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.insertOne(doc).then((result: any) => {
-          if(result && result._id){
-            result.id = result._id;
-            delete(result._id);
+          const ret = (result.ops && result.ops.length) ? result.ops[0] : null;
+          if(ret && ret._id){
+            ret.id = ret._id;
+            delete(ret._id);
           }
-          resolve(result);
+          resolve(ret);
         }, err => {
           reject(err);
         });

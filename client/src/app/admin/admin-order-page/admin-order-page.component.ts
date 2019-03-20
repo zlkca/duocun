@@ -90,15 +90,15 @@ export class AdminOrderPageComponent implements OnInit {
 
     if (account.type === 'user') {
       self.orderSvc.find({
-        where: { and: [{accountId: account.id}, { delivered: { gt: new Date(start) } }, { delivered: { lt: new Date(end) } }] },
+        where: { accountId: account.id, delivered: { $gt: new Date(start), $lt: new Date(end) } },
         include: ['account', { items: { product: 'pictures' } }, 'restaurant'],
-        order: 'delivered DESC',
+        order: 'delivered DESC'
       }).subscribe((orders: Order[]) => {
         self.orders = orders;
       });
     } else if (account.type === 'business') {
       self.orderSvc.find({
-        where: { and: [{restaurantId: this.restaurantId}, { delivered: { gt: new Date(start) } }, { delivered: { lt: new Date(end) } }] },
+        where: { restaurantId: this.restaurantId, delivered: { $gt: new Date(start), $lt: new Date(end) } },
         include: ['account', { items: { product: 'pictures' } }, 'restaurant'],
         order: 'delivered DESC',
       }).subscribe((orders: Order[]) => {
@@ -106,7 +106,7 @@ export class AdminOrderPageComponent implements OnInit {
       });
     } else if (account.type === 'deliver') {
       self.orderSvc.find({
-        where: { and: [{ delivered: { gt: new Date(start) } }, { delivered: { lt: new Date(end) } }] },
+        where: { delivered: { $gt: new Date(start), $lt: new Date(end) } },
         include: ['account', { items: { product: 'pictures' } }, 'restaurant'],
         order: 'delivered DESC',
       }).subscribe((orders: Order[]) => {
@@ -114,7 +114,7 @@ export class AdminOrderPageComponent implements OnInit {
       });
     } else if (account.type === 'super') {
       self.orderSvc.find({
-        where: { and: [{ delivered: { gt: new Date(start) } }, { delivered: { lt: new Date(end) } }] },
+        where: { delivered: { $gt: new Date(start), $lt: new Date(end) } },
         include: ['account', { items: { product: 'pictures' } }, 'restaurant'],
         order: 'delivered DESC',
       }).subscribe((orders: Order[]) => {
@@ -152,7 +152,7 @@ export class AdminOrderPageComponent implements OnInit {
         });
       } else if (account.type === 'restaurant') {
         self.orderSvc.find({
-          where: { and: [{restaurantId: restaurant.id}] },
+          where: {restaurantId: restaurant.id},
           include: ['account', { items: { product: 'pictures' } }, 'restaurant'],
           order: 'delivered DESC',
         }).subscribe((orders: Order[]) => {
@@ -160,7 +160,7 @@ export class AdminOrderPageComponent implements OnInit {
         });
       } else {
         self.orderSvc.find({
-          where: { and: [{accountId: account.id}] },
+          where: { accountId: account.id },
           include: ['account', { items: { product: 'pictures' } }, 'restaurant'],
           order: 'delivered DESC',
         }).subscribe((orders: Order[]) => {

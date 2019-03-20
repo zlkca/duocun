@@ -6,7 +6,7 @@ import { RestaurantService } from '../restaurant.service';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
-import { IPicture } from '../../commerce/commerce.actions';
+
 import { AccountService } from '../../account/account.service';
 import { GeoPoint, Restaurant, Category, LoopBackConfig, Address, Account, Picture } from '../../lb-sdk';
 import { ILocation } from '../../shared/location/location.model';
@@ -80,7 +80,6 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     private sharedSvc: SharedService,
     private router: Router,
     private route: ActivatedRoute,
-    private rx: NgRedux<IPicture>
   ) {
     this.form = this.createForm();
   }

@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges } 
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormArray, FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { NgRedux } from '@angular-redux/store';
-import { IPicture } from '../../commerce/commerce.actions';
 
 import { ProductService } from '../product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
@@ -52,7 +51,6 @@ export class ProductFormComponent implements OnInit, OnChanges {
     private productSvc: ProductService,
     private sharedSvc: SharedService,
     private route: ActivatedRoute,
-    private rx: NgRedux<IPicture>,
     private router: Router
   ) {
     this.form = this.createForm();

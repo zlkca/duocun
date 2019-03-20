@@ -9,6 +9,7 @@ import {
 declare var Object: any;
 export interface OrderInterface {
   "accountId": number;
+  "username": string;
   "restaurantId": number;
   "status": string;
   "notes"?: string;
@@ -25,6 +26,7 @@ export interface OrderInterface {
 
 export class Order implements OrderInterface {
   "accountId": number;
+  "username": string;
   "restaurantId": number;
   "status": string;
   "notes": string;

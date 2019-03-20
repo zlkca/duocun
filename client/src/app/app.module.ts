@@ -32,14 +32,12 @@ import { RestaurantModule } from './restaurant/restaurant.module';
 import { ProductModule } from './product/product.module';
 
 import { SharedModule } from './shared/shared.module';
-import { CommerceModule } from './commerce/commerce.module';
 
 import { AdminComponent } from './admin/admin.component';
 
 import { AdminProductPageComponent } from './admin/admin-product-page/admin-product-page.component';
 import { AdminProductFormPageComponent } from './admin/admin-product-form-page/admin-product-form-page.component';
 import { AdminAccountPageComponent } from './admin/admin-account-page/admin-account-page.component';
-import { MultiProductFormComponent } from './commerce/multi-product-form/multi-product-form.component';
 import { OrderModule } from './order/order.module';
 import { PageModule } from './page/page.module';
 
@@ -53,7 +51,6 @@ const appRoutes: Routes = [
     { path: 'admin/products/:id', component: AdminProductFormPageComponent },
     { path: 'admin/product', component: AdminProductFormPageComponent },
     { path: 'admin/products', component: AdminProductPageComponent },
-    { path: 'admin/edit-products', component: MultiProductFormComponent },
     { path: 'admin/user', component: AdminAccountPageComponent },
     { path: 'admin/users/:id', component: AdminAccountPageComponent },
     { path: 'admin/orders', component: AdminComponent },
@@ -93,7 +90,6 @@ const appRoutes: Routes = [
         NgReduxModule,
         SharedModule,
         AccountModule,
-        CommerceModule,
         MainModule,
         AdminModule,
         RestaurantModule,

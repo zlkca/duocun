@@ -1,5 +1,5 @@
 import { throwError as observableThrowError, Observable } from 'rxjs';
-import { map, catchError, mergeMap } from 'rxjs/operators';
+import { map, catchError, mergeMap, flatMap } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -157,11 +157,18 @@ export class AccountService {
   }
 
   getCurrent(forceGet: boolean = false): Observable<Account> {
+    const self = this;
     const state: any = this.ngRedux.getState();
-    if (!state || !state.email || forceGet) {
-      this.updateCurrent();
+    if (!state || !state.account.id || forceGet) {
+      return this.accountApi.getCurrent({ include: 'restaurants' }).pipe(
+        flatMap((acc: Account) => {
+          self.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
+          return new Observable(observer => observer.next(acc));
+        })
+      );
+    } else {
+      return this.ngRedux.select<Account>('account');
     }
-    return this.ngRedux.select<Account>('account');
   }
 
   updateCurrent() {

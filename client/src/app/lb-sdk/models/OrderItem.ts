@@ -13,6 +13,7 @@ export interface OrderItemInterface {
   "created"?: Date;
   "modified"?: Date;
   "id"?: number;
+  "name": string;
   order?: Order;
   product?: Product;
 }
@@ -25,6 +26,7 @@ export class OrderItem implements OrderItemInterface {
   "created": Date;
   "modified": Date;
   "id": number;
+  "name": string;
   order: Order;
   product: Product;
   constructor(data?: OrderItemInterface) {

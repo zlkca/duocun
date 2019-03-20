@@ -4,8 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SDKBrowserModule, LoopBackConfig } from '../lb-sdk';
 
-
-import { CommerceModule } from '../commerce/commerce.module';
 import { RestaurantModule } from '../restaurant/restaurant.module';
 import { AccountModule } from '../account/account.module';
 import { ProductModule } from '../product/product.module';
@@ -19,7 +17,6 @@ import { AdminProductFormPageComponent } from './admin-product-form-page/admin-p
 import { AdminRestaurantPageComponent } from './admin-restaurant-page/admin-restaurant-page.component';
 import { AdminOrderPageComponent } from './admin-order-page/admin-order-page.component';
 import { AdminProductPageComponent } from './admin-product-page/admin-product-page.component';
-import { EditRestaurantComponent } from './edit-restaurant/edit-restaurant.component';
 import { AdminCategoryPageComponent } from './admin-category-page/admin-category-page.component';
 import { AdminAccountPageComponent } from './admin-account-page/admin-account-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -38,7 +35,6 @@ import { ToastrModule } from 'ngx-toastr';
         AccountModule,
         ProductModule,
         OrderModule,
-        CommerceModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     declarations: [AdminComponent,
@@ -49,9 +45,8 @@ import { ToastrModule } from 'ngx-toastr';
         AdminOrderPageComponent,
         AdminProductPageComponent,
         AdminProductFormPageComponent,
-        EditRestaurantComponent,
         AdminCategoryPageComponent
       ],
-    exports: [AdminComponent, EditRestaurantComponent]
+    exports: [AdminComponent]
 })
 export class AdminModule { }

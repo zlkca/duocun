@@ -6,7 +6,6 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { SharedModule } from '../shared/shared.module';
-import { CommerceModule } from '../commerce/commerce.module';
 import { AccountModule } from '../account/account.module';
 import { OrderModule } from '../order/order.module';
 import { environment } from '../../environments/environment';
@@ -14,7 +13,6 @@ import { environment } from '../../environments/environment';
 import { ContactComponent } from './contact/contact.component';
 import { LayoutComponent } from './layout/layout.component';
 
-import { CommerceService } from '../commerce/commerce.service';
 import { AccountService } from '../account/account.service';
 
 import { ProductComponent } from './product/product.component';
@@ -28,7 +26,6 @@ import { CommentComponent } from './comment/comment.component';
         HttpClientModule,
         NgbModule,
         SharedModule,
-        CommerceModule,
         AccountModule,
         OrderModule
     ],
@@ -39,7 +36,7 @@ import { CommentComponent } from './comment/comment.component';
         BlogComponent,
         CommentComponent
     ],
-    providers: [CommerceService, AccountService],
+    providers: [AccountService],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
         ContactComponent]

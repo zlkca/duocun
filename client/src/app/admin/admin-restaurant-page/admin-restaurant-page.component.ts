@@ -1,10 +1,10 @@
 
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Restaurant } from '../../commerce/commerce';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { environment } from '../../../environments/environment';
 import { ToastrService } from 'ngx-toastr';
+import { Restaurant } from '../../lb-sdk';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -87,8 +87,8 @@ export class AdminRestaurantPageComponent implements OnInit {
     this.restaurant.name = '';
     this.restaurant.description = '';
     this.restaurant.address = null;
-    this.restaurant.user = null;
-    this.restaurant.image = null;
+    // this.restaurant.user = null;
+    // this.restaurant.image = null;
 
     this.toastSvc.success('Save Restaurant Successfully!', '', { timeOut: 2000, positionClass: 'toast-bottom-right' });
   }
@@ -100,8 +100,8 @@ export class AdminRestaurantPageComponent implements OnInit {
     this.restaurant.name = '';
     this.restaurant.description = '';
     this.restaurant.address = null;
-    this.restaurant.user = null;
-    this.restaurant.image = null;
+    // this.restaurant.user = null;
+    // this.restaurant.image = null;
     setTimeout(() => this.alertClosed = true, 2000);
   }
 

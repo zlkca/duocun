@@ -19,7 +19,9 @@ export class OrderListComponent implements OnInit {
 
   constructor(
     private sharedSvc: SharedService,
-    private orderSvc: OrderService) { }
+    private orderSvc: OrderService) {
+
+    }
 
   ngOnInit() {
     const self = this;
@@ -40,7 +42,7 @@ export class OrderListComponent implements OnInit {
   }
 
   toDateTimeString(s) {
-    return this.sharedSvc.toDateTimeString(s);
+    return s ? this.sharedSvc.toDateTimeString(s) : '';
   }
 
   deliver(order) {

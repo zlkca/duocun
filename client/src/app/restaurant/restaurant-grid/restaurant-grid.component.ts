@@ -1,8 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommerceService } from '../../commerce/commerce.service';
 import { SharedService } from '../../shared/shared.service';
-import { AuthService } from '../../account/auth.service';
+
 import { environment } from '../../../environments/environment';
 import { LocationService } from '../../shared/location/location.service';
 import { RestaurantService } from '../restaurant.service';
@@ -31,7 +30,7 @@ export class RestaurantGridComponent implements OnInit {
     // let x = this.restaurantList;
   }
 
-  constructor(private commerceServ: CommerceService,
+  constructor(
     private router: Router,
     private sharedSvc: SharedService,
     private restaurantSvc: RestaurantService,

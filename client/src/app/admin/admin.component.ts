@@ -43,7 +43,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
             self.account = account;
 
-            if (account.type === 'business') {
+            if (account && account.type === 'business') {
                 const restaurant_id = account.restaurants[0] ? account.restaurants[0].id : null;
 
                 if (restaurant_id) {
@@ -72,7 +72,7 @@ export class AdminComponent implements OnInit, OnDestroy {
                     //     });
                 }
 
-            } else if (account.type === 'super') {
+            } else if (account && account.type === 'super') {
                 // this.subscrList.push(self.restaurantSvc.find().subscribe((restaurants: Restaurant[]) => {
                 //     self.restaurants = restaurants;
                 // }));

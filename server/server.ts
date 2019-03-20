@@ -185,7 +185,7 @@ app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
   order.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3));
+    res.end(JSON.stringify(x, null, 3));
   });
 });
 

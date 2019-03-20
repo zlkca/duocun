@@ -17,7 +17,7 @@
           </div>
           <div class="col-6 col-sm-2">
             <span class="title-xs" i18n="@@Customer">Customer</span>:
-            <span class="title-xs">{{order.account.username}}</span>
+            <span class="title-xs">{{order.username}}</span>
           </div>
           <div class="col-12 col-sm-4">
             <span class="title-xs" i18n="@@NotesToMerchant">Notes</span>:
@@ -37,7 +37,7 @@
           </div>
         </div>
         <div *ngFor="let it of order.items">
-          <div class="text-xs">{{it.product.name}} ${{it.price}} x {{it.quantity}}</div>
+          <div class="text-xs">{{it.name}} ${{it.price}} x {{it.quantity}}</div>
         </div>
 
         <div class="row">

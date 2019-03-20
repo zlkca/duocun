@@ -15,6 +15,7 @@ import { FooterComponent } from './footer/footer.component';
 import { AddressInputComponent } from './address-input/address-input.component';
 import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-uploader.component';
 import { LocationService } from './location/location.service';
+import { SharedService } from './shared.service';
 
 // import { PageService } from '../pages/page.service';
 // import { PagesModule } from '../pages/pages.module';
@@ -35,7 +36,7 @@ import { LocationService } from './location/location.service';
     AddressInputComponent,
     MultiImageUploaderComponent
   ],
-  providers: [LocationService],
+  providers: [LocationService, SharedService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
     WizardComponent, ImageViewerComponent, FeedbackComponent,

@@ -2,9 +2,10 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { OrderService } from '../order.service';
 import { SharedService } from '../../shared/shared.service';
 
-import { Order, Restaurant } from '../../lb-sdk';
+import { Order, Restaurant, Account, OrderInterface } from '../../lb-sdk';
 import { FormBuilder, Validators } from '../../../../node_modules/@angular/forms';
 import { environment } from '../../../environments/environment';
+import { ICartItem } from '../../order/order.actions';
 
 const APP = environment.APP;
 
@@ -14,8 +15,8 @@ const APP = environment.APP;
   styleUrls: ['./order-form.component.scss']
 })
 export class OrderFormComponent implements OnInit {
-  @Input() account;
-  @Input() items: any[];
+  @Input() account: Account;
+  @Input() items: ICartItem[];
   @Output() afterSubmit: EventEmitter<any> = new EventEmitter();
   subTotal = 0;
   total = 0;
@@ -51,7 +52,7 @@ export class OrderFormComponent implements OnInit {
         this.subTotal += item.price * item.quantity;
       });
 
-      this.orderSvc.findRestaurant(this.items[0].restaurant_id, { include: 'products' })
+      this.orderSvc.findRestaurant(this.items[0].restaurantId, { include: 'products' })
         .subscribe((r: Restaurant) => {
           this.restaurant = r;
           this.deliveryFee = r.delivery_fee ? r.delivery_fee : 0;
@@ -76,29 +77,31 @@ export class OrderFormComponent implements OnInit {
 
   createOrders() {
     const v = this.form.value;
-    const ids = this.items.map(x => x.restaurant_id);
+    const ids = this.items.map(x => x.restaurantId);
     const restaurantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
-    const orders = [];
+    const orders: any[] = []; // fix me
 
     for (const id of restaurantIds) {
       orders.push({
         restaurantId: id,
         items: [],
         accountId: this.account.id,
+        username: this.account.username,
         delivered: this.getDateTime(v.date, v.time),
         address: this.deliveryAddress,
-        notes: v.notes
+        notes: v.notes,
+        status: 'new order'
       });
     }
 
     for (const item of this.items) {
       for (const order of orders) {
-        if (item.restaurant_id === order.restaurantId) {
+        if (item.restaurantId === order.restaurantId) {
           order.items.push({
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            productId: item.pid,
+            productId: item.productId,
           });
         }
       }
@@ -111,7 +114,7 @@ export class OrderFormComponent implements OnInit {
     const self = this;
     if (orders && orders.length > 0) {
       self.orderSvc.save(orders[0]).subscribe((order: Order) => {
-        self.afterSubmit.emit(orders[0]);
+        self.afterSubmit.emit(order);
         // self.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
       });
     }

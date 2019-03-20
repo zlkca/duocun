@@ -2,11 +2,11 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { ILocation, ILatLng } from '../../shared/location/location.model';
 
-import { Restaurant } from '../../commerce/commerce';
 import { SharedService } from '../../shared/shared.service';
 import { AuthService } from '../../account/auth.service';
 import { environment } from '../../../environments/environment';
 import { LocationService } from '../../shared/location/location.service';
+import { Restaurant } from '../../lb-sdk';
 
 
 declare var google;

@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../product/product.service';
 import { AuthService } from '../../account/auth.service';
 import { SharedService } from '../../shared/shared.service';
-import { Product } from '../../commerce/commerce';
+import { Product } from '../../lb-sdk';
 
 
 const FRAME_WIDTH: number = 480;

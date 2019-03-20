@@ -50,6 +50,6 @@ export class MyOrderComponent implements OnInit, OnDestroy {
   onAfterCheckout(e) {
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
     this.toastSvc.success('Save Restaurant Successfully!', '', { timeOut: 2000, positionClass: 'toast-bottom-right' });
-    this.router.navigate(['restaurants']);
+    // this.router.navigate(['restaurants']);
   }
 }
