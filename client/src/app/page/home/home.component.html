@@ -1,16 +1,15 @@
 <div class="page container">
   <div class="row">
       <div class="col-12 map-col">
-        <div class="map-area">
+        <div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''">
             <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
         </div>
       </div>
-
       <div class="col-12 deliver-address-row">
         <div class="row">
           <div class="col-12 col-sm-7 search-bar-wrapper">
             <div class="input-group search-bar">
-              <app-address-input (addrChange)="onAddressChange($event)"
+              <app-address-input (addrChange)="onAddressChange($event)" (addrClear)="onAddressClear($event)"
                 placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
                 [value]="deliveryAddress"></app-address-input>
               <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
@@ -20,45 +19,10 @@
               </div>
             </div>
           </div>
-          <!-- <div class="col-12 col-sm-5 use-current-location">
-            <div class="btn-group default-addr" role="group" aria-label="Set Current Location as Address">
-              <button type="button" class="btn btn-secondary btn-home" (click)="setHomeAddr()">
-                <div class="title">Home</div>
-                <div class="sub-title">Use Current Location</div>
-              </button>
-              <button type="button" class="btn btn-secondary btn-work" (click)="setWorkAddr()">
-                <div class="title">Work</div>
-                <div class="sub-title">Use Current Location</div>
-              </button>
-            </div>
-          </div> -->
         </div>
       </div>
-      <!-- <div class="col-xs-12 col-4 search-col">
-        <div class="input-group search-box">
-          <input type="text" class="form-control" [(ngModel)]="keyword" placeholder="Search Restaurant" aria-describedby="basic-addon2">
-          <span class="input-group-addon" (click)="searchRestaurant(keyword)"><i class="fa fa-search"></i></span>
-        </div>
-      </div> -->
 
-      <!-- <div class="row">
-        <div class="col-md-12 col-sm-12 col-12 mt-2 grid">
-          <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" (click)="toDetail()">
-              <div class="row grid-item-body">
-                  <div class="col-md-12 col-sm-3 col-3 image-body">
-                      <img [src]="'http://placehold.it/400x300'">
-                  </div>
-  
-                  <div class="col-md-12 col-sm-9 col-9 text-body">
-                      <div class="title-bg text-left">Hefan</div>
-                      <div class="text-sm text-left">Free Deliver when order before 10:00am</div>
-                      <div class="text-sm text-left">5km</div>
-                  </div>
-              </div>
-          </div>
-      </div> -->
-
-      <div class="col-12">
+      <div *ngIf="!mapFullScreen" class="col-12">
         <app-restaurant-grid [restaurantList]="restaurants" [center]="center" *ngIf="restaurants"></app-restaurant-grid>
       </div>   
   </div>

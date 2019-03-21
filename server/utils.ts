@@ -3,12 +3,12 @@ import https from 'https';
 import crypto from 'crypto';
 import fs from "fs";
 import { IncomingMessage } from "http";
+import { DB } from "./db";
 
 export class Utils {
   cfg: any;
 
-  constructor(
-  ) {
+  constructor() {
     this.cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
   }
 

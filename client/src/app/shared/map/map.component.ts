@@ -63,7 +63,10 @@ export class MapComponent implements OnInit, OnChanges {
                 const markers = this.places.map((location, i) => {
                     return new google.maps.Marker({
                         position: location,
-                        label: self.places[i].name
+                        label: {
+                          text: self.places[i].name,
+                          fontSize: '11px'
+                        }
                     });
                 });
 

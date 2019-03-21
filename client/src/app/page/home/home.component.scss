@@ -71,7 +71,9 @@ $current-loc-btn-width: 92px;
 }
 
 .deliver-address-row{
-  margin-top:20px;
+  margin-top: 6px;
+  padding-left:10px;
+  padding-right:10px;
 }
 
 .search-bar{
@@ -146,8 +148,15 @@ and (orientation: landscape) {
     padding-right:0px;
   }
 
-  .map-area{
-    height: 220px;
+  .map-col{
+    padding:0px;
+    // .map-area{
+    //   height: 220px;
+    // }
+  }
+
+  .full-screen-map{
+    height: 700px;
   }
 
   .default-addr{
@@ -164,13 +173,13 @@ and (orientation: landscape) {
     }
   }
   
-  @media #{$cellphone}{
-    .use-current-location{
-      padding: 15px 0px;
-      .btn{
-        width:100%;
-      }
-    }
+  .deliver-address-row{
+    position: absolute;
+    top: 6px;
+    left: 0px;
+    margin: 0px;
+    padding-left:6px;
+    padding-right:6px;
   }
 
 }

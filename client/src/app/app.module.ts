@@ -22,7 +22,8 @@ import { RestaurantComponent } from './page/restaurant/restaurant.component';
 
 import { ProductListComponent } from './product/product-list/product-list.component';
 import { ProductComponent } from './main/product/product.component';
-import { MyOrderComponent } from './page/my-order/my-order.component';
+import { ClientOrderComponent } from './page/client-order/client-order.component';
+import { WorkerOrderComponent } from './page/worker-order/worker-order.component';
 
 import { CoreModule } from './core/core.module';
 import { AccountModule } from './account/account.module';
@@ -59,7 +60,8 @@ const appRoutes: Routes = [
     // { path: 'restaurant-detail/:id', component: RestaurantDetailComponent },
     { path: 'products', component: ProductListComponent },
     { path: 'product/:id', component: ProductComponent },
-    { path: 'orders', component: MyOrderComponent },
+    { path: 'client-orders', component: ClientOrderComponent },
+    { path: 'worker-orders', component: WorkerOrderComponent },
     { path: 'forget-password', component: ForgetPasswordComponent },
     { path: 'login', component: LoginFormComponent },
     { path: 'institution-login', component: InstitutionLoginComponent },

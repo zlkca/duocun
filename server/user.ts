@@ -55,11 +55,8 @@ export class User extends Entity{
           bcrypt.hash(user.password, saltRounds, (err, hash) => {
             user['password'] = hash;
             self.insertOne(user).then(x => {
-              const ret = x.ops[0];
-              ret.id = ret._id;
-              ret.password = '';
-              delete ret._id;
-              return rsp.json(ret);
+              x.password = '';
+              return rsp.json(x);
             });
           });
         }

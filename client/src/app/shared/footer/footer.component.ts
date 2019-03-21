@@ -31,11 +31,19 @@ export class FooterComponent implements OnInit {
   }
 
   toOrder() {
-    this.router.navigate(['orders']);
+    if (this.account.type === 'user' || this.account.type === 'super') {
+      this.router.navigate(['client-orders']);
+    } else if (this.account.type === 'worker') {
+      this.router.navigate(['worker-orders']);
+    }
   }
 
   toCart() {
-    this.router.navigate(['orders']);
+    if (this.account.type === 'user' || this.account.type === 'super') {
+      this.router.navigate(['client-orders']);
+    } else if (this.account.type === 'worker') {
+      this.router.navigate(['worker-orders']);
+    }
   }
 
   toAccount() {

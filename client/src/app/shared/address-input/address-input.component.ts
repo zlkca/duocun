@@ -20,6 +20,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
 
   @ViewChild('div') div: ElementRef;
   @Output() addrChange = new EventEmitter();
+  @Output() addrClear = new EventEmitter();
   @Input() value;
 
   placeholder: string;
@@ -152,6 +153,6 @@ export class AddressInputComponent implements OnInit, OnChanges {
 
   clearAddr() {
     this.div.nativeElement.value = '';
-    // this.cleared = true;
+    this.addrClear.emit();
   }
 }

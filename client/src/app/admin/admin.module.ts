@@ -26,7 +26,9 @@ import { ToastrModule } from 'ngx-toastr';
     imports: [
         CommonModule,
         BrowserAnimationsModule,
-        ToastrModule.forRoot(),
+        ToastrModule.forRoot({timeOut: 10000,
+          positionClass: 'toast-bottom-right',
+          preventDuplicates: true}),
         SDKBrowserModule.forRoot(), // for socket
         NgbModule,
         FormsModule,

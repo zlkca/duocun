@@ -19,6 +19,7 @@ export class HomeComponent implements OnInit {
   places;
   deliveryAddress = '';
   placeholder = 'Delivery Address';
+  mapFullScreen = true;
 
   constructor(
     private locationSvc: LocationService,
@@ -27,20 +28,20 @@ export class HomeComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    const self = this;
-    const s = localStorage.getItem('location-' + APP);
+    // const self = this;
+    // const s = localStorage.getItem('location-' + APP);
 
-    if (s) {
-      const location = JSON.parse(s);
-      self.deliveryAddress = self.locationSvc.getAddrString(location);
-      self.center = { lat: location.lat, lng: location.lng };
-      self.doSearchRestaurants(self.center);
-    } else {
-      this.locationSvc.getCurrentLocation().subscribe(r => {
-        self.center = { lat: r.lat, lng: r.lng };
-        self.doSearchRestaurants(self.center);
-      });
-    }
+    // if (s) {
+    //   const location = JSON.parse(s);
+    //   self.deliveryAddress = self.locationSvc.getAddrString(location);
+    //   self.center = { lat: location.lat, lng: location.lng };
+    //   self.doSearchRestaurants(self.center);
+    // } else {
+    //   this.locationSvc.getCurrentLocation().subscribe(r => {
+    //     self.center = { lat: r.lat, lng: r.lng };
+    //     self.doSearchRestaurants(self.center);
+    //   });
+    // }
   }
 
   toDetail() {
@@ -163,6 +164,15 @@ export class HomeComponent implements OnInit {
     localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
     this.deliveryAddress = e.sAddr;
     this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
+    this.mapFullScreen = false;
+  }
+
+  onAddressClear(e) {
+    this.mapFullScreen = true;
+  }
+
+  getMapHeight() {
+    return this.mapFullScreen ? '700px' : '220px';
   }
 
   setAddrString(location) {
@@ -176,7 +186,9 @@ export class HomeComponent implements OnInit {
     this.locationSvc.getCurrentLocation().subscribe(r => {
       self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       self.setAddrString(r);
-      self.loadNearbyRestaurants(self.center);
+      // self.loadNearbyRestaurants(self.center);
+      self.center = { lat: r.lat, lng: r.lng };
+      self.doSearchRestaurants(self.center);
     },
     err => {
       console.log(err);

@@ -11,8 +11,9 @@ import { OrderModule } from '../order/order.module';
 import { ProductModule } from '../product/product.module';
 import { HomeComponent } from './home/home.component';
 import { MyAddressComponent } from './my-address/my-address.component';
-import { MyOrderComponent } from './my-order/my-order.component';
+import { ClientOrderComponent } from './client-order/client-order.component';
 import { RestaurantComponent } from './restaurant/restaurant.component';
+import { WorkerOrderComponent } from './worker-order/worker-order.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,9 @@ import { RestaurantComponent } from './restaurant/restaurant.component';
     ReactiveFormsModule,
     HttpClientModule,
     NgbModule,
-    ToastrModule.forRoot(),
+    ToastrModule.forRoot({timeOut: 10000,
+      positionClass: 'toast-bottom-right',
+      preventDuplicates: true}),
     SharedModule,
     RestaurantModule,
     ProductModule,
@@ -29,7 +32,8 @@ import { RestaurantComponent } from './restaurant/restaurant.component';
   declarations: [
     HomeComponent,
     MyAddressComponent,
-    MyOrderComponent,
+    ClientOrderComponent,
+    WorkerOrderComponent,
     RestaurantComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

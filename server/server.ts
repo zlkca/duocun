@@ -4,6 +4,9 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import multer from "multer";
 import path from "path";
+import Server from "socket.io";
+import { ObjectID } from "mongodb";
+//import * as SocketIOAuth from "socketio-auth";
 
 import { DB } from "./db";
 import { User } from "./user";
@@ -12,6 +15,7 @@ import { Product } from "./product";
 import { Category } from "./category";
 import { Order } from "./order";
 import { Utils } from "./utils";
+import { Socket } from "./socket";
 
 const utils = new Utils();
 const cfg = utils.cfg;
@@ -34,13 +38,33 @@ let order: Order;
 let category: Category;
 let restaurant: Restaurant;
 let product: Product;
+let socket: Socket;
+let io: any;
 
 dbo.init(cfg.DATABASE).then(dbClient => {
+  io = Server(server);
+
   user = new User(dbo);
   order = new Order(dbo);
   category = new Category(dbo);
   restaurant = new Restaurant(dbo);
   product = new Product(dbo);
+  socket = new Socket(dbo, io);
+
+  require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
+    const uId = data.userId;
+    user.findOne({_id: new ObjectID(uId)}).then( x => {
+      if(x){
+        callback(null, true);
+      }else{
+        callback(null, false);
+      }
+    });
+  }, timeout: 20000});
+
+  // io.on("updateOrders", (x: any) => {
+  //   const ss = x;
+  // });
 
   user.findOne({username: 'admin'}).then(x => {
     if(x){
@@ -56,7 +80,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
 });
 
 app.use(cors());
-
 app.use(bodyParser.urlencoded({ extended: false, limit: '1mb' }));
 app.use(bodyParser.json({ limit: '1mb' }));
 
@@ -64,7 +87,6 @@ app.use(bodyParser.json({ limit: '1mb' }));
 const staticPath = path.resolve('uploads');
 console.log(staticPath);
 app.use(express.static(staticPath));
-
 
 app.get('/wx', (req, res) => {
   utils.genWechatToken(req, res);
@@ -185,6 +207,7 @@ app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
   order.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
+    io.emit('updateOrders', x);
     res.end(JSON.stringify(x, null, 3));
   });
 });
@@ -206,11 +229,14 @@ app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res,
   res.send('upload file success');
 });
 
+
+
 app.set('port', process.env.PORT || SERVER.PORT)
 
 const server = app.listen(app.get("port"), () => {
   console.log("API is running on :%d", app.get("port"));
 });
+
 
 // const http = require('http');
 // const express = require('express')
