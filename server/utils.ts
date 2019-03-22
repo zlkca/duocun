@@ -65,7 +65,7 @@ export class Utils {
   }
 
   getPlaces(req: Request, res: Response) {
-    let key = this.cfg.MAP.KEY;
+    let key = this.cfg.GOOGLE_PLACE.KEY;
     // let location = req.query.lat + ',' + req.query.lng;
     let input = req.query.input;
     let url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=' + input + '&key=' + key 

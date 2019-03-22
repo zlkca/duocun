@@ -1,13 +1,8 @@
 <div class="page container">
   <div class="row">
-      <div class="col-12 map-col" *ngIf="showMap()">
-        <div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''">
-            <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
-        </div>
-      </div>
       <div class="col-12 place-option-list" *ngIf="suggestPlaces && suggestPlaces.length>0">
         <div *ngFor="let place of suggestPlaces" class="row place-option" (click)="onSelectPlace(place)">
-          <div class="col-10">
+          <div class="col-10" *ngIf="place.terms">
               <div class="text-md">
                   <span style="color:#aaa">{{place.terms[0].value}} </span>
                   <span style="font-weight: 400">{{place.terms[1].value}}</span>
@@ -46,6 +41,11 @@
           <div class="col-2">
             <i class="fa fa-2x fa-external-link"></i>
           </div>
+        </div>
+      </div>
+      <div class="col-12 map-col" *ngIf="!bHideMap && showMap()">
+        <div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''">
+            <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
         </div>
       </div>
       <div class="col-12 deliver-address-row">

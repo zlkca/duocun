@@ -7,6 +7,7 @@ import { RestaurantService } from '../../restaurant/restaurant.service';
 import { SharedService } from '../../shared/shared.service';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
+import { ILocationHistory } from '../../location/location.model';
 
 declare var google;
 
@@ -28,6 +29,7 @@ export class HomeComponent implements OnInit {
   mapFullScreen = true;
   subscrAccount;
   account;
+  bHideMap = false;
 
   constructor(
     private accountSvc: AccountService,
@@ -174,23 +176,28 @@ export class HomeComponent implements OnInit {
 
   onAddressChange(e) {
     const self = this;
+    this.bHideMap = true;
+    this.historyPlaces = [];
     this.locationSvc.reqPlaces(e.input).subscribe(x => {
       self.suggestPlaces = x; // without lat lng
     });
-    localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
-    this.deliveryAddress = e.sAddr;
-    this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
+    // localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
+    // this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
     this.mapFullScreen = false;
   }
 
   onAddressClear(e) {
+    this.deliveryAddress = '';
     this.mapFullScreen = true;
     this.historyPlaces = [];
     this.suggestPlaces = [];
+    this.bHideMap = false;
   }
 
   onAddressInputFocus(e) {
     const self = this;
+    this.bHideMap = true;
+    this.suggestPlaces = [];
     if (this.account && this.account.id) {
       this.locationSvc.find({where: { userId: this.account.id }}).subscribe(x => {
         self.historyPlaces = x;
@@ -198,12 +205,13 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  onSelectPlaceHistory(place) {
+  onSelectPlaceHistory(history: ILocationHistory) {
     const self = this;
+    this.deliveryAddress = this.locationSvc.getAddrString(history.location);
     this.mapFullScreen = false;
     self.historyPlaces = [];
-
-    const r = place.location;
+    self.bHideMap = false;
+    const r = history.location;
     self.center = { lat: r.lat, lng: r.lng };
     self.doSearchRestaurants(self.center);
   }
@@ -214,15 +222,14 @@ export class HomeComponent implements OnInit {
     self.suggestPlaces = [];
 
     const addr = self.locationSvc.getAddrStringByPlace(place); // set address text to input
-
+    this.deliveryAddress = addr;
     this.locationSvc.reqLocationByAddress(addr).then(r => {
-      // self.deliveryAddress = addr;
+      self.bHideMap = false;
       self.center = { lat: r.lat, lng: r.lng };
       self.doSearchRestaurants(self.center);
       if (self.account) {
-        self.locationSvc.save({ userId: self.account.id, placeId: r.place_id, location: r, created: new Date()}).subscribe(x => {
-          const kk = x;
-        });
+          self.locationSvc.save({ userId: self.account.id, placeId: r.place_id, location: r, created: new Date()}).subscribe(x => {
+          });
       }
     });
   }
@@ -248,8 +255,7 @@ export class HomeComponent implements OnInit {
       if (self.account) {
         self.locationSvc.save({ userId: self.account.id,
           placeId: r.place_id, location: r, created: new Date() }).subscribe(x => {
-
-          });
+        });
       }
     },
     err => {
