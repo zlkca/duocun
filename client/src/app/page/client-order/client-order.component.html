@@ -1,0 +1,11 @@
+<div class="page client-order-page">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-md-6">
+        <app-order-form [items]="cart.items" 
+        [account]="account"
+        (afterSubmit)="onAfterCheckout($event)"></app-order-form>
+      </div>
+    </div>
+  </div>
+</div>
