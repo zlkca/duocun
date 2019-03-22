@@ -48,7 +48,7 @@ export class LocationService {
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
     }
     headers = headers.append('filter', JSON.stringify(filter));
-    const url = this.url + `/Locations`; // ?uid=${userId}`;
+    const url = this.url + `/Locations`;
     return this.http.get(url, {headers: headers});
   }
 
@@ -60,7 +60,7 @@ export class LocationService {
   getCurrentLocation(): Promise<ILocation> {
     const self = this;
     return new Promise((resolve, reject) => {
-      this.getCurrentPosition().then(pos => {
+      self.getCurrentPosition().then(pos => {
         self.reqLocationByLatLng(pos).then(x => {
           resolve(x);
         });

@@ -86,7 +86,7 @@ export class HeaderComponent implements OnInit {
   changeAddress() {
     this.closeNavMenu();
     // this.locationSvc.clear();
-    this.router.navigate(['my-address']);
+    this.router.navigate(['home']);
     this.addr = null;
   }
 
@@ -118,7 +118,7 @@ export class HeaderComponent implements OnInit {
     if (location) {
       this.router.navigate(['home']);
     } else {
-      this.router.navigate(['my-address']);
+      this.router.navigate(['home']);
     }
     // }
     // }

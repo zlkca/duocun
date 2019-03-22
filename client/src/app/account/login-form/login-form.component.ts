@@ -82,7 +82,7 @@ export class LoginFormComponent implements OnInit {
             this.router.navigate(['admin']);
           } else {
             if (account.type === 'user') {
-              this.router.navigate(['my-address']);
+              this.router.navigate(['home']);
             } else if (account.type === 'worker') {
               this.router.navigate(['worker-orders']);
             }

@@ -10,7 +10,6 @@ import { RestaurantModule } from '../restaurant/restaurant.module';
 import { OrderModule } from '../order/order.module';
 import { ProductModule } from '../product/product.module';
 import { HomeComponent } from './home/home.component';
-import { MyAddressComponent } from './my-address/my-address.component';
 import { ClientOrderComponent } from './client-order/client-order.component';
 import { RestaurantComponent } from './restaurant/restaurant.component';
 import { WorkerOrderComponent } from './worker-order/worker-order.component';
@@ -31,7 +30,6 @@ import { WorkerOrderComponent } from './worker-order/worker-order.component';
   ],
   declarations: [
     HomeComponent,
-    MyAddressComponent,
     ClientOrderComponent,
     WorkerOrderComponent,
     RestaurantComponent,

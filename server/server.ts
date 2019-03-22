@@ -253,7 +253,6 @@ app.get('/' + ROUTE_PREFIX + '/Locations', (req: any, res) => {
   }else{
     res.end(JSON.stringify(null, null, 3));
   }
-
 });
 
 app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {

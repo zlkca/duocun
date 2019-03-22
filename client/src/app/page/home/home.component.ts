@@ -244,13 +244,16 @@ export class HomeComponent implements OnInit {
 
   useCurrentLocation() {
     const self = this;
+    self.suggestPlaces = [];
+    self.historyPlaces = [];
     this.locationSvc.getCurrentLocation().then(r => {
+      self.bHideMap = false;
+      self.mapFullScreen = false;
       self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       // self.loadNearbyRestaurants(self.center);
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
       self.center = { lat: r.lat, lng: r.lng };
       self.doSearchRestaurants(self.center);
-      self.mapFullScreen = false;
 
       if (self.account) {
         self.locationSvc.save({ userId: self.account.id,

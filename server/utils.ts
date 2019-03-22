@@ -79,7 +79,7 @@ export class Utils {
       });
 
       res1.on('end', (rr: any) => {
-        console.log('receiving done!');
+        // console.log('receiving done!');
         if (data) {
           const s = JSON.parse(data);
           if (s.predictions && s.predictions.length > 0) {

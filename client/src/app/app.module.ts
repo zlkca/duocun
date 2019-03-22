@@ -9,7 +9,6 @@ import { rootReducer, INITIAL_STATE } from './store';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
-import { MyAddressComponent } from './page/my-address/my-address.component';
 import { HomeComponent } from './page/home/home.component';
 
 import { LoginFormComponent } from './account/login-form/login-form.component';
@@ -68,8 +67,7 @@ const appRoutes: Routes = [
     { path: 'signup', component: SignupComponent },
     { path: 'institution-signup', component: InstitutionSignupComponent },
     { path: 'home', component: HomeComponent },
-    { path: 'my-address', component: MyAddressComponent },
-    { path: '', component: MyAddressComponent}
+    { path: '', component: HomeComponent}
 ];
 
 
