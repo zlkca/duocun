@@ -1,8 +1,8 @@
 // output addrChange({addr:x, sAddr:'Formatted address string'})
 
 import { Component, OnInit, ViewChild, OnChanges, ElementRef, Output, EventEmitter, Input, SimpleChange } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { LocationService } from '../location/location.service';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder } from '@angular/forms';
+// import { LocationService } from '../location/location.service';
 declare var google;
 
 // export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
@@ -18,74 +18,95 @@ declare var google;
 })
 export class AddressInputComponent implements OnInit, OnChanges {
 
-  @ViewChild('div') div: ElementRef;
+  // @ViewChild('div') div: ElementRef;
   @Output() addrChange = new EventEmitter();
   @Output() addrClear = new EventEmitter();
+  @Output() inputFocus = new EventEmitter();
   @Input() value;
 
+  placeForm;
   placeholder: string;
   gAutocomplete: any;
+  input: string;
 
   // The internal data model for form control value access
   private innerValue: any = '';
   // private cleared = true;
-  constructor(private locationSvc: LocationService, elm: ElementRef) {
-    const placeholder = elm.nativeElement.getAttribute('placeholder');
+  constructor(
+    private fb: FormBuilder
+    // private locationSvc: LocationService,
+    // private elm: ElementRef
+  ) {
+    // const placeholder = elm.nativeElement.getAttribute('placeholder');
+    this.placeForm = this.fb.group({
+      addr: ['']
+    });
   }
 
   ngOnInit() {
-    const self = this;
-    this.div.nativeElement.value = this.value;
-    // this.cleared = !this.value;
-    if (typeof google !== 'undefined') {
-      // var defaultBounds = new google.maps.LatLngBounds(
-      //   new google.maps.LatLng(43.821662, -79.928525),
-      //   new google.maps.LatLng(43.494848, -79.133542));
 
-      const options = {
-        // strictBounds to GTA area
-        bounds: new google.maps.LatLngBounds(
-          // GTA
-          new google.maps.LatLng(43.468068, -79.963410),
-          new google.maps.LatLng(44.301441, -78.730195)
-          // Ontario -95.16 | 41.66 |  -74.34 | 56.86
-          // new google.maps.LatLng(41.668068, -95.163410),
-          // new google.maps.LatLng(56.861441, -74.340195)
-        ),
-        componentRestrictions: { country: 'ca' },
-        strictBounds: true
-      };
+    // const self = this;
+    // this.div.nativeElement.value = this.value;
+    // // this.cleared = !this.value;
+    // if (typeof google !== 'undefined') {
+    //   // var defaultBounds = new google.maps.LatLngBounds(
+    //   //   new google.maps.LatLng(43.821662, -79.928525),
+    //   //   new google.maps.LatLng(43.494848, -79.133542));
 
-      if (this.div) {
-        const input = this.div.nativeElement;
-        // var searchBox = new google.maps.places.SearchBox(input, {
-        //   bounds: defaultBounds
-        // });
+    //   const options = {
+    //     // strictBounds to GTA area
+    //     bounds: new google.maps.LatLngBounds(
+    //       // GTA
+    //       new google.maps.LatLng(43.468068, -79.963410),
+    //       new google.maps.LatLng(44.301441, -78.730195)
+    //       // Ontario -95.16 | 41.66 |  -74.34 | 56.86
+    //       // new google.maps.LatLng(41.668068, -95.163410),
+    //       // new google.maps.LatLng(56.861441, -74.340195)
+    //     ),
+    //     componentRestrictions: { country: 'ca' },
+    //     strictBounds: true
+    //   };
 
-        //   this.gAutocomplete = new google.maps.places.Autocomplete(input, {bounds:defaultBounds});
-        this.gAutocomplete = new google.maps.places.Autocomplete(input, options);
-        this.gAutocomplete.addListener('place_changed', () => {
-          const geocodeResult = self.gAutocomplete.getPlace();
-          const addr = self.getLocationFromGeocode(geocodeResult);
-          if (addr) {
-            const sAddr = self.getAddrString(addr);
-            // `${addr.street_number} ${addr.street_name}, ${addr.sub_locality}, ${addr.province}, ${addr.postal_code}`;
+    //   if (this.div) {
+    //     const input = this.div.nativeElement;
 
-            self.addrChange.emit({ addr: addr, sAddr: sAddr });
-          } else {
-            self.addrChange.emit(null);
-          }
-        });
-      }
+    //     this.gAutocomplete = new google.maps.places.Autocomplete(input, options);
+    //     this.gAutocomplete.addListener('place_changed', () => {
+    //       const geocodeResult = self.gAutocomplete.getPlace();
+    //       const addr = self.getLocationFromGeocode(geocodeResult);
+    //       if (addr) {
+    //         const sAddr = self.getAddrString(addr);
+    //         // `${addr.street_number} ${addr.street_name}, ${addr.sub_locality}, ${addr.province}, ${addr.postal_code}`;
 
-    }
+    //         self.addrChange.emit({ addr: addr, sAddr: sAddr });
+    //       } else {
+    //         self.addrChange.emit(null);
+    //       }
+    //     });
+    //   }
+
+    // }
 
   }
 
-
   ngOnChanges(changes) {
-    this.div.nativeElement.value = changes.value.currentValue;
-    // this.cleared = !this.div.nativeElement.value;
+    const v = changes.value.currentValue;
+    if (v && v.length > 3) {
+      this.addrChange.emit({ 'input': v });
+    }
+  }
+
+  onValueChange(e) {
+    const v = e.target.value;
+    if (v && v.length > 3) {
+      this.addrChange.emit({ 'input': v });
+    }
+  }
+
+  onFocus(e) {
+    if (!e.target.value) {
+      this.inputFocus.emit();
+    }
   }
   //  //From ControlValueAccessor interface
 
@@ -152,7 +173,8 @@ export class AddressInputComponent implements OnInit, OnChanges {
   }
 
   clearAddr() {
-    this.div.nativeElement.value = '';
+    // this.div.nativeElement.value = '';
+    this.input = '';
     this.addrClear.emit();
   }
 }

@@ -1,7 +1,7 @@
 
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 
@@ -14,7 +14,7 @@ import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { AddressInputComponent } from './address-input/address-input.component';
 import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-uploader.component';
-import { LocationService } from './location/location.service';
+// import { LocationService } from './location/location.service';
 import { SharedService } from './shared.service';
 
 // import { PageService } from '../pages/page.service';
@@ -24,6 +24,7 @@ import { SharedService } from './shared.service';
     CommonModule,
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule
   ],
   declarations: [
@@ -36,7 +37,8 @@ import { SharedService } from './shared.service';
     AddressInputComponent,
     MultiImageUploaderComponent
   ],
-  providers: [LocationService, SharedService],
+  providers: [
+    SharedService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
     WizardComponent, ImageViewerComponent, FeedbackComponent,

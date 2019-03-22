@@ -14,6 +14,7 @@ import { Restaurant } from "./restaurant";
 import { Product } from "./product";
 import { Category } from "./category";
 import { Order } from "./order";
+import { Location } from "./location";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
@@ -38,6 +39,7 @@ let order: Order;
 let category: Category;
 let restaurant: Restaurant;
 let product: Product;
+let location: Location;
 let socket: Socket;
 let io: any;
 
@@ -49,6 +51,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   category = new Category(dbo);
   restaurant = new Restaurant(dbo);
   product = new Product(dbo);
+  location = new Location(dbo);
   socket = new Socket(dbo, io);
 
   require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
@@ -95,7 +98,9 @@ app.get('/wx', (req, res) => {
 app.get('/' + ROUTE_PREFIX + '/geocode', (req, res) => {
   utils.getGeocode(req, res);
 });
-
+app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
+  utils.getPlaces(req, res);
+});
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
   const user = new User(dbo);
   // user.insertOne('Jack').then((x: any) => {
@@ -224,6 +229,32 @@ app.get('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
   order.get(req, res);
 });
 
+app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
+  location.find({userId: req.body.userId, placeId: req.body.placeId}).then((r: any) => {
+    if(r && r.length > 0){
+      res.send(JSON.stringify(null, null, 3));
+    }else{
+      location.insertOne(req.body).then((x: any) => {
+        res.setHeader('Content-Type', 'application/json');
+        io.emit('updateOrders', x);
+        res.end(JSON.stringify(x, null, 3));
+      });
+    }
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Locations', (req: any, res) => {
+  const query = req.headers? JSON.parse(req.headers.filter) : null;
+  res.setHeader('Content-Type', 'application/json');
+  if(query){
+    location.find(query.where).then((x: any) => {
+      res.end(JSON.stringify(x, null, 3));
+    });
+  }else{
+    res.end(JSON.stringify(null, null, 3));
+  }
+
+});
 
 app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
   res.send('upload file success');

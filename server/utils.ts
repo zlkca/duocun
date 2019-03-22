@@ -32,16 +32,24 @@ export class Utils {
 
   getGeocode(req: Request, res: Response) {
     let key = this.cfg.GEOCODE.KEY;
-    let latlng = req.query.lat + ',' + req.query.lng;
-    let url = 'https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=' + key + '&latlng=' + latlng;
+    const latlng = (req.query.lat && req.query.lng) ? (req.query.lat + ',' + req.query.lng) : '';
+    const addr = req.query.address;
+    let url = 'https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=' + key;
+    if(latlng){ 
+      url += '&latlng=' + latlng; 
+    }else if(addr){
+      url += '&address=' + addr; 
+    }
     https.get(url, (res1: IncomingMessage) => {
       let data = '';
       res1.on('data', (d) => {
         // process.stdout.write(d);
         data += d;
+        // console.log('receiving: ' + d);
       });
 
       res1.on('end', () => {
+        // console.log('receiving done!');
         if (data) {
           const s = JSON.parse(data);
           if (s.results && s.results.length > 0) {
@@ -54,5 +62,44 @@ export class Utils {
         }
       });
     });
+  }
+
+  getPlaces(req: Request, res: Response) {
+    let key = this.cfg.MAP.KEY;
+    // let location = req.query.lat + ',' + req.query.lng;
+    let input = req.query.input;
+    let url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=' + input + '&key=' + key 
+      + '&location=43.761539,-79.411079&radius=100';
+    https.get(url, (res1: IncomingMessage) => {
+      let data = '';
+      res1.on('data', (d) => {
+        // process.stdout.write(d);
+        data += d;
+        // console.log('receiving: ' + d);
+      });
+
+      res1.on('end', (rr: any) => {
+        console.log('receiving done!');
+        if (data) {
+          const s = JSON.parse(data);
+          if (s.predictions && s.predictions.length > 0) {
+            res.send(s.predictions);
+          } else {
+            res.send();
+          }
+        } else {
+          res.send('');
+        }
+      });
+    });
+  }
+
+  getAddrStringByPlace(place: any) {
+    const terms = place.terms;
+    if (terms && terms.length >= 4) {
+      return terms[0].value + ' ' + terms[1].value + ', ' + terms[2].value + ', ' + terms[3].value + ', ' + terms[4].value;
+    } else {
+      return '';
+    }
   }
 }

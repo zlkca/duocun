@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../account/auth.service';
 import { SharedService } from '../shared.service';
 import { environment } from '../../../environments/environment';
-import { LocationService } from '../location/location.service';
-import { ILocation } from '../location/location.model';
+// import { LocationService } from '../location/location.service';
+// import { ILocation } from '../location/location.model';
 import { AccountService } from '../../account/account.service';
 import { Account } from '../../lb-sdk';
 declare var $: any;
@@ -12,7 +12,7 @@ declare var $: any;
 const APP = environment.APP;
 
 @Component({
-  providers: [AuthService, LocationService],
+  providers: [AuthService],
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
@@ -27,7 +27,7 @@ export class HeaderComponent implements OnInit {
   addr = null;
 
   constructor(private router: Router, private authSvc: AuthService,
-    private locationSvc: LocationService,
+    // private locationSvc: LocationService,
     private accountServ: AccountService,
     private sharedSvc: SharedService) { }
 
@@ -47,18 +47,18 @@ export class HeaderComponent implements OnInit {
     // this.locationSvc.get().subscribe((addr: ILocation) => {
     //     this.locality = addr && (addr.sub_locality || addr.city);
     // });
-    const self = this;
-    const s = localStorage.getItem('location-' + APP);
+    // const self = this;
+    // const s = localStorage.getItem('location-' + APP);
 
-    if (s) {
-      this.addr = JSON.parse(s);
-    }
+    // if (s) {
+    //   this.addr = JSON.parse(s);
+    // }
 
-    this.sharedSvc.getMsg().subscribe(r => {
-      if (r.name === 'OnUpdateAddress') {
-        this.addr = r.addr;
-      }
-    });
+    // this.sharedSvc.getMsg().subscribe(r => {
+    //   if (r.name === 'OnUpdateAddress') {
+    //     this.addr = r.addr;
+    //   }
+    // });
   }
 
   getCurrentCity() {
@@ -85,7 +85,7 @@ export class HeaderComponent implements OnInit {
 
   changeAddress() {
     this.closeNavMenu();
-    this.locationSvc.clear();
+    // this.locationSvc.clear();
     this.router.navigate(['my-address']);
     this.addr = null;
   }

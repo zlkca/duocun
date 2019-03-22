@@ -9,7 +9,7 @@ import { RestaurantGridComponent } from './restaurant-grid/restaurant-grid.compo
 import { RestaurantListComponent } from './restaurant-list/restaurant-list.component';
 import { OrderModule } from '../order/order.module';
 import { RestaurantService } from './restaurant.service';
-import { LocationService } from '../shared/location/location.service';
+// import { LocationService } from '../shared/location/location.service';
 // import { ImageUploadModule } from 'angular2-image-upload';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
@@ -27,7 +27,10 @@ import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
         ImageUploaderModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    providers: [RestaurantService, LocationService],
+    providers: [
+      RestaurantService,
+      // LocationService
+    ],
     declarations: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent],
     exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent]
 })

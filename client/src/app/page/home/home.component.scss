@@ -182,5 +182,18 @@ and (orientation: landscape) {
     padding-right:6px;
   }
 
+  .pac-container{
+    width: 100%;
+    height: 700px;
+  }
+
+  .place-option-list, .place-history-list{
+    margin-top: 60px;
+    .place-option{
+      padding: 10px 0px;
+      height: 80px;
+      border-bottom: solid 1px #ddd;
+    }
+  }
 }
 

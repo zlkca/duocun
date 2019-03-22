@@ -1,15 +1,59 @@
 <div class="page container">
   <div class="row">
-      <div class="col-12 map-col">
+      <div class="col-12 map-col" *ngIf="showMap()">
         <div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''">
             <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
+        </div>
+      </div>
+      <div class="col-12 place-option-list" *ngIf="suggestPlaces && suggestPlaces.length>0">
+        <div *ngFor="let place of suggestPlaces" class="row place-option" (click)="onSelectPlace(place)">
+          <div class="col-10">
+              <div class="text-md">
+                  <span style="color:#aaa">{{place.terms[0].value}} </span>
+                  <span style="font-weight: 400">{{place.terms[1].value}}</span>
+                </div>
+                <div class="text-sm">
+                  <span>{{place.terms[2].value}}, </span>
+                  <span>{{place.terms[3].value}}</span>
+                </div>
+          </div>
+          <div class="col-2">
+            <i class="fa fa-2x fa-external-link"></i>
+          </div>
+        </div>
+      </div>
+      <!-- place_id: string;
+      city: string;
+      lat: number;
+      lng: number;
+      postal_code: string;
+      province: string;
+      street_name: string;
+      street_number: string;
+      sub_locality: string; -->
+      <div class="col-12 place-history-list" *ngIf="historyPlaces && historyPlaces.length>0">
+        <div *ngFor="let place of historyPlaces" class="row place-option" (click)="onSelectPlaceHistory(place)">
+          <div class="col-10">
+              <div class="text-md">
+                  <span style="color:#aaa">{{place.location.street_number}} </span>
+                  <span style="font-weight: 400">{{place.location.street_name}}</span>
+                </div>
+                <div class="text-sm">
+                  <span>{{place.location.sub_locality ? place.location.sub_locality: place.location.city}}, </span>
+                  <span>{{place.location.province}}</span>
+                </div>
+          </div>
+          <div class="col-2">
+            <i class="fa fa-2x fa-external-link"></i>
+          </div>
         </div>
       </div>
       <div class="col-12 deliver-address-row">
         <div class="row">
           <div class="col-12 col-sm-7 search-bar-wrapper">
             <div class="input-group search-bar">
-              <app-address-input (addrChange)="onAddressChange($event)" (addrClear)="onAddressClear($event)"
+              <app-address-input (addrChange)="onAddressChange($event)" 
+                (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
                 placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
                 [value]="deliveryAddress"></app-address-input>
               <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->

@@ -1,5 +1,9 @@
 <div class="address-input-container">
-  <input #div type="text" class="address-input" placeholder="{{placeholder}}"/>
+  <form [formGroup]="placeForm" class="address-input">
+      <input type="text" [formControl]="placeForm.controls.addr" placeholder="{{placeholder}}" 
+      (input)="onValueChange($event)"
+      (focus)="onFocus($event)"/>
+  </form>
   <button class="clear-btn" (click)="clearAddr()">
     <i class="fa fa-2x fa-close"></i>
   </button>

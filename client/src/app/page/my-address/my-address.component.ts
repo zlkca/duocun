@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { ILocation, ILatLng } from '../../shared/location/location.model';
+// import { ILocation, ILatLng } from '../../shared/location/location.model';
 
 import { SharedService } from '../../shared/shared.service';
 import { AuthService } from '../../account/auth.service';
 import { environment } from '../../../environments/environment';
-import { LocationService } from '../../shared/location/location.service';
+// import { LocationService } from '../../shared/location/location.service';
 import { Restaurant } from '../../lb-sdk';
 
 
@@ -16,7 +16,7 @@ const APP = environment.APP;
   selector: 'app-my-address',
   templateUrl: './my-address.component.html',
   styleUrls: ['./my-address.component.scss'],
-  providers: [AuthService, LocationService]
+  providers: [AuthService]
 })
 export class MyAddressComponent implements OnInit {
 
@@ -53,7 +53,8 @@ export class MyAddressComponent implements OnInit {
 
   constructor(private router: Router,
     private sharedSvc: SharedService,
-    private locationSvc: LocationService) { }
+    // private locationSvc: LocationService
+  ) { }
 
   onAddressChange(e) {
     localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
@@ -72,16 +73,16 @@ export class MyAddressComponent implements OnInit {
 
   useCurrentLocation() {
     const self = this;
-    this.locationSvc.getCurrentLocation().subscribe((r: any) => {
-      localStorage.setItem('location-' + APP, JSON.stringify(r));
-      self.deliveryAddress = self.locationSvc.getAddrString(r);
-      self.sharedSvc.emitMsg({ name: 'OnUpdateAddress', addr: r });
-      self.router.navigate(['home']);
-    },
-    err => {
-      console.log(err);
-      // alert('Do you want to turn on your GPS to find the nearest restaurants?');
-    });
+    // this.locationSvc.getCurrentLocation().subscribe((r: any) => {
+    //   localStorage.setItem('location-' + APP, JSON.stringify(r));
+    //   self.deliveryAddress = self.locationSvc.getAddrString(r);
+    //   self.sharedSvc.emitMsg({ name: 'OnUpdateAddress', addr: r });
+    //   self.router.navigate(['home']);
+    // },
+    // err => {
+    //   console.log(err);
+    //   // alert('Do you want to turn on your GPS to find the nearest restaurants?');
+    // });
   }
 
 

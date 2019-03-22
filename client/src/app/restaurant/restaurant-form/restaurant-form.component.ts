@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
-import { LocationService } from '../../shared/location/location.service';
+// import { LocationService } from '../../shared/location/location.service';
+// import { ILocation } from '../../shared/location/location.model';
 import { RestaurantService } from '../restaurant.service';
 import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
 import { environment } from '../../../environments/environment';
@@ -9,7 +10,7 @@ import { NgRedux } from '@angular-redux/store';
 
 import { AccountService } from '../../account/account.service';
 import { GeoPoint, Restaurant, Category, LoopBackConfig, Address, Account, Picture } from '../../lb-sdk';
-import { ILocation } from '../../shared/location/location.model';
+
 import { getComponentViewDefinitionFactory } from '../../../../node_modules/@angular/core/src/view';
 import { SharedService } from '../../shared/shared.service';
 
@@ -24,7 +25,7 @@ const PICTURES_FOLDER = 'pictures';
 export class RestaurantFormComponent implements OnInit, OnChanges {
 
   currentAccount: Account;
-  location: ILocation = {
+  location = { // ILocation
     street_name: '',
     street_number: '',
     sub_locality: '',
@@ -76,7 +77,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
   constructor(private fb: FormBuilder,
     private accountSvc: AccountService,
     private restaurantSvc: RestaurantService,
-    private locationSvc: LocationService,
+    // private locationSvc: LocationService,
     private sharedSvc: SharedService,
     private router: Router,
     private route: ActivatedRoute,
@@ -167,7 +168,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
         this.location.lat = restaurant.location.lat;
         this.location.lng = restaurant.location.lng;
 
-        this.address = this.locationSvc.getAddrString(this.location);
+        // this.address = this.locationSvc.getAddrString(this.location);
       }
 
       this.setPictures(restaurant);
@@ -296,7 +297,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
       sublocality: this.location.sub_locality,
       city: this.location.city,
       province: this.location.province,
-      formattedAddress: this.locationSvc.getAddrString(this.location),
+      formattedAddress: '', // this.locationSvc.getAddrString(this.location),
       unit: this.form.get('address').get('unit').value,
       postalCode: this.location.postal_code,
       // location: {

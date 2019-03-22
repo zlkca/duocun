@@ -3,14 +3,14 @@ import { Router } from '@angular/router';
 import { SharedService } from '../../shared/shared.service';
 
 import { environment } from '../../../environments/environment';
-import { LocationService } from '../../shared/location/location.service';
+// import { LocationService } from '../../shared/location/location.service';
 import { RestaurantService } from '../restaurant.service';
 import { Restaurant, GeoPoint } from '../../lb-sdk';
 
 const APP = environment.APP;
 
 @Component({
-  providers: [LocationService],
+  // providers: [LocationService],
   selector: 'app-restaurant-grid',
   templateUrl: './restaurant-grid.component.html',
   styleUrls: ['./restaurant-grid.component.scss']
@@ -34,9 +34,8 @@ export class RestaurantGridComponent implements OnInit {
     private router: Router,
     private sharedSvc: SharedService,
     private restaurantSvc: RestaurantService,
-    private locationSvc: LocationService) {
-
-
+    // private locationSvc: LocationService
+  ) {
     // self.center = JSON.parse(localStorage.getItem('location-' + APP));
 
     // setup event listener

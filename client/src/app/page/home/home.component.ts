@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Restaurant, GeoPoint } from '../../lb-sdk';
-import { LocationService } from '../../shared/location/location.service';
+// import { LocationService } from '../../shared/location/location.service';
 import { environment } from '../../../environments/environment';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 // import { RestaurantGridComponent } from '../../restaurant/restaurant-grid/restaurant-grid.component';
 import { SharedService } from '../../shared/shared.service';
+import { LocationService } from '../../location/location.service';
+import { AccountService } from '../../account/account.service';
+
+declare var google;
 
 const APP = environment.APP;
 
@@ -17,18 +21,26 @@ export class HomeComponent implements OnInit {
   center: GeoPoint = { lat: 43.761539, lng: -79.411079 };
   restaurants;
   places;
+  suggestPlaces;
+  historyPlaces;
   deliveryAddress = '';
   placeholder = 'Delivery Address';
   mapFullScreen = true;
+  subscrAccount;
+  account;
 
   constructor(
+    private accountSvc: AccountService,
     private locationSvc: LocationService,
     private restaurantSvc: RestaurantService,
     private sharedSvc: SharedService
   ) { }
 
   ngOnInit() {
-    // const self = this;
+    const self = this;
+    this.subscrAccount = this.accountSvc.getCurrent().subscribe(account => {
+      self.account = account;
+    });
     // const s = localStorage.getItem('location-' + APP);
 
     // if (s) {
@@ -143,24 +155,28 @@ export class HomeComponent implements OnInit {
     const self = this;
     const s = localStorage.getItem('location-' + APP);
 
-    if (s) {
-      const location = JSON.parse(s);
-      self.deliveryAddress = self.locationSvc.getAddrString(location);
-      this.center = { lat: location.lat, lng: location.lng };
-      self.loadNearbyRestaurants(this.center);
-    } else {
-      this.locationSvc.getCurrentLocation().subscribe(r => {
-        localStorage.setItem('location-' + APP, JSON.stringify(r));
-        self.loadNearbyRestaurants(self.center);
-      },
-      err => {
-        console.log(err);
-        // alert('Do you want to turn on your GPS to find the nearest restaurants?');
-      });
-    }
+    // if (s) {
+    //   const location = JSON.parse(s);
+    //   self.deliveryAddress = self.locationSvc.getAddrString(location);
+    //   this.center = { lat: location.lat, lng: location.lng };
+    //   self.loadNearbyRestaurants(this.center);
+    // } else {
+    //   this.locationSvc.getCurrentLocation().subscribe(r => {
+    //     localStorage.setItem('location-' + APP, JSON.stringify(r));
+    //     self.loadNearbyRestaurants(self.center);
+    //   },
+    //   err => {
+    //     console.log(err);
+    //     // alert('Do you want to turn on your GPS to find the nearest restaurants?');
+    //   });
+    // }
   }
 
   onAddressChange(e) {
+    const self = this;
+    this.locationSvc.reqPlaces(e.input).subscribe(x => {
+      self.suggestPlaces = x; // without lat lng
+    });
     localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
     this.deliveryAddress = e.sAddr;
     this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
@@ -169,26 +185,72 @@ export class HomeComponent implements OnInit {
 
   onAddressClear(e) {
     this.mapFullScreen = true;
+    this.historyPlaces = [];
+    this.suggestPlaces = [];
+  }
+
+  onAddressInputFocus(e) {
+    const self = this;
+    if (this.account && this.account.id) {
+      this.locationSvc.find({where: { userId: this.account.id }}).subscribe(x => {
+        self.historyPlaces = x;
+      });
+    }
+  }
+
+  onSelectPlaceHistory(place) {
+    const self = this;
+    this.mapFullScreen = false;
+    self.historyPlaces = [];
+
+    const r = place.location;
+    self.center = { lat: r.lat, lng: r.lng };
+    self.doSearchRestaurants(self.center);
+  }
+
+  onSelectPlace(place) {
+    const self = this;
+    this.mapFullScreen = false;
+    self.suggestPlaces = [];
+
+    const addr = self.locationSvc.getAddrStringByPlace(place); // set address text to input
+
+    this.locationSvc.reqLocationByAddress(addr).then(r => {
+      // self.deliveryAddress = addr;
+      self.center = { lat: r.lat, lng: r.lng };
+      self.doSearchRestaurants(self.center);
+      if (self.account) {
+        self.locationSvc.save({ userId: self.account.id, placeId: r.place_id, location: r, created: new Date()}).subscribe(x => {
+          const kk = x;
+        });
+      }
+    });
+  }
+
+  showMap() {
+    return !((this.suggestPlaces && this.suggestPlaces.length > 0) || (this.historyPlaces && this.historyPlaces.length > 0));
   }
 
   getMapHeight() {
     return this.mapFullScreen ? '700px' : '220px';
   }
 
-  setAddrString(location) {
-    const self = this;
-    self.deliveryAddress = self.locationSvc.getAddrString(location);
-    self.center = { lat: location.lat, lng: location.lng };
-  }
-
   useCurrentLocation() {
     const self = this;
-    this.locationSvc.getCurrentLocation().subscribe(r => {
+    this.locationSvc.getCurrentLocation().then(r => {
       self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
-      self.setAddrString(r);
       // self.loadNearbyRestaurants(self.center);
+      self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
       self.center = { lat: r.lat, lng: r.lng };
       self.doSearchRestaurants(self.center);
+      self.mapFullScreen = false;
+
+      if (self.account) {
+        self.locationSvc.save({ userId: self.account.id,
+          placeId: r.place_id, location: r, created: new Date() }).subscribe(x => {
+
+          });
+      }
     },
     err => {
       console.log(err);
@@ -197,14 +259,14 @@ export class HomeComponent implements OnInit {
 
   setWorkAddr() {
     const self = this;
-    this.locationSvc.getCurrentLocation().subscribe(r => {
-      self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
-      self.setAddrString(r);
-      self.loadNearbyRestaurants(self.center);
-    },
-    err => {
-      console.log(err);
-      // alert('Do you want to turn on your GPS to find the nearest restaurants?');
-    });
+    // this.locationSvc.getCurrentLocation().subscribe(r => {
+    //   self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
+    //   self.setAddrString(r);
+    //   self.loadNearbyRestaurants(self.center);
+    // },
+    // err => {
+    //   console.log(err);
+    //   // alert('Do you want to turn on your GPS to find the nearest restaurants?');
+    // });
   }
 }
