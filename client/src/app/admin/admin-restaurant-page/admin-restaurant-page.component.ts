@@ -25,9 +25,11 @@ export class AdminRestaurantPageComponent implements OnInit {
   };
   alertClosed = false;
 
-  constructor(private router: Router,
+  constructor(
+    private router: Router,
     private restaurantSvc: RestaurantService,
-    private toastSvc: ToastrService) { }
+    private toastSvc: ToastrService
+  ) { }
 
   toPage(url: string) {
     this.router.navigate([url]);

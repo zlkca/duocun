@@ -143,6 +143,12 @@ app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
 app.get('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
   restaurant.get(req, res);
 });
+app.delete('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
+  restaurant.deleteById(req.params.id).then(x => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
+});
 
 app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
   product.find({restaurantId: req.params.id}).then((x: any) => {
@@ -175,6 +181,12 @@ app.get('/' + ROUTE_PREFIX + '/Products', (req: any, res) => {
 
 app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
   product.get(req, res);
+});
+app.delete('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
+  product.deleteById(req.params.id).then(x => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
 });
 
 app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
@@ -260,7 +272,7 @@ app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res,
 });
 
 
-
+app.use(express.static(path.join(__dirname, '/../uploads')));
 app.set('port', process.env.PORT || SERVER.PORT)
 
 const server = app.listen(app.get("port"), () => {

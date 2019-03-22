@@ -56,15 +56,10 @@ export class ProductGridComponent implements OnInit {
 
   getImageSrc(p) {
     if (p.pictures && p.pictures[0] && p.pictures[0].url) {
-      return this.sharedSvc.toDisplayUrl(p.pictures[0].url);
+      return this.sharedSvc.getMediaUrl() + p.pictures[0].url;
     } else {
       return this.defaultPicture;
     }
-    // if (p.fpath) {
-    //   return this.MEDIA_URL + p.fpath;
-    // } else {
-    //     return this.MEDIA_URL + ADD_IMAGE;
-    // }
   }
 
 }

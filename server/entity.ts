@@ -1,5 +1,6 @@
-import { Collection, ObjectId } from "mongodb";
+import { Collection, ObjectId, ObjectID } from "mongodb";
 import { DB } from "./db";
+import { resolve } from "path";
 
 export class Entity {
   private db: any;
@@ -102,6 +103,16 @@ export class Entity {
             delete(result._id);
           }
           resolve(result);
+        });
+      });
+    });
+  }
+
+  deleteById(id: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.getCollection().then((c: Collection) => {
+        c.deleteOne({_id: new ObjectID(id)}, (err, doc) => {
+          resolve(doc);
         });
       });
     });

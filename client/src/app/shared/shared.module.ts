@@ -13,9 +13,10 @@ import { MapComponent } from './map/map.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { AddressInputComponent } from './address-input/address-input.component';
-import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-uploader.component';
+// import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-uploader.component';
 // import { LocationService } from './location/location.service';
 import { SharedService } from './shared.service';
+import { AddressAutocompleteComponent } from './address-autocomplete/address-autocomplete.component';
 
 // import { PageService } from '../pages/page.service';
 // import { PagesModule } from '../pages/pages.module';
@@ -35,15 +36,18 @@ import { SharedService } from './shared.service';
     HeaderComponent,
     FooterComponent,
     AddressInputComponent,
-    MultiImageUploaderComponent
+    AddressAutocompleteComponent
   ],
   providers: [
     SharedService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
     WizardComponent, ImageViewerComponent, FeedbackComponent,
-    MapComponent, HeaderComponent, FooterComponent,
-    AddressInputComponent, MultiImageUploaderComponent
+    MapComponent,
+    HeaderComponent,
+    FooterComponent,
+    AddressInputComponent,
+    AddressAutocompleteComponent
   ]
 })
 export class SharedModule { }

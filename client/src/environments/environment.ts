@@ -10,7 +10,7 @@ export const environment = {
   API_BASE: window.location.protocol + '//' + window.location.hostname + ':8000',
   API_URL: 'http://localhost:8000/api/',
   APP_URL: window.location.origin,
-  MEDIA_URL: 'http://localhost:8000/media/',
+  MEDIA_URL: 'http://localhost:8000/',
   APP: 'duocun',
   GOOGLE_MAP: {
     KEY: ''

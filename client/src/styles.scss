@@ -42,54 +42,52 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 	  float:left;
 }
 
+.title-xl{
+    font-family: "Roboto", "Microsoft Yahei", Helvetica, Arial, sans-serif;
+    font-size: 58px;
+    font-weight: 300;
+    line-height: 64px;
+    color: #8dbf41;//#9ca1a8;
+}
 
+.title-lg{
+    font-family: "Microsoft Yahei", "Roboto", Helvetica, Arial, sans-serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #7c7c7c;
+}
 
-  .title-xl{
-      font-family: "Roboto", "Microsoft Yahei", Helvetica, Arial, sans-serif;
-      font-size: 58px;
-      font-weight: 300;
-      line-height: 64px;
-      color: #8dbf41;//#9ca1a8;
-  }
+.title-bg{
+    font-family: "Microsoft Yahei", 'Raleway', sans-serif;
+    font-size: 25px;
+    font-weight: 300;
+    line-height: 30px;
+    color: #414851;//#8dbf41;
+}
 
-  .title-lg{
-      font-family: "Microsoft Yahei", "Roboto", Helvetica, Arial, sans-serif;
-      font-size: 28px;
-      font-weight: 500;
-      color: #7c7c7c;
-  }
+.title-md{
+    font-family: "Microsoft Yahei",'Raleway', sans-serif;
+    font-size: 20px;
+    line-height: 30px;
+    font-weight: 400;
+    color: #414851;
+}
 
-  .title-bg{
-      font-family: "Microsoft Yahei", 'Raleway', sans-serif;
-      font-size: 25px;
-      font-weight: 300;
-      line-height: 30px;
-      color: #414851;//#8dbf41;
-  }
+.title-sm{
+    font-family: "Microsoft Yahei",'Raleway', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 14px;
+    color: $title-s-color;
+}
 
-  .title-md{
-      font-family: "Microsoft Yahei",'Raleway', sans-serif;
-      font-size: 20px;
-      line-height: 30px;
-      font-weight: 400;
-      color: #414851;
-  }
-
-  .title-sm{
-      font-family: "Microsoft Yahei",'Raleway', sans-serif;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 14px;
-      color: $title-s-color;
-  }
-
-  .title-xs{
-      font-family: "Microsoft Yahei", 'Raleway', sans-serif;
-      font-size: 12px;
-      font-weight: 400;
-      line-height: 12px;
-      color: $title-s-color;
-  }
+.title-xs{
+    font-family: "Microsoft Yahei", 'Raleway', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 12px;
+    color: $title-s-color;
+}
 
 .label-md{
   font-size:16px;
@@ -97,7 +95,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
 }
 
 .label-sm{
-  font-size:14px;
+  font-size:12px;
   color:$text-color;
 }
 
@@ -225,7 +223,7 @@ body{
   textarea {
     resize: none;
     overflow: auto;
-    height: 160px;
+    height: 80px;
   }
 
   input, button, select {

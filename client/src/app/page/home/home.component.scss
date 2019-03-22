@@ -155,7 +155,7 @@ and (orientation: landscape) {
   .map-area{
     height: 220px;
   }
-  
+
   .full-screen-map{
     height: 700px;
   }
@@ -195,6 +195,10 @@ and (orientation: landscape) {
       height: 80px;
       border-bottom: solid 1px #ddd;
     }
+  }
+
+  .restaurant-list{
+    padding-bottom: 60px;
   }
 }
 

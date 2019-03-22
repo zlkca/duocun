@@ -39,7 +39,7 @@ export class ProductService {
   }
 
   replace(product: Product): Observable<any> {
-    return this.http.post(this.url, product);
+    return this.http.put(this.url, product);
   }
 
   // find(query: any):Observable<Product[]>{

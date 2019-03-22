@@ -100,5 +100,9 @@ export class SharedService {
   getApiBaseUrl() {
     return environment.API_BASE + '/';
   }
+
+  getMediaUrl() {
+    return environment.MEDIA_URL;
+  }
 }
 

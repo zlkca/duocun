@@ -12,7 +12,6 @@ $desktop: "(min-width: 1200px)";
 }
 
 .restaurant-form {
-
   .row {
     margin-left:0px;
     margin-right:0px;
@@ -42,7 +41,7 @@ $desktop: "(min-width: 1200px)";
     }
   }
 
-  app-address-input{
+  app-address-autocomplete{
     width:100%;
   }
 }

@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@ang
 // import { LocationService } from '../../shared/location/location.service';
 // import { ILocation } from '../../shared/location/location.model';
 import { RestaurantService } from '../restaurant.service';
-import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 
@@ -55,7 +54,6 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
 
   @Output() afterSave: EventEmitter<any> = new EventEmitter();
   @Input() restaurant: Restaurant;
-  @ViewChild(MultiImageUploaderComponent) uploader: any;
 
   createForm() {
     return this.fb.group({
@@ -197,7 +195,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     if (restaurant.pictures && restaurant.pictures.length > 0) {
       const picture = restaurant.pictures[0]; // fix me
       this.urls = [
-        this.sharedSvc.getApiBaseUrl() + picture.url,
+        this.sharedSvc.getMediaUrl() + picture.url,
       ];
     } else {
       this.urls = [''];
@@ -221,7 +219,7 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     this.file = e.file;
 
     this.urls = [
-      self.sharedSvc.getApiBaseUrl() + path,
+      self.sharedSvc.getMediaUrl() + path,
     ];
   }
 
@@ -230,7 +228,10 @@ export class RestaurantFormComponent implements OnInit, OnChanges {
     // localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
     this.location = e.addr;
     this.address = e.sAddr;
-    this.form.get('address').patchValue({ postalCode: this.location.postal_code });
+    if (this.location) {
+      this.form.get('address').patchValue({ postalCode: this.location.postal_code });
+    }
+
     // this.sharedSvc.emitMsg({ name: 'OnUpdateAddress', addr: e.addr });
   }
 

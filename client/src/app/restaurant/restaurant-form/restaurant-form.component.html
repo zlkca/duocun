@@ -26,9 +26,8 @@
   <div formGroupName="address">
     <div class="row">
       <div class="label-sm" i18n="@@Street">Street:</div>
-      <!-- <input name="street" formControlName="street" /> -->
-      <app-address-input (addrChange)="onAddressChange($event)" 
-        placeholder="" [value]="address"></app-address-input>
+      <app-address-autocomplete (addrChange)="onAddressChange($event)" placeholder="" [value]="address">
+      </app-address-autocomplete>
     </div>
 
     <div class="row">

@@ -5,7 +5,6 @@ import { NgRedux } from '@angular-redux/store';
 
 import { ProductService } from '../product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-import { MultiImageUploaderComponent } from '../../shared/multi-image-uploader/multi-image-uploader.component';
 import { Restaurant, Product, Category, LoopBackConfig, Picture } from '../../lb-sdk';
 import { Jsonp } from '@angular/http';
 import { SharedService } from '../../shared/shared.service';
@@ -28,14 +27,10 @@ export class ProductFormComponent implements OnInit, OnChanges {
   ].join('/');
 
   urls = [];
-  pictures = [];
   file;
 
   @Input() product: Product;
   @Output() afterSave: EventEmitter<any> = new EventEmitter();
-  @ViewChild(MultiImageUploaderComponent) uploader: any;
-
-  // @ViewChild(ImageUploaderComponent) uploader: any;
 
   form: FormGroup = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -159,30 +154,30 @@ export class ProductFormComponent implements OnInit, OnChanges {
   setPictures(restaurant: Restaurant) {
     if (restaurant.pictures && restaurant.pictures.length > 0) {
       const picture = restaurant.pictures[0]; // fix me
-      this.pictures = [
-        this.sharedSvc.getApiUrl() + picture.url,
+      this.urls = [
+        this.sharedSvc.getMediaUrl() + picture.url,
       ];
     } else {
-      this.pictures = [''];
+      this.urls = [''];
     }
   }
 
   onAfterPictureUpload(e: any) {
     const self = this;
-    this.pictures = [
-      self.sharedSvc.getApiUrl() + e.name,
-    ];
-
     this.product.pictures = [
       new Picture({
         name: e.name,
+        // entityType: 'Event',
+        // entityId: self.event.id,
         // index: 1,
         url: e.name,
       })
     ];
+
     this.file = e.file;
+
     this.urls = [
-      this.sharedSvc.getApiBaseUrl() + e.name,
+      self.sharedSvc.getMediaUrl() + e.name,
     ];
   }
 
@@ -205,51 +200,5 @@ export class ProductFormComponent implements OnInit, OnChanges {
     }
     self.afterSave.emit({ restaurant_id: restaurantId });
   }
-
-  // ngOnInit() {
-  //     let self = this;
-
-  //     self.commerceServ.getCategoryList().subscribe(
-  //         (r:Category[]) => {
-  //             self.categoryList = r;
-  //         },
-  //         (err:any) => {
-  //             self.categoryList = [];
-  //         });
-
-  //     self.route.params.subscribe((params:any)=>{
-  //         self.id = params.id;
-
-  //         self.commerceServ.getImageDefaultTitle(1).subscribe((r)=>{
-  //             self.defaultTitles = [r.name0, r.name1, r.name2, r.name3];
-
-  //             if(params.id){
-  //               self.commerceServ.getWechatGroup(params.id).subscribe(
-  //                 (r:WechatGroup) => {
-  //                     r.qrs = self.commerceServ.getWechatGroupQRs(r.qrs, self.defaultTitles);
-  //                     self.wechatgroup = r
-  //                 },
-  //                 (err:any) => {
-  //                     let r = new WechatGroup();
-  //                     r.category = {'id':1};
-  //                     r.qrs = self.commerceServ.getWechatGroupQRs(r.qrs, self.defaultTitles);
-  //                     self.wechatgroup = r;
-  //                 });
-  //             }else{
-  //                 let r = new WechatGroup();
-  //                 r.category = {'id':1};
-  //                 r.qrs = self.commerceServ.getWechatGroupQRs(r.qrs, self.defaultTitles);
-  //                 self.wechatgroup = r;
-  //             }
-
-  //         },(err)=>{
-
-  //         });
-
-
-  //     });
-  // }
-
-
 }
 
