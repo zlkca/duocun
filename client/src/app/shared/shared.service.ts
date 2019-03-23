@@ -87,12 +87,6 @@ export class SharedService {
     return { day: d.date(), month: d.month() + 1, year: d.year() };
   }
 
-  // s --- image url in database
-  toDisplayUrl(s: string) {
-    const index = s.lastIndexOf('/pictures/');
-    return s.slice(0, index + 10) + 'download/' + s.slice(index + 10);
-  }
-
   getApiUrl() {
     return environment.API_BASE + '/' + environment.API_VERSION + '/';
   }

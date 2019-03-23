@@ -30,6 +30,7 @@ export class HomeComponent implements OnInit {
   subscrAccount;
   account;
   bHideMap = false;
+  bTimeOptions = false;
 
   constructor(
     private accountSvc: AccountService,
@@ -214,6 +215,8 @@ export class HomeComponent implements OnInit {
     const r = history.location;
     self.center = { lat: r.lat, lng: r.lng };
     self.doSearchRestaurants(self.center);
+    localStorage.setItem('location-' + APP, JSON.stringify(history.location));
+    this.bTimeOptions = true;
   }
 
   onSelectPlace(place) {
@@ -226,6 +229,8 @@ export class HomeComponent implements OnInit {
     this.locationSvc.reqLocationByAddress(addr).then(r => {
       self.bHideMap = false;
       self.center = { lat: r.lat, lng: r.lng };
+      localStorage.setItem('location-' + APP, JSON.stringify(addr));
+      this.bTimeOptions = true;
       self.doSearchRestaurants(self.center);
       if (self.account) {
           self.locationSvc.save({ userId: self.account.id, placeId: r.place_id, location: r, created: new Date()}).subscribe(x => {
@@ -251,6 +256,7 @@ export class HomeComponent implements OnInit {
       self.mapFullScreen = false;
       self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       // self.loadNearbyRestaurants(self.center);
+      localStorage.setItem('location-' + APP, JSON.stringify(r));
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
       self.center = { lat: r.lat, lng: r.lng };
       self.doSearchRestaurants(self.center);
@@ -277,5 +283,10 @@ export class HomeComponent implements OnInit {
     //   console.log(err);
     //   // alert('Do you want to turn on your GPS to find the nearest restaurants?');
     // });
+  }
+
+  onSelectTime() {
+    this.bHideMap = true;
+    this.bTimeOptions = false;
   }
 }

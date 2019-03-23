@@ -1,7 +1,7 @@
 <div class="page container">
   <div class="row">
       <div class="col-12 place-option-list" *ngIf="suggestPlaces && suggestPlaces.length>0">
-        <div *ngFor="let place of suggestPlaces" class="row place-option" (click)="onSelectPlace(place)">
+        <div *ngFor="let place of suggestPlaces" class="row option-item" (click)="onSelectPlace(place)">
           <div class="col-10" *ngIf="place.terms">
               <div class="text-md">
                   <span style="color:#aaa">{{place.terms[0].value}} </span>
@@ -27,7 +27,7 @@
       street_number: string;
       sub_locality: string; -->
       <div class="col-12 place-history-list" *ngIf="historyPlaces && historyPlaces.length>0">
-        <div *ngFor="let place of historyPlaces" class="row place-option" (click)="onSelectPlaceHistory(place)">
+        <div *ngFor="let place of historyPlaces" class="row option-item" (click)="onSelectPlaceHistory(place)">
           <div class="col-10">
               <div class="text-md">
                   <span style="color:#aaa">{{place.location.street_number}} </span>
@@ -65,8 +65,62 @@
           </div>
         </div>
       </div>
+      
 
-      <div *ngIf="!mapFullScreen" class="col-12 restaurant-list">
+      <div class="col-12 time-option-list" *ngIf="bTimeOptions">
+        <div class="row option-item" (click)="onSelectTime('immediate')">
+          <div class="col-12">
+              <div class="text-md">
+                  <span style="font-weight: 400">Immediate Delivery</span>
+                </div>
+                <div class="text-sm">
+                  <span>With Delivery Fee</span>
+                </div>
+          </div>
+        </div>
+        <div class="row option-item" (click)="onSelectTime()">
+          <div class="col-12">
+              <div class="text-md">
+                  <span style="font-weight: 400">Lunch Today</span>
+                </div>
+                <div class="text-sm">
+                  <span>Free delivery if order before 10:00am (depend on distance)</span>
+                </div>
+          </div>
+        </div>
+        <div class="row option-item" (click)="onSelectTime()">
+          <div class="col-12">
+              <div class="text-md">
+                  <span style="font-weight: 400">Lunch Tomorrow</span>
+                </div>
+                <div class="text-sm">
+                  <span>Free delivery (depend on distance)</span>
+                </div>
+          </div>
+        </div>
+        <div class="row option-item" (click)="onSelectTime()">
+          <div class="col-12">
+              <div class="text-md">
+                <span style="font-weight: 400">Dinner Today</span>
+              </div>
+              <div class="text-sm">
+                <span>Free delivery if order before 10:00am (depend on distance)</span>
+              </div>
+          </div>
+        </div>
+        <div class="row option-item" (click)="onSelectTime()">
+            <div class="col-12">
+                <div class="text-md">
+                  <span style="font-weight: 400">Dinner Tomorrow</span>
+                </div>
+                <div class="text-sm">
+                  <span>Free delivery (depend on distance)</span>
+                </div>
+            </div>
+          </div>
+      </div>
+
+      <div *ngIf="!mapFullScreen && !bTimeOptions" class="col-12 restaurant-list">
         <app-restaurant-grid [restaurantList]="restaurants" [center]="center" *ngIf="restaurants"></app-restaurant-grid>
       </div>   
   </div>

@@ -40,10 +40,10 @@ export class OrderFormComponent implements OnInit {
       time: [{ hour: 12, minute: 30 }, [Validators.required]],
       // address: [s, [Validators.required]]
     });
+
     if (s) {
       this.deliveryAddress = s.street_number + ' ' + s.street_name + ' ' + s.sub_locality + ', ' + s.province;
     }
-
   }
 
   ngOnInit() {

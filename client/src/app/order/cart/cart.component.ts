@@ -77,7 +77,7 @@ export class CartComponent implements OnInit, OnDestroy {
     const orders = this.createOrders(this.cart);
     if (orders[0].accountId) {
       // this.modalServ.open(this.orderDetailModal);
-      this.router.navigate(['orders']);
+      this.router.navigate(['client-orders']);
     } else {
       this.router.navigate(['login']);
     }

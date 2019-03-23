@@ -52,7 +52,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
 
   onValueChange(e) {
     const v = e.target.value;
-    if (v && v.length > 3) {
+    if (v && v.length >= 3) {
       this.addrChange.emit({ 'input': v });
     } else if (!v || v.length === 0) {
       this.inputFocus.emit();
@@ -66,8 +66,8 @@ export class AddressInputComponent implements OnInit, OnChanges {
   }
 
   clearAddr() {
-    // this.div.nativeElement.value = '';
     this.input = '';
+    this.placeForm.get('addr').patchValue(this.input);
     this.addrClear.emit();
   }
 }
