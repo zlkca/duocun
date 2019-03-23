@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
@@ -16,18 +16,17 @@ const ADD_IMAGE = 'add_photo.png';
   templateUrl: './product-grid.component.html',
   styleUrls: ['./product-grid.component.scss']
 })
-export class ProductGridComponent implements OnInit {
+export class ProductGridComponent implements OnInit, OnChanges {
   productList: Product[] = [];
   MEDIA_URL: string = environment.MEDIA_URL;
   defaultPicture = window.location.protocol + '//placehold.it/400x300';
   subscription: any;
   cart: any;
+  categoryIds;
 
-  @Input() products: Product[];
+  @Input() categories;
+  @Input() groupedProducts: Product[][];
   @Input() mode: string;
-
-  ngOnInit() {
-  }
 
   constructor(
     private router: Router,
@@ -38,6 +37,24 @@ export class ProductGridComponent implements OnInit {
   ) {
     // this.subscription = ngRedux.select<ICart>('cart').subscribe(
     //   cart=> this.cart = cart);
+
+  }
+
+  ngOnInit() {
+  }
+
+  ngOnChanges(v) {
+    const cats = v.categories ? v.categories.currentValue : null;
+    const gps = v.groupedProducts ? v.groupedProducts.currentValue : null;
+    if (cats) {
+      this.categories = cats;
+    }
+    if (gps) {
+      this.groupedProducts = gps;
+      if (gps.length > 0) {
+        this.categoryIds = Object.keys(this.groupedProducts);
+      }
+    }
   }
 
   addToCart(p) {

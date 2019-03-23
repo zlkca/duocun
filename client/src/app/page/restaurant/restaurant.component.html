@@ -11,9 +11,9 @@
     </div>
     <div class="col-xs-12 col-md-8 product-block">
       <ngb-tabset>
-        <ngb-tab *ngFor="let cat of categories" title="{{cat.name}}">
+        <ngb-tab *ngFor="let t of tabs" title="{{t.text}}">
           <ng-template ngbTabContent>
-            <app-product-grid [products]="groupedProducts[cat.id]"></app-product-grid>
+            <app-product-grid [groupedProducts]="groupedProducts" [categories]="categories"></app-product-grid>
           </ng-template>
         </ngb-tab>
       </ngb-tabset>

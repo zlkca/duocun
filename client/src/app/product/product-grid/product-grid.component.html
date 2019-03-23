@@ -1,5 +1,8 @@
-   <div class="col-md-12 col-sm-12 col-12 product-grid" *ngIf="products">
-        <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" *ngFor="let p of products; let i = index;">
+   <div class="col-md-12 col-sm-12 col-12 product-grid" *ngIf="groupedProducts">
+     <div *ngFor="let cat of categories">
+       <div *ngIf="groupedProducts[cat.id]">
+         {{cat.name}}
+        <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" *ngFor="let p of groupedProducts[cat.id]; let i = index;">
             <div class="row grid-body">
                 <div class="col-md-12 col-sm-3 col-3 image-body">
                     <img [src]="getImageSrc(p)" alt="{{p.name}}" (click)="onClick(p)">
@@ -10,11 +13,13 @@
                     <div>
                         <div class="pull-left text-sm">CAD {{p.price | currency}}</div>
                         <div class="pull-right">
-                                <!-- <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(p)"></i> -->
-                                <i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(p)"></i>
+                            <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(p)"></i>
+                            <i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(p)"></i>
                         </div>
                     </div>
                 </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>

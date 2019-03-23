@@ -19,7 +19,7 @@ export class RestaurantComponent implements OnInit {
   restaurant: any;
   subscription;
   cart;
-
+  tabs = [{ code: 'menu', text: 'Menu' }, { code: 'ratings', text: 'Rating' }, { code: 'about', text: 'About' }];
   constructor(private productSvc: ProductService,
     private restaurantSvc: RestaurantService,
     private route: ActivatedRoute,
