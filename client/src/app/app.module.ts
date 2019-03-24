@@ -43,6 +43,9 @@ import { PageModule } from './page/page.module';
 
 import { environment } from '../environments/environment';
 import { SDKBrowserModule, LoopBackConfig } from './lb-sdk';
+import { CartPageComponent } from './page/cart-page/cart-page.component';
+import { RestaurantListPageComponent } from './page/restaurant-list-page/restaurant-list-page.component';
+import { RestaurantDetailPageComponent } from './page/restaurant-detail-page/restaurant-detail-page.component';
 
 const appRoutes: Routes = [
     { path: 'admin', component: AdminComponent },
@@ -66,6 +69,9 @@ const appRoutes: Routes = [
     { path: 'institution-login', component: InstitutionLoginComponent },
     { path: 'signup', component: SignupComponent },
     { path: 'institution-signup', component: InstitutionSignupComponent },
+    // { path: 'restaurants', component: RestaurantListPageComponent},
+    // { path: 'restaurants/:id', component: RestaurantDetailPageComponent},
+    { path: 'cart', component: CartPageComponent},
     { path: 'home', component: HomeComponent },
     { path: '', component: HomeComponent}
 ];

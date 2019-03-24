@@ -6,6 +6,8 @@ import { Order, Restaurant, Account, OrderInterface } from '../../lb-sdk';
 import { FormBuilder, Validators } from '../../../../node_modules/@angular/forms';
 import { environment } from '../../../environments/environment';
 import { ICartItem } from '../../order/order.actions';
+import { NgRedux } from '../../../../node_modules/@angular-redux/store';
+import { IAppState } from '../../store';
 
 const APP = environment.APP;
 
@@ -30,8 +32,10 @@ export class OrderFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private sharedSvc: SharedService,
-    private orderSvc: OrderService
+    private orderSvc: OrderService,
+    private rx: NgRedux<IAppState>
   ) {
+    const self = this;
     const s = JSON.parse(localStorage.getItem('location-' + APP));
     const tomorrow = this.sharedSvc.getNextDay();
     this.form = this.fb.group({
@@ -44,6 +48,12 @@ export class OrderFormComponent implements OnInit {
     if (s) {
       this.deliveryAddress = s.street_number + ' ' + s.street_name + ' ' + s.sub_locality + ', ' + s.province;
     }
+
+    this.rx.select<string>('cmd').subscribe(x => {
+      if (x === 'pay') {
+        self.checkout();
+      }
+    });
   }
 
   ngOnInit() {

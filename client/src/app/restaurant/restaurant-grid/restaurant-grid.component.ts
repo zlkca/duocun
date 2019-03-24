@@ -6,6 +6,8 @@ import { environment } from '../../../environments/environment';
 // import { LocationService } from '../../shared/location/location.service';
 import { RestaurantService } from '../restaurant.service';
 import { Restaurant, GeoPoint } from '../../lb-sdk';
+import { PageActions } from '../../page/page.actions';
+import { NgRedux } from '@angular-redux/store';
 
 const APP = environment.APP;
 
@@ -34,7 +36,7 @@ export class RestaurantGridComponent implements OnInit {
     private router: Router,
     private sharedSvc: SharedService,
     private restaurantSvc: RestaurantService,
-    // private locationSvc: LocationService
+    private rx: NgRedux<Account>
   ) {
     // self.center = JSON.parse(localStorage.getItem('location-' + APP));
 
@@ -91,6 +93,10 @@ export class RestaurantGridComponent implements OnInit {
   }
 
   toDetail(r: Restaurant) {
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'restaurants'
+    });
     this.router.navigate(['restaurants/' + r.id]);
   }
 

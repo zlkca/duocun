@@ -8,12 +8,16 @@ import { ICart } from './order/order.actions';
 // import { IPicture, DEFAULT_PICTURE } from './commerce/commerce.actions';
 import { cartReducer } from './order/order.reducers';
 import { Account } from './lb-sdk';
+import { pageReducer } from './page/page.reducers';
+import { commandReducer } from './shared/command.reducers';
 
 export interface IAppState {
     cart: ICart;
     account: Account;
     // picture: IPicture;
     // location: ILocation;
+    page: string;
+    cmd: string;
 }
 
 export const INITIAL_STATE: IAppState = {
@@ -21,6 +25,8 @@ export const INITIAL_STATE: IAppState = {
     account: DEFAULT_ACCOUNT,
     // picture: DEFAULT_PICTURE,
     // location: null,
+    page: 'home',
+    cmd: ''
 };
 
 // export function rootReducer(last:IAppState, action:Action):IAppState{
@@ -38,4 +44,6 @@ export const rootReducer = combineReducers({
     account: accountReducer,
     // picture: pictureReducer,
     // location: locationReducer
+    page: pageReducer,
+    cmd: commandReducer
 });

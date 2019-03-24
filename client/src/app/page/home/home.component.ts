@@ -8,6 +8,9 @@ import { SharedService } from '../../shared/shared.service';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
 import { ILocationHistory } from '../../location/location.model';
+import { NgRedux } from '@angular-redux/store';
+import { IAppState } from '../../store';
+import { PageActions } from '../page.actions';
 
 declare var google;
 
@@ -36,7 +39,8 @@ export class HomeComponent implements OnInit {
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     private restaurantSvc: RestaurantService,
-    private sharedSvc: SharedService
+    private sharedSvc: SharedService,
+    private rx: NgRedux<IAppState>,
   ) { }
 
   ngOnInit() {

@@ -1,5 +1,5 @@
 <footer>
-  <div class="row bottom-nav-menus">
+  <div class="row bottom-nav-menus" *ngIf="!bCart && !bCheckout">
     <div class="col-3" (click)="toHome()">
         <i class="fa fa-2x fa-home"></i>
         <div class="icon-text">Home</div>
@@ -25,5 +25,26 @@
       <a href="#">YoCompute Inc.</a> &#169;<span id="copyright-year">{{year}}</span>
       <!-- <a href="index-5.html">Privacy Policy</a> -->
       <span class="created">Created by <a rel="nofollow" href="http://www.yocompute.com">yocompute.com</a></span>
+  </div>
+  <div class="row cart-row" *ngIf="bCart">
+    <div class="col-2 cart-col" (click)="toCart()">
+        <span class="fa-stack fa-2x has-badge" [attr.data-count]="quantity">
+          <i class="fa fa-shopping-cart fa-3x"></i>
+        </span>
+    </div>
+    <div class="col-6 title-md amount-col">
+      {{total | currency:'CAD' }}
+    </div>
+    <div class="col-4 title-md checkout-col" (click)="checkout()">
+      Check Out
+    </div>
+  </div>
+  <div class="row checkout-row" *ngIf="bCheckout">
+    <div class="col-9 title-md amount-col">
+      {{total | currency:'CAD' }}
+    </div>
+    <div class="col-3 title-md pay-col" (click)="pay()">
+      Submit
+    </div>
   </div>
 </footer>

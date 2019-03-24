@@ -13,6 +13,9 @@ import { HomeComponent } from './home/home.component';
 import { ClientOrderComponent } from './client-order/client-order.component';
 import { RestaurantComponent } from './restaurant/restaurant.component';
 import { WorkerOrderComponent } from './worker-order/worker-order.component';
+import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-list-page.component';
+import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaurant-detail-page.component';
+import { CartPageComponent } from './cart-page/cart-page.component';
 
 @NgModule({
   imports: [
@@ -33,6 +36,9 @@ import { WorkerOrderComponent } from './worker-order/worker-order.component';
     ClientOrderComponent,
     WorkerOrderComponent,
     RestaurantComponent,
+    RestaurantListPageComponent,
+    RestaurantDetailPageComponent,
+    CartPageComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
