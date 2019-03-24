@@ -1,42 +1,16 @@
 <div class="page container">
   <div class="row">
-      <div class="col-12 place-option-list" *ngIf="suggestPlaces && suggestPlaces.length>0">
-        <div *ngFor="let place of suggestPlaces" class="row option-item" (click)="onSelectPlace(place)">
-          <div class="col-10" *ngIf="place.terms">
+      <div class="col-12 place-option-list" *ngIf="options && options.length>0">
+        <div *ngFor="let place of options" class="row option-item" (click)="onSelectPlace(place)">
+          <div class="col-10" *ngIf="place">
               <div class="text-md">
-                  <span style="color:#aaa">{{place.terms[0].value}} </span>
-                  <span style="font-weight: 400">{{place.terms[1].value}}</span>
-                </div>
-                <div class="text-sm">
-                  <span>{{place.terms[2].value}}, </span>
-                  <span>{{place.terms[3].value}}</span>
-                </div>
-          </div>
-          <div class="col-2">
-            <i class="fa fa-2x fa-external-link"></i>
-          </div>
-        </div>
-      </div>
-      <!-- place_id: string;
-      city: string;
-      lat: number;
-      lng: number;
-      postal_code: string;
-      province: string;
-      street_name: string;
-      street_number: string;
-      sub_locality: string; -->
-      <div class="col-12 place-history-list" *ngIf="historyPlaces && historyPlaces.length>0">
-        <div *ngFor="let place of historyPlaces" class="row option-item" (click)="onSelectPlaceHistory(place)">
-          <div class="col-10">
-              <div class="text-md">
-                  <span style="color:#aaa">{{place.location.street_number}} </span>
-                  <span style="font-weight: 400">{{place.location.street_name}}</span>
-                </div>
-                <div class="text-sm">
-                  <span>{{place.location.sub_locality ? place.location.sub_locality: place.location.city}}, </span>
-                  <span>{{place.location.province}}</span>
-                </div>
+                <span style="color:#aaa">{{place.location.street_number}} </span>
+                <span style="font-weight: 400">{{place.location.street_name}}</span>
+              </div>
+              <div class="text-sm">
+                <span>{{place.location.sub_locality ? place.location.sub_locality: place.location.city}}, </span>
+                <span>{{place.location.province}}</span>
+              </div>
           </div>
           <div class="col-2">
             <i class="fa fa-2x fa-external-link"></i>

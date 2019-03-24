@@ -188,7 +188,7 @@ and (orientation: landscape) {
     height: 700px;
   }
 
-  .place-option-list, .place-history-list, .time-option-list{
+  .place-option-list, .time-option-list{
     .option-item{
       padding: 10px 0px;
       height: 80px;
@@ -196,7 +196,7 @@ and (orientation: landscape) {
     }
   }
 
-  .place-option-list, .place-history-list, .restaurant-list {
+  .place-option-list, .restaurant-list {
     margin-top: 46px;
   }
 

@@ -7,7 +7,7 @@ import { RestaurantService } from '../../restaurant/restaurant.service';
 import { SharedService } from '../../shared/shared.service';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
-import { ILocationHistory } from '../../location/location.model';
+import { ILocationHistory, IPlace, ILocation } from '../../location/location.model';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../page.actions';
@@ -25,8 +25,8 @@ export class HomeComponent implements OnInit {
   center: GeoPoint = { lat: 43.761539, lng: -79.411079 };
   restaurants;
   places;
-  suggestPlaces;
-  historyPlaces;
+
+  options;
   deliveryAddress = '';
   placeholder = 'Delivery Address';
   mapFullScreen = true;
@@ -183,12 +183,30 @@ export class HomeComponent implements OnInit {
     // }
   }
 
+  private getLocation(p: IPlace): ILocation {
+    const terms = p.terms;
+    return {
+      place_id: p.place_id ? p.place_id : '',
+      city: terms && terms.length > 3 ? p.terms[2].value : '',
+      lat: 0,
+      lng: 0,
+      postal_code: '',
+      province: terms && terms.length > 3 ? p.terms[3].value : '',
+      street_name: terms && terms.length > 3 ? p.terms[1].value : '',
+      street_number: terms && terms.length > 3 ? p.terms[0].value : '',
+      sub_locality: ''
+    };
+  }
+
   onAddressChange(e) {
     const self = this;
     this.bHideMap = true;
-    this.historyPlaces = [];
-    this.locationSvc.reqPlaces(e.input).subscribe(x => {
-      self.suggestPlaces = x; // without lat lng
+    this.options = [];
+    this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
+      for (const p of ps) {
+        const loc: ILocation = this.getLocation(p);
+        self.options.push({location: loc, type: 'suggest'}); // without lat lng
+      }
     });
     // localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
     // this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
@@ -198,57 +216,58 @@ export class HomeComponent implements OnInit {
   onAddressClear(e) {
     this.deliveryAddress = '';
     this.mapFullScreen = true;
-    this.historyPlaces = [];
-    this.suggestPlaces = [];
+    this.options = [];
     this.bHideMap = false;
   }
 
   onAddressInputFocus(e) {
     const self = this;
     this.bHideMap = true;
-    this.suggestPlaces = [];
+    this.options = [];
     if (this.account && this.account.id) {
-      this.locationSvc.find({where: { userId: this.account.id }}).subscribe(x => {
-        self.historyPlaces = x;
+      this.locationSvc.find({ where: { userId: this.account.id } }).subscribe((lhs: ILocationHistory[]) => {
+        for (const lh of lhs) {
+          lh.type = 'history';
+        }
+        self.options = lhs;
       });
     }
   }
 
-  onSelectPlaceHistory(history: ILocationHistory) {
+  onSelectPlace(place: any) {
     const self = this;
-    this.deliveryAddress = this.locationSvc.getAddrString(history.location);
+    this.deliveryAddress = self.locationSvc.getAddrString(place.location); // set address text to input
     this.mapFullScreen = false;
-    self.historyPlaces = [];
-    self.bHideMap = false;
-    const r = history.location;
-    self.center = { lat: r.lat, lng: r.lng };
-    self.doSearchRestaurants(self.center);
-    localStorage.setItem('location-' + APP, JSON.stringify(history.location));
-    this.bTimeOptions = true;
-  }
+    self.options = [];
 
-  onSelectPlace(place) {
-    const self = this;
-    this.mapFullScreen = false;
-    self.suggestPlaces = [];
-
-    const addr = self.locationSvc.getAddrStringByPlace(place); // set address text to input
-    this.deliveryAddress = addr;
-    this.locationSvc.reqLocationByAddress(addr).then(r => {
-      self.bHideMap = false;
-      self.center = { lat: r.lat, lng: r.lng };
-      localStorage.setItem('location-' + APP, JSON.stringify(addr));
-      this.bTimeOptions = true;
-      self.doSearchRestaurants(self.center);
-      if (self.account) {
-          self.locationSvc.save({ userId: self.account.id, placeId: r.place_id, location: r, created: new Date()}).subscribe(x => {
+    if (place.type === 'suggest') {
+      this.locationSvc.reqLocationByAddress(this.deliveryAddress).then(r => {
+        self.bHideMap = false;
+        self.center = { lat: r.lat, lng: r.lng };
+        localStorage.setItem('location-' + APP, JSON.stringify(self.deliveryAddress));
+        this.bTimeOptions = true;
+        self.doSearchRestaurants(self.center);
+        if (self.account) {
+          self.locationSvc.save({
+            userId: self.account.id, type: 'history',
+            placeId: r.place_id, location: r, created: new Date()
+          }).subscribe(x => {
           });
-      }
-    });
+        }
+      });
+    } else if (place.type === 'history') {
+      self.bHideMap = false;
+      const r = place.location;
+      self.center = { lat: r.lat, lng: r.lng };
+      self.doSearchRestaurants(self.center);
+      localStorage.setItem('location-' + APP, JSON.stringify(place.location));
+      this.bTimeOptions = true;
+    }
+
   }
 
   showMap() {
-    return !((this.suggestPlaces && this.suggestPlaces.length > 0) || (this.historyPlaces && this.historyPlaces.length > 0));
+    return !(this.options && this.options.length > 0);
   }
 
   getMapHeight() {
@@ -257,8 +276,7 @@ export class HomeComponent implements OnInit {
 
   useCurrentLocation() {
     const self = this;
-    self.suggestPlaces = [];
-    self.historyPlaces = [];
+    self.options = [];
     this.locationSvc.getCurrentLocation().then(r => {
       self.bHideMap = false;
       self.mapFullScreen = false;
@@ -270,7 +288,7 @@ export class HomeComponent implements OnInit {
       self.doSearchRestaurants(self.center);
 
       if (self.account) {
-        self.locationSvc.save({ userId: self.account.id,
+        self.locationSvc.save({ userId: self.account.id, type: 'history',
           placeId: r.place_id, location: r, created: new Date() }).subscribe(x => {
         });
       }

@@ -15,10 +15,16 @@ export interface ILatLng {
   lng: number;
 }
 
+export interface IPlaceTerm {
+  offset: number;
+  value: string;
+}
+
 export interface IPlace {
   id: string;
   description: string;
   place_id: string;
+  terms: IPlaceTerm[];
 }
 
 export interface ILocationHistory {
@@ -26,4 +32,5 @@ export interface ILocationHistory {
   placeId: string;
   location: ILocation;
   created: Date;
+  type: string;
 }

@@ -4,11 +4,11 @@ import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
 
 import { AuthService } from '../auth.service';
-import { SharedService } from '../../shared/shared.service';
-
 import { AccountService } from '../account.service';
 import { AccountActions } from '../account.actions';
 import { Account } from '../../lb-sdk';
+import { PageActions } from '../../page/page.actions';
+import { IAppState } from '../../store';
 
 
 @Component({
@@ -28,11 +28,11 @@ export class LoginFormComponent implements OnInit {
     form: FormGroup;
 
     constructor(
-        private fb: FormBuilder,
-        private authServ: AuthService,
-        private router: Router,
-        private accountServ: AccountService,
-      private ngRedux: NgRedux<Account>,
+      private fb: FormBuilder,
+      private authServ: AuthService,
+      private router: Router,
+      private accountServ: AccountService,
+      private rx: NgRedux<IAppState>,
     ) {
         this.form = this.fb.group({
             account: ['', Validators.required],
@@ -41,33 +41,10 @@ export class LoginFormComponent implements OnInit {
     }
 
     ngOnInit() {
-        // let self = this;
-
-        // self.authServ.getUser({'email':r.email}).subscribe(
-        //   (user:any)=>{
-        //     if(user){
-        //       self.authServ.setLogin(user);
-        //       self.pageServ.emitMsg({name:'OnUpdateHeader'});
-        //       self.user = user;
-        //       self.toHome();
-        //     }else{
-
-        //       self.authServ.signup(r.username, r.email, '', 'member', 'm', r.firstname, r.lastname, r.portrait)
-        //         .subscribe(function(user){
-        //           self.authServ.setLogin(user);
-        //           self.msgServ.emit({name:'OnUpdateHeader'});
-        //           self.user = user;
-        //           self.toHome();
-        //         }, function(err){
-        //           let e = err;
-        //         })
-        //     }
-        //   },
-        //   (error:any)=>{
-
-        //   });
-        //   }
-
+      this.rx.dispatch({
+        type: PageActions.UPDATE_URL,
+        payload: 'login'
+      });
     }
 
     onLogin() {
@@ -76,7 +53,7 @@ export class LoginFormComponent implements OnInit {
       // if (this.form.valid) {
       this.accountServ.login(v.account, v.password)
         .subscribe((account: Account) => {
-          self.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header, footer icons
+          self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header, footer icons
 
           if (account.type === 'super') {
             this.router.navigate(['admin']);

@@ -3,11 +3,10 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
 import { AuthService } from '../auth.service';
-import { AccountActions } from '../account.actions';
-
-import { SharedService } from '../../shared/shared.service';
 import { AccountService } from '../account.service';
 import { Account } from '../../lb-sdk';
+import { IAppState } from '../../store';
+import { PageActions } from '../../page/page.actions';
 
 @Component({
   providers: [AuthService],
@@ -21,10 +20,10 @@ export class SignupComponent implements OnInit {
   form: FormGroup;
 
   constructor(private fb: FormBuilder,
-    private authServ: AuthService,
     private accountServ: AccountService,
     private router: Router,
-    private sharedServ: SharedService) {
+    private rx: NgRedux<IAppState>,
+  ) {
 
     this.form = this.fb.group({
       username: ['', Validators.required],
@@ -34,7 +33,10 @@ export class SignupComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'login'
+    });
   }
 
   onSignup() {

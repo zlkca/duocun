@@ -63,7 +63,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
         callback(null, false);
       }
     });
-  }, timeout: 20000});
+  }, timeout: 200000});
 
   // io.on("updateOrders", (x: any) => {
   //   const ss = x;
