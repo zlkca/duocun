@@ -3,7 +3,6 @@
     <div class="title-sm pull-left" i18n="@@ShoppingCart">Shopping Cart</div>
     <div class="title-sm pull-right" i18n="@@ClearCart" (click)="clearCart()">Clear Cart</div>
   </div>
-
   <div class="container list-group mb-3 mt-3 ml-2 mr-2">
     <div *ngFor="let item of cart.items" class="align-items-start bg-light">
       <div class="row border-bottom ml-2 mr-2">
@@ -18,7 +17,6 @@
               data-field="num">+</button>
           </span>
         </div>
-
         <div class="col-8 text-area">
           <div class="col-12 text-left">{{item.name}}</div>
           <div class="col-12 text-right">{{item.price * item.quantity | currency:'CAD' }}</div>
@@ -26,7 +24,6 @@
       </div>
     </div>
   </div>
-
   <div class="row text-right ml-2 mr-1 mb-3">
     <div class="col-12">
       <p class="title-sm">{{quantity}}<span i18n="@@Items">Items</span>, <span i18n="@@Total">Total</span>: {{total | currency:'CAD' }}</p>

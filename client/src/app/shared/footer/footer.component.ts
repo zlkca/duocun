@@ -86,10 +86,6 @@ export class FooterComponent implements OnInit {
 
   checkout() {
     if (this.account.type === 'user' || this.account.type === 'super') {
-      this.rx.dispatch({
-        type: PageActions.UPDATE_URL,
-        payload: 'orders'
-      });
       this.router.navigate(['client-orders']);
     }
   }

@@ -46,7 +46,7 @@ export class SignupComponent implements OnInit {
       type: 'user'
     });
     this.accountServ.signup(account).subscribe((user: Account) => {
-      if (user.id) {
+      if (user && user.id) {
         if (user.type === 'user') {
           this.router.navigate(['home']);
         } else if (user.type === 'worker') {

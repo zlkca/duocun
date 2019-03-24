@@ -19,7 +19,7 @@ const ADD_IMAGE = 'add_photo.png';
 export class ProductGridComponent implements OnInit, OnChanges {
   productList: Product[] = [];
   MEDIA_URL: string = environment.MEDIA_URL;
-  defaultPicture = window.location.protocol + '//placehold.it/400x300';
+  defaultProductPicture = window.location.protocol + '//placehold.it/400x300';
   subscription: any;
   cart: any;
   categoryIds;
@@ -57,26 +57,25 @@ export class ProductGridComponent implements OnInit, OnChanges {
     }
   }
 
-  addToCart(p) {
+  addToCart(p: Product) {
     this.ngRedux.dispatch({
       type: CartActions.ADD_TO_CART, payload:
-        { productId: p.id, name: p.name, price: p.price, restaurantId: p.restaurantId }
+        { productId: p.id, name: p.name, price: p.price, pictures: p.pictures, restaurantId: p.restaurantId }
     });
   }
 
-  removeFromCart(p) {
+  removeFromCart(p: Product) {
     this.ngRedux.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: { productId: p.id, name: p.name, price: p.price, restaurantId: p.restaurantId }
+      payload: { productId: p.id, name: p.name, price: p.price, pictures: p.pictures, restaurantId: p.restaurantId }
     });
   }
 
-  getImageSrc(p) {
+  getProductImage(p: Product) {
     if (p.pictures && p.pictures[0] && p.pictures[0].url) {
       return this.sharedSvc.getMediaUrl() + p.pictures[0].url;
     } else {
-      return this.defaultPicture;
+      return this.defaultProductPicture;
     }
   }
-
 }

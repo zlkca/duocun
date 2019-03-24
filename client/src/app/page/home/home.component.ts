@@ -48,6 +48,10 @@ export class HomeComponent implements OnInit {
     this.subscrAccount = this.accountSvc.getCurrent().subscribe(account => {
       self.account = account;
     });
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'home'
+    });
     // const s = localStorage.getItem('location-' + APP);
 
     // if (s) {
