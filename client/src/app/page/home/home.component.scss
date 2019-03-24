@@ -3,7 +3,7 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
-$current-loc-btn-width: 92px;
+$position-btn-width: 60px;
 
 .grid{
   padding: 0px;
@@ -80,7 +80,7 @@ $current-loc-btn-width: 92px;
   margin-top: 0px;
   #userlocationinput{ //input.form-control
     outline:none;
-    width:calc(100% - #{$current-loc-btn-width});
+    width:calc(100% - #{$position-btn-width});
     float:left;
   }
 }
@@ -90,11 +90,11 @@ $current-loc-btn-width: 92px;
 }
 
 .input-group-append{
-  width: $current-loc-btn-width;
+  width: $position-btn-width;
 }
 
 app-address-input {
-  width: calc(100% - #{$current-loc-btn-width});
+  width: calc(100% - #{$position-btn-width});
 }
 
 .btn-current-location{

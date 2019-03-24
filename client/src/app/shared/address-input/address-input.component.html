@@ -2,9 +2,9 @@
   <form [formGroup]="placeForm" class="address-input">
       <input type="text" [formControl]="placeForm.controls.addr" placeholder="{{placeholder}}" 
       (input)="onValueChange($event)"
-      (focus)="onFocus($event)"/>
+      (focus)="onFocus($event)" [class.expanded]="!bClearBtn"/>
   </form>
-  <button class="clear-btn" (click)="clearAddr()">
+  <button class="clear-btn" (click)="clearAddr()" *ngIf="bClearBtn">
     <i class="fa fa-2x fa-close"></i>
   </button>
 </div>

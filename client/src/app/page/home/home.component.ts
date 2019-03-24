@@ -34,6 +34,7 @@ export class HomeComponent implements OnInit {
   account;
   bHideMap = false;
   bTimeOptions = false;
+  bRestaurant = false;
 
   constructor(
     private accountSvc: AccountService,
@@ -201,11 +202,15 @@ export class HomeComponent implements OnInit {
   onAddressChange(e) {
     const self = this;
     this.bHideMap = true;
+    this.bRestaurant = false;
+    this.bTimeOptions = false;
     this.options = [];
     this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
-      for (const p of ps) {
-        const loc: ILocation = this.getLocation(p);
-        self.options.push({location: loc, type: 'suggest'}); // without lat lng
+      if (ps && ps.length > 0) {
+        for (const p of ps) {
+          const loc: ILocation = this.getLocation(p);
+          self.options.push({ location: loc, type: 'suggest' }); // without lat lng
+        }
       }
     });
     // localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
@@ -218,11 +223,14 @@ export class HomeComponent implements OnInit {
     this.mapFullScreen = true;
     this.options = [];
     this.bHideMap = false;
+    this.bRestaurant = false;
   }
 
   onAddressInputFocus(e) {
     const self = this;
     this.bHideMap = true;
+    this.bTimeOptions = false;
+    this.bRestaurant = false;
     this.options = [];
     if (this.account && this.account.id) {
       this.locationSvc.find({ where: { userId: this.account.id } }).subscribe((lhs: ILocationHistory[]) => {
@@ -238,6 +246,8 @@ export class HomeComponent implements OnInit {
     const self = this;
     this.deliveryAddress = self.locationSvc.getAddrString(place.location); // set address text to input
     this.mapFullScreen = false;
+    this.bTimeOptions = false;
+    this.bRestaurant = false;
     self.options = [];
 
     if (place.type === 'suggest') {
@@ -280,6 +290,7 @@ export class HomeComponent implements OnInit {
     this.locationSvc.getCurrentLocation().then(r => {
       self.bHideMap = false;
       self.mapFullScreen = false;
+      self.bRestaurant = false;
       self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       // self.loadNearbyRestaurants(self.center);
       localStorage.setItem('location-' + APP, JSON.stringify(r));
@@ -314,5 +325,7 @@ export class HomeComponent implements OnInit {
   onSelectTime() {
     this.bHideMap = true;
     this.bTimeOptions = false;
+    this.options = [];
+    this.bRestaurant = true;
   }
 }

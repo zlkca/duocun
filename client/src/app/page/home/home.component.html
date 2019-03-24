@@ -94,7 +94,8 @@
           </div>
       </div>
 
-      <div *ngIf="!mapFullScreen && !bTimeOptions" class="col-12 restaurant-list">
+      <div *ngIf="bRestaurant && !mapFullScreen && !bTimeOptions && !(options && options.length>0)"
+        class="col-12 restaurant-list">
         <app-restaurant-grid [restaurantList]="restaurants" [center]="center" *ngIf="restaurants"></app-restaurant-grid>
       </div>   
   </div>

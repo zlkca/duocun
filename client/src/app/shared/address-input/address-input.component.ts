@@ -28,6 +28,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
   placeholder: string;
   gAutocomplete: any;
   input: string;
+  bClearBtn = false;
 
   // private cleared = true;
   constructor(
@@ -44,14 +45,22 @@ export class AddressInputComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes) {
     const v = changes.value.currentValue;
-    // if (v && v.length > 3) {
-    //   this.addrChange.emit({ 'input': v });
-    // }
+    if (v && v.length > 0) {
+      this.bClearBtn = true;
+    } else {
+      this.bClearBtn = false;
+    }
     this.placeForm.get('addr').patchValue(v);
   }
 
   onValueChange(e) {
     const v = e.target.value;
+    if (v && v.length > 0) {
+      this.bClearBtn = true;
+    } else {
+      this.bClearBtn = false;
+    }
+
     if (v && v.length >= 3) {
       this.addrChange.emit({ 'input': v });
     } else if (!v || v.length === 0) {
@@ -69,5 +78,6 @@ export class AddressInputComponent implements OnInit, OnChanges {
     this.input = '';
     this.placeForm.get('addr').patchValue(this.input);
     this.addrClear.emit();
+    this.bClearBtn = false;
   }
 }

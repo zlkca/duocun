@@ -19,6 +19,10 @@ $bg-color: white;
     background-color: $bg-color;
   }
 
+  input.expanded{
+    width: 100%;
+  }
+
   button.clear-btn{
     background-color: $bg-color;
     border: solid 1px #b1b1b1;
