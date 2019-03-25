@@ -190,9 +190,13 @@ and (orientation: landscape) {
 
   .place-option-list, .time-option-list{
     .option-item{
-      padding: 10px 0px;
+      padding: 0px;
       height: 80px;
       border-bottom: solid 1px #ddd;
+
+      .col-11{
+        padding: 10px 0px;
+      }
     }
   }
 
@@ -200,8 +204,43 @@ and (orientation: landscape) {
     margin-top: 46px;
   }
 
-  .restaurant-list, .time-option-list{
+  .time-option-list{
     padding-bottom: 60px;
+  }
+
+  .restaurant-list{
+    padding: 0px 0px 60px 0px;
+  }
+
+  .free{
+    background-color: green;
+    color: white;
+  }
+  .overdue{
+    background-color: yellow;
+  }
+  .no-free{
+    background-color: red;
+    color: white;
+  }
+
+  .time-option-list{
+    padding: 0px;
+    .date{
+      padding-left: 20px;
+    }
+    .time{
+      padding-left: 10px;
+      padding-right: 5px;
+    }
+    .overdue-note{
+      padding-left: 10px;
+    }
+  }
+
+  .time-title{
+    padding-left: 5px;
+    padding-top: 3px;
   }
 }
 

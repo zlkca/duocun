@@ -62,9 +62,26 @@ export class SharedService {
     return m.set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
   }
 
-  getTomorrow() {
-    return moment(new Date()).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(2, 'days')
+  getTodayString() {
+    const m = moment(); // .utcOffset(0);
+    return m.set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
+  }
+
+  // for compare purpose only
+  getNextNDay(offset: number) {
+    return moment(new Date()).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(offset, 'days')
       .format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
+  }
+
+  getNextNDayString(offset: number) {
+    return moment(new Date()).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(offset, 'days')
+      .format('YYYY-MM-DD');
+  }
+
+  isOverdue(h: number, m: number = 0) {
+    const a = moment(new Date()).set({ hour: h, minute: m, second: 0, millisecond: 0 });
+    const b = moment(new Date());
+    return b > a;
   }
 
   getFirstDayOfMonth() {

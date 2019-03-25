@@ -17,6 +17,7 @@ export interface RestaurantInterface {
   "modified"?: Date;
   "id"?: number;
   "delivery_fee"?: number;
+  "distance"?: number;
   products?: Product[];
   orders?: Order[];
   pictures?: Picture[];
@@ -32,6 +33,7 @@ export class Restaurant implements RestaurantInterface {
   "modified": Date;
   "id": number;
   "delivery_fee": number;
+  "distance": number;
   products: Product[];
   orders: Order[];
   pictures: Picture[];

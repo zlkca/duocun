@@ -12,7 +12,7 @@ $desktop: "(min-width: 1200px)";
     margin: 0px;
 
     .row{
-        margin:0px;
+      margin:0px;
     }
 
     .grid-item{
@@ -85,7 +85,45 @@ $desktop: "(min-width: 1200px)";
 		margin-right:0px;
 		padding-left:0px;
 		padding-right:0px;
-	}
+  }
+  
+  .free{
+    background-color: green;
+    color: white;
+  }
+  .overdue{
+    background-color: yellow;
+  }
+  .no-free{
+    background-color: red;
+    color: white;
+  }
+
+
+  del {
+    color: rgba(white, 0.7);
+    text-decoration: none;
+    position: relative;
+    font-size: 20px;
+    font-weight: 600;
+
+    &:before {
+      content: " ";
+      display: block;
+      width: 100%;
+      border-top: 3px solid rgba(red, 0.9);
+      height: 12px;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      transform: rotate(-7deg);
+    }
+  }
+
+  .delivery-fee{
+    padding-top:10px;
+  }
+
 	@media #{$desktop}{
 
 	}
@@ -95,21 +133,19 @@ $desktop: "(min-width: 1200px)";
 	 }
 
 	@media #{$mobile}{
-        .restaurant-grid{
-            .grid-item{
-                border-bottom: 1px solid #eee;
-
-                .grid-item-body{
-                    .image-body{
-                        padding-top:0px;
-                    }
+    .restaurant-grid{
+        .grid-item{
+            .grid-item-body{
+                .image-body{
+                    padding-top:0px;
                 }
             }
-
-            .grid-item:first-child{
-                border-top: 1px solid #eee;
-            }
         }
+
+        .grid-item:first-child{
+            border-top: 1px solid #eee;
+        }
+    }
 		// .left-side{
 		// 	min-height:40px;
 		// }

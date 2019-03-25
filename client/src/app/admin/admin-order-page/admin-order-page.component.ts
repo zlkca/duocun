@@ -131,7 +131,7 @@ export class AdminOrderPageComponent implements OnInit {
 
     if (s === 'daily') {
       const start = this.sharedSvc.getToday();
-      const end = this.sharedSvc.getTomorrow();
+      const end = this.sharedSvc.getNextNDay(2);
       this.loadOrders(this.account, start, end);
     } else if (s === 'weekly') {
       const start = this.sharedSvc.getMonday();

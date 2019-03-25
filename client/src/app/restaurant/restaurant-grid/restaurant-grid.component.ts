@@ -28,10 +28,6 @@ export class RestaurantGridComponent implements OnInit {
   @Input() restaurantList; // : Restaurant[];
   @Input() center;
 
-  ngOnInit() {
-    // let x = this.restaurantList;
-  }
-
   constructor(
     private router: Router,
     private sharedSvc: SharedService,
@@ -52,8 +48,23 @@ export class RestaurantGridComponent implements OnInit {
     //         }
     //     }
     // });
+  }
 
+  ngOnInit() {
+    for (const restaurant of this.restaurantList) {
+      restaurant.distance = this.getDistance(this.center, restaurant.location);
+    }
 
+    // sort by distance
+    this.restaurantList.sort((a: Restaurant, b: Restaurant) => {
+      if (a.distance < b.distance) {
+        return -1;
+      }
+      if (a.distance > b.distance) {
+        return 1;
+      }
+      return 0;
+    });
   }
 
   searchByKeyword(keyword: string) {
@@ -102,7 +113,6 @@ export class RestaurantGridComponent implements OnInit {
 
   getFilter(query?: any) {
     const qs = [];
-
     if (query.categories && query.categories.length > 0) {
       const s = query.categories.join(',');
       qs.push('cats=' + s);
@@ -135,11 +145,20 @@ export class RestaurantGridComponent implements OnInit {
         * Math.sin(dLng / 2) * Math.sin(dLng / 2);
       const d = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-      return d.toFixed(2) + ' km';
+      return d;
     } else {
-      return '';
+      return 0;
     }
+  }
 
+  getDistanceString(r: Restaurant) {
+    const d = r.distance;
+    return d.toFixed(2) + ' km';
+  }
+
+  getDeliveryFeeString(r: Restaurant) {
+    const d = 1.5 * r.distance;
+    return d ? d.toFixed(2) : 0;
   }
 
   // doSearchRestaurants(query?: any) {

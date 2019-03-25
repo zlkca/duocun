@@ -35,6 +35,14 @@ export class HomeComponent implements OnInit {
   bHideMap = false;
   bTimeOptions = false;
   bRestaurant = false;
+  today;
+  tomorrow;
+  dayAfterTomorrow;
+  lunchTime = {start: '11:45', end: '13:45'};
+  overdue;
+  afternoon;
+  deliveryDiscount = 2;
+  deliveryTime = 'immediate';
 
   constructor(
     private accountSvc: AccountService,
@@ -42,7 +50,13 @@ export class HomeComponent implements OnInit {
     private restaurantSvc: RestaurantService,
     private sharedSvc: SharedService,
     private rx: NgRedux<IAppState>,
-  ) { }
+  ) {
+    this.today = sharedSvc.getTodayString();
+    this.tomorrow = sharedSvc.getNextNDayString(1);
+    this.dayAfterTomorrow = sharedSvc.getNextNDayString(2);
+    this.overdue = sharedSvc.isOverdue(9);
+    this.afternoon = sharedSvc.isOverdue(13, 45);
+  }
 
   ngOnInit() {
     const self = this;
@@ -291,6 +305,7 @@ export class HomeComponent implements OnInit {
       self.bHideMap = false;
       self.mapFullScreen = false;
       self.bRestaurant = false;
+      self.bTimeOptions = true;
       self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       // self.loadNearbyRestaurants(self.center);
       localStorage.setItem('location-' + APP, JSON.stringify(r));
@@ -322,10 +337,11 @@ export class HomeComponent implements OnInit {
     // });
   }
 
-  onSelectTime() {
+  onSelectTime(type: string) {
     this.bHideMap = true;
     this.bTimeOptions = false;
     this.options = [];
     this.bRestaurant = true;
+    this.deliveryTime = type;
   }
 }
