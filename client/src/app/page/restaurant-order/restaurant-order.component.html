@@ -9,7 +9,7 @@
             </div>
             <div class="col-6 col-sm-2">
               <span class="title-xs" i18n="@@Status">Status</span>:
-              <span class="text-xs">{{order.workerStatus}}</span>
+              <span class="text-xs">{{order.restaurantStatus}}</span>
             </div>
             <div class="col-6 col-sm-2" *ngIf="order.restaurant">
               <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
@@ -44,14 +44,13 @@
             <div class="col-6 text-sm total">
               <span i18n="@@Total">Total</span>: ${{getTotal(order)}}
             </div>
-            <div class="col-6" *ngIf="order.workerStatus === 'new'">
+            <div class="col-6" *ngIf="order.restaurantStatus === 'new'">
               <div class="btn btn-primary btn-xs pull-right" (click)="takeOrder(order)">Take Order</div>
             </div>
-            <div class="col-6" *ngIf="order.workerStatus === 'process'">
-              <div class="btn btn-primary btn-xs pull-right" (click)="delivered(order)">Done</div>
+            <div class="col-6" *ngIf="order.restaurantStatus === 'process'">
+              <div class="btn btn-primary btn-xs pull-right" (click)="sendForDeliver(order)">Sent for Deliver</div>
             </div>
           </div>
         </div>
     </div>
   </div>
-

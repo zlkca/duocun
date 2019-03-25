@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { RestaurantService } from '../../restaurant/restaurant.service';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
 import { SocketConnection } from '../../lb-sdk/sockets/socket.connections';
@@ -9,17 +8,17 @@ import { ToastrService } from 'ngx-toastr';
 import { Order } from '../../lb-sdk';
 
 @Component({
-  selector: 'app-worker-order',
-  templateUrl: './worker-order.component.html',
-  styleUrls: ['./worker-order.component.scss']
+  selector: 'app-order-history',
+  templateUrl: './order-history.component.html',
+  styleUrls: ['./order-history.component.scss']
 })
-export class WorkerOrderComponent implements OnInit {
+export class OrderHistoryComponent implements OnInit {
+
   account;
   restaurant;
   orders = [];
 
   constructor(
-    private restaurantSvc: RestaurantService,
     private accountSvc: AccountService,
     private orderSvc: OrderService,
     private authSvc: AuthService,
@@ -41,8 +40,7 @@ export class WorkerOrderComponent implements OnInit {
     this.socket.on('updateOrders', x => {
       // self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });
       // self.onFilterOrders(this.selectedRange);
-
-      if (x.workerId === self.account.id) {
+      if (x.clientId === self.account.id) {
         const index = self.orders.findIndex(i => i.id === x.id);
         if (index !== -1) {
           self.orders[index] = x;
@@ -60,10 +58,10 @@ export class WorkerOrderComponent implements OnInit {
     });
   }
 
-  reload(workerId) {
+  reload(clientId) {
     const self = this;
-    self.orderSvc.find({ where: { workerId: workerId } }).subscribe(os => {
-      const orders = os.filter(order => order.workerStatus !== 'done');
+    self.orderSvc.find({ where: { clientId: clientId } }).subscribe(os => {
+      const orders = os;
       orders.sort((a: Order, b: Order) => {
         if (this.sharedSvc.compareDateTime(a.created, b.created)) {
           return -1;
@@ -88,23 +86,23 @@ export class WorkerOrderComponent implements OnInit {
     return s ? this.sharedSvc.toDateTimeString(s) : '';
   }
 
-  takeOrder(order) {
-    const self = this;
-    order.workerStatus = 'process';
-    this.orderSvc.replace(order).subscribe(x => {
-      // self.afterSave.emit({name: 'OnUpdateOrder'});
-      self.toastSvc.success('Take Order Successfuly!');
-      self.reload(self.account.id);
-    });
-  }
+  // takeOrder(order) {
+  //   const self = this;
+  //   order.workerStatus = 'process';
+  //   this.orderSvc.replace(order).subscribe(x => {
+  //     // self.afterSave.emit({name: 'OnUpdateOrder'});
+  //     self.toastSvc.success('Take Order Successfuly!');
+  //     self.reload(self.account.id);
+  //   });
+  // }
 
-  delivered(order) {
-    const self = this;
-    order.workerStatus = 'done';
-    this.orderSvc.replace(order).subscribe(x => {
-      // self.afterSave.emit({name: 'OnUpdateOrder'});
-      self.toastSvc.success('Send for Order Successfuly!');
-      self.reload(self.account.id);
-    });
-  }
+  // sendForDeliver(order) {
+  //   const self = this;
+  //   order.workerStatus = 'done';
+  //   this.orderSvc.replace(order).subscribe(x => {
+  //     // self.afterSave.emit({name: 'OnUpdateOrder'});
+  //     self.toastSvc.success('Send for Order Successfuly!');
+  //     self.reload(self.account.id);
+  //   });
+  // }
 }

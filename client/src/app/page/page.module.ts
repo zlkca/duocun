@@ -17,6 +17,7 @@ import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-l
 import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaurant-detail-page.component';
 import { CartPageComponent } from './cart-page/cart-page.component';
 import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.component';
+import { OrderHistoryComponent } from './order-history/order-history.component';
 
 @NgModule({
   imports: [
@@ -37,10 +38,11 @@ import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.co
     ClientOrderComponent,
     WorkerOrderComponent,
     RestaurantOrderComponent,
+    OrderHistoryComponent,
     RestaurantComponent,
     RestaurantListPageComponent,
     RestaurantDetailPageComponent,
-    CartPageComponent
+    CartPageComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

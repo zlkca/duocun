@@ -8,9 +8,10 @@ import {
 
 declare var Object: any;
 export interface OrderInterface {
-  "accountId": number;
+  "clientId": number;
   "username": string;
-  "restaurantId": number;
+  "restaurantId": string;
+  "workerId":string;
   "status": string;
   "clientStatus": string;
   "workerStatus": string;
@@ -28,9 +29,10 @@ export interface OrderInterface {
 }
 
 export class Order implements OrderInterface {
-  "accountId": number;
+  "clientId": number;
   "username": string;
-  "restaurantId": number;
+  "restaurantId": string;
+  "workerId":string;
   "status": string;
   "clientStatus": string;
   "workerStatus": string;

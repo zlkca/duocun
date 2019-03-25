@@ -98,11 +98,17 @@ export class Entity {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         c.replaceOne({_id: new ObjectId(id)}, doc, options, (err, result: any) => {
-          if(result && result._id){
-            result.id = result._id;
-            delete(result._id);
+          if(result.ops){
+            let obj = result.ops[0]
+            if(obj && obj._id){
+              obj.id = obj._id;
+              delete(obj._id);
+            }
+            resolve(obj);
+          }else{
+            console.log('replaceById failed.');
+            reject();
           }
-          resolve(result);
         });
       });
     });

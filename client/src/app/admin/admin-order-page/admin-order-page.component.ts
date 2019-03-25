@@ -52,7 +52,7 @@ export class AdminOrderPageComponent implements OnInit {
   add() {
     this.order = new Order();
     this.order.id = null;
-    this.order.accountId = null;
+    this.order.clientId = null;
     this.order.restaurantId = null;
     this.order.status = '';
   }
@@ -68,7 +68,7 @@ export class AdminOrderPageComponent implements OnInit {
     if (event.order.id === this.order.id) {
       this.order = new Order();
       this.order.id = null;
-      this.order.accountId = null;
+      this.order.clientId = null;
       this.order.restaurantId = null;
       this.order.status = '';
     }

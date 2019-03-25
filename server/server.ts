@@ -129,7 +129,7 @@ app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
 app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
   restaurant.replaceById(req.body.id, req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3));
+    res.end(JSON.stringify(x, null, 3));
   });
 });
 
@@ -160,7 +160,7 @@ app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
 app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
   product.replaceById(req.body.id, req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3));
+    res.end(JSON.stringify(x, null, 3));
   });
 });
 
@@ -215,9 +215,28 @@ app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
 });
 
 app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
-  order.replaceById(req.body.id, req.body).then((x: any) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3));
+  let d = req.body;
+
+  if(d.restaurantStatus === 'process'){
+    d.status = 'cooking';
+  }
+  if(d.restaurantStatus === 'done'){
+    d.status = 'finished cooking';
+  }
+  if(d.workerStatus === 'process'){
+    d.status = 'delivering';
+  }
+  if(d.workerStatus === 'done'){
+    d.status = 'delivered';
+  }
+  // fix me!!!
+  user.findOne({username: 'worker'}).then(worker => {
+    d.workerId = worker.id.toString();
+    order.replaceById(req.body.id, d).then((x: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      io.emit('updateOrders', x);
+      res.end(JSON.stringify(x, null, 3));
+    });
   });
 });
 

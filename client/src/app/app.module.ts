@@ -47,6 +47,7 @@ import { CartPageComponent } from './page/cart-page/cart-page.component';
 import { RestaurantListPageComponent } from './page/restaurant-list-page/restaurant-list-page.component';
 import { RestaurantDetailPageComponent } from './page/restaurant-detail-page/restaurant-detail-page.component';
 import { RestaurantOrderComponent } from './page/restaurant-order/restaurant-order.component';
+import { OrderHistoryComponent } from './page/order-history/order-history.component';
 
 const appRoutes: Routes = [
     { path: 'admin', component: AdminComponent },
@@ -63,6 +64,7 @@ const appRoutes: Routes = [
     // { path: 'restaurant-detail/:id', component: RestaurantDetailComponent },
     { path: 'products', component: ProductListComponent },
     { path: 'product/:id', component: ProductComponent },
+    { path: 'order-history', component: OrderHistoryComponent },
     { path: 'client-orders', component: ClientOrderComponent },
     { path: 'worker-orders', component: WorkerOrderComponent },
     { path: 'restaurant-orders', component: RestaurantOrderComponent },

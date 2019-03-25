@@ -62,7 +62,7 @@ export class FooterComponent implements OnInit {
 
   toOrder() {
     if (this.account.type === 'user' || this.account.type === 'super') {
-      this.router.navigate(['client-orders']);
+      this.router.navigate(['order-history']);
     } else if (this.account.type === 'worker') {
       this.router.navigate(['worker-orders']);
     } else if (this.account.type === 'restaurant') {
