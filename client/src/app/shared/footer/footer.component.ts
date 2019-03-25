@@ -65,6 +65,8 @@ export class FooterComponent implements OnInit {
       this.router.navigate(['client-orders']);
     } else if (this.account.type === 'worker') {
       this.router.navigate(['worker-orders']);
+    } else if (this.account.type === 'restaurant') {
+      this.router.navigate(['restaurant-orders']);
     }
   }
 
@@ -73,6 +75,8 @@ export class FooterComponent implements OnInit {
       this.router.navigate(['cart']);
     } else if (this.account.type === 'worker') {
       this.router.navigate(['worker-orders']);
+    } else if (this.account.type === 'restaurant') {
+      this.router.navigate(['restaurant-orders']);
     }
   }
 

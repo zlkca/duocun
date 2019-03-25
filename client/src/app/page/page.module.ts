@@ -16,6 +16,7 @@ import { WorkerOrderComponent } from './worker-order/worker-order.component';
 import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-list-page.component';
 import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaurant-detail-page.component';
 import { CartPageComponent } from './cart-page/cart-page.component';
+import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.component';
 
 @NgModule({
   imports: [
@@ -35,6 +36,7 @@ import { CartPageComponent } from './cart-page/cart-page.component';
     HomeComponent,
     ClientOrderComponent,
     WorkerOrderComponent,
+    RestaurantOrderComponent,
     RestaurantComponent,
     RestaurantListPageComponent,
     RestaurantDetailPageComponent,

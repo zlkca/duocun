@@ -133,13 +133,13 @@ app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
   });
 });
 
-app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-  restaurant.find({}).then((x: any) => {
+app.get('/' + ROUTE_PREFIX + '/Restaurants', (req: any, res) => {
+  const query = req.headers? JSON.parse(req.headers.filter) : {};
+  restaurant.find(query ? query.where: {}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
   restaurant.get(req, res);
 });

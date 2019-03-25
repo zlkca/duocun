@@ -35,6 +35,10 @@ export class OrderService {
     return this.http.post(this.url, order);
   }
 
+  replace(order: Order): Observable<any> {
+    return this.http.put(this.url, order);
+  }
+
   findRestaurant(id: any, filters: LoopBackFilter): Observable<Restaurant> {
     return this.restaurantApi.findById(id, filters);
   }

@@ -97,10 +97,14 @@ export class OrderFormComponent implements OnInit {
         items: [],
         accountId: this.account.id,
         username: this.account.username,
+        created: new Date(),
         delivered: this.getDateTime(v.date, v.time),
         address: this.deliveryAddress,
         notes: v.notes,
-        status: 'new order'
+        status: 'new',
+        clientStatus: 'new',
+        workerStatus: 'new',
+        restaurantStatus: 'new',
       });
     }
 

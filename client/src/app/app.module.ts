@@ -46,6 +46,7 @@ import { SDKBrowserModule, LoopBackConfig } from './lb-sdk';
 import { CartPageComponent } from './page/cart-page/cart-page.component';
 import { RestaurantListPageComponent } from './page/restaurant-list-page/restaurant-list-page.component';
 import { RestaurantDetailPageComponent } from './page/restaurant-detail-page/restaurant-detail-page.component';
+import { RestaurantOrderComponent } from './page/restaurant-order/restaurant-order.component';
 
 const appRoutes: Routes = [
     { path: 'admin', component: AdminComponent },
@@ -64,6 +65,7 @@ const appRoutes: Routes = [
     { path: 'product/:id', component: ProductComponent },
     { path: 'client-orders', component: ClientOrderComponent },
     { path: 'worker-orders', component: WorkerOrderComponent },
+    { path: 'restaurant-orders', component: RestaurantOrderComponent },
     { path: 'forget-password', component: ForgetPasswordComponent },
     { path: 'login', component: LoginFormComponent },
     { path: 'institution-login', component: InstitutionLoginComponent },

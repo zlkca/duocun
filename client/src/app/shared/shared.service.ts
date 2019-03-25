@@ -78,6 +78,10 @@ export class SharedService {
       .format('YYYY-MM-DD');
   }
 
+  compareDateTime(a: any, b: any) {
+    return moment(a).isAfter(b);
+  }
+
   isOverdue(h: number, m: number = 0) {
     const a = moment(new Date()).set({ hour: h, minute: m, second: 0, millisecond: 0 });
     const b = moment(new Date());

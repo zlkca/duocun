@@ -54,15 +54,14 @@ export class LoginFormComponent implements OnInit {
       this.accountServ.login(v.account, v.password)
         .subscribe((account: Account) => {
           self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header, footer icons
-
           if (account.type === 'super') {
             this.router.navigate(['admin']);
-          } else {
-            if (account.type === 'user') {
-              this.router.navigate(['home']);
-            } else if (account.type === 'worker') {
-              this.router.navigate(['worker-orders']);
-            }
+          } else if (account.type === 'worker') {
+            this.router.navigate(['worker-orders']);
+          } else if (account.type === 'restaurant') {
+            this.router.navigate(['restaurant-orders']);
+          } else if (account.type === 'user') {
+            this.router.navigate(['home']);
           }
         },
           (error) => {

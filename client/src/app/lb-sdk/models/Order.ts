@@ -12,6 +12,9 @@ export interface OrderInterface {
   "username": string;
   "restaurantId": number;
   "status": string;
+  "clientStatus": string;
+  "workerStatus": string;
+  "restaurantStatus": string;
   "notes"?: string;
   "address": string;
   "delivered"?: Date;
@@ -29,6 +32,9 @@ export class Order implements OrderInterface {
   "username": string;
   "restaurantId": number;
   "status": string;
+  "clientStatus": string;
+  "workerStatus": string;
+  "restaurantStatus": string;
   "notes": string;
   "address": string;
   "delivered": Date;
