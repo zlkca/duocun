@@ -2,21 +2,30 @@
 
 Duocun is a food delivery website
 
-## Config
-1.Copy client/src/environments/environment.ts and save as client/src/environments/environment.prod.ts, change with your own google map api key and google analitics api key.
+# Dependencies
 
-2. Creat an empty mysql database, and copy server/datasources.json and save as server/datasources.developement.json.
-Change your connection string to the field `url`
+Nodejs 
+Mongodb
+
+# Install
+1.git clone project
+2.cd to project root folder /, (remove package-lock.json), then run `npm install` for server
+3.cd to /client folder, (remove package-lock.json), then run `npm install` for client
+
+
+## Config
+copy duocun.cfg.json file to the parent folder of root /
 
 ## Run
 
-### Run Api Server
+### Run Server
 
-cd to etuan2, and run `npm start`, it will prompt: Do you want to reset database? (y/n)
-If it is your first time run or you want to reset the database, choose y, otherwise input n.
+1. cd to /, and run `npm run build`
+
+2. `npm run start` or open Visual Studio Code and hit Debug menu.
 
 ### Run client
-cd to etuan2/client and run `ng serve --port 5004`
+cd to /client and run `ng serve --port 5004 --configuration=zh-Hans`
 
 
 ### Generate language template
@@ -29,6 +38,3 @@ run `ng serve --port 5004 --configuration=zh-Hans`
 run `ng build --prod --i18n-file src/locale/messages.zh-Hans.xlf --i18n-format xlf --i18n-locale zh-Hans`
 
 
-
-## Generate Client
-https://github.com/mean-expert-official/loopback-sdk-builder/wiki
