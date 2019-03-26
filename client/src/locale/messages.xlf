@@ -426,6 +426,18 @@
           <context context-type="sourcefile">app/order/order-list/order-list.component.html</context>
           <context context-type="linenumber">15</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/worker-order/worker-order.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant-order/restaurant-order.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/order-history/order-history.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="Products" datatype="html">
         <source>Products</source>
@@ -521,11 +533,19 @@
           <context context-type="linenumber">47</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="FreeDeliverWhen" datatype="html">
-        <source>Free Deliver when order before 10:00am</source>
+      <trans-unit id="FreeDelivery" datatype="html">
+        <source>Free delivery</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/restaurant/restaurant-grid/restaurant-grid.component.html</context>
-          <context context-type="linenumber">12</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">90</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Category" datatype="html">
@@ -548,6 +568,18 @@
           <context context-type="sourcefile">app/order/order-list/order-list.component.html</context>
           <context context-type="linenumber">7</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/worker-order/worker-order.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant-order/restaurant-order.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/order-history/order-history.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="Status" datatype="html">
         <source>Status</source>
@@ -555,11 +587,35 @@
           <context context-type="sourcefile">app/order/order-list/order-list.component.html</context>
           <context context-type="linenumber">11</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/worker-order/worker-order.component.html</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant-order/restaurant-order.component.html</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/order-history/order-history.component.html</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="Customer" datatype="html">
         <source>Customer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/order-list/order-list.component.html</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/worker-order/worker-order.component.html</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant-order/restaurant-order.component.html</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/order-history/order-history.component.html</context>
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
@@ -573,6 +629,18 @@
           <context context-type="sourcefile">app/order/order-form/order-form.component.html</context>
           <context context-type="linenumber">87</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/worker-order/worker-order.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant-order/restaurant-order.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/order-history/order-history.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="OrderDate" datatype="html">
         <source>Order Date</source>
@@ -580,11 +648,35 @@
           <context context-type="sourcefile">app/order/order-list/order-list.component.html</context>
           <context context-type="linenumber">27</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/worker-order/worker-order.component.html</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant-order/restaurant-order.component.html</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/order-history/order-history.component.html</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="DeliverDate" datatype="html">
         <source>Deliver Date</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/order-list/order-list.component.html</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/worker-order/worker-order.component.html</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant-order/restaurant-order.component.html</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/order-history/order-history.component.html</context>
           <context context-type="linenumber">31</context>
         </context-group>
       </trans-unit>
@@ -597,6 +689,18 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/order-form/order-form.component.html</context>
           <context context-type="linenumber">53</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/worker-order/worker-order.component.html</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant-order/restaurant-order.component.html</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/order-history/order-history.component.html</context>
+          <context context-type="linenumber">35</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Total" datatype="html">
@@ -612,6 +716,18 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/order-form/order-form.component.html</context>
           <context context-type="linenumber">37</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/worker-order/worker-order.component.html</context>
+          <context context-type="linenumber">45</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant-order/restaurant-order.component.html</context>
+          <context context-type="linenumber">45</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/order-history/order-history.component.html</context>
+          <context context-type="linenumber">45</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Deliver" datatype="html">
@@ -860,66 +976,101 @@
           <context context-type="sourcefile">app/page/home/home.component.html</context>
           <context context-type="linenumber">49</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">124</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="Arrive" datatype="html">
         <source>Arrive</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
-          <context context-type="linenumber">51</context>
+          <context context-type="linenumber">52</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">67</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">87</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">101</context>
         </context-group>
       </trans-unit>
       <trans-unit id="DeliveryFeeMinus" datatype="html">
         <source>Delivery Fee Minus</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
-          <context context-type="linenumber">54</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">71</context>
         </context-group>
       </trans-unit>
       <trans-unit id="LunchToday" datatype="html">
         <source>Lunch Today</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
-          <context context-type="linenumber">62</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="e9b4e2ff31de0f80bd5239155d708135829a45bf" datatype="html">
         <source>Free delivery if order before</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
-          <context context-type="linenumber">65</context>
+          <context context-type="linenumber">70</context>
         </context-group>
         <note priority="1" from="description">FreeDeliveryIfOrderBefore</note>
+      </trans-unit>
+      <trans-unit id="Over" datatype="html">
+        <source>Over</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="DeliverNotFreeNotes" datatype="html">
+        <source>deliver is not free, please order in advance next time</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">75</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="LunchTomorrow" datatype="html">
         <source>Lunch Tomorrow</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
-          <context context-type="linenumber">73</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="FreeDelivery" datatype="html">
-        <source>Free Delivery</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/page/home/home.component.html</context>
-          <context context-type="linenumber">76</context>
+          <context context-type="linenumber">84</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
-          <context context-type="linenumber">87</context>
+          <context context-type="linenumber">128</context>
         </context-group>
       </trans-unit>
       <trans-unit id="LunchTheDayAfterTomorrow" datatype="html">
         <source>Lunch the Day after Tomorrow</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
-          <context context-type="linenumber">84</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">130</context>
         </context-group>
       </trans-unit>
       <trans-unit id="NotInFreeDeliveryRange" datatype="html">
         <source>Your address is not in free delivery range</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
-          <context context-type="linenumber">98</context>
+          <context context-type="linenumber">115</context>
         </context-group>
       </trans-unit>
       <trans-unit id="OpeningHours" datatype="html">

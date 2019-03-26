@@ -43,13 +43,13 @@
 
       <div class="col-12 time-option-list" *ngIf="bTimeOptions">
         <div class="row option-item overdue" (click)="onSelectTime('immediate')">
-          <div class="col-1 overdue"></div>
-          <div class="col-11 immediate-deliver">
+          <div class="col-12 immediate-deliver">
             <div>
               <span class="text-md" style="font-weight: 400" i18n="@@ImmediateDeliver">Immediate Deliver</span>
-              <span class="text-sm date">{{today}}</span>
+              <span class="text-sm date">(&nbsp;{{today}}</span>
               <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
               <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
+              <span class="text-sm">&nbsp;)</span>
             </div>
             <div class="text-sm">
               <span i18n="@@DeliveryFeeMinus">Delivery Fee Minus</span>
@@ -58,44 +58,47 @@
           </div>
         </div>
         <div class="row option-item" [class.overdue]="overdue" *ngIf="!afternoon" (click)="onSelectTime('lunch today')">
-          <div class="col-1"></div>
-          <div class="col-11">
-              <div class="text-md">
-                <span style="font-weight: 400" i18n="@@LunchToday">Lunch Today</span>
-                <span class="text-sm date">{{today}}</span>
+          <div class="col-12">
+              <div>
+                <span class="text-md" i18n="@@LunchToday">Lunch Today</span>
+                <span class="text-sm date">(&nbsp;{{today}}</span>
                 <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
                 <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
+                <span class="text-sm">&nbsp;)</span>
               </div>
               <div class="text-sm">
                 <span *ngIf="!overdue" i18n="FreeDeliveryIfOrderBefore">Free delivery if order before</span>
                 <span *ngIf="overdue" i18n="@@DeliveryFeeMinus">Delivery Fee Minus</span>
                 <span *ngIf="overdue">&nbsp;${{deliveryDiscount}}</span>
-                <span *ngIf="overdue" class="text-sm overdue-note">over 9:00 deliver is not free, please order in advance next time</span>
+                <span *ngIf="overdue" class="overdue-note">
+                  <span i18n="@@Over">Over</span>9:00,&nbsp;
+                  <span i18n="@@DeliverNotFreeNotes">deliver is not free, please order in advance next time</span>
+                </span>
               </div>
           </div>
         </div>
         <div class="row option-item free" (click)="onSelectTime('lunch tomorrow')">
-          <div class="col-1 free"></div>
-          <div class="col-11">
-              <div class="text-md">
-                  <span style="font-weight: 400" i18n="@@LunchTomorrow">Lunch Tomorrow</span>
-                  <span class="text-sm date">{{tomorrow}}</span>
-                  <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
-                  <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
-                </div>
-                <div class="text-sm">
-                  <span i18n="@@FreeDelivery">Free Delivery</span>
-                </div>
+          <div class="col-12">
+              <div>
+                <span class="text-md" i18n="@@LunchTomorrow">Lunch Tomorrow</span>
+                <span class="text-sm date">(&nbsp;{{tomorrow}}</span>
+                <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
+                <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
+                <span class="text-sm">&nbsp;)</span>
+              </div>
+              <div class="text-sm">
+                <span i18n="@@FreeDelivery">Free Delivery</span>
+              </div>
           </div>
         </div>
         <div class="row option-item free" (click)="onSelectTime('lunch after tomorrow')">
-          <div class="col-1 free"></div>
-          <div class="col-11">
-              <div class="text-md">
-                <span style="font-weight: 400" i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</span>
-                <span class="text-sm date">{{dayAfterTomorrow}}</span>
+          <div class="col-12">
+              <div>
+                <span class="text-md" i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</span>
+                <span class="text-sm date">(&nbsp;{{dayAfterTomorrow}}</span>
                 <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
                 <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
+                <span class="text-sm">&nbsp;)</span>
               </div>
               <div class="text-sm">
                 <span i18n="@@FreeDelivery">Free delivery</span>
@@ -103,8 +106,7 @@
           </div>
         </div>
         <div class="row option-item no-free" (click)="onSelectTime()">
-            <div class="col-1 no-free"></div>
-            <div class="col-11">
+            <div class="col-12">
                 <!-- <div class="text-md">
                   <span style="font-weight: 400" i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</span>
                 </div> -->

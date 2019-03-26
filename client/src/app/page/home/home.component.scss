@@ -4,6 +4,9 @@ $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
 $position-btn-width: 60px;
+$green: rgb(24, 128, 56);
+$yellow: rgb(244, 160, 0);
+$red: rgb(219, 68, 55);
 
 .grid{
   padding: 0px;
@@ -190,13 +193,9 @@ and (orientation: landscape) {
 
   .place-option-list, .time-option-list{
     .option-item{
-      padding: 0px;
-      height: 80px;
+      padding: 10px 0px;
+      height: 74px;
       border-bottom: solid 1px #ddd;
-
-      .col-11{
-        padding: 10px 0px;
-      }
     }
   }
 
@@ -204,28 +203,34 @@ and (orientation: landscape) {
     margin-top: 46px;
   }
 
-  .time-option-list{
-    padding-bottom: 60px;
-  }
-
   .restaurant-list{
     padding: 0px 0px 60px 0px;
   }
 
   .free{
-    background-color: green;
-    color: white;
+    background-color: $green;
   }
   .overdue{
-    background-color: yellow;
+    background-color: $yellow;
   }
   .no-free{
-    background-color: red;
-    color: white;
+    background-color: $red;
+  }
+
+  .free, .no-free, .overdue {
+    .text-sm{
+      color: white;
+    }
+    .text-md{
+      font-size: 18px;
+      color: white;
+      font-weight: 400
+    }
   }
 
   .time-option-list{
-    padding: 0px;
+    padding: 0px 0px 60px 0px;
+
     .date{
       padding-left: 20px;
     }
@@ -234,7 +239,8 @@ and (orientation: landscape) {
       padding-right: 5px;
     }
     .overdue-note{
-      padding-left: 10px;
+      font-size: 12px;
+      padding-left: 15px;
     }
   }
 

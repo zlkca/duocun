@@ -1076,6 +1076,22 @@
           <context context-type="linenumber">51</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Over" datatype="html">
+        <source>Over</source>
+        <target>已过</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="DeliverNotFreeNotes" datatype="html">
+        <source>deliver is not free, please order in advance next time</source>
+        <target>不支持运费全免,请下次提前预定</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">75</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="OpeningHours" datatype="html">
         <source>Opening Hours</source>
         <target>营业时间</target>

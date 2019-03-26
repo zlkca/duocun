@@ -73,8 +73,6 @@ export class RestaurantGridComponent implements OnInit {
         return 0;
       });
     });
-
-
   }
 
   searchByKeyword(keyword: string) {
