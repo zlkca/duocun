@@ -100,31 +100,31 @@ export class ImageUploaderComponent implements OnInit {
 
   // scale image inside frame
   resizeImage(frame_w: number, frame_h: number, w: number, h: number) {
-    let rw = 0;
-    let rh = 0;
+    // let rw = 0;
+    // let rh = 0;
 
-    if (h * frame_w / w > frame_h) {
-      rh = frame_h;
-      rw = w * frame_h / h;
-    } else {
-      rw = frame_w;
-      rh = h * frame_w / w;
-    }
-    return { 'w': Math.round(rw), 'h': Math.round(rh), 'padding_top': Math.round((frame_h - rh) / 2) };
+    // if (h * frame_w / w > frame_h) {
+    //   rw = frame_w;
+    //   rh = Math.round(h * frame_w / w);
+    // } else {
+    //   rh = frame_h;
+    //   rw = Math.round(w * frame_h / h);
+    // }
+    return { 'w': Math.round(frame_w), 'h': Math.round(frame_h), 'padding_top': 0 }; // Math.round((frame_h - rh) / 2) };
   }
 
   getBlob(image, size = 'sm') {
     const canvas = document.createElement('canvas');
     if (size === 'sm') {
-      const d = this.resizeImage(240, 320, image.width, image.height);
+      const d = this.resizeImage(320, 240, image.width, image.height);
       canvas.width = d.w;
       canvas.height = d.h;
     } else if (size === 'lg') {
-      const d = this.resizeImage(320, 480, image.width, image.height);
+      const d = this.resizeImage(400, 300, image.width, image.height);
       canvas.width = d.w;
       canvas.height = d.h;
     } else {
-      const d = this.resizeImage(240, 320, image.width, image.height);
+      const d = this.resizeImage(320, 240, image.width, image.height);
       canvas.width = image.width;
       canvas.height = image.height;
     }
