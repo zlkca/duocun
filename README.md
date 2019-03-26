@@ -8,8 +8,11 @@ Nodejs
 Mongodb
 
 # Install
+
 git clone project
+
 cd to project root folder /, (remove package-lock.json), then run `npm install` for server
+
 cd to /client folder, (remove package-lock.json), then run `npm install` for client
 
 
@@ -19,10 +22,13 @@ copy duocun.cfg.json file to the parent folder of root /
 ## Run
 
 ### Run Server
-cd to /, and run `npm run build`
-`npm run start` or open Visual Studio Code and hit Debug menu.
+
+cd to project root folder /,  and run `npm run build`
+
+then `npm run start` or open Visual Studio Code and hit Debug menu.
 
 ### Run client
+
 cd to /client and run `ng serve --port 5004 --configuration=zh-Hans`
 
 
