@@ -8,6 +8,10 @@ import { RestaurantService } from '../restaurant.service';
 import { Restaurant, GeoPoint } from '../../lb-sdk';
 import { PageActions } from '../../page/page.actions';
 import { NgRedux } from '@angular-redux/store';
+import { LocationService } from '../../location/location.service';
+import { ILatLng } from '../../location/location.model';
+import { RSA_NO_PADDING } from 'constants';
+import { Observable } from '../../../../node_modules/rxjs';
 
 const APP = environment.APP;
 
@@ -31,6 +35,7 @@ export class RestaurantGridComponent implements OnInit {
   constructor(
     private router: Router,
     private sharedSvc: SharedService,
+    private locationSvc: LocationService,
     private restaurantSvc: RestaurantService,
     private rx: NgRedux<Account>
   ) {
@@ -51,20 +56,25 @@ export class RestaurantGridComponent implements OnInit {
   }
 
   ngOnInit() {
-    for (const restaurant of this.restaurantList) {
-      restaurant.distance = this.getDistance(this.center, restaurant.location);
-    }
+    const self = this;
+    this.getDistanceToRestaurants(this.center).then(rs => {
+      for (let i = 0; i < rs.length; i++) {
+        self.restaurantList[i].distance = rs[i].distance.value / 1000; // km
+      }
 
-    // sort by distance
-    this.restaurantList.sort((a: Restaurant, b: Restaurant) => {
-      if (a.distance < b.distance) {
-        return -1;
-      }
-      if (a.distance > b.distance) {
-        return 1;
-      }
-      return 0;
+      // sort by distance
+      self.restaurantList.sort((a: Restaurant, b: Restaurant) => {
+        if (a.distance < b.distance) {
+          return -1;
+        }
+        if (a.distance > b.distance) {
+          return 1;
+        }
+        return 0;
+      });
     });
+
+
   }
 
   searchByKeyword(keyword: string) {
@@ -131,7 +141,7 @@ export class RestaurantGridComponent implements OnInit {
   }
 
   // get distance between current location and restaurant
-  getDistance(center: GeoPoint, location: GeoPoint) {
+  getDirectDistance(center: GeoPoint, location: GeoPoint) {
     const lat1 = center.lat;
     const lng1 = center.lng;
 
@@ -149,6 +159,22 @@ export class RestaurantGridComponent implements OnInit {
     } else {
       return 0;
     }
+  }
+
+  getDistanceToRestaurants(center: GeoPoint): Promise<any>  {
+    const self = this;
+    const origin: ILatLng = {lat: center.lat, lng: center.lng};
+    const destinations: ILatLng[] = [];
+    this.restaurantList.map( r => {
+      destinations.push({lat: r.location.lat, lng: r.location.lng});
+    });
+
+    return new Promise((resolve: any, reject) => {
+      self.locationSvc.getDistances(origin, destinations).subscribe(rs => {
+        resolve(rs);
+      });
+    });
+
   }
 
   getDistanceString(r: Restaurant) {

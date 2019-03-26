@@ -15,6 +15,8 @@ import { Product } from "./product";
 import { Category } from "./category";
 import { Order } from "./order";
 import { Location } from "./location";
+import { Distance } from "./distance";
+
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
@@ -40,6 +42,7 @@ let category: Category;
 let restaurant: Restaurant;
 let product: Product;
 let location: Location;
+let distance: Distance;
 let socket: Socket;
 let io: any;
 
@@ -52,6 +55,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   restaurant = new Restaurant(dbo);
   product = new Product(dbo);
   location = new Location(dbo);
+  distance = new Distance(dbo);
   socket = new Socket(dbo, io);
 
   require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
@@ -100,6 +104,9 @@ app.get('/' + ROUTE_PREFIX + '/geocode', (req, res) => {
 });
 app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
   utils.getPlaces(req, res);
+});
+app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
+  utils.getDistances(req, res);
 });
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
   const user = new User(dbo);
@@ -182,6 +189,7 @@ app.get('/' + ROUTE_PREFIX + '/Products', (req: any, res) => {
 app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
   product.get(req, res);
 });
+
 app.delete('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
   product.deleteById(req.params.id).then(x => {
     res.setHeader('Content-Type', 'application/json');
@@ -284,6 +292,33 @@ app.get('/' + ROUTE_PREFIX + '/Locations', (req: any, res) => {
   }else{
     res.end(JSON.stringify(null, null, 3));
   }
+});
+
+
+app.put('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
+  distance.replaceById(req.body.id, req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
+});
+
+app.post('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
+  distance.insertOne(req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.ops[0], null, 3));
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Distances', (req: any, res) => {
+  const query = req.headers? JSON.parse(req.headers.filter) : null;
+  distance.find(query ? query.where: {}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
+  distance.get(req, res);
 });
 
 app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {

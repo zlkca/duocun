@@ -33,7 +33,12 @@ export class OrderHistoryComponent implements OnInit {
     const self = this;
     this.accountSvc.getCurrent().subscribe(account => {
       self.account = account;
-      self.reload(account.id);
+      if (account && account.id) {
+        self.reload(account.id);
+      } else {
+        // should never be here.
+        self.orders = [];
+      }
     });
 
     this.socket.connect(this.authSvc.getToken());

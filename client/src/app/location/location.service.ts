@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ILocation, ILatLng, ILocationHistory } from './location.model';
+import { ILocation, ILatLng, ILocationHistory, IDistance } from './location.model';
 import { Observable } from 'rxjs';
 import { LoopBackConfig } from '../lb-sdk';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -167,5 +167,15 @@ export class LocationService {
     } else {
       return '';
     }
+  }
+
+  getDistances(origin: ILatLng, destinations: ILatLng[]): Observable<any> { // IDistance[]
+    const url = [
+      LoopBackConfig.getPath(),
+      LoopBackConfig.getApiVersion(),
+      'distances'
+    ].join('/');
+
+    return this.http.post(url, {origins: [origin], destinations: destinations});
   }
 }

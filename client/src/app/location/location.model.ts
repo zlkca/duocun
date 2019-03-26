@@ -34,3 +34,16 @@ export interface ILocationHistory {
   created: Date;
   type: string;
 }
+
+export interface IPair {
+  value: number;
+  text: string;
+}
+
+export interface IDistance {
+  origin: ILocation;
+  destination: ILocation;
+  status: string;
+  duration: IPair;
+  distance: IPair;
+}
