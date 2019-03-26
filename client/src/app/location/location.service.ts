@@ -169,7 +169,7 @@ export class LocationService {
     }
   }
 
-  getDistances(origin: ILatLng, destinations: IMall[]): Observable<any> { // IDistance[]
+  getRoadDistances(origin: ILatLng, destinations: IMall[]): Observable<any> { // IDistance[]
     const url = [
       LoopBackConfig.getPath(),
       LoopBackConfig.getApiVersion(),
@@ -177,5 +177,28 @@ export class LocationService {
     ].join('/');
 
     return this.http.post(url, {origins: [origin], destinations: destinations});
+  }
+
+  // ---------------------------------
+  // return --- meter
+  // get surface distance between current location and restaurant
+  getDirectDistance(center: ILatLng, location: ILatLng) {
+    const lat1 = center.lat;
+    const lng1 = center.lng;
+
+    if (location) {
+      const lat2 = location.lat;
+      const lng2 = location.lng;
+      const dLat = (lat2 - lat1) * (Math.PI / 180);
+      const dLng = (lng2 - lng1) * (Math.PI / 180);
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+        + Math.cos(lat1 * (Math.PI / 180)) * Math.cos((lat2) * (Math.PI / 180))
+        * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      const d = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      return d;
+    } else {
+      return 0;
+    }
   }
 }

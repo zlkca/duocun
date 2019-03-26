@@ -45,8 +45,8 @@ export class HomeComponent implements OnInit {
   deliveryTime = 'immediate';
   malls = [
     {name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, distance: 8},
-    {name: 'Arora', type: 'virtual', lat: 43.8461479, lng: -79.37935279999999, distance: 8},
-    {name: 'Markham', type: 'virtual', lat: 43.8461479, lng: -79.37935279999999, distance: 8},
+    {name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, distance: 8},
+    {name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, distance: 8},
   ];
   distances = [];
   inRange = false;
@@ -89,15 +89,18 @@ export class HomeComponent implements OnInit {
     // }
   }
 
-  getDistancesToMalls(center: ILatLng) {
+  calcDistancesToMalls(center: ILatLng) {
     const self = this;
-    this.locationSvc.getDistances(center, this.malls).subscribe(rs => {
-      self.distances = rs.filter(r => r.type === 'real' ); // fix me
-      self.inRange = false;
-      for (const r of rs) {
-        if (r.distance.value <= 8000) { // 8km
-          self.inRange = true;
-        }
+    let inRange = false;
+    this.malls.map(mall => {
+      if (self.locationSvc.getDirectDistance(center, mall) < 8000) {
+        inRange = true;
+      }
+    });
+    this.inRange = inRange;
+    this.locationSvc.getRoadDistances(center, this.malls).subscribe(rs => {
+      if (rs) {
+        self.distances = rs.filter(r => r.type === 'real');
       }
     });
   }
@@ -290,8 +293,8 @@ export class HomeComponent implements OnInit {
         self.center = { lat: r.lat, lng: r.lng };
         localStorage.setItem('location-' + APP, JSON.stringify(self.deliveryAddress));
         this.bTimeOptions = true;
-        self.getDistancesToMalls({ lat: r.lat, lng: r.lng });
-        // self.doSearchRestaurants(self.center);
+        self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
+        self.doSearchRestaurants(self.center);
         if (self.account) {
           self.locationSvc.save({
             userId: self.account.id, type: 'history',
@@ -304,8 +307,8 @@ export class HomeComponent implements OnInit {
       self.bHideMap = false;
       const r = place.location;
       self.center = { lat: r.lat, lng: r.lng };
-      self.getDistancesToMalls({ lat: r.lat, lng: r.lng });
-      // self.doSearchRestaurants(self.center);
+      self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
+      self.doSearchRestaurants(self.center);
       localStorage.setItem('location-' + APP, JSON.stringify(place.location));
       this.bTimeOptions = true;
     }
@@ -333,8 +336,8 @@ export class HomeComponent implements OnInit {
       localStorage.setItem('location-' + APP, JSON.stringify(r));
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
       self.center = { lat: r.lat, lng: r.lng };
-      // self.doSearchRestaurants(self.center);
-      self.getDistancesToMalls({ lat: r.lat, lng: r.lng });
+      self.doSearchRestaurants(self.center);
+      self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
 
       if (self.account) {
         self.locationSvc.save({ userId: self.account.id, type: 'history',

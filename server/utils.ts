@@ -94,7 +94,7 @@ export class Utils {
     });
   }
 
-  getDistances(req: Request, res: Response) {
+  getRoadDistances(req: Request, res: Response) {
     let key = this.cfg.GOOGLE_DISTANCE.KEY;
     let origin = req.body.origins[0]; // should be only one location
     let sOrigin = `${origin.lat},${origin.lng}`;

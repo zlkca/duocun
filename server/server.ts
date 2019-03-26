@@ -106,7 +106,7 @@ app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
   utils.getPlaces(req, res);
 });
 app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
-  utils.getDistances(req, res);
+  utils.getRoadDistances(req, res);
 });
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
   const user = new User(dbo);

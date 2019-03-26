@@ -58,22 +58,24 @@ export class RestaurantGridComponent implements OnInit {
 
   ngOnInit() {
     const self = this;
-    const distance = this.distances[0].distance.value;
+    if (this.distances && this.distances.length > 0) {
+      const distance = this.distances[0].distance.value;
 
-    for (let i = 0; i < self.restaurantList.length; i++) {
-      self.restaurantList[i].distance = distance / 1000; // km
+      for (let i = 0; i < self.restaurantList.length; i++) {
+        self.restaurantList[i].distance = distance / 1000; // km
+      }
+
+      // sort by distance
+      self.restaurantList.sort((a: Restaurant, b: Restaurant) => {
+        if (a.distance < b.distance) {
+          return -1;
+        }
+        if (a.distance > b.distance) {
+          return 1;
+        }
+        return 0;
+      });
     }
-
-    // sort by distance
-    self.restaurantList.sort((a: Restaurant, b: Restaurant) => {
-      if (a.distance < b.distance) {
-        return -1;
-      }
-      if (a.distance > b.distance) {
-        return 1;
-      }
-      return 0;
-    });
   }
 
   searchByKeyword(keyword: string) {
@@ -137,27 +139,6 @@ export class RestaurantGridComponent implements OnInit {
     //   qs.push('colors=' + s);
     // }
     return qs;
-  }
-
-  // get distance between current location and restaurant
-  getDirectDistance(center: GeoPoint, location: GeoPoint) {
-    const lat1 = center.lat;
-    const lng1 = center.lng;
-
-    if (location) {
-      const lat2 = location.lat;
-      const lng2 = location.lng;
-      const dLat = (lat2 - lat1) * (Math.PI / 180);
-      const dLng = (lng2 - lng1) * (Math.PI / 180);
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-        + Math.cos(lat1 * (Math.PI / 180)) * Math.cos((lat2) * (Math.PI / 180))
-        * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-      const d = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-      return d;
-    } else {
-      return 0;
-    }
   }
 
   // getDistanceToRestaurants(center: GeoPoint): Promise<any>  {
