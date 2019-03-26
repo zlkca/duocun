@@ -98,6 +98,7 @@ export class Utils {
     let key = this.cfg.GOOGLE_DISTANCE.KEY;
     let origin = req.body.origins[0]; // should be only one location
     let sOrigin = `${origin.lat},${origin.lng}`;
+    let malls = req.body.destinations;
     let destinations: any[] = [];
     req.body.destinations.map((d:any) => {
       destinations.push(`${d.lat},${d.lng}`);
@@ -122,6 +123,8 @@ export class Utils {
           if (rows && rows.length > 0 && rows[0].elements && rows[0].elements.length > 0) {
             const elements = rows[0].elements;
             for(let i=0; i<destinations.length; i++){
+              elements[i].name = malls[i].name;
+              elements[i].type = malls[i].type;
               elements[i].origin = origin;
               elements[i].destination = destinations[i];
             }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../product/product.service';
 import { AuthService } from '../../account/auth.service';
@@ -13,7 +13,6 @@ import { Restaurant, Product } from '../../lb-sdk';
   styleUrls: ['./restaurant.component.scss']
 })
 export class RestaurantComponent implements OnInit {
-
   categories;
   groupedProducts: any = [];
   restaurant: any;

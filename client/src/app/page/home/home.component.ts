@@ -7,7 +7,7 @@ import { RestaurantService } from '../../restaurant/restaurant.service';
 import { SharedService } from '../../shared/shared.service';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
-import { ILocationHistory, IPlace, ILocation } from '../../location/location.model';
+import { ILocationHistory, IPlace, ILocation, ILatLng } from '../../location/location.model';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../page.actions';
@@ -43,6 +43,13 @@ export class HomeComponent implements OnInit {
   afternoon;
   deliveryDiscount = 2;
   deliveryTime = 'immediate';
+  malls = [
+    {name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, distance: 8},
+    {name: 'Arora', type: 'virtual', lat: 43.8461479, lng: -79.37935279999999, distance: 8},
+    {name: 'Markham', type: 'virtual', lat: 43.8461479, lng: -79.37935279999999, distance: 8},
+  ];
+  distances = [];
+  inRange = false;
 
   constructor(
     private accountSvc: AccountService,
@@ -80,6 +87,19 @@ export class HomeComponent implements OnInit {
     //     self.doSearchRestaurants(self.center);
     //   });
     // }
+  }
+
+  getDistancesToMalls(center: ILatLng) {
+    const self = this;
+    this.locationSvc.getDistances(center, this.malls).subscribe(rs => {
+      self.distances = rs.filter(r => r.type === 'real' ); // fix me
+      self.inRange = false;
+      for (const r of rs) {
+        if (r.distance.value <= 8000) { // 8km
+          self.inRange = true;
+        }
+      }
+    });
   }
 
   toDetail() {
@@ -270,7 +290,8 @@ export class HomeComponent implements OnInit {
         self.center = { lat: r.lat, lng: r.lng };
         localStorage.setItem('location-' + APP, JSON.stringify(self.deliveryAddress));
         this.bTimeOptions = true;
-        self.doSearchRestaurants(self.center);
+        self.getDistancesToMalls({ lat: r.lat, lng: r.lng });
+        // self.doSearchRestaurants(self.center);
         if (self.account) {
           self.locationSvc.save({
             userId: self.account.id, type: 'history',
@@ -283,7 +304,8 @@ export class HomeComponent implements OnInit {
       self.bHideMap = false;
       const r = place.location;
       self.center = { lat: r.lat, lng: r.lng };
-      self.doSearchRestaurants(self.center);
+      self.getDistancesToMalls({ lat: r.lat, lng: r.lng });
+      // self.doSearchRestaurants(self.center);
       localStorage.setItem('location-' + APP, JSON.stringify(place.location));
       this.bTimeOptions = true;
     }
@@ -311,7 +333,8 @@ export class HomeComponent implements OnInit {
       localStorage.setItem('location-' + APP, JSON.stringify(r));
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
       self.center = { lat: r.lat, lng: r.lng };
-      self.doSearchRestaurants(self.center);
+      // self.doSearchRestaurants(self.center);
+      self.getDistancesToMalls({ lat: r.lat, lng: r.lng });
 
       if (self.account) {
         self.locationSvc.save({ userId: self.account.id, type: 'history',

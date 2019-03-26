@@ -42,7 +42,7 @@
       
 
       <div class="col-12 time-option-list" *ngIf="bTimeOptions">
-        <div class="row option-item overdue" (click)="onSelectTime('immediate')">
+        <div *ngIf="inRange" class="row option-item overdue" (click)="onSelectTime('immediate')">
           <div class="col-12 immediate-deliver">
             <div>
               <span class="text-md" style="font-weight: 400" i18n="@@ImmediateDeliver">Immediate Deliver</span>
@@ -57,7 +57,7 @@
             </div>
           </div>
         </div>
-        <div class="row option-item" [class.overdue]="overdue" *ngIf="!afternoon" (click)="onSelectTime('lunch today')">
+        <div *ngIf="inRange && !afternoon" class="row option-item" [class.overdue]="overdue" (click)="onSelectTime('lunch today')">
           <div class="col-12">
               <div>
                 <span class="text-md" i18n="@@LunchToday">Lunch Today</span>
@@ -77,7 +77,7 @@
               </div>
           </div>
         </div>
-        <div class="row option-item free" (click)="onSelectTime('lunch tomorrow')">
+        <div *ngIf="inRange" class="row option-item free" (click)="onSelectTime('lunch tomorrow')">
           <div class="col-12">
               <div>
                 <span class="text-md" i18n="@@LunchTomorrow">Lunch Tomorrow</span>
@@ -91,7 +91,7 @@
               </div>
           </div>
         </div>
-        <div class="row option-item free" (click)="onSelectTime('lunch after tomorrow')">
+        <div *ngIf="inRange" class="row option-item free" (click)="onSelectTime('lunch after tomorrow')">
           <div class="col-12">
               <div>
                 <span class="text-md" i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</span>
@@ -105,7 +105,7 @@
               </div>
           </div>
         </div>
-        <div class="row option-item no-free" (click)="onSelectTime()">
+        <div *ngIf="!inRange" class="row option-item no-free">
             <div class="col-12">
                 <!-- <div class="text-md">
                   <span style="font-weight: 400" i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</span>
@@ -127,7 +127,8 @@
           i18n="@@LunchTomorrow">Lunch Tomorrow</div>
         <div *ngIf="deliveryTime === 'lunch after tomorrow'" class="text-md free time-title" style="font-weight: 400" 
           i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</div>
-        <app-restaurant-grid [restaurantList]="restaurants" [center]="center" *ngIf="restaurants"></app-restaurant-grid>
+        <app-restaurant-grid [restaurantList]="restaurants" [center]="center" *ngIf="restaurants" [distances]="distances">
+        </app-restaurant-grid>
       </div>   
   </div>
 </div>

@@ -29,6 +29,7 @@ export class RestaurantGridComponent implements OnInit {
   MEDIA_URL = environment.MEDIA_URL;
   defaultPicture = window.location.protocol + '//placehold.it/400x300';
 
+  @Input() distances;
   @Input() restaurantList; // : Restaurant[];
   @Input() center;
 
@@ -57,21 +58,21 @@ export class RestaurantGridComponent implements OnInit {
 
   ngOnInit() {
     const self = this;
-    this.getDistanceToRestaurants(this.center).then(rs => {
-      for (let i = 0; i < rs.length; i++) {
-        self.restaurantList[i].distance = rs[i].distance.value / 1000; // km
-      }
+    const distance = this.distances[0].distance.value;
 
-      // sort by distance
-      self.restaurantList.sort((a: Restaurant, b: Restaurant) => {
-        if (a.distance < b.distance) {
-          return -1;
-        }
-        if (a.distance > b.distance) {
-          return 1;
-        }
-        return 0;
-      });
+    for (let i = 0; i < self.restaurantList.length; i++) {
+      self.restaurantList[i].distance = distance / 1000; // km
+    }
+
+    // sort by distance
+    self.restaurantList.sort((a: Restaurant, b: Restaurant) => {
+      if (a.distance < b.distance) {
+        return -1;
+      }
+      if (a.distance > b.distance) {
+        return 1;
+      }
+      return 0;
     });
   }
 
@@ -159,21 +160,20 @@ export class RestaurantGridComponent implements OnInit {
     }
   }
 
-  getDistanceToRestaurants(center: GeoPoint): Promise<any>  {
-    const self = this;
-    const origin: ILatLng = {lat: center.lat, lng: center.lng};
-    const destinations: ILatLng[] = [];
-    this.restaurantList.map( r => {
-      destinations.push({lat: r.location.lat, lng: r.location.lng});
-    });
+  // getDistanceToRestaurants(center: GeoPoint): Promise<any>  {
+  //   const self = this;
+  //   const origin: ILatLng = {lat: center.lat, lng: center.lng};
+  //   const destinations: ILatLng[] = [];
+  //   this.restaurantList.map( r => {
+  //     destinations.push({lat: r.location.lat, lng: r.location.lng});
+  //   });
 
-    return new Promise((resolve: any, reject) => {
-      self.locationSvc.getDistances(origin, destinations).subscribe(rs => {
-        resolve(rs);
-      });
-    });
-
-  }
+  //   return new Promise((resolve: any, reject) => {
+  //     self.locationSvc.getDistances(origin, destinations).subscribe(rs => {
+  //       resolve(rs);
+  //     });
+  //   });
+  // }
 
   getDistanceString(r: Restaurant) {
     const d = r.distance;

@@ -15,6 +15,14 @@ export interface ILatLng {
   lng: number;
 }
 
+
+export interface IMall {
+  name: string;
+  type: string;
+  lat: number;
+  lng: number;
+}
+
 export interface IPlaceTerm {
   offset: number;
   value: string;
