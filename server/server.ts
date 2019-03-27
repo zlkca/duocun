@@ -67,7 +67,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
 
   require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
     const uId = data.userId;
-    console.log('socketio connecting with uid: ' + uId + '/n/r');
+    console.log('socketio connecting with uid: ' + uId + '/n');
     user.findOne({_id: new ObjectID(uId)}).then( x => {
       if(x){
         callback(null, true);
@@ -83,10 +83,10 @@ dbo.init(cfg.DATABASE).then(dbClient => {
 
   user.findOne({username: 'admin'}).then(x => {
     if(x){
-      console.log('database duocun exists .../n/r');
+      console.log('database duocun exists .../n');
     }else{
       user.insertOne({username:'guest', password:'', type:'user'}).then((x: any) => {
-        console.log('create database duocun and guest account .../n/r');
+        console.log('create database duocun and guest account .../n');
         // res.setHeader('Content-Type', 'application/json');
         // res.end(JSON.stringify(x.ops[0], null, 3))
       });
@@ -365,7 +365,7 @@ app.use(express.static(path.join(__dirname, '/../uploads')));
 app.set('port', process.env.PORT || SERVER.PORT)
 
 const server = app.listen(app.get("port"), () => {
-  console.log("API is running on :%d/n/r", app.get("port"));
+  console.log("API is running on :%d/n", app.get("port"));
 });
 
 
