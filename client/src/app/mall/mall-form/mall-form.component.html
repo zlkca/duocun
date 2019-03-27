@@ -1,0 +1,39 @@
+<form [formGroup]="form" class="mall-form">
+    <div class="row">
+      <div class="label-sm" i18n="@@Name">Name:</div>
+      <input name="name" formControlName="name" />
+    </div>
+    <div class="row">
+      <div class="label-sm" i18n="@@Description">Description</div>
+      <textarea name="description" formControlName="description"></textarea>
+    </div>
+  
+    <div formGroupName="address">
+      <div class="col-9">
+        <div class="label-sm" i18n="@@Street">Street:</div>
+        <app-address-autocomplete (addrChange)="onAddressChange($event)" placeholder="" [value]="address">
+        </app-address-autocomplete>
+      </div>
+      <div class="col-3">
+        <div class="label-sm" i18n="@@PostalCode">Postal Code:</div>
+        <input name="postalCode" formControlName="postalCode" />
+      </div>
+    </div>
+  
+    <div *ngIf="workers?.length" class="row">
+      <div class="col-6">
+        <div class="label-sm">Workers</div>
+        <select name="worker" formControlName="workerId">
+          <option *ngFor="let w of workers" [value]="w.id">{{w.username}}</option>
+        </select>
+      </div>
+      <div class="col-6">
+      </div>
+    </div>
+  
+    <div class="row btn-holder">
+      <button class="btn btn-primary" (click)="save()" i18n="@@Save">Save</button>
+      <button class="btn btn-secondary" (click)="cancel()" i18n="@@Cancel">Cancel</button>  
+    </div>
+  </form>
+  

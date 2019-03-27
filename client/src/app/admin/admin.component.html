@@ -43,6 +43,15 @@
         </ng-template>
       </ngb-tab>
 
+      <ngb-tab *ngIf="account && account.type === 'super'">
+        <ng-template ngbTabTitle>
+          <span class="tab-title">Mall</span>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <app-admin-mall-page></app-admin-mall-page>
+        </ng-template>
+      </ngb-tab>
+
       <ngb-tab *ngIf="account && (account.type === 'business' || account.type === 'super') && orders">
         <ng-template ngbTabTitle>
           <span class="tab-title" i18n="@@Categories">Categories</span>

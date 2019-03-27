@@ -14,11 +14,12 @@ import { Restaurant } from "./restaurant";
 import { Product } from "./product";
 import { Category } from "./category";
 import { Order } from "./order";
+import { Mall } from "./mall";
 import { Location } from "./location";
 import { Distance } from "./distance";
-
 import { Utils } from "./utils";
 import { Socket } from "./socket";
+
 
 const utils = new Utils();
 const cfg = utils.cfg;
@@ -41,6 +42,7 @@ let order: Order;
 let category: Category;
 let restaurant: Restaurant;
 let product: Product;
+let mall: Mall;
 let location: Location;
 let distance: Distance;
 let socket: Socket;
@@ -54,6 +56,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   category = new Category(dbo);
   restaurant = new Restaurant(dbo);
   product = new Product(dbo);
+  mall = new Mall(dbo);
   location = new Location(dbo);
   distance = new Distance(dbo);
   socket = new Socket(dbo, io);
@@ -266,6 +269,33 @@ app.get('/' + ROUTE_PREFIX + '/Orders', (req: any, res) => {
 
 app.get('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
   order.get(req, res);
+});
+
+
+app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
+  mall.replaceById(req.body.id, req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
+});
+
+app.post('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
+  mall.insertOne(req.body).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.ops[0], null, 3));
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Malls', (req: any, res) => {
+  const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+  mall.find(query ? query.where: {}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
+  mall.get(req, res);
 });
 
 app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {

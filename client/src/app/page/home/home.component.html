@@ -127,7 +127,7 @@
           i18n="@@LunchTomorrow">Lunch Tomorrow</div>
         <div *ngIf="deliveryTime === 'lunch after tomorrow'" class="text-md free time-title" style="font-weight: 400" 
           i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</div>
-        <app-restaurant-grid [restaurantList]="restaurants" [center]="center" *ngIf="restaurants" [distances]="distances">
+        <app-restaurant-grid [restaurantList]="restaurants" [center]="center" *ngIf="restaurants" [malls]="realMalls">
         </app-restaurant-grid>
       </div>   
   </div>

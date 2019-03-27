@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ILocation, ILatLng, ILocationHistory, IDistance, IMall } from './location.model';
+import { ILocation, ILatLng, ILocationHistory, IDistance } from './location.model';
 import { Observable } from 'rxjs';
 import { LoopBackConfig } from '../lb-sdk';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from '../../../node_modules/rxjs/operators';
 import { resolve } from 'path';
 import { LoopBackAuth } from '../lb-sdk/services/core/auth.service';
+import { IMall } from '../mall/mall.model';
 
 
 declare let google: any;

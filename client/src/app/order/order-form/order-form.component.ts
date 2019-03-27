@@ -8,6 +8,7 @@ import { environment } from '../../../environments/environment';
 import { ICartItem } from '../../order/order.actions';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
+import { IMall } from '../../mall/mall.model';
 
 const APP = environment.APP;
 
@@ -28,6 +29,7 @@ export class OrderFormComponent implements OnInit {
   form;
   placeholder = 'Delivery Address';
   restaurant = null;
+  mall;
 
   constructor(
     private fb: FormBuilder,
@@ -54,6 +56,11 @@ export class OrderFormComponent implements OnInit {
         self.checkout();
       }
     });
+
+    this.rx.select<IMall>('mall').subscribe(
+      mall => {
+        self.mall = mall;
+      });
   }
 
   ngOnInit() {

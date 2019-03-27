@@ -21,6 +21,7 @@ import { AdminCategoryPageComponent } from './admin-category-page/admin-category
 import { AdminAccountPageComponent } from './admin-account-page/admin-account-page.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { AdminMallPageComponent } from './admin-mall-page/admin-mall-page.component';
 
 @NgModule({
     imports: [
@@ -47,7 +48,8 @@ import { ToastrModule } from 'ngx-toastr';
         AdminOrderPageComponent,
         AdminProductPageComponent,
         AdminProductFormPageComponent,
-        AdminCategoryPageComponent
+        AdminCategoryPageComponent,
+        AdminMallPageComponent
       ],
     exports: [AdminComponent]
 })

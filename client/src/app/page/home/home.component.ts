@@ -11,6 +11,7 @@ import { ILocationHistory, IPlace, ILocation, ILatLng } from '../../location/loc
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../page.actions';
+import { MallActions } from '../../mall/mall.actions';
 
 declare var google;
 
@@ -44,11 +45,17 @@ export class HomeComponent implements OnInit {
   deliveryDiscount = 2;
   deliveryTime = 'immediate';
   malls = [
-    {name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, distance: 8},
-    {name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, distance: 8},
-    {name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, distance: 8},
+    {id: 1, name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
+      workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}]
+    },
+    {id: 2, name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
+      workers: [{id: '', username: 'worker1'}]
+    },
+    {id: 3, name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
+      workers: [{id: '', username: 'worker2'}]
+    },
   ];
-  distances = [];
+  realMalls = [];
   inRange = false;
 
   constructor(
@@ -56,7 +63,7 @@ export class HomeComponent implements OnInit {
     private locationSvc: LocationService,
     private restaurantSvc: RestaurantService,
     private sharedSvc: SharedService,
-    private rx: NgRedux<IAppState>,
+    private rx: NgRedux<IAppState>
   ) {
     this.today = sharedSvc.getTodayString();
     this.tomorrow = sharedSvc.getNextNDayString(1);
@@ -100,7 +107,14 @@ export class HomeComponent implements OnInit {
     this.inRange = inRange;
     this.locationSvc.getRoadDistances(center, this.malls).subscribe(rs => {
       if (rs) {
-        self.distances = rs.filter(r => r.type === 'real');
+        self.realMalls = rs.filter(r => r.type === 'real');
+
+        const mall = self.malls.find(x => x.id === self.realMalls[0].id);
+
+        self.rx.dispatch({
+          type: MallActions.UPDATE,
+          payload: mall
+        });
       }
     });
   }

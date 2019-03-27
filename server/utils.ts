@@ -123,6 +123,8 @@ export class Utils {
           if (rows && rows.length > 0 && rows[0].elements && rows[0].elements.length > 0) {
             const elements = rows[0].elements;
             for(let i=0; i<destinations.length; i++){
+              elements[i].id = malls[i].id;
+              elements[i].workers = malls[i].workers;
               elements[i].name = malls[i].name;
               elements[i].type = malls[i].type;
               elements[i].origin = origin;

@@ -28,8 +28,9 @@ export class RestaurantGridComponent implements OnInit {
   places: any[] = [];
   MEDIA_URL = environment.MEDIA_URL;
   defaultPicture = window.location.protocol + '//placehold.it/400x300';
+  workers;
 
-  @Input() distances;
+  @Input() malls;
   @Input() restaurantList; // : Restaurant[];
   @Input() center;
 
@@ -58,13 +59,15 @@ export class RestaurantGridComponent implements OnInit {
 
   ngOnInit() {
     const self = this;
-    if (this.distances && this.distances.length > 0) {
-      const distance = this.distances[0].distance.value;
+    if (this.malls && this.malls.length > 0) {
+
+      // fix me, selet 1st mall to simplify now
+      const distance = this.malls[0].distance.value;
 
       for (let i = 0; i < self.restaurantList.length; i++) {
         self.restaurantList[i].distance = distance / 1000; // km
       }
-
+      this.workers = this.malls[0].workers;
       // sort by distance
       self.restaurantList.sort((a: Restaurant, b: Restaurant) => {
         if (a.distance < b.distance) {

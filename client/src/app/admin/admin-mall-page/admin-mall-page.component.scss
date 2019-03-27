@@ -1,0 +1,23 @@
+
+.admin-mall-page{
+  padding:0px 6px;
+  margin-top: 10px;
+
+  .btn-add{
+    margin-top:20px;
+  }
+}
+
+@media (max-width: 767px){
+  .row{
+    margin-left:-1px;
+    margin-right:-1px;
+  }
+}
+
+@media (max-width:480px){
+  .row{
+    margin-left:-1px;
+    margin-right:-1px;
+  }
+}
