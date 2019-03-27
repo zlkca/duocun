@@ -29,7 +29,7 @@ then `npm run start` or open Visual Studio Code and hit Debug menu.
 
 ### Run client
 
-cd to /client and run `ng serve --port 5004 --configuration=zh-Hans`
+cd to /client and run `ng serve --port 5000 --configuration=zh-Hans`
 
 
 ### Generate language template
