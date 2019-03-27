@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 import Server from "socket.io";
 import { ObjectID } from "mongodb";
+import fs from 'fs';
 //import * as SocketIOAuth from "socketio-auth";
 
 import { DB } from "./db";
@@ -20,6 +21,9 @@ import { Distance } from "./distance";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
+console.log = function (msg: any) {
+  fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
+}
 
 const utils = new Utils();
 const cfg = utils.cfg;
@@ -63,6 +67,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
 
   require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
     const uId = data.userId;
+    console.log('socketio connecting with uid: ' + uId + '/n/r');
     user.findOne({_id: new ObjectID(uId)}).then( x => {
       if(x){
         callback(null, true);
@@ -78,10 +83,10 @@ dbo.init(cfg.DATABASE).then(dbClient => {
 
   user.findOne({username: 'admin'}).then(x => {
     if(x){
-      console.log('database duocun exists ...');
+      console.log('database duocun exists .../n/r');
     }else{
       user.insertOne({username:'guest', password:'', type:'user'}).then((x: any) => {
-        console.log('create database duocun and guest account ...');
+        console.log('create database duocun and guest account .../n/r');
         // res.setHeader('Content-Type', 'application/json');
         // res.end(JSON.stringify(x.ops[0], null, 3))
       });
@@ -95,7 +100,7 @@ app.use(bodyParser.json({ limit: '1mb' }));
 
 // const staticPath = path.resolve('client/dist');
 const staticPath = path.resolve('uploads');
-console.log(staticPath);
+console.log(staticPath + '/n/r');
 app.use(express.static(staticPath));
 
 app.get('/wx', (req, res) => {
@@ -360,7 +365,7 @@ app.use(express.static(path.join(__dirname, '/../uploads')));
 app.set('port', process.env.PORT || SERVER.PORT)
 
 const server = app.listen(app.get("port"), () => {
-  console.log("API is running on :%d", app.get("port"));
+  console.log("API is running on :%d/n/r", app.get("port"));
 });
 
 
