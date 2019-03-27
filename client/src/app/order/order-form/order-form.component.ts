@@ -29,7 +29,7 @@ export class OrderFormComponent implements OnInit {
   form;
   placeholder = 'Delivery Address';
   restaurant = null;
-  mall;
+  mall: IMall;
 
   constructor(
     private fb: FormBuilder,
@@ -57,10 +57,9 @@ export class OrderFormComponent implements OnInit {
       }
     });
 
-    this.rx.select<IMall>('mall').subscribe(
-      mall => {
-        self.mall = mall;
-      });
+    this.rx.select<IMall>('mall').subscribe(mall => {
+      self.mall = mall;
+    });
   }
 
   ngOnInit() {
@@ -93,40 +92,46 @@ export class OrderFormComponent implements OnInit {
   }
 
   createOrders() {
-    const v = this.form.value;
-    const ids = this.items.map(x => x.restaurantId);
-    const restaurantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
+    const self = this;
     const orders: any[] = []; // fix me
+    const v = this.form.value;
 
-    for (const id of restaurantIds) {
-      orders.push({
-        restaurantId: id,
-        items: [],
-        clientId: this.account.id,
-        username: this.account.username,
-        created: new Date(),
-        delivered: this.getDateTime(v.date, v.time),
-        address: this.deliveryAddress,
-        notes: v.notes,
-        status: 'new',
-        clientStatus: 'new',
-        workerStatus: 'new',
-        restaurantStatus: 'new',
-      });
-    }
+    if (this.items && this.items.length > 0) {
+      const ids = this.items.map(x => x.restaurantId);
+      const restaurantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
 
-    for (const item of this.items) {
-      for (const order of orders) {
-        if (item.restaurantId === order.restaurantId) {
-          order.items.push({
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            productId: item.productId,
-          });
+      for (const id of restaurantIds) {
+        orders.push({
+          restaurantId: id,
+          items: [],
+          clientId: this.account.id,
+          username: this.account.username,
+          created: new Date(),
+          delivered: this.getDateTime(v.date, v.time),
+          address: this.deliveryAddress,
+          notes: v.notes,
+          status: 'new',
+          clientStatus: 'new',
+          workerStatus: 'new',
+          restaurantStatus: 'new',
+          workerId: self.mall.workers[0] ? self.mall.workers[0].id : null
+        });
+      }
+
+      for (const item of this.items) {
+        for (const order of orders) {
+          if (item.restaurantId === order.restaurantId) {
+            order.items.push({
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              productId: item.productId
+            });
+          }
         }
       }
     }
+
     return orders;
   }
 
