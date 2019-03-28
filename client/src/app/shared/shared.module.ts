@@ -39,7 +39,8 @@ import { AddressAutocompleteComponent } from './address-autocomplete/address-aut
     AddressAutocompleteComponent
   ],
   providers: [
-    SharedService],
+    SharedService
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
     WizardComponent, ImageViewerComponent, FeedbackComponent,

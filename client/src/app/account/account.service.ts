@@ -8,6 +8,7 @@ import { environment } from '../../environments/environment';
 import { AccountApi, Account, LoopBackFilter, LoopBackConfig } from '../lb-sdk';
 import { NgRedux } from '@angular-redux/store';
 import { AccountActions } from './account.actions';
+import { AuthService } from './auth.service';
 
 export interface IAccessToken {
   'id'?: string;
@@ -27,6 +28,7 @@ export class AccountService {
   constructor(
     private ngRedux: NgRedux<Account>,
     private accountApi: AccountApi,
+    private authSvc: AuthService,
     private http: HttpClient
   ) { }
 
@@ -138,7 +140,8 @@ export class AccountService {
     const self = this;
     return this.accountApi.login(credentials, null, rememberMe)
       .pipe(
-        mergeMap(() => {
+        mergeMap((token) => {
+          self.authSvc.setAccessToken(token.id);
           return self.accountApi.getCurrent({ include: 'restaurants' });
         }),
         map((acc: Account) => {

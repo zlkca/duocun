@@ -1,10 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../account/auth.service';
 
 @NgModule({
   imports: [
     CommonModule
   ],
-  declarations: []
+  declarations: [],
+  providers: [AuthService]
 })
 export class LocationModule { }

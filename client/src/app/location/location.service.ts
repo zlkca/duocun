@@ -3,10 +3,8 @@ import { ILocation, ILatLng, ILocationHistory, IDistance } from './location.mode
 import { Observable } from 'rxjs';
 import { LoopBackConfig } from '../lb-sdk';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map } from '../../../node_modules/rxjs/operators';
-import { resolve } from 'path';
-import { LoopBackAuth } from '../lb-sdk/services/core/auth.service';
 import { IMall } from '../mall/mall.model';
+import { AuthService } from '../account/auth.service';
 
 
 declare let google: any;
@@ -24,7 +22,7 @@ export class LocationService {
 
   constructor(
     private http: HttpClient,
-    private auth: LoopBackAuth
+    private auth: AuthService
   ) {
     try {
       if (google) {
@@ -43,7 +41,7 @@ export class LocationService {
   find(filter: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.auth.getAccessTokenId();
+    const accessTokenId = this.auth.getAccessToken();
     if (accessTokenId) {
       headers = headers.append('Authorization', LoopBackConfig.getAuthPrefix() + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);

@@ -12,6 +12,8 @@ import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../page.actions';
 import { MallActions } from '../../mall/mall.actions';
+import { SocketService } from '../../shared/socket.service';
+import { AuthService } from '../../account/auth.service';
 
 declare var google;
 
@@ -63,6 +65,8 @@ export class HomeComponent implements OnInit {
     private locationSvc: LocationService,
     private restaurantSvc: RestaurantService,
     private sharedSvc: SharedService,
+    private authSvc: AuthService,
+    private socketSvc: SocketService,
     private rx: NgRedux<IAppState>
   ) {
     this.today = sharedSvc.getTodayString();
@@ -76,6 +80,9 @@ export class HomeComponent implements OnInit {
     const self = this;
     this.subscrAccount = this.accountSvc.getCurrent().subscribe(account => {
       self.account = account;
+
+      self.socketSvc.init(this.authSvc.getAccessToken());
+
     });
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
@@ -94,6 +101,10 @@ export class HomeComponent implements OnInit {
     //     self.doSearchRestaurants(self.center);
     //   });
     // }
+  }
+
+  setupSocket() {
+
   }
 
   calcDistancesToMalls(center: ILatLng) {

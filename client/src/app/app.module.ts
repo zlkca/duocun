@@ -48,6 +48,7 @@ import { RestaurantListPageComponent } from './page/restaurant-list-page/restaur
 import { RestaurantDetailPageComponent } from './page/restaurant-detail-page/restaurant-detail-page.component';
 import { RestaurantOrderComponent } from './page/restaurant-order/restaurant-order.component';
 import { OrderHistoryComponent } from './page/order-history/order-history.component';
+import { LocationModule } from './location/location.module';
 
 const appRoutes: Routes = [
     { path: 'admin', component: AdminComponent },
@@ -106,6 +107,7 @@ const appRoutes: Routes = [
         ProductModule,
         OrderModule,
         PageModule,
+        LocationModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     bootstrap: [AppComponent],

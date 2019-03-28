@@ -6,7 +6,9 @@ import multer from "multer";
 import path from "path";
 import Server from "socket.io";
 import { ObjectID } from "mongodb";
-import fs from 'fs';
+
+import jwt from "jsonwebtoken";
+import { Config } from "./config";
 //import * as SocketIOAuth from "socketio-auth";
 
 import { DB } from "./db";
@@ -21,12 +23,12 @@ import { Distance } from "./distance";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
-console.log = function (msg: any) {
-  fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
-}
+// console.log = function (msg: any) {
+//   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
+// }
 
 const utils = new Utils();
-const cfg = utils.cfg;
+const cfg = new Config();
 const SERVER = cfg.API_SERVER;
 const ROUTE_PREFIX = SERVER.ROUTE_PREFIX;
 
@@ -49,7 +51,7 @@ let product: Product;
 let mall: Mall;
 let location: Location;
 let distance: Distance;
-let socket: Socket;
+let mysocket: any;// Socket;
 let io: any;
 
 dbo.init(cfg.DATABASE).then(dbClient => {
@@ -63,19 +65,51 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   mall = new Mall(dbo);
   location = new Location(dbo);
   distance = new Distance(dbo);
-  socket = new Socket(dbo, io);
+  // socket = new Socket(dbo, io);
 
-  require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
-    const uId = data.userId;
-    console.log('socketio connecting with uid: ' + uId + '/n');
-    user.findOne({_id: new ObjectID(uId)}).then( x => {
-      if(x){
-        callback(null, true);
-      }else{
-        callback(null, false);
+  // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
+  //   const uId = data.userId;
+  //   console.log('socketio connecting with uid: ' + uId + '/n');
+  //   if(uId){
+  //     user.findOne({_id: new ObjectID(uId)}).then( x => {
+  //       if(x){
+  //         callback(null, true);
+  //       }else{
+  //         callback(null, false);
+  //       }
+  //     });
+  //   }else{
+  //     callback(null, false);
+  //   }
+  // }, timeout: 200000});
+
+
+  io.on('connection', function (socket: any) {
+    console.log('server socket connected:' + socket.id);
+    
+    socket.on('authentication', function (token: any) {
+      const cfg = new Config();
+      if(token){
+        jwt.verify(token, cfg.JWT.SECRET, {algorithms:[cfg.JWT.ALGORITHM]}, (err, decoded: any) => {
+          if(err){
+            console.log('socket authentication error:' + err);
+          }
+          if (decoded) {
+            console.log('socket authenticated:' + decoded.id);
+            if (decoded.id) {
+              socket.emit('authenticated', { userId: decoded.id });
+            }
+          }
+        });
+      } else {
+        console.log('socket authentication failed: access token is null.');
       }
     });
-  }, timeout: 200000});
+
+    socket.on('disconnect', () => {
+      console.log('server socket disconnect');
+    });
+  });
 
   // io.on("updateOrders", (x: any) => {
   //   const ss = x;

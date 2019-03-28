@@ -6,6 +6,7 @@ import { AuthService } from '../../account/auth.service';
 import { SharedService } from '../../shared/shared.service';
 import { ToastrService } from 'ngx-toastr';
 import { Order } from '../../lb-sdk';
+import { SocketService } from '../../shared/socket.service';
 
 @Component({
   selector: 'app-order-history',
@@ -24,7 +25,7 @@ export class OrderHistoryComponent implements OnInit {
     private authSvc: AuthService,
     private sharedSvc: SharedService,
     private toastSvc: ToastrService,
-    private socket: SocketConnection
+    private socketSvc: SocketService
   ) {
 
   }
@@ -41,8 +42,8 @@ export class OrderHistoryComponent implements OnInit {
       }
     });
 
-    this.socket.connect(this.authSvc.getToken());
-    this.socket.on('updateOrders', x => {
+    // this.socket.connect(this.authSvc.getToken());
+    this.socketSvc.on('updateOrders', x => {
       // self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });
       // self.onFilterOrders(this.selectedRange);
       if (x.clientId === self.account.id) {

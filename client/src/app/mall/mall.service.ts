@@ -31,7 +31,7 @@ export class MallService {
   find(filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.auth.getAccessTokenId();
+    const accessTokenId = this.auth.getAccessToken();
     if (accessTokenId) {
       headers = headers.append('Authorization', LoopBackConfig.getAuthPrefix() + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);

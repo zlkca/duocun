@@ -1,9 +1,13 @@
-import { Injectable, Inject } from '@angular/core';
-import { LoopBackAuth, InternalStorage } from '../lb-sdk';
+import { Injectable } from '@angular/core';
 
 @Injectable()
-export class AuthService extends LoopBackAuth {
-  constructor (@Inject(InternalStorage) protected storage: InternalStorage) {
-    super(storage);
+export class AuthService {
+
+  setAccessToken(token: string) {
+    localStorage.setItem('token', token);
+  }
+
+  getAccessToken(): string {
+    return localStorage.getItem('token');
   }
 }

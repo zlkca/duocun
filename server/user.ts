@@ -6,9 +6,9 @@ import jwt from "jsonwebtoken";
 
 import { Entity } from "./entity";
 import { DB } from "./db";
+import { Config } from "./config";
 
 const saltRounds = 10;
-const JWT_PRIVATE_KEY = 'lois2019';
 
 export interface IAccessToken {
   'id'?: string;
@@ -92,7 +92,8 @@ export class User extends Entity{
             if(matched){
               res.setHeader('Content-Type', 'application/json');
               r.password = '';
-              const tokenId = jwt.sign(r, JWT_PRIVATE_KEY); // SHA256
+              const cfg = new Config();
+              const tokenId = jwt.sign(r, cfg.JWT.SECRET); // SHA256
               const token = {id: tokenId, ttl: 10000, userId: r.id};
               res.send(JSON.stringify(token, null, 3));
             }else{
