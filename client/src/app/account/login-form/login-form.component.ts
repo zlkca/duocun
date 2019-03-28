@@ -51,12 +51,13 @@ export class LoginFormComponent implements OnInit {
   onLogin() {
     const self = this;
     const v = this.form.value;
+    this.authSvc.removeCookies();
     // if (this.form.valid) {
     this.accountSvc.login(v.account, v.password).subscribe((data: any) => {
       if (data) {
         self.authSvc.setUserId(data.userId);
         self.authSvc.setAccessToken(data.id);
-        self.accountSvc.getCurrent().subscribe((account: Account) => {
+        self.accountSvc.getCurrentUser().subscribe((account: Account) => {
           if (account) {
             self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header, footer icons
             if (account.type === 'super') {
