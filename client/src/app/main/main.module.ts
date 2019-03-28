@@ -11,7 +11,6 @@ import { OrderModule } from '../order/order.module';
 import { environment } from '../../environments/environment';
 
 import { ContactComponent } from './contact/contact.component';
-import { LayoutComponent } from './layout/layout.component';
 
 import { AccountService } from '../account/account.service';
 
@@ -31,7 +30,6 @@ import { CommentComponent } from './comment/comment.component';
     ],
     declarations: [
         ContactComponent,
-        LayoutComponent,
         ProductComponent,
         BlogComponent,
         CommentComponent

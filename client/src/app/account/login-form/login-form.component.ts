@@ -12,80 +12,92 @@ import { IAppState } from '../../store';
 
 
 @Component({
-    providers: [AuthService],
-    selector: 'app-login-form',
-    templateUrl: './login-form.component.html',
-    styleUrls: ['./login-form.component.scss']
+  providers: [AuthService],
+  selector: 'app-login-form',
+  templateUrl: './login-form.component.html',
+  styleUrls: ['./login-form.component.scss']
 })
 export class LoginFormComponent implements OnInit {
-    public user;
-    public account = '';
-    public password = '';
 
-    token = '';
-    errMsg = '';
-    auth2: any;
-    form: FormGroup;
+  public user;
+  public account = '';
+  public password = '';
 
-    constructor(
-      private fb: FormBuilder,
-      private authServ: AuthService,
-      private router: Router,
-      private accountServ: AccountService,
-      private rx: NgRedux<IAppState>,
-    ) {
-        this.form = this.fb.group({
-            account: ['', Validators.required],
-            password: ['', Validators.required]
-        });
-    }
+  token = '';
+  errMsg = '';
+  auth2: any;
+  form: FormGroup;
 
-    ngOnInit() {
-      this.rx.dispatch({
-        type: PageActions.UPDATE_URL,
-        payload: 'login'
-      });
-    }
+  constructor(
+    private fb: FormBuilder,
+    private authSvc: AuthService,
+    private router: Router,
+    private accountSvc: AccountService,
+    private rx: NgRedux<IAppState>,
+  ) {
+    this.form = this.fb.group({
+      account: ['', Validators.required],
+      password: ['', Validators.required]
+    });
+  }
 
-    onLogin() {
-      const self = this;
-      const v = this.form.value;
-      // if (this.form.valid) {
-      this.accountServ.login(v.account, v.password)
-        .subscribe((account: Account) => {
-          self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header, footer icons
-          if (account.type === 'super') {
-            this.router.navigate(['admin']);
-          } else if (account.type === 'worker') {
-            this.router.navigate(['worker-orders']);
-          } else if (account.type === 'restaurant') {
-            this.router.navigate(['restaurant-orders']);
-          } else if (account.type === 'user') {
-            this.router.navigate(['home']);
+  ngOnInit() {
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'login'
+    });
+  }
+
+  onLogin() {
+    const self = this;
+    const v = this.form.value;
+    // if (this.form.valid) {
+    this.accountSvc.login(v.account, v.password).subscribe((data: any) => {
+      if (data) {
+        self.authSvc.setUserId(data.userId);
+        self.authSvc.setAccessToken(data.id);
+        self.accountSvc.getCurrent().subscribe((account: Account) => {
+          if (account) {
+            self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header, footer icons
+            if (account.type === 'super') {
+              this.router.navigate(['admin']);
+            } else if (account.type === 'worker') {
+              this.router.navigate(['worker-orders']);
+            } else if (account.type === 'restaurant') {
+              this.router.navigate(['restaurant-orders']);
+            } else if (account.type === 'user') {
+              this.router.navigate(['home']);
+            }
+          } else {
+            this.router.navigate(['login']);
           }
         },
           (error) => {
             this.errMsg = error.message || 'login failed.';
             console.error('An error occurred', error);
           });
-    }
-    onForgetPassword() {
-        // this.router.navigate(["/forget-password"]);;
-        // return false;
-    }
+      } else {
+        console.log('anonymous try to login ... ');
+      }
+    });
+  }
+  onForgetPassword() {
+    // this.router.navigate(["/forget-password"]);;
+    // return false;
+  }
 
-    onChangeAccount() {
-        this.errMsg = "";
-    }
+  onChangeAccount() {
+    this.errMsg = "";
+  }
 
-    onChangePassword() {
-        this.errMsg = "";
-    }
+  onChangePassword() {
+    this.errMsg = "";
+  }
 
 
-    toPage(page: string) {
-        this.router.navigate([page]);
-    }
+  toPage(page: string) {
+    this.router.navigate([page]);
+  }
 
 }
 

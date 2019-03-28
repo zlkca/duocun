@@ -13,4 +13,12 @@ export class AuthService {
     // return localStorage.getItem('token');
     return Cookies.get('token');
   }
+
+  setUserId(id: string) {
+    Cookies.set('duocun-userId', id);
+  }
+
+  getUserId(): string {
+    return Cookies.get('duocun-userId');
+  }
 }

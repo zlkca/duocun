@@ -116,17 +116,17 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   //   const ss = x;
   // });
 
-  user.findOne({username: 'admin'}).then(x => {
-    if(x){
-      console.log('database duocun exists .../n');
-    }else{
-      user.insertOne({username:'guest', password:'', type:'user'}).then((x: any) => {
-        console.log('create database duocun and guest account .../n');
-        // res.setHeader('Content-Type', 'application/json');
-        // res.end(JSON.stringify(x.ops[0], null, 3))
-      });
-    }
-  });
+  // user.findOne({username: 'admin'}).then(x => {
+  //   if(x){
+  //     console.log('database duocun exists .../n');
+  //   }else{
+  //     user.insertOne({username:'guest', password:'', type:'user'}).then((x: any) => {
+  //       console.log('create database duocun and guest account .../n');
+  //       // res.setHeader('Content-Type', 'application/json');
+  //       // res.end(JSON.stringify(x.ops[0], null, 3))
+  //     });
+  //   }
+  // });
 });
 
 app.use(cors());

@@ -39,18 +39,18 @@ export class InstitutionLoginComponent implements OnInit {
   onLogin() {
     const v = this.form.value;
     // if (this.form.valid) {
-    this.accountServ.login(v.account, v.password)
-    .subscribe((account: Account) => {
-        if (account.restaurants.length) {
-            this.router.navigate(['admin']);
-        } else {
-            this.router.navigate(['home']);
-        }
-    },
-    (error) => {
-        this.errMsg = error.message || 'login failed.';
-        console.error('An error occurred', error);
-    });
+    // this.accountServ.login(v.account, v.password)
+    // .subscribe((account: Account) => {
+    //     if (account.restaurants.length) {
+    //         this.router.navigate(['admin']);
+    //     } else {
+    //         this.router.navigate(['home']);
+    //     }
+    // },
+    // (error) => {
+    //     this.errMsg = error.message || 'login failed.';
+    //     console.error('An error occurred', error);
+    // });
 }
 
 
