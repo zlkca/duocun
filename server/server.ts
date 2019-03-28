@@ -4,6 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 import Server from "socket.io";
 import { ObjectID } from "mongodb";
 
@@ -23,9 +24,9 @@ import { Distance } from "./distance";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
-// console.log = function (msg: any) {
-//   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
-// }
+console.log = function (msg: any) {
+  fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
+}
 
 const utils = new Utils();
 const cfg = new Config();
