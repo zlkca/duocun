@@ -8,8 +8,10 @@ const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 const socket_io_1 = __importDefault(require("socket.io"));
-const mongodb_1 = require("mongodb");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const config_1 = require("./config");
 //import * as SocketIOAuth from "socketio-auth";
 const db_1 = require("./db");
 const user_1 = require("./user");
@@ -21,9 +23,11 @@ const mall_1 = require("./mall");
 const location_1 = require("./location");
 const distance_1 = require("./distance");
 const utils_1 = require("./utils");
-const socket_1 = require("./socket");
+console.log = function (msg) {
+    fs_1.default.appendFile("/tmp/log-duocun.log", msg, function (err) { });
+};
 const utils = new utils_1.Utils();
-const cfg = utils.cfg;
+const cfg = new config_1.Config();
 const SERVER = cfg.API_SERVER;
 const ROUTE_PREFIX = SERVER.ROUTE_PREFIX;
 const app = express_1.default();
@@ -45,7 +49,7 @@ let product;
 let mall;
 let location;
 let distance;
-let socket;
+let mysocket; // Socket;
 let io;
 dbo.init(cfg.DATABASE).then(dbClient => {
     io = socket_io_1.default(server);
@@ -57,40 +61,68 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     mall = new mall_1.Mall(dbo);
     location = new location_1.Location(dbo);
     distance = new distance_1.Distance(dbo);
-    socket = new socket_1.Socket(dbo, io);
-    require('socketio-auth')(io, { authenticate: (socket, data, callback) => {
-            const uId = data.userId;
-            user.findOne({ _id: new mongodb_1.ObjectID(uId) }).then(x => {
-                if (x) {
-                    callback(null, true);
-                }
-                else {
-                    callback(null, false);
-                }
-            });
-        }, timeout: 200000 });
+    // socket = new Socket(dbo, io);
+    // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
+    //   const uId = data.userId;
+    //   console.log('socketio connecting with uid: ' + uId + '/n');
+    //   if(uId){
+    //     user.findOne({_id: new ObjectID(uId)}).then( x => {
+    //       if(x){
+    //         callback(null, true);
+    //       }else{
+    //         callback(null, false);
+    //       }
+    //     });
+    //   }else{
+    //     callback(null, false);
+    //   }
+    // }, timeout: 200000});
+    io.on('connection', function (socket) {
+        console.log('server socket connected:' + socket.id);
+        socket.on('authentication', function (token) {
+            const cfg = new config_1.Config();
+            if (token) {
+                jsonwebtoken_1.default.verify(token, cfg.JWT.SECRET, { algorithms: [cfg.JWT.ALGORITHM] }, (err, decoded) => {
+                    if (err) {
+                        console.log('socket authentication error:' + err);
+                    }
+                    if (decoded) {
+                        console.log('socket authenticated:' + decoded.id);
+                        if (decoded.id) {
+                            socket.emit('authenticated', { userId: decoded.id });
+                        }
+                    }
+                });
+            }
+            else {
+                console.log('socket authentication failed: access token is null.');
+            }
+        });
+        socket.on('disconnect', () => {
+            console.log('server socket disconnect');
+        });
+    });
     // io.on("updateOrders", (x: any) => {
     //   const ss = x;
     // });
-    user.findOne({ username: 'admin' }).then(x => {
-        if (x) {
-            console.log('database duocun exists ...');
-        }
-        else {
-            user.insertOne({ username: 'guest', password: '', type: 'user' }).then((x) => {
-                console.log('create database duocun and guest account ...');
-                // res.setHeader('Content-Type', 'application/json');
-                // res.end(JSON.stringify(x.ops[0], null, 3))
-            });
-        }
-    });
+    // user.findOne({username: 'admin'}).then(x => {
+    //   if(x){
+    //     console.log('database duocun exists .../n');
+    //   }else{
+    //     user.insertOne({username:'guest', password:'', type:'user'}).then((x: any) => {
+    //       console.log('create database duocun and guest account .../n');
+    //       // res.setHeader('Content-Type', 'application/json');
+    //       // res.end(JSON.stringify(x.ops[0], null, 3))
+    //     });
+    //   }
+    // });
 });
 app.use(cors_1.default());
 app.use(body_parser_1.default.urlencoded({ extended: false, limit: '1mb' }));
 app.use(body_parser_1.default.json({ limit: '1mb' }));
 // const staticPath = path.resolve('client/dist');
 const staticPath = path_1.default.resolve('uploads');
-console.log(staticPath);
+console.log(staticPath + '/n/r');
 app.use(express_1.default.static(staticPath));
 app.get('/wx', (req, res) => {
     utils.genWechatToken(req, res);
@@ -133,7 +165,7 @@ app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
     });
 });
 app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-    const query = req.headers ? JSON.parse(req.headers.filter) : {};
+    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     restaurant.find(query ? query.where : {}).then((x) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
@@ -320,7 +352,7 @@ app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res,
 app.use(express_1.default.static(path_1.default.join(__dirname, '/../uploads')));
 app.set('port', process.env.PORT || SERVER.PORT);
 const server = app.listen(app.get("port"), () => {
-    console.log("API is running on :%d", app.get("port"));
+    console.log("API is running on :%d/n", app.get("port"));
 });
 // const http = require('http');
 // const express = require('express')

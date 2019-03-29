@@ -7,8 +7,8 @@ const mongodb_1 = require("mongodb");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const entity_1 = require("./entity");
+const config_1 = require("./config");
 const saltRounds = 10;
-const JWT_PRIVATE_KEY = 'lois2019';
 class User extends entity_1.Entity {
     constructor(dbo) {
         super(dbo, 'users');
@@ -82,7 +82,8 @@ class User extends entity_1.Entity {
                     if (matched) {
                         res.setHeader('Content-Type', 'application/json');
                         r.password = '';
-                        const tokenId = jsonwebtoken_1.default.sign(r, JWT_PRIVATE_KEY); // SHA256
+                        const cfg = new config_1.Config();
+                        const tokenId = jsonwebtoken_1.default.sign(r, cfg.JWT.SECRET); // SHA256
                         const token = { id: tokenId, ttl: 10000, userId: r.id };
                         res.send(JSON.stringify(token, null, 3));
                     }

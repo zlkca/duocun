@@ -5,10 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const https_1 = __importDefault(require("https"));
 const crypto_1 = __importDefault(require("crypto"));
-const fs_1 = __importDefault(require("fs"));
+const config_1 = require("./config");
 class Utils {
     constructor() {
-        this.cfg = JSON.parse(fs_1.default.readFileSync('../duocun.cfg.json', 'utf-8'));
+        this.cfg = new config_1.Config(); // JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
     }
     genWechatToken(req, res) {
         let token = 'testToken20';
@@ -29,7 +29,7 @@ class Utils {
         }
     }
     getGeocode(req, res) {
-        let key = this.cfg.GEOCODE.KEY;
+        let key = this.cfg.GEOCODE_KEY;
         const latlng = (req.query.lat && req.query.lng) ? (req.query.lat + ',' + req.query.lng) : '';
         const addr = req.query.address;
         let url = 'https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=' + key;
@@ -64,7 +64,7 @@ class Utils {
         });
     }
     getPlaces(req, res) {
-        let key = this.cfg.GOOGLE_PLACE.KEY;
+        let key = this.cfg.GOOGLE_PLACE_KEY;
         // let location = req.query.lat + ',' + req.query.lng;
         let input = req.query.input;
         let url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=' + input + '&key=' + key
@@ -94,7 +94,7 @@ class Utils {
         });
     }
     getRoadDistances(req, res) {
-        let key = this.cfg.GOOGLE_DISTANCE.KEY;
+        let key = this.cfg.GOOGLE_DISTANCE_KEY;
         let origin = req.body.origins[0]; // should be only one location
         let sOrigin = `${origin.lat},${origin.lng}`;
         let malls = req.body.destinations;
