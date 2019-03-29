@@ -9,6 +9,7 @@ import { ICartItem } from '../../order/order.actions';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { IMall } from '../../mall/mall.model';
+import { RestaurantService } from '../../restaurant/restaurant.service';
 
 const APP = environment.APP;
 
@@ -35,6 +36,7 @@ export class OrderFormComponent implements OnInit {
     private fb: FormBuilder,
     private sharedSvc: SharedService,
     private orderSvc: OrderService,
+    private restaurantSvc: RestaurantService,
     private rx: NgRedux<IAppState>
   ) {
     const self = this;
@@ -68,7 +70,7 @@ export class OrderFormComponent implements OnInit {
         this.subTotal += item.price * item.quantity;
       });
 
-      this.orderSvc.findRestaurant(this.items[0].restaurantId, { include: 'products' })
+      this.restaurantSvc.findById(this.items[0].restaurantId) // { include: 'products' })
         .subscribe((r: Restaurant) => {
           this.restaurant = r;
           this.deliveryFee = r.delivery_fee ? r.delivery_fee : 0;

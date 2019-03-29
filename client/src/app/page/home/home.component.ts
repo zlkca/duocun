@@ -203,26 +203,26 @@ export class HomeComponent implements OnInit {
   }
 
   loadNearbyRestaurants(center) {
-    const self = this;
-    this.restaurantSvc.getNearby(center).subscribe(
-      (ps: Restaurant[]) => {
-        self.restaurants = ps; // self.toProductGrid(data);
-        const a = [];
-        ps.map(restaurant => {
-          if (restaurant.location) {
-            a.push({
-              lat: restaurant.location.lat,
-              lng: restaurant.location.lng,
-              name: restaurant.name
-            });
-          }
-        });
-        self.places = a;
-      },
-      (err: any) => {
-        self.restaurants = [];
-      }
-    );
+    // const self = this;
+    // this.restaurantSvc.getNearby(center).subscribe(
+    //   (ps: Restaurant[]) => {
+    //     self.restaurants = ps; // self.toProductGrid(data);
+    //     const a = [];
+    //     ps.map(restaurant => {
+    //       if (restaurant.location) {
+    //         a.push({
+    //           lat: restaurant.location.lat,
+    //           lng: restaurant.location.lng,
+    //           name: restaurant.name
+    //         });
+    //       }
+    //     });
+    //     self.places = a;
+    //   },
+    //   (err: any) => {
+    //     self.restaurants = [];
+    //   }
+    // );
   }
 
   search() {

@@ -12,6 +12,7 @@ export const environment = {
   APP_URL: window.location.origin,
   MEDIA_URL: 'http://localhost:8000/',
   APP: 'duocun',
+  AUTH_PREFIX: '',
   GOOGLE_MAP: {
     KEY: ''
   },

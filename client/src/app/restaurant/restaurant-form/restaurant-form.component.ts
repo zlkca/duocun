@@ -8,8 +8,8 @@ import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 
 import { AccountService } from '../../account/account.service';
-import { GeoPoint, Restaurant, Category, LoopBackConfig, Address, Account, Picture } from '../../lb-sdk';
-
+import { GeoPoint, Category, LoopBackConfig, Address, Account, Picture } from '../../lb-sdk';
+import { Restaurant } from '../restaurant.model';
 import { getComponentViewDefinitionFactory } from '../../../../node_modules/@angular/core/src/view';
 import { SharedService } from '../../shared/shared.service';
 

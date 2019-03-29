@@ -1,36 +1,33 @@
 import { Injectable } from '@angular/core';
-import { RestaurantApi, LoopBackFilter, Restaurant, GeoPoint, Order, OrderApi, Product, Picture, PictureApi, LoopBackConfig } from '../lb-sdk';
+import { RestaurantApi, LoopBackFilter, GeoPoint, Order, OrderApi, Product, Picture, PictureApi } from '../lb-sdk';
+
+import { Restaurant } from './restaurant.model';
 import { Observable } from 'rxjs';
 import { mergeMap, flatMap } from 'rxjs/operators';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from '../account/auth.service';
+import { EntityService } from '../entity.service';
 
 @Injectable()
-export class RestaurantService {
+export class RestaurantService extends EntityService {
+
   constructor(
     private restaurantApi: RestaurantApi,
     private pictureApi: PictureApi,
     private orderApi: OrderApi,
-    private http: HttpClient
-  ) { }
+    public authSvc: AuthService,
+    public http: HttpClient
+  ) {
+    super(authSvc, http);
+    this.url = super.getBaseUrl() + 'Restaurants';
+  }
 
   save(restaurant: Restaurant): Observable<any> {
-    const url = [
-      LoopBackConfig.getPath(),
-      LoopBackConfig.getApiVersion(),
-      'Restaurants'
-    ].join('/');
-
-    return this.http.post(url, restaurant);
+    return this.http.post(this.url, restaurant);
   }
 
   replace(restaurant: Restaurant): Observable<any> {
-    const url = [
-      LoopBackConfig.getPath(),
-      LoopBackConfig.getApiVersion(),
-      'Restaurants'
-    ].join('/');
-
-    return this.http.put(url, restaurant);
+    return this.http.put(this.url, restaurant);
   }
 
   // create(restaurant: Restaurant): Observable<Restaurant> {
@@ -125,13 +122,13 @@ export class RestaurantService {
       );
   }
 
-  findById(id: string, filter: LoopBackFilter = { include: ['pictures', 'address'] }): Observable<Restaurant> {
-    return this.restaurantApi.findById(id, filter);
-  }
+  // findById(id: string, filter: LoopBackFilter = { include: ['pictures', 'address'] }): Observable<Restaurant> {
+  //   return this.restaurantApi.findById(id, filter);
+  // }
 
-  find(filter: LoopBackFilter = { include: ['pictures', 'address'] }): Observable<Restaurant[]> {
-    return this.restaurantApi.find(filter);
-  }
+  // find(filter: LoopBackFilter = { include: ['pictures', 'address'] }): Observable<Restaurant[]> {
+  //   return this.restaurantApi.find(filter);
+  // }
 
   getNearby(location: GeoPoint, maxDistance: number = 20, limit: number = 10): Observable<Restaurant[]> {
     return this.restaurantApi.find({

@@ -1,7 +1,7 @@
 
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-import { Restaurant } from '../../lb-sdk';
+import { Restaurant } from '../restaurant.model';
 import { RestaurantService } from '../restaurant.service';
 import { environment } from '../../../environments/environment';
 
