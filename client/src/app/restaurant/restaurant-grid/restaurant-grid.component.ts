@@ -5,13 +5,11 @@ import { SharedService } from '../../shared/shared.service';
 import { environment } from '../../../environments/environment';
 // import { LocationService } from '../../shared/location/location.service';
 import { RestaurantService } from '../restaurant.service';
-import { Restaurant, GeoPoint } from '../../lb-sdk';
+import { Restaurant } from '../restaurant.model';
+
 import { PageActions } from '../../page/page.actions';
 import { NgRedux } from '@angular-redux/store';
 import { LocationService } from '../../location/location.service';
-import { ILatLng } from '../../location/location.model';
-import { RSA_NO_PADDING } from 'constants';
-import { Observable } from '../../../../node_modules/rxjs';
 
 const APP = environment.APP;
 

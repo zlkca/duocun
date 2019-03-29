@@ -259,6 +259,10 @@
           <context context-type="sourcefile">app/shared/header/header.component.html</context>
           <context context-type="linenumber">37</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/footer/footer.component.html</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="MyOrder" datatype="html">
         <source>My Order</source>
@@ -294,6 +298,49 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/shared/header/header.component.html</context>
           <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Order" datatype="html">
+        <source>Order</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/footer/footer.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Cart" datatype="html">
+        <source>Cart</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/footer/footer.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Account" datatype="html">
+        <source>Account</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/footer/footer.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/admin/admin.component.html</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Checkout" datatype="html">
+        <source>Check Out</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/footer/footer.component.html</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/cart/cart.component.html</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Submit" datatype="html">
+        <source>Submit</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/footer/footer.component.html</context>
+          <context context-type="linenumber">44</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Delete" datatype="html">
@@ -464,13 +511,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/restaurant/restaurant-list/restaurant-list.component.html</context>
           <context context-type="linenumber">12</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Account" datatype="html">
-        <source>Account</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/admin/admin.component.html</context>
-          <context context-type="linenumber">38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Categories" datatype="html">
@@ -796,13 +836,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/cart/cart.component.html</context>
           <context context-type="linenumber">29</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="Checkout" datatype="html">
-        <source>Check out</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/order/cart/cart.component.html</context>
-          <context context-type="linenumber">32</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Subtotal" datatype="html">

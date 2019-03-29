@@ -13,8 +13,6 @@ import { HomeComponent } from './page/home/home.component';
 
 import { LoginFormComponent } from './account/login-form/login-form.component';
 import { SignupComponent } from './account/signup/signup.component';
-import { InstitutionSignupComponent } from './account/institution-signup/institution-signup.component';
-import { InstitutionLoginComponent } from './account/institution-login/institution-login.component';
 import { ForgetPasswordComponent } from './account/forget-password/forget-password.component';
 
 import { RestaurantComponent } from './page/restaurant/restaurant.component';
@@ -48,6 +46,7 @@ import { RestaurantListPageComponent } from './page/restaurant-list-page/restaur
 import { RestaurantDetailPageComponent } from './page/restaurant-detail-page/restaurant-detail-page.component';
 import { RestaurantOrderComponent } from './page/restaurant-order/restaurant-order.component';
 import { OrderHistoryComponent } from './page/order-history/order-history.component';
+import { LocationModule } from './location/location.module';
 
 const appRoutes: Routes = [
     { path: 'admin', component: AdminComponent },
@@ -70,9 +69,7 @@ const appRoutes: Routes = [
     { path: 'restaurant-orders', component: RestaurantOrderComponent },
     { path: 'forget-password', component: ForgetPasswordComponent },
     { path: 'login', component: LoginFormComponent },
-    { path: 'institution-login', component: InstitutionLoginComponent },
     { path: 'signup', component: SignupComponent },
-    { path: 'institution-signup', component: InstitutionSignupComponent },
     // { path: 'restaurants', component: RestaurantListPageComponent},
     // { path: 'restaurants/:id', component: RestaurantDetailPageComponent},
     { path: 'cart', component: CartPageComponent},
@@ -106,6 +103,7 @@ const appRoutes: Routes = [
         ProductModule,
         OrderModule,
         PageModule,
+        LocationModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     bootstrap: [AppComponent],

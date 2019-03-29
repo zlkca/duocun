@@ -5,8 +5,11 @@ $desktop: "(min-width: 1200px)";
 
 
 .restaurant-info{
-  padding-left: 10px;
-  padding-bottom: 10px;
+  padding: 10px;
+  .restaurant-name{
+    text-align: center;
+    padding-bottom: 15px;
+  }
 }
 
 .product-block{

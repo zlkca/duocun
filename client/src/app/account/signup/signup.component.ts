@@ -20,7 +20,8 @@ export class SignupComponent implements OnInit {
   form: FormGroup;
 
   constructor(private fb: FormBuilder,
-    private accountServ: AccountService,
+    private accountSvc: AccountService,
+    private authSvc: AuthService,
     private router: Router,
     private rx: NgRedux<IAppState>,
   ) {
@@ -47,7 +48,8 @@ export class SignupComponent implements OnInit {
       password: v.password,
       type: 'user'
     });
-    this.accountServ.signup(account).subscribe((user: Account) => {
+    this.authSvc.removeCookies();
+    this.accountSvc.signup(account).subscribe((user: Account) => {
       if (user && user.id) {
         if (user.type === 'user') {
           this.router.navigate(['home']);

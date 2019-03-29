@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../account/auth.service';
 import { SharedService } from '../shared.service';
 import { environment } from '../../../environments/environment';
 // import { LocationService } from '../location/location.service';
@@ -12,7 +11,6 @@ declare var $: any;
 const APP = environment.APP;
 
 @Component({
-  providers: [AuthService],
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
@@ -26,7 +24,8 @@ export class HeaderComponent implements OnInit {
   type: string;
   addr = null;
 
-  constructor(private router: Router, private authSvc: AuthService,
+  constructor(private router: Router,
+    // private authSvc: AuthService,
     // private locationSvc: LocationService,
     private accountServ: AccountService,
     private sharedSvc: SharedService) { }

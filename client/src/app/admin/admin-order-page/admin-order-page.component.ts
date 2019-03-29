@@ -7,6 +7,7 @@ import { Order } from '../../lb-sdk';
 import { ToastrService } from 'ngx-toastr';
 import { SocketConnection } from '../../lb-sdk/sockets/socket.connections';
 import { environment } from '../../../environments/environment';
+import { SocketService } from '../../shared/socket.service';
 declare var io;
 
 @Component({
@@ -29,7 +30,7 @@ export class AdminOrderPageComponent implements OnInit {
     private orderSvc: OrderService,
     private toastSvc: ToastrService,
     private authSvc: AuthService,
-    private socket: SocketConnection,
+    private socketSvc: SocketService,
   ) {
   }
 
@@ -37,11 +38,16 @@ export class AdminOrderPageComponent implements OnInit {
     const self = this;
     this.onFilterOrders('daily');
     // '[' + method + ']' + baseUrl + '/api/' + collectionName;
-    this.socket.connect(this.authSvc.getToken());
-    this.socket.on('updateOrders', x => {
-      self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });
-      self.onFilterOrders(this.selectedRange);
-    });
+
+    // this.socket.connect(this.authSvc.getToken());
+    // this.socket.on('updateOrders', x => {
+    //   self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });
+    //   self.onFilterOrders(this.selectedRange);
+    // });
+
+    // this.socketSvc.init(this.authSvc.getAccessToken());
+
+
     // this.socket = io.connect(environment.API_BASE);
     // this.socket.on('updateOrders', x => {
     //   self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });

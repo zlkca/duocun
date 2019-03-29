@@ -17,6 +17,7 @@ import { AddressInputComponent } from './address-input/address-input.component';
 // import { LocationService } from './location/location.service';
 import { SharedService } from './shared.service';
 import { AddressAutocompleteComponent } from './address-autocomplete/address-autocomplete.component';
+import { EntityService } from '../entity.service';
 
 // import { PageService } from '../pages/page.service';
 // import { PagesModule } from '../pages/pages.module';
@@ -39,7 +40,9 @@ import { AddressAutocompleteComponent } from './address-autocomplete/address-aut
     AddressAutocompleteComponent
   ],
   providers: [
-    SharedService],
+    SharedService,
+    EntityService
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
     WizardComponent, ImageViewerComponent, FeedbackComponent,

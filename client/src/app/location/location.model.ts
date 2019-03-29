@@ -1,3 +1,11 @@
+
+export interface GeoPoint  {
+  lat?: number;
+  lng?: number;
+  type?: string;
+  coordinates?: number[];
+}
+
 export interface ILocation {
   place_id: string;
   city: string;

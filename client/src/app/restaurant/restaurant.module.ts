@@ -29,7 +29,6 @@ import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     providers: [
       RestaurantService,
-      // LocationService
     ],
     declarations: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent],
     exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent]

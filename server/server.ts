@@ -4,8 +4,12 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 import Server from "socket.io";
 import { ObjectID } from "mongodb";
+
+import jwt from "jsonwebtoken";
+import { Config } from "./config";
 //import * as SocketIOAuth from "socketio-auth";
 
 import { DB } from "./db";
@@ -20,9 +24,12 @@ import { Distance } from "./distance";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
+console.log = function (msg: any) {
+  fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
+}
 
 const utils = new Utils();
-const cfg = utils.cfg;
+const cfg = new Config();
 const SERVER = cfg.API_SERVER;
 const ROUTE_PREFIX = SERVER.ROUTE_PREFIX;
 
@@ -45,7 +52,7 @@ let product: Product;
 let mall: Mall;
 let location: Location;
 let distance: Distance;
-let socket: Socket;
+let mysocket: any;// Socket;
 let io: any;
 
 dbo.init(cfg.DATABASE).then(dbClient => {
@@ -59,34 +66,67 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   mall = new Mall(dbo);
   location = new Location(dbo);
   distance = new Distance(dbo);
-  socket = new Socket(dbo, io);
+  // socket = new Socket(dbo, io);
 
-  require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
-    const uId = data.userId;
-    user.findOne({_id: new ObjectID(uId)}).then( x => {
-      if(x){
-        callback(null, true);
-      }else{
-        callback(null, false);
+  // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
+  //   const uId = data.userId;
+  //   console.log('socketio connecting with uid: ' + uId + '/n');
+  //   if(uId){
+  //     user.findOne({_id: new ObjectID(uId)}).then( x => {
+  //       if(x){
+  //         callback(null, true);
+  //       }else{
+  //         callback(null, false);
+  //       }
+  //     });
+  //   }else{
+  //     callback(null, false);
+  //   }
+  // }, timeout: 200000});
+
+
+  io.on('connection', function (socket: any) {
+    console.log('server socket connected:' + socket.id);
+    
+    socket.on('authentication', function (token: any) {
+      const cfg = new Config();
+      if(token){
+        jwt.verify(token, cfg.JWT.SECRET, {algorithms:[cfg.JWT.ALGORITHM]}, (err, decoded: any) => {
+          if(err){
+            console.log('socket authentication error:' + err);
+          }
+          if (decoded) {
+            console.log('socket authenticated:' + decoded.id);
+            if (decoded.id) {
+              socket.emit('authenticated', { userId: decoded.id });
+            }
+          }
+        });
+      } else {
+        console.log('socket authentication failed: access token is null.');
       }
     });
-  }, timeout: 200000});
+
+    socket.on('disconnect', () => {
+      console.log('server socket disconnect');
+    });
+  });
 
   // io.on("updateOrders", (x: any) => {
   //   const ss = x;
   // });
 
-  user.findOne({username: 'admin'}).then(x => {
-    if(x){
-      console.log('database duocun exists ...');
-    }else{
-      user.insertOne({username:'guest', password:'', type:'user'}).then((x: any) => {
-        console.log('create database duocun and guest account ...');
-        // res.setHeader('Content-Type', 'application/json');
-        // res.end(JSON.stringify(x.ops[0], null, 3))
-      });
-    }
-  });
+  // user.findOne({username: 'admin'}).then(x => {
+  //   if(x){
+  //     console.log('database duocun exists .../n');
+  //   }else{
+  //     user.insertOne({username:'guest', password:'', type:'user'}).then((x: any) => {
+  //       console.log('create database duocun and guest account .../n');
+  //       // res.setHeader('Content-Type', 'application/json');
+  //       // res.end(JSON.stringify(x.ops[0], null, 3))
+  //     });
+  //   }
+  // });
 });
 
 app.use(cors());
@@ -95,7 +135,7 @@ app.use(bodyParser.json({ limit: '1mb' }));
 
 // const staticPath = path.resolve('client/dist');
 const staticPath = path.resolve('uploads');
-console.log(staticPath);
+console.log(staticPath + '/n/r');
 app.use(express.static(staticPath));
 
 app.get('/wx', (req, res) => {
@@ -144,7 +184,7 @@ app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
 });
 
 app.get('/' + ROUTE_PREFIX + '/Restaurants', (req: any, res) => {
-  const query = req.headers? JSON.parse(req.headers.filter) : {};
+  const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
   restaurant.find(query ? query.where: {}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3));
@@ -360,7 +400,7 @@ app.use(express.static(path.join(__dirname, '/../uploads')));
 app.set('port', process.env.PORT || SERVER.PORT)
 
 const server = app.listen(app.get("port"), () => {
-  console.log("API is running on :%d", app.get("port"));
+  console.log("API is running on :%d/n", app.get("port"));
 });
 
 

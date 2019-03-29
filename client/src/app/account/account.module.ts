@@ -11,8 +11,6 @@ import { SignupComponent } from './signup/signup.component';
 import { ChangePasswordComponent } from './change-password/change-password.component';
 import { ForgetPasswordComponent } from './forget-password/forget-password.component';
 import { ProfileFormComponent } from './profile-form/profile-form.component';
-import { InstitutionSignupComponent } from './institution-signup/institution-signup.component';
-import { InstitutionLoginComponent } from './institution-login/institution-login.component';
 import { AccountListComponent } from './account-list/account-list.component';
 import { AccountFormComponent } from './account-form/account-form.component';
 
@@ -32,8 +30,6 @@ import { AccountFormComponent } from './account-form/account-form.component';
     declarations: [LoginFormComponent, SignupComponent, ChangePasswordComponent,
         ForgetPasswordComponent,
         ProfileFormComponent,
-        InstitutionSignupComponent,
-        InstitutionLoginComponent,
         AccountListComponent,
         AccountFormComponent
     ]

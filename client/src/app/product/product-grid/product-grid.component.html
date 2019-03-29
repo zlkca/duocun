@@ -1,18 +1,17 @@
    <div class="col-md-12 col-sm-12 col-12 product-grid" *ngIf="groupedProducts">
      <div *ngFor="let cat of categories">
        <div *ngIf="groupedProducts[cat.id]">
-         {{cat.name}}
+        <div class="category-row text-sm">{{cat.name}}</div>
         <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" *ngFor="let p of groupedProducts[cat.id]; let i = index;">
-            <div class="row grid-body">
-                <div class="col-md-12 col-sm-3 col-3 image-body">
-                    <img [src]="getProductImage(p)" alt="{{p.name}}" (click)="onClick(p)">
+            <div class="row grid-item-body">
+                <div class="col-md-12 col-4 image-body">
+                    <img [src]="getProductImage(p)" alt="{{p.name}}">
                 </div>
-                <div class="col-md-12 col-sm-9 col-9 text-body">
+                <div class="col-md-12 col-8 text-body">
                     <div class="title-bg">{{p.name}}</div>
-
-                    <div>
-                        <div class="pull-left text-sm">CAD {{p.price | currency}}</div>
-                        <div class="pull-right">
+                    <div class="row order-row">
+                        <div class="col-6 price-col">${{p.price}}</div>
+                        <div class="col-6">
                             <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(p)"></i>
                             <span class="quantity" *ngIf="groupedOrders && groupedOrders[cat.id].length>0" >{{groupedOrders[cat.id][i].quantity}}</span>
                             <!-- <div class="quantity" *ngIf="groupedOrders[cat.id].length==0" >0</div> -->

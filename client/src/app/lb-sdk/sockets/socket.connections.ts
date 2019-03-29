@@ -70,45 +70,51 @@ export class SocketConnection {
    * If there is a broken connection it will re-connect.
    **/
   public connect(token: AccessToken = null): void {
-    if (!this.socket) {
-      console.info('Creating a new connection with: ', LoopBackConfig.getPath());
-      // Create new socket connection
-      this.socket = this.driver.connect(LoopBackConfig.getPath(), {
-        log: false,
-        secure: LoopBackConfig.isSecureWebSocketsSet(),
-        forceNew: true,
-        forceWebsockets: true,
-        transports: ['websocket']
-      });
-      // Listen for connection
-      this.on('connect', () => {
-        this.subjects.onConnect.next('connected');
-        // Authenticate or start heartbeat now    
-        this.emit('authentication', token);
-      });
-      // Listen for authentication
-      this.on('authenticated', () => {
-        this.authenticated = true;
-        this.subjects.onAuthenticated.next();
-        this.heartbeater();
-      })
-      // Listen for authentication
-      this.on('unauthorized', (err: any) => {
-        this.authenticated = false;
-        this.subjects.onUnAuthorized.next(err);
-      })
-      // Listen for disconnections
-      this.on('disconnect', (status: any) => this.subjects.onDisconnect.next(status));
-    } else if (this.socket && !this.socket.connected){
-      if (typeof this.socket.off === 'function') {
-        this.socket.off();
-      }
-      if (typeof this.socket.destroy === 'function') {
-        this.socket.destroy();
-      }
-      delete this.socket;
-      this.connect(token);
-    }
+    // if (!this.socket) {
+    //   console.log('Creating a new connection with: ', LoopBackConfig.getPath());
+    //   // Create new socket connection
+    //   this.socket = this.driver.connect(LoopBackConfig.getPath(), {
+    //     log: false,
+    //     secure: LoopBackConfig.isSecureWebSocketsSet(),
+    //     forceNew: true,
+    //     forceWebsockets: true,
+    //     transports: ['websocket']
+    //   });
+    //   // Listen for connection
+    //   this.on('connect', () => {
+    //     console.log('Socket connected!');
+    //     this.subjects.onConnect.next('connected');
+    //     // Authenticate or start heartbeat now    
+    //     this.emit('authentication', token);
+    //   });
+    //   // Listen for authentication
+    //   this.on('authenticated', () => {
+    //     console.log('Socket authenticated!');
+    //     this.authenticated = true;
+    //     this.subjects.onAuthenticated.next();
+    //     this.heartbeater();
+    //   })
+    //   // Listen for authentication
+    //   this.on('unauthorized', (err: any) => {
+    //     console.log('Socket unauthorized!');
+    //     this.authenticated = false;
+    //     this.subjects.onUnAuthorized.next(err);
+    //   })
+    //   // Listen for disconnections
+    //   this.on('disconnect', (status: any) => {
+    //     console.log('Socket disconnect!');
+    //     this.subjects.onDisconnect.next(status);
+    //   });
+    // } else if (this.socket && !this.socket.connected){
+    //   if (typeof this.socket.off === 'function') {
+    //     this.socket.off();
+    //   }
+    //   if (typeof this.socket.destroy === 'function') {
+    //     this.socket.destroy();
+    //   }
+    //   delete this.socket;
+    //   this.connect(token);
+    // }
   }
   /**
    * @method isConnected

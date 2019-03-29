@@ -37,27 +37,27 @@ export class WorkerOrderComponent implements OnInit {
       self.reload(account.id);
     });
 
-    this.socket.connect(this.authSvc.getToken());
-    this.socket.on('updateOrders', x => {
-      // self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });
-      // self.onFilterOrders(this.selectedRange);
+    // this.socket.connect(this.authSvc.getToken());
+    // this.socket.on('updateOrders', x => {
+    //   // self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });
+    //   // self.onFilterOrders(this.selectedRange);
 
-      if (x.workerId === self.account.id) {
-        const index = self.orders.findIndex(i => i.id === x.id);
-        if (index !== -1) {
-          self.orders[index] = x;
-        } else {
-          self.orders.push(x);
-        }
-        self.orders.sort((a: Order, b: Order) => {
-          if (this.sharedSvc.compareDateTime(a.created, b.created)) {
-            return -1;
-          } else {
-            return 1;
-          }
-        });
-      }
-    });
+    //   if (x.workerId === self.account.id) {
+    //     const index = self.orders.findIndex(i => i.id === x.id);
+    //     if (index !== -1) {
+    //       self.orders[index] = x;
+    //     } else {
+    //       self.orders.push(x);
+    //     }
+    //     self.orders.sort((a: Order, b: Order) => {
+    //       if (this.sharedSvc.compareDateTime(a.created, b.created)) {
+    //         return -1;
+    //       } else {
+    //         return 1;
+    //       }
+    //     });
+    //   }
+    // });
   }
 
   reload(workerId) {

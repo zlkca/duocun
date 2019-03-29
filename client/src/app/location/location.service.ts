@@ -1,31 +1,27 @@
 import { Injectable } from '@angular/core';
 import { ILocation, ILatLng, ILocationHistory, IDistance } from './location.model';
 import { Observable } from 'rxjs';
-import { LoopBackConfig } from '../lb-sdk';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map } from '../../../node_modules/rxjs/operators';
-import { resolve } from 'path';
-import { LoopBackAuth } from '../lb-sdk/services/core/auth.service';
 import { IMall } from '../mall/mall.model';
-
+import { AuthService } from '../account/auth.service';
+import { EntityService } from '../entity.service';
 
 declare let google: any;
 
 @Injectable({
   providedIn: 'root'
 })
-export class LocationService {
+export class LocationService extends EntityService {
 
   private geocoder: any;
-  private url = [
-    LoopBackConfig.getPath(),
-    LoopBackConfig.getApiVersion()
-  ].join('/');
 
   constructor(
-    private http: HttpClient,
-    private auth: LoopBackAuth
+    public http: HttpClient,
+    public authSvc: AuthService
   ) {
+    super(authSvc, http);
+    this.url = this.getBaseUrl() + 'Locations';
+
     try {
       if (google) {
         this.geocoder = new google.maps.Geocoder();
@@ -36,25 +32,24 @@ export class LocationService {
   }
 
   save(locationHistory: ILocationHistory): Observable<any> {
-    const url = this.url + '/Locations';
-    return this.http.post(url, locationHistory);
+    return this.http.post(this.url, locationHistory);
   }
 
-  find(filter: any): Observable<any> {
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.auth.getAccessTokenId();
-    if (accessTokenId) {
-      headers = headers.append('Authorization', LoopBackConfig.getAuthPrefix() + accessTokenId);
-      // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
-    }
-    headers = headers.append('filter', JSON.stringify(filter));
-    const url = this.url + `/Locations`;
-    return this.http.get(url, {headers: headers});
-  }
+  // find(filter: any): Observable<any> {
+  //   let headers: HttpHeaders = new HttpHeaders();
+  //   headers = headers.append('Content-Type', 'application/json');
+  //   const accessTokenId = this.auth.getAccessToken();
+  //   if (accessTokenId) {
+  //     headers = headers.append('Authorization', LoopBackConfig.getAuthPrefix() + accessTokenId);
+  //     // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
+  //   }
+  //   headers = headers.append('filter', JSON.stringify(filter));
+  //   const url = this.url + `Locations`;
+  //   return this.http.get(url, {headers: headers});
+  // }
 
   reqPlaces(input: string): Observable<any> {
-    const url = this.url + `/places?input=${input}`;
+    const url = super.getBaseUrl() + `places?input=${input}`;
     return this.http.get(url);
   }
 
@@ -70,7 +65,7 @@ export class LocationService {
   }
 
   reqLocationByLatLng(pos): Promise<any> {
-    const url = this.url + `/geocode?lat=${pos.lat}&lng=${pos.lng}`;
+    const url = super.getBaseUrl() + `geocode?lat=${pos.lat}&lng=${pos.lng}`;
     return new Promise((resolve, reject) => {
       this.http.get(url).subscribe(x => {
         const ret = this.getLocationFromGeocode(x);
@@ -80,7 +75,7 @@ export class LocationService {
   }
 
   reqLocationByAddress(address: string): Promise<any> {
-    const url = this.url + `/geocode?address=${address}`;
+    const url = super.getBaseUrl() + `geocode?address=${address}`;
     return new Promise((resolve, reject) => {
       this.http.get(url).subscribe(x => {
         const ret = this.getLocationFromGeocode(x);
@@ -171,12 +166,7 @@ export class LocationService {
   }
 
   getRoadDistances(origin: ILatLng, destinations: IMall[]): Observable<any> { // IDistance[]
-    const url = [
-      LoopBackConfig.getPath(),
-      LoopBackConfig.getApiVersion(),
-      'distances'
-    ].join('/');
-
+    const url = super.getBaseUrl() + 'distances';
     return this.http.post(url, {origins: [origin], destinations: destinations});
   }
 
