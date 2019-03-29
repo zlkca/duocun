@@ -13,6 +13,8 @@
                         <div class="col-6 price-col">${{p.price}}</div>
                         <div class="col-6">
                             <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(p)"></i>
+                            <span class="quantity" *ngIf="groupedOrders && groupedOrders[cat.id].length>0" >{{groupedOrders[cat.id][i].quantity}}</span>
+                            <!-- <div class="quantity" *ngIf="groupedOrders[cat.id].length==0" >0</div> -->
                             <i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(p)"></i>
                         </div>
                     </div>
