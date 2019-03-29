@@ -1,45 +1,25 @@
 <div class="page container">
-  <div class="row">
-      <div class="col-12 place-option-list" *ngIf="options && options.length>0">
-        <div *ngFor="let place of options" class="row option-item" (click)="onSelectPlace(place)">
-          <div class="col-10" *ngIf="place">
-              <div class="text-md">
-                <span style="color:#aaa">{{place.location.street_number}} </span>
-                <span style="font-weight: 400">{{place.location.street_name}}</span>
-              </div>
-              <div class="text-sm">
-                <span>{{place.location.sub_locality ? place.location.sub_locality: place.location.city}}, </span>
-                <span>{{place.location.province}}</span>
-              </div>
-          </div>
-          <div class="col-2">
-            <i class="fa fa-2x fa-external-link"></i>
-          </div>
-        </div>
-      </div>
+      <app-location-list [account]="account" [places]="options"
+        (placeSeleted)="onSelectPlace($event)">
+      </app-location-list>
+
       <div class="col-12 map-col" *ngIf="!bHideMap && showMap()">
         <div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''">
             <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
         </div>
       </div>
-      <div class="col-12 deliver-address-row">
-        <div class="row">
-          <div class="col-12 col-sm-7 search-bar-wrapper">
-            <div class="input-group search-bar">
-              <app-address-input (addrChange)="onAddressChange($event)" 
-                (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
-                placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
-                [value]="deliveryAddress"></app-address-input>
-              <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
-              <div class="input-group-append">
-                <button type="button" class="btn btn-primary btn-current-location" (click)="useCurrentLocation()"
-                  i18n="@@CurrentLocation">Current Location</button>
-              </div>
-            </div>
-          </div>
+
+      <div class="input-group address-search-row">
+        <app-address-input (addrChange)="onAddressChange($event)" 
+          (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
+          placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
+          [value]="deliveryAddress"></app-address-input>
+        <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
+        <div class="input-group-append">
+          <button type="button" class="btn btn-primary btn-current-location" (click)="useCurrentLocation()"
+            i18n="@@CurrentLocation">Current Location</button>
         </div>
       </div>
-      
 
       <div class="col-12 time-option-list" *ngIf="bTimeOptions">
         <div *ngIf="inRange" class="row option-item overdue" (click)="onSelectTime('immediate')">
@@ -117,18 +97,5 @@
           </div>
       </div>
 
-      <div *ngIf="bRestaurant && !mapFullScreen && !bTimeOptions && !(options && options.length>0)"
-        class="col-12 restaurant-list">
-        <div *ngIf="deliveryTime === 'immediate'" class="text-md overdue time-title" style="font-weight: 400"
-          i18n="@@ImmediateDeliver">Immediate Deliver</div>
-        <div *ngIf="deliveryTime === 'lunch today'" class="text-md time-title" style="font-weight: 400" [class.overdue]="overdue"
-          i18n="@@LunchToday">Lunch Today</div>
-        <div *ngIf="deliveryTime === 'lunch tomorrow'" class="text-md free time-title" style="font-weight: 400"
-          i18n="@@LunchTomorrow">Lunch Tomorrow</div>
-        <div *ngIf="deliveryTime === 'lunch after tomorrow'" class="text-md free time-title" style="font-weight: 400" 
-          i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</div>
-        <app-restaurant-grid [restaurantList]="restaurants" [center]="center" *ngIf="restaurants" [malls]="realMalls">
-        </app-restaurant-grid>
-      </div>   
-  </div>
+  
 </div>

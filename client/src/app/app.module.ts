@@ -70,7 +70,7 @@ const appRoutes: Routes = [
     { path: 'forget-password', component: ForgetPasswordComponent },
     { path: 'login', component: LoginFormComponent },
     { path: 'signup', component: SignupComponent },
-    // { path: 'restaurants', component: RestaurantListPageComponent},
+    { path: 'restaurants', component: RestaurantListPageComponent},
     // { path: 'restaurants/:id', component: RestaurantDetailPageComponent},
     { path: 'cart', component: CartPageComponent},
     { path: 'home', component: HomeComponent },

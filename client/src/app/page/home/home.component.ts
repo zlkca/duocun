@@ -14,6 +14,7 @@ import { PageActions } from '../page.actions';
 import { MallActions } from '../../mall/mall.actions';
 import { SocketService } from '../../shared/socket.service';
 import { AuthService } from '../../account/auth.service';
+import { Router } from '@angular/router';
 
 declare var google;
 
@@ -28,7 +29,6 @@ export class HomeComponent implements OnInit {
   center: GeoPoint = { lat: 43.761539, lng: -79.411079 };
   restaurants;
   places;
-
   options;
   deliveryAddress = '';
   placeholder = 'Delivery Address';
@@ -37,7 +37,6 @@ export class HomeComponent implements OnInit {
   account;
   bHideMap = false;
   bTimeOptions = false;
-  bRestaurant = false;
   today;
   tomorrow;
   dayAfterTomorrow;
@@ -67,6 +66,7 @@ export class HomeComponent implements OnInit {
     private sharedSvc: SharedService,
     private authSvc: AuthService,
     private socketSvc: SocketService,
+    private route: Router,
     private rx: NgRedux<IAppState>
   ) {
     this.today = sharedSvc.getTodayString();
@@ -130,122 +130,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  toDetail() {
-
-  }
-
-  getFilter(query?: any) {
-    const qs = [];
-
-    if (query.categories && query.categories.length > 0) {
-      const s = query.categories.join(',');
-      qs.push('cats=' + s);
-    }
-
-    // if(query.restaurants && query.restaurants.length>0){
-    //   let s = query.restaurants.join(',');
-    //   qs.push('ms=' + s);
-    // }
-
-    // if(query.colors && query.colors.length>0){
-    //   let s = query.colors.join(',');
-    //   qs.push('colors=' + s);
-    // }
-    return qs;
-  }
-
-  doSearchRestaurants(query?: any) {
-    // query --- eg. {}
-    const self = this;
-    const qs = self.getFilter(query);
-    let s = '';
-    const conditions = [];
-
-    if (qs.length > 0) {
-      conditions.push(qs.join('&'));
-    }
-    if (query && query.keyword) {
-      conditions.push('keyword=' + query.keyword);
-    }
-    if (query && query.lat && query.lng) {
-      conditions.push('lat=' + query.lat + '&lng=' + query.lng);
-    }
-
-    if (conditions.length > 0) {
-      s = '?' + conditions.join('&');
-    }
-
-    this.loadRestaurants();
-  }
-
-  loadRestaurants() {
-    const self = this;
-    // this.restaurantServ.getNearby(this.center).subscribe(
-    this.restaurantSvc.find().subscribe(
-      (ps: Restaurant[]) => {
-        self.restaurants = ps; // self.toProductGrid(data);
-        const a = [];
-        ps.map(restaurant => {
-          if (restaurant.location) {
-            a.push({
-              lat: restaurant.location.lat,
-              lng: restaurant.location.lng,
-              name: restaurant.name
-            });
-          }
-        });
-        self.places = a;
-      },
-      (err: any) => {
-        self.restaurants = [];
-      }
-    );
-  }
-
-  loadNearbyRestaurants(center) {
-    // const self = this;
-    // this.restaurantSvc.getNearby(center).subscribe(
-    //   (ps: Restaurant[]) => {
-    //     self.restaurants = ps; // self.toProductGrid(data);
-    //     const a = [];
-    //     ps.map(restaurant => {
-    //       if (restaurant.location) {
-    //         a.push({
-    //           lat: restaurant.location.lat,
-    //           lng: restaurant.location.lng,
-    //           name: restaurant.name
-    //         });
-    //       }
-    //     });
-    //     self.places = a;
-    //   },
-    //   (err: any) => {
-    //     self.restaurants = [];
-    //   }
-    // );
-  }
-
-  search() {
-    const self = this;
-    const s = localStorage.getItem('location-' + APP);
-
-    // if (s) {
-    //   const location = JSON.parse(s);
-    //   self.deliveryAddress = self.locationSvc.getAddrString(location);
-    //   this.center = { lat: location.lat, lng: location.lng };
-    //   self.loadNearbyRestaurants(this.center);
-    // } else {
-    //   this.locationSvc.getCurrentLocation().subscribe(r => {
-    //     localStorage.setItem('location-' + APP, JSON.stringify(r));
-    //     self.loadNearbyRestaurants(self.center);
-    //   },
-    //   err => {
-    //     console.log(err);
-    //     // alert('Do you want to turn on your GPS to find the nearest restaurants?');
-    //   });
-    // }
-  }
-
   private getLocation(p: IPlace): ILocation {
     const terms = p.terms;
     return {
@@ -264,7 +148,6 @@ export class HomeComponent implements OnInit {
   onAddressChange(e) {
     const self = this;
     this.bHideMap = true;
-    this.bRestaurant = false;
     this.bTimeOptions = false;
     this.options = [];
     this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
@@ -285,14 +168,12 @@ export class HomeComponent implements OnInit {
     this.mapFullScreen = true;
     this.options = [];
     this.bHideMap = false;
-    this.bRestaurant = false;
   }
 
   onAddressInputFocus(e) {
     const self = this;
     this.bHideMap = true;
     this.bTimeOptions = false;
-    this.bRestaurant = false;
     this.options = [];
     if (this.account && this.account.id) {
       this.locationSvc.find({ where: { userId: this.account.id } }).subscribe((lhs: ILocationHistory[]) => {
@@ -304,40 +185,17 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  onSelectPlace(place: any) {
-    const self = this;
-    this.deliveryAddress = self.locationSvc.getAddrString(place.location); // set address text to input
-    this.mapFullScreen = false;
-    this.bTimeOptions = false;
-    this.bRestaurant = false;
-    self.options = [];
-
-    if (place.type === 'suggest') {
-      this.locationSvc.reqLocationByAddress(this.deliveryAddress).then(r => {
-        self.bHideMap = false;
-        self.center = { lat: r.lat, lng: r.lng };
-        localStorage.setItem('location-' + APP, JSON.stringify(self.deliveryAddress));
-        this.bTimeOptions = true;
-        self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
-        self.doSearchRestaurants(self.center);
-        if (self.account) {
-          self.locationSvc.save({
-            userId: self.account.id, type: 'history',
-            placeId: r.place_id, location: r, created: new Date()
-          }).subscribe(x => {
-          });
-        }
-      });
-    } else if (place.type === 'history') {
-      self.bHideMap = false;
-      const r = place.location;
-      self.center = { lat: r.lat, lng: r.lng };
-      self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
-      self.doSearchRestaurants(self.center);
-      localStorage.setItem('location-' + APP, JSON.stringify(place.location));
+  onSelectPlace(e) {
+    const r = e.location;
+    this.options = [];
+    if (r) {
+      this.bHideMap = false;
+      this.center = { lat: r.lat, lng: r.lng };
       this.bTimeOptions = true;
+      this.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
+      this.deliveryAddress = e.address; // set address text to input
+      this.mapFullScreen = false;
     }
-
   }
 
   showMap() {
@@ -354,14 +212,13 @@ export class HomeComponent implements OnInit {
     this.locationSvc.getCurrentLocation().then(r => {
       self.bHideMap = false;
       self.mapFullScreen = false;
-      self.bRestaurant = false;
       self.bTimeOptions = true;
       self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       // self.loadNearbyRestaurants(self.center);
-      localStorage.setItem('location-' + APP, JSON.stringify(r));
+      // localStorage.setItem('location-' + APP, JSON.stringify(r));
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
       self.center = { lat: r.lat, lng: r.lng };
-      self.doSearchRestaurants(self.center);
+      // self.doSearchRestaurants(self.center);
       self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
 
       if (self.account) {
@@ -392,7 +249,7 @@ export class HomeComponent implements OnInit {
     this.bHideMap = true;
     this.bTimeOptions = false;
     this.options = [];
-    this.bRestaurant = true;
     this.deliveryTime = type;
+    this.route.navigate(['restaurants']);
   }
 }

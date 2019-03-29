@@ -26,7 +26,7 @@ $red: rgb(219, 68, 55);
         border-bottom: solid 1px #eee;
 
         .grid-item-body{
-            padding: 2px;
+            padding: 4px 18px;
             height: 100%;
 
             .image-body{
@@ -41,22 +41,22 @@ $red: rgb(219, 68, 55);
                 }    
             }
     
-            .text-body{
-                
-                padding:0px 10px;
+            .text-body{              
+              padding:0px 10px;
+              .title-bg{
+                  font-size:16px;
+                  font-weight:400;
+                  font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
+              }
+  
+              .text-sm{
+                  font-size:12px;
+                  font-weight:400;
+                  font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
+              }
             }
 
-            .title-bg{
-                font-size:16px;
-                font-weight:400;
-                font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-            }
 
-            .text-sm{
-                font-size:12px;
-                font-weight:400;
-                font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-            }
         }
     }
 
