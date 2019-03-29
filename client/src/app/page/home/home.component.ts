@@ -185,37 +185,16 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  onSelectPlace(place: any) {
-    const self = this;
-    this.deliveryAddress = self.locationSvc.getAddrString(place.location); // set address text to input
-    this.mapFullScreen = false;
-    this.bTimeOptions = false;
-    self.options = [];
-
-    if (place.type === 'suggest') {
-      this.locationSvc.reqLocationByAddress(this.deliveryAddress).then(r => {
-        self.bHideMap = false;
-        self.center = { lat: r.lat, lng: r.lng };
-        // localStorage.setItem('location-' + APP, JSON.stringify(self.deliveryAddress));
-        this.bTimeOptions = true;
-        self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
-        // self.doSearchRestaurants(self.center);
-        if (self.account) {
-          self.locationSvc.save({
-            userId: self.account.id, type: 'history',
-            placeId: r.place_id, location: r, created: new Date()
-          }).subscribe(x => {
-          });
-        }
-      });
-    } else if (place.type === 'history') {
-      self.bHideMap = false;
-      const r = place.location;
-      self.center = { lat: r.lat, lng: r.lng };
-      self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
-      // self.doSearchRestaurants(self.center);
-      // localStorage.setItem('location-' + APP, JSON.stringify(place.location));
+  onSelectPlace(e) {
+    const r = e.location;
+    this.options = [];
+    if (r) {
+      this.bHideMap = false;
+      this.center = { lat: r.lat, lng: r.lng };
       this.bTimeOptions = true;
+      this.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
+      this.deliveryAddress = e.address; // set address text to input
+      this.mapFullScreen = false;
     }
   }
 

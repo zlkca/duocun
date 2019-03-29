@@ -10,7 +10,7 @@ export class LocationListComponent implements OnInit {
 
   @Input() places;
   @Input() account;
-  @Output() placeSelect = new EventEmitter();
+  @Output() placeSeleted = new EventEmitter();
 
   address;
 
@@ -24,16 +24,9 @@ export class LocationListComponent implements OnInit {
   onSelectPlace(place: any) {
     const self = this;
     const address = self.locationSvc.getAddrString(place.location); // set address text to input
-  //   this.mapFullScreen = false;
-  //   this.bTimeOptions = false;
-  //   self.options = [];
-
     if (place.type === 'suggest') {
       this.locationSvc.reqLocationByAddress(address).then(r => {
-        // self.bHideMap = false;
-        // self.center = { lat: r.lat, lng: r.lng };
-        // this.bTimeOptions = true;
-        // self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
+        self.placeSeleted.emit({address: address, location: r});
         if (self.account) {
           self.locationSvc.save({
             userId: self.account.id, type: 'history',
@@ -43,11 +36,8 @@ export class LocationListComponent implements OnInit {
         }
       });
     } else if (place.type === 'history') {
-      // self.bHideMap = false;
       const r = place.location;
-      // self.center = { lat: r.lat, lng: r.lng };
-      // self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
-      // this.bTimeOptions = true;
+      self.placeSeleted.emit({address: address, location: r});
     }
   }
 }
