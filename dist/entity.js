@@ -1,0 +1,120 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongodb_1 = require("mongodb");
+class Entity {
+    constructor(dbo, name) {
+        this.db = dbo.getDb();
+        this.collectionName = name;
+    }
+    getCollection() {
+        if (this.db) {
+            const collection = this.db.collection(this.collectionName);
+            if (collection) {
+                return new Promise((resolve, reject) => {
+                    resolve(collection);
+                });
+            }
+            else {
+                return this.db.createCollection(this.collectionName);
+            }
+        }
+        else {
+            return new Promise((resolve, reject) => {
+                reject(null);
+            });
+        }
+    }
+    insertOne(doc) {
+        const self = this;
+        return new Promise((resolve, reject) => {
+            self.getCollection().then((c) => {
+                c.insertOne(doc).then((result) => {
+                    const ret = (result.ops && result.ops.length) ? result.ops[0] : null;
+                    if (ret && ret._id) {
+                        ret.id = ret._id;
+                        delete (ret._id);
+                    }
+                    resolve(ret);
+                }, err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+    findOne(query, options) {
+        const self = this;
+        return new Promise((resolve, reject) => {
+            self.getCollection().then((c) => {
+                c.findOne(query, options, (err, doc) => {
+                    if (doc && doc._id) {
+                        doc.id = doc._id;
+                        delete (doc._id);
+                    }
+                    resolve(doc);
+                });
+            });
+        });
+    }
+    find(query, options) {
+        const self = this;
+        return new Promise((resolve, reject) => {
+            self.getCollection().then((c) => {
+                c.find(query, options).toArray((err, docs) => {
+                    let s = [];
+                    docs.map((v, i) => {
+                        if (v && v._id) {
+                            v.id = v._id;
+                            delete (v._id);
+                        }
+                        s.push(v);
+                    });
+                    resolve(s);
+                });
+            });
+        });
+    }
+    replaceOne(query, doc, options) {
+        return new Promise((resolve, reject) => {
+            this.getCollection().then((c) => {
+                c.replaceOne(query, doc, options, (err, result) => {
+                    if (result && result._id) {
+                        result.id = result._id;
+                        delete (result._id);
+                    }
+                    resolve(result);
+                });
+            });
+        });
+    }
+    replaceById(id, doc, options) {
+        return new Promise((resolve, reject) => {
+            this.getCollection().then((c) => {
+                c.replaceOne({ _id: new mongodb_1.ObjectId(id) }, doc, options, (err, result) => {
+                    if (result.ops) {
+                        let obj = result.ops[0];
+                        if (obj && obj._id) {
+                            obj.id = obj._id;
+                            delete (obj._id);
+                        }
+                        resolve(obj);
+                    }
+                    else {
+                        console.log('replaceById failed.');
+                        reject();
+                    }
+                });
+            });
+        });
+    }
+    deleteById(id) {
+        return new Promise((resolve, reject) => {
+            this.getCollection().then((c) => {
+                c.deleteOne({ _id: new mongodb_1.ObjectID(id) }, (err, doc) => {
+                    resolve(doc);
+                });
+            });
+        });
+    }
+}
+exports.Entity = Entity;
+//# sourceMappingURL=entity.js.map

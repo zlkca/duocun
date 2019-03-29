@@ -5,7 +5,7 @@ import { NgRedux } from '@angular-redux/store';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IAppState } from '../../store';
-import { CartActions } from '../../order/order.actions';
+import { CartActions, ICart, ICartItem } from '../../order/order.actions';
 import { SharedService } from '../../shared/shared.service';
 import { Product } from '../../lb-sdk';
 
@@ -17,12 +17,15 @@ const ADD_IMAGE = 'add_photo.png';
   styleUrls: ['./product-grid.component.scss']
 })
 export class ProductGridComponent implements OnInit, OnChanges {
-  productList: Product[] = [];
+
   MEDIA_URL: string = environment.MEDIA_URL;
   defaultProductPicture = window.location.protocol + '//placehold.it/400x300';
   subscription: any;
   cart: any;
   categoryIds;
+  groupedOrders = {
+    categoryId: <object[]> null
+  };
 
   @Input() categories;
   @Input() groupedProducts: Product[][];
@@ -31,16 +34,26 @@ export class ProductGridComponent implements OnInit, OnChanges {
   constructor(
     private router: Router,
     private modalService: NgbModal,
-    private ngRedux: NgRedux<IAppState>,
+    private rx: NgRedux<IAppState>,
     private sharedSvc: SharedService
     // private actions: CartActions
   ) {
-    // this.subscription = ngRedux.select<ICart>('cart').subscribe(
-    //   cart=> this.cart = cart);
-
+    rx.select<ICart>('cart').subscribe((cart: ICart) => {
+      this.cart = cart;
+      if(this.groupedProducts) {
+        const categoryIds = Object.keys(this.groupedProducts);
+        categoryIds.map(categoryId => {
+          this.groupedOrders[categoryId].map(order => {
+            const cartItem = cart.items.find(item => item.productId === order.productId);
+            order.quantity = cartItem ? cartItem.quantity : 0;
+          });
+        });
+      }
+    });
   }
 
   ngOnInit() {
+
   }
 
   ngOnChanges(v) {
@@ -51,6 +64,23 @@ export class ProductGridComponent implements OnInit, OnChanges {
     }
     if (gps) {
       this.groupedProducts = gps;
+      const categoryIds = Object.keys(this.groupedProducts);
+
+      categoryIds.map(categoryId => {
+        const products = this.groupedProducts[categoryId];
+        const orders = [];
+        products.map(product => {
+          const cartItem = this.cart.items.find( item => { return item.productId === product.id});
+          if(cartItem){
+            orders.push({productId: product.id, quantity: cartItem.quantity});
+          }else{
+            orders.push({productId: product.id, quantity: 0});
+          }
+        });
+        
+        this.groupedOrders[categoryId] = orders;// product array categoryId;
+      });
+
       if (gps.length > 0) {
         this.categoryIds = Object.keys(this.groupedProducts);
       }
@@ -58,14 +88,14 @@ export class ProductGridComponent implements OnInit, OnChanges {
   }
 
   addToCart(p: Product) {
-    this.ngRedux.dispatch({
+    this.rx.dispatch({
       type: CartActions.ADD_TO_CART, payload:
         { productId: p.id, name: p.name, price: p.price, pictures: p.pictures, restaurantId: p.restaurantId }
     });
   }
 
   removeFromCart(p: Product) {
-    this.ngRedux.dispatch({
+    this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
       payload: { productId: p.id, name: p.name, price: p.price, pictures: p.pictures, restaurantId: p.restaurantId }
     });

@@ -6,7 +6,7 @@
     </div>
     <div class="col-3" (click)="toOrder()">
         <i class="fa fa-2x fa-sticky-note"></i>
-        <div class="icon-text">Order</div>
+        <div class="icon-text" i18n="@@Order">Order</div>
     </div>
     <div *ngIf="account && account.type !== 'super'" class="col-3" (click)="toCart()">
         <i class="fa fa-2x fa-shopping-cart"></i>

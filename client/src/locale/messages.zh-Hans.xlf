@@ -266,6 +266,14 @@
           <context context-type="linenumber">11</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Order" datatype="html">
+        <source>Order</source>
+        <target>订单</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/header/header.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="ChangeDeliveryAddress" datatype="html">
         <source>Change Address</source>
         <target>更改送餐地址</target>
