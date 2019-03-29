@@ -23,9 +23,7 @@ export class ProductGridComponent implements OnInit, OnChanges {
   subscription: any;
   cart: any;
   categoryIds;
-  groupedOrders = {
-    categoryId: <object[]> null
-  };
+  groupedOrders: any = {};
 
   @Input() categories;
   @Input() groupedProducts: Product[][];
