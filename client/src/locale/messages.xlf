@@ -384,10 +384,6 @@
           <context context-type="sourcefile">app/account/signup/signup.component.html</context>
           <context context-type="linenumber">12</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.html</context>
-          <context context-type="linenumber">11</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="Password" datatype="html">
         <source>Password</source>
@@ -403,20 +399,12 @@
           <context context-type="sourcefile">app/account/signup/signup.component.html</context>
           <context context-type="linenumber">32</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.html</context>
-          <context context-type="linenumber">21</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="Email" datatype="html">
         <source>Email</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/account/account-form/account-form.component.html</context>
           <context context-type="linenumber">12</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.html</context>
-          <context context-type="linenumber">16</context>
         </context-group>
       </trans-unit>
       <trans-unit id="Type" datatype="html">
@@ -581,10 +569,6 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/restaurant/restaurant-form/restaurant-form.component.html</context>
           <context context-type="linenumber">35</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.html</context>
-          <context context-type="linenumber">36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="PostalCode" datatype="html">
@@ -912,41 +896,12 @@
           <context context-type="sourcefile">app/account/signup/signup.component.html</context>
           <context context-type="linenumber">5</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.html</context>
-          <context context-type="linenumber">4</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="CreateAccount" datatype="html">
         <source>Create Account</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/account/signup/signup.component.html</context>
           <context context-type="linenumber">37</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.html</context>
-          <context context-type="linenumber">51</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="RestaurantName" datatype="html">
-        <source>Restaurant Name</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.html</context>
-          <context context-type="linenumber">26</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="RestaurantAddress" datatype="html">
-        <source>Restaurant Address</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.html</context>
-          <context context-type="linenumber">31</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="PhoneNumber" datatype="html">
-        <source>Restaurant Phone #</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.html</context>
-          <context context-type="linenumber">41</context>
         </context-group>
       </trans-unit>
       <trans-unit id="AddAccount" datatype="html">
@@ -1145,11 +1100,25 @@
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="Address" datatype="html">
-        <source>Address</source>
+      <trans-unit id="41aac9cecddc9f345c263d3742192e68e227e413" datatype="html">
+        <source>Menu</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/restaurant/restaurant.component.html</context>
-          <context context-type="linenumber">5</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="d49bde1d32c842fec80a04300a10454542104e70" datatype="html">
+        <source>Reviews</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant/restaurant.component.html</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="004b222ff9ef9dd4771b777950ca1d0e4cd4348a" datatype="html">
+        <source>About</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant/restaurant.component.html</context>
+          <context context-type="linenumber">20</context>
         </context-group>
       </trans-unit>
     </body>

@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import { SharedModule } from '../shared/shared.module';
 import { RestaurantModule } from '../restaurant/restaurant.module';
@@ -18,12 +19,15 @@ import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaura
 import { CartPageComponent } from './cart-page/cart-page.component';
 import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.component';
 import { OrderHistoryComponent } from './order-history/order-history.component';
+import {MatTabsModule} from '@angular/material/tabs';
 
 @NgModule({
   imports: [
     CommonModule,
     ReactiveFormsModule,
     HttpClientModule,
+    BrowserAnimationsModule,
+    MatTabsModule,
     NgbModule,
     ToastrModule.forRoot({timeOut: 10000,
       positionClass: 'toast-bottom-right',

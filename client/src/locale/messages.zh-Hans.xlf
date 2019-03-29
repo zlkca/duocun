@@ -1132,6 +1132,30 @@
           <context context-type="linenumber">13</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="41aac9cecddc9f345c263d3742192e68e227e413" datatype="html">
+        <source>Menu</source>
+        <target>菜单</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant/restaurant.component.html</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="d49bde1d32c842fec80a04300a10454542104e70" datatype="html">
+        <source>Reviews</source>
+        <target>评论</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant/restaurant.component.html</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="004b222ff9ef9dd4771b777950ca1d0e4cd4348a" datatype="html">
+        <source>About</source>
+        <target>关于</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/restaurant/restaurant.component.html</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>
