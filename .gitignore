@@ -18,6 +18,7 @@ coverage
 node_modules
 npm-debug.log
 /server/datasources.development.json
+/dist
 client/dist
 package.json
 package-lock.json
