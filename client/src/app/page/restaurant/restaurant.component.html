@@ -10,10 +10,12 @@
       <app-cart class="cart-widget"></app-cart>
     </div> -->
     <div class="col-xs-12 col-md-8 product-block">
+      <restaurant-about [restaurant]="restaurant"></restaurant-about>
       <ngb-tabset>
         <ngb-tab *ngFor="let t of tabs" title="{{t.text}}">
           <ng-template ngbTabContent>
             <app-product-grid [groupedProducts]="groupedProducts" [categories]="categories"></app-product-grid>
+            <!-- <restaurant-about></restaurant-about> -->
           </ng-template>
         </ngb-tab>
       </ngb-tabset>
