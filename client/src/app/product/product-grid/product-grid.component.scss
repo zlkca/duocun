@@ -3,76 +3,81 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
-    .product-grid{
+.product-grid{
+    padding: 0px;
+    margin: 5px 0px;
+
+    .fa {
+        cursor: pointer;
+    }
+
+    .row{
+        margin:0px;
+    }
+
+    .category-row{
+      padding: 15px;
+      text-align: center;
+    }
+
+    .grid-item{
         padding: 0px;
-        margin: 5px 0px;
+        float: left;
 
-        .fa {
-            cursor: pointer;
-        }
+        .grid-item-body{
+            padding:5px;
 
-        .row{
-            margin:0px;
-        }
-
-        .grid-item{
-            padding: 0px;
-            float: left;
-
-            .grid-item-body{
-                padding:5px;
-
-                .image-body{
-                    padding:0px;
-                    img{
-                        width:100%;
-                    }    
-                }
-        
-                .text-body{
-                    
-                    padding:0px 10px;
-                }
-
-                .title-bg{
-                    font-size:16px;
-                    font-weight:400;
-                    font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-                }
-
-                .text-sm{
-                    font-size:12px;
-                    font-weight:400;
-                    font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-                }
+            .image-body{
+                padding:0px;
+                img{
+                    width:100%;
+                }    
             }
-        }
-
-        .grid-item:hover{
-            background-color: #eee;
+    
+            .text-body{
+                padding:0px 20px;
+                .title-bg{
+                  font-size:18px;
+                  font-weight:500;
+              }
+  
+              .order-row{
+                padding-top: 35px;
+                .price-col{
+                  padding-left:0px;
+                  font-size:20px;
+                  font-weight:400;
+                }
+              }
+            }
         }
     }
 
-	@media #{$desktop}{
+    .grid-item:hover{
+        background-color: #eee;
+    }
+}
 
-	}
+@media #{$desktop}{
 
-	@media #{$tablet}{
+}
 
-	 }
+@media #{$tablet}{
 
-	@media #{$mobile}{
+  }
 
-        .product-grid{
-            .grid-item{
-                border-bottom: 1px solid #eee;
-            }
-    
-            .grid-item:first-child{
-                border-top: 1px solid #eee;
-            }
-        }
-	}
+@media #{$mobile}{
+
+      // .product-grid{
+      //     .grid-item{
+      //         border-bottom: 1px solid #eee;
+      //     }
+  
+      //     .grid-item:first-child{
+      //         border-top: 1px solid #eee;
+      //     }
+      // }
+}
 
 
 //
