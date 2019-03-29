@@ -20,6 +20,7 @@ import { CartPageComponent } from './cart-page/cart-page.component';
 import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.component';
 import { OrderHistoryComponent } from './order-history/order-history.component';
 import {MatTabsModule} from '@angular/material/tabs';
+import { LocationModule } from '../location/location.module';
 
 @NgModule({
   imports: [
@@ -33,6 +34,7 @@ import {MatTabsModule} from '@angular/material/tabs';
       positionClass: 'toast-bottom-right',
       preventDuplicates: true}),
     SharedModule,
+    LocationModule,
     RestaurantModule,
     ProductModule,
     OrderModule

@@ -1,3 +1,33 @@
-<p>
-  restaurant-list-page works!
-</p>
+<!-- <div class="col-12 deliver-address-row">
+  <div class="row">
+    <div class="col-12 col-sm-7 search-bar-wrapper">
+      <div class="input-group search-bar">
+        <app-address-input (addrChange)="onAddressChange($event)" 
+          (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
+          placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
+          [value]="deliveryAddress"></app-address-input>
+        <div class="input-group-append">
+          <button type="button" class="btn btn-primary btn-current-location" (click)="useCurrentLocation()"
+            i18n="@@CurrentLocation">Current Location</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+<div *ngIf="restaurants" class="col-12 restaurant-list">
+  <div *ngIf="deliveryTime === 'immediate'" class="text-md overdue time-title" style="font-weight: 400"
+    i18n="@@ImmediateDeliver">Immediate Deliver</div>
+  <div *ngIf="deliveryTime === 'lunch today'" class="text-md time-title" style="font-weight: 400" [class.overdue]="overdue"
+    i18n="@@LunchToday">Lunch Today</div>
+  <div *ngIf="deliveryTime === 'lunch tomorrow'" class="text-md free time-title" style="font-weight: 400"
+    i18n="@@LunchTomorrow">Lunch Tomorrow</div>
+  <div *ngIf="deliveryTime === 'lunch after tomorrow'" class="text-md free time-title" style="font-weight: 400" 
+    i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</div>
+</div> 
+
+<app-restaurant-grid *ngIf="restaurants" 
+  [restaurantList]="restaurants" [center]="center" 
+  [malls]="realMalls">
+</app-restaurant-grid>

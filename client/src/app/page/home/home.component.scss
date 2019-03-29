@@ -8,13 +8,11 @@ $green: rgb(24, 128, 56);
 $yellow: rgb(244, 160, 0);
 $red: rgb(219, 68, 55);
 
+
 .grid{
   padding: 0px;
   margin: 0px;
 
-  .row{
-      margin:0px;
-  }
   .grid-item{
       padding: 0px;
       float: left;
@@ -36,19 +34,21 @@ $red: rgb(219, 68, 55);
   
           .text-body{
               padding:0px 10px;
+
+              .title-bg{
+                font-size:16px;
+                font-weight:400;
+                font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
+            }
+  
+            .text-sm{
+                font-size:12px;
+                font-weight:400;
+                font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
+            }
           }
 
-          .title-bg{
-              font-size:16px;
-              font-weight:400;
-              font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-          }
 
-          .text-sm{
-              font-size:12px;
-              font-weight:400;
-              font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-          }
       }
   }
 
@@ -60,11 +60,6 @@ $red: rgb(219, 68, 55);
 .pac-container:after {
     background-image: none !important;
     height: 0px;
-}
-
-.row{
-  margin-left:0px;
-  margin-right:0px;
 }
 
 .map-area{
@@ -79,26 +74,7 @@ $red: rgb(219, 68, 55);
   padding-right:10px;
 }
 
-.search-bar{
-  margin-top: 0px;
-  #userlocationinput{ //input.form-control
-    outline:none;
-    width:calc(100% - #{$position-btn-width});
-    float:left;
-  }
-}
 
-.search-bar-wrapper{
-  padding-left: 0px;
-}
-
-.input-group-append{
-  width: $position-btn-width;
-}
-
-app-address-input {
-  width: calc(100% - #{$position-btn-width});
-}
 
 .btn-current-location{
   border-radius: 0px;
@@ -142,14 +118,6 @@ and (orientation: landscape) {
   .left-side{
     min-height:40px;
   }
-  .search-bar{
-    width:100%;
-    padding: 0px;
-  }
-  
-  .search-bar-wrapper{
-    padding-right:0px;
-  }
 
   .map-col{
     padding:0px;
@@ -177,13 +145,25 @@ and (orientation: landscape) {
     }
   }
   
-  .deliver-address-row{
+  .address-search-row{
     position: absolute;
     top: 6px;
     left: 0px;
     margin: 0px;
     padding-left:6px;
     padding-right:6px;
+    
+    .input-group-append{
+      width: $position-btn-width;
+    }
+    
+    app-address-input {
+      width: calc(100% - #{$position-btn-width});
+    }
+  }
+
+  app-location-list{
+    width: 100%;
   }
 
   .pac-container{

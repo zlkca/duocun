@@ -64,4 +64,31 @@ export class RestaurantComponent implements OnInit {
       return r;
     }, Object.create(null));
   }
+
+  // onAddressChange(e) {
+  //   const self = this;
+  //   this.bHideMap = true;
+  //   this.bRestaurant = false;
+  //   this.bTimeOptions = false;
+  //   this.options = [];
+  //   this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
+  //     if (ps && ps.length > 0) {
+  //       for (const p of ps) {
+  //         const loc: ILocation = this.getLocation(p);
+  //         self.options.push({ location: loc, type: 'suggest' }); // without lat lng
+  //       }
+  //     }
+  //   });
+  //   // localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
+  //   // this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
+  //   this.mapFullScreen = false;
+  // }
+
+  // onAddressClear(e) {
+  //   this.deliveryAddress = '';
+  //   this.mapFullScreen = true;
+  //   this.options = [];
+  //   this.bHideMap = false;
+  //   this.bRestaurant = false;
+  // }
 }
