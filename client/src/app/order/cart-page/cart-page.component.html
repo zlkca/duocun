@@ -3,14 +3,14 @@
 </div>
 <div class="cart" *ngIf="cart.items.length>0">
     <div class="row title">
-      <div class="col-8 title-md title-left" i18n="@@ShoppingCart">Shopping Cart</div>
-      <div class="col-4 title-sm pull-right" i18n="@@ClearCart" (click)="clearCart()">Clear</div>
+      <div class="col-9 title-lg title-left" i18n="@@ShoppingCart">Shopping Cart</div>
+      <div class="col-3 title-sm pull-right" i18n="@@ClearCart" (click)="clearCart()">Clear</div>
     </div>
     <div class="container item-list">
-      <div *ngFor="let item of cart.items" class="align-items-start bg-light">
+      <div *ngFor="let item of cart.items">
         <div class="row item-row">
           <div class="col-4">
-            <img [src]="getProductImage(item)">
+            <img class="product-image" [src]="getProductImage(item)">
           </div>
 
           <div class="col-8">
@@ -20,10 +20,14 @@
             <div class="col-12 detail-row">
               <div class="row">
                   <div class="col-6 text-sm price-col">$ {{item.price}}</div>
-                  <div class="col-6 pull-right">
-                      <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(item)"></i>
+                  <div class="col-6 button-col">
+                      <!-- <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(item)"></i> -->
+                      <img class="img-shopping-cart" src="assets/outline-remove_circle-24px.svg" alt="cart" height="40px" width="40px" 
+                      (click)="removeFromCart(item)" />
                       <div class="quantity">{{item.quantity}}</div>
-                      <i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(item)"></i>
+                      <!-- <i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(item)"></i> -->
+                      <img class="img-shopping-cart" src="assets/outline-add_circle-24px.svg" alt="cart" height="40px" width="40px"
+                      (click)="addToCart(item)" />
                   </div>
               </div>
             </div>

@@ -1,23 +1,23 @@
 <footer>
   <div class="row bottom-nav-menus" *ngIf="!bCart && !bCheckout">
     <div class="col-3" (click)="toHome()">
-      <img class="icon" src="/assets/outline-home-24px.svg" alt="home" height="26px" width="26px" />
+      <img class="icon" src="assets/outline-home-24px.svg" alt="home" height="26px" width="26px" />
       <div class="icon-text" i18n="@@Home">Home</div>
     </div>
     <div class="col-3" (click)="toOrder()">
-      <img class="icon" src="/assets/outline-assignment-24px.svg" alt="order" height="24px" width="24px" />
+      <img class="icon" src="assets/outline-assignment-24px.svg" alt="order" height="24px" width="24px" />
       <div class="icon-text" i18n="@@Order">Order</div>
     </div>
     <div *ngIf="account && account.type !== 'super'" class="col-3" (click)="toCart()">
-      <img class="icon" src="/assets/outline-shopping_cart-24px.svg" alt="cart" height="24px" width="24px" />
+      <img class="icon" src="assets/outline-shopping_cart-24px.svg" alt="cart" height="24px" width="24px" />
       <div class="icon-text" i18n="@@Cart">Cart</div>
     </div>
     <div *ngIf="account && account.type === 'super'" class="col-3" (click)="toAdmin()">
-      <img class="icon" src="/assets/outline-settings-24px.svg" alt="admin" height="24px" width="24px" />
+      <img class="icon" src="assets/outline-settings-24px.svg" alt="admin" height="24px" width="24px" />
       <div class="icon-text" i18n="@@Admin">Admin</div>
     </div>
     <div class="col-3" (click)="toAccount()">
-      <img class="icon" src="/assets/outline-person-24px.svg" alt="person" height="26px" width="26px" />
+      <img class="icon" src="assets/outline-person-24px.svg" alt="person" height="26px" width="26px" />
       <div class="icon-text" i18n="@@Account">Account</div>
     </div>
   </div>
@@ -30,7 +30,7 @@
     <div class="col-2 cart-col" (click)="toCart()">
         <span class="fa-stack fa-2x has-badge" [attr.data-count]="quantity">
           <!-- <i class="fa fa-shopping-cart fa-3x"></i> -->
-          <img class="img-shopping-cart" src="/assets/outline-shopping_cart-24px.svg" alt="cart" height="40px" width="40px" />
+          <img class="img-shopping-cart" src="assets/outline-shopping_cart-24px.svg" alt="cart" height="40px" width="40px" />
         </span>
     </div>
     <div class="col-6 title-md amount-col">

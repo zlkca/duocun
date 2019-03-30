@@ -11,11 +11,15 @@
                     <div class="title-bg">{{p.name}}</div>
                     <div class="row order-row">
                         <div class="col-6 price-col">${{p.price}}</div>
-                        <div class="col-6">
-                            <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(p)"></i>
-                            <span class="quantity" *ngIf="groupedOrders && groupedOrders[cat.id].length>0" >{{groupedOrders[cat.id][i].quantity}}</span>
+                        <div class="col-6 button-col">
+                            <!-- <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(p)"></i> -->
+                            <img class="img-shopping-cart" src="assets/outline-remove_circle-24px.svg" alt="remove" height="40px" width="40px" 
+                            (click)="removeFromCart(p)" />
+                            <div class="quantity" *ngIf="groupedOrders && groupedOrders[cat.id].length>0" >{{groupedOrders[cat.id][i].quantity}}</div>
                             <!-- <div class="quantity" *ngIf="groupedOrders[cat.id].length==0" >0</div> -->
-                            <i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(p)"></i>
+                            <!-- <i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(p)"></i> -->
+                            <img class="img-shopping-cart" src="assets/outline-add_circle-24px.svg" alt="add" height="40px" width="40px" 
+                            (click)="addToCart(p)" />
                         </div>
                     </div>
                 </div>

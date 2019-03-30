@@ -48,6 +48,20 @@ $desktop: "(min-width: 1200px)";
                   font-size:20px;
                   font-weight:400;
                 }
+                .button-col{
+                  padding: 0px;
+                  .quantity{
+                    width: 30px;
+                    height: 40px;
+                    float: left;
+                    padding-top: 6px;
+                    text-align: center;
+                    font-size: 18px;
+                  }
+                  img{
+                    float: left;
+                  }
+                }
               }
             }
         }

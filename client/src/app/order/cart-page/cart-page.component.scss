@@ -1,25 +1,38 @@
 .cart {
-  .title-left{
-    text-align: center;
+  .title{
+    padding: 10px;
+    .title-left{
+      text-align: center;
+    }
   }
+
 
   .item-list{
     .item-row{
-      height: 93px;
+      height: 110px;
+      padding: 4px 10px;
 
       .col-4{
         height: 100%;
       }
-      
-      img{
-        width: 100%;
-      }
 
-      i, .quantity{
-        float: left;
+      .product-image{
+        width:100%;
+        height:100%;
       }
-      .quantity{
-        padding-top: 5px;
+      .button-col{
+        padding: 0px;
+        .quantity{
+          width: 30px;
+          height: 40px;
+          float: left;
+          padding-top: 6px;
+          text-align: center;
+          font-size: 18px;
+        }
+        img{
+          float: left;
+        }
       }
 
       .name-row{
@@ -37,8 +50,13 @@
 
         .price-col{
           padding-top: 5px;
+          font-size: 18px;
         }
       }
+    }
+
+    .item-row:hover{
+      background-color: #eee;
     }
   }
 }
