@@ -13,6 +13,7 @@ import { RestaurantService } from './restaurant.service';
 // import { ImageUploadModule } from 'angular2-image-upload';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
+import { RestaurantAboutComponent } from './restaurant-about/restaurant-about.component';
 
 @NgModule({
     imports: [
@@ -30,7 +31,7 @@ import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
     providers: [
       RestaurantService,
     ],
-    declarations: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent],
-    exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent]
+    declarations: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantAboutComponent],
+    exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantAboutComponent]
 })
 export class RestaurantModule { }
