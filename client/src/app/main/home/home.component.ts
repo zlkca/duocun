@@ -115,18 +115,18 @@ export class HomeComponent implements OnInit {
       }
     });
     this.inRange = inRange;
-    this.locationSvc.getRoadDistances(center, this.malls).subscribe(rs => {
-      if (rs) {
-        self.realMalls = rs.filter(r => r.type === 'real');
+    // this.locationSvc.getRoadDistances(center, this.malls).subscribe(rs => {
+    //   if (rs) {
+    //     self.realMalls = rs.filter(r => r.type === 'real');
 
-        const mall = self.malls.find(x => x.id === self.realMalls[0].id);
+    //     const mall = self.malls.find(x => x.id === self.realMalls[0].id);
 
-        self.rx.dispatch({
-          type: MallActions.UPDATE,
-          payload: mall
-        });
-      }
-    });
+    //     self.rx.dispatch({
+    //       type: MallActions.UPDATE,
+    //       payload: mall
+    //     });
+    //   }
+    // });
   }
 
   private getLocation(p: IPlace): ILocation {

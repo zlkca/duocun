@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { Restaurant } from '../../restaurant/restaurant.model';
+import { ILocation, ILatLng } from '../../location/location.model';
+import { AuthService } from '../../account/auth.service';
+import { LocationService } from '../../location/location.service';
+import { NgRedux } from '@angular-redux/store';
+import { IAppState } from '../../store';
+import { MallActions } from '../../mall/mall.actions';
 
 @Component({
   selector: 'app-restaurant-list-page',
@@ -15,25 +21,66 @@ export class RestaurantListPageComponent implements OnInit {
   restaurants;
   center;
   realMalls;
-
   deliveryAddress;
+  malls = [
+    {id: 1, name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
+      workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}]
+    },
+    {id: 2, name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
+      workers: [{id: '', username: 'worker1'}]
+    },
+    {id: 3, name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
+      workers: [{id: '', username: 'worker2'}]
+    },
+  ];
 
   constructor(
-    private restaurantSvc: RestaurantService
+    private authSvc: AuthService,
+    private locationSvc: LocationService,
+    private restaurantSvc: RestaurantService,
+    private rx: NgRedux<IAppState>
   ) {
 
   }
 
   ngOnInit() {
-    this.loadRestaurants();
+    const self = this;
+    const location: ILocation = this.authSvc.getLocation();
+    if (location) {
+      // self.deliveryAddress = self.locationSvc.getAddrString(location);
+      self.center = { lat: location.lat, lng: location.lng };
+      // self.bHideMap = false;
+      // self.mapFullScreen = false;
+      // self.bTimeOptions = true;
+      self.calcDistancesToMalls({ lat: location.lat, lng: location.lng });
+    }
+
   }
 
+  calcDistancesToMalls(center: ILatLng) {
+    const self = this;
+    this.locationSvc.getRoadDistances(center, this.malls).subscribe(rs => {
+      if (rs) {
+        self.realMalls = rs.filter(r => r.type === 'real');
+
+        const mall = self.malls.find(x => x.id === self.realMalls[0].id);
+
+        self.rx.dispatch({
+          type: MallActions.UPDATE,
+          payload: mall
+        });
+
+        self.loadRestaurants();
+      }
+    });
+  }
 
   loadRestaurants() {
     const self = this;
     this.restaurantSvc.find().subscribe((ps: Restaurant[]) => {
         self.restaurants = ps; // self.toProductGrid(data);
         const a = [];
+        const distance = self.realMalls[0].distance;
         ps.map(restaurant => {
           if (restaurant.location) {
             a.push({
@@ -42,6 +89,7 @@ export class RestaurantListPageComponent implements OnInit {
               name: restaurant.name
             });
           }
+          restaurant.distance = distance.value;
         });
         self.places = a;
       },
