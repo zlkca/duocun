@@ -15,6 +15,7 @@ import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.co
 import { OrderHistoryComponent } from './order-history/order-history.component';
 import { CartPageComponent } from './cart-page/cart-page.component';
 import { OrderRoutingModule } from './order-routing.module';
+import { RestaurantService } from '../restaurant/restaurant.service';
 
 @NgModule({
   imports: [
@@ -33,6 +34,7 @@ import { OrderRoutingModule } from './order-routing.module';
   ],
   providers: [
     OrderService,
+    RestaurantService
   ],
   declarations: [
     OrderListComponent,
