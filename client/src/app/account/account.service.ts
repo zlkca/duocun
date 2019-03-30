@@ -5,7 +5,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 
 import { environment } from '../../environments/environment';
-import { AccountApi, Account, LoopBackFilter, LoopBackConfig } from '../lb-sdk';
+import { AccountApi, LoopBackConfig } from '../lb-sdk';
+import { Account } from './account.model';
+
 import { NgRedux } from '@angular-redux/store';
 import { AccountActions } from './account.actions';
 import { AuthService } from './auth.service';
@@ -22,7 +24,6 @@ const API_URL = environment.API_URL;
 @Injectable()
 export class AccountService {
   private url = environment.API_URL + 'Accounts';
-  private account;
   DEFAULT_PASSWORD = '123456';
 
   constructor(

@@ -2,11 +2,14 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { OrderService } from '../order.service';
 import { SharedService } from '../../shared/shared.service';
 
-import { Order, Restaurant, Account, OrderInterface } from '../../lb-sdk';
-import { FormBuilder, Validators } from '../../../../node_modules/@angular/forms';
+import { Restaurant } from '../../restaurant/restaurant.model';
+import { Account } from '../../account/account.model';
+import { Order } from '../order.model';
+
+import { FormBuilder, Validators } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 import { ICartItem } from '../../order/order.actions';
-import { NgRedux } from '../../../../node_modules/@angular-redux/store';
+import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { IMall } from '../../mall/mall.model';
 import { RestaurantService } from '../../restaurant/restaurant.service';

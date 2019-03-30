@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnChanges } from '@angu
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AccountService } from '../account.service';
-import { Account } from '../../lb-sdk';
+import { Account } from '../account.model';
 
 
 @Component({
@@ -34,7 +34,8 @@ export class AccountFormComponent implements OnInit, OnChanges {
 
   constructor(private fb: FormBuilder,
     private accountSvc: AccountService,
-    private router: Router, private route: ActivatedRoute,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.form = this.createForm();
   }

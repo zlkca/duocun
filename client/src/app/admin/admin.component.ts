@@ -4,7 +4,10 @@ import { Router } from '@angular/router';
 import { AccountService } from '../account/account.service';
 
 import { RestaurantService } from '../restaurant/restaurant.service';
-import { Restaurant, Product, Order, Category } from '../lb-sdk';
+import { Product, Category } from '../product/product.model';
+import { Restaurant } from '../restaurant/restaurant.model';
+import { Account } from '../account/account.model';
+import { Order } from '../order/order.model';
 
 @Component({
   selector: 'app-admin',

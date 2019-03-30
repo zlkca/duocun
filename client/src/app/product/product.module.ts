@@ -10,12 +10,14 @@ import { OrderModule } from '../order/order.module';
 import { CategoryFormComponent } from './category-form/category-form.component';
 import { CategoryListComponent } from './category-list/category-list.component';
 import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
+import { ProductRoutingModule } from './product-routing.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    ProductRoutingModule,
     SharedModule,
     OrderModule,
     // ImageUploadModule.forRoot(),

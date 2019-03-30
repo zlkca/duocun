@@ -8,6 +8,13 @@ import { OrderListComponent } from './order-list/order-list.component';
 import { CartComponent } from './cart/cart.component';
 import { OrderService } from './order.service';
 import { OrderFormComponent } from './order-form/order-form.component';
+import { MatTabsModule } from '@angular/material/tabs';
+import { ClientOrderComponent } from './client-order/client-order.component';
+import { WorkerOrderComponent } from './worker-order/worker-order.component';
+import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.component';
+import { OrderHistoryComponent } from './order-history/order-history.component';
+import { CartPageComponent } from './cart-page/cart-page.component';
+import { OrderRoutingModule } from './order-routing.module';
 
 @NgModule({
   imports: [
@@ -15,7 +22,9 @@ import { OrderFormComponent } from './order-form/order-form.component';
     NgbModule,
     FormsModule,
     ReactiveFormsModule,
-    SharedModule
+    MatTabsModule,
+    OrderRoutingModule,
+    SharedModule,
   ],
   exports: [
     OrderListComponent,
@@ -29,6 +38,11 @@ import { OrderFormComponent } from './order-form/order-form.component';
     OrderListComponent,
     CartComponent,
     OrderFormComponent,
+    ClientOrderComponent,
+    WorkerOrderComponent,
+    RestaurantOrderComponent,
+    OrderHistoryComponent,
+    CartPageComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

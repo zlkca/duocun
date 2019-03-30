@@ -1,5 +1,5 @@
 import { Product } from '../product/product.model';
-import { Picture } from '../picture.model';
+// import { Picture } from '../picture.model';
 import { Address } from '../account/account.model';
 import { Restaurant } from '../restaurant/restaurant.model';
 

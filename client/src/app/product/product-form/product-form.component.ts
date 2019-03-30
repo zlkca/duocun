@@ -5,7 +5,9 @@ import { NgRedux } from '@angular-redux/store';
 
 import { ProductService } from '../product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-import { Restaurant, Product, Category, LoopBackConfig, Picture } from '../../lb-sdk';
+import { LoopBackConfig, Picture } from '../../lb-sdk';
+import { Restaurant } from '../../restaurant/restaurant.model';
+import { Product, Category } from '../../product/product.model';
 import { Jsonp } from '@angular/http';
 import { SharedService } from '../../shared/shared.service';
 

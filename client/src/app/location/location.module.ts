@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../account/auth.service';
 import { LocationListComponent } from './location-list/location-list.component';
 
 @NgModule({
@@ -12,7 +11,6 @@ import { LocationListComponent } from './location-list/location-list.component';
   ],
   exports: [
     LocationListComponent
-  ],
-  providers: [AuthService]
+  ]
 })
 export class LocationModule { }

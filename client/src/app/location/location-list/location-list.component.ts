@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { LocationService } from '../location.service';
-import { AuthService } from '../../account/auth.service';
 
 @Component({
   selector: 'app-location-list',
@@ -16,8 +15,7 @@ export class LocationListComponent implements OnInit {
   address;
 
   constructor(
-    private locationSvc: LocationService,
-    private authSvc: AuthService
+    private locationSvc: LocationService
   ) { }
 
   ngOnInit() {
@@ -36,12 +34,9 @@ export class LocationListComponent implements OnInit {
           }).subscribe(x => {
           });
         }
-
-        this.authSvc.setLocation(r);
       });
     } else if (place.type === 'history') {
       const r = place.location;
-      this.authSvc.setLocation(r);
       self.placeSeleted.emit({address: address, location: r});
     }
   }

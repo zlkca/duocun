@@ -7,7 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IAppState } from '../../store';
 import { CartActions, ICart, ICartItem } from '../../order/order.actions';
 import { SharedService } from '../../shared/shared.service';
-import { Product } from '../../lb-sdk';
+import { Product } from '../../product/product.model';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -38,7 +38,7 @@ export class ProductGridComponent implements OnInit, OnChanges {
   ) {
     rx.select<ICart>('cart').subscribe((cart: ICart) => {
       this.cart = cart;
-      if(this.groupedProducts) {
+      if (this.groupedProducts) {
         const categoryIds = Object.keys(this.groupedProducts);
         categoryIds.map(categoryId => {
           this.groupedOrders[categoryId].map(order => {
@@ -68,15 +68,15 @@ export class ProductGridComponent implements OnInit, OnChanges {
         const products = this.groupedProducts[categoryId];
         const orders = [];
         products.map(product => {
-          const cartItem = this.cart.items.find( item => { return item.productId === product.id});
-          if(cartItem){
-            orders.push({productId: product.id, quantity: cartItem.quantity});
-          }else{
-            orders.push({productId: product.id, quantity: 0});
+          const cartItem = this.cart.items.find(item => item.productId === product.id);
+          if (cartItem) {
+            orders.push({ productId: product.id, quantity: cartItem.quantity });
+          } else {
+            orders.push({ productId: product.id, quantity: 0 });
           }
         });
-        
-        this.groupedOrders[categoryId] = orders;// product array categoryId;
+
+        this.groupedOrders[categoryId] = orders; // product array categoryId;
       });
 
       if (gps.length > 0) {

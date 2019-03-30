@@ -1,26 +1,31 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { ICart, CartActions, ICartItem } from '../order.actions';
-import { OrderService } from '../order.service';
+import { ICart, CartActions, ICartItem } from '../../order/order.actions';
+import { OrderService } from '../../order/order.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from '../../account/account.service';
+import { Product } from '../../product/product.model';
 import { Account } from '../../account/account.model';
 import { Order } from '../order.model';
+
 import { Router } from '@angular/router';
+import { PageActions } from '../../page/page.actions';
+import { SharedService } from '../../shared/shared.service';
 
 @Component({
-  selector: 'app-cart',
-  templateUrl: './cart.component.html',
-  styleUrls: ['./cart.component.scss']
+  selector: 'app-cart-page',
+  templateUrl: './cart-page.component.html',
+  styleUrls: ['./cart-page.component.scss']
 })
-export class CartComponent implements OnInit, OnDestroy {
+export class CartPageComponent implements OnInit, OnDestroy {
   total = 0;
   quantity = 0;
   subscription;
   subscriptionAccount;
   cart: ICart;
   user: Account;
+  defaultProductPicture = window.location.protocol + '//placehold.it/400x300';
 
   @ViewChild('orderDetailModal') orderDetailModal;
 
@@ -28,9 +33,11 @@ export class CartComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private OrderServ: OrderService,
     private accountServ: AccountService,
+    private sharedSvc: SharedService,
     private modalServ: NgbModal,
     private router: Router
   ) {
+
   }
 
   ngOnInit() {
@@ -50,6 +57,11 @@ export class CartComponent implements OnInit, OnDestroy {
         console.log(acc);
         this.user = acc;
       });
+
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'restaurants'
+    });
   }
 
   addToCart(item: ICartItem) {
@@ -125,4 +137,13 @@ export class CartComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
     this.subscriptionAccount.unsubscribe();
   }
+
+  getProductImage(p: Product) {
+    if (p.pictures && p.pictures[0] && p.pictures[0].url) {
+      return this.sharedSvc.getMediaUrl() + p.pictures[0].url;
+    } else {
+      return this.defaultProductPicture;
+    }
+  }
 }
+

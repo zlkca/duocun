@@ -5,6 +5,11 @@ import { ILocation } from '../location/location.model';
 @Injectable()
 export class AuthService {
 
+  constructor(
+  ) {
+
+  }
+
   setAccessToken(token: string) {
     // localStorage.setItem('token', token);
     Cookies.remove('duocun-token');

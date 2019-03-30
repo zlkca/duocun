@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnChanges } from '@angu
 import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../product.service';
-import { Category } from '../../lb-sdk';
+import { Category } from '../../product/product.model';
 
 @Component({
   providers: [ProductService],

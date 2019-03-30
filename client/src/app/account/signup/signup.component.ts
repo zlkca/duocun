@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
 import { AuthService } from '../auth.service';
 import { AccountService } from '../account.service';
-import { Account } from '../../lb-sdk';
+import { Account } from '../../account/account.model';
 import { IAppState } from '../../store';
 import { PageActions } from '../../page/page.actions';
 

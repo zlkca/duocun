@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../../account/account.service';
-import { Account } from '../../lb-sdk';
-
+import { Account } from '../../account/account.model';
 @Component({
   selector: 'app-admin-account-page',
   templateUrl: './admin-account-page.component.html',

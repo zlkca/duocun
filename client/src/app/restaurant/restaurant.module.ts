@@ -14,6 +14,8 @@ import { RestaurantService } from './restaurant.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
 import { RestaurantAboutComponent } from './restaurant-about/restaurant-about.component';
+import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-list-page.component';
+import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaurant-detail-page.component';
 
 @NgModule({
     imports: [
@@ -31,7 +33,14 @@ import { RestaurantAboutComponent } from './restaurant-about/restaurant-about.co
     providers: [
       RestaurantService,
     ],
-    declarations: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantAboutComponent],
+    declarations: [
+      RestaurantFormComponent,
+      RestaurantGridComponent,
+      RestaurantListComponent,
+      RestaurantAboutComponent,
+      RestaurantListPageComponent,
+      RestaurantDetailPageComponent
+    ],
     exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantAboutComponent]
 })
 export class RestaurantModule { }

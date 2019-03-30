@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-
-import { Product } from '../../lb-sdk';
+import { Product } from '../../product/product.model';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
@@ -57,7 +56,7 @@ export class AdminProductPageComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
         self.restaurantId = params['restaurant_id'];
         self.restaurantSvc.getProducts(self.restaurantId).subscribe(
-            (ps: Product[]) => {
+            (ps: any[]) => { // Product
                 self.products = ps;
             });
     });

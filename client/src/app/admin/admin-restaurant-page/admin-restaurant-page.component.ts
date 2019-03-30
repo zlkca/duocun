@@ -4,8 +4,7 @@ import { Router } from '@angular/router';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { environment } from '../../../environments/environment';
 import { ToastrService } from 'ngx-toastr';
-import { Restaurant } from '../../lb-sdk';
-
+import { Restaurant } from '../../restaurant/restaurant.model';
 const ADD_IMAGE = 'add_photo.png';
 
 

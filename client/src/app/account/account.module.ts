@@ -13,6 +13,9 @@ import { ForgetPasswordComponent } from './forget-password/forget-password.compo
 import { ProfileFormComponent } from './profile-form/profile-form.component';
 import { AccountListComponent } from './account-list/account-list.component';
 import { AccountFormComponent } from './account-form/account-form.component';
+import { AccountRoutingModule } from './account-routing.module';
+import { AccountService } from './account.service';
+import { AuthService } from './auth.service';
 
 @NgModule({
     imports: [
@@ -20,6 +23,7 @@ import { AccountFormComponent } from './account-form/account-form.component';
         ReactiveFormsModule,
         RouterModule,
         HttpClientModule,
+        AccountRoutingModule,
         SharedModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -32,6 +36,10 @@ import { AccountFormComponent } from './account-form/account-form.component';
         ProfileFormComponent,
         AccountListComponent,
         AccountFormComponent
+    ],
+    providers: [
+      AccountService,
+      AuthService
     ]
 })
 export class AccountModule { }

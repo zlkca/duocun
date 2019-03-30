@@ -8,9 +8,10 @@ import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 
 import { AccountService } from '../../account/account.service';
-import { GeoPoint, Category, LoopBackConfig, Address, Account, Picture } from '../../lb-sdk';
+import { LoopBackConfig, Address, Picture } from '../../lb-sdk';
+import { Category } from '../../product/product.model';
+import { Account } from '../../account/account.model';
 import { Restaurant } from '../restaurant.model';
-import { getComponentViewDefinitionFactory } from '../../../../node_modules/@angular/core/src/view';
 import { SharedService } from '../../shared/shared.service';
 
 const APP = environment.APP;

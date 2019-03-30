@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Product } from '../lb-sdk';
 
 declare var moment: any;
 declare var io: any;

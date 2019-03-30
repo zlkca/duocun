@@ -4,9 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { Product } from '../../lb-sdk';
-
-
+import { Product } from '../../product/product.model';
 const ADD_IMAGE = 'add_photo.png';
 const MEDIA_URL: string = environment.MEDIA_URL;
 

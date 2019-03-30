@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { AccountService } from '../account.service';
-import { Account } from '../../lb-sdk';
-import { SharedService } from '../../shared/shared.service';
+import { Account } from '../account.model';
 
 @Component({
   selector: 'app-account-list',
@@ -15,8 +14,9 @@ export class AccountListComponent implements OnInit {
   selected = null;
   fields: string[] = [];
 
-  constructor(private sharedServ: SharedService,
-    private accountSvc: AccountService) { }
+  constructor(
+    private accountSvc: AccountService
+  ) { }
 
   ngOnInit() {
     const self = this;

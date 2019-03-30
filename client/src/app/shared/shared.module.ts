@@ -10,8 +10,8 @@ import { WizardComponent } from './wizard/wizard.component';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 import { FeedbackComponent } from './feedback/feedback.component';
 import { MapComponent } from './map/map.component';
-import { HeaderComponent } from './header/header.component';
-import { FooterComponent } from './footer/footer.component';
+// import { HeaderComponent } from './header/header.component';
+// import { FooterComponent } from './footer/footer.component';
 import { AddressInputComponent } from './address-input/address-input.component';
 // import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-uploader.component';
 // import { LocationService } from './location/location.service';
@@ -34,8 +34,8 @@ import { EntityService } from '../entity.service';
     ImageViewerComponent,
     FeedbackComponent,
     MapComponent,
-    HeaderComponent,
-    FooterComponent,
+    // HeaderComponent,
+    // FooterComponent,
     AddressInputComponent,
     AddressAutocompleteComponent
   ],
@@ -47,8 +47,8 @@ import { EntityService } from '../entity.service';
   exports: [
     WizardComponent, ImageViewerComponent, FeedbackComponent,
     MapComponent,
-    HeaderComponent,
-    FooterComponent,
+    // HeaderComponent,
+    // FooterComponent,
     AddressInputComponent,
     AddressAutocompleteComponent
   ]

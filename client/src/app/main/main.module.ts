@@ -1,42 +1,36 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
 
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
+import { MainRoutingModule } from './main-routing.module';
+import { HomeComponent } from './home/home.component';
+import { LocationModule } from '../location/location.module';
 import { SharedModule } from '../shared/shared.module';
+import { HeaderComponent } from './header/header.component';
+import { FooterComponent } from './footer/footer.component';
 import { AccountModule } from '../account/account.module';
-import { OrderModule } from '../order/order.module';
-import { environment } from '../../environments/environment';
-
-import { ContactComponent } from './contact/contact.component';
-
 import { AccountService } from '../account/account.service';
-
-import { ProductComponent } from './product/product.component';
-import { BlogComponent } from './blog/blog.component';
-import { CommentComponent } from './comment/comment.component';
+import { AuthService } from '../account/auth.service';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        HttpClientModule,
-        NgbModule,
-        SharedModule,
-        AccountModule,
-        OrderModule
-    ],
-    declarations: [
-        ContactComponent,
-        ProductComponent,
-        BlogComponent,
-        CommentComponent
-    ],
-    providers: [AccountService],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    exports: [
-        ContactComponent]
+  imports: [
+    CommonModule,
+    MainRoutingModule,
+    SharedModule,
+    LocationModule,
+    AccountModule
+  ],
+  declarations: [
+    HomeComponent,
+    HeaderComponent,
+    FooterComponent
+  ],
+  exports: [
+    HeaderComponent,
+    FooterComponent
+  ],
+  providers: [
+    AccountService,
+    AuthService
+  ]
 })
 export class MainModule { }

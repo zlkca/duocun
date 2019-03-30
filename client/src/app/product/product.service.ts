@@ -7,8 +7,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
-import { ProductApi, LoopBackFilter, Product, Category, CategoryApi, Picture, PictureApi, LoopBackConfig } from '../lb-sdk';
-
+import { ProductApi, LoopBackFilter, CategoryApi, Picture, PictureApi, LoopBackConfig } from '../lb-sdk';
+import { Product, Category } from './product.model';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { identifierModuleUrl } from '@angular/compiler';
 

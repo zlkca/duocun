@@ -22,6 +22,7 @@ import { AdminAccountPageComponent } from './admin-account-page/admin-account-pa
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { AdminMallPageComponent } from './admin-mall-page/admin-mall-page.component';
+import { AdminRoutingModule } from './admin-routing.module';
 
 @NgModule({
     imports: [
@@ -34,6 +35,7 @@ import { AdminMallPageComponent } from './admin-mall-page/admin-mall-page.compon
         NgbModule,
         FormsModule,
         ReactiveFormsModule,
+        AdminRoutingModule,
         RestaurantModule,
         AccountModule,
         ProductModule,
