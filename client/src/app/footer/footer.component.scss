@@ -52,7 +52,7 @@ footer{
       display: flex;
     }
 
-    i, .icon-text {
+    .icon, .icon-text {
       float: left;
       width: 100%;
       margin: 0px;
@@ -67,8 +67,8 @@ footer{
       height: 60px;
       .fa-stack[data-count]:after{
         position:absolute;
-        right:0%;
-        top:1%;
+        left: 45px;
+        top: 5px;
         content: attr(data-count);
         font-size:10px;
         padding:.6em;
@@ -82,10 +82,10 @@ footer{
       }
 
       .fa-stack{
-        margin-left: 18px;
+        margin-left: 5px;
       }
-      .fa-shopping-cart{
-        margin-left: -18px;
+      .img-shopping-cart{
+        margin-left: 0px;
       }
       .cart-col{
         border-right: solid 1px #ddd;
