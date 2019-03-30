@@ -5,12 +5,15 @@ import { FormsModule } from '@angular/forms';
 // import { HttpClientModule } from '@angular/common/http';
 
 import { NgReduxModule, NgRedux } from '@angular-redux/store';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { rootReducer, INITIAL_STATE } from './store';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { AppComponent } from './app.component';
+import { ToastrModule } from 'ngx-toastr';
 
 import { CoreModule } from './core/core.module';
+import { AppComponent } from './app.component';
+
 
 // import { MainModule } from './main/main.module';
 // import { AccountModule } from './account/account.module';
@@ -24,6 +27,10 @@ import { CoreModule } from './core/core.module';
 import { environment } from '../environments/environment';
 import { SDKBrowserModule, LoopBackConfig } from './lb-sdk';
 import { AuthService } from './account/auth.service';
+import { HeaderComponent } from './header/header.component';
+import { FooterComponent } from './footer/footer.component';
+import { AccountService } from './account/account.service';
+
 
 const appRoutes: Routes = [
 
@@ -52,7 +59,7 @@ const appRoutes: Routes = [
       loadChildren: './account/account.module#AccountModule'
     },
     {
-      path: 'home',
+      path: 'main',
       loadChildren: './main/main.module#MainModule'
     },
     {
@@ -65,7 +72,9 @@ const appRoutes: Routes = [
 
 @NgModule({
     declarations: [
-        AppComponent
+        AppComponent,
+        HeaderComponent,
+        FooterComponent
     ],
     imports: [
         BrowserModule,
@@ -79,6 +88,11 @@ const appRoutes: Routes = [
         SDKBrowserModule.forRoot(), // for socket
         NgbModule.forRoot(),
         NgReduxModule,
+        BrowserAnimationsModule,
+        ToastrModule.forRoot({timeOut: 10000,
+          positionClass: 'toast-bottom-right',
+          preventDuplicates: true
+        }),
         // MainModule,
         // AccountModule,
         // SharedModule,
@@ -91,7 +105,10 @@ const appRoutes: Routes = [
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     bootstrap: [AppComponent],
-    providers: [AuthService]
+    providers: [
+      AuthService,
+      AccountService
+    ]
 
 })
 export class AppModule {

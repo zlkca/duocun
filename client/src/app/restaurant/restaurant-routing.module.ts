@@ -4,8 +4,8 @@ import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-l
 import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaurant-detail-page.component';
 
 const routes: Routes = [
-  { path: 'restaurants/:id', component: RestaurantDetailPageComponent },
-  { path: 'restaurants', component: RestaurantListPageComponent},
+  { path: 'list/:id', component: RestaurantDetailPageComponent },
+  { path: 'list', component: RestaurantListPageComponent},
 ];
 
 @NgModule({

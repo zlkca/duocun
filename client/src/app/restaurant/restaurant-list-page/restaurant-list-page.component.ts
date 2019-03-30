@@ -31,8 +31,7 @@ export class RestaurantListPageComponent implements OnInit {
 
   loadRestaurants() {
     const self = this;
-    this.restaurantSvc.find().subscribe(
-      (ps: Restaurant[]) => {
+    this.restaurantSvc.find().subscribe((ps: Restaurant[]) => {
         self.restaurants = ps; // self.toProductGrid(data);
         const a = [];
         ps.map(restaurant => {

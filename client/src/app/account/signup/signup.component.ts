@@ -52,9 +52,9 @@ export class SignupComponent implements OnInit {
     this.accountSvc.signup(account).subscribe((user: Account) => {
       if (user && user.id) {
         if (user.type === 'user') {
-          this.router.navigate(['home']);
+          this.router.navigate(['main/home']);
         } else if (user.type === 'worker') {
-          this.router.navigate(['worker-orders']);
+          this.router.navigate(['order/list-worker']);
         }
       }
     },

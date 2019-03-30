@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment';
-import { AccountService } from '../../account/account.service';
-import { Account } from '../../account/account.model';
+import { environment } from '../../environments/environment';
+import { AccountService } from '../account/account.service';
+import { Account } from '../account/account.model';
 
 declare var $: any;
 

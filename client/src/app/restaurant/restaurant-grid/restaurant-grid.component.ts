@@ -120,7 +120,7 @@ export class RestaurantGridComponent implements OnInit {
       type: PageActions.UPDATE_URL,
       payload: 'restaurants'
     });
-    this.router.navigate(['restaurants/' + r.id]);
+    this.router.navigate(['restaurant/list/' + r.id]);
   }
 
   getFilter(query?: any) {

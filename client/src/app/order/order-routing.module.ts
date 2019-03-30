@@ -7,10 +7,10 @@ import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.co
 import { CartPageComponent } from './cart-page/cart-page.component';
 
 const routes: Routes = [
-  { path: 'order-history', component: OrderHistoryComponent },
-  { path: 'client-orders', component: ClientOrderComponent },
-  { path: 'worker-orders', component: WorkerOrderComponent },
-  { path: 'restaurant-orders', component: RestaurantOrderComponent },
+  { path: 'history', component: OrderHistoryComponent },
+  { path: 'list-client', component: ClientOrderComponent },
+  { path: 'list-worker', component: WorkerOrderComponent },
+  { path: 'list-restaurant', component: RestaurantOrderComponent },
   { path: 'cart', component: CartPageComponent},
 ];
 

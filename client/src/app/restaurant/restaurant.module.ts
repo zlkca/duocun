@@ -2,6 +2,8 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatTabsModule } from '@angular/material/tabs';
+
 
 import { ProductModule } from '../product/product.module';
 import { RestaurantFormComponent } from './restaurant-form/restaurant-form.component';
@@ -16,6 +18,7 @@ import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
 import { RestaurantAboutComponent } from './restaurant-about/restaurant-about.component';
 import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-list-page.component';
 import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaurant-detail-page.component';
+import { RestaurantRoutingModule } from './restaurant-routing.module';
 
 @NgModule({
     imports: [
@@ -24,6 +27,8 @@ import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaura
         SharedModule,
         FormsModule,
         ReactiveFormsModule,
+        MatTabsModule,
+        RestaurantRoutingModule,
         ProductModule,
         OrderModule,
         // ImageUploadModule.forRoot(),

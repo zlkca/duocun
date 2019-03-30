@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
-import { Account } from '../../lb-sdk';
-import { ICart, ICartItem } from '../../order/order.actions';
-import { PageActions } from '../../page/page.actions';
-import { IAppState } from '../../store';
-import { CommandActions } from '../../shared/command.actions';
+import { Account } from '../account/account.model';
+import { ICart, ICartItem } from '../order/order.actions';
+import { IAppState } from '../store';
+import { CommandActions } from '../shared/command.actions';
 
 @Component({
   selector: 'app-footer',
@@ -57,31 +56,31 @@ export class FooterComponent implements OnInit {
   }
 
   toHome() {
-    this.router.navigate(['home']);
+    this.router.navigate(['main/home']);
   }
 
   toOrder() {
     if (this.account.type === 'user' || this.account.type === 'super') {
-      this.router.navigate(['order-history']);
+      this.router.navigate(['order/history']);
     } else if (this.account.type === 'worker') {
-      this.router.navigate(['worker-orders']);
+      this.router.navigate(['order/list-worker']);
     } else if (this.account.type === 'restaurant') {
-      this.router.navigate(['restaurant-orders']);
+      this.router.navigate(['order/list-restaurant']);
     }
   }
 
   toCart() {
     if (this.account.type === 'user' || this.account.type === 'super') {
-      this.router.navigate(['cart']);
+      this.router.navigate(['order/cart']);
     } else if (this.account.type === 'worker') {
-      this.router.navigate(['worker-orders']);
+      this.router.navigate(['order/list-worker']);
     } else if (this.account.type === 'restaurant') {
-      this.router.navigate(['restaurant-orders']);
+      this.router.navigate(['order/list-restaurant']);
     }
   }
 
   toAccount() {
-    this.router.navigate(['login']);
+    this.router.navigate(['account/login']);
   }
 
   toAdmin() {
@@ -90,7 +89,7 @@ export class FooterComponent implements OnInit {
 
   checkout() {
     if (this.account.type === 'user' || this.account.type === 'super') {
-      this.router.navigate(['client-orders']);
+      this.router.navigate(['order/list-client']);
     }
   }
 

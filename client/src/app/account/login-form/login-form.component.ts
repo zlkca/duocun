@@ -63,14 +63,14 @@ export class LoginFormComponent implements OnInit {
             if (account.type === 'super') {
               this.router.navigate(['admin']);
             } else if (account.type === 'worker') {
-              this.router.navigate(['worker-orders']);
+              this.router.navigate(['order/list-worker']);
             } else if (account.type === 'restaurant') {
-              this.router.navigate(['restaurant-orders']);
+              this.router.navigate(['order/list-restaurant']);
             } else if (account.type === 'user') {
-              this.router.navigate(['home']);
+              this.router.navigate(['main/home']);
             }
           } else {
-            this.router.navigate(['login']);
+            this.router.navigate(['account/login']);
           }
         },
           (error) => {

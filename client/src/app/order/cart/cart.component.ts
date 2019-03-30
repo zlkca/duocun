@@ -78,9 +78,9 @@ export class CartComponent implements OnInit, OnDestroy {
     const orders = this.createOrders(this.cart);
     if (orders[0].accountId) {
       // this.modalServ.open(this.orderDetailModal);
-      this.router.navigate(['client-orders']);
+      this.router.navigate(['order/list-client']);
     } else {
-      this.router.navigate(['login']);
+      this.router.navigate(['account/login']);
     }
   }
 
@@ -118,7 +118,7 @@ export class CartComponent implements OnInit, OnDestroy {
     this.OrderServ.save(orders[0]).subscribe((order: Order) => {
         this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
       });
-    this.router.navigate(['restaurants']);
+    this.router.navigate(['restaurant/list']);
   }
 
   ngOnDestroy() {

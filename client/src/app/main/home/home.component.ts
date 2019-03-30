@@ -251,6 +251,6 @@ export class HomeComponent implements OnInit {
     this.bTimeOptions = false;
     this.options = [];
     this.deliveryTime = type;
-    this.route.navigate(['restaurants']);
+    this.route.navigate(['restaurant/list']);
   }
 }
