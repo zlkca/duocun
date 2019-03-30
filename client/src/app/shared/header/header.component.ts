@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SharedService } from '../shared.service';
 import { environment } from '../../../environments/environment';
-// import { LocationService } from '../location/location.service';
-// import { ILocation } from '../location/location.model';
 import { AccountService } from '../../account/account.service';
 import { Account } from '../../lb-sdk';
 declare var $: any;
@@ -25,8 +23,6 @@ export class HeaderComponent implements OnInit {
   addr = null;
 
   constructor(private router: Router,
-    // private authSvc: AuthService,
-    // private locationSvc: LocationService,
     private accountServ: AccountService,
     private sharedSvc: SharedService) { }
 

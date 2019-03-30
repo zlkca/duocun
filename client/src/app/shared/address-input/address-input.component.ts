@@ -40,7 +40,9 @@ export class AddressInputComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.placeForm.get('addr').patchValue(this.input);
+    if (this.input !== undefined) {
+      this.placeForm.get('addr').patchValue(this.input);
+    }
   }
 
   ngOnChanges(changes) {

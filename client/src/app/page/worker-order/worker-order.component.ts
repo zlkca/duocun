@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { RestaurantService } from '../../restaurant/restaurant.service';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
-import { SocketConnection } from '../../lb-sdk/sockets/socket.connections';
-import { AuthService } from '../../account/auth.service';
 import { SharedService } from '../../shared/shared.service';
 import { ToastrService } from 'ngx-toastr';
 import { Order } from '../../lb-sdk';
@@ -19,13 +16,10 @@ export class WorkerOrderComponent implements OnInit {
   orders = [];
 
   constructor(
-    private restaurantSvc: RestaurantService,
     private accountSvc: AccountService,
     private orderSvc: OrderService,
-    private authSvc: AuthService,
     private sharedSvc: SharedService,
-    private toastSvc: ToastrService,
-    private socket: SocketConnection
+    private toastSvc: ToastrService
   ) {
 
   }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as Cookies from 'js-cookie';
+import { ILocation } from '../location/location.model';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,22 @@ export class AuthService {
     return Cookies.get('duocun-userId');
   }
 
+  setLocation(loc: ILocation) {
+    Cookies.remove('duocun-location');
+    Cookies.set('duocun-location', JSON.stringify(loc));
+  }
+
+  getLocation(): ILocation {
+    const s = Cookies.get('duocun-location');
+    return s ? JSON.parse(s) : null;
+  }
+
+  removeLocation() {
+    Cookies.remove('duocun-location');
+  }
+
   removeCookies() {
+    Cookies.remove('duocun-location');
     Cookies.remove('duocun-userId');
     Cookies.remove('duocun-token');
   }

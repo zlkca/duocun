@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../product/product.service';
-import { AuthService } from '../../account/auth.service';
-import { SharedService } from '../../shared/shared.service';
 import { Product } from '../../lb-sdk';
 
 
@@ -21,8 +19,10 @@ export class ProductComponent implements OnInit {
     product;
     frame: any;
     id: string;
-    constructor(private productSvc: ProductService,
-        private route: ActivatedRoute) { }
+    constructor(
+      private productSvc: ProductService,
+      private route: ActivatedRoute
+    ) { }
 
     ngOnInit() {
         const self = this;

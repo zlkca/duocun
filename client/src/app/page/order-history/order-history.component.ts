@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
-import { SocketConnection } from '../../lb-sdk/sockets/socket.connections';
-import { AuthService } from '../../account/auth.service';
 import { SharedService } from '../../shared/shared.service';
 import { ToastrService } from 'ngx-toastr';
 import { Order } from '../../lb-sdk';
@@ -22,7 +20,6 @@ export class OrderHistoryComponent implements OnInit {
   constructor(
     private accountSvc: AccountService,
     private orderSvc: OrderService,
-    private authSvc: AuthService,
     private sharedSvc: SharedService,
     private toastSvc: ToastrService,
     private socketSvc: SocketService

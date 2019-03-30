@@ -1,8 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../product/product.service';
-import { AuthService } from '../../account/auth.service';
-import { environment } from '../../../environments/environment';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { Restaurant, Product } from '../../lb-sdk';
 

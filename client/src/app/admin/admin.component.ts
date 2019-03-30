@@ -1,14 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { AuthService } from '../account/auth.service';
 import { AccountService } from '../account/account.service';
-import { SharedService } from '../shared/shared.service';
-import { ProductService } from '../product/product.service';
 
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { Restaurant, Product, Order, Category } from '../lb-sdk';
-import { OrderService } from '../order/order.service';
 
 @Component({
   selector: 'app-admin',

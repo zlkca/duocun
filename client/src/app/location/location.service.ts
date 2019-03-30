@@ -88,6 +88,11 @@ export class LocationService extends EntityService {
     const pos: ILatLng = { lat: 43.761539, lng: -79.411079 }; // default
     return new Promise((resolve, reject) => {
       if (window.navigator && window.navigator.geolocation) {
+        const options = {
+          maximumAge: 5 * 60 * 1000,
+          timeout: 10 * 1000
+        };
+
         window.navigator.geolocation.getCurrentPosition(geo => {
           const lat = geo.coords.latitude;
           const lng = geo.coords.longitude;
@@ -96,7 +101,15 @@ export class LocationService extends EntityService {
             pos.lng = lng;
           }
           resolve(pos);
-        });
+        }, err => {
+          // error.code can be:
+          //   0: unknown error
+          //   1: permission denied
+          //   2: position unavailable (error response from location provider)
+          //   3: timed out
+          console.log('browser geocode exception: ' + err.code);
+          reject(pos);
+        }, options);
       } else {
         reject(pos);
       }

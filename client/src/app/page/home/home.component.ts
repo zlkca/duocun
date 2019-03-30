@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Restaurant, GeoPoint } from '../../lb-sdk';
-// import { LocationService } from '../../shared/location/location.service';
+import { GeoPoint } from '../../lb-sdk';
 import { environment } from '../../../environments/environment';
-import { RestaurantService } from '../../restaurant/restaurant.service';
-// import { RestaurantGridComponent } from '../../restaurant/restaurant-grid/restaurant-grid.component';
 import { SharedService } from '../../shared/shared.service';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
@@ -62,7 +59,6 @@ export class HomeComponent implements OnInit {
   constructor(
     private accountSvc: AccountService,
     private locationSvc: LocationService,
-    private restaurantSvc: RestaurantService,
     private sharedSvc: SharedService,
     private authSvc: AuthService,
     private socketSvc: SocketService,
@@ -88,13 +84,16 @@ export class HomeComponent implements OnInit {
       type: PageActions.UPDATE_URL,
       payload: 'home'
     });
-    // const s = localStorage.getItem('location-' + APP);
 
-    // if (s) {
-    //   const location = JSON.parse(s);
-    //   self.deliveryAddress = self.locationSvc.getAddrString(location);
-    //   self.center = { lat: location.lat, lng: location.lng };
-    //   self.doSearchRestaurants(self.center);
+    const location: ILocation = this.authSvc.getLocation();
+    if (location) {
+      self.deliveryAddress = self.locationSvc.getAddrString(location);
+      self.center = { lat: location.lat, lng: location.lng };
+      self.bHideMap = false;
+      self.mapFullScreen = false;
+      self.bTimeOptions = true;
+      self.calcDistancesToMalls({ lat: location.lat, lng: location.lng });
+    }
     // } else {
     //   this.locationSvc.getCurrentLocation().subscribe(r => {
     //     self.center = { lat: r.lat, lng: r.lng };
@@ -168,6 +167,7 @@ export class HomeComponent implements OnInit {
     this.mapFullScreen = true;
     this.options = [];
     this.bHideMap = false;
+    this.authSvc.removeLocation();
   }
 
   onAddressInputFocus(e) {
@@ -218,8 +218,8 @@ export class HomeComponent implements OnInit {
       // localStorage.setItem('location-' + APP, JSON.stringify(r));
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
       self.center = { lat: r.lat, lng: r.lng };
-      // self.doSearchRestaurants(self.center);
       self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
+      self.authSvc.setLocation(r);
 
       if (self.account) {
         self.locationSvc.save({ userId: self.account.id, type: 'history',
