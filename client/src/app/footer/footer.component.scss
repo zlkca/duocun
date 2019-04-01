@@ -31,6 +31,21 @@ footer{
     .bottom-nav-menus{
       display: none;
     }
+
+  .cart-col, .checkout-col, .amount-col{
+    height: 60px;
+    float: left;
+    padding-left:15px;
+  }
+  .cart-col{
+    width: 80px;
+  }
+  .checkout-col{
+    width: 95px;
+  }
+  .amount-col{
+    width: calc(100% - 175px);
+  }
 }
 
 @media #{$tablet}{

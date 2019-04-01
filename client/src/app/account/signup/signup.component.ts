@@ -6,7 +6,7 @@ import { AuthService } from '../auth.service';
 import { AccountService } from '../account.service';
 import { Account } from '../../account/account.model';
 import { IAppState } from '../../store';
-import { PageActions } from '../../page/page.actions';
+import { PageActions } from '../../main/main.actions';
 
 @Component({
   providers: [AuthService],

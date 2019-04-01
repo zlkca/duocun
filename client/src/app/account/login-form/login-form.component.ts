@@ -7,7 +7,7 @@ import { AuthService } from '../auth.service';
 import { AccountService } from '../account.service';
 import { AccountActions } from '../account.actions';
 import { Account } from '../../lb-sdk';
-import { PageActions } from '../../page/page.actions';
+import { PageActions } from '../../main/main.actions';
 import { IAppState } from '../../store';
 
 

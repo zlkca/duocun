@@ -111,7 +111,7 @@ $red: rgb(219, 68, 55);
     background-color: $green;
     color: white;
   }
-  .overdue{
+  .overdue, .immediate{
     background-color: $yellow;
   }
   .no-free{

@@ -1009,7 +1009,7 @@
       </trans-unit>
       <trans-unit id="DeliveryFeeMinus" datatype="html">
         <source>Delivery Fee Minus</source>
-        <target>运费立减</target>
+        <target>运费减</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
           <context context-type="linenumber">51</context>
@@ -1086,7 +1086,7 @@
       </trans-unit>
       <trans-unit id="DeliverNotFreeNotes" datatype="html">
         <source>deliver is not free, please order in advance next time</source>
-        <target>不支持运费全免,请下次提前预定</target>
+        <target>不能全免运费, 请提前预定</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
           <context context-type="linenumber">75</context>

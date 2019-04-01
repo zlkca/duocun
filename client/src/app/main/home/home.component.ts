@@ -7,11 +7,13 @@ import { AccountService } from '../../account/account.service';
 import { ILocationHistory, IPlace, ILocation, ILatLng } from '../../location/location.model';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { PageActions } from '../../page/page.actions';
+import { PageActions } from '../../main/main.actions';
 import { MallActions } from '../../mall/mall.actions';
 import { SocketService } from '../../shared/socket.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../account/auth.service';
+import { DeliverTimeActions } from '../main.actions';
+import { IDeliverTimeAction } from '../main.reducers';
 
 declare var google;
 
@@ -251,6 +253,10 @@ export class HomeComponent implements OnInit {
     this.bTimeOptions = false;
     this.options = [];
     this.deliveryTime = type;
+    this.rx.dispatch<IDeliverTimeAction>({
+      type: DeliverTimeActions.UPDATE,
+      payload: type
+    });
     this.route.navigate(['restaurant/list']);
   }
 }

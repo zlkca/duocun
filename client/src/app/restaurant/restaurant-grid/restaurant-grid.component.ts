@@ -7,9 +7,10 @@ import { environment } from '../../../environments/environment';
 import { RestaurantService } from '../restaurant.service';
 import { Restaurant } from '../restaurant.model';
 
-import { PageActions } from '../../page/page.actions';
+import { PageActions } from '../../main/main.actions';
 import { NgRedux } from '@angular-redux/store';
 import { LocationService } from '../../location/location.service';
+import { IAppState } from '../../store';
 
 const APP = environment.APP;
 
@@ -28,6 +29,7 @@ export class RestaurantGridComponent implements OnInit {
   defaultPicture = window.location.protocol + '//placehold.it/400x300';
   workers;
 
+  @Input() deliverTimeType;
   @Input() malls;
   @Input() restaurantList; // : Restaurant[];
   @Input() center;
@@ -37,7 +39,7 @@ export class RestaurantGridComponent implements OnInit {
     private sharedSvc: SharedService,
     private locationSvc: LocationService,
     private restaurantSvc: RestaurantService,
-    private rx: NgRedux<Account>
+    private rx: NgRedux<IAppState>
   ) {
     // self.center = JSON.parse(localStorage.getItem('location-' + APP));
 
@@ -77,6 +79,7 @@ export class RestaurantGridComponent implements OnInit {
         return 0;
       });
     }
+
   }
 
   searchByKeyword(keyword: string) {
@@ -162,9 +165,20 @@ export class RestaurantGridComponent implements OnInit {
     return d.toFixed(2) + ' km';
   }
 
+  getFullDeliveryFeeString(r: Restaurant) {
+    if (r.distance <= 3) {
+      return 5;
+    } else {
+      return 5 + 1.5 * Math.ceil(r.distance - 3);
+    }
+  }
+
   getDeliveryFeeString(r: Restaurant) {
-    const d = 1.5 * r.distance;
-    return d ? d.toFixed(2) : 0;
+    if (r.distance <= 3) {
+      return 3;
+    } else {
+      return 3 + 1.5 * Math.ceil(r.distance - 3) ;
+    }
   }
 
   // doSearchRestaurants(query?: any) {

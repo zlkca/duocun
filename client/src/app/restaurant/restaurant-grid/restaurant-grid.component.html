@@ -5,9 +5,13 @@
             <div class="row grid-item-body" *ngIf="p.distance!==null">
 
                 <div class="col-6 image-body">
-                    <div class="free delivery-fee notify-badge">
+                    <div *ngIf="deliverTimeType !== 'immediate'" class="free delivery-fee notify-badge">
                       <div class="text-sm" i18n="@@FreeDelivery">Free delivery</div>
-                      <del><span>${{getDeliveryFeeString(p)}}</span></del>
+                      <del><span>${{getFullDeliveryFeeString(p)}}</span></del>
+                    </div>
+                    <div *ngIf="deliverTimeType === 'immediate'" class="immediate delivery-fee notify-badge">
+                      <div class="text-sm">${{getDeliveryFeeString(p)}}</div>
+                      <del><span>${{getFullDeliveryFeeString(p)}}</span></del>
                     </div>
                     <img [src]="getImageSrc(p)" [alt]="p.name">
                 </div>

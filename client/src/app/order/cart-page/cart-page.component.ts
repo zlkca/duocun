@@ -10,7 +10,7 @@ import { Account } from '../../account/account.model';
 import { Order } from '../order.model';
 
 import { Router } from '@angular/router';
-import { PageActions } from '../../page/page.actions';
+import { PageActions } from '../../main/main.actions';
 import { SharedService } from '../../shared/shared.service';
 
 @Component({

@@ -5,7 +5,7 @@ import { ICart, CartActions, ICartItem } from '../../order/order.actions';
 import { AccountService } from '../../account/account.service';
 import { Router } from '@angular/router';
 import { ToastrService } from '../../../../node_modules/ngx-toastr';
-import { PageActions } from '../../page/page.actions';
+import { PageActions } from '../../main/main.actions';
 
 @Component({
   selector: 'app-client-order',

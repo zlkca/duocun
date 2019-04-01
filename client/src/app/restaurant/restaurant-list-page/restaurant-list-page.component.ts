@@ -7,6 +7,7 @@ import { LocationService } from '../../location/location.service';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { MallActions } from '../../mall/mall.actions';
+import { IDeliverTimeAction } from '../../main/main.reducers';
 
 @Component({
   selector: 'app-restaurant-list-page',
@@ -22,6 +23,8 @@ export class RestaurantListPageComponent implements OnInit {
   center;
   realMalls;
   deliveryAddress;
+  deliverTimeType;
+
   malls = [
     {id: 1, name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
       workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}]
@@ -54,6 +57,12 @@ export class RestaurantListPageComponent implements OnInit {
       // self.bTimeOptions = true;
       self.calcDistancesToMalls({ lat: location.lat, lng: location.lng });
     }
+
+
+    this.rx.select<IDeliverTimeAction>('deliverTime').subscribe(
+      deliverTime => {
+        self.deliverTimeType = deliverTime;
+      });
 
   }
 

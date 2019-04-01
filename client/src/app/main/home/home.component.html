@@ -26,10 +26,10 @@
           <div class="col-12 immediate-deliver">
             <div>
               <span class="text-md" style="font-weight: 400" i18n="@@ImmediateDeliver">Immediate Deliver</span>
-              <span class="text-sm date">(&nbsp;{{today}}</span>
+              <!-- <span class="text-sm date">(&nbsp;{{today}}</span>
               <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
               <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
-              <span class="text-sm">&nbsp;)</span>
+              <span class="text-sm">&nbsp;)</span> -->
             </div>
             <div class="text-sm">
               <span i18n="@@DeliveryFeeMinus">Delivery Fee Minus</span>
@@ -41,8 +41,8 @@
           <div class="col-12">
               <div>
                 <span class="text-md" i18n="@@LunchToday">Lunch Today</span>
-                <span class="text-sm date">(&nbsp;{{today}}</span>
-                <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
+                <span class="text-sm date">(&nbsp;{{today | date: 'MMMd E' }}</span>
+                <span class="text-sm time">{{lunchTime.start}}~{{lunchTime.end}}</span>
                 <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
                 <span class="text-sm">&nbsp;)</span>
               </div>
@@ -61,8 +61,8 @@
           <div class="col-12">
               <div>
                 <span class="text-md" i18n="@@LunchTomorrow">Lunch Tomorrow</span>
-                <span class="text-sm date">(&nbsp;{{tomorrow}}</span>
-                <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
+                <span class="text-sm date">(&nbsp;{{tomorrow | date: 'MMMd E'}}</span>
+                <span class="text-sm time">{{lunchTime.start}}~{{lunchTime.end}}</span>
                 <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
                 <span class="text-sm">&nbsp;)</span>
               </div>
@@ -75,8 +75,8 @@
           <div class="col-12">
               <div>
                 <span class="text-md" i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</span>
-                <span class="text-sm date">(&nbsp;{{dayAfterTomorrow}}</span>
-                <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
+                <span class="text-sm date">(&nbsp;{{dayAfterTomorrow | date: 'MMMd E'}}</span>
+                <span class="text-sm time">{{lunchTime.start}}~{{lunchTime.end}}</span>
                 <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
                 <span class="text-sm">&nbsp;)</span>
               </div>

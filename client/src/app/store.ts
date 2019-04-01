@@ -8,7 +8,7 @@ import { ICart } from './order/order.actions';
 // import { IPicture, DEFAULT_PICTURE } from './commerce/commerce.actions';
 import { cartReducer } from './order/order.reducers';
 import { Account } from './lb-sdk';
-import { pageReducer } from './page/page.reducers';
+import { pageReducer, deliverTimeReducer } from './main/main.reducers';
 import { commandReducer } from './shared/command.reducers';
 import { DEFAULT_MALL } from './mall/mall.actions';
 import { IMall } from './mall/mall.model';
@@ -21,6 +21,7 @@ export interface IAppState {
     // location: ILocation;
     page: string;
     cmd: string;
+    deliverTime: string;
     mall: IMall;
 }
 
@@ -31,6 +32,7 @@ export const INITIAL_STATE: IAppState = {
     // location: null,
     page: 'home',
     cmd: '',
+    deliverTime: '',
     mall: DEFAULT_MALL
 };
 
@@ -51,5 +53,6 @@ export const rootReducer = combineReducers({
     // location: locationReducer
     page: pageReducer,
     cmd: commandReducer,
+    deliverTime: deliverTimeReducer,
     mall: mallReducer
 });
