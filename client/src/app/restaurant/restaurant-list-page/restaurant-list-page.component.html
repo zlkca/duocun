@@ -15,19 +15,20 @@
   </div>
 </div> -->
 
+<div class="page">
+  <div *ngIf="restaurants" class="col-12 restaurant-list">
+    <div *ngIf="deliveryTime === 'immediate'" class="text-md overdue time-title" style="font-weight: 400"
+      i18n="@@ImmediateDeliver">Immediate Deliver</div>
+    <div *ngIf="deliveryTime === 'lunch today'" class="text-md time-title" style="font-weight: 400" [class.overdue]="overdue"
+      i18n="@@LunchToday">Lunch Today</div>
+    <div *ngIf="deliveryTime === 'lunch tomorrow'" class="text-md free time-title" style="font-weight: 400"
+      i18n="@@LunchTomorrow">Lunch Tomorrow</div>
+    <div *ngIf="deliveryTime === 'lunch after tomorrow'" class="text-md free time-title" style="font-weight: 400" 
+      i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</div>
+  </div> 
 
-<div *ngIf="restaurants" class="col-12 restaurant-list">
-  <div *ngIf="deliveryTime === 'immediate'" class="text-md overdue time-title" style="font-weight: 400"
-    i18n="@@ImmediateDeliver">Immediate Deliver</div>
-  <div *ngIf="deliveryTime === 'lunch today'" class="text-md time-title" style="font-weight: 400" [class.overdue]="overdue"
-    i18n="@@LunchToday">Lunch Today</div>
-  <div *ngIf="deliveryTime === 'lunch tomorrow'" class="text-md free time-title" style="font-weight: 400"
-    i18n="@@LunchTomorrow">Lunch Tomorrow</div>
-  <div *ngIf="deliveryTime === 'lunch after tomorrow'" class="text-md free time-title" style="font-weight: 400" 
-    i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</div>
-</div> 
-
-<app-restaurant-grid *ngIf="restaurants" 
-  [restaurantList]="restaurants" [center]="center" 
-  [deliverTimeType]="deliverTimeType" [malls]="realMalls">
-</app-restaurant-grid>
+  <app-restaurant-grid *ngIf="restaurants" 
+    [restaurantList]="restaurants" [center]="center" 
+    [deliverTimeType]="deliverTimeType" [malls]="realMalls">
+  </app-restaurant-grid>
+</div>

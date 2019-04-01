@@ -25,6 +25,8 @@ $item-height:40px;
 $navbar-height:60px;
 $navbar-m-height:60px;
 
+$bottom-bar-height: 60px;
+
 // google map label
 .gm-style-cc{
   display: none !important;
@@ -425,7 +427,8 @@ select:not([multiple]) {
   @media #{$mobile}{
     .page{
       margin-top:0px;
-      min-height:500px;
+      // min-height:500px;
+      padding-bottom: $bottom-bar-height;
     }
 
     .auth-form{

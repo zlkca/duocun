@@ -47,7 +47,7 @@ export class HomeComponent implements OnInit {
   deliveryDiscount = 2;
   deliveryTime = 'immediate';
   malls = [
-    {id: 1, name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
+    {id: 1, name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 2,
       workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}]
     },
     {id: 2, name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
@@ -56,6 +56,10 @@ export class HomeComponent implements OnInit {
     {id: 3, name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
       workers: [{id: '', username: 'worker2'}]
     },
+    {id: 4, name: 'Richmond Hill', type: 'virtual', lat: 43.884244, lng: -79.467925, radius: 8,
+      workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}
+    ]
+  },
   ];
   realMalls = [];
   inRange = false;
@@ -92,8 +96,8 @@ export class HomeComponent implements OnInit {
   calcDistancesToMalls(center: ILatLng) {
     const self = this;
     let inRange = false;
-    this.malls.map(mall => {
-      if (self.locationSvc.getDirectDistance(center, mall) < 8000) {
+    this.malls.filter(x => x.type === 'virtual').map(mall => {
+      if (self.locationSvc.getDirectDistance(center, mall) < mall.radius * 1000) {
         inRange = true;
       }
     });
