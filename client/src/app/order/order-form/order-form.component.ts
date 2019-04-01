@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { OrderService } from '../order.service';
 import { SharedService } from '../../shared/shared.service';
 
@@ -13,6 +13,8 @@ import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { IMall } from '../../mall/mall.model';
 import { RestaurantService } from '../../restaurant/restaurant.service';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
 
 const APP = environment.APP;
 
@@ -21,7 +23,7 @@ const APP = environment.APP;
   templateUrl: './order-form.component.html',
   styleUrls: ['./order-form.component.scss']
 })
-export class OrderFormComponent implements OnInit {
+export class OrderFormComponent implements OnInit, OnDestroy {
   @Input() account: Account;
   @Input() items: ICartItem[];
   @Output() afterSubmit: EventEmitter<any> = new EventEmitter();
@@ -34,6 +36,7 @@ export class OrderFormComponent implements OnInit {
   placeholder = 'Delivery Address';
   restaurant = null;
   mall: IMall;
+  private onDestroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -56,13 +59,17 @@ export class OrderFormComponent implements OnInit {
       this.deliveryAddress = s.street_number + ' ' + s.street_name + ' ' + s.sub_locality + ', ' + s.province;
     }
 
-    this.rx.select<string>('cmd').subscribe(x => {
+    this.rx.select<string>('cmd').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(x => {
       if (x === 'pay') {
         self.checkout();
       }
     });
 
-    this.rx.select<IMall>('mall').subscribe(mall => {
+    this.rx.select<IMall>('mall').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(mall => {
       self.mall = mall;
     });
   }
@@ -82,6 +89,11 @@ export class OrderFormComponent implements OnInit {
         });
     }
 
+  }
+
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
   cancel() {

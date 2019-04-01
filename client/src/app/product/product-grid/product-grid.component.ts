@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
@@ -8,6 +8,8 @@ import { IAppState } from '../../store';
 import { CartActions, ICart, ICartItem } from '../../order/order.actions';
 import { SharedService } from '../../shared/shared.service';
 import { Product } from '../../product/product.model';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -16,7 +18,7 @@ const ADD_IMAGE = 'add_photo.png';
   templateUrl: './product-grid.component.html',
   styleUrls: ['./product-grid.component.scss']
 })
-export class ProductGridComponent implements OnInit, OnChanges {
+export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
 
   MEDIA_URL: string = environment.MEDIA_URL;
   defaultProductPicture = window.location.protocol + '//placehold.it/400x300';
@@ -24,6 +26,7 @@ export class ProductGridComponent implements OnInit, OnChanges {
   cart: any;
   categoryIds;
   groupedOrders: any = {};
+  private onDestroy$ = new Subject<void>();
 
   @Input() categories;
   @Input() groupedProducts: Product[][];
@@ -36,7 +39,9 @@ export class ProductGridComponent implements OnInit, OnChanges {
     private sharedSvc: SharedService
     // private actions: CartActions
   ) {
-    rx.select<ICart>('cart').subscribe((cart: ICart) => {
+    rx.select<ICart>('cart').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((cart: ICart) => {
       this.cart = cart;
       if (this.groupedProducts) {
         const categoryIds = Object.keys(this.groupedProducts);
@@ -54,6 +59,10 @@ export class ProductGridComponent implements OnInit, OnChanges {
 
   }
 
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
   ngOnChanges(v) {
     const cats = v.categories ? v.categories.currentValue : null;
     const gps = v.groupedProducts ? v.groupedProducts.currentValue : null;

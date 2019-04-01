@@ -8,7 +8,6 @@ const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const socket_io_1 = __importDefault(require("socket.io"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("./config");
@@ -23,9 +22,9 @@ const mall_1 = require("./mall");
 const location_1 = require("./location");
 const distance_1 = require("./distance");
 const utils_1 = require("./utils");
-console.log = function (msg) {
-    fs_1.default.appendFile("/tmp/log-duocun.log", msg, function (err) { });
-};
+// console.log = function (msg: any) {
+//   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
+// }
 const utils = new utils_1.Utils();
 const cfg = new config_1.Config();
 const SERVER = cfg.API_SERVER;

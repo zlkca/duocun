@@ -30,22 +30,22 @@ export class AuthService {
     return Cookies.get('duocun-userId');
   }
 
-  setLocation(loc: ILocation) {
-    Cookies.remove('duocun-location');
-    Cookies.set('duocun-location', JSON.stringify(loc));
-  }
+  // setLocation(loc: ILocation) {
+  //   Cookies.remove('duocun-location');
+  //   Cookies.set('duocun-location', JSON.stringify(loc));
+  // }
 
-  getLocation(): ILocation {
-    const s = Cookies.get('duocun-location');
-    return s ? JSON.parse(s) : null;
-  }
+  // getLocation(): ILocation {
+  //   const s = Cookies.get('duocun-location');
+  //   return s ? JSON.parse(s) : null;
+  // }
 
-  removeLocation() {
-    Cookies.remove('duocun-location');
-  }
+  // removeLocation() {
+  //   Cookies.remove('duocun-location');
+  // }
 
   removeCookies() {
-    Cookies.remove('duocun-location');
+    // Cookies.remove('duocun-location');
     Cookies.remove('duocun-userId');
     Cookies.remove('duocun-token');
   }

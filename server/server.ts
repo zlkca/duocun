@@ -24,9 +24,9 @@ import { Distance } from "./distance";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
-console.log = function (msg: any) {
-  fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
-}
+// console.log = function (msg: any) {
+//   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
+// }
 
 const utils = new Utils();
 const cfg = new Config();

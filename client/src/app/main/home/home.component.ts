@@ -13,7 +13,9 @@ import { SocketService } from '../../shared/socket.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../account/auth.service';
 import { DeliverTimeActions } from '../main.actions';
-import { IDeliverTimeAction } from '../main.reducers';
+import { IDeliverTimeAction, IPageAction } from '../main.reducers';
+import { LocationActions } from '../../location/location.actions';
+import { ILocationAction } from '../../location/location.reducer';
 
 declare var google;
 
@@ -65,7 +67,7 @@ export class HomeComponent implements OnInit {
     private authSvc: AuthService,
     private socketSvc: SocketService,
     private route: Router,
-    private rx: NgRedux<IAppState>
+    private rx: NgRedux<IAppState>,
   ) {
     this.today = sharedSvc.getTodayString();
     this.tomorrow = sharedSvc.getNextNDayString(1);
@@ -78,34 +80,13 @@ export class HomeComponent implements OnInit {
     const self = this;
     this.subscrAccount = this.accountSvc.getCurrent().subscribe(account => {
       self.account = account;
-
       self.socketSvc.init(this.authSvc.getAccessToken());
-
     });
-    this.rx.dispatch({
+
+    this.rx.dispatch<IPageAction>({
       type: PageActions.UPDATE_URL,
       payload: 'home'
     });
-
-    const location: ILocation = this.authSvc.getLocation();
-    if (location) {
-      self.deliveryAddress = self.locationSvc.getAddrString(location);
-      self.center = { lat: location.lat, lng: location.lng };
-      self.bHideMap = false;
-      self.mapFullScreen = false;
-      self.bTimeOptions = true;
-      self.calcDistancesToMalls({ lat: location.lat, lng: location.lng });
-    }
-    // } else {
-    //   this.locationSvc.getCurrentLocation().subscribe(r => {
-    //     self.center = { lat: r.lat, lng: r.lng };
-    //     self.doSearchRestaurants(self.center);
-    //   });
-    // }
-  }
-
-  setupSocket() {
-
   }
 
   calcDistancesToMalls(center: ILatLng) {
@@ -117,18 +98,6 @@ export class HomeComponent implements OnInit {
       }
     });
     this.inRange = inRange;
-    // this.locationSvc.getRoadDistances(center, this.malls).subscribe(rs => {
-    //   if (rs) {
-    //     self.realMalls = rs.filter(r => r.type === 'real');
-
-    //     const mall = self.malls.find(x => x.id === self.realMalls[0].id);
-
-    //     self.rx.dispatch({
-    //       type: MallActions.UPDATE,
-    //       payload: mall
-    //     });
-    //   }
-    // });
   }
 
   private getLocation(p: IPlace): ILocation {
@@ -159,8 +128,6 @@ export class HomeComponent implements OnInit {
         }
       }
     });
-    // localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
-    // this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
     this.mapFullScreen = false;
   }
 
@@ -169,7 +136,6 @@ export class HomeComponent implements OnInit {
     this.mapFullScreen = true;
     this.options = [];
     this.bHideMap = false;
-    this.authSvc.removeLocation();
   }
 
   onAddressInputFocus(e) {
@@ -191,7 +157,10 @@ export class HomeComponent implements OnInit {
     const r = e.location;
     this.options = [];
     if (r) {
-      this.authSvc.setLocation(r);
+      this.rx.dispatch<ILocationAction>({
+        type: LocationActions.UPDATE,
+        payload: r
+      });
       this.bHideMap = false;
       this.center = { lat: r.lat, lng: r.lng };
       this.bTimeOptions = true;
@@ -217,12 +186,14 @@ export class HomeComponent implements OnInit {
       self.mapFullScreen = false;
       self.bTimeOptions = true;
       self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
-      // self.loadNearbyRestaurants(self.center);
-      // localStorage.setItem('location-' + APP, JSON.stringify(r));
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
       self.center = { lat: r.lat, lng: r.lng };
       self.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
-      self.authSvc.setLocation(r);
+
+      self.rx.dispatch<ILocationAction>({
+        type: LocationActions.UPDATE,
+        payload: r
+      });
 
       if (self.account) {
         self.locationSvc.save({ userId: self.account.id, type: 'history',

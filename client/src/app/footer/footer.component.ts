@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
 import { Account } from '../account/account.model';
 import { ICart, ICartItem } from '../order/order.actions';
 import { IAppState } from '../store';
 import { CommandActions } from '../shared/command.actions';
+import { takeUntil } from '../../../node_modules/rxjs/operators';
+import { Subject } from '../../../node_modules/rxjs';
 
 @Component({
   selector: 'app-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss']
 })
-export class FooterComponent implements OnInit {
+export class FooterComponent implements OnInit, OnDestroy {
   year = 2018;
   account: Account;
   bCart = false;
@@ -19,6 +21,7 @@ export class FooterComponent implements OnInit {
   total;
   quantity;
   cart;
+  private onDestroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
@@ -28,7 +31,9 @@ export class FooterComponent implements OnInit {
     this.rx.select('account').subscribe((account: Account) => {
       self.account = account;
     });
-    this.rx.select<string>('page').subscribe(x => {
+    this.rx.select<string>('page').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(x => {
       if (x === 'restaurants') {
         self.bCart = true;
         self.bCheckout = false;
@@ -40,7 +45,9 @@ export class FooterComponent implements OnInit {
         self.bCheckout = false;
       }
     });
-    this.rx.select<ICart>('cart').subscribe(
+    this.rx.select<ICart>('cart').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(
       cart => {
         this.total = 0;
         this.quantity = 0;
@@ -53,6 +60,11 @@ export class FooterComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
   toHome() {

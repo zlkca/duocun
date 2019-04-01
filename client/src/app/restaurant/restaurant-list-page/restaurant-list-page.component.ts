@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { Restaurant } from '../../restaurant/restaurant.model';
 import { ILocation, ILatLng } from '../../location/location.model';
@@ -8,22 +8,24 @@ import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { MallActions } from '../../mall/mall.actions';
 import { IDeliverTimeAction } from '../../main/main.reducers';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-restaurant-list-page',
   templateUrl: './restaurant-list-page.component.html',
   styleUrls: ['./restaurant-list-page.component.scss']
 })
-export class RestaurantListPageComponent implements OnInit {
+export class RestaurantListPageComponent implements OnInit, OnDestroy {
 
   private places;
-
+  location;
   deliveryTime = '';
   restaurants;
   center;
   realMalls;
   deliveryAddress;
-  deliverTimeType;
+  deliverTimeType = 'immediate';
 
   malls = [
     {id: 1, name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
@@ -37,33 +39,45 @@ export class RestaurantListPageComponent implements OnInit {
     },
   ];
 
+  private onDestroy$ = new Subject<void>();
   constructor(
     private authSvc: AuthService,
     private locationSvc: LocationService,
     private restaurantSvc: RestaurantService,
-    private rx: NgRedux<IAppState>
+    private rx: NgRedux<IAppState>,
   ) {
 
   }
 
   ngOnInit() {
     const self = this;
-    const location: ILocation = this.authSvc.getLocation();
-    if (location) {
-      // self.deliveryAddress = self.locationSvc.getAddrString(location);
-      self.center = { lat: location.lat, lng: location.lng };
-      // self.bHideMap = false;
-      // self.mapFullScreen = false;
-      // self.bTimeOptions = true;
-      self.calcDistancesToMalls({ lat: location.lat, lng: location.lng });
-    }
 
+    this.rx.select<ILocation>('location').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((loc: ILocation) => {
+      const location = loc;
+      if (location) {
+        self.center = { lat: location.lat, lng: location.lng };
+        self.calcDistancesToMalls({ lat: location.lat, lng: location.lng });
+      }
+    });
 
-    this.rx.select<IDeliverTimeAction>('deliverTime').subscribe(
-      deliverTime => {
+    // const location = this.location;
+    // if (location) {
+    //   self.center = { lat: location.lat, lng: location.lng };
+    //   self.calcDistancesToMalls({ lat: location.lat, lng: location.lng });
+    // }
+    this.rx.select<string>('deliverTime').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((deliverTime: string) => {
         self.deliverTimeType = deliverTime;
       });
 
+  }
+
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
   calcDistancesToMalls(center: ILatLng) {

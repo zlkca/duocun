@@ -6,6 +6,8 @@ import { AccountService } from '../../account/account.service';
 import { Router } from '@angular/router';
 import { ToastrService } from '../../../../node_modules/ngx-toastr';
 import { PageActions } from '../../main/main.actions';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
 
 @Component({
   selector: 'app-client-order',
@@ -13,10 +15,10 @@ import { PageActions } from '../../main/main.actions';
   styleUrls: ['./client-order.component.scss']
 })
 export class ClientOrderComponent implements OnInit, OnDestroy {
-  subscription;
-  subscrAccount;
+  subscriptionAccount;
   account;
   cart;
+  private onDestroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
@@ -27,11 +29,13 @@ export class ClientOrderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    this.subscrAccount = this.accountSvc.getCurrent().subscribe(account => {
+    this.subscriptionAccount = this.accountSvc.getCurrent().subscribe(account => {
       self.account = account;
     });
 
-    this.subscription = this.rx.select<ICart>('cart').subscribe(
+    this.rx.select<ICart>('cart').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(
       cart => {
         // this.total = 0;
         // this.quantity = 0;
@@ -50,8 +54,9 @@ export class ClientOrderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
-    // this.subscriptionAccount.unsubscribe();
+    this.subscriptionAccount.unsubscribe();
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
   onAfterCheckout(e) {

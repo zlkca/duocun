@@ -1,4 +1,4 @@
-import { Component, Output, OnInit } from '@angular/core';
+import { Component, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
@@ -9,6 +9,7 @@ import { AccountActions } from '../account.actions';
 import { Account } from '../../lb-sdk';
 import { PageActions } from '../../main/main.actions';
 import { IAppState } from '../../store';
+import { Subject } from '../../../../node_modules/rxjs';
 
 
 @Component({
@@ -17,7 +18,7 @@ import { IAppState } from '../../store';
   templateUrl: './login-form.component.html',
   styleUrls: ['./login-form.component.scss']
 })
-export class LoginFormComponent implements OnInit {
+export class LoginFormComponent implements OnInit, OnDestroy {
 
   public user;
   public account = '';
@@ -27,6 +28,7 @@ export class LoginFormComponent implements OnInit {
   errMsg = '';
   auth2: any;
   form: FormGroup;
+  private onDestroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -46,6 +48,11 @@ export class LoginFormComponent implements OnInit {
       type: PageActions.UPDATE_URL,
       payload: 'login'
     });
+  }
+
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
   onLogin() {

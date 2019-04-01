@@ -12,6 +12,8 @@ import { Order } from '../order.model';
 import { Router } from '@angular/router';
 import { PageActions } from '../../main/main.actions';
 import { SharedService } from '../../shared/shared.service';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
 
 @Component({
   selector: 'app-cart-page',
@@ -21,11 +23,11 @@ import { SharedService } from '../../shared/shared.service';
 export class CartPageComponent implements OnInit, OnDestroy {
   total = 0;
   quantity = 0;
-  subscription;
   subscriptionAccount;
   cart: ICart;
   user: Account;
   defaultProductPicture = window.location.protocol + '//placehold.it/400x300';
+  private onDestroy$ = new Subject<void>();
 
   @ViewChild('orderDetailModal') orderDetailModal;
 
@@ -41,7 +43,9 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.subscription = this.rx.select<ICart>('cart').subscribe(
+    this.rx.select<ICart>('cart').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(
       cart => {
         this.total = 0;
         this.quantity = 0;
@@ -134,8 +138,9 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
     this.subscriptionAccount.unsubscribe();
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
   getProductImage(p: Product) {

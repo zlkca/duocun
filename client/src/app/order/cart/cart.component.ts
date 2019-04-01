@@ -8,6 +8,8 @@ import { AccountService } from '../../account/account.service';
 import { Account } from '../../account/account.model';
 import { Order } from '../order.model';
 import { Router } from '@angular/router';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
 
 @Component({
   selector: 'app-cart',
@@ -21,6 +23,7 @@ export class CartComponent implements OnInit, OnDestroy {
   subscriptionAccount;
   cart: ICart;
   user: Account;
+  private onDestroy$ = new Subject<void>();
 
   @ViewChild('orderDetailModal') orderDetailModal;
 
@@ -34,7 +37,9 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.subscription = this.rx.select<ICart>('cart').subscribe(
+    this.rx.select<ICart>('cart').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(
       cart => {
         this.total = 0;
         this.quantity = 0;
@@ -122,7 +127,8 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
     this.subscriptionAccount.unsubscribe();
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 }

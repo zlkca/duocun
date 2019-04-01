@@ -596,7 +596,7 @@
       </trans-unit>
       <trans-unit id="DeliveryFee" datatype="html">
         <source>Delivery Fee</source>
-        <target>送餐费</target>
+        <target>运费</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/order-detail/order-detail.component.html</context>
           <context context-type="linenumber">24</context>
