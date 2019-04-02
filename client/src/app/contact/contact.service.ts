@@ -18,7 +18,7 @@ export class ContactService extends EntityService {
     public authSvc: AuthService
   ) {
     super(authSvc, http);
-    this.url = super.getBaseUrl() + 'Deliveries';
+    this.url = super.getBaseUrl() + 'Contacts';
   }
 
   save(d: Contact): Observable<any> {

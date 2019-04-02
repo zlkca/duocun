@@ -51,6 +51,10 @@ const appRoutes: Routes = [
       loadChildren: './product/product.module#ProductModule'
     },
     {
+      path: 'cart',
+      loadChildren: './cart/cart.module#CartModule'
+    },
+    {
       path: 'order',
       loadChildren: './order/order.module#OrderModule'
     },

@@ -6,7 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IAppState } from '../../store';
 import { SharedService } from '../../shared/shared.service';
-import { Product } from '../../product/product.model';
+import { Product, IProduct } from '../../product/product.model';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { ICart } from '../../cart/cart.model';
@@ -95,7 +95,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  addToCart(p: Product) {
+  addToCart(p: IProduct) {
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART, payload:
         { productId: p.id, name: p.name, price: p.price, pictures: p.pictures,
@@ -103,7 +103,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  removeFromCart(p: Product) {
+  removeFromCart(p: IProduct) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
       payload: { productId: p.id, name: p.name, price: p.price, pictures: p.pictures,

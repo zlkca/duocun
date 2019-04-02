@@ -11,6 +11,7 @@ import { IDeliverTimeAction } from '../../main/main.reducers';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, first } from 'rxjs/operators';
 import { IMall } from '../../mall/mall.model';
+import { PageActions } from '../../main/main.actions';
 
 @Component({
   selector: 'app-restaurant-list-page',
@@ -53,7 +54,10 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
     private restaurantSvc: RestaurantService,
     private rx: NgRedux<IAppState>,
   ) {
-
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'restaurant-list'
+    });
   }
 
   ngOnInit() {

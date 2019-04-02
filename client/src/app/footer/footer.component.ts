@@ -17,7 +17,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   year = 2018;
   account: Account;
   bCart = false;
-  bCheckout = false;
+  bPay = false;
   total;
   quantity;
   cart;
@@ -31,20 +31,22 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.rx.select('account').subscribe((account: Account) => {
       self.account = account;
     });
+
     this.rx.select<string>('page').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(x => {
-      if (x === 'restaurants') {
+      if (x === 'restaurant-detail' || x === 'cart') {
         self.bCart = true;
-        self.bCheckout = false;
-      } else if (x === 'orders') {
+        self.bPay = false;
+      } else if (x === 'order-confirm') {
         self.bCart = false;
-        self.bCheckout = true;
+        self.bPay = true;
       } else {
         self.bCart = false;
-        self.bCheckout = false;
+        self.bPay = false;
       }
     });
+
     this.rx.select<ICart>('cart').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(
@@ -83,7 +85,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   toCart() {
     if (this.account.type === 'user' || this.account.type === 'super') {
-      this.router.navigate(['order/cart']);
+      this.router.navigate(['cart']);
     } else if (this.account.type === 'worker') {
       this.router.navigate(['order/list-worker']);
     } else if (this.account.type === 'restaurant') {
@@ -101,18 +103,26 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   checkout() {
     if (this.account.type === 'user' || this.account.type === 'super') {
-      this.router.navigate(['contact/list']);
+      if (this.quantity > 0) {
+        this.router.navigate(['contact/list']);
+      }
+    } else {
+      this.router.navigate(['acccount/login']);
     }
   }
 
   pay() {
     if (this.account.type === 'user' || this.account.type === 'super') {
-      this.rx.dispatch({
-        type: CommandActions.SEND,
-        payload: 'pay'
-      });
+      if (this.quantity > 0) {
+        this.rx.dispatch({
+          type: CommandActions.SEND,
+          payload: 'pay'
+        });
+      }
+      this.bCart = false;
+      this.bPay = false;
+    } else {
+      // pass
     }
-    this.bCart = false;
-    this.bCheckout = false;
   }
 }

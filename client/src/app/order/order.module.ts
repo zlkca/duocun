@@ -13,7 +13,6 @@ import { ClientOrderComponent } from './client-order/client-order.component';
 import { WorkerOrderComponent } from './worker-order/worker-order.component';
 import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.component';
 import { OrderHistoryComponent } from './order-history/order-history.component';
-import { CartPageComponent } from './cart-page/cart-page.component';
 import { OrderRoutingModule } from './order-routing.module';
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { OrderFormPageComponent } from './order-form-page/order-form-page.component';
@@ -45,7 +44,6 @@ import { OrderFormPageComponent } from './order-form-page/order-form-page.compon
     WorkerOrderComponent,
     RestaurantOrderComponent,
     OrderHistoryComponent,
-    CartPageComponent,
     OrderFormPageComponent
   ],
   schemas: [

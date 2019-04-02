@@ -8,16 +8,16 @@ export class User {
     type: string;
     password: string;
     constructor(o?: any) {
-        if (o) {
-            this.id = o.id;
-            this.username = o.username;
-            this.email = o.email;
-            this.first_name = o.first_name;
-            this.last_name = o.last_name;
-            this.portrait = o.portrait;
-            this.type = o.type;
-            this.password = '';
-        }
+      if (o) {
+          this.id = o.id;
+          this.username = o.username;
+          this.email = o.email;
+          this.first_name = o.first_name;
+          this.last_name = o.last_name;
+          this.portrait = o.portrait;
+          this.type = o.type;
+          this.password = '';
+      }
     }
 }
 

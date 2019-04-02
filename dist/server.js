@@ -21,7 +21,7 @@ const order_1 = require("./order");
 const mall_1 = require("./mall");
 const location_1 = require("./location");
 const distance_1 = require("./distance");
-const delivery_1 = require("./delivery");
+const contact_1 = require("./contact");
 const utils_1 = require("./utils");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
@@ -49,7 +49,7 @@ let product;
 let mall;
 let location;
 let distance;
-let delivery;
+let contact;
 let mysocket; // Socket;
 let io;
 dbo.init(cfg.DATABASE).then(dbClient => {
@@ -62,7 +62,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     mall = new mall_1.Mall(dbo);
     location = new location_1.Location(dbo);
     distance = new distance_1.Distance(dbo);
-    delivery = new delivery_1.Delivery(dbo);
+    contact = new contact_1.Contact(dbo);
     // socket = new Socket(dbo, io);
     // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
     //   const uId = data.userId;
@@ -348,30 +348,30 @@ app.get('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
 app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
     distance.get(req, res);
 });
-app.post('/' + ROUTE_PREFIX + '/Deliveries', (req, res) => {
-    delivery.insertOne(req.body).then((x) => {
+app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
+    contact.insertOne(req.body).then((x) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x.ops[0], null, 3));
     });
 });
-app.put('/' + ROUTE_PREFIX + '/Deliveries', (req, res) => {
-    delivery.replaceById(req.body.id, req.body).then((x) => {
+app.put('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
+    contact.replaceById(req.body.id, req.body).then((x) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
     });
 });
-app.get('/' + ROUTE_PREFIX + '/Deliveries', (req, res) => {
+app.get('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
     const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    delivery.find(query ? query.where : {}).then((x) => {
+    contact.find(query ? query.where : {}).then((x) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
     });
 });
-app.get('/' + ROUTE_PREFIX + '/Deliveries/:id', (req, res) => {
-    delivery.get(req, res);
+app.get('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
+    contact.get(req, res);
 });
-app.delete('/' + ROUTE_PREFIX + '/Deliveries/:id', (req, res) => {
-    delivery.deleteById(req.params.id).then(x => {
+app.delete('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
+    contact.deleteById(req.params.id).then(x => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
     });

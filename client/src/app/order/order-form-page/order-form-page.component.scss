@@ -2,12 +2,21 @@
   padding: 0px 15px 60px 15px;
 }
 
+.restaurant{
+  padding: 5px 0px;
+}
+
+.contact-block{
+  padding: 10px 15px;
+  border: solid 1px #eee;
+}
+
 .total-block {
   padding: 10px 15px;
   .row {
     padding-bottom: 4px;
     .col-9 {
-      padding-left: 200px;
+      padding-left: 100px;
     }
   }
 
@@ -22,6 +31,21 @@
   }
 }
 
-.payment-method-block{
+.payment-method-block, .notes-block{
+  padding: 10px 15px;
   margin: 0px;
+  .row{
+    padding: 0px;
+  }
+}
+
+.notes-block{
+  padding-right: 0px;
+}
+
+.product-list{
+  padding: 5px 15px;
+  .quantity-col {
+    padding-left: 0px;
+  }
 }

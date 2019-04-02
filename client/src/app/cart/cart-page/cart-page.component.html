@@ -1,3 +1,78 @@
-<p>
-  cart-page works!
-</p>
+<div *ngIf="cart.items && cart.items.length==0">
+    There is no items in your cart.
+  </div>
+  <div class="cart" *ngIf="cart.items.length>0">
+      <div class="row title">
+        <div class="col-9 title-lg title-left" i18n="@@ShoppingCart">Shopping Cart</div>
+        <div class="col-3 title-sm pull-right" i18n="@@ClearCart" (click)="clearCart()">Clear</div>
+      </div>
+      <div class="container item-list">
+        <div *ngFor="let item of cart.items">
+          <div class="row item-row">
+            <div class="col-5 image-col">
+              <img [src]="getProductImage(item)">
+            </div>
+  
+            <div class="col-7 text-col">
+              <div class="col-12 name-row">
+                <div>{{item.name}}</div>
+              </div>
+              <div class="col-12 detail-row">
+                <div class="row">
+                    <div class="col-4 price-col">$ {{item.price}}</div>
+                    <div class="col-8 button-col">
+                        <!-- <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(item)"></i> -->
+                        <img src="assets/outline-remove_circle-24px.svg" alt="cart" (click)="removeFromCart(item)" />
+                        <div class="quantity">{{item.quantity}}</div>
+                        <!-- <i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(item)"></i> -->
+                        <img src="assets/outline-add_circle-24px.svg" alt="cart" (click)="addToCart(item)" />
+                    </div>
+                </div>
+              </div>
+            </div>
+  
+              <!-- <input type="text" name="num" class="input form-control text-center" [(ngModel)]="item.quantity"
+                (change)="updateQuantity(item)"> -->
+  
+            <!-- <div class="col-4 input-group input-group-sm quantity-input">
+              <span class="input-group-prepend">
+                <button type="button" (click)="removeFromCart(item)" class="btn btn-light btn-sm rounded-0" 
+                  data-type="minus" data-field="num">-</button>
+              </span>
+              <span class="quantity-input">{{item.quantity}}</span>
+  
+              <span class="input-group-append">
+                <button type="button" (click)="addToCart(item)" class="btn btn-light btn-sm rounded-0" data-type="plus"
+                  data-field="num">+</button>
+              </span>
+            </div> -->
+            <!-- <div class="col-8 text-area">
+              <div class="col-12 text-left">{{item.name}}</div>
+              <div class="col-12 text-right">{{item.price * item.quantity | currency:'CAD' }}</div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+      <!-- <div class="row text-right ml-2 mr-1 mb-3">
+        <div class="col-12">
+          <p class="title-sm">{{quantity}}<span i18n="@@Items">Items</span>, <span i18n="@@Total">Total</span>: {{total | currency:'CAD' }}</p>
+        </div>
+        <div class="col-12">
+          <button type="button" class="btn btn-xs btn-primary pull-right" (click)="checkout()" i18n="@@Checkout">Check out</button>
+        </div>
+      </div> -->
+    </div>
+    
+    <!-- <ng-template #orderDetailModal let-c="close" let-d="dismiss">
+      <div class="modal-header">
+        <h4 class="modal-title" i18n="@@OrderDetail">Order Detail</h4>
+      </div>
+      <div class="modal-body">
+        <app-order-detail [cart]="cart"></app-order-detail>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-xs btn-secondary pull-left" (click)="d('Cross click')" i18n="@@Cancel">Cancel</button>
+        <button type="button" class="btn btn-xs btn-primary pull-right" (click)="c('Save click');confirmed()" i18n="@@Submit">Submit</button>
+      </div>
+    </ng-template> -->
+  

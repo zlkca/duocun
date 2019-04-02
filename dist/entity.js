@@ -61,13 +61,15 @@ class Entity {
             self.getCollection().then((c) => {
                 c.find(query, options).toArray((err, docs) => {
                     let s = [];
-                    docs.map((v, i) => {
-                        if (v && v._id) {
-                            v.id = v._id;
-                            delete (v._id);
-                        }
-                        s.push(v);
-                    });
+                    if (docs && docs.length > 0) {
+                        docs.map((v, i) => {
+                            if (v && v._id) {
+                                v.id = v._id;
+                                delete (v._id);
+                            }
+                            s.push(v);
+                        });
+                    }
                     resolve(s);
                 });
             });

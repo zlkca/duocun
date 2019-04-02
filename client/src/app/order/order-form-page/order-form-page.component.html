@@ -1,74 +1,85 @@
 <div class="page">
   <div class="title-row">
-    <span>Confirm Order</span>
-  </div>
-  <div class="delivery-block" *ngIf="restaurantName && contact">
-    <div>From Restaurant:
-      <span>{{restaurantName}}</span>
-    </div>
-    <div>Deliver to:</div>
-    <div>
-      <span>{{contact.account.username}}</span>
-      <span>{{contact.account.phone}}</span>
-    </div>
-    <div>
-      <span>{{contact.address}}</span>
-    </div>
-  </div>
-  <div>Estimate: 11:45~1:45</div>
-
-  <div class="title-md">{{restaurantName}}</div>
-  <div class="bg-light product-list" *ngIf="cart.items && cart.items.length>0">
-    <div *ngFor="let item of cart.items" class="text-sm row">
-      <div class="col-6 text-left">{{item.name}}</div>
-      <div class="col-2 text-center">x{{item.quantity}}</div>
-      <div class="col-4 text-right">{{item.price * item.quantity | currency:'CAD' }}</div>
-    </div>
+    <span class="title-bg" i18n="@@ConfirmOrder">Confirm Order</span>
   </div>
 
-  <div class="total-block title-sm" *ngIf="cart.items.length>0">
-    <div class="row">
-      <div class="col-9">
-          <span i18n="@@Subtotal">Sub Total</span>
-          <span>:</span>
+  <form [formGroup]="form">
+    <div class="contact-block" *ngIf="restaurantName && contact" (click)="changeContact()">
+      <div>
+        <span i18n="@@DeliverTo">Deliver to</span>:
       </div>
-      <div class="col-3">{{subtotal | currency:'CAD'}}</div>
+      <div class="text-sm">
+        <span>{{contact.account.username}}</span>
+        <span>{{contact.account.phone}}</span>
+      </div>
+      <div class="text-sm">
+        <span>{{contact.address}}</span>
+      </div>
+      <!-- <div>Estimate: 11:45~1:45</div> -->
     </div>
-    <div class="row">
+
+    <div class="title-md restaurant">{{restaurantName}}</div>
+    <div class="bg-light product-list" *ngIf="cart.items && cart.items.length>0">
+      <div *ngFor="let item of cart.items" class="text-sm row">
+        <div class="col-6 product-col">{{item.name}}</div>
+        <div class="col-3 quantity-col">x{{item.quantity}}</div>
+        <div class="col-3 price-col">${{item.price * item.quantity | number : '1.2-2'}}</div>
+      </div>
+    </div>
+
+    <div class="total-block title-sm" *ngIf="cart.items.length>0">
+      <div class="row">
         <div class="col-9">
-          <span i18n="@@DeliveryFee">Delivery Fee</span>
+            <span i18n="@@Subtotal">Sub Total</span>
+            <span>:</span>
+        </div>
+        <div class="col-3">${{subtotal | number : '1.2-2'}}</div>
+      </div>
+      <div class="row">
+          <div class="col-9">
+            <span i18n="@@DeliveryFee">Delivery Fee</span>
+            <span>:</span>
+          </div>
+        <div class="col-3">${{deliveryFee | number : '1.2-2'}}</div>
+      </div>
+      <div class="row">
+        <div class="col-9">
+          <span i18n="@@Tips">Tips</span>
           <span>:</span>
         </div>
-      <div class="col-3">{{deliveryFee | currency:'CAD'}}</div>
-    </div>
-    <div class="row">
-      <div class="col-9">
-        <span i18n="@@Tips">Tips</span>
-        <span>:</span>
+        <div class="col-3">${{tips | number : '1.2-2'}}</div>
       </div>
-      <div class="col-3">{{tips | currency:'CAD'}}</div>
-    </div>
-    <div class="row">
-      <div class="col-9">
-        <span i18n="@@Tax">Tax</span>
-        <span>:</span>
+      <div class="row">
+        <div class="col-9">
+          <span i18n="@@Tax">Tax</span>
+          <span>:</span>
+        </div>
+        <div class="col-3">${{tax | number : '1.2-2'}}</div>
       </div>
-      <div class="col-3">{{tax | currency:'CAD'}}</div>
-    </div>
-    <div class="row total-row">
-      <div class="col-9">
-        <span i18n="@@Total">Total</span>
-        <span>:</span>
+      <div class="row total-row">
+        <div class="col-9">
+          <span i18n="@@Total">Total</span>
+          <span>:</span>
+        </div>
+        <div class="col-3">${{total | number : '1.2-2'}}</div>
       </div>
-      <div class="col-3">{{total | currency:'CAD'}}</div>
     </div>
-  </div>
 
-  <div class="row payment-method-block">
-    <div class="label-sm">
-      <span i18n="@@PaymentMethod">Payment Method</span>:
+    <div class="payment-method-block">
+      <div class="row label-sm">
+        <span i18n="@@PaymentMethod">Payment Method</span>:
+      </div>
+      <div class="row" i18n="@@CashWhenDelivered">Cash when Delivered</div>
+      <!-- <input name="paymentMethod" readonly /> -->
     </div>
-    <div i18n="@@CashWhenDelivered">Cash when Delivered</div>
-    <!-- <input name="paymentMethod" readonly /> -->
-  </div>
+
+    <div class="notes-block">
+      <div class="row label-sm">
+        <span i18n="@@NotesToMerchant">Notes to Merchant</span>:
+      </div>
+      <div class="row">
+        <textarea name="notes" formControlName="notes"></textarea>
+      </div>
+    </div>
+  </form>
 </div>

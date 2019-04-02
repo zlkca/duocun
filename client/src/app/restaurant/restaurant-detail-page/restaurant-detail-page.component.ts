@@ -4,6 +4,9 @@ import { ProductService } from '../../product/product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { Restaurant } from '../restaurant.model';
 import { Product, IProduct } from '../../product/product.model';
+import { NgRedux } from '../../../../node_modules/@angular-redux/store';
+import { IAppState } from '../../store';
+import { PageActions } from '../../main/main.actions';
 
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -20,14 +23,13 @@ export class RestaurantDetailPageComponent implements OnInit {
   constructor(private productSvc: ProductService,
     private restaurantSvc: RestaurantService,
     private route: ActivatedRoute,
-    // private ngRedux:NgRedux<IAppState>,
+    private rx: NgRedux<IAppState>
     // private actions: CartActions
   ) {
-
-    // this.subscription = ngRedux.select<ICartItem[]>('cart').subscribe(
-    //   cart=> this.cart = cart);
-
-    // let self = this;
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'restaurant-detail'
+    });
   }
 
   ngOnInit() {

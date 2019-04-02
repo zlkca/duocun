@@ -10,6 +10,7 @@ import { ILocation } from '../../location/location.model';
 import { LocationService } from '../../location/location.service';
 import { Router } from '../../../../node_modules/@angular/router';
 import { ContactActions } from '../contact.actions';
+import { PageActions } from '../../main/main.actions';
 
 @Component({
   selector: 'app-contact-list-page',
@@ -26,7 +27,12 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     private locationSvc: LocationService,
     private rx: NgRedux<IAppState>,
     private router: Router
-  ) { }
+  ) {
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'contact-list'
+    });
+  }
 
   ngOnInit() {
     const self = this;
