@@ -78,4 +78,6 @@ export class OrderItem implements IOrderItem {
   }
 }
 
-
+export interface IAmount {
+  total?: number;
+}

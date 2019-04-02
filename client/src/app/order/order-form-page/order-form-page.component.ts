@@ -3,7 +3,6 @@ import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { Subject, forkJoin } from '../../../../node_modules/rxjs';
 import { takeUntil, first } from '../../../../node_modules/rxjs/operators';
-import { IDelivery } from '../../delivery/delivery.model';
 import { ICart } from '../../cart/cart.model';
 import { IMall } from '../../mall/mall.model';
 import { IContact } from '../../contact/contact.model';
@@ -13,6 +12,7 @@ import { OrderService } from '../order.service';
 import { IOrder } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
+import { AmountActions } from '../order.actions';
 
 @Component({
   selector: 'app-order-form-page',
@@ -96,6 +96,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.total = this.subtotal + this.deliveryFee + this.tips;
       this.tax = Math.ceil(this.total * 13) / 100;
       this.total = this.total + this.tax;
+
+      this.rx.dispatch({ type: AmountActions.UPDATE, payload: {total: this.total}});
     });
   }
 

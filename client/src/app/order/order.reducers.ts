@@ -1,9 +1,25 @@
-import { OrderActions } from './order.actions';
-import { IOrder } from '../order/order.model';
+import { AmountActions } from './order.actions';
+import { IAmount } from '../order/order.model';
 
 export interface IOrderAction {
   type: string;
   payload: any;
+}
+
+export interface IAmountAction {
+  type: string;
+  payload: IAmount;
+}
+
+export function amountReducer(state: IAmount, action: IAmountAction) {
+  switch (action.type) {
+    case AmountActions.CLEAR:
+      return null;
+    case AmountActions.UPDATE:
+      return action.payload;
+    default:
+      return state || null;
+  }
 }
 
 // export function cartReducer(state: IOrder = { }, action: any) {

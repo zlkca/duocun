@@ -4,9 +4,11 @@ import { NgRedux } from '@angular-redux/store';
 import { Account } from '../account/account.model';
 import { IAppState } from '../store';
 import { CommandActions } from '../shared/command.actions';
-import { takeUntil } from '../../../node_modules/rxjs/operators';
-import { Subject } from '../../../node_modules/rxjs';
+import { takeUntil, first } from '../../../node_modules/rxjs/operators';
+import { Subject, forkJoin } from '../../../node_modules/rxjs';
 import { ICart, ICartItem } from '../cart/cart.model';
+import { IMall } from '../mall/mall.model';
+import { IAmount } from '../order/order.model';
 
 @Component({
   selector: 'app-footer',
@@ -19,8 +21,14 @@ export class FooterComponent implements OnInit, OnDestroy {
   bCart = false;
   bPay = false;
   total;
-  quantity;
+  quantity = 0;
   cart;
+  malls: IMall[];
+  tips = 3;
+  subtotal = 0;
+  deliveryFee = 0;
+  tax = 0;
+
   private onDestroy$ = new Subject<void>();
 
   constructor(
@@ -49,16 +57,24 @@ export class FooterComponent implements OnInit, OnDestroy {
 
     this.rx.select<ICart>('cart').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe(
-      cart => {
-        this.total = 0;
-        this.quantity = 0;
-        this.cart = cart;
-        this.cart.items.map((x: ICartItem) => {
-          this.total += x.price * x.quantity;
+    ).subscribe(cart => {
+      this.subtotal = 0;
+      this.quantity = 0;
+      this.cart = cart;
+      const items = this.cart.items;
+      if (items && items.length > 0) {
+        items.map(x => {
+          this.subtotal += x.price * x.quantity;
           this.quantity += x.quantity;
         });
-      });
+      }
+    });
+
+    this.rx.select<IAmount>('amount').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((x: IAmount) => {
+      this.total = x ? x.total : 0;
+    });
   }
 
   ngOnInit() {
