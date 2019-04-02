@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../product/product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { Restaurant } from '../restaurant.model';
-import { Product } from '../../product/product.model';
+import { Product, IProduct } from '../../product/product.model';
 
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -54,9 +54,11 @@ export class RestaurantDetailPageComponent implements OnInit {
     });
   }
 
-  groupByCategory(products: Product[]) {
-    return products.reduce( (r, p: Product) => {
+  groupByCategory(products: IProduct[]) {
+    const self = this;
+    return products.reduce( (r, p: IProduct) => {
       const catId = p.categoryId;
+      p.restaurant = self.restaurant; // fix me
       r[catId] = r[catId] || [];
       r[catId].push(p);
       return r;

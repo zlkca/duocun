@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { ICart, CartActions, ICartItem } from '../../order/order.actions';
 import { OrderService } from '../../order/order.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from '../../account/account.service';
@@ -14,6 +13,8 @@ import { PageActions } from '../../main/main.actions';
 import { SharedService } from '../../shared/shared.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
+import { ICart, ICartItem } from '../../cart/cart.model';
+import { CartActions } from '../../cart/cart.actions';
 
 @Component({
   selector: 'app-cart-page',
@@ -71,22 +72,24 @@ export class CartPageComponent implements OnInit, OnDestroy {
   addToCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
-      payload: { productId: item.productId, name: item.name, price: item.price, restaurantId: item.restaurantId }
+      payload: { productId: item.productId, name: item.productName, price: item.price,
+        restaurantId: item.restaurantId, restaurantName: item.restaurantName  }
     });
   }
 
   removeFromCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: { productId: item.productId, name: item.name, price: item.price, restaurantId: item.restaurantId }
+      payload: { productId: item.productId, name: item.productName, price: item.price,
+        restaurantId: item.restaurantId, restaurantName: item.restaurantName  }
     });
   }
 
   updateQuantity(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.UPDATE_QUANTITY,
-      payload: { productId: item.productId, name: item.name, price: item.price,
-        restaurantId: item.restaurantId, quantity: item.quantity }
+      payload: { productId: item.productId, name: item.productName, price: item.price,
+        restaurantId: item.restaurantId, restaurantName: item.restaurantName, quantity: item.quantity }
     });
   }
 
@@ -117,7 +120,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
       for (const order of orders) {
         if (item.restaurantId === order.restaurantId) {
           order.items.push({
-            name: item.name,
+            name: item.productName,
             price: item.price,
             quantity: item.quantity,
             productId: item.productId,

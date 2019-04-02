@@ -3,7 +3,7 @@ import { IMall } from './mall.model';
 
 export interface IMallAction {
   type: string;
-  payload: any;
+  payload: IMall[];
 }
 
 export function mallReducer(state: IMall = DEFAULT_MALL, action: IMallAction) {

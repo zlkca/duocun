@@ -2,6 +2,7 @@ import { Product } from '../product/product.model';
 // import { Picture } from '../picture.model';
 import { Address } from '../account/account.model';
 import { Restaurant } from '../restaurant/restaurant.model';
+import { Picture } from '../picture.model';
 
 export interface IOrder {
   clientId: number;
@@ -76,3 +77,5 @@ export class OrderItem implements IOrderItem {
     Object.assign(this, data);
   }
 }
+
+

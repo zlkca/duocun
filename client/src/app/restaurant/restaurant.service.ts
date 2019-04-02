@@ -55,7 +55,7 @@ export class RestaurantService extends EntityService {
   //     );
   // }
 
-  replaceById(id: number, data: Restaurant): Observable<Restaurant> {
+  replaceById(id: string, data: Restaurant): Observable<Restaurant> {
     return this.doReplaceById(id, data).pipe(
       flatMap((restaurant: Restaurant) => {
         if (restaurant.pictures && restaurant.pictures.length) {
@@ -68,7 +68,7 @@ export class RestaurantService extends EntityService {
   }
 
   // internal function to merge address and replace
-  private doReplaceById(id: number, data: Restaurant): Observable<Restaurant> {
+  private doReplaceById(id: string, data: Restaurant): Observable<Restaurant> {
     return this.restaurantApi.replaceById(id, data).pipe(
       flatMap((restaurant: Restaurant) => {
         if (restaurant.address && restaurant.address.id) {
@@ -83,7 +83,7 @@ export class RestaurantService extends EntityService {
   }
 
   // There is only one picture for restaurant for now!
-  private updatePhotos(id: number, restaurant: Restaurant, newPictures: Picture[] = null): Observable<Restaurant> {
+  private updatePhotos(id: string, restaurant: Restaurant, newPictures: Picture[] = null): Observable<Restaurant> {
     const pictures = restaurant.pictures;
 
     if (pictures && pictures.length) {
@@ -98,7 +98,7 @@ export class RestaurantService extends EntityService {
   }
 
 
-  private updateRestaurantImages(id: number, newPictures: Picture[] = null): Observable<any> {
+  private updateRestaurantImages(id: string, newPictures: Picture[] = null): Observable<any> {
     return this.restaurantApi.getPictures(id)
       .pipe(
         mergeMap((pictures: Picture[]) => {

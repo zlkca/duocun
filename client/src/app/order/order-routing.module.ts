@@ -5,9 +5,11 @@ import { ClientOrderComponent } from './client-order/client-order.component';
 import { WorkerOrderComponent } from './worker-order/worker-order.component';
 import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.component';
 import { CartPageComponent } from './cart-page/cart-page.component';
+import { OrderFormPageComponent } from './order-form-page/order-form-page.component';
 
 const routes: Routes = [
   { path: 'history', component: OrderHistoryComponent },
+  { path: 'form', component: OrderFormPageComponent },
   { path: 'list-client', component: ClientOrderComponent },
   { path: 'list-worker', component: WorkerOrderComponent },
   { path: 'list-restaurant', component: RestaurantOrderComponent },

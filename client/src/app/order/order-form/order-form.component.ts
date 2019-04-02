@@ -2,19 +2,19 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angu
 import { OrderService } from '../order.service';
 import { SharedService } from '../../shared/shared.service';
 
-import { Restaurant } from '../../restaurant/restaurant.model';
+import { IRestaurant } from '../../restaurant/restaurant.model';
 import { Account } from '../../account/account.model';
 import { Order } from '../order.model';
 
 import { FormBuilder, Validators } from '@angular/forms';
 import { environment } from '../../../environments/environment';
-import { ICartItem } from '../../order/order.actions';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { IMall } from '../../mall/mall.model';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
+import { ICartItem } from '../../cart/cart.model';
 
 const APP = environment.APP;
 
@@ -81,9 +81,9 @@ export class OrderFormComponent implements OnInit, OnDestroy {
       });
 
       this.restaurantSvc.findById(this.items[0].restaurantId) // { include: 'products' })
-        .subscribe((r: Restaurant) => {
+        .subscribe((r: IRestaurant) => {
           this.restaurant = r;
-          this.deliveryFee = r.delivery_fee ? r.delivery_fee : 0;
+          this.deliveryFee = r.deliveryFee ? r.deliveryFee : 0;
           this.tax = (this.subTotal + this.deliveryFee) * 0.13;
           this.total = this.subTotal + this.deliveryFee + this.tax;
         });
@@ -139,7 +139,7 @@ export class OrderFormComponent implements OnInit, OnDestroy {
         for (const order of orders) {
           if (item.restaurantId === order.restaurantId) {
             order.items.push({
-              name: item.name,
+              name: item.productName,
               price: item.price,
               quantity: item.quantity,
               productId: item.productId

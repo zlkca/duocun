@@ -67,7 +67,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
   ngOnInit() {
     if (!this.product) {
       this.product = new Product();
-      this.product.categoryId = 1;
+      this.product.categoryId = '1'; // default category Id ?
     }
     this.uploadedPictures = (this.product.pictures || []).map(pic => pic.url);
     this.form.get('name').setValue(this.product.name);

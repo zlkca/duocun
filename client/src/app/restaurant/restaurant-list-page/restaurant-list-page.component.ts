@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-import { Restaurant } from '../../restaurant/restaurant.model';
+import { Restaurant, IRestaurant } from '../../restaurant/restaurant.model';
 import { ILocation, ILatLng } from '../../location/location.model';
 import { AuthService } from '../../account/auth.service';
 import { LocationService } from '../../location/location.service';
@@ -8,8 +8,9 @@ import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { MallActions } from '../../mall/mall.actions';
 import { IDeliverTimeAction } from '../../main/main.reducers';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, forkJoin } from 'rxjs';
+import { takeUntil, first } from 'rxjs/operators';
+import { IMall } from '../../mall/mall.model';
 
 @Component({
   selector: 'app-restaurant-list-page',
@@ -17,26 +18,32 @@ import { takeUntil } from 'rxjs/operators';
   styleUrls: ['./restaurant-list-page.component.scss']
 })
 export class RestaurantListPageComponent implements OnInit, OnDestroy {
-
   private places;
   location;
   deliveryTime = '';
-  restaurants;
+  restaurants: IRestaurant[];
   center;
   realMalls;
   deliveryAddress;
   deliverTimeType = 'immediate';
 
-  malls = [
-    {id: 1, name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
-      workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}]
+  malls: IMall[] = [
+    {
+      id: '1', name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
+      workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
     },
-    {id: 2, name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
-      workers: [{id: '', username: 'worker1'}]
+    {
+      id: '2', name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
+      workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
     },
-    {id: 3, name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
-      workers: [{id: '', username: 'worker2'}]
+    {
+      id: '3', name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
+      workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
     },
+    {
+      id: '4', name: 'Richmond Hill', type: 'virtual', lat: 43.884244, lng: -79.467925, radius: 8,
+      workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
+    }
   ];
 
   private onDestroy$ = new Subject<void>();
@@ -51,28 +58,23 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-
-    this.rx.select<ILocation>('location').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((loc: ILocation) => {
-      const location = loc;
+    forkJoin([
+      this.rx.select<string>('deliverTime').pipe(
+        first(),
+        takeUntil(this.onDestroy$)
+      ),
+      this.rx.select<ILocation>('location').pipe(
+        first(),
+        takeUntil(this.onDestroy$)
+      )
+    ]).subscribe(vals => {
+      const location = vals[1];
+      self.deliverTimeType = vals[0];
       if (location) {
         self.center = { lat: location.lat, lng: location.lng };
         self.calcDistancesToMalls({ lat: location.lat, lng: location.lng });
       }
     });
-
-    // const location = this.location;
-    // if (location) {
-    //   self.center = { lat: location.lat, lng: location.lng };
-    //   self.calcDistancesToMalls({ lat: location.lat, lng: location.lng });
-    // }
-    this.rx.select<string>('deliverTime').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((deliverTime: string) => {
-        self.deliverTimeType = deliverTime;
-      });
-
   }
 
   ngOnDestroy() {
@@ -84,13 +86,23 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
     const self = this;
     this.locationSvc.getRoadDistances(center, this.malls).subscribe(rs => {
       if (rs) {
-        self.realMalls = rs.filter(r => r.type === 'real');
-
-        const mall = self.malls.find(x => x.id === self.realMalls[0].id);
+        const reallDistances = rs.filter(r => r.type === 'real');
+        self.malls.map((mall: IMall) => {
+          const d = reallDistances.find(rm => rm.id === mall.id);
+          if (d) {
+            mall.distance = d.distance.value / 1000;
+            mall.fullDeliverFee = self.getFullDeliveryFee(mall.distance);
+            if (self.deliverTimeType === 'immediate') {
+              mall.deliverFee = self.getDeliveryFee(mall.distance);
+            } else {
+              mall.deliverFee = 0;
+            }
+          }
+        });
 
         self.rx.dispatch({
           type: MallActions.UPDATE,
-          payload: mall
+          payload: self.malls.filter(r => r.type === 'real')
         });
 
         self.loadRestaurants();
@@ -100,26 +112,44 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
 
   loadRestaurants() {
     const self = this;
-    this.restaurantSvc.find().subscribe((ps: Restaurant[]) => {
-        self.restaurants = ps; // self.toProductGrid(data);
-        const a = [];
-        const distance = self.realMalls[0].distance;
-        ps.map(restaurant => {
-          if (restaurant.location) {
-            a.push({
-              lat: restaurant.location.lat,
-              lng: restaurant.location.lng,
-              name: restaurant.name
-            });
-          }
-          restaurant.distance = distance.value;
-        });
-        self.places = a;
-      },
+    this.restaurantSvc.find().subscribe((ps: IRestaurant[]) => {
+      self.restaurants = ps; // self.toProductGrid(data);
+      const a = [];
+      ps.map(restaurant => {
+        if (restaurant.location) {
+          a.push({
+            lat: restaurant.location.lat,
+            lng: restaurant.location.lng,
+            name: restaurant.name
+          });
+        }
+        // fix me
+        restaurant.distance = self.malls[0].distance;
+        restaurant.fullDeliveryFee = self.malls[0].fullDeliverFee;
+        restaurant.deliveryFee = self.malls[0].deliverFee;
+      });
+      self.places = a;
+    },
       (err: any) => {
         self.restaurants = [];
       }
     );
+  }
+
+  getFullDeliveryFee(distance: number) {
+    if (distance <= 3) {
+      return 5;
+    } else {
+      return 5 + 1.5 * Math.ceil(distance - 3);
+    }
+  }
+
+  getDeliveryFee(distance: number) {
+    if (distance <= 3) {
+      return 3;
+    } else {
+      return 3 + 1.5 * Math.ceil(distance - 3);
+    }
   }
 
   getFilter(query?: any) {

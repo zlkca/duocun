@@ -2,11 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
 import { Account } from '../account/account.model';
-import { ICart, ICartItem } from '../order/order.actions';
 import { IAppState } from '../store';
 import { CommandActions } from '../shared/command.actions';
 import { takeUntil } from '../../../node_modules/rxjs/operators';
 import { Subject } from '../../../node_modules/rxjs';
+import { ICart, ICartItem } from '../cart/cart.model';
 
 @Component({
   selector: 'app-footer',
@@ -101,7 +101,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   checkout() {
     if (this.account.type === 'user' || this.account.type === 'super') {
-      this.router.navigate(['order/list-client']);
+      this.router.navigate(['contact/list']);
     }
   }
 

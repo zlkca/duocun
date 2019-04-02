@@ -11,6 +11,7 @@ import { Account } from './account.model';
 import { NgRedux } from '@angular-redux/store';
 import { AccountActions } from './account.actions';
 import { AuthService } from './auth.service';
+import { EntityService } from '../entity.service';
 
 export interface IAccessToken {
   'id'?: string;
@@ -22,17 +23,18 @@ export interface IAccessToken {
 const API_URL = environment.API_URL;
 
 @Injectable()
-export class AccountService {
-  private url = environment.API_URL + 'Accounts';
+export class AccountService extends EntityService {
+  url;
   DEFAULT_PASSWORD = '123456';
 
   constructor(
     private ngRedux: NgRedux<Account>,
     private accountApi: AccountApi,
-    private authSvc: AuthService,
-    private http: HttpClient
+    public authSvc: AuthService,
+    public http: HttpClient
   ) {
-
+    super(authSvc, http);
+    this.url = super.getBaseUrl() + 'Accounts';
   }
 
   signup(account: Account): Observable<any> {
@@ -94,7 +96,8 @@ export class AccountService {
     return this.http.get(this.url, {headers: headers});
   }
 
-  findById(id: number, filter?: any): Observable<any> {
+  // override method
+  findById(id: string, filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
     const accessTokenId = this.authSvc.getAccessToken();
@@ -210,8 +213,6 @@ export class AccountService {
   //         return observableThrowError(err.message || err);
   //     }), );
   // }
-
-  
 
 
 }

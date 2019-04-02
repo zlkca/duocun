@@ -5,11 +5,12 @@ import { NgRedux } from '@angular-redux/store';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IAppState } from '../../store';
-import { CartActions, ICart, ICartItem } from '../../order/order.actions';
 import { SharedService } from '../../shared/shared.service';
 import { Product } from '../../product/product.model';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
+import { ICart } from '../../cart/cart.model';
+import { CartActions } from '../../cart/cart.actions';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -97,14 +98,16 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   addToCart(p: Product) {
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART, payload:
-        { productId: p.id, name: p.name, price: p.price, pictures: p.pictures, restaurantId: p.restaurantId }
+        { productId: p.id, name: p.name, price: p.price, pictures: p.pictures,
+          restaurantId: p.restaurantId, restaurantName: p.restaurant.name }
     });
   }
 
   removeFromCart(p: Product) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: { productId: p.id, name: p.name, price: p.price, pictures: p.pictures, restaurantId: p.restaurantId }
+      payload: { productId: p.id, name: p.name, price: p.price, pictures: p.pictures,
+         restaurantId: p.restaurantId, restaurantName: p.restaurant.name }
     });
   }
 

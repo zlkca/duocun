@@ -65,7 +65,7 @@ export class AccountFormComponent implements OnInit, OnChanges {
       v.password = this.accountSvc.DEFAULT_PASSWORD;
     }
     if (account.id) {
-      self.accountSvc.replaceById(account.id, account).subscribe((r: any) => {
+      self.accountSvc.replace(account).subscribe((r: any) => {
         self.valueSave.emit({ name: 'OnUpdateAccount' });
       });
     } else {

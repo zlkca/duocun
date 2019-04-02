@@ -1,0 +1,27 @@
+.page{
+  padding: 0px 15px 60px 15px;
+}
+
+.total-block {
+  padding: 10px 15px;
+  .row {
+    padding-bottom: 4px;
+    .col-9 {
+      padding-left: 200px;
+    }
+  }
+
+  .total-row{
+    margin-top: 5px;
+    padding-top: 10px;
+    border-top: solid 1px #eee;
+
+    .col-9, .col-3{
+      font-size: 16px;
+    }
+  }
+}
+
+.payment-method-block{
+  margin: 0px;
+}

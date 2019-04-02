@@ -1,0 +1,11 @@
+<div class="page">
+  <div class="title-row title-lg" i18n="@@DeliverAddress">
+    Delivery Address
+  </div>
+  <div class="option-list">
+      <div class="option-item" *ngFor="let item of items" (click)="select(item)">
+          <div>{{item.account.username}}&nbsp;{{item.account.phone}}</div>
+          <div>{{item.address}}</div>
+        </div>
+  </div>
+</div>

@@ -4,6 +4,10 @@ import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { AuthService } from './account/auth.service';
 
+export interface IEntity {
+  id ?: string;
+}
+
 @Injectable()
 export class EntityService {
   authPrefix = environment.AUTH_PREFIX;
@@ -46,5 +50,13 @@ export class EntityService {
       headers = headers.append('filter', JSON.stringify(filter));
     }
     return this.http.get(this.url + '/' + id, {headers: headers});
+  }
+
+  save(entity: IEntity): Observable<any> {
+    return this.http.post(this.url, entity);
+  }
+
+  replace(entity: IEntity): Observable<any> {
+    return this.http.put(this.url, entity);
   }
 }

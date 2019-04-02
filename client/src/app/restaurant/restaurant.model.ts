@@ -9,30 +9,31 @@ export interface IRestaurant {
   name: string;
   description?: string;
   location?: GeoPoint;
-  ownerId?: number;
+  ownerId?: string;
+  mallId?: string;
   created?: Date;
   modified?: Date;
-  id?: number;
-  delivery_fee?: number;
+  id?: string;
   distance?: number;
+  deliveryFee?: number;
+  fullDeliveryFee?: number;
   products?: Product[];
   orders?: Order[];
   pictures?: Picture[];
   address?: Address;
 }
 
+// For database
 export class Restaurant implements IRestaurant {
   name: string;
   description: string;
   location: GeoPoint;
-  ownerId: number;
+  ownerId: string;
+  mallId: string;
   created: Date;
   modified: Date;
-  id: number;
-  delivery_fee: number;
-  distance: number;
+  id: string;
   products: Product[];
-  orders: Order[];
   pictures: Picture[];
   address: Address;
   constructor(data?: IRestaurant) {

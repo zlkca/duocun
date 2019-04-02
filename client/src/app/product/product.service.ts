@@ -11,28 +11,27 @@ import { ProductApi, LoopBackFilter, CategoryApi, Picture, PictureApi, LoopBackC
 import { Product, Category } from './product.model';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { identifierModuleUrl } from '@angular/compiler';
+import { EntityService } from '../entity.service';
+import { AuthService } from '../account/auth.service';
 
 const APP = environment.APP;
 const API_URL = environment.API_URL;
 
-
-
 @Injectable({
   providedIn: 'root'
 })
-export class ProductService {
-  private url = [
-    LoopBackConfig.getPath(),
-    LoopBackConfig.getApiVersion(),
-    'Products'
-  ].join('/');
-
+export class ProductService extends EntityService {
+  url;
   constructor(
-    private http: HttpClient,
+    public authSvc: AuthService,
+    public http: HttpClient,
     private pictureApi: PictureApi,
     private categoryApi: CategoryApi,
     private productApi: ProductApi
-  ) {}
+  ) {
+    super(authSvc, http);
+    this.url = super.getBaseUrl() + 'Products';
+  }
 
   save(product: Product): Observable<any> {
     return this.http.post(this.url, product);
@@ -42,10 +41,6 @@ export class ProductService {
     return this.http.put(this.url, product);
   }
 
-  // find(query: any):Observable<Product[]>{
-  //   const url = 
-  //   return this.http.get(this.url);
-  // }
   // create(product: Product): Observable<Product> {
   //   let productId;
   //   return this.productApi.create(product)
@@ -64,7 +59,7 @@ export class ProductService {
   //     );
   // }
 
-  updateProductImages(id: number, newPictures: Picture[] = null): Observable<any> {
+  updateProductImages(id: string, newPictures: Picture[] = null): Observable<any> {
     return this.productApi.getPictures(id)
       .pipe(
         mergeMap((pictures: Picture[]) => {
@@ -89,7 +84,7 @@ export class ProductService {
       );
   }
 
-  replaceById(id: number, product: Product): Observable<Product> {
+  replaceById(id: string, product: Product): Observable<Product> {
     return this.productApi.replaceById(id, product)
       .pipe(
         mergeMap((prod: Product) => {
@@ -105,7 +100,7 @@ export class ProductService {
       );
   }
 
-  findById(id: number, filter: LoopBackFilter = { include: 'pictures' }): Observable<Product> {
+  findById(id: string, filter: LoopBackFilter = { include: 'pictures' }): Observable<Product> {
     return this.productApi.findById(id, filter);
   }
 
@@ -179,7 +174,7 @@ export class ProductService {
     return fromPromise(new Promise((resolve, reject) => {
       const formData = new FormData();
       let i = 0;
-      for (let d of a) {
+      for (const d of a) {
         const pic = d.pictures ? d.pictures[0] : null;
         const product = {
           id: d.id ? d.id : '',
@@ -242,7 +237,7 @@ export class ProductService {
     return this.categoryApi.create(category);
   }
 
-  replaceCategoryById(id: number, category: Category): Observable<Category> {
+  replaceCategoryById(id: string, category: Category): Observable<Category> {
     return this.categoryApi.replaceById(id, category);
   }
 

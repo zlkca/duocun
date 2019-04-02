@@ -55,6 +55,14 @@ const appRoutes: Routes = [
       loadChildren: './order/order.module#OrderModule'
     },
     {
+      path: 'delivery',
+      loadChildren: './delivery/delivery.module#DeliveryModule'
+    },
+    {
+      path: 'contact',
+      loadChildren: './contact/contact.module#ContactModule'
+    },
+    {
       path: 'account',
       loadChildren: './account/account.module#AccountModule'
     },

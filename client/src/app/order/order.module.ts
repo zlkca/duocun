@@ -16,6 +16,7 @@ import { OrderHistoryComponent } from './order-history/order-history.component';
 import { CartPageComponent } from './cart-page/cart-page.component';
 import { OrderRoutingModule } from './order-routing.module';
 import { RestaurantService } from '../restaurant/restaurant.service';
+import { OrderFormPageComponent } from './order-form-page/order-form-page.component';
 
 @NgModule({
   imports: [
@@ -44,7 +45,8 @@ import { RestaurantService } from '../restaurant/restaurant.service';
     WorkerOrderComponent,
     RestaurantOrderComponent,
     OrderHistoryComponent,
-    CartPageComponent
+    CartPageComponent,
+    OrderFormPageComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

@@ -4,15 +4,19 @@ import { DEFAULT_ACCOUNT, accountReducer } from './account/account.reducer';
 // import { pictureReducer } from './commerce/commerce.reducers';
 import { locationReducer } from './location/location.reducer';
 import { ILocation } from './location/location.model';
-import { ICart } from './order/order.actions';
 // import { IPicture, DEFAULT_PICTURE } from './commerce/commerce.actions';
-import { cartReducer } from './order/order.reducers';
 import { Account } from './lb-sdk';
 import { pageReducer, deliverTimeReducer } from './main/main.reducers';
 import { commandReducer } from './shared/command.reducers';
 import { DEFAULT_MALL } from './mall/mall.actions';
 import { IMall } from './mall/mall.model';
 import { mallReducer } from './mall/mall.reducers';
+import { IDelivery } from './delivery/delivery.model';
+import { deliveryReducer } from './delivery/delivery.reducer';
+import { IContact } from './contact/contact.model';
+import { contactReducer } from './contact/contact.reducer';
+import { ICart } from './cart/cart.model';
+import { cartReducer } from './cart/cart.reducer';
 
 export interface IAppState {
     cart: ICart;
@@ -22,7 +26,9 @@ export interface IAppState {
     page: string;
     cmd: string;
     deliverTime: string;
-    mall: IMall;
+    malls: IMall[];
+    delivery: IDelivery;
+    contact: IContact;
 }
 
 export const INITIAL_STATE: IAppState = {
@@ -33,7 +39,9 @@ export const INITIAL_STATE: IAppState = {
     page: 'home',
     cmd: '',
     deliverTime: '',
-    mall: DEFAULT_MALL
+    malls: [DEFAULT_MALL],
+    delivery: null,
+    contact: null
 };
 
 // export function rootReducer(last:IAppState, action:Action):IAppState{
@@ -54,5 +62,7 @@ export const rootReducer = combineReducers({
     page: pageReducer,
     cmd: commandReducer,
     deliverTime: deliverTimeReducer,
-    mall: mallReducer
+    malls: mallReducer,
+    delivery: deliveryReducer,
+    contact: contactReducer
 });

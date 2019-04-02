@@ -7,7 +7,8 @@ export interface IAccount {
   username?: string;
   email: string;
   emailVerified?: boolean;
-  id?: number;
+  phone?: string;
+  id?: string;
   password?: string;
   accessTokens?: any[];
   restaurants?: Restaurant[];
@@ -21,7 +22,8 @@ export class Account implements IAccount {
   username: string;
   email: string;
   emailVerified: boolean;
-  id: number;
+  phone?: string;
+  id: string;
   password: string;
   accessTokens: any[];
   restaurants: Restaurant[];

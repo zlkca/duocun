@@ -5,11 +5,11 @@ export interface IProduct {
   name: string;
   description?: string;
   price: number;
-  restaurantId: number;
-  categoryId: number;
+  restaurantId: string;
+  categoryId: string;
   created?: Date;
   modified?: Date;
-  id?: number;
+  id?: string;
   owner?: Restaurant;
   restaurant?: Restaurant;
   category?: Category;
@@ -20,11 +20,11 @@ export class Product implements IProduct {
   name: string;
   description: string;
   price: number;
-  categoryId: number;
-  restaurantId: number;
+  categoryId: string;
+  restaurantId: string;
   created: Date;
   modified: Date;
-  id: number;
+  id: string;
   owner: Restaurant;
   restaurant: Restaurant;
   category: Category;
@@ -39,7 +39,7 @@ export interface ICategory {
   description?: string;
   created?: Date;
   modified?: Date;
-  id?: number;
+  id?: string;
   products?: Product[];
 }
 
@@ -48,7 +48,7 @@ export class Category implements ICategory {
   description: string;
   created: Date;
   modified: Date;
-  id: number;
+  id: string;
   products: Product[];
   constructor(data?: ICategory) {
     Object.assign(this, data);

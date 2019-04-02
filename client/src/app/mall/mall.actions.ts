@@ -1,7 +1,7 @@
 import { IMall } from './mall.model';
 
 export const DEFAULT_MALL: IMall = {
-  id: 1,
+  id: '1',
   name: 'virtual Richmond Hill',
   type: 'real',
   lat: 43.8461479,

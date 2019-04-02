@@ -1,13 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { ICart, CartActions, ICartItem } from '../../order/order.actions';
 import { AccountService } from '../../account/account.service';
 import { Router } from '@angular/router';
 import { ToastrService } from '../../../../node_modules/ngx-toastr';
 import { PageActions } from '../../main/main.actions';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
+import { ICart } from '../../cart/cart.model';
+import { CartActions } from '../../cart/cart.actions';
 
 @Component({
   selector: 'app-client-order',

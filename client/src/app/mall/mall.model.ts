@@ -1,6 +1,5 @@
 export interface IEntityBase {
-  id: string;
-  name: string;
+  id?: string;
 }
 
 export interface IUserBase {
@@ -9,7 +8,7 @@ export interface IUserBase {
 }
 
 export interface IMall {
-  id?: number;
+  id?: string;
   name: string;
   description?: string;
   type: string;
@@ -18,12 +17,16 @@ export interface IMall {
   radius?: number; // m
   restaurants?: IEntityBase[];
   workers?: IUserBase[];
+  distance?: number; // Dynamic
+  deliverFee?: number; // Dynamic
+  fullDeliverFee?: number; // Dynamic
   created?: Date;
   modified?: Date;
 }
 
+// For Database
 export class Mall implements IMall {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   type: string;

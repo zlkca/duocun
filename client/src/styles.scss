@@ -329,6 +329,24 @@ body{
   margin-top:$navbar-height;
   min-height:560px;
   padding:0px;
+
+  .title-row{
+    padding: 15px;
+    text-align: center;
+    border-bottom: solid 1px #eee;
+  }
+  
+  .option-list{
+    margin-top: 46px;
+    padding: 10px;
+  
+    .option-item{
+      margin: 0px;
+      padding: 10px 0px;
+      height: 70px;
+      border-bottom: solid 1px #ddd;
+    }
+  }
 }
 
 .search-box{
@@ -414,6 +432,7 @@ select:not([multiple]) {
   padding: .5em;
   padding-right: 1.5em
 }
+
 
 
   @media #{$desktop}{
