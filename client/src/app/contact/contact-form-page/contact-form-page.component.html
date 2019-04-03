@@ -1,3 +1,37 @@
-<p>
-  contact-form-page works!
-</p>
+<div class="page">
+  <div class="title-row title-bg" i18n="@@EditContact">
+    Edit Contact
+  </div>
+  <form [formGroup]="form">
+    <div class="row form-group" *ngIf="!(options && options.length>0)">
+      <div class="label-sm">
+        <span i18n="@@Username">Username</span>:
+      </div>
+        <input name="name" formControlName="name" />
+    </div>
+    <div class="row form-group" *ngIf="!(options && options.length>0)">
+      <div class="row label-sm">
+        <span i18n="@@PhoneNumber">Phone Number</span>:
+      </div>
+      <input name="phone" formControlName="phone" />
+    </div>
+
+    <div class="row form-group">
+      <div class="row label-sm">
+        <span i18n="@@DeliverAddress">Delivery Address</span>:
+      </div>
+      <app-address-input (addrChange)="onAddressChange($event)" 
+        (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
+        placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
+        [value]="deliveryAddress">
+      </app-address-input>
+    </div>
+
+    <app-location-list [account]="account" [places]="options"
+      (placeSeleted)="onSelectPlace($event)">
+    </app-location-list>
+
+    <div *ngIf="!(options && options.length>0)" class="btn btn-primary" i18n="@@Submit" (click)="save()">Submit</div>
+  </form>
+  
+</div>

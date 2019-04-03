@@ -90,4 +90,12 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     });
     this.router.navigate(['order/form']);
   }
+
+  edit(item) {
+    this.rx.dispatch({
+      type: ContactActions.UPDATE,
+      payload: item
+    });
+    this.router.navigate(['contact/form']);
+  }
 }

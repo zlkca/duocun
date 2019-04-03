@@ -15,7 +15,7 @@ $bg-color: white;
   input{
     width:calc(100% - 35px);
     display: inline-block;
-    border-right: none;
+    // border-right: none;
     background-color: $bg-color;
   }
 
@@ -32,6 +32,15 @@ $bg-color: white;
     right: 0px;
     // pointer-events: none;
     z-index: 2054;
+    width: 40px;
+    padding-top: 5px;
+
+    img.clear-icon{
+      width: 30px;
+      height: 30px;
+      border: none;
+
+    }
   }
   
   button:focus {

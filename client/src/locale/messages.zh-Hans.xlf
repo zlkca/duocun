@@ -867,8 +867,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="PhoneNumber" datatype="html">
-        <source>Restaurant Phone #</source>
-        <target>餐馆电话号码</target>
+        <source>Phone Number</source>
+        <target>电话号码</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
           <context context-type="linenumber">41</context>
@@ -1178,6 +1178,22 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/order-form-page/order-form-page.component.html</context>
           <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Edit" datatype="html">
+        <source>Edit</source>
+        <target>编辑</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/contact/contact-list-page/contact-list-page.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="EditContact" datatype="html">
+        <source>Edit Contact</source>
+        <target>编辑联系人</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/contact/contact-form-page/contact-form-page.component.html</context>
+          <context context-type="linenumber">3</context>
         </context-group>
       </trans-unit>
     </body>

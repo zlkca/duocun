@@ -35,14 +35,14 @@
       </span>
     </div>
     <div class="title-md amount-col">
-      {{subtotal | currency:'CAD' }}
+      ${{subtotal | number : '1.2-2'}}
     </div>
     <div class="title-md checkout-col" (click)="checkout()" i18n="@@Checkout">Check Out</div>
   </div>
 
   <div class="row checkout-row" *ngIf="bPay">
     <div class="col-9 title-md amount-col">
-      {{total | currency:'CAD' }}
+      ${{total | number : '1.2-2'}}
     </div>
     <div class="col-3 title-md pay-col" (click)="pay()" i18n="@@Submit">Submit</div>
   </div>

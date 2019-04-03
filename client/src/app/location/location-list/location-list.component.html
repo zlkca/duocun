@@ -1,7 +1,7 @@
 <div class="place-option-list" *ngIf="places && places.length>0">
   <div *ngFor="let place of places" class="row option-item" (click)="onSelectPlace(place)">
-    <div class="col-10" *ngIf="place">
-        <div class="text-md">
+    <div class="col-11" *ngIf="place">
+        <div class="text-sm">
           <span style="color:#aaa">{{place.location.street_number}} </span>
           <span style="font-weight: 400">{{place.location.street_name}}</span>
         </div>
@@ -10,9 +10,9 @@
           <span>{{place.location.province}}</span>
         </div>
     </div>
-    <div class="col-2">
+    <div class="col-1">
       <!-- <i class="fa fa-2x fa-external-link"></i> -->
-      <img class="img-shopping-cart" src="assets/outline-transit_enterexit-24px.svg" alt="enter" height="20px" width="20px" />
+      <img class="enter-icon" src="assets/outline-transit_enterexit-24px.svg" alt="enter" />
     </div>
   </div>
 </div>

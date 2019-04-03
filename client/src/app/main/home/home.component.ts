@@ -104,20 +104,7 @@ export class HomeComponent implements OnInit {
     this.inRange = inRange;
   }
 
-  private getLocation(p: IPlace): ILocation {
-    const terms = p.terms;
-    return {
-      place_id: p.place_id ? p.place_id : '',
-      city: terms && terms.length > 3 ? p.terms[2].value : '',
-      lat: 0,
-      lng: 0,
-      postal_code: '',
-      province: terms && terms.length > 3 ? p.terms[3].value : '',
-      street_name: terms && terms.length > 3 ? p.terms[1].value : '',
-      street_number: terms && terms.length > 3 ? p.terms[0].value : '',
-      sub_locality: ''
-    };
-  }
+
 
   onAddressChange(e) {
     const self = this;
@@ -127,7 +114,7 @@ export class HomeComponent implements OnInit {
     this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
         for (const p of ps) {
-          const loc: ILocation = this.getLocation(p);
+          const loc: ILocation = this.locationSvc.placeToLocation(p);
           self.options.push({ location: loc, type: 'suggest' }); // without lat lng
         }
       }

@@ -1,0 +1,22 @@
+form{
+  padding: 10px;
+  .row{
+    margin: 0px;
+  }
+  .form-group{
+    padding-top: 20px;
+  }
+
+  app-address-input {
+    width: 100%;
+    img{
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  .btn-primary{
+    width: 100%;
+    margin-top: 30px;
+  }
+}
