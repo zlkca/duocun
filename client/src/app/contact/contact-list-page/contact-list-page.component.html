@@ -4,7 +4,7 @@
   </div>
   <div class="option-list">
       <div class="option-item" *ngFor="let item of items" (click)="select(item)">
-        <div class="text-sm">{{item.account.username}}&nbsp;{{item.account.phone}}
+        <div class="text-sm">{{item.username}}&nbsp;{{item.phone}}
           <span i18n="@@Edit" class="edit-btn" (click)="edit(item)">Edit</span>
         </div>
         <div class="text-sm">{{item.address}}</div>

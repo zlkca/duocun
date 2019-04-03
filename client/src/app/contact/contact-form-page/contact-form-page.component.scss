@@ -19,4 +19,13 @@ form{
     width: 100%;
     margin-top: 30px;
   }
+  .col-6{
+    padding-left: 0px;
+    input{
+      width: 100%;
+    }
+  }
+  .col-6:last-child{
+    padding-right: 0px;
+  }
 }

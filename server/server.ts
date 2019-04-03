@@ -176,7 +176,7 @@ app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
   restaurant.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3));
+    res.end(JSON.stringify(x, null, 3));
   });
 });
 
@@ -221,10 +221,9 @@ app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
   product.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3));
+    res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Products', (req: any, res) => {
   const query = req.headers? JSON.parse(req.headers.filter) : null;
   product.find(query ? query.where: {}).then((x: any) => {
@@ -232,11 +231,9 @@ app.get('/' + ROUTE_PREFIX + '/Products', (req: any, res) => {
     res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
   product.get(req, res);
 });
-
 app.delete('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
   product.deleteById(req.params.id).then(x => {
     res.setHeader('Content-Type', 'application/json');
@@ -247,21 +244,18 @@ app.delete('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
   category.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3))
+    res.end(JSON.stringify(x, null, 3))
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
   category.find({}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3))
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Categories/:id', (req, res) => {
   category.get(req, res);
 });
-
 app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
   order.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
@@ -302,7 +296,6 @@ app.post('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
     res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Orders', (req: any, res) => {
   const query = req.headers? JSON.parse(req.headers.filter) : null;
   order.find(query ? query.where: {}).then((x: any) => {
@@ -310,11 +303,9 @@ app.get('/' + ROUTE_PREFIX + '/Orders', (req: any, res) => {
     res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
   order.get(req, res);
 });
-
 
 app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
   mall.replaceById(req.body.id, req.body).then((x: any) => {
@@ -322,14 +313,12 @@ app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
     res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.post('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
   mall.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3));
+    res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Malls', (req: any, res) => {
   const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
   mall.find(query ? query.where: {}).then((x: any) => {
@@ -337,7 +326,6 @@ app.get('/' + ROUTE_PREFIX + '/Malls', (req: any, res) => {
     res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
   mall.get(req, res);
 });
@@ -379,10 +367,9 @@ app.put('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
   distance.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3));
+    res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Distances', (req: any, res) => {
   const query = req.headers? JSON.parse(req.headers.filter) : null;
   distance.find(query ? query.where: {}).then((x: any) => {
@@ -390,17 +377,14 @@ app.get('/' + ROUTE_PREFIX + '/Distances', (req: any, res) => {
     res.end(JSON.stringify(x, null, 3));
   });
 });
-
 app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
   distance.get(req, res);
 });
 
-
-
 app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
   contact.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(x.ops[0], null, 3));
+    res.end(JSON.stringify(x, null, 3));
   });
 });
 app.put('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {

@@ -153,7 +153,7 @@ export class HomeComponent implements OnInit {
   }
 
   onSelectPlace(e) {
-    const r = e.location;
+    const r: ILocation = e.location;
     this.options = [];
     if (r) {
       this.rx.dispatch<ILocationAction>({

@@ -7,7 +7,7 @@
       <div class="label-sm">
         <span i18n="@@Username">Username</span>:
       </div>
-        <input name="name" formControlName="name" />
+        <input name="username" formControlName="username" />
     </div>
     <div class="row form-group" *ngIf="!(options && options.length>0)">
       <div class="row label-sm">
@@ -25,6 +25,22 @@
         placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
         [value]="deliveryAddress">
       </app-address-input>
+    </div>
+
+    <div class="row">
+      <div class="col-6 form-group" *ngIf="!(options && options.length>0)">
+        <div class="label-sm">
+          <span i18n="@@Unit">Unit</span>:
+        </div>
+          <input name="unit" formControlName="unit" />
+      </div>
+
+      <div class="col-6 form-group" *ngIf="!(options && options.length>0)">
+        <div class="row label-sm">
+          <span i18n="@@BuzzCode">Buzz Code</span>:
+        </div>
+        <input name="buzzCode" formControlName="buzzCode" />
+      </div>
     </div>
 
     <app-location-list [account]="account" [places]="options"

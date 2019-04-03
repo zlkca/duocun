@@ -38,7 +38,8 @@
         </div>
       </div>
     </div>
-    <div *ngIf="inRange && !afternoon" class="row option-item" [class.overdue]="overdue" (click)="onSelectTime('lunch today')">
+    <div *ngIf="inRange && !afternoon" class="row option-item" [class.overdue]="overdue" [class.free]="!overdue"
+      (click)="onSelectTime('lunch today')">
       <div class="col-12">
           <div>
             <span class="text-md" i18n="@@LunchToday">Lunch Today</span>
@@ -48,11 +49,12 @@
             <span class="text-sm">&nbsp;)</span>
           </div>
           <div class="text-sm">
+            <span *ngIf="!overdue">9:00</span>
             <span *ngIf="!overdue" i18n="FreeDeliveryIfOrderBefore">Free delivery if order before</span>
             <span *ngIf="overdue" i18n="@@DeliveryFeeMinus">Delivery Fee Minus</span>
             <span *ngIf="overdue">&nbsp;${{deliveryDiscount}}</span>
             <span *ngIf="overdue" class="overdue-note">
-              <span i18n="@@Over">Over</span>9:00,&nbsp;
+              <span i18n="@@Over">Over</span>9:00&nbsp;
               <span i18n="@@DeliverNotFreeNotes">deliver is not free, please order in advance next time</span>
             </span>
           </div>

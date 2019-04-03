@@ -9,6 +9,11 @@ import { Subject, forkJoin } from '../../../node_modules/rxjs';
 import { ICart, ICartItem } from '../cart/cart.model';
 import { IMall } from '../mall/mall.model';
 import { IAmount } from '../order/order.model';
+import { ContactService } from '../contact/contact.service';
+import { LocationService } from '../location/location.service';
+import { Contact } from '../contact/contact.model';
+import { ILocation } from '../location/location.model';
+import { IContactAction } from '../contact/contact.reducer';
 
 @Component({
   selector: 'app-footer',
@@ -28,16 +33,27 @@ export class FooterComponent implements OnInit, OnDestroy {
   subtotal = 0;
   deliveryFee = 0;
   tax = 0;
+  location: ILocation;
 
   private onDestroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
-    private rx: NgRedux<IAppState>
+    private rx: NgRedux<IAppState>,
+    private contactSvc: ContactService,
+    private locationSvc: LocationService
   ) {
     const self = this;
-    this.rx.select('account').subscribe((account: Account) => {
+    this.rx.select('account').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((account: Account) => {
       self.account = account;
+    });
+
+    this.rx.select('location').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((loc: ILocation) => {
+      self.location = loc;
     });
 
     this.rx.select<string>('page').pipe(
@@ -118,9 +134,39 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   checkout() {
+    const self = this;
     if (this.account.type === 'user' || this.account.type === 'super') {
       if (this.quantity > 0) {
-        this.router.navigate(['contact/list']);
+        const account = this.account;
+
+        self.contactSvc.find({where: {accountId: account.id}}).subscribe(r => {
+          if (r && r.length > 0) {
+            // let contacts = r;
+            // this.rx.dispatch<IContactAction>({
+            //   type: ContactActions.UPDATE,
+            //   payload: contact
+            // });
+            this.router.navigate(['contact/list']);
+          } else {
+            const data = new Contact({
+              accountId: account.id,
+              username: account.username,
+              phone: account.phone,
+              location: self.location,
+              unit: '',
+              buzzCode: '',
+              address: self.locationSvc.getAddrString(self.location)
+            });
+            // let contacts = [data];
+            // this.rx.dispatch<IContactAction>({
+            //   type: ContactActions.UPDATE,
+            //   payload: contact
+            // });
+            this.contactSvc.save(data).subscribe(() => {});
+            this.router.navigate(['contact/list']);
+          }
+        });
+        // this.router.navigate(['contact/list']);
       }
     } else {
       this.router.navigate(['acccount/login']);

@@ -31,7 +31,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   malls: IMall[] = [];
   deliveryFee = 0;
   tax = 0;
-  contact;
+  contact: IContact;
   form;
 
   constructor(
@@ -120,7 +120,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const orders: any[] = []; // fix me
     const v = this.form.value;
     const items = this.cart.items;
-    const account = this.contact.account;
+    const contact = this.contact;
 
     if (items && items.length > 0) {
       const ids = items.map(x => x.restaurantId);
@@ -130,8 +130,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         orders.push({
           restaurantId: id,
           items: [],
-          clientId: account.id,
-          username: account.username,
+          clientId: contact.accountId,
+          username: contact.username,
           created: new Date(),
           delivered: '', // this.getDateTime(v.date, v.time),
           address: this.contact.address,

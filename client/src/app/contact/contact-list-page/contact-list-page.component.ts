@@ -4,7 +4,7 @@ import { Subject, forkJoin } from 'rxjs';
 import { IAppState } from '../../store';
 import { NgRedux } from '@angular-redux/store';
 import { takeUntil, first } from '../../../../node_modules/rxjs/operators';
-import { Contact } from '../contact.model';
+import { Contact, IContact } from '../contact.model';
 import { IAccount } from '../../account/account.model';
 import { ILocation } from '../../location/location.model';
 import { LocationService } from '../../location/location.service';
@@ -19,7 +19,7 @@ import { PageActions } from '../../main/main.actions';
 })
 export class ContactListPageComponent implements OnInit, OnDestroy {
 
-  items: Contact[];
+  items: IContact[];
   location: ILocation;
   private onDestroy$ = new Subject<any>();
   constructor(
@@ -39,6 +39,9 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     this.rx.select('account').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((account: IAccount) => {
+      this.contactSvc.find({where: {accountId: account.id}}).subscribe((contacts: IContact[]) => {
+        self.items = contacts;
+      });
       // self.contactSvc.find({where: {accountId: account.id}}).subscribe(r => {
       //   if (r && r.length > 0) {
       //     this.items = r;
@@ -50,32 +53,36 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
       // });
     });
 
-    forkJoin([
-      this.rx.select<IAccount>('account').pipe(
-        first(),
-        takeUntil(this.onDestroy$)
-      ),
-      this.rx.select<ILocation>('location').pipe(
-        first(),
-        takeUntil(this.onDestroy$)
-      )
-    ]).subscribe(vals => {
-      const account = vals[0];
-      const location = vals[1];
-      self.contactSvc.find({where: {accountId: account.id}}).subscribe(r => {
-        if (r && r.length > 0) {
-          this.items = r;
-        } else {
-          const data = new Contact({accountId: account.id, account: account,
-            location: location,
-            buzzCode: '',
-            address: self.locationSvc.getAddrString(location)
-          });
-          this.items = [data];
-          this.contactSvc.save(data).subscribe(() => {});
-        }
-      });
-    });
+    // forkJoin([
+    //   this.rx.select<IAccount>('account').pipe(
+    //     first(),
+    //     takeUntil(this.onDestroy$)
+    //   ),
+    //   this.rx.select<ILocation>('location').pipe(
+    //     first(),
+    //     takeUntil(this.onDestroy$)
+    //   )
+    // ]).subscribe(vals => {
+    //   const account = vals[0];
+    //   const location = vals[1];
+    //   self.contactSvc.find({where: {accountId: account.id}}).subscribe(r => {
+    //     if (r && r.length > 0) {
+    //       this.items = r;
+    //     } else {
+    //       const data = new Contact({
+    //         accountId: account.id,
+    //         username: account.username,
+    //         phone: account.phone,
+    //         location: location,
+    //         unit: '',
+    //         buzzCode: '',
+    //         address: self.locationSvc.getAddrString(location)
+    //       });
+    //       this.items = [data];
+    //       this.contactSvc.save(data).subscribe(() => {});
+    //     }
+    //   });
+    // });
   }
 
   ngOnDestroy() {
@@ -83,7 +90,7 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  select(item) {
+  select(item: IContact) {
     this.rx.dispatch({
       type: ContactActions.UPDATE,
       payload: item
@@ -91,7 +98,7 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     this.router.navigate(['order/form']);
   }
 
-  edit(item) {
+  edit(item: IContact) {
     this.rx.dispatch({
       type: ContactActions.UPDATE,
       payload: item

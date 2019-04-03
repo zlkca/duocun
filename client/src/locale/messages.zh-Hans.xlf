@@ -1196,6 +1196,22 @@
           <context context-type="linenumber">3</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Unit" datatype="html">
+        <source>Unit</source>
+        <target>单元号</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/contact/contact-form-page/contact-form-page.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="BuzzCode" datatype="html">
+        <source>Buzz Code</source>
+        <target>门禁号码</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/contact/contact-form-page/contact-form-page.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

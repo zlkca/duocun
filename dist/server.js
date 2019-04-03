@@ -157,7 +157,7 @@ app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
     restaurant.insertOne(req.body).then((x) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.ops[0], null, 3));
+        res.end(JSON.stringify(x, null, 3));
     });
 });
 app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
@@ -197,7 +197,7 @@ app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
     product.insertOne(req.body).then((x) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.ops[0], null, 3));
+        res.end(JSON.stringify(x, null, 3));
     });
 });
 app.get('/' + ROUTE_PREFIX + '/Products', (req, res) => {
@@ -219,7 +219,7 @@ app.delete('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
     category.insertOne(req.body).then((x) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.ops[0], null, 3));
+        res.end(JSON.stringify(x, null, 3));
     });
 });
 app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
@@ -287,7 +287,7 @@ app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
     mall.insertOne(req.body).then((x) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.ops[0], null, 3));
+        res.end(JSON.stringify(x, null, 3));
     });
 });
 app.get('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
@@ -335,7 +335,7 @@ app.put('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
     distance.insertOne(req.body).then((x) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.ops[0], null, 3));
+        res.end(JSON.stringify(x, null, 3));
     });
 });
 app.get('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
@@ -351,7 +351,7 @@ app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
 app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
     contact.insertOne(req.body).then((x) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.ops[0], null, 3));
+        res.end(JSON.stringify(x, null, 3));
     });
 });
 app.put('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {

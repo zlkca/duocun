@@ -4,9 +4,12 @@ import { ILocation } from '../location/location.model';
 export interface IContact {
   id?: string;
   accountId: string;
-  account: IAccount;
+  username: string;
+  phone: string;
+  // account: IAccount;
   location: ILocation;
   address?: string;
+  unit: string;
   buzzCode: string;
   created?: Date;
   modified?: Date;
@@ -15,7 +18,10 @@ export interface IContact {
 export class Contact implements IContact {
   id: string;
   accountId: string;
-  account: IAccount;
+  username: string;
+  phone: string;
+  // account: IAccount;
+  unit: string;
   location: ILocation;
   address: string;
   buzzCode: string;

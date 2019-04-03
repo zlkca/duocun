@@ -10,6 +10,10 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { AccountService } from '../../account/account.service';
 import { Subject } from '../../../../node_modules/rxjs';
 import { Router } from '../../../../node_modules/@angular/router';
+import { ContactService } from '../contact.service';
+import { Contact, IContact } from '../contact.model';
+import { ContactActions } from '../contact.actions';
+import { IContactAction } from '../contact.reducer';
 
 @Component({
   selector: 'app-contact-form-page',
@@ -21,17 +25,22 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   deliveryAddress;
   account;
   options = [];
+  location: ILocation;
+
   onDestroy$ = new Subject<any>();
   constructor(
     private fb: FormBuilder,
     private accountSvc: AccountService,
     private locationSvc: LocationService,
+    private contactSvc: ContactService,
     private rx: NgRedux<IAppState>,
     private router: Router
   ) {
     this.form = this.fb.group({
-      name: [''],
-      phone: ['']
+      username: [''],
+      phone: [''],
+      unit: [''],
+      buzzCode: ['']
     });
   }
 
@@ -42,6 +51,16 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     ).subscribe(account => {
       self.account = account;
     });
+    this.rx.select('contact').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((contact: IContact) => {
+      if (contact) {
+        this.location = contact.location;
+        this.form.patchValue(contact);
+        this.deliveryAddress = contact.address;
+      }
+    });
+
   }
 
   ngOnDestroy() {
@@ -91,20 +110,34 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   }
 
   onSelectPlace(e) {
-    const r = e.location;
+    const r: ILocation = e.location;
     this.options = [];
     if (r) {
       this.rx.dispatch<ILocationAction>({
         type: LocationActions.UPDATE,
         payload: r
       });
-      // this.center = { lat: r.lat, lng: r.lng };
-      // this.calcDistancesToMalls({ lat: r.lat, lng: r.lng });
+      this.location = r;
       this.deliveryAddress = e.address; // set address text to input
     }
   }
 
   save() {
-    this.router.navigate(['contact/list']);
+    const self = this;
+    const v = this.form.value;
+    v.accountId = this.account.id;
+    v.location = this.location;
+    v.address = this.deliveryAddress;
+    const contact = new Contact(v);
+
+    this.rx.dispatch<IContactAction>({
+      type: ContactActions.UPDATE,
+      payload: contact
+    });
+    this.contactSvc.save(contact).subscribe(x => {
+      self.router.navigate(['contact/list']);
+    }, err => {
+      self.router.navigate(['contact/list']);
+    });
   }
 }
