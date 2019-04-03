@@ -7,6 +7,7 @@ export interface IContact {
   username: string;
   phone: string;
   // account: IAccount;
+  placeId: string;
   location: ILocation;
   address?: string;
   unit: string;
@@ -22,6 +23,7 @@ export class Contact implements IContact {
   phone: string;
   // account: IAccount;
   unit: string;
+  placeId: string;
   location: ILocation;
   address: string;
   buzzCode: string;

@@ -11,7 +11,7 @@ import { IMall } from '../mall/mall.model';
 import { IAmount } from '../order/order.model';
 import { ContactService } from '../contact/contact.service';
 import { LocationService } from '../location/location.service';
-import { Contact } from '../contact/contact.model';
+import { Contact, IContact } from '../contact/contact.model';
 import { ILocation } from '../location/location.model';
 import { IContactAction } from '../contact/contact.reducer';
 
@@ -139,7 +139,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       if (this.quantity > 0) {
         const account = this.account;
 
-        self.contactSvc.find({where: {accountId: account.id}}).subscribe(r => {
+        self.contactSvc.find({where: {accountId: account.id, placeId: self.location.place_id}}).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {
             // let contacts = r;
             // this.rx.dispatch<IContactAction>({
@@ -152,10 +152,13 @@ export class FooterComponent implements OnInit, OnDestroy {
               accountId: account.id,
               username: account.username,
               phone: account.phone,
+              placeId: self.location.place_id,
               location: self.location,
               unit: '',
               buzzCode: '',
-              address: self.locationSvc.getAddrString(self.location)
+              address: self.locationSvc.getAddrString(self.location),
+              created: new Date(),
+              modified: new Date()
             });
             // let contacts = [data];
             // this.rx.dispatch<IContactAction>({

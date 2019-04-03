@@ -4,13 +4,16 @@ import { Subject, forkJoin } from 'rxjs';
 import { IAppState } from '../../store';
 import { NgRedux } from '@angular-redux/store';
 import { takeUntil, first } from '../../../../node_modules/rxjs/operators';
-import { Contact, IContact } from '../contact.model';
+import { IContact } from '../contact.model';
 import { IAccount } from '../../account/account.model';
 import { ILocation } from '../../location/location.model';
-import { LocationService } from '../../location/location.service';
 import { Router } from '../../../../node_modules/@angular/router';
 import { ContactActions } from '../contact.actions';
 import { PageActions } from '../../main/main.actions';
+import { SharedService } from '../../shared/shared.service';
+import { MallService } from '../../mall/mall.service';
+import { IMall } from '../../mall/mall.model';
+import { MallActions } from '../../mall/mall.actions';
 
 @Component({
   selector: 'app-contact-list-page',
@@ -21,16 +24,27 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
 
   items: IContact[];
   location: ILocation;
+  malls: IMall[];
+  deliverTimeType: string;
+
   private onDestroy$ = new Subject<any>();
   constructor(
     private contactSvc: ContactService,
-    private locationSvc: LocationService,
+    private sharedSvc: SharedService,
+    private mallSvc: MallService,
     private rx: NgRedux<IAppState>,
     private router: Router
   ) {
+    const self = this;
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: 'contact-list'
+    });
+
+    this.rx.select<string>('deliverTime').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(timeType => {
+      self.deliverTimeType = timeType;
     });
   }
 
@@ -41,7 +55,16 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     ).subscribe((account: IAccount) => {
       this.contactSvc.find({where: {accountId: account.id}}).subscribe((contacts: IContact[]) => {
         self.items = contacts;
+        contacts.sort((a: IContact, b: IContact) => {
+          if (this.sharedSvc.compareDateTime(a.modified, b.modified)) {
+            return -1;
+          } else {
+            return 1;
+          }
+        });
       });
+
+
       // self.contactSvc.find({where: {accountId: account.id}}).subscribe(r => {
       //   if (r && r.length > 0) {
       //     this.items = r;
@@ -90,11 +113,21 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  select(item: IContact) {
+  select(contact: IContact) {
+    const self = this;
     this.rx.dispatch({
       type: ContactActions.UPDATE,
-      payload: item
+      payload: contact
     });
+
+    self.mallSvc.calcMalls({ lat: contact.location.lat, lng: contact.location.lng }, self.deliverTimeType).then((malls: IMall[]) => {
+      self.malls = malls;
+      self.rx.dispatch({
+        type: MallActions.UPDATE,
+        payload: self.malls.filter(r => r.type === 'real')
+      });
+    });
+
     this.router.navigate(['order/form']);
   }
 

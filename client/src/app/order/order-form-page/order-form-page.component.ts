@@ -29,6 +29,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   restaurantName = '';
   tips = 3;
   malls: IMall[] = [];
+  productTotal = 0;
+  fullDeliveryFee = 0;
+  deliveryDiscount = 0;
   deliveryFee = 0;
   tax = 0;
   contact: IContact;
@@ -79,23 +82,26 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.contact = vals[2];
       if (malls && malls.length > 0) {
         this.malls = malls;
+        this.fullDeliveryFee = Math.ceil(malls[0].fullDeliverFee * 100) / 100;
         this.deliveryFee = Math.ceil(malls[0].deliverFee * 100) / 100; // fix me
+        this.deliveryDiscount = this.fullDeliveryFee - this.deliveryFee;
       }
-      this.subtotal = 0;
+      this.productTotal = 0;
       this.quantity = 0;
       this.cart = cart;
       const items = this.cart.items;
       if (items && items.length > 0) {
         items.map(x => {
-          this.subtotal += x.price * x.quantity;
+          this.productTotal += x.price * x.quantity;
           this.quantity += x.quantity;
         });
         this.restaurantName = items[0].restaurantName;
       }
 
-      this.total = this.subtotal + this.deliveryFee + this.tips;
-      this.tax = Math.ceil(this.total * 13) / 100;
-      this.total = this.total + this.tax;
+      this.subtotal = this.productTotal + this.fullDeliveryFee + this.tips;
+      this.tax = Math.ceil(this.subtotal * 13) / 100;
+      this.subtotal = this.subtotal + this.tax;
+      this.total = this.subtotal - this.deliveryDiscount;
 
       this.rx.dispatch({ type: AmountActions.UPDATE, payload: {total: this.total}});
     });
@@ -119,7 +125,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     const orders: any[] = []; // fix me
     const v = this.form.value;
-    const items = this.cart.items;
+    const items = this.cart ? this.cart.items : [];
     const contact = this.contact;
 
     if (items && items.length > 0) {

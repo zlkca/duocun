@@ -30,17 +30,17 @@
     <div class="total-block title-sm" *ngIf="cart.items.length>0">
       <div class="row">
         <div class="col-9">
-            <span i18n="@@Subtotal">Sub Total</span>
+            <span i18n="@@ProductTotal">Product Total</span>
             <span>:</span>
         </div>
-        <div class="col-3">${{subtotal | number : '1.2-2'}}</div>
+        <div class="col-3">${{productTotal | number : '1.2-2'}}</div>
       </div>
       <div class="row">
           <div class="col-9">
             <span i18n="@@DeliveryFee">Delivery Fee</span>
             <span>:</span>
           </div>
-        <div class="col-3">${{deliveryFee | number : '1.2-2'}}</div>
+        <div class="col-3">${{fullDeliveryFee | number : '1.2-2'}}</div>
       </div>
       <div class="row">
         <div class="col-9">
@@ -55,6 +55,20 @@
           <span>:</span>
         </div>
         <div class="col-3">${{tax | number : '1.2-2'}}</div>
+      </div>
+      <div class="row">
+          <div class="col-9">
+              <span i18n="@@Subtotal">Sub Total</span>
+              <span>:</span>
+          </div>
+          <div class="col-3">${{subtotal | number : '1.2-2'}}</div>
+        </div>
+      <div class="row">
+          <div class="col-9">
+            <span i18n="@@DeliveryDiscount">Delivery Discount</span>
+            <span>:</span>
+          </div>
+        <div class="col-3">-${{deliveryDiscount | number : '1.2-2'}}</div>
       </div>
       <div class="row total-row">
         <div class="col-9">

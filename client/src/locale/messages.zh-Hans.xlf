@@ -1158,7 +1158,23 @@
       </trans-unit>
       <trans-unit id="Tips" datatype="html">
         <source>Tips</source>
-        <target>小费</target>
+        <target>服务费</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-form-page/order-form-page.component.html</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="DeliveryDiscount" datatype="html">
+        <source>Delivery Discount</source>
+        <target>运费折扣</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-form-page/order-form-page.component.html</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ProductTotal" datatype="html">
+        <source>Product Total</source>
+        <target>商品总额</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/order-form-page/order-form-page.component.html</context>
           <context context-type="linenumber">44</context>

@@ -6,7 +6,7 @@ import { ILocationAction } from '../../location/location.reducer';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { LocationActions } from '../../location/location.actions';
-import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { takeUntil, take } from '../../../../node_modules/rxjs/operators';
 import { AccountService } from '../../account/account.service';
 import { Subject } from '../../../../node_modules/rxjs';
 import { Router } from '../../../../node_modules/@angular/router';
@@ -14,6 +14,9 @@ import { ContactService } from '../contact.service';
 import { Contact, IContact } from '../contact.model';
 import { ContactActions } from '../contact.actions';
 import { IContactAction } from '../contact.reducer';
+// import { MallService } from '../../mall/mall.service';
+import { IMall } from '../../mall/mall.model';
+// import { MallActions } from '../../mall/mall.actions';
 
 @Component({
   selector: 'app-contact-form-page',
@@ -22,10 +25,12 @@ import { IContactAction } from '../contact.reducer';
 })
 export class ContactFormPageComponent implements OnInit, OnDestroy {
   form;
-  deliveryAddress;
   account;
   options = [];
-  location: ILocation;
+  contact: IContact;
+  deliveryAddress: string;
+  malls: IMall[];
+  // deliverTimeType: string;
 
   onDestroy$ = new Subject<any>();
   constructor(
@@ -33,6 +38,7 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     private contactSvc: ContactService,
+    // private mallSvc: MallService,
     private rx: NgRedux<IAppState>,
     private router: Router
   ) {
@@ -51,16 +57,22 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     ).subscribe(account => {
       self.account = account;
     });
+
     this.rx.select('contact').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((contact: IContact) => {
       if (contact) {
-        this.location = contact.location;
+        this.contact = contact;
         this.form.patchValue(contact);
-        this.deliveryAddress = contact.address;
+        this.deliveryAddress = this.contact.address;
       }
     });
 
+    // this.rx.select<string>('deliverTime').pipe(
+    //   takeUntil(this.onDestroy$)
+    // ).subscribe(timeType => {
+    //   self.deliverTimeType = timeType;
+    // });
   }
 
   ngOnDestroy() {
@@ -117,7 +129,7 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
         type: LocationActions.UPDATE,
         payload: r
       });
-      this.location = r;
+      this.contact.location = r;
       this.deliveryAddress = e.address; // set address text to input
     }
   }
@@ -125,8 +137,16 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   save() {
     const self = this;
     const v = this.form.value;
+    if (this.contact.id) {
+      v.id = this.contact.id;
+      v.created = this.contact.created;
+    } else {
+      v.created = new Date();
+    }
+    v.modified = new Date();
     v.accountId = this.account.id;
-    v.location = this.location;
+    v.placeId = this.contact.location.place_id;
+    v.location = this.contact.location;
     v.address = this.deliveryAddress;
     const contact = new Contact(v);
 
@@ -134,10 +154,27 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
       type: ContactActions.UPDATE,
       payload: contact
     });
-    this.contactSvc.save(contact).subscribe(x => {
-      self.router.navigate(['contact/list']);
-    }, err => {
-      self.router.navigate(['contact/list']);
-    });
+
+    // self.mallSvc.calcMalls({ lat: v.location.lat, lng: v.location.lng }, self.deliverTimeType).then((malls: IMall[]) => {
+    //   self.malls = malls;
+    //   self.rx.dispatch({
+    //     type: MallActions.UPDATE,
+    //     payload: self.malls.filter(r => r.type === 'real')
+    //   });
+    // });
+
+    if (v.id) {
+      this.contactSvc.replace(contact).subscribe(x => {
+        self.router.navigate(['contact/list']);
+      }, err => {
+        self.router.navigate(['contact/list']);
+      });
+    } else {
+      this.contactSvc.save(contact).subscribe(x => {
+        self.router.navigate(['contact/list']);
+      }, err => {
+        self.router.navigate(['contact/list']);
+      });
+    }
   }
 }
