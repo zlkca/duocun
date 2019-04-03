@@ -205,19 +205,4 @@ export class LocationService extends EntityService {
       return 0;
     }
   }
-
-  placeToLocation(p: IPlace): ILocation {
-    const terms = p.terms;
-    return {
-      place_id: p.place_id ? p.place_id : '',
-      city: terms && terms.length > 3 ? p.terms[2].value : '',
-      lat: 0,
-      lng: 0,
-      postal_code: '',
-      province: terms && terms.length > 3 ? p.terms[3].value : '',
-      street_name: terms && terms.length > 3 ? p.terms[1].value : '',
-      street_number: terms && terms.length > 3 ? p.terms[0].value : '',
-      sub_locality: ''
-    };
-  }
 }

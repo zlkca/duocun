@@ -55,8 +55,8 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
         for (const p of ps) {
-          const loc: ILocation = self.locationSvc.placeToLocation(p);
-          self.options.push({ location: loc, type: 'suggest' }); // without lat lng
+          p.type = 'suggest';
+          self.options.push(p); // without lat lng
         }
       }
     });
@@ -72,10 +72,20 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     this.options = [];
     if (this.account && this.account.id) {
       this.locationSvc.find({ where: { userId: this.account.id } }).subscribe((lhs: ILocationHistory[]) => {
+        const options = [];
         for (const lh of lhs) {
-          lh.type = 'history';
+          const loc = lh.location;
+          const p: IPlace = {
+            type: 'history',
+            structured_formatting: {
+              main_text: loc.street_number + ' ' + loc.street_name,
+              secondary_text: (loc.sub_locality ? loc.sub_locality : loc.city) + ',' + loc.province
+            },
+            location: loc
+          };
+          options.push(p);
         }
-        self.options = lhs;
+        self.options = options;
       });
     }
   }

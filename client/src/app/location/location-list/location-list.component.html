@@ -1,14 +1,12 @@
 <div class="place-option-list" *ngIf="places && places.length>0">
   <div *ngFor="let place of places" class="row option-item" (click)="onSelectPlace(place)">
     <div class="col-11" *ngIf="place">
-        <div class="text-sm">
-          <span style="color:#aaa">{{place.location.street_number}} </span>
-          <span style="font-weight: 400">{{place.location.street_name}}</span>
-        </div>
-        <div class="text-sm">
-          <span>{{place.location.sub_locality ? place.location.sub_locality: place.location.city}}, </span>
-          <span>{{place.location.province}}</span>
-        </div>
+      <div class="text-md">
+        <span style="font-weight: 400">{{place.structured_formatting.main_text}}</span>
+      </div>
+      <div class="text-sm">
+        <span>{{place.structured_formatting.secondary_text}}</span>
+      </div>
     </div>
     <div class="col-1">
       <!-- <i class="fa fa-2x fa-external-link"></i> -->

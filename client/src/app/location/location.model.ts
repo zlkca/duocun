@@ -28,11 +28,18 @@ export interface IPlaceTerm {
   value: string;
 }
 
+export interface IStructuredAddress {
+  main_text: string;
+  secondary_text: string;
+}
 export interface IPlace {
-  id: string;
-  description: string;
-  place_id: string;
-  terms: IPlaceTerm[];
+  id?: string;
+  type?: string;
+  description?: string;
+  place_id?: string;
+  structured_formatting: IStructuredAddress;
+  terms?: IPlaceTerm[];
+  location?: ILocation;
 }
 
 export interface ILocationHistory {

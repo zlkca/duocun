@@ -138,7 +138,7 @@ and (orientation: landscape) {
       width:50%;
     }
   }
-  
+
   .use-current-location{
     padding: 0px 0px 15px 0px;
     .btn{
@@ -163,9 +163,13 @@ and (orientation: landscape) {
     }
   }
 
-  app-location-list{
-    width: 100%;
+  .location-block{
+    margin-top: 46px;
+    app-location-list {
+      width: 100%;
+    }
   }
+
 
   .pac-container{
     width: 100%;

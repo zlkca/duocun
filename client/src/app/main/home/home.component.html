@@ -1,8 +1,9 @@
 <div class="page container">
-  <app-location-list [account]="account" [places]="options"
-    (placeSeleted)="onSelectPlace($event)">
-  </app-location-list>
-
+  <div class="location-block" *ngIf="options && options.length>0">
+    <app-location-list [account]="account" [places]="options"
+      (placeSeleted)="onSelectPlace($event)">
+    </app-location-list>
+  </div>
   <div class="col-12 map-col" *ngIf="!bHideMap && showMap()">
     <div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''">
       <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
