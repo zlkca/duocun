@@ -62,7 +62,7 @@ export class SignupComponent implements OnInit {
     if (this.form.invalid) {
       this.errMsg = 'FieldEmpty';
     } else if (this.validate(v.username)) {
-      this.errMsg = 'InvalidUsername';
+      this.errMsg = 'InvalidChar';
     } else {
       this.accountSvc.signup(account).subscribe((user: Account) => {
         if (user && user.id) {
@@ -72,13 +72,13 @@ export class SignupComponent implements OnInit {
             this.router.navigate(['order/list-worker']);
           }
         } else {
-          this.errMsg = 'InvalidUsername';
+          this.errMsg = 'UserExist';
         }
       },
-        err => {
-          console.log(err.message);
-          this.errMsg = 'FieldEmpty';
-        });
+      err => {
+        console.log(err.message);
+        this.errMsg = 'UserExist';
+      });
     }
   }
 

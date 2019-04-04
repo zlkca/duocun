@@ -5,8 +5,9 @@
         <span class="title-lg" i18n="@@CreateNewAccount">Create New Account</span>
       </div>
     <div class="row error-msg">
-      <span *ngIf="errMsg==='InvalidUsername'" i18n="@@WrongSignupMsg">Worng username or password</span>
+      <span *ngIf="errMsg==='InvalidChar'" i18n="@@InvalidCharMsg">Username cannot include special chars</span>
       <span *ngIf="errMsg==='FieldEmpty'" i18n="@@FieldEmptyMsg">Username or Password is empty</span>
+      <span *ngIf="errMsg==='UserExist'" i18n="@@UserExistMsg">Username exists</span>
     </div>
 
     <div class="row">

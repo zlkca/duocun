@@ -1244,9 +1244,17 @@
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="WrongSignupMsg" datatype="html">
-        <source>Signup failed</source>
-        <target>用户名已存在或含有特殊字符, 试试其他名字？</target>
+      <trans-unit id="InvalidCharMsg" datatype="html">
+        <source>Username cannot include special chars</source>
+        <target>用户名不能含有特殊字符</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-signup/account-signup.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="UserExistMsg" datatype="html">
+        <source>User Exists, Please try another</source>
+        <target>用户名已被注册, 试试其他名字？</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/account/account-signup/account-signup.component.html</context>
           <context context-type="linenumber">30</context>
