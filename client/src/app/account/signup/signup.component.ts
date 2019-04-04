@@ -28,7 +28,7 @@ export class SignupComponent implements OnInit {
 
     this.form = this.fb.group({
       username: ['', Validators.required],
-      email: ['', Validators.required],
+      // email: ['', Validators.required],
       password: ['', Validators.required]
     });
   }
@@ -40,27 +40,54 @@ export class SignupComponent implements OnInit {
     });
   }
 
+  validate(s) {
+    const format = /[()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
+    if (format.test(s)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   onSignup() {
     const v = this.form.value;
     const account = new Account({
       username: v.username,
-      email: v.email,
+      email: '', // v.email,
       password: v.password,
       type: 'user'
     });
     this.authSvc.removeCookies();
-    this.accountSvc.signup(account).subscribe((user: Account) => {
-      if (user && user.id) {
-        if (user.type === 'user') {
-          this.router.navigate(['main/home']);
-        } else if (user.type === 'worker') {
-          this.router.navigate(['order/list-worker']);
+
+    if (this.form.invalid) {
+      this.errMsg = 'FieldEmpty';
+    } else if (this.validate(v.username)) {
+      this.errMsg = 'InvalidUsername';
+    } else {
+      this.accountSvc.signup(account).subscribe((user: Account) => {
+        if (user && user.id) {
+          if (user.type === 'user') {
+            this.router.navigate(['main/home']);
+          } else if (user.type === 'worker') {
+            this.router.navigate(['order/list-worker']);
+          }
+        } else {
+          this.errMsg = 'InvalidUsername';
         }
-      }
-    },
-    err => {
-      this.errMsg = err.message || 'Create Account Failed';
-    });
+      },
+        err => {
+          console.log(err.message);
+          this.errMsg = 'FieldEmpty';
+        });
+    }
+  }
+
+  onFocusUsername(e) {
+    this.errMsg = '';
+  }
+
+  onFocusPassword(e) {
+    this.errMsg = '';
   }
 
 }

@@ -1,28 +1,18 @@
 
 <div class="container page page-signup">
-	<form class="auth-form" [formGroup]="form" >
-		<div class="row">
-			<span class="title-md" i18n="@@CreateNewAccount">Create New Account</span>
-		</div>
-		<div class="row">
-			<span class="error-msg">{{errMsg}}</span>
-		</div>
+	<form class="auth-form" [formGroup]="form" (ngSubmit)="onSignup()">
+    <div class="row title">
+        <span class="title-lg" i18n="@@CreateNewAccount">Create New Account</span>
+      </div>
+    <div class="row error-msg">
+      <span *ngIf="errMsg==='InvalidUsername'" i18n="@@WrongSignupMsg">Worng username or password</span>
+      <span *ngIf="errMsg==='FieldEmpty'" i18n="@@FieldEmptyMsg">Username or Password is empty</span>
+    </div>
 
-    	<div class="row">
+    <div class="row">
 			<div class="label-sm" i18n="@@Username">Username</div>
-			<input formControlName="username" type="text"/>
+			<input formControlName="username" type="text" (focus)="onFocusUsername($event)" />
 		</div>
-
-<!-- 		<div class="row user-type">
-			<div class="row">
-			    <input type="radio" name="user-type" value="user" [(ngModel)]="userType" />
-			    <label>Individual User</label>
-			</div>
-			<div class="row">
-			    <input type="radio" name="user-type" value="business" [(ngModel)]="userType" />
-			    <label>Business User</label>
-			</div>
-	    </div> -->
 
 		<!-- <div class="row">
 			<div class="label-sm">Email</div>
@@ -30,11 +20,11 @@
 		</div> -->
 		<div class="row">
 			<div class="label-sm" i18n="@@Password">Password</div>
-			<input formControlName="password" type="password"/>
+			<input formControlName="password" type="password" (focus)="onFocusPassword($event)" />
 		</div>
 
-		<div class="row btn-holder">
-			<button class="btn btn-primary" (click)="onSignup()" type="submit" i18n="@@CreateAccount">Create Account</button>
+		<div class="row btn-row">
+			<button class="btn btn-primary" type="submit" i18n="@@CreateAccount">Create Account</button>
 		</div>
 	</form>
 

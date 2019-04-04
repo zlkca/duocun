@@ -33,15 +33,21 @@ $bottom-bar-height: 60px;
 }
 a[href^="https://maps.google.com/maps"]{display:none !important}
 
-.selected{
-    display:block;
-}
-.unSelected{
-    display:none;
-}
+// .selected{
+//     display:block;
+// }
+// .unSelected{
+//     display:none;
+// }
 
-.float-left{
-	  float:left;
+// .float-left{
+// 	  float:left;
+// }
+
+// remove bootstrap button outline
+.btn:focus,.btn:active {
+  outline: none !important;
+  box-shadow: none;
 }
 
 .title-xl{

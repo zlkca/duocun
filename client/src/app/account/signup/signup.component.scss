@@ -4,7 +4,14 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
-.signup-page{
-  @media #{$mobile}{
-  }
+.btn-row{
+  margin-top:20px;
+}
+.error-msg{
+  font-size: 14px;
+  padding-left: 10px;
+  height: 50px;
+}
+
+@media #{$mobile}{
 }
