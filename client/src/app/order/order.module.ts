@@ -5,14 +5,12 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { SharedModule } from '../shared/shared.module';
-import { OrderListComponent } from './order-list/order-list.component';
 import { OrderService } from './order.service';
-import { WorkerOrderComponent } from './worker-order/worker-order.component';
-import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.component';
 import { OrderHistoryComponent } from './order-history/order-history.component';
 import { OrderRoutingModule } from './order-routing.module';
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { OrderFormPageComponent } from './order-form-page/order-form-page.component';
+import { AccountService } from '../account/account.service';
 
 @NgModule({
   imports: [
@@ -22,19 +20,16 @@ import { OrderFormPageComponent } from './order-form-page/order-form-page.compon
     ReactiveFormsModule,
     MatTabsModule,
     OrderRoutingModule,
-    SharedModule,
+    SharedModule
   ],
   exports: [
-    OrderListComponent,
   ],
   providers: [
     OrderService,
-    RestaurantService
+    RestaurantService,
+    AccountService
   ],
   declarations: [
-    OrderListComponent,
-    WorkerOrderComponent,
-    RestaurantOrderComponent,
     OrderHistoryComponent,
     OrderFormPageComponent
   ],

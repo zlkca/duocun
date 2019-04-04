@@ -3,11 +3,15 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
-$position-btn-width: 60px;
 $green: rgb(24, 128, 56);
 $yellow: rgb(244, 160, 0);
 $red: rgb(219, 68, 55);
 
+
+$position-btn-width: 60px;
+$map-height: 220px;
+$address-search-height: 46px;
+$menu-height: 60px;
 
 .grid{
   padding: 0px;
@@ -74,8 +78,6 @@ $red: rgb(219, 68, 55);
   padding-right:10px;
 }
 
-
-
 .btn-current-location{
   border-radius: 0px;
 }
@@ -127,7 +129,11 @@ and (orientation: landscape) {
   }
 
   .map-col{
+    position: fixed;
+    top: 0px;
+    left: 0px;
     padding:0px;
+    width: 100%;
   }
 
   .map-area{
@@ -145,16 +151,9 @@ and (orientation: landscape) {
       width:50%;
     }
   }
-
-  .use-current-location{
-    padding: 0px 0px 15px 0px;
-    .btn{
-      width:100%;
-    }
-  }
   
   .address-search-row{
-    position: absolute;
+    position: fixed;
     top: 6px;
     left: 0px;
     margin: 0px;
@@ -171,7 +170,13 @@ and (orientation: landscape) {
   }
 
   .location-block{
-    margin-top: 46px;
+    position: fixed;
+    left: 0px;
+    top: $address-search-height;
+    height: calc(100% - #{$address-search-height} - #{$menu-height});
+    width: 100%;
+    overflow: scroll;
+  
     app-location-list {
       width: 100%;
     }
@@ -184,6 +189,7 @@ and (orientation: landscape) {
   }
 
   .time-option-list{
+    margin-top: $map-height;
     .row{
       margin: 0px;
     }

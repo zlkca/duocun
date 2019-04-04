@@ -5,7 +5,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 
 import { environment } from '../../environments/environment';
-import { AccountApi, LoopBackConfig } from '../lb-sdk';
 import { Account } from './account.model';
 
 import { NgRedux } from '@angular-redux/store';
@@ -29,7 +28,6 @@ export class AccountService extends EntityService {
 
   constructor(
     private ngRedux: NgRedux<Account>,
-    private accountApi: AccountApi,
     public authSvc: AuthService,
     public http: HttpClient
   ) {
@@ -55,7 +53,7 @@ export class AccountService extends EntityService {
     if (state && state.id) {
       this.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: new Account() });
     }
-    return this.accountApi.logout();
+    return this.http.post(this.url + '/logout', {});
   }
 
   // ------------------------------------
@@ -87,7 +85,7 @@ export class AccountService extends EntityService {
     headers = headers.append('Content-Type', 'application/json');
     const accessTokenId = this.authSvc.getAccessToken();
     if (accessTokenId) {
-      headers = headers.append('Authorization', LoopBackConfig.getAuthPrefix() + accessTokenId);
+      headers = headers.append('Authorization', '' + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
     }
     if (filter) {
@@ -102,7 +100,7 @@ export class AccountService extends EntityService {
     headers = headers.append('Content-Type', 'application/json');
     const accessTokenId = this.authSvc.getAccessToken();
     if (accessTokenId) {
-      headers = headers.append('Authorization', LoopBackConfig.getAuthPrefix() + accessTokenId);
+      headers = headers.append('Authorization', '' + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
     }
     if (filter) {

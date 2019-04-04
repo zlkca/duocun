@@ -5,11 +5,12 @@ import { NgRedux } from '@angular-redux/store';
 
 import { ProductService } from '../product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-import { LoopBackConfig, Picture } from '../../lb-sdk';
 import { Restaurant } from '../../restaurant/restaurant.model';
 import { Product, Category } from '../../product/product.model';
 import { Jsonp } from '@angular/http';
 import { SharedService } from '../../shared/shared.service';
+import { environment } from '../../../environments/environment';
+import { Picture } from '../../picture.model';
 
 @Component({
   selector: 'app-product-form',
@@ -22,11 +23,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
   // colorList:Color[] = [];
   // id: number;
   uploadedPictures: string[] = [];
-  uploadUrl: string = [
-    LoopBackConfig.getPath(),
-    LoopBackConfig.getApiVersion(),
-    'files/upload'
-  ].join('/');
+  uploadUrl: string = environment.API_URL + 'files/upload';
 
   urls = [];
   file;
@@ -85,13 +82,13 @@ export class ProductFormComponent implements OnInit, OnChanges {
 
   loadCategoryList() {
     const self = this;
-    this.productSvc.findCategories().subscribe(
-      (r: Category[]) => {
-        self.categoryList = r;
-      },
-      (err: any) => {
-        self.categoryList = [];
-      });
+    // this.productSvc.findCategories().subscribe(
+    //   (r: Category[]) => {
+    //     self.categoryList = r;
+    //   },
+    //   (err: any) => {
+    //     self.categoryList = [];
+    //   });
   }
 
   ngOnChanges(changes) {

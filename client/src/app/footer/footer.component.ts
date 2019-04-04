@@ -13,7 +13,7 @@ import { ContactService } from '../contact/contact.service';
 import { LocationService } from '../location/location.service';
 import { Contact, IContact } from '../contact/contact.model';
 import { ILocation } from '../location/location.model';
-import { IContactAction } from '../contact/contact.reducer';
+// import { IContactAction } from '../contact/contact.reducer';
 
 @Component({
   selector: 'app-footer',
@@ -183,7 +183,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       if (this.quantity > 0) {
         this.rx.dispatch({
           type: CommandActions.SEND,
-          payload: 'pay'
+          payload: {name: 'pay', args: null}
         });
       }
       this.bCart = false;

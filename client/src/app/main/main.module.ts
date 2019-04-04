@@ -5,7 +5,6 @@ import { MainRoutingModule } from './main-routing.module';
 import { HomeComponent } from './home/home.component';
 import { LocationModule } from '../location/location.module';
 import { SharedModule } from '../shared/shared.module';
-import { AccountModule } from '../account/account.module';
 import { AccountService } from '../account/account.service';
 import { AuthService } from '../account/auth.service';
 
@@ -15,7 +14,6 @@ import { AuthService } from '../account/auth.service';
     MainRoutingModule,
     SharedModule,
     LocationModule,
-    AccountModule
   ],
   declarations: [
     HomeComponent,

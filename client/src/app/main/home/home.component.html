@@ -1,29 +1,8 @@
-<div class="page container">
+<div class="page">
   <div class="location-block" *ngIf="options && options.length>0">
     <app-location-list [account]="account" [places]="options"
       (placeSeleted)="onSelectPlace($event)">
     </app-location-list>
-  </div>
-  <div class="col-12 map-col" *ngIf="!bHideMap && showMap()">
-    <!-- div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''" -->
-    <div class="map-area" *ngIf="!mapFullScreen">
-      <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
-    </div>
-    <div class="background-img" *ngIf="mapFullScreen">
-      <img src="assets/map.png" />
-    </div>
-  </div>
-
-  <div class="input-group address-search-row">
-    <app-address-input (addrChange)="onAddressChange($event)" 
-      (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
-      placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
-      [value]="deliveryAddress"></app-address-input>
-    <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
-    <div class="input-group-append">
-      <button type="button" class="btn btn-primary btn-current-location" (click)="useCurrentLocation()"
-        i18n="@@CurrentLocation">Current Location</button>
-    </div>
   </div>
 
   <div class="col-12 time-option-list" *ngIf="bTimeOptions">
@@ -101,7 +80,28 @@
               <span i18n="@@NotInFreeDeliveryRange">Your address is not in free delivery range</span>
             </div>
         </div>
-      </div>
+    </div>
+  </div><!--time-option-list-->
+
+  <div class="map-col" *ngIf="!options || (options && options.length === 0)">
+    <!-- div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''" *ngIf="!bHideMap && showMap()" -->
+    <div class="map-area" *ngIf="!mapFullScreen">
+      <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
+    </div>
+    <div class="background-img" *ngIf="mapFullScreen">
+      <img src="assets/map.png" />
+    </div>
   </div>
 
+  <div class="input-group address-search-row">
+    <app-address-input (addrChange)="onAddressChange($event)" 
+      (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
+      placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
+      [value]="deliveryAddress"></app-address-input>
+    <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
+    <div class="input-group-append">
+      <button type="button" class="btn btn-primary btn-current-location" (click)="useCurrentLocation()"
+        i18n="@@CurrentLocation">Current Location</button>
+    </div>
+  </div>
 </div>

@@ -5,9 +5,8 @@ import { DEFAULT_ACCOUNT, accountReducer } from './account/account.reducer';
 import { locationReducer } from './location/location.reducer';
 import { ILocation } from './location/location.model';
 // import { IPicture, DEFAULT_PICTURE } from './commerce/commerce.actions';
-import { Account } from './lb-sdk';
 import { pageReducer, deliverTimeReducer } from './main/main.reducers';
-import { commandReducer } from './shared/command.reducers';
+import { commandReducer, ICommand } from './shared/command.reducers';
 import { DEFAULT_MALL } from './mall/mall.actions';
 import { IMall } from './mall/mall.model';
 import { mallReducer } from './mall/mall.reducers';
@@ -21,6 +20,7 @@ import { amountReducer } from './order/order.reducers';
 import { IAmount } from './order/order.model';
 import { restaurantReducer } from './restaurant/restaurant.reducer';
 import { IRestaurant } from './restaurant/restaurant.model';
+import { Account } from './account/account.model';
 
 export interface IAppState {
     cart: ICart;
@@ -28,7 +28,7 @@ export interface IAppState {
     // picture: IPicture;
     location: ILocation;
     page: string;
-    cmd: string;
+    cmd: ICommand;
     deliverTime: string;
     restaurant: IRestaurant;
     malls: IMall[];
@@ -43,7 +43,7 @@ export const INITIAL_STATE: IAppState = {
     // picture: DEFAULT_PICTURE,
     location: null,
     page: 'home',
-    cmd: '',
+    cmd: {name: '', args: ''},
     deliverTime: '',
     restaurant: null,
     malls: [DEFAULT_MALL],

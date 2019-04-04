@@ -5,11 +5,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 
 
-import { ProductModule } from '../product/product.module';
-import { RestaurantFormComponent } from './restaurant-form/restaurant-form.component';
+// import { ProductModule } from '../product/product.module';
 import { RestaurantGridComponent } from './restaurant-grid/restaurant-grid.component';
-import { RestaurantListComponent } from './restaurant-list/restaurant-list.component';
-import { OrderModule } from '../order/order.module';
+// import { OrderModule } from '../order/order.module';
 import { RestaurantService } from './restaurant.service';
 // import { LocationService } from '../shared/location/location.service';
 // import { ImageUploadModule } from 'angular2-image-upload';
@@ -19,6 +17,11 @@ import { RestaurantAboutComponent } from './restaurant-about/restaurant-about.co
 import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-list-page.component';
 import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaurant-detail-page.component';
 import { RestaurantRoutingModule } from './restaurant-routing.module';
+import { ProductModule } from '../product/product.module';
+
+import { ProductService } from '../product/product.service';
+import { CategoryService } from '../category/category.service';
+import { OrderService } from '../order/order.service';
 
 @NgModule({
     imports: [
@@ -30,22 +33,26 @@ import { RestaurantRoutingModule } from './restaurant-routing.module';
         MatTabsModule,
         RestaurantRoutingModule,
         ProductModule,
-        OrderModule,
+        // OrderModule,
         // ImageUploadModule.forRoot(),
         ImageUploaderModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     providers: [
       RestaurantService,
+      ProductService,
+      CategoryService,
+      OrderService
     ],
     declarations: [
-      RestaurantFormComponent,
       RestaurantGridComponent,
-      RestaurantListComponent,
       RestaurantAboutComponent,
       RestaurantListPageComponent,
       RestaurantDetailPageComponent
     ],
-    exports: [RestaurantFormComponent, RestaurantGridComponent, RestaurantListComponent, RestaurantAboutComponent]
+    exports: [
+      RestaurantGridComponent,
+      RestaurantAboutComponent
+    ]
 })
 export class RestaurantModule { }

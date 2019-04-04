@@ -1,16 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { LoopBackConfig } from '../lb-sdk';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Mall, IMall } from './mall.model';
 import { AuthService } from '../account/auth.service';
-import { environment } from '../../environments/environment';
 import { EntityService } from '../entity.service';
-import { resolve } from 'url';
 import { ILatLng } from '../location/location.model';
 import { LocationService } from '../location/location.service';
-
-
 
 @Injectable({
   providedIn: 'root'

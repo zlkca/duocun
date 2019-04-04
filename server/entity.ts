@@ -63,6 +63,19 @@ export class Entity {
 
   find(query: any, options?: any): Promise<any> {
     const self = this;
+    if (query && query.hasOwnProperty('id')) {
+      let body = query.id;
+      if (body && '$in' in body) {
+        let a = body['$in'];
+        const arr: any[] = [];
+        a.map((id: string) => {
+          arr.push({_id: new ObjectID(id)});
+        });
+
+        query = { $or: arr };
+      }
+    }
+
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.find(query, options).toArray((err, docs) => {

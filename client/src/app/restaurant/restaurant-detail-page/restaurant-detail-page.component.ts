@@ -7,6 +7,7 @@ import { Product, IProduct } from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
+import { CategoryService } from '../../category/category.service';
 
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -20,7 +21,9 @@ export class RestaurantDetailPageComponent implements OnInit {
   subscription;
   cart;
   tabs = [{ code: 'menu', text: 'Menu' }, { code: 'ratings', text: 'Rating' }, { code: 'about', text: 'About' }];
-  constructor(private productSvc: ProductService,
+  constructor(
+    private productSvc: ProductService,
+    private categorySvc: CategoryService,
     private restaurantSvc: RestaurantService,
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>
@@ -49,7 +52,9 @@ export class RestaurantDetailPageComponent implements OnInit {
       // self.restaurantSvc.getProducts(restaurantId).subscribe(products => {
         self.groupedProducts = self.groupByCategory(products);
         const categoryIds = Object.keys(self.groupedProducts);
-        self.productSvc.findCategories({where: {id: { inq: categoryIds}}}).subscribe(res => {
+
+        // fix me !!!
+        self.categorySvc.find({where: {id: {$in: categoryIds}}}).subscribe(res => {
           self.categories = res;
         });
       });

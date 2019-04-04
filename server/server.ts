@@ -247,8 +247,9 @@ app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
     res.end(JSON.stringify(x, null, 3))
   });
 });
-app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-  category.find({}).then((x: any) => {
+app.get('/' + ROUTE_PREFIX + '/Categories', (req: any, res) => {
+  const query = req.headers? JSON.parse(req.headers.filter) : null;
+  category.find(query ? query.where: {}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3))
   });

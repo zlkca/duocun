@@ -14,6 +14,7 @@ import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
 import { AmountActions } from '../order.actions';
 import { IRestaurant } from '../../restaurant/restaurant.model';
+import { ICommand } from '../../shared/command.reducers';
 
 @Component({
   selector: 'app-order-form-page',
@@ -56,8 +57,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('cmd').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe(x => {
-      if (x === 'pay') {
+    ).subscribe((x: ICommand) => {
+      if (x.name === 'pay') {
         this.pay();
       }
     });

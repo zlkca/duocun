@@ -82,10 +82,10 @@ export class ProductListComponent implements OnInit {
 
   delete(p) {
     const self = this;
-    this.productSvc.deleteById(p.id).subscribe(x => {
-      self.selected = null;
-      self.afterDelete.emit({ product: p });
-    });
+    // this.productSvc.deleteById(p.id).subscribe(x => {
+    //   self.selected = null;
+    //   self.afterDelete.emit({ product: p });
+    // });
   }
 }
 

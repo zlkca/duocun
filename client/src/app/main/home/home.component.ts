@@ -1,14 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { GeoPoint } from '../../lb-sdk';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { SharedService } from '../../shared/shared.service';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
-import { ILocationHistory, IPlace, ILocation, ILatLng } from '../../location/location.model';
+import { ILocationHistory, IPlace, ILocation, ILatLng, GeoPoint } from '../../location/location.model';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
-import { MallActions } from '../../mall/mall.actions';
 import { SocketService } from '../../shared/socket.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../account/auth.service';
@@ -16,6 +14,7 @@ import { DeliverTimeActions } from '../main.actions';
 import { IDeliverTimeAction, IPageAction } from '../main.reducers';
 import { LocationActions } from '../../location/location.actions';
 import { ILocationAction } from '../../location/location.reducer';
+import { Subject } from '../../../../node_modules/rxjs';
 
 declare var google;
 
@@ -26,7 +25,7 @@ const APP = environment.APP;
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   center: GeoPoint = { lat: 43.761539, lng: -79.411079 };
   restaurants;
   places;
@@ -41,28 +40,33 @@ export class HomeComponent implements OnInit {
   today;
   tomorrow;
   dayAfterTomorrow;
-  lunchTime = {start: '11:45', end: '13:45'};
+  lunchTime = { start: '11:45', end: '13:45' };
   overdue;
   afternoon;
   deliveryDiscount = 2;
   deliveryTime = 'immediate';
   malls = [
-    {id: '1', name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 2,
-      workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}]
+    {
+      id: '1', name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 2,
+      workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
     },
-    {id: '2', name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
-      workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}]
+    {
+      id: '2', name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
+      workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
     },
-    {id: '3', name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
-      workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}]
+    {
+      id: '3', name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
+      workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
     },
-    {id: '4', name: 'Richmond Hill', type: 'virtual', lat: 43.884244, lng: -79.467925, radius: 8,
-      workers: [{id: '5c9966b7fb86d40a4414eb79', username: 'worker'}
-    ]
-  },
+    {
+      id: '4', name: 'Richmond Hill', type: 'virtual', lat: 43.884244, lng: -79.467925, radius: 8,
+      workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }
+      ]
+    },
   ];
   realMalls = [];
   inRange = false;
+  onDestroy$ = new Subject<any>();
 
   constructor(
     private accountSvc: AccountService,
@@ -91,6 +95,25 @@ export class HomeComponent implements OnInit {
       type: PageActions.UPDATE_URL,
       payload: 'home'
     });
+
+    // this.rx.select('cmd').pipe(
+    //   takeUntil(this.onDestroy$)
+    // ).subscribe((x: ICommand) => {
+    //   if (x.name === 'show-location-history') {
+    //     this.onAddressInputFocus();
+    //   } else if ( x.name === 'input-address') {
+    //     this.handleAddressChange(x.args);
+    //   } else if ( x.name === 'clear-address-input') {
+    //     this.handleAddressClear();
+    //   } else if ( x.name === 'use-current-location') {
+    //     this.useCurrentLocation();
+    //   }
+    // });
+  }
+
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
   calcDistancesToMalls(center: ILatLng) {
@@ -102,29 +125,6 @@ export class HomeComponent implements OnInit {
       }
     });
     this.inRange = inRange;
-  }
-
-  onAddressChange(e) {
-    const self = this;
-    this.bHideMap = true;
-    this.bTimeOptions = false;
-    this.options = [];
-    this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
-      if (ps && ps.length > 0) {
-        for (const p of ps) {
-          p.type = 'suggest';
-          self.options.push(p); // without lat lng
-        }
-      }
-    });
-    this.mapFullScreen = false;
-  }
-
-  onAddressClear(e) {
-    this.deliveryAddress = '';
-    this.mapFullScreen = true;
-    this.options = [];
-    this.bHideMap = false;
   }
 
   onAddressInputFocus(e) {
@@ -169,12 +169,30 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  showMap() {
-    return !(this.options && this.options.length > 0);
+  onAddressChange(e) {
+    const self = this;
+    this.bHideMap = true;
+    this.bTimeOptions = false;
+    this.options = [];
+    this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
+      if (ps && ps.length > 0) {
+        for (const p of ps) {
+          p.type = 'suggest';
+          self.options.push(p); // without lat lng
+        }
+      }
+    });
+    this.mapFullScreen = false;
+
   }
 
-  getMapHeight() {
-    return this.mapFullScreen ? '700px' : '220px';
+
+  onAddressClear(e) {
+    this.deliveryAddress = '';
+    this.mapFullScreen = true;
+    this.options = [];
+    this.bHideMap = false;
+    this.bTimeOptions = false;
   }
 
   useCurrentLocation() {
@@ -203,6 +221,14 @@ export class HomeComponent implements OnInit {
     err => {
       console.log(err);
     });
+  }
+
+  showMap() {
+    return !(this.options && this.options.length > 0);
+  }
+
+  getMapHeight() {
+    return this.mapFullScreen ? '700px' : '220px';
   }
 
   setWorkAddr() {

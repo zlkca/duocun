@@ -2,15 +2,15 @@ import { Component, Output, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
+import { Subject } from 'rxjs';
 
 import { AuthService } from '../auth.service';
 import { AccountService } from '../account.service';
 import { AccountActions } from '../account.actions';
-import { Account } from '../../lb-sdk';
 import { PageActions } from '../../main/main.actions';
 import { IAppState } from '../../store';
-import { Subject } from '../../../../node_modules/rxjs';
 
+import { Account } from '../account.model';
 
 @Component({
   providers: [AuthService],

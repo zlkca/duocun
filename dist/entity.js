@@ -57,6 +57,17 @@ class Entity {
     }
     find(query, options) {
         const self = this;
+        if (query && query.hasOwnProperty('id')) {
+            let body = query.id;
+            if (body && '$in' in body) {
+                let a = body['$in'];
+                const arr = [];
+                a.map((id) => {
+                    arr.push({ _id: new mongodb_1.ObjectID(id) });
+                });
+                query = { $or: arr };
+            }
+        }
         return new Promise((resolve, reject) => {
             self.getCollection().then((c) => {
                 c.find(query, options).toArray((err, docs) => {

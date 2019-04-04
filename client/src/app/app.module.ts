@@ -14,22 +14,11 @@ import { ToastrModule } from 'ngx-toastr';
 import { CoreModule } from './core/core.module';
 import { AppComponent } from './app.component';
 
-
-// import { MainModule } from './main/main.module';
-// import { AccountModule } from './account/account.module';
-// import { AdminModule } from './admin/admin.module';
-// import { RestaurantModule } from './restaurant/restaurant.module';
-// import { ProductModule } from './product/product.module';
-// import { OrderModule } from './order/order.module';
-// import { PageModule } from './page/page.module';
-// import { LocationModule } from './location/location.module';
-
-import { environment } from '../environments/environment';
-import { SDKBrowserModule, LoopBackConfig } from './lb-sdk';
 import { AuthService } from './account/auth.service';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
-import { AccountService } from './account/account.service';
+import { HttpClientModule } from '../../node_modules/@angular/common/http';
+import { EntityService } from './entity.service';
 
 
 const appRoutes: Routes = [
@@ -38,10 +27,6 @@ const appRoutes: Routes = [
 
 
     // { path: 'restaurants/:id', component: RestaurantDetailPageComponent},
-    {
-      path: 'admin',
-      loadChildren: './admin/admin.module#AdminModule'
-    },
     {
       path: 'restaurant',
       loadChildren: './restaurant/restaurant.module#RestaurantModule'
@@ -84,20 +69,21 @@ const appRoutes: Routes = [
 
 @NgModule({
     declarations: [
-        AppComponent,
-        HeaderComponent,
-        FooterComponent
+      AppComponent,
+      HeaderComponent,
+      FooterComponent
     ],
     imports: [
         BrowserModule,
         CoreModule,
         FormsModule,
+        HttpClientModule,
         RouterModule.forRoot(
             appRoutes,
             {useHash: true}
             // { enableTracing: true } // <-- debugging purposes only
         ),
-        SDKBrowserModule.forRoot(), // for socket
+        // SDKBrowserModule.forRoot(), // for socket
         NgbModule.forRoot(),
         NgReduxModule,
         BrowserAnimationsModule,
@@ -105,6 +91,7 @@ const appRoutes: Routes = [
           positionClass: 'toast-bottom-right',
           preventDuplicates: true
         }),
+        // SharedModule,
         // MainModule,
         // AccountModule,
         // SharedModule,
@@ -117,16 +104,13 @@ const appRoutes: Routes = [
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     bootstrap: [AppComponent],
-    providers: [
-      AuthService,
-      AccountService
+    providers: [EntityService,
+      AuthService
     ]
 
 })
 export class AppModule {
     constructor(ngRedux: NgRedux<any>) {
         ngRedux.configureStore(rootReducer, INITIAL_STATE);
-        LoopBackConfig.setBaseURL(environment.API_BASE);
-        LoopBackConfig.setApiVersion('api');
     }
 }

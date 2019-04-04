@@ -1,9 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Restaurant, Address } from '../../lb-sdk';
-
+import { Restaurant } from '../restaurant.model';
+import { Address } from '../../account/account.model';
 
 @Component({
-  selector: 'restaurant-about',
+  selector: 'app-restaurant-about',
   templateUrl: './restaurant-about.component.html',
   styleUrls: ['./restaurant-about.component.css']
 })
@@ -19,18 +19,15 @@ export class RestaurantAboutComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-  }
-
-  ngOnChanges(v) {
-      const rst = v.restaurant ? v.restaurant.currentValue : null;
-      if(rst) {
-        this.restaurant = rst;
-        this.address = rst.address;
-        this.formattedAddress = "Unit " + this.address.unit + ", " + this.address.streetNumber + " " +
-          this.address.streetName + " " + this.address.city + " " + this.address.province;
-        this.phoneNumber = 12344567890;
-        this.operatingHours = "10:00 - 23:00"; 
-      }
+    const rst = this.restaurant;
+    if (rst) {
+      this.restaurant = rst;
+      this.address = rst.address;
+      this.formattedAddress = 'Unit ' + this.address.unit + ', ' + this.address.streetNumber + ' ' +
+        this.address.streetName + ' ' + this.address.city + ' ' + this.address.province;
+      this.phoneNumber = 12344567890;
+      this.operatingHours = '10:00 - 23:00';
+    }
   }
 
 }

@@ -9,81 +9,81 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { OrderApi, LoopBackFilter, RestaurantApi, LoopBackConfig } from '../lb-sdk';
+// import { OrderApi, LoopBackFilter, RestaurantApi, LoopBackConfig } from '../lb-sdk';
 
 import { Restaurant } from '../restaurant/restaurant.model';
 import { Order, OrderItem } from '../order/order.model';
+import { EntityService } from '../entity.service';
+import { AuthService } from '../account/auth.service';
 
 const APP = environment.APP;
 const API_URL = environment.API_URL;
 
 
 @Injectable()
-export class OrderService {
-
-  private url = [
-    LoopBackConfig.getPath(),
-    LoopBackConfig.getApiVersion(),
-    'Orders'
-  ].join('/');
+export class OrderService extends EntityService {
+  url;
 
   constructor(
-    private http: HttpClient,
-    private orderApi: OrderApi,
-    private restaurantApi: RestaurantApi) {
-
-    }
-
-  save(order: Order): Observable<any> {
-    return this.http.post(this.url, order);
+    public authSvc: AuthService,
+    public http: HttpClient,
+    // private orderApi: OrderApi,
+    // private restaurantApi: RestaurantApi
+  ) {
+    super(authSvc, http);
+    this.url = super.getBaseUrl() + 'Orders';
   }
 
-  replace(order: Order): Observable<any> {
-    return this.http.put(this.url, order);
-  }
+  // save(order: Order): Observable<any> {
+  //   return this.http.post(this.url, order);
+  // }
 
-  findRestaurant(id: any, filters: LoopBackFilter): Observable<Restaurant> {
-    return this.restaurantApi.findById(id, filters);
-  }
+  // replace(order: Order): Observable<any> {
+  //   return this.http.put(this.url, order);
+  // }
 
-  findById(id: any, filters: LoopBackFilter = {}): Observable<Order> {
-    return this.orderApi.findById(id, filters);
-  }
+  // findRestaurant(id: any, filters: LoopBackFilter): Observable<Restaurant> {
+  //   return this.restaurantApi.findById(id, filters);
+  // }
 
-  find(filters: LoopBackFilter = {}): Observable<Order[]> {
-    return this.orderApi.find(filters);
-  }
+  // findById(id: any, filters: LoopBackFilter = {}): Observable<Order> {
+  //   return this.orderApi.findById(id, filters);
+  // }
 
-  create(order: Order): Observable<Order> {
-    return this.orderApi.create(order).pipe(
-      mergeMap((newOrder: Order) => {
-        return this.orderApi.createManyItems(newOrder.id, order.items);
-      }),
-      mergeMap((items: OrderItem[]) => {
-        return this.orderApi.findById(items[0].orderId, { include: 'items' });
-      })
-    );
-  }
+  // find(filters: LoopBackFilter = {}): Observable<Order[]> {
+  //   return this.orderApi.find(filters);
+  // }
 
-  replaceById(id: number, order: Order): Observable<Order> {
-    return this.orderApi.replaceById(id, order);
-  }
+  // create(order: Order): Observable<Order> {
+  //   return this.orderApi.create(order).pipe(
+  //     mergeMap((newOrder: Order) => {
+  //       return this.orderApi.createManyItems(newOrder.id, order.items);
+  //     }),
+  //     mergeMap((items: OrderItem[]) => {
+  //       return this.orderApi.findById(items[0].orderId, { include: 'items' });
+  //     })
+  //   );
+  // }
 
-  createMany(orders: Order[]): Observable<Order[]> {
-    return this.orderApi.createMany(orders);
-  }
+  // replaceById(id: number, order: Order): Observable<Order> {
+  //   return this.orderApi.replaceById(id, order);
+  // }
 
-  createManyItems(orderId: number, orderItems: OrderItem[]): Observable<OrderItem[]> {
-    return this.orderApi.createManyItems(orderId, orderItems);
-  }
+  // createMany(orders: Order[]): Observable<Order[]> {
+  //   return this.orderApi.createMany(orders);
+  // }
 
-  delivery(order: Order) {
-    return this.orderApi.patchAttributes(order.id, { status: 'delivered' });
-  }
+  // createManyItems(orderId: number, orderItems: OrderItem[]): Observable<OrderItem[]> {
+  //   return this.orderApi.createManyItems(orderId, orderItems);
+  // }
 
-  deleteById(id: number): Observable<Order> {
-    return this.orderApi.deleteById(id);
-  }
+  // delivery(order: Order) {
+  //   return this.orderApi.patchAttributes(order.id, { status: 'delivered' });
+  // }
+
+  // deleteById(id: number): Observable<Order> {
+  //   return this.orderApi.deleteById(id);
+  // }
 
   // private API_URL = environment.API_URL;
   // private APP = environment.APP;

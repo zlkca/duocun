@@ -223,7 +223,8 @@ app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
     });
 });
 app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-    category.find({}).then((x) => {
+    const query = req.headers ? JSON.parse(req.headers.filter) : null;
+    category.find(query ? query.where : {}).then((x) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
     });

@@ -1,3 +1,6 @@
+$map-height: 220px;
+$position-btn-width: 60px;
+
 app-footer{
 	height:100px;
 	// position: absolute;
@@ -8,7 +11,27 @@ app-footer{
 	height:100%;
 }
 
+
+.address-search-row{
+  z-index: 1000;
+  position: fixed;
+  top: 6px;
+  left: 0px;
+  margin: 0px;
+  padding-left:6px;
+  padding-right:6px;
+  
+  .input-group-append{
+    width: $position-btn-width;
+  }
+  
+  app-address-input {
+    width: calc(100% - #{$position-btn-width});
+  }
+}
+
 @media (max-width:575px){
+
   app-footer{
     height:100px;
     position: fixed;
