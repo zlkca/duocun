@@ -1,3 +1,13 @@
+.empty-order{
+  text-align: center;
+  margin-top: 150px;
+  img{
+    width: 56px;
+    height: 56px;
+    filter: invert(71%) sepia(42%) saturate(5386%) hue-rotate(13deg) brightness(112%) contrast(103%);
+  }
+}
+
 .order-list{
   padding: 0px 10px 60px 10px;
 

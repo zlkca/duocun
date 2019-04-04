@@ -1268,6 +1268,22 @@
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="CartEmptyMsg" datatype="html">
+        <source>Your Cart is empty</source>
+        <target>购物车还是空的，去逛逛吧。</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/cart/cart-page/cart-page.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="OrderEmptyMsg" datatype="html">
+        <source>You don't have any order yet</source>
+        <target>你还没有任何订单，去逛逛吧。</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-history/order-history.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

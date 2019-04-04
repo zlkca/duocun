@@ -3,7 +3,13 @@
     <span class="title-bg" i18n="@@OrderHistory">Order History</span>
   </div>
 
-  <div *ngIf="!orders || orders.length===0">There is no orders right now.</div>
+  <div class="empty-order" *ngIf="!orders || orders.length===0">
+      <div class="order-image">
+        <img src="assets/outline-assignment-24px.svg" alt="order" />
+      </div>
+      <span i18n="@@OrderEmptyMsg">You don't have any order yet.</span>
+  </div>
+
   <div class="order-list">
     <div class="list-item" *ngFor="let order of orders;">
       <div class="body" (click)="onSelect(order)">

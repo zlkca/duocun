@@ -122,18 +122,14 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   toCart() {
-    if (this.account) {
-      if (this.account.type === 'user' || this.account.type === 'super') {
-        this.router.navigate(['cart']);
-      } else if (this.account.type === 'worker') {
-        this.router.navigate(['order/list-worker']);
-      } else if (this.account.type === 'restaurant') {
-        this.router.navigate(['order/list-restaurant']);
-      } else {
-        this.router.navigate(['account/login']);
-      }
+    if (this.account.type === 'user' || this.account.type === 'super') {
+      this.router.navigate(['cart']);
+    } else if (this.account.type === 'worker') {
+      this.router.navigate(['order/list-worker']);
+    } else if (this.account.type === 'restaurant') {
+      this.router.navigate(['order/list-restaurant']);
     } else {
-      this.router.navigate(['account/login']);
+      this.router.navigate(['cart']);
     }
   }
 
