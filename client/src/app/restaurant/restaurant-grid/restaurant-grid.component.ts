@@ -11,6 +11,7 @@ import { PageActions } from '../../main/main.actions';
 import { NgRedux } from '@angular-redux/store';
 import { LocationService } from '../../location/location.service';
 import { IAppState } from '../../store';
+import { RestaurantActions } from '../restaurant.actions';
 
 const APP = environment.APP;
 
@@ -74,6 +75,12 @@ export class RestaurantGridComponent implements OnInit {
       type: PageActions.UPDATE_URL,
       payload: 'restaurants'
     });
+
+    this.rx.dispatch({
+      type: RestaurantActions.UPDATE,
+      payload: r
+    });
+
     this.router.navigate(['restaurant/list/' + r.id]);
   }
 

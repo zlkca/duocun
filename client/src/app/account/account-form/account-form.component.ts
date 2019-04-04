@@ -23,21 +23,15 @@ export class AccountFormComponent implements OnInit, OnChanges {
   @Input() account: Account;
   @Output() valueSave = new EventEmitter();
 
-  createForm() {
-    return this.fb.group({
-      username: ['', Validators.required],
-      email: ['', Validators.required],
-      password: ['', Validators.required],
-      type: ['', Validators.required]
-    });
-  }
-
   constructor(private fb: FormBuilder,
     private accountSvc: AccountService,
     private router: Router,
     private route: ActivatedRoute,
   ) {
-    this.form = this.createForm();
+    this.form = this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required]
+    });
   }
 
   ngOnChanges(changes) {
@@ -73,7 +67,6 @@ export class AccountFormComponent implements OnInit, OnChanges {
         self.valueSave.emit({ name: 'OnUpdateAccount' });
       });
     }
-
   }
 
   cancel() {

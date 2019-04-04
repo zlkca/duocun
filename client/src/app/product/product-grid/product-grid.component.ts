@@ -98,7 +98,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   addToCart(p: IProduct) {
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART, payload:
-        { productId: p.id, name: p.name, price: p.price, pictures: p.pictures,
+        { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
           restaurantId: p.restaurantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
     });
   }
@@ -106,7 +106,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   removeFromCart(p: IProduct) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: { productId: p.id, name: p.name, price: p.price, pictures: p.pictures,
+      payload: { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
          restaurantId: p.restaurantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
     });
   }

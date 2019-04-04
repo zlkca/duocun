@@ -23,6 +23,9 @@ export interface IOrder {
   restaurant?: Restaurant;
   items?: OrderItem[];
   deliveryAddress?: Address;
+  deliveryFee?: number;
+  deliveryDiscount?: number;
+  total?: number;
 }
 
 export class Order implements IOrder {
@@ -44,6 +47,9 @@ export class Order implements IOrder {
   restaurant: Restaurant;
   items: OrderItem[];
   deliveryAddress: Address;
+  deliveryFee: number;
+  deliveryDiscount: number;
+  total: number;
   constructor(data?: IOrder) {
     Object.assign(this, data);
   }

@@ -13,6 +13,7 @@ import { IOrder } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
 import { AmountActions } from '../order.actions';
+import { IRestaurant } from '../../restaurant/restaurant.model';
 
 @Component({
   selector: 'app-order-form-page',
@@ -35,6 +36,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   deliveryFee = 0;
   tax = 0;
   contact: IContact;
+  restaurant: IRestaurant;
   form;
 
   constructor(
@@ -58,6 +60,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       if (x === 'pay') {
         this.pay();
       }
+    });
+
+    this.rx.select('restaurant').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((x: IRestaurant) => {
+      this.restaurant = x;
     });
   }
 
@@ -142,6 +150,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           delivered: '', // this.getDateTime(v.date, v.time),
           address: this.contact.address,
           notes: v.notes,
+          restaurant: self.restaurant,
+          deliverFee: self.deliveryFee,
+          deliveryDiscount: self.deliveryDiscount,
+          total: self.total,
           status: 'new',
           clientStatus: 'new',
           workerStatus: 'new',

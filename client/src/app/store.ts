@@ -19,6 +19,8 @@ import { ICart } from './cart/cart.model';
 import { cartReducer } from './cart/cart.reducer';
 import { amountReducer } from './order/order.reducers';
 import { IAmount } from './order/order.model';
+import { restaurantReducer } from './restaurant/restaurant.reducer';
+import { IRestaurant } from './restaurant/restaurant.model';
 
 export interface IAppState {
     cart: ICart;
@@ -28,6 +30,7 @@ export interface IAppState {
     page: string;
     cmd: string;
     deliverTime: string;
+    restaurant: IRestaurant;
     malls: IMall[];
     delivery: IDelivery;
     contact: IContact;
@@ -42,6 +45,7 @@ export const INITIAL_STATE: IAppState = {
     page: 'home',
     cmd: '',
     deliverTime: '',
+    restaurant: null,
     malls: [DEFAULT_MALL],
     delivery: null,
     contact: null,
@@ -66,6 +70,7 @@ export const rootReducer = combineReducers({
     page: pageReducer,
     cmd: commandReducer,
     deliverTime: deliverTimeReducer,
+    restaurant: restaurantReducer,
     malls: mallReducer,
     delivery: deliveryReducer,
     contact: contactReducer,

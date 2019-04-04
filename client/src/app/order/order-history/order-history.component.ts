@@ -63,8 +63,7 @@ export class OrderHistoryComponent implements OnInit {
 
   reload(clientId) {
     const self = this;
-    self.orderSvc.find({ where: { clientId: clientId } }).subscribe(os => {
-      const orders = os;
+    self.orderSvc.find({ where: { clientId: clientId } }).subscribe(orders => {
       orders.sort((a: Order, b: Order) => {
         if (this.sharedSvc.compareDateTime(a.created, b.created)) {
           return -1;
@@ -72,17 +71,12 @@ export class OrderHistoryComponent implements OnInit {
           return 1;
         }
       });
-
       self.orders = orders;
     });
   }
 
   onSelect(c) {
     // this.select.emit({ order: c });
-  }
-
-  getTotal(order) {
-    return this.sharedSvc.getTotal(order.items);
   }
 
   toDateTimeString(s) {

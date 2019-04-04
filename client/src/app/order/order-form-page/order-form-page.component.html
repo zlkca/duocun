@@ -21,7 +21,7 @@
     <div class="title-md restaurant">{{restaurantName}}</div>
     <div class="bg-light product-list" *ngIf="cart.items && cart.items.length>0">
       <div *ngFor="let item of cart.items" class="text-sm row">
-        <div class="col-6 product-col">{{item.name}}</div>
+        <div class="col-6 product-col">{{item.productName}}</div>
         <div class="col-3 quantity-col">x{{item.quantity}}</div>
         <div class="col-3 price-col">${{item.price * item.quantity | number : '1.2-2'}}</div>
       </div>

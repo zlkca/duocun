@@ -1,12 +1,12 @@
 import { CartActions } from './cart.actions';
-import { ICart } from './cart.model';
+import { ICart, ICartItem } from './cart.model';
 
 export interface ICartAction {
   type: string;
-  payload: any;
+  payload: ICartItem;
 }
 
-export function cartReducer(state: ICart = { items: [] }, action: any) {
+export function cartReducer(state: ICart = { items: [] }, action: ICartAction) {
   if (action.payload) {
     const payload = action.payload;
     const item = state.items.find(x => x.productId === payload.productId);

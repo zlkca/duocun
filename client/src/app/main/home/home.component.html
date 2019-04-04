@@ -5,8 +5,12 @@
     </app-location-list>
   </div>
   <div class="col-12 map-col" *ngIf="!bHideMap && showMap()">
-    <div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''">
+    <!-- div class="map-area" [ngClass]="mapFullScreen ? 'full-screen-map' : ''" -->
+    <div class="map-area" *ngIf="!mapFullScreen">
       <app-map [center]="center" [zoom]="14" [places]="places"></app-map>
+    </div>
+    <div class="background-img" *ngIf="mapFullScreen">
+      <img src="assets/map.png" />
     </div>
   </div>
 

@@ -2,14 +2,11 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { MatTabsModule } from '@angular/material/tabs';
 
 import { SharedModule } from '../shared/shared.module';
 import { OrderListComponent } from './order-list/order-list.component';
-import { CartComponent } from './cart/cart.component';
 import { OrderService } from './order.service';
-import { OrderFormComponent } from './order-form/order-form.component';
-import { MatTabsModule } from '@angular/material/tabs';
-import { ClientOrderComponent } from './client-order/client-order.component';
 import { WorkerOrderComponent } from './worker-order/worker-order.component';
 import { RestaurantOrderComponent } from './restaurant-order/restaurant-order.component';
 import { OrderHistoryComponent } from './order-history/order-history.component';
@@ -29,8 +26,6 @@ import { OrderFormPageComponent } from './order-form-page/order-form-page.compon
   ],
   exports: [
     OrderListComponent,
-    CartComponent,
-    OrderFormComponent,
   ],
   providers: [
     OrderService,
@@ -38,9 +33,6 @@ import { OrderFormPageComponent } from './order-form-page/order-form-page.compon
   ],
   declarations: [
     OrderListComponent,
-    CartComponent,
-    OrderFormComponent,
-    ClientOrderComponent,
     WorkerOrderComponent,
     RestaurantOrderComponent,
     OrderHistoryComponent,

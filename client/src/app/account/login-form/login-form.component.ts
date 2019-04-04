@@ -21,8 +21,8 @@ import { Subject } from '../../../../node_modules/rxjs';
 export class LoginFormComponent implements OnInit, OnDestroy {
 
   public user;
-  public account = '';
-  public password = '';
+  // public account = '';
+  // public password = '';
 
   token = '';
   errMsg = '';
@@ -43,6 +43,9 @@ export class LoginFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  get account() { return this.form.get('account'); }
+  get password() { return this.form.get('password'); }
+
   ngOnInit() {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
@@ -59,49 +62,60 @@ export class LoginFormComponent implements OnInit, OnDestroy {
     const self = this;
     const v = this.form.value;
     this.authSvc.removeCookies();
-    // if (this.form.valid) {
-    this.accountSvc.login(v.account, v.password).subscribe((data: any) => {
-      if (data) {
-        self.authSvc.setUserId(data.userId);
-        self.authSvc.setAccessToken(data.id);
-        self.accountSvc.getCurrentUser().subscribe((account: Account) => {
-          if (account) {
-            self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header, footer icons
-            if (account.type === 'super') {
-              this.router.navigate(['admin']);
-            } else if (account.type === 'worker') {
-              this.router.navigate(['order/list-worker']);
-            } else if (account.type === 'restaurant') {
-              this.router.navigate(['order/list-restaurant']);
-            } else if (account.type === 'user') {
-              this.router.navigate(['main/home']);
+    if (this.form.valid) {
+      this.accountSvc.login(v.account, v.password).subscribe((data: any) => {
+        if (data) {
+          self.authSvc.setUserId(data.userId);
+          self.authSvc.setAccessToken(data.id);
+          self.accountSvc.getCurrentUser().subscribe((account: Account) => {
+            if (account) {
+              self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header, footer icons
+              if (account.type === 'super') {
+                this.router.navigate(['admin']);
+              } else if (account.type === 'worker') {
+                this.router.navigate(['order/list-worker']);
+              } else if (account.type === 'restaurant') {
+                this.router.navigate(['order/list-restaurant']);
+              } else if (account.type === 'user') {
+                this.router.navigate(['main/home']);
+              }
+            } else {
+              this.errMsg = 'Wrong username or password';
+              // this.router.navigate(['account/login']);
             }
-          } else {
-            this.router.navigate(['account/login']);
-          }
-        },
-          (error) => {
-            this.errMsg = error.message || 'login failed.';
-            console.error('An error occurred', error);
-          });
-      } else {
-        console.log('anonymous try to login ... ');
-      }
-    });
+          },
+            (error) => {
+              this.errMsg = error.message || 'login failed.';
+              console.error('An error occurred', error);
+            });
+        } else {
+          console.log('anonymous try to login ... ');
+        }
+      });
+    } else {
+      this.errMsg = 'Wrong username or password';
+    }
   }
   onForgetPassword() {
     // this.router.navigate(["/forget-password"]);;
     // return false;
   }
 
-  onChangeAccount() {
-    this.errMsg = "";
+  onChangeAccount(e) {
+    this.errMsg = '';
   }
 
-  onChangePassword() {
-    this.errMsg = "";
+  onChangePassword(e) {
+    this.errMsg = '';
   }
 
+  onFocusAccount(e) {
+    this.errMsg = '';
+  }
+
+  onFocusPassword(e) {
+    this.errMsg = '';
+  }
 
   toPage(page: string) {
     this.router.navigate([page]);

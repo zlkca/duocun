@@ -1025,7 +1025,7 @@
       </trans-unit>
       <trans-unit id="e9b4e2ff31de0f80bd5239155d708135829a45bf" datatype="html">
         <source>Free delivery if order before</source>
-        <target>前定餐运费全免</target>
+        <target>前定餐免运费</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
           <context context-type="linenumber">61</context>
@@ -1042,7 +1042,7 @@
       </trans-unit>
       <trans-unit id="FreeDelivery" datatype="html">
         <source>Free Delivery</source>
-        <target>运费全免</target>
+        <target>免运费</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/page/home/home.component.html</context>
           <context context-type="linenumber">71</context>
@@ -1158,7 +1158,7 @@
       </trans-unit>
       <trans-unit id="Tips" datatype="html">
         <source>Tips</source>
-        <target>服务费</target>
+        <target>小费</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/order-form-page/order-form-page.component.html</context>
           <context context-type="linenumber">44</context>
@@ -1225,6 +1225,22 @@
         <target>门禁号码</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/contact/contact-form-page/contact-form-page.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="OrderHistory" datatype="html">
+        <source>Order History</source>
+        <target>订单历史</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/contact/order-history-page/order-history-page.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="WrongLoginMsg" datatype="html">
+        <source>Wrong account or password</source>
+        <target>用户名或密码错误</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/contact/order-history-page/order-history-page.component.html</context>
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>

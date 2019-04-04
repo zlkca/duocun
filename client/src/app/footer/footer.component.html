@@ -1,26 +1,38 @@
 <footer>
   <div class="row bottom-nav-menus" *ngIf="!bCart && !bPay">
-    <div class="col-3" (click)="toHome()">
-      <img class="icon" src="assets/outline-home-24px.svg" alt="home" height="26px" width="26px" />
+    <div class="menu" (click)="toHome()">
+      <div class="icon">
+        <img src="assets/outline-home-24px.svg" alt="home" />
+      </div>
       <div class="icon-text" i18n="@@Home">Home</div>
     </div>
-    <div class="col-3" (click)="toOrder()">
-      <img class="icon" src="assets/outline-assignment-24px.svg" alt="order" height="24px" width="24px" />
+
+    <div class="menu" (click)="toOrder()">
+      <div class="icon">
+        <img src="assets/outline-assignment-24px.svg" alt="order" />
+      </div>
       <div class="icon-text" i18n="@@Order">Order</div>
     </div>
-    <div *ngIf="account && account.type !== 'super'" class="col-3" (click)="toCart()">
-      <img class="icon" src="assets/outline-shopping_cart-24px.svg" alt="cart" height="24px" width="24px" />
+    <div class="menu" *ngIf="account && account.type !== 'super'" (click)="toCart()">
+      <div class="icon">
+        <img src="assets/outline-shopping_cart-24px.svg" alt="cart" />
+      </div>
       <div class="icon-text" i18n="@@Cart">Cart</div>
     </div>
-    <div *ngIf="account && account.type === 'super'" class="col-3" (click)="toAdmin()">
-      <img class="icon" src="assets/outline-settings-24px.svg" alt="admin" height="24px" width="24px" />
+    <div class="menu" *ngIf="account && account.type === 'super'" (click)="toAdmin()">
+      <div class="icon">
+        <img src="assets/outline-settings-24px.svg" alt="admin" />
+      </div>
       <div class="icon-text" i18n="@@Admin">Admin</div>
     </div>
-    <div class="col-3" (click)="toAccount()">
-      <img class="icon" src="assets/outline-person-24px.svg" alt="person" height="26px" width="26px" />
+    <div class="menu" (click)="toAccount()">
+      <div class="icon">
+        <img src="assets/outline-person-24px.svg" alt="account" />
+      </div>
       <div class="icon-text" i18n="@@Account">Account</div>
     </div>
   </div>
+  
   <div class="copyright">
       <a href="#">YoCompute Inc.</a> &#169;<span id="copyright-year">{{year}}</span>
       <!-- <a href="index-5.html">Privacy Policy</a> -->

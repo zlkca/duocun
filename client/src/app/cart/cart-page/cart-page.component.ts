@@ -67,7 +67,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   addToCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
-      payload: { productId: item.productId, name: item.productName, price: item.price,
+      payload: { productId: item.productId, productName: item.productName, price: item.price,
         restaurantId: item.restaurantId, restaurantName: item.restaurantName  }
     });
   }
@@ -75,7 +75,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   removeFromCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: { productId: item.productId, name: item.productName, price: item.price,
+      payload: { productId: item.productId, productName: item.productName, price: item.price,
         restaurantId: item.restaurantId, restaurantName: item.restaurantName  }
     });
   }
@@ -83,19 +83,19 @@ export class CartPageComponent implements OnInit, OnDestroy {
   updateQuantity(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.UPDATE_QUANTITY,
-      payload: { productId: item.productId, name: item.productName, price: item.price,
+      payload: { productId: item.productId, productName: item.productName, price: item.price,
         restaurantId: item.restaurantId, restaurantName: item.restaurantName, quantity: item.quantity }
     });
   }
 
   checkout() {
-    const orders = this.createOrders(this.cart);
-    if (orders[0].accountId) {
-      // this.modalServ.open(this.orderDetailModal);
-      this.router.navigate(['order/list-client']);
-    } else {
-      this.router.navigate(['account/login']);
-    }
+    // const orders = this.createOrders(this.cart);
+    // if (orders[0].accountId) {
+    //   // this.modalServ.open(this.orderDetailModal);
+    //   this.router.navigate(['order/list-client']);
+    // } else {
+    //   this.router.navigate(['account/login']);
+    // }
   }
 
   clearCart() {
@@ -115,7 +115,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
       for (const order of orders) {
         if (item.restaurantId === order.restaurantId) {
           order.items.push({
-            name: item.productName,
+            productName: item.productName,
             price: item.price,
             quantity: item.quantity,
             productId: item.productId,

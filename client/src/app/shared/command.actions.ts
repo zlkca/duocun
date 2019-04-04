@@ -1,4 +1,4 @@
 
 export class CommandActions {
-  static SEND = 'SEND';
+  static SEND = 'SEND_COMMAND';
 }
