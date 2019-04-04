@@ -30,7 +30,9 @@ export class AccountFormComponent implements OnInit, OnChanges {
   ) {
     this.form = this.fb.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      email: ['', Validators.required],
+      password: ['', Validators.required],
+      type: ['', Validators.required]
     });
   }
 
@@ -67,6 +69,7 @@ export class AccountFormComponent implements OnInit, OnChanges {
         self.valueSave.emit({ name: 'OnUpdateAccount' });
       });
     }
+
   }
 
   cancel() {

@@ -22,9 +22,8 @@ import { CartActions } from '../../cart/cart.actions';
 export class CartPageComponent implements OnInit, OnDestroy {
   total = 0;
   quantity = 0;
-  subscriptionAccount;
   cart: ICart;
-  user: Account;
+  account: Account;
   defaultProductPicture = window.location.protocol + '//placehold.it/400x300';
   private onDestroy$ = new Subject<void>();
 
@@ -57,10 +56,11 @@ export class CartPageComponent implements OnInit, OnDestroy {
         });
       });
 
-    this.subscriptionAccount = this.accountServ.getCurrent()
-      .subscribe((acc: Account) => {
+    this.accountServ.getCurrent().pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((acc: Account) => {
         console.log(acc);
-        this.user = acc;
+        this.account = acc;
       });
   }
 
@@ -108,7 +108,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     const orders = [];
 
     for (const id of restaurantIds) {
-      orders.push({ restaurantId: id, items: [], accountId: this.user.id });
+      orders.push({ restaurantId: id, items: [], accountId: this.account.id });
     }
 
     for (const item of cart.items) {
@@ -128,7 +128,6 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionAccount.unsubscribe();
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }

@@ -1,15 +1,15 @@
-<div class="page" *ngIf="cart.items && cart.items.length==0">
+<div class="page">
   <div class="title-row">
     <span class="title-bg" i18n="@@ShoppingCart">Shopping Cart</span>
   </div>
-  <div class="empty-cart">
+  <div class="empty-cart" *ngIf="!cart || !cart.items || cart.items.length==0">
       <div class="cart-image">
         <img src="assets/outline-shopping_cart-24px.svg" alt="cart" />
       </div>
       <span i18n="@@CartEmptyMsg">Your Cart is empty</span>
   </div>
 
-  <div class="cart" *ngIf="cart.items.length>0">
+  <div class="cart" *ngIf="cart && cart.items && cart.items.length>0">
       <!-- <div class="row title">
         <div class="col-9 title-lg title-left" i18n="@@ShoppingCart">Shopping Cart</div>
         <div class="col-3 title-sm pull-right" i18n="@@ClearCart" (click)="clearCart()">Clear</div>
