@@ -106,22 +106,34 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   toOrder() {
-    if (this.account.type === 'user' || this.account.type === 'super') {
-      this.router.navigate(['order/history']);
-    } else if (this.account.type === 'worker') {
-      this.router.navigate(['order/list-worker']);
-    } else if (this.account.type === 'restaurant') {
-      this.router.navigate(['order/list-restaurant']);
+    if (this.account) {
+      if (this.account.type === 'user' || this.account.type === 'super') {
+        this.router.navigate(['order/history']);
+      } else if (this.account.type === 'worker') {
+        this.router.navigate(['order/list-worker']);
+      } else if (this.account.type === 'restaurant') {
+        this.router.navigate(['order/list-restaurant']);
+      } else {
+        this.router.navigate(['account/login']);
+      }
+    } else {
+      this.router.navigate(['account/login']);
     }
   }
 
   toCart() {
-    if (this.account.type === 'user' || this.account.type === 'super') {
-      this.router.navigate(['cart']);
-    } else if (this.account.type === 'worker') {
-      this.router.navigate(['order/list-worker']);
-    } else if (this.account.type === 'restaurant') {
-      this.router.navigate(['order/list-restaurant']);
+    if (this.account) {
+      if (this.account.type === 'user' || this.account.type === 'super') {
+        this.router.navigate(['cart']);
+      } else if (this.account.type === 'worker') {
+        this.router.navigate(['order/list-worker']);
+      } else if (this.account.type === 'restaurant') {
+        this.router.navigate(['order/list-restaurant']);
+      } else {
+        this.router.navigate(['account/login']);
+      }
+    } else {
+      this.router.navigate(['account/login']);
     }
   }
 
@@ -130,22 +142,22 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   toAdmin() {
-    this.router.navigate(['admin']);
+    if (this.account) {
+      this.router.navigate(['admin']);
+    } else {
+      this.router.navigate(['account/login']);
+    }
   }
 
   checkout() {
     const self = this;
+
     if (this.account.type === 'user' || this.account.type === 'super') {
       if (this.quantity > 0) {
         const account = this.account;
 
-        self.contactSvc.find({where: {accountId: account.id, placeId: self.location.place_id}}).subscribe((r: IContact[]) => {
+        self.contactSvc.find({ where: { accountId: account.id, placeId: self.location.place_id } }).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {
-            // let contacts = r;
-            // this.rx.dispatch<IContactAction>({
-            //   type: ContactActions.UPDATE,
-            //   payload: contact
-            // });
             this.router.navigate(['contact/list']);
           } else {
             const data = new Contact({
@@ -160,19 +172,13 @@ export class FooterComponent implements OnInit, OnDestroy {
               created: new Date(),
               modified: new Date()
             });
-            // let contacts = [data];
-            // this.rx.dispatch<IContactAction>({
-            //   type: ContactActions.UPDATE,
-            //   payload: contact
-            // });
-            this.contactSvc.save(data).subscribe(() => {});
+            this.contactSvc.save(data).subscribe(() => { });
             this.router.navigate(['contact/list']);
           }
         });
-        // this.router.navigate(['contact/list']);
       }
     } else {
-      this.router.navigate(['acccount/login']);
+      this.router.navigate(['account/login']);
     }
   }
 
@@ -187,7 +193,9 @@ export class FooterComponent implements OnInit, OnDestroy {
       this.bCart = false;
       this.bPay = false;
     } else {
-      // pass
+      this.bCart = false;
+      this.bPay = false;
+      this.router.navigate(['account/login']);
     }
   }
 }
