@@ -20,16 +20,20 @@
 
 
   .item-list{
+    .row{
+      margin: 0px;
+    }
     .item-row{
       height: 110px;
       padding: 4px 10px;
 
       .image-col{
         height: 100%;
-        padding-right: 0px;
+        padding: 0px;
         
         img {
           width:100%;
+          height: 100%;
         }
       }
 
@@ -43,7 +47,7 @@
   
         .detail-row{
           margin: 0px;
-          padding-top: 10px;
+          padding: 10px 0px;
   
           .col-6{
             padding-left: 0px;
@@ -59,19 +63,17 @@
           }
 
           .button-col{
-            padding: 0px;
+            padding: 5px 0px;
             .quantity{
-              width: 30px;
               height: 40px;
-              float: left;
-              padding-top: 6px;
+              float: right;
               text-align: center;
-              font-size: 18px;
+              font-size: 20px;
+              font-weight: 500;
+              padding: 0px 5px;
             }
-            img{
-              float: left;
-              height: 36px;
-              width: 36px;
+            .add-btn, .remove-btn{
+              float: right;
             }
           }
         }

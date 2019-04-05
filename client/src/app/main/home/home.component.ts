@@ -15,6 +15,8 @@ import { IDeliverTimeAction, IPageAction } from '../main.reducers';
 import { LocationActions } from '../../location/location.actions';
 import { ILocationAction } from '../../location/location.reducer';
 import { Subject } from '../../../../node_modules/rxjs';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { ICommand } from '../../shared/command.reducers';
 
 declare var google;
 
@@ -40,7 +42,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   today;
   tomorrow;
   dayAfterTomorrow;
-  lunchTime = { start: '11:45', end: '13:45' };
+  lunchTime = { start: '11:45', end: '13:30' };
   overdue;
   afternoon;
   deliveryDiscount = 2;
@@ -96,19 +98,22 @@ export class HomeComponent implements OnInit, OnDestroy {
       payload: 'home'
     });
 
-    // this.rx.select('cmd').pipe(
-    //   takeUntil(this.onDestroy$)
-    // ).subscribe((x: ICommand) => {
-    //   if (x.name === 'show-location-history') {
-    //     this.onAddressInputFocus();
-    //   } else if ( x.name === 'input-address') {
-    //     this.handleAddressChange(x.args);
-    //   } else if ( x.name === 'clear-address-input') {
-    //     this.handleAddressClear();
-    //   } else if ( x.name === 'use-current-location') {
-    //     this.useCurrentLocation();
-    //   }
-    // });
+    this.rx.select('cmd').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((x: ICommand) => {
+      if (x.name === 'clear-address') {
+        this.options = [];
+      }
+      // if (x.name === 'show-location-history') {
+      //   this.onAddressInputFocus();
+      // } else if ( x.name === 'input-address') {
+      //   this.handleAddressChange(x.args);
+      // } else if ( x.name === 'clear-address-input') {
+      //   this.handleAddressClear();
+      // } else if ( x.name === 'use-current-location') {
+      //   this.useCurrentLocation();
+      // }
+    });
   }
 
   ngOnDestroy() {
@@ -127,7 +132,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.inRange = inRange;
   }
 
-  onAddressInputFocus(e) {
+  onAddressInputFocus(e?: any) {
     const self = this;
     this.bHideMap = true;
     this.bTimeOptions = false;
@@ -135,7 +140,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.account && this.account.id) {
       this.locationSvc.find({ where: { userId: this.account.id } }).subscribe((lhs: ILocationHistory[]) => {
         const options = [];
-        for (const lh of lhs) {
+        // for (const lh of lhs) {
+        for (let i = lhs.length - 1; i >= 0; i--) {
+          const lh = lhs[i];
           const loc = lh.location;
           const p: IPlace = {
             type: 'history',
@@ -193,6 +200,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.options = [];
     this.bHideMap = false;
     this.bTimeOptions = false;
+    this.onAddressInputFocus();
   }
 
   useCurrentLocation() {

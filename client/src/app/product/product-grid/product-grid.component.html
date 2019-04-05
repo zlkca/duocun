@@ -12,14 +12,20 @@
                     <div class="row order-row">
                         <div class="col-4 price-col">${{p.price}}</div>
                         <div class="col-8 button-col">
-                            <!-- <i class="fa fa-2x fa-minus-circle text-danger" (click)="removeFromCart(p)"></i> -->
-                            <img class="img-shopping-cart" src="assets/outline-remove_circle-24px.svg" alt="remove" height="40px" width="40px" 
-                            (click)="removeFromCart(p)" />
-                            <div class="quantity" *ngIf="groupedOrders && groupedOrders[cat.id].length>0" >{{groupedOrders[cat.id][i].quantity}}</div>
-                            <!-- <div class="quantity" *ngIf="groupedOrders[cat.id].length==0" >0</div> -->
-                            <!-- <i class="fa fa-2x fa-plus-circle ml-2 text-primary" (click)="addToCart(p)"></i> -->
-                            <img class="img-shopping-cart" src="assets/outline-add_circle-24px.svg" alt="add" height="40px" width="40px" 
-                            (click)="addToCart(p)" />
+                            <div class="add-btn" (click)="addToCart(p)">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                                <path fill="none" d="M0 0h24v24H0V0z" />
+                                <path fill="#0F9D58" d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                              </svg>
+                            </div>
+                            <div class="quantity" *ngIf="groupedOrders && groupedOrders[cat.id].length>0 && groupedOrders[cat.id][i].quantity>0" >
+                                {{groupedOrders[cat.id][i].quantity}}</div>
+                            <div class="remove-btn" *ngIf="groupedOrders && groupedOrders[cat.id][i].quantity>0" (click)="removeFromCart(p)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                                  <path fill="none" d="M0 0h24v24H0V0z"/>
+                                  <path fill="#F4B400" d="M7 11v2h10v-2H7zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                                </svg>
+                              </div>
                         </div>
                     </div>
                 </div>

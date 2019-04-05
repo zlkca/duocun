@@ -20,9 +20,8 @@
       <div class="row label-sm">
         <span i18n="@@DeliverAddress">Delivery Address</span>:
       </div>
-      <app-address-input (addrChange)="onAddressChange($event)" 
+      <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
         (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
-        placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
         [value]="deliveryAddress">
       </app-address-input>
     </div>

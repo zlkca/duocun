@@ -118,7 +118,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
   }
 
   toPage(page: string) {
-    this.router.navigate([page]);
+    this.router.navigate(['account/' + page]);
   }
 
 }

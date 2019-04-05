@@ -1,8 +1,8 @@
 <div class="address-input-container">
   <form [formGroup]="placeForm" class="address-input">
-      <input type="text" [formControl]="placeForm.controls.addr" placeholder="{{placeholder}}" 
+      <input type="text" placeholder="{{placeholder}}" i18n-placeholder [formControl]="placeForm.controls.addr"  
       (input)="onValueChange($event)"
-      (focus)="onFocus($event)" [class.expanded]="!bClearBtn"/>
+      (focus)="onFocus($event)" [class.expanded]="!bClearBtn" />
   </form>
   <button class="clear-btn" (click)="clearAddr()" *ngIf="bClearBtn">
     <!-- <i class="fa fa-2x fa-close"></i> -->

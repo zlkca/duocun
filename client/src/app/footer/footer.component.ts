@@ -102,6 +102,10 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   toHome() {
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: {name: 'clear-address', args: null}
+    });
     this.router.navigate(['main/home']);
   }
 

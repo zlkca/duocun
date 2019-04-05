@@ -6,21 +6,17 @@
   </div>
 
   <div class="col-12 time-option-list" *ngIf="bTimeOptions">
-    <div class="row option-item overdue" (click)="onSelectTime('immediate')">
+    <!-- <div class="row option-item overdue" (click)="onSelectTime('immediate')">
       <div class="col-12 immediate-deliver">
         <div>
           <span class="text-md" style="font-weight: 400" i18n="@@ImmediateDeliver">Immediate Deliver</span>
-          <!-- <span class="text-sm date">(&nbsp;{{today}}</span>
-          <span class="text-sm time">{{lunchTime.start}} ~ {{lunchTime.end}}</span>
-          <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
-          <span class="text-sm">&nbsp;)</span> -->
         </div>
         <div class="text-sm">
           <span i18n="@@DeliveryFeeMinus">Delivery Fee Minus</span>
           <span>&nbsp;${{deliveryDiscount}}</span>
         </div>
       </div>
-    </div>
+    </div> -->
     <div *ngIf="inRange && !afternoon" class="row option-item" [class.overdue]="overdue" [class.free]="!overdue"
       (click)="onSelectTime('lunch today')">
       <div class="col-12">
@@ -32,12 +28,12 @@
             <span class="text-sm">&nbsp;)</span>
           </div>
           <div class="text-sm">
-            <span *ngIf="!overdue">9:00</span>
+            <span *ngIf="!overdue">9:30</span>
             <span *ngIf="!overdue" i18n="FreeDeliveryIfOrderBefore">Free delivery if order before</span>
             <span *ngIf="overdue" i18n="@@DeliveryFeeMinus">Delivery Fee Minus</span>
             <span *ngIf="overdue">&nbsp;${{deliveryDiscount}}</span>
             <span *ngIf="overdue" class="overdue-note">
-              <span i18n="@@Over">Over</span>9:00&nbsp;
+              <span i18n="@@Over">Over</span>9:30&nbsp;
               <span i18n="@@DeliverNotFreeNotes">deliver is not free, please order in advance next time</span>
             </span>
           </div>
@@ -94,9 +90,8 @@
   </div>
 
   <div class="input-group address-search-row">
-    <app-address-input (addrChange)="onAddressChange($event)" 
+    <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
       (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
-      placeholder="Input Delivery Address" i18n-placeholder="Input Delivery Address" 
       [value]="deliveryAddress"></app-address-input>
     <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
     <div class="input-group-append">

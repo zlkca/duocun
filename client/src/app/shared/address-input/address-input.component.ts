@@ -18,14 +18,13 @@ declare var google;
 })
 export class AddressInputComponent implements OnInit, OnChanges {
 
-  // @ViewChild('div') div: ElementRef;
+  @Input() placeholder: string;
   @Output() addrChange = new EventEmitter();
   @Output() addrClear = new EventEmitter();
   @Output() inputFocus = new EventEmitter();
   @Input() value;
 
   placeForm;
-  placeholder: string;
   gAutocomplete: any;
   input: string;
   bClearBtn = false;

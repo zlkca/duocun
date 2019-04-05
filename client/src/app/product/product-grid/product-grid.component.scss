@@ -47,20 +47,20 @@ $desktop: "(min-width: 1200px)";
                   padding-left: 0px;
                   padding-right: 0px;
                   font-size:20px;
-                  font-weight:400;
+                  font-weight:340;
                 }
                 .button-col{
-                  padding: 0px;
+                  padding: 0px 10px;
                   .quantity{
-                    width: 30px;
                     height: 40px;
-                    float: left;
-                    padding-top: 6px;
+                    float: right;
                     text-align: center;
-                    font-size: 18px;
+                    font-size: 20px;
+                    font-weight: 500;
+                    padding: 0px 5px;
                   }
-                  img{
-                    float: left;
+                  .add-btn, .remove-btn{
+                    float: right;
                   }
                 }
               }
