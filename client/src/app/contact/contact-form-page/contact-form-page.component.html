@@ -11,14 +11,14 @@
     </div>
     <div class="row form-group" *ngIf="!(options && options.length>0)">
       <div class="row label-sm">
-        <span i18n="@@PhoneNumber">Phone Number</span>:
+        <span i18n="@@PhoneNumber">Phone Number</span><span class="warning">*</span>:
       </div>
       <input name="phone" formControlName="phone" />
     </div>
 
     <div class="row form-group">
       <div class="row label-sm">
-        <span i18n="@@DeliverAddress">Delivery Address</span>:
+        <span i18n="@@DeliverAddress">Delivery Address</span><span class="warning">*</span>:
       </div>
       <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
         (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"

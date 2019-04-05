@@ -4,10 +4,15 @@
   </div>
   <div class="option-list">
       <div class="option-item" *ngFor="let item of items" (click)="select(item)">
-        <div class="text-sm">{{item.username}}&nbsp;{{item.phone}}
-          <span i18n="@@Edit" class="edit-btn" (click)="edit(item)">Edit</span>
+        <div class="text-smn first-col">
+          <span class="user-col">{{item.username}}</span>
+          <span class="phone-col">{{item.phone}}</span>
         </div>
-        <div class="text-sm">{{item.address}}</div>
+        <div class="edit-col" (click)="edit(item)">
+          <span i18n="@@Edit">Edit</span>
+        </div>
+        <div class="text-sm second-row">{{item.address}}</div>
+        <div class="warning" *ngIf="!item.phone || !item.address" i18n="@@PhoneAddrEmptyMsg">Phone number and address cannot be empty</div>
       </div>
   </div>
 </div>

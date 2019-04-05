@@ -5,14 +5,14 @@
 
   <form [formGroup]="form">
     <div class="contact-block" *ngIf="restaurantName && contact" (click)="changeContact()">
-      <div>
+      <div class="row label-sm">
         <span i18n="@@DeliverTo">Deliver to</span>:
       </div>
-      <div class="text-sm">
+      <div class="title-sm">
         <span class="user-col">{{contact.username}}</span>
         <span class="phone-col">{{contact.phone}}</span>
       </div>
-      <div class="text-sm">
+      <div class="title-sm">
         <span>{{contact.address}}</span>
       </div>
       <!-- <div>Estimate: 11:45~1:45</div> -->

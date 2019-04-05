@@ -1308,6 +1308,14 @@
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="PhoneAddrEmptyMsg" datatype="html">
+        <source>Phone and Address cannot be empty</source>
+        <target>电话号码和送餐地址不能为空，点击进入编辑。</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-history/order-history.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -26,6 +26,7 @@ $bottom-bar-height: 60px;
 // google map label
 .gm-style-cc{
   display: none !important;
+  font-size: 12px;
 }
 a[href^="https://maps.google.com/maps"]{display:none !important}
 
@@ -45,7 +46,10 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
   outline: none !important;
   box-shadow: none;
 }
-
+.warning{
+  font-size: 12px;
+  color: #DB4437;
+}
 .title-xl{
     font-family: "Roboto", "Microsoft Yahei", Helvetica, Arial, sans-serif;
     font-size: 58px;

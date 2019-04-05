@@ -6,10 +6,38 @@
   .option-list {
     margin-top: 0px;
     .option-item{
-      height: 80px;
+      height: 120px;
       border: solid 1px #eee;
       padding: 10px;
       margin-bottom: 5px;
+
+      .first-col{
+        width: 80%;
+        padding-left: 0px;
+        float: left;
+
+        .user-col{
+          padding-left:0px;
+          padding-right:10px;
+        }
+        .phone-col{
+          padding-left: 0px;
+        }
+      }
+
+      .edit-col{
+        width: 20%;
+        float: right;
+        text-align: right;
+      }
+
+      .second-row, .warning{
+        width: 100%;
+        padding-left: 0px;
+        padding-top: 8px;
+        float: left;
+      }
+
     }
   }
 } 

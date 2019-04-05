@@ -120,6 +120,7 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
 
   select(contact: IContact) {
     const self = this;
+
     this.rx.dispatch({
       type: ContactActions.UPDATE,
       payload: contact
@@ -133,7 +134,11 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
       });
     });
 
-    this.router.navigate(['order/form']);
+    if (!contact.phone || !contact.address) {
+      this.router.navigate(['contact/form']);
+    } else {
+      this.router.navigate(['order/form']);
+    }
   }
 
   edit(item: IContact) {
