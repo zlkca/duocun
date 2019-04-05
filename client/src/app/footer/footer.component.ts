@@ -13,6 +13,7 @@ import { ContactService } from '../contact/contact.service';
 import { LocationService } from '../location/location.service';
 import { Contact, IContact } from '../contact/contact.model';
 import { ILocation } from '../location/location.model';
+import { ContactActions } from '../contact/contact.actions';
 // import { IContactAction } from '../contact/contact.reducer';
 
 @Component({
@@ -155,12 +156,16 @@ export class FooterComponent implements OnInit, OnDestroy {
     if (this.account.type === 'user' || this.account.type === 'super') {
       if (this.quantity > 0) {
         const account = this.account;
-
-        self.contactSvc.find({ where: { accountId: account.id, placeId: self.location.place_id } }).subscribe((r: IContact[]) => {
+        self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {
             this.router.navigate(['contact/list']);
+            r[0].placeId = self.location.place_id;
+            r[0].location = self.location;
+            r[0].address = self.locationSvc.getAddrString(self.location);
+            r[0].modified = new Date();
+            this.rx.dispatch({type: ContactActions.UPDATE, payload: r[0]});
           } else {
-            const data = new Contact({
+            const contact = new Contact({
               accountId: account.id,
               username: account.username,
               phone: account.phone,
@@ -172,8 +177,8 @@ export class FooterComponent implements OnInit, OnDestroy {
               created: new Date(),
               modified: new Date()
             });
-            this.contactSvc.save(data).subscribe(() => { });
             this.router.navigate(['contact/list']);
+            this.rx.dispatch({type: ContactActions.UPDATE, payload: contact});
           }
         });
       }

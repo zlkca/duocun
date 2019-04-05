@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
-import { ToastrService } from 'ngx-toastr';
 import { Order } from '../order.model';
 import { SocketService } from '../../shared/socket.service';
 
@@ -21,7 +20,6 @@ export class OrderHistoryComponent implements OnInit {
     private accountSvc: AccountService,
     private orderSvc: OrderService,
     private sharedSvc: SharedService,
-    private toastSvc: ToastrService,
     private socketSvc: SocketService
   ) {
 
@@ -41,7 +39,6 @@ export class OrderHistoryComponent implements OnInit {
 
     // this.socket.connect(this.authSvc.getToken());
     this.socketSvc.on('updateOrders', x => {
-      // self.toastSvc.success('New Order Added!', '', { timeOut: 2000 });
       // self.onFilterOrders(this.selectedRange);
       if (x.clientId === self.account.id) {
         const index = self.orders.findIndex(i => i.id === x.id);
@@ -88,7 +85,6 @@ export class OrderHistoryComponent implements OnInit {
   //   order.workerStatus = 'process';
   //   this.orderSvc.replace(order).subscribe(x => {
   //     // self.afterSave.emit({name: 'OnUpdateOrder'});
-  //     self.toastSvc.success('Take Order Successfuly!');
   //     self.reload(self.account.id);
   //   });
   // }
@@ -98,7 +94,6 @@ export class OrderHistoryComponent implements OnInit {
   //   order.workerStatus = 'done';
   //   this.orderSvc.replace(order).subscribe(x => {
   //     // self.afterSave.emit({name: 'OnUpdateOrder'});
-  //     self.toastSvc.success('Send for Order Successfuly!');
   //     self.reload(self.account.id);
   //   });
   // }

@@ -53,16 +53,16 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     this.rx.select('account').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((account: IAccount) => {
-      this.contactSvc.find({where: {accountId: account.id}}).subscribe((contacts: IContact[]) => {
-        self.items = contacts;
-        contacts.sort((a: IContact, b: IContact) => {
-          if (this.sharedSvc.compareDateTime(a.modified, b.modified)) {
-            return -1;
-          } else {
-            return 1;
-          }
-        });
-      });
+      // this.contactSvc.find({where: {accountId: account.id}}).subscribe((contacts: IContact[]) => {
+      //   self.items = contacts;
+      //   contacts.sort((a: IContact, b: IContact) => {
+      //     if (this.sharedSvc.compareDateTime(a.modified, b.modified)) {
+      //       return -1;
+      //     } else {
+      //       return 1;
+      //     }
+      //   });
+      // });
 
 
       // self.contactSvc.find({where: {accountId: account.id}}).subscribe(r => {
@@ -76,6 +76,11 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
       // });
     });
 
+    this.rx.select('contact').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((contact: IContact) => {
+      this.items = [contact];
+    });
     // forkJoin([
     //   this.rx.select<IAccount>('account').pipe(
     //     first(),

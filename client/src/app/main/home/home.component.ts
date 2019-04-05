@@ -140,7 +140,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.account && this.account.id) {
       this.locationSvc.find({ where: { userId: this.account.id } }).subscribe((lhs: ILocationHistory[]) => {
         const options = [];
-        // for (const lh of lhs) {
         for (let i = lhs.length - 1; i >= 0; i--) {
           const lh = lhs[i];
           const loc = lh.location;
@@ -264,6 +263,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         type: DeliverTimeActions.UPDATE,
         payload: type
       });
-    }, 1000);
+    }, 300);
   }
 }

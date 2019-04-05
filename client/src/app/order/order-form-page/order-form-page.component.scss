@@ -7,8 +7,11 @@
 }
 
 .contact-block{
-  padding: 10px 15px;
+  padding: 10px;
   border: solid 1px #eee;
+  .phone-col{
+    padding-left: 15px;
+  }
 }
 
 .total-block {

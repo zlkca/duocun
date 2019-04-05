@@ -16,7 +16,6 @@ import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.
   declarations: [CartPageComponent],
   providers: [
     AccountService
-  ],
-  entryComponents: [WarningDialogComponent]
+  ]
 })
 export class CartModule { }

@@ -8,6 +8,7 @@ import { ReactiveFormsModule } from '../../../node_modules/@angular/forms';
 import { SharedModule } from '../shared/shared.module';
 import { LocationModule } from '../location/location.module';
 import { LocationService } from '../location/location.service';
+import { AccountService } from '../account/account.service';
 
 @NgModule({
   imports: [
@@ -18,6 +19,9 @@ import { LocationService } from '../location/location.service';
     LocationModule
   ],
   declarations: [ContactFormPageComponent, ContactListPageComponent],
-  providers: [LocationService]
+  providers: [
+    LocationService,
+    AccountService
+  ]
 })
 export class ContactModule { }

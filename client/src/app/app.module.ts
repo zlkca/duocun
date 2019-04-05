@@ -9,8 +9,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { rootReducer, INITIAL_STATE } from './store';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { ToastrModule } from 'ngx-toastr';
-
 import { CoreModule } from './core/core.module';
 import { AppComponent } from './app.component';
 
@@ -87,10 +85,7 @@ const appRoutes: Routes = [
         NgbModule.forRoot(),
         NgReduxModule,
         BrowserAnimationsModule,
-        ToastrModule.forRoot({timeOut: 10000,
-          positionClass: 'toast-bottom-right',
-          preventDuplicates: true
-        }),
+
         // SharedModule,
         // MainModule,
         // AccountModule,

@@ -15,6 +15,7 @@ import { PageActions } from '../../main/main.actions';
 import { AmountActions } from '../order.actions';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { ICommand } from '../../shared/command.reducers';
+import { MatSnackBar } from '../../../../node_modules/@angular/material';
 
 @Component({
   selector: 'app-order-form-page',
@@ -44,7 +45,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private rx: NgRedux<IAppState>,
     private router: Router,
-    private orderSvc: OrderService
+    private orderSvc: OrderService,
+    private snackBar: MatSnackBar
   ) {
     this.form = this.fb.group({
       notes: ['']
@@ -187,8 +189,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       self.orderSvc.save(orders[0]).subscribe((order: IOrder) => {
         // self.afterSubmit.emit(order);
         this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
-        // this.toastSvc.success('Save Restaurant Successfully!', '', { timeOut: 2000, positionClass: 'toast-bottom-right' });
-        this.router.navigate(['home']);
+        this.snackBar.open('', '您的订单已经成功提交。', {
+          duration: 3000
+        }); // Fix me
+       this.router.navigate(['home']);
       });
     }
   }

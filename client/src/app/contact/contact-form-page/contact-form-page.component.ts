@@ -96,15 +96,17 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   onAddressClear(e) {
     this.deliveryAddress = '';
     this.options = [];
+    this.onAddressInputFocus();
   }
 
-  onAddressInputFocus(e) {
+  onAddressInputFocus(e?: any) {
     const self = this;
     this.options = [];
     if (this.account && this.account.id) {
       this.locationSvc.find({ where: { userId: this.account.id } }).subscribe((lhs: ILocationHistory[]) => {
         const options = [];
-        for (const lh of lhs) {
+        for (let i = lhs.length - 1; i >= 0; i--) {
+          const lh = lhs[i];
           const loc = lh.location;
           const p: IPlace = {
             type: 'history',
