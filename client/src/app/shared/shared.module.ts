@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 import { WizardComponent } from './wizard/wizard.component';
@@ -18,6 +19,7 @@ import { AddressInputComponent } from './address-input/address-input.component';
 import { SharedService } from './shared.service';
 import { AddressAutocompleteComponent } from './address-autocomplete/address-autocomplete.component';
 import { EntityService } from '../entity.service';
+import { WarningDialogComponent } from './warning-dialog/warning-dialog.component';
 
 // import { PageService } from '../pages/page.service';
 // import { PagesModule } from '../pages/pages.module';
@@ -27,7 +29,8 @@ import { EntityService } from '../entity.service';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule,
+    MatDialogModule
   ],
   declarations: [
     WizardComponent,
@@ -37,7 +40,8 @@ import { EntityService } from '../entity.service';
     // HeaderComponent,
     // FooterComponent,
     AddressInputComponent,
-    AddressAutocompleteComponent
+    AddressAutocompleteComponent,
+    WarningDialogComponent
   ],
   providers: [
     SharedService,
@@ -50,7 +54,8 @@ import { EntityService } from '../entity.service';
     // HeaderComponent,
     // FooterComponent,
     AddressInputComponent,
-    AddressAutocompleteComponent
+    AddressAutocompleteComponent,
+    WarningDialogComponent
   ]
 })
 export class SharedModule { }

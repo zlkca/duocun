@@ -1,22 +1,16 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { SharedService } from '../../shared/shared.service';
-
 import { environment } from '../../../environments/environment';
-// import { LocationService } from '../../shared/location/location.service';
-import { RestaurantService } from '../restaurant.service';
 import { Restaurant, IRestaurant } from '../restaurant.model';
-
 import { PageActions } from '../../main/main.actions';
 import { NgRedux } from '@angular-redux/store';
-import { LocationService } from '../../location/location.service';
 import { IAppState } from '../../store';
 import { RestaurantActions } from '../restaurant.actions';
 
-const APP = environment.APP;
 
 @Component({
-  // providers: [LocationService],
   selector: 'app-restaurant-grid',
   templateUrl: './restaurant-grid.component.html',
   styleUrls: ['./restaurant-grid.component.scss']
@@ -38,8 +32,6 @@ export class RestaurantGridComponent implements OnInit {
   constructor(
     private router: Router,
     private sharedSvc: SharedService,
-    private locationSvc: LocationService,
-    private restaurantSvc: RestaurantService,
     private rx: NgRedux<IAppState>
   ) {
 

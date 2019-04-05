@@ -1,12 +1,10 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from '../../account/account.service';
 import { Product } from '../../product/product.model';
 import { Account } from '../../account/account.model';
 
-import { Router } from '@angular/router';
 import { PageActions } from '../../main/main.actions';
 import { SharedService } from '../../shared/shared.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
@@ -32,9 +30,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   constructor(
     private rx: NgRedux<IAppState>,
     private accountServ: AccountService,
-    private sharedSvc: SharedService,
-    private modalServ: NgbModal,
-    private router: Router
+    private sharedSvc: SharedService
   ) {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
@@ -64,6 +60,9 @@ export class CartPageComponent implements OnInit, OnDestroy {
       });
   }
 
+
+
+
   addToCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
@@ -71,6 +70,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
         restaurantId: item.restaurantId, restaurantName: item.restaurantName  }
     });
   }
+
 
   removeFromCart(item: ICartItem) {
     this.rx.dispatch({

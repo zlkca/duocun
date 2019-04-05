@@ -257,10 +257,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.bTimeOptions = false;
     this.options = [];
     this.deliveryTime = type;
-    this.rx.dispatch<IDeliverTimeAction>({
-      type: DeliverTimeActions.UPDATE,
-      payload: type
-    });
+
     this.route.navigate(['restaurant/list']);
+    setTimeout(() => {
+      this.rx.dispatch<IDeliverTimeAction>({
+        type: DeliverTimeActions.UPDATE,
+        payload: type
+      });
+    }, 1000);
   }
 }

@@ -1,5 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProductFormComponent } from './product-form/product-form.component';
@@ -10,6 +11,7 @@ import { ProductGridComponent } from './product-grid/product-grid.component';
 import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
 import { ProductRoutingModule } from './product-routing.module';
 import { CategoryService } from '../category/category.service';
+import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.component';
 
 @NgModule({
   imports: [
@@ -32,6 +34,7 @@ import { CategoryService } from '../category/category.service';
   ],
   providers: [
     CategoryService
-  ]
+  ],
+  entryComponents: [WarningDialogComponent]
 })
 export class ProductModule { }

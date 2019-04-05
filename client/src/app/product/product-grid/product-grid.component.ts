@@ -1,8 +1,7 @@
 import { Component, OnInit, Input, OnChanges, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog } from '@angular/material';
 
 import { IAppState } from '../../store';
 import { SharedService } from '../../shared/shared.service';
@@ -11,6 +10,7 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { ICart } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
+import { WarningDialogComponent } from '../../shared/warning-dialog/warning-dialog.component';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -34,11 +34,9 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   @Input() mode: string;
 
   constructor(
-    private router: Router,
-    private modalService: NgbModal,
     private rx: NgRedux<IAppState>,
-    private sharedSvc: SharedService
-    // private actions: CartActions
+    private sharedSvc: SharedService,
+    public dialog: MatDialog
   ) {
     rx.select<ICart>('cart').pipe(
       takeUntil(this.onDestroy$)
@@ -96,12 +94,34 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  addToCart(p: IProduct) {
-    this.rx.dispatch({
-      type: CartActions.ADD_TO_CART, payload:
-        { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
-          restaurantId: p.restaurantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
+  openDialog(): void {
+    const dialogRef = this.dialog.open(WarningDialogComponent, {
+      width: '250px',
+      data: {title: '提示', content: '只能选同一餐厅的商品'}
     });
+
+    dialogRef.afterClosed().subscribe(result => {
+    });
+  }
+
+  addToCart(p: IProduct) {
+    if (this.cart.items && this.cart.items.length > 0) {
+      if (p.restaurantId === this.cart.items[0].restaurantId) {
+        this.rx.dispatch({
+          type: CartActions.ADD_TO_CART, payload:
+            { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
+              restaurantId: p.restaurantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
+        });
+      } else {
+        this.openDialog();
+      }
+    } else {
+      this.rx.dispatch({
+        type: CartActions.ADD_TO_CART, payload:
+          { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
+            restaurantId: p.restaurantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
+      });
+    }
   }
 
   removeFromCart(p: IProduct) {
