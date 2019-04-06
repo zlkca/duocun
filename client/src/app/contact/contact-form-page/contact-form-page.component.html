@@ -3,22 +3,31 @@
     Edit Contact
   </div>
   <form [formGroup]="form">
-    <div class="row form-group" *ngIf="!(options && options.length>0)">
+    <div class="row form-group" *ngIf="!(options && options.length>0) && !bDeliveryTime">
       <div class="label-sm">
-        <span i18n="@@Username">Username</span>:
+        <span i18n="@@Username">Username</span>
       </div>
         <input name="username" formControlName="username" />
     </div>
-    <div class="row form-group" *ngIf="!(options && options.length>0)">
+    <div class="row form-group" *ngIf="!(options && options.length>0) && !bDeliveryTime">
       <div class="row label-sm">
-        <span i18n="@@PhoneNumber">Phone Number</span><span class="warning">*</span>:
+        <span i18n="@@PhoneNumber">Phone Number</span><span>*</span>
       </div>
       <input name="phone" formControlName="phone" />
     </div>
-
-    <div class="row form-group">
+    
+    <div class="row form-group" *ngIf="!(options && options.length>0)">
       <div class="row label-sm">
-        <span i18n="@@DeliverAddress">Delivery Address</span><span class="warning">*</span>:
+        <span i18n="@@DeliveryDate">Delivery Date</span><span>*</span>
+      </div>
+      <div class="delivery-input" (click)="changeDeliveryDate()" *ngIf="deliveryTime">
+        {{deliveryTime.text}} {{deliveryTime.date | date: 'MMMd E' }} {{deliveryTime.startTime}}-{{deliveryTime.endTime}}
+      </div>
+    </div>
+
+    <div class="row form-group" *ngIf="!bDeliveryTime">
+      <div class="row label-sm">
+        <span i18n="@@DeliverAddress">Delivery Address</span><span>*</span>
       </div>
       <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
         (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
@@ -27,16 +36,16 @@
     </div>
 
     <div class="row">
-      <div class="col-6 form-group" *ngIf="!(options && options.length>0)">
+      <div class="col-6 form-group" *ngIf="!(options && options.length>0) && !bDeliveryTime">
         <div class="label-sm">
-          <span i18n="@@Unit">Unit</span>:
+          <span i18n="@@Unit">Unit</span>
         </div>
           <input name="unit" formControlName="unit" />
       </div>
 
-      <div class="col-6 form-group" *ngIf="!(options && options.length>0)">
+      <div class="col-6 form-group" *ngIf="!(options && options.length>0) && !bDeliveryTime">
         <div class="row label-sm">
-          <span i18n="@@BuzzCode">Buzz Code</span>:
+          <span i18n="@@BuzzCode">Buzz Code</span>
         </div>
         <input name="buzzCode" formControlName="buzzCode" />
       </div>
@@ -45,8 +54,9 @@
     <app-location-list [account]="account" [places]="options"
       (placeSeleted)="onSelectPlace($event)">
     </app-location-list>
-
-    <div *ngIf="!(options && options.length>0)" class="btn btn-primary" i18n="@@Submit" (click)="save()">Submit</div>
   </form>
-  
+  <div class="row contact-save-row">
+      <div class="col-6 title-md cancel-col" (click)="cancel()" i18n="@@Cancel">Cancel</div>
+      <div class="col-6 title-md save-col" (click)="save()" i18n="@@Save">Save</div>
+    </div>
 </div>

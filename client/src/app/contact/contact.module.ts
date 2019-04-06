@@ -9,6 +9,7 @@ import { SharedModule } from '../shared/shared.module';
 import { LocationModule } from '../location/location.module';
 import { LocationService } from '../location/location.service';
 import { AccountService } from '../account/account.service';
+import { DeliveryDateListPageComponent } from './delivery-date-list-page/delivery-date-list-page.component';
 
 @NgModule({
   imports: [
@@ -18,7 +19,11 @@ import { AccountService } from '../account/account.service';
     SharedModule,
     LocationModule
   ],
-  declarations: [ContactFormPageComponent, ContactListPageComponent],
+  declarations: [
+    ContactFormPageComponent,
+    ContactListPageComponent,
+    DeliveryDateListPageComponent
+  ],
   providers: [
     LocationService,
     AccountService

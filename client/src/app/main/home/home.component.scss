@@ -109,6 +109,10 @@ $menu-height: 60px;
   }
 }
 
+.delivery-time-block{
+  margin-top: $map-height;
+}
+
 @media #{$desktop}{
 
 }
@@ -188,66 +192,12 @@ and (orientation: landscape) {
     height: 700px;
   }
 
-  .time-option-list{
-    margin-top: $map-height;
-    .row{
-      margin: 0px;
-    }
-    .option-item{
-      padding: 10px 0px;
-      height: 74px;
-      border-bottom: solid 1px #ddd;
-    }
-  }
+
 
   .restaurant-list {
     margin-top: 46px;
-  }
-
-  .restaurant-list{
     padding: 0px 0px 60px 0px;
   }
 
-  .free{
-    background-color: $green;
-  }
-  .overdue{
-    background-color: $yellow;
-  }
-  .no-free{
-    background-color: $red;
-  }
-
-  .free, .no-free, .overdue {
-    .text-sm{
-      color: white;
-    }
-    .text-md{
-      font-size: 18px;
-      color: white;
-      font-weight: 400
-    }
-  }
-
-  .time-option-list{
-    padding: 0px 0px 60px 0px;
-
-    .date{
-      padding-left: 20px;
-    }
-    .time{
-      padding-left: 10px;
-      padding-right: 5px;
-    }
-    .overdue-note{
-      font-size: 12px;
-      padding-left: 15px;
-    }
-  }
-
-  .time-title{
-    padding-left: 5px;
-    padding-top: 3px;
-  }
 }
 

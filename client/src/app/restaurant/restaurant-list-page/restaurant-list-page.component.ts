@@ -5,7 +5,6 @@ import { ILocation, ILatLng } from '../../location/location.model';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { MallActions } from '../../mall/mall.actions';
-import { IDeliverTimeAction } from '../../main/main.reducers';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, first } from 'rxjs/operators';
 import { IMall } from '../../mall/mall.model';

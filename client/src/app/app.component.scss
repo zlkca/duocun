@@ -1,16 +1,10 @@
 $map-height: 220px;
 $position-btn-width: 60px;
 
-app-footer{
-	height:100px;
-	// position: absolute;
- // 	bottom: 0px;
-}
 
 #container{
 	height:100%;
 }
-
 
 .address-search-row{
   z-index: 1000;
@@ -33,9 +27,8 @@ app-footer{
 @media (max-width:575px){
 
   app-footer{
-    height:100px;
     position: fixed;
-    bottom: -38px;
+    bottom: 0px;
     width: 100%;
   }
 }

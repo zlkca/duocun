@@ -14,6 +14,7 @@ import { SharedService } from '../../shared/shared.service';
 import { MallService } from '../../mall/mall.service';
 import { IMall } from '../../mall/mall.model';
 import { MallActions } from '../../mall/mall.actions';
+import { IDeliveryTime } from '../../delivery/delivery.model';
 
 @Component({
   selector: 'app-contact-list-page',
@@ -26,6 +27,7 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
   location: ILocation;
   malls: IMall[];
   deliverTimeType: string;
+  deliverTime: IDeliveryTime;
 
   private onDestroy$ = new Subject<any>();
   constructor(
@@ -41,10 +43,12 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
       payload: 'contact-list'
     });
 
-    this.rx.select<string>('deliverTime').pipe(
+    this.rx.select<IDeliveryTime>('deliveryTime').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe(timeType => {
-      self.deliverTimeType = timeType;
+    ).subscribe((t: IDeliveryTime) => {
+      if (t) {
+        self.deliverTime = t;
+      }
     });
   }
 

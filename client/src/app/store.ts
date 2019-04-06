@@ -5,12 +5,12 @@ import { DEFAULT_ACCOUNT, accountReducer } from './account/account.reducer';
 import { locationReducer } from './location/location.reducer';
 import { ILocation } from './location/location.model';
 // import { IPicture, DEFAULT_PICTURE } from './commerce/commerce.actions';
-import { pageReducer, deliverTimeReducer } from './main/main.reducers';
+import { pageReducer } from './main/main.reducers';
 import { commandReducer, ICommand } from './shared/command.reducers';
 import { DEFAULT_MALL } from './mall/mall.actions';
 import { IMall } from './mall/mall.model';
 import { mallReducer } from './mall/mall.reducers';
-import { IDelivery } from './delivery/delivery.model';
+import { IDelivery, IDeliveryTime } from './delivery/delivery.model';
 import { deliveryReducer } from './delivery/delivery.reducer';
 import { IContact } from './contact/contact.model';
 import { contactReducer } from './contact/contact.reducer';
@@ -21,6 +21,7 @@ import { IAmount } from './order/order.model';
 import { restaurantReducer } from './restaurant/restaurant.reducer';
 import { IRestaurant } from './restaurant/restaurant.model';
 import { Account } from './account/account.model';
+import { deliveryTimeReducer } from './delivery/delivery-time.reducer';
 
 export interface IAppState {
     cart: ICart;
@@ -29,7 +30,7 @@ export interface IAppState {
     location: ILocation;
     page: string;
     cmd: ICommand;
-    deliverTime: string;
+    deliveryTime: IDeliveryTime;
     restaurant: IRestaurant;
     malls: IMall[];
     delivery: IDelivery;
@@ -44,7 +45,7 @@ export const INITIAL_STATE: IAppState = {
     location: null,
     page: 'home',
     cmd: {name: '', args: ''},
-    deliverTime: '',
+    deliveryTime: {type: '', text: ''},
     restaurant: null,
     malls: [DEFAULT_MALL],
     delivery: null,
@@ -69,7 +70,7 @@ export const rootReducer = combineReducers({
     location: locationReducer,
     page: pageReducer,
     cmd: commandReducer,
-    deliverTime: deliverTimeReducer,
+    deliveryTime: deliveryTimeReducer,
     restaurant: restaurantReducer,
     malls: mallReducer,
     delivery: deliveryReducer,

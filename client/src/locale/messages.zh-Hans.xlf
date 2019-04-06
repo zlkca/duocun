@@ -760,7 +760,7 @@
       </trans-unit>
       <trans-unit id="DeliveryTime" datatype="html">
         <source>Delivery Time</source>
-        <target>期望送到的时间</target>
+        <target>送餐时间</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/order-form/order-form.component.html</context>
           <context context-type="linenumber">65</context>
@@ -1297,6 +1297,14 @@
         <target>请输入送餐地址</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/shared/address-input/address-input.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="e76af883448967255c2573fe8fa43fd26937185d" datatype="html">
+        <source>SelectDeliveryDate</source>
+        <target>请选择送餐时间</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/shared/delivery-date-input/delivery-date-input.component.html</context>
           <context context-type="linenumber">3</context>
         </context-group>
       </trans-unit>

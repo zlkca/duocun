@@ -16,7 +16,13 @@ import { ContactActions } from '../contact.actions';
 import { IContactAction } from '../contact.reducer';
 // import { MallService } from '../../mall/mall.service';
 import { IMall } from '../../mall/mall.model';
-// import { MallActions } from '../../mall/mall.actions';
+import { ICommand, ICommandAction } from '../../shared/command.reducers';
+import { PageActions } from '../../main/main.actions';
+import { IDeliveryTime } from '../../delivery/delivery.model';
+import { CommandActions } from '../../shared/command.actions';
+import * as Cookies from 'js-cookie';
+import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
+import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
 
 @Component({
   selector: 'app-contact-form-page',
@@ -30,7 +36,9 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   contact: IContact;
   deliveryAddress: string;
   malls: IMall[];
-  // deliverTimeType: string;
+  bDeliveryTime = false;
+  deliveryTime: IDeliveryTime = null;
+  oldDeliveryTime: IDeliveryTime = null;
 
   onDestroy$ = new Subject<any>();
   constructor(
@@ -38,7 +46,6 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     private contactSvc: ContactService,
-    // private mallSvc: MallService,
     private rx: NgRedux<IAppState>,
     private router: Router
   ) {
@@ -48,10 +55,18 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
       unit: [''],
       buzzCode: ['']
     });
+
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'contact-form'
+    });
   }
 
   ngOnInit() {
     const self = this;
+    const s = Cookies.get('duocun-old-delivery-time');
+    this.oldDeliveryTime = s ? JSON.parse(s) : null;
+
     this.accountSvc.getCurrent().pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(account => {
@@ -68,11 +83,15 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
       }
     });
 
-    // this.rx.select<string>('deliverTime').pipe(
-    //   takeUntil(this.onDestroy$)
-    // ).subscribe(timeType => {
-    //   self.deliverTimeType = timeType;
-    // });
+    this.rx.select('deliveryTime').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((t: IDeliveryTime) => {
+      if (!this.oldDeliveryTime) {
+        this.oldDeliveryTime = t;
+        Cookies.set('duocun-old-delivery-time', JSON.stringify(t));
+      }
+      this.deliveryTime = t;
+    });
   }
 
   ngOnDestroy() {
@@ -136,9 +155,58 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  onDateChange(e) {
+    this.bDeliveryTime = false;
+    if (e) {
+
+    }
+    // const self = this;
+    // this.options = [];
+    // this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
+    //   if (ps && ps.length > 0) {
+    //     for (const p of ps) {
+    //       p.type = 'suggest';
+    //       self.options.push(p); // without lat lng
+    //     }
+    //   }
+    // });
+  }
+
+  onDateClear(e) {
+    // this.deliveryAddress = '';
+    // this.options = [];
+    // this.onAddressInputFocus();
+  }
+
+  onDateInputFocus(e?: any) {
+    this.bDeliveryTime = true;
+  }
+
+  onSelectDeliveryTime(e: IDeliveryTime) {
+    if (e) {
+      this.deliveryTime = e;
+    }
+  }
+
+  changeDeliveryDate() {
+    this.router.navigate(['contact/delivery-date']);
+  }
+
+  cancel() {
+    const self = this;
+    this.rx.dispatch<IDeliveryTimeAction>({
+      type: DeliveryTimeActions.UPDATE,
+      payload: this.oldDeliveryTime
+    });
+    Cookies.remove('duocun-old-delivery-time');
+    self.router.navigate(['contact/list']);
+  }
+
   save() {
     const self = this;
     const v = this.form.value;
+
+    Cookies.remove('duocun-old-delivery-time');
     if (this.contact.id) {
       v.id = this.contact.id;
       v.created = this.contact.created;
@@ -156,7 +224,6 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
       type: ContactActions.UPDATE,
       payload: contact
     });
-
     // self.mallSvc.calcMalls({ lat: v.location.lat, lng: v.location.lng }, self.deliverTimeType).then((malls: IMall[]) => {
     //   self.malls = malls;
     //   self.rx.dispatch({

@@ -1,4 +1,4 @@
-<footer>
+<footer *ngIf="!bHide">
   <div class="row bottom-nav-menus" *ngIf="!bCart && !bPay">
     <div class="menu" (click)="toHome()">
       <div class="icon">

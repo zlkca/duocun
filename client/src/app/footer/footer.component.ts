@@ -14,7 +14,6 @@ import { LocationService } from '../location/location.service';
 import { Contact, IContact } from '../contact/contact.model';
 import { ILocation } from '../location/location.model';
 import { ContactActions } from '../contact/contact.actions';
-// import { IContactAction } from '../contact/contact.reducer';
 
 @Component({
   selector: 'app-footer',
@@ -26,6 +25,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   account: Account;
   bCart = false;
   bPay = false;
+  bContact = false;
   total;
   quantity = 0;
   cart;
@@ -35,6 +35,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   deliveryFee = 0;
   tax = 0;
   location: ILocation;
+  bHide = false;
 
   private onDestroy$ = new Subject<void>();
 
@@ -56,7 +57,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     ).subscribe((loc: ILocation) => {
       self.location = loc;
     });
-
     this.rx.select<string>('page').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(x => {
@@ -66,9 +66,14 @@ export class FooterComponent implements OnInit, OnDestroy {
       } else if (x === 'order-confirm') {
         self.bCart = false;
         self.bPay = true;
+      } else if ( x === 'contact-form') {
+        self.bCart = false;
+        self.bPay = false;
+        self.bHide = true;
       } else {
         self.bCart = false;
         self.bPay = false;
+        self.bHide = false;
       }
     });
 
@@ -203,4 +208,18 @@ export class FooterComponent implements OnInit, OnDestroy {
       this.router.navigate(['account/login']);
     }
   }
+
+  // saveContact() {
+  //   this.rx.dispatch({
+  //     type: CommandActions.SEND,
+  //     payload: {name: 'save-contact', args: null}
+  //   });
+  // }
+
+  // cancelContact() {
+  //   this.rx.dispatch({
+  //     type: CommandActions.SEND,
+  //     payload: {name: 'cancel-contact', args: null}
+  //   });
+  // }
 }

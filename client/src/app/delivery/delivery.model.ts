@@ -1,6 +1,14 @@
 import { IAccount } from '../account/account.model';
 import { ILocation } from '../location/location.model';
 
+export interface IDeliveryTime {
+  type?: string;
+  text?: string;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
 export interface IDelivery {
   id?: string;
   accountId: string;

@@ -331,10 +331,15 @@ body{
 
 
 .page{
-  margin-top:$navbar-height;
-  min-height:560px;
-  padding:0px;
+  // margin-top:$navbar-height;
+  margin: 0px;
+  padding: 0px;
+  min-height: 560px;
 
+  .row{
+    margin: 0px;
+  }
+  
   .title-row{
     padding: 15px;
     text-align: center;

@@ -20,6 +20,7 @@ import { SharedService } from './shared.service';
 import { AddressAutocompleteComponent } from './address-autocomplete/address-autocomplete.component';
 import { EntityService } from '../entity.service';
 import { WarningDialogComponent } from './warning-dialog/warning-dialog.component';
+import { DeliveryDateListComponent } from './delivery-date-list/delivery-date-list.component';
 
 // import { PageService } from '../pages/page.service';
 // import { PagesModule } from '../pages/pages.module';
@@ -41,7 +42,8 @@ import { WarningDialogComponent } from './warning-dialog/warning-dialog.componen
     // FooterComponent,
     AddressInputComponent,
     AddressAutocompleteComponent,
-    WarningDialogComponent
+    WarningDialogComponent,
+    DeliveryDateListComponent
   ],
   providers: [
     SharedService,
@@ -55,7 +57,8 @@ import { WarningDialogComponent } from './warning-dialog/warning-dialog.componen
     // FooterComponent,
     AddressInputComponent,
     AddressAutocompleteComponent,
-    WarningDialogComponent
+    WarningDialogComponent,
+    DeliveryDateListComponent
   ]
 })
 export class SharedModule { }

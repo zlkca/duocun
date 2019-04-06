@@ -1,5 +1,5 @@
 form{
-  padding: 10px;
+  padding: 0px 10px;
   .row{
     margin: 0px;
   }
@@ -7,7 +7,7 @@ form{
     padding-top: 20px;
   }
 
-  app-address-input {
+  app-address-input{
     width: 100%;
     img{
       width: 30px;
@@ -15,10 +15,14 @@ form{
     }
   }
 
-  .btn-primary{
+  .delivery-input{
     width: 100%;
-    margin-top: 30px;
+    height: 40px;
+    border: solid 1px #aaa;
+    font-size: 14px;
+    padding: 9px;
   }
+
   .col-6{
     padding-left: 0px;
     input{
@@ -27,5 +31,25 @@ form{
   }
   .col-6:last-child{
     padding-right: 0px;
+  }
+}
+
+.contact-save-row{
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  height: 60px;
+  margin: 0px;
+  padding: 0px;
+  border-top: solid 1px #eee;
+  
+  .cancel-col, .save-col {
+    padding: 15px 0px;
+    text-align: center;
+    font-size: 18px;
+  }
+
+  .cancel-col{
+    border-right: solid 1px #eee;
   }
 }

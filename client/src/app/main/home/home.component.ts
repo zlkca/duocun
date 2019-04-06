@@ -10,13 +10,15 @@ import { PageActions } from '../../main/main.actions';
 import { SocketService } from '../../shared/socket.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../account/auth.service';
-import { DeliverTimeActions } from '../main.actions';
-import { IDeliverTimeAction, IPageAction } from '../main.reducers';
+import { IPageAction } from '../main.reducers';
 import { LocationActions } from '../../location/location.actions';
 import { ILocationAction } from '../../location/location.reducer';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICommand } from '../../shared/command.reducers';
+import { IDeliveryTime } from '../../delivery/delivery.model';
+import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
+import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
 
 declare var google;
 
@@ -39,14 +41,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   account;
   bHideMap = false;
   bTimeOptions = false;
-  today;
-  tomorrow;
-  dayAfterTomorrow;
-  lunchTime = { start: '11:45', end: '13:30' };
+  orderDeadline = {h: 9, m: 30};
   overdue;
   afternoon;
-  deliveryDiscount = 2;
-  deliveryTime = 'immediate';
+  deliveryTime: IDeliveryTime = { type: '', text: '' };
   malls = [
     {
       id: '1', name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 2,
@@ -79,11 +77,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private route: Router,
     private rx: NgRedux<IAppState>,
   ) {
-    this.today = sharedSvc.getTodayString();
-    this.tomorrow = sharedSvc.getNextNDayString(1);
-    this.dayAfterTomorrow = sharedSvc.getNextNDayString(2);
-    this.overdue = sharedSvc.isOverdue(9);
-    this.afternoon = sharedSvc.isOverdue(13, 45);
   }
 
   ngOnInit() {
@@ -251,18 +244,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     // });
   }
 
-  onSelectTime(type: string) {
+  onSelectTime(e: IDeliveryTime) {
     this.bHideMap = true;
     this.bTimeOptions = false;
     this.options = [];
-    this.deliveryTime = type;
-
+    this.deliveryTime = e;
+    this.rx.dispatch<IDeliveryTimeAction>({
+      type: DeliveryTimeActions.UPDATE,
+      payload: e
+    });
     this.route.navigate(['restaurant/list']);
-    setTimeout(() => {
-      this.rx.dispatch<IDeliverTimeAction>({
-        type: DeliverTimeActions.UPDATE,
-        payload: type
-      });
-    }, 300);
+
   }
 }

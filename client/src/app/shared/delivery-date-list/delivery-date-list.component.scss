@@ -1,0 +1,56 @@
+$green: rgb(24, 128, 56);
+$yellow: rgb(244, 160, 0);
+$red: rgb(219, 68, 55);
+
+// $map-height: 220px;
+
+.time-option-list{
+  // margin-top: $map-height;
+  padding: 0px 0px 60px 0px;
+
+  .date{
+    padding-left: 15px;
+  }
+  .time{
+    padding-left: 0px;
+    padding-right: 5px;
+  }
+  .overdue-note{
+    font-size: 12px;
+    padding-left: 15px;
+  }
+  .row{
+    margin: 0px;
+  }
+  .option-item{
+    padding: 10px 0px;
+    height: 74px;
+    border-bottom: solid 1px #ddd;
+  }
+}
+
+.free, .no-free, .overdue {
+  .text-sm{
+    color: white;
+  }
+  .text-md{
+    font-size: 18px;
+    color: white;
+    font-weight: 400
+  }
+}
+
+.free{
+  background-color: $green;
+}
+.overdue{
+  background-color: $yellow;
+}
+.no-free{
+  background-color: $red;
+}
+
+.time-title{
+  padding-left: 5px;
+  padding-top: 3px;
+}
