@@ -1,95 +1,89 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { environment } from '../../../environments/environment';
-import { SharedService } from '../../shared/shared.service';
-import { LocationService } from '../../location/location.service';
-import { AccountService } from '../../account/account.service';
-import { ILocationHistory, IPlace, ILocation, ILatLng, GeoPoint } from '../../location/location.model';
-import { NgRedux } from '@angular-redux/store';
-import { IAppState } from '../../store';
-import { PageActions } from '../../main/main.actions';
-import { SocketService } from '../../shared/socket.service';
-import { Router } from '@angular/router';
-import { AuthService } from '../../account/auth.service';
-import { IPageAction } from '../main.reducers';
-import { LocationActions } from '../../location/location.actions';
-import { ILocationAction } from '../../location/location.reducer';
-import { Subject } from '../../../../node_modules/rxjs';
-import { takeUntil } from '../../../../node_modules/rxjs/operators';
-import { ICommand } from '../../shared/command.reducers';
+import { Component, OnInit } from '@angular/core';
 import { IDeliveryTime } from '../../delivery/delivery.model';
+import { Subject } from '../../../../node_modules/rxjs';
+import { Router } from '../../../../node_modules/@angular/router';
+import { NgRedux } from '../../../../node_modules/@angular-redux/store';
+import { IAppState } from '../../store';
+import { PageActions } from '../main.actions';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
 import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
-
-declare var google;
-
-const APP = environment.APP;
+import { ILocation, IPlace } from '../../location/location.model';
+import { MallService } from '../../mall/mall.service';
+import { AccountService } from '../../account/account.service';
+import { LocationService } from '../../location/location.service';
+import { ILocationAction } from '../../location/location.reducer';
+import { LocationActions } from '../../location/location.actions';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  selector: 'app-restaurant-filter-page',
+  templateUrl: './restaurant-filter-page.component.html',
+  styleUrls: ['./restaurant-filter-page.component.scss']
 })
-export class HomeComponent implements OnInit, OnDestroy {
-  center: GeoPoint = { lat: 43.761539, lng: -79.411079 };
-  restaurants;
-  places: IPlace[];
-  deliveryAddress = '';
-  placeholder = 'Delivery Address';
-  mapFullScreen = true;
-  subscrAccount;
-  account;
-  bHideMap = false;
-  bTimeOptions = false;
-  orderDeadline = {h: 9, m: 30};
-  overdue;
-  afternoon;
-  deliveryTime: IDeliveryTime = { type: '', text: '' };
+export class RestaurantFilterPageComponent implements OnInit {
 
+  deliveryTime: IDeliveryTime = { type: '', text: '' };
+  deliveryDiscount = 2;
+  orderDeadline = { h: 9, m: 30 };
+
+  location: ILocation;
+  places: IPlace[] = [];
   inRange = false;
   onDestroy$ = new Subject<any>();
 
-  constructor(
-    private accountSvc: AccountService,
-    private locationSvc: LocationService,
-    private sharedSvc: SharedService,
-    private authSvc: AuthService,
-    private socketSvc: SocketService,
-    private router: Router,
-    private rx: NgRedux<IAppState>,
-  ) {
-  }
+  deliveryAddress;
 
-  ngOnInit() {
+  account;
+
+  constructor(
+    private router: Router,
+    private accountSvc: AccountService,
+    private mallSvc: MallService,
+    private locationSvc: LocationService,
+    private rx: NgRedux<IAppState>
+  ) {
     const self = this;
     this.accountSvc.getCurrent().pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(account => {
       self.account = account;
-      self.socketSvc.init(this.authSvc.getAccessToken());
     });
-    this.rx.dispatch<IPageAction>({
+  }
+
+  ngOnInit() {
+    const self = this;
+    this.rx.dispatch({
       type: PageActions.UPDATE_URL,
-      payload: 'home'
+      payload: 'restaurant-filter'
     });
-    this.rx.select('cmd').pipe(
+
+    this.rx.select('deliveryTime').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((x: ICommand) => {
-      if (x.name === 'clear-address') {
-        this.places = [];
-      }
+    ).subscribe((t: IDeliveryTime) => {
+      self.deliveryTime = t;
     });
+
     this.rx.select('location').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((loc: ILocation) => {
       if (loc) {
+        self.location = loc;
         self.deliveryAddress = self.locationSvc.getAddrString(loc);
+        self.inRange = self.mallSvc.inRange(loc);
       }
     });
   }
 
-  ngOnDestroy() {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
+  onSelectDeliveryTime(e: IDeliveryTime) {
+    if (e) {
+      this.deliveryTime = e;
+      this.rx.dispatch<IDeliveryTimeAction>({
+        type: DeliveryTimeActions.UPDATE,
+        payload: e
+      });
+
+      this.router.navigate(['restaurant/list']);
+    }
   }
 
   onAddressInputFocus(e?: any) {
@@ -111,6 +105,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         payload: r
       });
       this.deliveryAddress = e.address; // set address text to input
+
       this.router.navigate(['main/filter']);
     }
   }
@@ -138,6 +133,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const self = this;
     self.places = [];
     this.locationSvc.getCurrentLocation().then(r => {
+      // self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
 
       self.rx.dispatch<ILocationAction>({
@@ -161,5 +157,4 @@ export class HomeComponent implements OnInit, OnDestroy {
   showLocationList() {
     return this.places && this.places.length > 0;
   }
-
 }

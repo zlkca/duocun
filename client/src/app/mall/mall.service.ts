@@ -91,5 +91,16 @@ export class MallService extends EntityService {
       return 3 + 1.5 * Math.ceil(distance - 3);
     }
   }
+
+  inRange(center: ILatLng) {
+    const self = this;
+    let inRange = false;
+    this.malls.filter(x => x.type === 'virtual').map(mall => {
+      if (self.locationSvc.getDirectDistance(center, mall) < mall.radius * 1000) {
+        inRange = true;
+      }
+    });
+    return inRange;
+  }
 }
 

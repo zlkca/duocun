@@ -13,105 +13,12 @@ $map-height: 220px;
 $address-search-height: 46px;
 $menu-height: 60px;
 
-.grid{
-  padding: 0px;
-  margin: 0px;
-
-  .grid-item{
-      padding: 0px;
-      float: left;
-
-      .grid-item-body{
-          padding:5px 20px;
-
-          .image-body{
-              padding:0px;
-              padding-top:75%;
-              img{
-                  width:100%;
-                  height:100%;
-                  position: absolute;
-                  top:0;
-                  left:0;
-              }    
-          }
-  
-          .text-body{
-              padding:0px 10px;
-
-              .title-bg{
-                font-size:16px;
-                font-weight:400;
-                font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-            }
-  
-            .text-sm{
-                font-size:12px;
-                font-weight:400;
-                font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-            }
-          }
-
-
-      }
-  }
-
-  .grid-item:hover{
-      background-color: #eee;
-  }
-}
-
 .pac-container:after {
     background-image: none !important;
     height: 0px;
 }
 
-.map-area{
-  width: 100%;
-  height: 380px;
-  padding: 0px;
-}
 
-.deliver-address-row{
-  margin-top: 6px;
-  padding-left:10px;
-  padding-right:10px;
-}
-
-.btn-current-location{
-  border-radius: 0px;
-}
-
-// obsolete start
-.btn-home, .btn-work{
-  padding-top: 0px;
-  .title{
-    padding-top: 2px;
-    line-height: 20px;
-  }
-  .sub-title{
-    font-size:10px;
-  }
-}
-
-.btn-home{
-  border-right: 1px solid #eee;
-}
-.btn-work{
-  border-left: 1px solid #eee;
-}
-// obsolete end
-
-.background-img{
-  img {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.delivery-time-block{
-  margin-top: $map-height;
-}
 
 @media #{$desktop}{
 
@@ -128,35 +35,16 @@ and (orientation: landscape) {
 }
 
 @media #{$mobile}{
-  .left-side{
-    min-height:40px;
-  }
-
-  .map-col{
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    padding:0px;
-    width: 100%;
-  }
-
-  .map-area{
-    height: 220px;
-  }
-
-  .full-screen-map{
-    height: 700px;
-  }
-
-  .default-addr{
-    width: 100%;
-    margin-top:10px;
-    .btn{
-      width:50%;
+  .map-block{
+    .background-img{
+      img {
+        width: 100%;
+        height: 100%;
+      }
     }
   }
   
-  .address-search-row{
+  .address-search-block{
     position: fixed;
     top: 6px;
     left: 0px;
@@ -166,6 +54,10 @@ and (orientation: landscape) {
     
     .input-group-append{
       width: $position-btn-width;
+
+      .btn-current-location{
+        border-radius: 0px;
+      }
     }
     
     app-address-input {
@@ -173,7 +65,7 @@ and (orientation: landscape) {
     }
   }
 
-  .location-block{
+  .location-list-block{
     position: fixed;
     left: 0px;
     top: $address-search-height;
@@ -186,17 +78,9 @@ and (orientation: landscape) {
     }
   }
 
-
   .pac-container{
     width: 100%;
     height: 700px;
-  }
-
-
-
-  .restaurant-list {
-    margin-top: 46px;
-    padding: 0px 0px 60px 0px;
   }
 
 }

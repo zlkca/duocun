@@ -1,4 +1,5 @@
 <div class="page">
+
   <div class="location-list-block" *ngIf="showLocationList()">
     <app-location-list [account]="account" [places]="places"
       (placeSeleted)="onSelectPlace($event)">
@@ -6,19 +7,30 @@
   </div>
 
   <div class="map-block" *ngIf="!showLocationList()">
-    <div class="background-img" *ngIf="mapFullScreen">
-      <img src="assets/map.png" />
-    </div>
+    <app-map [center]="location" [zoom]="14" [places]="places"></app-map>
   </div>
-
+  
   <div class="input-group address-search-block">
     <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
       (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
-      [value]="deliveryAddress"></app-address-input>
-    <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
+      [value]="deliveryAddress">
+    </app-address-input>
     <div class="input-group-append">
       <button type="button" class="btn btn-primary btn-current-location" (click)="useCurrentLocation()"
         i18n="@@CurrentLocation">Current Location</button>
     </div>
   </div>
+
+  <app-delivery-date-list *ngIf="inRange && !showLocationList()"
+    [orderDeadline]="orderDeadline"
+    [deliveryDiscount]="deliveryDiscount" (afterSelectDate)="onSelectDeliveryTime($event)">
+  </app-delivery-date-list>
+  <div *ngIf="!inRange && !showLocationList()" class="row option-item no-free not-in-range-item">
+    <div class="col-12">
+        <div class="text-sm">
+          <span i18n="@@NotInFreeDeliveryRange">Your address is not in free delivery range</span>
+        </div>
+    </div>
+  </div>
+
 </div>

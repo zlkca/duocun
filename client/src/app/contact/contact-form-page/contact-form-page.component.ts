@@ -128,22 +128,8 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     this.options = [];
     if (this.account && this.account.id) {
-      this.locationSvc.find({ where: { userId: this.account.id } }).subscribe((lhs: ILocationHistory[]) => {
-        const options = [];
-        for (let i = lhs.length - 1; i >= 0; i--) {
-          const lh = lhs[i];
-          const loc = lh.location;
-          const p: IPlace = {
-            type: 'history',
-            structured_formatting: {
-              main_text: loc.street_number + ' ' + loc.street_name,
-              secondary_text: (loc.sub_locality ? loc.sub_locality : loc.city) + ',' + loc.province
-            },
-            location: loc
-          };
-          options.push(p);
-        }
-        self.options = options;
+      this.locationSvc.getHistoryLocations(this.account.id).then(a => {
+        self.options = a;
       });
     }
   }
