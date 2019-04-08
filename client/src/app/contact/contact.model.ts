@@ -12,6 +12,7 @@ export interface IContact {
   address?: string;
   unit: string;
   buzzCode: string;
+  verificationCode?: string;
   created?: Date;
   modified?: Date;
 }
@@ -27,6 +28,7 @@ export class Contact implements IContact {
   location: ILocation;
   address: string;
   buzzCode: string;
+  verificationCode: string;
   created?: Date;
   modified?: Date;
 

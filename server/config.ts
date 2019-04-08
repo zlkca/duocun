@@ -28,6 +28,13 @@ export interface IDatabase {
   USERNAME: string;
   PASSWORD: string;
 }
+
+export interface ISmsProvider {
+  SID: string;
+  TOKEN: string;
+  FROM: string;
+}
+
 export class Config {
   private cfg: any;
   public JWT: IJWT;
@@ -37,6 +44,7 @@ export class Config {
   public GOOGLE_DISTANCE_KEY: string = '';
   public API_SERVER: IApiServer;
   public DATABASE: IDatabase;
+  public TWILIO: ISmsProvider;
   
   constructor() {
     this.cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
@@ -47,6 +55,7 @@ export class Config {
     this.GOOGLE_DISTANCE_KEY = this.cfg.GOOGLE_DISTANCE.KEY;
     this.API_SERVER = this.cfg.API_SERVER;
     this.DATABASE = this.cfg.DATABASE;
+    this.TWILIO = this.cfg.TWILIO;
   }
 
 }

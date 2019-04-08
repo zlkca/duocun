@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { AuthService } from '../account/auth.service';
 import { EntityService } from '../entity.service';
-import { Contact } from './contact.model';
+import { Contact, IContact } from './contact.model';
 import { Observable } from '../../../node_modules/rxjs';
 
 @Injectable({
@@ -27,5 +27,15 @@ export class ContactService extends EntityService {
 
   replace(d: Contact): Observable<any> {
     return this.http.put(this.url, d);
+  }
+
+  sendVerifyMessage(d: IContact): Observable<any> {
+    const url = super.getBaseUrl() + 'sendVerifyMsg';
+    return this.http.post(url, d);
+  }
+
+  verifyCode(code: string, accountId: string): Observable<any> {
+    const url = super.getBaseUrl() + 'smsverify';
+    return this.http.post(url, {code: code, accountId: accountId});
   }
 }

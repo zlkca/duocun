@@ -34,10 +34,10 @@ export class Utils {
     const latlng = (req.query.lat && req.query.lng) ? (req.query.lat + ',' + req.query.lng) : '';
     const addr = req.query.address;
     let url = 'https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=' + key;
-    if(latlng){ 
-      url += '&latlng=' + latlng; 
-    }else if(addr){
-      url += '&address=' + addr; 
+    if (latlng) {
+      url += '&latlng=' + latlng;
+    } else if (addr) {
+      url += '&address=' + addr;
     }
     https.get(url, (res1: IncomingMessage) => {
       let data = '';
@@ -67,7 +67,7 @@ export class Utils {
     let key = this.cfg.GOOGLE_PLACE_KEY;
     // let location = req.query.lat + ',' + req.query.lng;
     let input = req.query.input;
-    let url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=' + input + '&key=' + key 
+    let url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=' + input + '&key=' + key
       + '&location=43.761539,-79.411079&radius=100';
     https.get(url, (res1: IncomingMessage) => {
       let data = '';
@@ -99,11 +99,11 @@ export class Utils {
     let sOrigin = `${origin.lat},${origin.lng}`;
     let malls = req.body.destinations;
     let destinations: any[] = [];
-    req.body.destinations.map((d:any) => {
+    req.body.destinations.map((d: any) => {
       destinations.push(`${d.lat},${d.lng}`);
     });
     let sDestinations = destinations.join('|');
-    
+
     let url = 'https://maps.googleapis.com/maps/api/distancematrix/json?region=ca&origins=' + sOrigin + '&destinations=' + sDestinations + '&key=' + key;
 
     https.get(url, (res1: IncomingMessage) => {
@@ -121,7 +121,7 @@ export class Utils {
           const rows = s.rows;
           if (rows && rows.length > 0 && rows[0].elements && rows[0].elements.length > 0) {
             const elements = rows[0].elements;
-            for(let i=0; i<destinations.length; i++){
+            for (let i = 0; i < destinations.length; i++) {
               elements[i].id = malls[i].id;
               elements[i].workers = malls[i].workers;
               elements[i].name = malls[i].name;

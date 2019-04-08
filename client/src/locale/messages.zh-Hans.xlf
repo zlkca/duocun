@@ -1324,6 +1324,22 @@
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="VerificationCode" datatype="html">
+        <source>Verification Code</source>
+        <target>验证码</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/contact/contact-form/contact-form.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="GetVerificationCode" datatype="html">
+        <source>Get Verification Code</source>
+        <target>获取验证码</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/contact/contact-form/contact-form.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

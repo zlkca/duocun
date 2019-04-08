@@ -23,6 +23,7 @@ import { CommandActions } from '../../shared/command.actions';
 import * as Cookies from 'js-cookie';
 import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
 import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
+import { CodegenComponentFactoryResolver } from '../../../../node_modules/@angular/core/src/linker/component_factory_resolver';
 
 @Component({
   selector: 'app-contact-form-page',
@@ -39,6 +40,7 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   bDeliveryTime = false;
   deliveryTime: IDeliveryTime = null;
   oldDeliveryTime: IDeliveryTime = null;
+  phoneVerified = true;
 
   onDestroy$ = new Subject<any>();
   constructor(
@@ -52,6 +54,7 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       username: [''],
       phone: [''],
+      verificationCode: [''],
       unit: [''],
       buzzCode: ['']
     });
@@ -78,6 +81,9 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     ).subscribe((contact: IContact) => {
       if (contact) {
         this.contact = contact;
+        if (!contact.phone) {
+          this.phoneVerified = false;
+        }
         this.form.patchValue(contact);
         this.deliveryAddress = this.contact.address;
       }
@@ -188,6 +194,19 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  onPhoneChange(e) {
+    this.phoneVerified = false;
+  }
+
+  onVerificationCodeInput(e) {
+    if (e.target.value && e.target.value.length === 4) {
+      const code = e.target.value;
+      this.contactSvc.verifyCode(code, this.account.id).subscribe(x => {
+        this.phoneVerified = x;
+      });
+    }
+  }
+
   changeDeliveryDate() {
     this.router.navigate(['contact/delivery-date']);
   }
@@ -202,11 +221,8 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     self.router.navigate(['contact/list']);
   }
 
-  save() {
-    const self = this;
+  getContact() {
     const v = this.form.value;
-
-    Cookies.remove('duocun-old-delivery-time');
     if (this.contact.id) {
       v.id = this.contact.id;
       v.created = this.contact.created;
@@ -218,7 +234,18 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     v.placeId = this.contact.location.place_id;
     v.location = this.contact.location;
     v.address = this.deliveryAddress;
-    const contact = new Contact(v);
+    return new Contact(v);
+  }
+
+  save() {
+    const self = this;
+    if (!this.phoneVerified) {
+      return;
+    }
+
+    const contact = this.getContact();
+
+    Cookies.remove('duocun-old-delivery-time');
 
     this.rx.dispatch<IContactAction>({
       type: ContactActions.UPDATE,
@@ -232,7 +259,7 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     //   });
     // });
 
-    if (v.id) {
+    if (contact.id) {
       this.contactSvc.replace(contact).subscribe(x => {
         self.router.navigate(['contact/list']);
       }, err => {
@@ -245,5 +272,23 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
         self.router.navigate(['contact/list']);
       });
     }
+  }
+
+  sendVerify() {
+    const contact = this.getContact();
+    contact.phone = contact.phone.match(/\d+/g).join('');
+
+    if (contact.phone) {
+      this.contactSvc.sendVerifyMessage(contact).subscribe(x => {
+
+      });
+    }
+  }
+
+  verify(code: string, accountId: string) {
+    const v = this.form.value;
+    this.contactSvc.verifyCode(code, accountId).subscribe(x => {
+      this.phoneVerified = x;
+    });
   }
 }

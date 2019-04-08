@@ -145,7 +145,6 @@ app.use(express.static(staticPath));
 app.get('/wx', (req, res) => {
   utils.genWechatToken(req, res);
 });
-
 app.get('/' + ROUTE_PREFIX + '/geocode', (req, res) => {
   utils.getGeocode(req, res);
 });
@@ -156,12 +155,8 @@ app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
   utils.getRoadDistances(req, res);
 });
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
-  const user = new User(dbo);
-  // user.insertOne('Jack').then((x: any) => {
-  //   res.setHeader('Content-Type', 'application/json');
-  //   res.end(JSON.stringify(x.ops[0], null, 3))
-  // });
 });
+
 
 app.post('/' + ROUTE_PREFIX + '/Accounts/login', (req, res) => {
   user.login(req, res);
@@ -382,15 +377,23 @@ app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
   distance.get(req, res);
 });
 
+app.post('/' + ROUTE_PREFIX + '/smsverify', (req, res) => {
+  contact.verifyCode(req, res);
+});
+app.post('/' + ROUTE_PREFIX + '/sendVerifyMsg', (req, res) => {
+  contact.sendVerificationMessage(req, res);
+});
 app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
   contact.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
+    x.verificationCode = '';
     res.end(JSON.stringify(x, null, 3));
   });
 });
 app.put('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
   contact.replaceById(req.body.id, req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
+    x.verificationCode = '';
     res.end(JSON.stringify(x, null, 3));
   });
 });
@@ -398,6 +401,7 @@ app.get('/' + ROUTE_PREFIX + '/Contacts', (req: any, res) => {
   const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
   contact.find(query ? query.where: {}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
+    x[0].verificationCode = '';
     res.end(JSON.stringify(x, null, 3));
   });
 });
