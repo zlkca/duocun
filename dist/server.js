@@ -368,7 +368,9 @@ app.get('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
     const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     contact.find(query ? query.where : {}).then((x) => {
         res.setHeader('Content-Type', 'application/json');
-        x[0].verificationCode = '';
+        if (x && x.length > 0) {
+            x[0].verificationCode = '';
+        }
         res.end(JSON.stringify(x, null, 3));
     });
 });

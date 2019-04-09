@@ -163,7 +163,7 @@ export class FooterComponent implements OnInit, OnDestroy {
         const account = this.account;
         self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {
-            this.router.navigate(['contact/list']);
+            self.router.navigate(['contact/list']);
             r[0].placeId = self.location.place_id;
             r[0].location = self.location;
             r[0].address = self.locationSvc.getAddrString(self.location);
@@ -182,8 +182,10 @@ export class FooterComponent implements OnInit, OnDestroy {
               created: new Date(),
               modified: new Date()
             });
-            this.router.navigate(['contact/list']);
-            this.rx.dispatch({type: ContactActions.UPDATE, payload: contact});
+            self.contactSvc.save(contact).subscribe(() => {
+              self.rx.dispatch({type: ContactActions.UPDATE, payload: contact});
+              self.router.navigate(['contact/list']);
+            });
           }
         });
       }

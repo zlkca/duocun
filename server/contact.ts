@@ -33,7 +33,12 @@ export class Contact extends Entity{
     const accountId = req.body.accountId;
     let phoneNum = req.body.phone;
     let phone = (phoneNum.substring(0, 1) !== "+" || phoneNum.substring(0, 1) !== "1")? ("+1".concat(phoneNum)) : phoneNum;
-    const code = Math.floor(Math.random()* 10000);
+    
+    const d1 = Math.floor(Math.random() * 10).toString();
+    const d2 = Math.floor(Math.random() * 10).toString();
+    const d3 = Math.floor(Math.random() * 10).toString();
+    const d4 = Math.floor(Math.random() * 10).toString();
+    const code = d1+d2+d3+d4;
 
     this.findOne({accountId: accountId}).then(contact => {
       if(contact){
