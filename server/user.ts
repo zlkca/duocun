@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken";
 import { Entity } from "./entity";
 import { DB } from "./db";
 import { Config } from "./config";
+import { Utils } from "./utils";
+import { reject } from "../node_modules/@types/q";
 
 const saltRounds = 10;
 
@@ -21,6 +23,58 @@ export class User extends Entity{
   constructor(dbo: DB) {
 		super(dbo, 'users');
 	}
+  
+  wechatLogin(req: Request, res: Response){
+    const utils = new Utils();
+    const cfg = new Config();
+    const authCode = req.query.code;
+    utils.getWechatAccessToken(authCode).then((ret: any) => {
+      utils.getWechatUserInfo(ret.access_token, ret.openid).then((x: any) => {
+        this.findOne({openId: ret.openid}).then((r: any) => {
+          if(r){
+            r.username = x.nickname;
+            r.imageurl = x.headimgurl;
+            r.address.city = x.city;
+            r.address.province = x.province;
+            r.address.country = x.country;
+
+            this.replaceById(r.id, r).then(account => {
+              account.password = '';
+              const tokenId = jwt.sign(account, cfg.JWT.SECRET); // SHA256
+              const token = {id: tokenId, ttl: 10000, userId: account.id};
+              res.send(JSON.stringify(token, null, 3));
+            }, err => {
+              console.log(err);
+            });
+          }else{
+            const user = {
+              type: 'user',
+              username: x.nickname,
+              address: {city: x.city, province: x.province, country: x.country},
+              imageurl: x.headimgurl,
+              realm: 'wechat',
+              openId: x.openid,
+              unionId: x.unionid
+            };
+            this.insertOne(user).then(account => {
+              account.password = '';
+              const tokenId = jwt.sign(account, cfg.JWT.SECRET); // SHA256
+              const token = {id: tokenId, ttl: 10000, userId: account.id};
+              res.send(JSON.stringify(token, null, 3));
+            }, err => {
+              console.log(err);
+            });
+          }
+        }, err => {
+          console.log(err);
+        });
+      }, err => {
+        console.log(err);
+      });
+    }, err => {
+      console.log(err);
+    });
+  }
 
   get(req: Request, res: Response){
     const self = this;

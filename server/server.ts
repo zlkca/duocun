@@ -145,6 +145,15 @@ app.use(express.static(staticPath));
 app.get('/wx', (req, res) => {
   utils.genWechatToken(req, res);
 });
+app.get('/' + ROUTE_PREFIX + '/wechatLogin', (req, res) => {
+  user.wechatLogin(req, res);
+});
+// app.get('/wechatAccessToken', (req, res) => {
+//   utils.getWechatAccessToken(req, res);
+// });
+// app.get('/wechatRefreshAccessToken', (req, res) => {
+//   utils.refreshWechatAccessToken(req, res);
+// });
 app.get('/' + ROUTE_PREFIX + '/geocode', (req, res) => {
   utils.getGeocode(req, res);
 });

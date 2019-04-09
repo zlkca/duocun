@@ -19,6 +19,7 @@ class Config {
         this.API_SERVER = this.cfg.API_SERVER;
         this.DATABASE = this.cfg.DATABASE;
         this.TWILIO = this.cfg.TWILIO;
+        this.WECHAT = this.cfg.WECHAT;
     }
 }
 exports.Config = Config;

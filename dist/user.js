@@ -8,10 +8,62 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const entity_1 = require("./entity");
 const config_1 = require("./config");
+const utils_1 = require("./utils");
 const saltRounds = 10;
 class User extends entity_1.Entity {
     constructor(dbo) {
         super(dbo, 'users');
+    }
+    wechatLogin(req, res) {
+        const utils = new utils_1.Utils();
+        const cfg = new config_1.Config();
+        const authCode = req.query.code;
+        utils.getWechatAccessToken(authCode).then((ret) => {
+            utils.getWechatUserInfo(ret.access_token, ret.openid).then((x) => {
+                this.findOne({ openId: ret.openid }).then((r) => {
+                    if (r) {
+                        r.username = x.nickname;
+                        r.imageurl = x.headimgurl;
+                        r.address.city = x.city;
+                        r.address.province = x.province;
+                        r.address.country = x.country;
+                        this.replaceById(r.id, r).then(account => {
+                            account.password = '';
+                            const tokenId = jsonwebtoken_1.default.sign(account, cfg.JWT.SECRET); // SHA256
+                            const token = { id: tokenId, ttl: 10000, userId: account.id };
+                            res.send(JSON.stringify(token, null, 3));
+                        }, err => {
+                            console.log(err);
+                        });
+                    }
+                    else {
+                        const user = {
+                            type: 'user',
+                            username: x.nickname,
+                            address: { city: x.city, province: x.province, country: x.country },
+                            imageurl: x.headimgurl,
+                            realm: 'wechat',
+                            openId: x.openid,
+                            unionId: x.unionid
+                        };
+                        this.insertOne(user).then(account => {
+                            account.password = '';
+                            const tokenId = jsonwebtoken_1.default.sign(account, cfg.JWT.SECRET); // SHA256
+                            const token = { id: tokenId, ttl: 10000, userId: account.id };
+                            res.send(JSON.stringify(token, null, 3));
+                        }, err => {
+                            console.log(err);
+                        });
+                    }
+                }, err => {
+                    console.log(err);
+                });
+            }, err => {
+                console.log(err);
+            });
+        }, err => {
+            console.log(err);
+        });
     }
     get(req, res) {
         const self = this;

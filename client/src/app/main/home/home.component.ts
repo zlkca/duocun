@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { SharedService } from '../../shared/shared.service';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
 import { ILocationHistory, IPlace, ILocation, ILatLng, GeoPoint } from '../../location/location.model';
@@ -8,7 +7,7 @@ import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
 import { SocketService } from '../../shared/socket.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../account/auth.service';
 import { IPageAction } from '../main.reducers';
 import { LocationActions } from '../../location/location.actions';
@@ -19,6 +18,8 @@ import { ICommand } from '../../shared/command.reducers';
 import { IDeliveryTime } from '../../delivery/delivery.model';
 import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
 import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
+import { Account } from '../../account/account.model';
+import { AccountActions } from '../../account/account.actions';
 
 declare var google;
 
@@ -40,7 +41,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   account;
   bHideMap = false;
   bTimeOptions = false;
-  orderDeadline = {h: 9, m: 30};
+  orderDeadline = { h: 9, m: 30 };
   overdue;
   afternoon;
   deliveryTime: IDeliveryTime = { type: '', text: '' };
@@ -51,12 +52,40 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(
     private accountSvc: AccountService,
     private locationSvc: LocationService,
-    private sharedSvc: SharedService,
     private authSvc: AuthService,
     private socketSvc: SocketService,
     private router: Router,
+    private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
   ) {
+    const self = this;
+    this.route.queryParamMap.subscribe(queryParams => {
+      const code = queryParams.get('code');
+      this.accountSvc.wechatLogin(code).subscribe((data: any) => {
+        if (data) {
+          self.authSvc.setUserId(data.userId);
+          self.authSvc.setAccessToken(data.id);
+          self.accountSvc.getCurrentUser().subscribe((account: Account) => {
+            if (account) {
+              self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+            }
+          });
+        }
+      });
+      // this.accountSvc.getWechatAccessToken(code).subscribe((x: any) => {
+      //   if (x.access_token) {
+      //     const accessToken = x.access_token;
+      //     const openId = x.openid;
+
+      //     // "access_token":"ACCESS_TOKEN",
+      //     // "expires_in":7200,
+      //     // "refresh_token":"REFRESH_TOKEN",
+      //     // "openid":"OPENID",
+      //   } else {
+      //     // {"errcode":40029,"errmsg":"invalid code"}
+      //   }
+      // });
+    });
   }
 
   ngOnInit() {
@@ -153,9 +182,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       //   });
       // }
     },
-    err => {
-      console.log(err);
-    });
+      err => {
+        console.log(err);
+      });
   }
 
   showLocationList() {

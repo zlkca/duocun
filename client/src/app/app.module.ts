@@ -79,7 +79,6 @@ const appRoutes: Routes = [
         HttpClientModule,
         RouterModule.forRoot(
             appRoutes,
-            {useHash: true}
             // { enableTracing: true } // <-- debugging purposes only
         ),
         // SDKBrowserModule.forRoot(), // for socket

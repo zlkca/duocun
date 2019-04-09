@@ -28,6 +28,100 @@ class Utils {
             res.send('');
         }
     }
+    getWechatAccessToken(authCode) {
+        const APP_ID = this.cfg.WECHAT.APP_ID;
+        const SECRET = this.cfg.WECHAT.APP_SECRET;
+        let url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' + APP_ID +
+            '&secret=' + SECRET + '&code=' + authCode + '&grant_type=authorization_code';
+        return new Promise((resolve, reject) => {
+            https_1.default.get(url, (res1) => {
+                let data = '';
+                res1.on('data', (d) => {
+                    data += d;
+                });
+                res1.on('end', () => {
+                    // console.log('receiving done!');
+                    if (data) {
+                        const s = JSON.parse(data);
+                        if (s.access_token) {
+                            resolve(s);
+                        }
+                        else {
+                            reject();
+                        }
+                    }
+                    else {
+                        reject();
+                    }
+                });
+            });
+        });
+    }
+    refreshWechatAccessToken(oldRefreshToken) {
+        const APP_ID = this.cfg.WECHAT.APP_ID;
+        let url = 'https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=' + APP_ID +
+            '&grant_type=refresh_token&refresh_token=' + oldRefreshToken;
+        return new Promise((resolve, reject) => {
+            https_1.default.get(url, (res1) => {
+                let data = '';
+                res1.on('data', (d) => {
+                    data += d;
+                });
+                res1.on('end', () => {
+                    // console.log('receiving done!');
+                    if (data) {
+                        const s = JSON.parse(data);
+                        if (s.refresh_token) {
+                            resolve(s);
+                        }
+                        else {
+                            reject();
+                        }
+                    }
+                    else {
+                        reject();
+                    }
+                });
+            });
+        });
+    }
+    //   return {   
+    //     "openid":" OPENID",
+    //     " nickname": NICKNAME,
+    //     "sex":"1",
+    //     "province":"PROVINCE"
+    //     "city":"CITY",
+    //     "country":"COUNTRY",
+    //     "headimgurl":"http://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
+    //     "privilege":[ "PRIVILEGE1" "PRIVILEGE2"     ],
+    //     "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+    // }
+    getWechatUserInfo(accessToken, openId) {
+        let url = 'https://api.weixin.qq.com/sns/userinfo?access_token=' + accessToken + '&openid=' + openId + '&lang=zh_CN';
+        return new Promise((resolve, reject) => {
+            https_1.default.get(url, (res1) => {
+                let data = '';
+                res1.on('data', (d) => {
+                    data += d;
+                });
+                res1.on('end', () => {
+                    // console.log('receiving done!');
+                    if (data) {
+                        const s = JSON.parse(data);
+                        if (s.openid) {
+                            resolve(s);
+                        }
+                        else {
+                            reject();
+                        }
+                    }
+                    else {
+                        reject();
+                    }
+                });
+            });
+        });
+    }
     getGeocode(req, res) {
         let key = this.cfg.GEOCODE_KEY;
         const latlng = (req.query.lat && req.query.lng) ? (req.query.lat + ',' + req.query.lng) : '';

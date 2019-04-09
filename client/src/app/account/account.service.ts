@@ -122,6 +122,20 @@ export class AccountService extends EntityService {
     return this.http.get(this.url);
   }
 
+  // getWechatAccessToken(authCode: string) {
+  //   const url = super.getBaseUrl() + 'wechatAccessToken?code=' + authCode;
+  //   return this.http.get(url);
+  // }
+  // refreshWechatAccessToken(refreshToken: string) {
+  //   const url = super.getBaseUrl() + 'wechatRefreshAccessToken?token=' + refreshToken;
+  //   return this.http.get(url);
+  // }
+
+  wechatLogin(authCode: string) {
+    const url = super.getBaseUrl() + 'wechatLogin?code=' + authCode;
+    return this.http.get(url);
+  }
+
   // getUserList(query?: string): Observable<User[]> {
   //     const url = API_URL + 'users' + (query ? query : '');
   //     const headers = new HttpHeaders().set('Content-Type', 'application/json');
