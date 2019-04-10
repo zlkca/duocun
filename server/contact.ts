@@ -54,7 +54,7 @@ export class Contact extends Entity{
 
     this.twilioClient.messages
       .create({
-        body: 'Verification Code for Duocun:' + code,
+        body: '多村外卖验证码:' + code,
         from: '+16475591743',
         to: phone
       })
