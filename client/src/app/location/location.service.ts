@@ -6,7 +6,7 @@ import { IMall } from '../mall/mall.model';
 import { AuthService } from '../account/auth.service';
 import { EntityService } from '../entity.service';
 import { resolve } from 'url';
-import { mergeMap } from '../../../node_modules/rxjs/operators';
+import { mergeMap, map } from '../../../node_modules/rxjs/operators';
 
 declare let google: any;
 
@@ -67,8 +67,8 @@ export class LocationService extends EntityService {
 //   return this.http.get(url, {headers: headers});
 // }
 
-reqPlaces(input: string): Observable < any > {
-  const url = super.getBaseUrl() + `places?input=${input}`;
+reqPlaces(input: string): Observable <any> {
+  const url = super.getBaseUrl() + 'places?input=' + input;
   return this.http.get(url);
 }
 
@@ -76,28 +76,28 @@ getCurrentLocation(): Promise < ILocation > {
   const self = this;
   return new Promise((resolve, reject) => {
     self.getCurrentPosition().then(pos => {
-      self.reqLocationByLatLng(pos).then(x => {
+      self.reqLocationByLatLng(pos).subscribe((x: ILocation) => {
         resolve(x);
       });
     });
   });
 }
 
-reqLocationByLatLng(pos): Promise < any > {
-  const url = super.getBaseUrl() + `geocode?lat=${pos.lat}&lng=${pos.lng}`;
-  return new Promise((resolve, reject) => {
-    this.http.get(url).subscribe(x => {
-      const ret = this.getLocationFromGeocode(x);
-      resolve(ret);
-    });
-  });
+reqLocationByLatLng(pos): Observable <ILocation> {
+  const url = super.getBaseUrl() + 'geocodeLocations?lat=' + pos.lat + '&lng=' + pos.lng;
+  return this.http.get(url).pipe(
+    map((xs: any[]) => {
+      const geoLocations = xs.filter( r => r.types.indexOf('street_address') !== -1);
+      return this.getLocationFromGeocode(geoLocations[0]);
+    })
+  );
 }
 
 reqLocationByAddress(address: string): Promise < any > {
-  const url = super.getBaseUrl() + `geocode?address=${address}`;
+  const url = super.getBaseUrl() + 'geocodeLocations?address=' + address;
   return new Promise((resolve, reject) => {
-    this.http.get(url).subscribe(x => {
-      const ret = this.getLocationFromGeocode(x);
+    this.http.get(url).subscribe(xs => {
+      const ret = this.getLocationFromGeocode(xs[0]);
       resolve(ret);
     });
   });

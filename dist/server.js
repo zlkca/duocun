@@ -138,8 +138,8 @@ app.get('/' + ROUTE_PREFIX + '/wechatLogin', (req, res) => {
 // app.get('/wechatRefreshAccessToken', (req, res) => {
 //   utils.refreshWechatAccessToken(req, res);
 // });
-app.get('/' + ROUTE_PREFIX + '/geocode', (req, res) => {
-    utils.getGeocode(req, res);
+app.get('/' + ROUTE_PREFIX + '/geocodeLocations', (req, res) => {
+    utils.getGeocodeLocationList(req, res);
 });
 app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
     utils.getPlaces(req, res);

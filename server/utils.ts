@@ -128,8 +128,7 @@ export class Utils {
     });
   }
 
-
-  getGeocode(req: Request, res: Response) {
+  getGeocodeLocationList(req: Request, res: Response) {
     let key = this.cfg.GEOCODE_KEY;
     const latlng = (req.query.lat && req.query.lng) ? (req.query.lat + ',' + req.query.lng) : '';
     const addr = req.query.address;
@@ -152,12 +151,12 @@ export class Utils {
         if (data) {
           const s = JSON.parse(data);
           if (s.results && s.results.length > 0) {
-            res.send(s.results[0]);
+            res.send(s.results);
           } else {
-            res.send();
+            res.send([]);
           }
         } else {
-          res.send('');
+          res.send([]);
         }
       });
     });
