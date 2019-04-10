@@ -135,6 +135,7 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   }
 
   onSelectPlace(e) {
+    const self = this;
     const r: ILocation = e.location;
     this.options = [];
     if (r) {
@@ -144,6 +145,18 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
       });
       this.contact.location = r;
       this.deliveryAddress = e.address; // set address text to input
+      if (self.account) {
+        const query = { where: { userId: self.account.id, placeId: r.place_id } };
+        const lh = {
+          userId: self.account.id, type: 'history',
+          placeId: r.place_id, location: r, created: new Date()
+        };
+        self.locationSvc.saveIfNot(query, lh).pipe(
+          takeUntil(this.onDestroy$)
+        ).subscribe(() => {
+
+        });
+      }
     }
   }
 

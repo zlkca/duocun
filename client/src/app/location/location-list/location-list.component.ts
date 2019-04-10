@@ -29,13 +29,6 @@ export class LocationListComponent implements OnInit {
     if (place.type === 'suggest') {
       this.locationSvc.reqLocationByAddress(address).then(r => {
         self.placeSeleted.emit({address: address, location: r});
-        if (self.account) {
-          self.locationSvc.save({
-            userId: self.account.id, type: 'history',
-            placeId: r.place_id, location: r, created: new Date()
-          }).subscribe(x => {
-          });
-        }
       });
     } else if (place.type === 'history') {
       const r = place.location;

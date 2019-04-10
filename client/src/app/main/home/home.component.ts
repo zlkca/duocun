@@ -61,50 +61,50 @@ export class HomeComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {
     const self = this;
-    this.route.queryParamMap.subscribe(queryParams => {
+    this.route.queryParamMap.pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(queryParams => {
       const code = queryParams.get('code');
-      this.accountSvc.wechatLogin(code).subscribe((data: any) => {
-        if (data) {
-          self.authSvc.setUserId(data.userId);
-          self.authSvc.setAccessToken(data.id);
-          self.accountSvc.getCurrentUser().subscribe((account: Account) => {
-            if (account) {
-              self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-              this.snackBar.open('', '微信登录成功。', {
-                duration: 2000
-              });
-            } else {
-              this.snackBar.open('', '微信登录失败。', {
-                duration: 1000
-              });
-            }
-          });
-        }
-      });
-      // this.accountSvc.getWechatAccessToken(code).subscribe((x: any) => {
-      //   if (x.access_token) {
-      //     const accessToken = x.access_token;
-      //     const openId = x.openid;
-
-      //     // "access_token":"ACCESS_TOKEN",
-      //     // "expires_in":7200,
-      //     // "refresh_token":"REFRESH_TOKEN",
-      //     // "openid":"OPENID",
-      //   } else {
-      //     // {"errcode":40029,"errmsg":"invalid code"}
-      //   }
-      // });
+      if (code) {
+        this.accountSvc.wechatLogin(code).pipe(
+          takeUntil(this.onDestroy$)
+        ).subscribe((data: any) => {
+          if (data) {
+            self.authSvc.setUserId(data.userId);
+            self.authSvc.setAccessToken(data.id);
+            self.accountSvc.getCurrentUser().pipe(
+              takeUntil(this.onDestroy$)
+            ).subscribe((account: Account) => {
+              if (account) {
+                self.account = account;
+                self.socketSvc.init(this.authSvc.getAccessToken());
+                self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+                this.snackBar.open('', '微信登录成功。', {
+                  duration: 2000
+                });
+              } else {
+                this.snackBar.open('', '微信登录失败。', {
+                  duration: 1000
+                });
+              }
+            });
+          }
+        });
+      } else { // no code in router
+        this.accountSvc.getCurrent().pipe(
+          takeUntil(this.onDestroy$)
+        ).subscribe(account => {
+          self.account = account;
+          self.socketSvc.init(this.authSvc.getAccessToken());
+        });
+      }
     });
   }
 
   ngOnInit() {
     const self = this;
-    this.accountSvc.getCurrent().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(account => {
-      self.account = account;
-      self.socketSvc.init(this.authSvc.getAccessToken());
-    });
+    this.places = []; // clear address list
+
     this.rx.dispatch<IPageAction>({
       type: PageActions.UPDATE_URL,
       payload: 'home'
@@ -112,7 +112,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.rx.select('cmd').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((x: ICommand) => {
-      if (x.name === 'clear-address') {
+      if (x.name === 'clear-location-list') {
         this.places = [];
       }
     });

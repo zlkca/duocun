@@ -75,13 +75,26 @@ export class RestaurantFilterPageComponent implements OnInit {
   }
 
   onSelectDeliveryTime(e: IDeliveryTime) {
+    const self = this;
+    const r = self.location;
     if (e) {
       this.deliveryTime = e;
       this.rx.dispatch<IDeliveryTimeAction>({
         type: DeliveryTimeActions.UPDATE,
         payload: e
       });
+      if (self.account) {
+        const query = { where: { userId: self.account.id, placeId: r.place_id } };
+        const lh = {
+          userId: self.account.id, type: 'history',
+          placeId: r.place_id, location: r, created: new Date()
+        };
+        self.locationSvc.saveIfNot(query, lh).pipe(
+          takeUntil(this.onDestroy$)
+        ).subscribe(() => {
 
+        });
+      }
       this.router.navigate(['restaurant/list']);
     }
   }
@@ -105,8 +118,6 @@ export class RestaurantFilterPageComponent implements OnInit {
         payload: r
       });
       this.deliveryAddress = e.address; // set address text to input
-
-      this.router.navigate(['main/filter']);
     }
   }
 
@@ -133,25 +144,16 @@ export class RestaurantFilterPageComponent implements OnInit {
     const self = this;
     self.places = [];
     this.locationSvc.getCurrentLocation().then(r => {
-      // self.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: r});
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
 
       self.rx.dispatch<ILocationAction>({
         type: LocationActions.UPDATE,
         payload: r
       });
-
-      this.router.navigate(['main/filter']);
-      // fix me!!!
-      // if (self.account) {
-      //   self.locationSvc.save({ userId: self.account.id, type: 'history',
-      //     placeId: r.place_id, location: r, created: new Date() }).subscribe(x => {
-      //   });
-      // }
     },
-    err => {
-      console.log(err);
-    });
+      err => {
+        console.log(err);
+      });
   }
 
   showLocationList() {
