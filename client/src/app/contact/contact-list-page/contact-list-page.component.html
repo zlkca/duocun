@@ -3,25 +3,29 @@
     Delivery Address
   </div>
   <div class="option-list">
-      <div class="option-item" *ngFor="let item of items" (click)="select(item)">
-        <div class="text-sm first-col" *ngIf="item">
+      <div class="option-item" *ngFor="let item of items">
+        <!-- <div class="text-sm first-col" *ngIf="item">
           <span class="user-col">{{item.username}}</span>
           <span class="phone-col">{{item.phone}}</span>
-        </div>
-        <div class="edit-col" (click)="edit(item)">
-          <span class="btn" i18n="@@Edit">Edit</span>
-        </div>
-        <div class="text-sm second-row" *ngIf="item">{{item.address}}</div>
-        <!-- <div class="warning" *ngIf="!item.phone || !item.address" i18n="@@PhoneAddrEmptyMsg">Phone number and address cannot be empty</div> -->
+        </div> -->
 
-        <div class="third-row" *ngIf="item">
-          <span class="text-sm" *ngIf="deliverTime.type==='lunch today'" i18n="@@LunchToday">Lunch Today</span>
-          <span class="text-sm" *ngIf="deliverTime.type==='lunch tomorrow'" i18n="@@LunchTomorrow">Lunch Tomorrow</span>
-          <span class="text-sm" *ngIf="deliverTime.type==='lunch after tomorrow'" i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</span>
-          <span class="text-sm date">&nbsp;{{deliverTime.date | date: 'MMMd E' }}  </span>
-          <span class="text-sm date">{{deliverTime.startTime}}-{{deliverTime.endTime}}</span>  
-        </div>
 
+        <div class="row text-col">
+          <div class="text-sm second-row" *ngIf="item">{{item.address}}</div>
+          <!-- <div class="warning" *ngIf="!item.phone || !item.address" i18n="@@PhoneAddrEmptyMsg">Phone number and address cannot be empty</div> -->
+
+          <div class="third-row" *ngIf="item">
+            <span class="text-sm" *ngIf="deliverTime.type==='lunch today'" i18n="@@LunchToday">Lunch Today</span>
+            <span class="text-sm" *ngIf="deliverTime.type==='lunch tomorrow'" i18n="@@LunchTomorrow">Lunch Tomorrow</span>
+            <span class="text-sm" *ngIf="deliverTime.type==='lunch after tomorrow'" i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</span>
+            <span class="text-sm date">&nbsp;{{deliverTime.date | date: 'MMMd E' }}  </span>
+            <span class="text-sm date">{{deliverTime.startTime}}-{{deliverTime.endTime}}</span>  
+          </div>
+        </div>
+        <div class="edit-col">
+            <div class="btn btn-primary btn-ok" i18n="@@Ok" (click)="select(item)">Ok</div>
+            <div class="btn btn-primary btn-edit" i18n="@@Edit" (click)="edit(item)" >Edit</div>
+        </div>
       </div>
   </div>
 </div>

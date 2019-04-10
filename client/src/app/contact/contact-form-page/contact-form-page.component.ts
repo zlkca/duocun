@@ -14,16 +14,13 @@ import { ContactService } from '../contact.service';
 import { Contact, IContact } from '../contact.model';
 import { ContactActions } from '../contact.actions';
 import { IContactAction } from '../contact.reducer';
-// import { MallService } from '../../mall/mall.service';
 import { IMall } from '../../mall/mall.model';
-import { ICommand, ICommandAction } from '../../shared/command.reducers';
 import { PageActions } from '../../main/main.actions';
 import { IDeliveryTime } from '../../delivery/delivery.model';
-import { CommandActions } from '../../shared/command.actions';
 import * as Cookies from 'js-cookie';
 import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
 import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
-import { CodegenComponentFactoryResolver } from '../../../../node_modules/@angular/core/src/linker/component_factory_resolver';
+import { MatSnackBar } from '../../../../node_modules/@angular/material';
 
 @Component({
   selector: 'app-contact-form-page',
@@ -41,6 +38,10 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   deliveryTime: IDeliveryTime = null;
   oldDeliveryTime: IDeliveryTime = null;
   phoneVerified = true;
+  bGettingCode = false;
+  counter = 60;
+  countDown;
+  oldVerificationCode = '';
 
   onDestroy$ = new Subject<any>();
   constructor(
@@ -49,11 +50,12 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     private locationSvc: LocationService,
     private contactSvc: ContactService,
     private rx: NgRedux<IAppState>,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {
     this.form = this.fb.group({
-      username: [''],
-      phone: [''],
+      // username: [''],
+      // phone: [''],
       verificationCode: [''],
       unit: [''],
       buzzCode: ['']
@@ -84,6 +86,8 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
         if (!contact.phone) {
           this.phoneVerified = false;
         }
+        // self.oldVerificationCode = contact.verificationCode;
+        // contact.verificationCode = '';
         this.form.patchValue(contact);
         this.deliveryAddress = this.contact.address;
       }
@@ -198,10 +202,16 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   }
 
   onVerificationCodeInput(e) {
+    const self = this;
     if (e.target.value && e.target.value.length === 4) {
       const code = e.target.value;
-      this.contactSvc.verifyCode(code, this.account.id).subscribe(x => {
-        this.phoneVerified = x;
+      this.contactSvc.verifyCode(code, this.account.id).subscribe(verified => {
+        this.phoneVerified = verified;
+        if (verified) {
+          if (self.countDown) {
+            clearInterval(self.countDown);
+          }
+        }
       });
     }
   }
@@ -233,6 +243,7 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     v.placeId = this.contact.location.place_id;
     v.location = this.contact.location;
     v.address = this.deliveryAddress;
+    // v.verificationCode = this.oldVerificationCode;
     return new Contact(v);
   }
 
@@ -274,20 +285,32 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
   }
 
   sendVerify() {
-    const contact = this.getContact();
-    contact.phone = contact.phone.match(/\d+/g).join('');
+    const self = this;
+    let phone: string = this.form.value.phone;
 
-    if (contact.phone) {
-      this.contactSvc.sendVerifyMessage(contact).subscribe(x => {
-
+    if (phone) {
+      phone = phone.match(/\d+/g).join('');
+      this.contact.phone = phone;
+      this.bGettingCode = true;
+      this.counter = 60;
+      this.countDown = setInterval(function () {
+        self.counter--;
+        if (self.counter === 0) {
+          clearInterval(self.countDown);
+          self.bGettingCode = false;
+        }
+      }, 1000);
+      this.contactSvc.sendVerifyMessage(this.contact).subscribe(x => {
+        this.snackBar.open('', '短信验证码已发送', {
+          duration: 1000
+        });
       });
     }
   }
-
-  verify(code: string, accountId: string) {
-    const v = this.form.value;
-    this.contactSvc.verifyCode(code, accountId).subscribe(x => {
-      this.phoneVerified = x;
-    });
-  }
+  // verify(code: string, accountId: string) {
+  //   const v = this.form.value;
+  //   this.contactSvc.verifyCode(code, accountId).subscribe(x => {
+  //     this.phoneVerified = x;
+  //   });
+  // }
 }

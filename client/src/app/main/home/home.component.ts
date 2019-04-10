@@ -16,8 +16,6 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICommand } from '../../shared/command.reducers';
 import { IDeliveryTime } from '../../delivery/delivery.model';
-import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
-import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
 import { Account } from '../../account/account.model';
 import { AccountActions } from '../../account/account.actions';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
@@ -80,7 +78,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 self.socketSvc.init(this.authSvc.getAccessToken());
                 self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
                 this.snackBar.open('', '微信登录成功。', {
-                  duration: 2000
+                  duration: 1000
                 });
               } else {
                 this.snackBar.open('', '微信登录失败。', {

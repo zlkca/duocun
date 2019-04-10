@@ -187,7 +187,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         // self.afterSubmit.emit(order);
         this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
         this.snackBar.open('', '您的订单已经成功提交。', {
-          duration: 3000
+          duration: 1000
         }); // Fix me
        this.router.navigate(['home']);
       });

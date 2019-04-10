@@ -162,39 +162,46 @@ export class FooterComponent implements OnInit, OnDestroy {
   checkout() {
     const self = this;
 
-    if (this.account.type === 'user' || this.account.type === 'super') {
-      if (this.quantity > 0) {
-        const account = this.account;
-        self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
-          if (r && r.length > 0) {
+    if (this.quantity > 0) {
+      const account = this.account;
+      self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+        if (r && r.length > 0) {
+
+          r[0].placeId = self.location.place_id;
+          r[0].location = self.location;
+          r[0].address = self.locationSvc.getAddrString(self.location);
+          r[0].modified = new Date();
+          this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
+
+          if (r[0].phone) {
             self.router.navigate(['contact/list']);
-            r[0].placeId = self.location.place_id;
-            r[0].location = self.location;
-            r[0].address = self.locationSvc.getAddrString(self.location);
-            r[0].modified = new Date();
-            this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
           } else {
-            const contact = new Contact({
-              accountId: account.id,
-              username: account.username,
-              phone: account.phone,
-              placeId: self.location.place_id,
-              location: self.location,
-              unit: '',
-              buzzCode: '',
-              address: self.locationSvc.getAddrString(self.location),
-              created: new Date(),
-              modified: new Date()
-            });
-            self.contactSvc.save(contact).subscribe(() => {
-              self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
-              self.router.navigate(['contact/list']);
-            });
+            self.router.navigate(['contact/phone-form']);
           }
-        });
-      }
-    } else {
-      this.router.navigate(['account/login']);
+
+        } else {
+          const contact = new Contact({
+            accountId: account.id,
+            username: account.username,
+            phone: account.phone,
+            placeId: self.location.place_id,
+            location: self.location,
+            unit: '',
+            buzzCode: '',
+            address: self.locationSvc.getAddrString(self.location),
+            created: new Date(),
+            modified: new Date()
+          });
+          self.contactSvc.save(contact).subscribe(() => {
+            self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
+            if (contact.phone) {
+              self.router.navigate(['contact/list']);
+            } else {
+              self.router.navigate(['contact/phone-form']);
+            }
+          });
+        }
+      });
     }
   }
 
