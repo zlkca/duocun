@@ -9,7 +9,7 @@
           <span class="phone-col">{{item.phone}}</span>
         </div>
         <div class="edit-col" (click)="edit(item)">
-          <span i18n="@@Edit">Edit</span>
+          <span class="btn" i18n="@@Edit">Edit</span>
         </div>
         <div class="text-sm second-row" *ngIf="item">{{item.address}}</div>
         <!-- <div class="warning" *ngIf="!item.phone || !item.address" i18n="@@PhoneAddrEmptyMsg">Phone number and address cannot be empty</div> -->
