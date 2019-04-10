@@ -1,0 +1,32 @@
+.portrait-frame{
+  height: 64px;
+  width: 64px;
+  -webkit-box-align: stretch;
+  align-items: stretch;
+  background-color: rgb(255, 255, 255);
+  box-sizing: content-box;
+  cursor: inherit;
+  display: flex;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  justify-content: center;
+  pointer-events: auto;
+  position: static;
+  transform: translateZ(0px);
+  border-width: 0px;
+  border-style: initial;
+  border-color: initial;
+  border-image: initial;
+  border-radius: 50%;
+  padding: 2px;
+  outline: none;
+  overflow: hidden;
+  transition: background-color 0s ease-out 0s;
+
+  img.portrait{
+    background-color: transparent;
+    border-radius: 50%;
+    height: 100%;
+    width: 100%;
+  }
+}

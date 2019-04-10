@@ -64,15 +64,13 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
     font-weight: 500;
     color: #7c7c7c;
 }
-
 .title-bg{
     font-family: "Microsoft Yahei", 'Raleway', sans-serif;
-    font-size: 25px;
-    font-weight: 300;
+    font-size: 22px;
+    font-weight: 400;
     line-height: 30px;
     color: #414851;//#8dbf41;
 }
-
 .title-md{
     font-family: "Microsoft Yahei",'Raleway', sans-serif;
     font-size: 20px;
@@ -85,7 +83,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
     font-family: "Microsoft Yahei",'Raleway', sans-serif;
     font-size: 14px;
     font-weight: 400;
-    line-height: 14px;
+    line-height: 12px;
     color: $title-s-color;
 }
 
@@ -341,7 +339,7 @@ body{
   }
   
   .title-row{
-    padding: 15px;
+    padding: 15px 15px 10px 15px;
     text-align: center;
     border-bottom: solid 1px #eee;
   }

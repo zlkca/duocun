@@ -3,17 +3,22 @@
 }
 
 .restaurant{
-  padding: 5px 0px;
+  padding: 10px 0px 0px 0px;
 }
 
 .contact-block{
-  padding: 10px;
-  border: solid 1px #eee;
+  padding: 10px 0px;
+  border-bottom: solid 1px #eee;
+
   .row{
     margin: 0px;
+    padding-bottom: 5px;
   }
   .phone-col{
     padding-left: 15px;
+  }
+  .title-sm {
+    padding-top: 8px;
   }
 }
 
@@ -38,15 +43,11 @@
 }
 
 .payment-method-block, .notes-block{
-  padding: 10px 15px;
+  padding: 10px 0px;
   margin: 0px;
   .row{
     padding: 0px;
   }
-}
-
-.notes-block{
-  padding-right: 0px;
 }
 
 .product-list{

@@ -1,0 +1,24 @@
+<div class="page">
+    <div class="title-row title-bg" i18n="@@Account">
+      Account
+    </div>
+
+    <div *ngIf="account">
+        <div class="portrait-block">
+          <div class="portrait-frame">
+            <img class="portrait" [src]="account.imageurl"/>
+          </div>
+        </div>
+      
+        <div>{{account.username}}</div>
+
+        <!-- <div>
+          <div>Phone:</div>
+          <div>{{account.phone}}</div>
+        </div> -->
+    </div>
+    <div *ngIf="!account">
+      Please re-enter Duocun.
+    </div>
+
+</div>

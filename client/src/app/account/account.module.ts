@@ -14,6 +14,7 @@ import { AccountFormComponent } from './account-form/account-form.component';
 import { AccountRoutingModule } from './account-routing.module';
 import { AccountService } from './account.service';
 import { AuthService } from './auth.service';
+import { AccountPageComponent } from './account-page/account-page.component';
 
 @NgModule({
     imports: [
@@ -26,13 +27,17 @@ import { AuthService } from './auth.service';
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
       AccountListComponent,
-      AccountFormComponent
+      AccountFormComponent,
     ],
-    declarations: [LoginFormComponent, SignupComponent, ChangePasswordComponent,
-        ForgetPasswordComponent,
-        ProfileFormComponent,
-        AccountListComponent,
-        AccountFormComponent
+    declarations: [
+      LoginFormComponent,
+      SignupComponent,
+      ChangePasswordComponent,
+      ForgetPasswordComponent,
+      ProfileFormComponent,
+      AccountListComponent,
+      AccountFormComponent,
+      AccountPageComponent
     ],
     providers: [
       AccountService,

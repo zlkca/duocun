@@ -29,7 +29,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   subtotal;
   quantity;
   total = 0;
-  restaurantName = '';
   tips = 3;
   malls: IMall[] = [];
   productTotal = 0;
@@ -106,13 +105,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           this.productTotal += x.price * x.quantity;
           this.quantity += x.quantity;
         });
-        this.restaurantName = items[0].restaurantName;
       }
-
-      this.subtotal = this.productTotal + this.fullDeliveryFee + this.tips;
+      this.subtotal = this.productTotal + this.fullDeliveryFee;
       this.tax = Math.ceil(this.subtotal * 13) / 100;
       this.subtotal = this.subtotal + this.tax;
-      this.total = this.subtotal - this.deliveryDiscount;
+      this.total = this.subtotal - this.deliveryDiscount + this.tips;
 
       this.rx.dispatch({ type: AmountActions.UPDATE, payload: {total: this.total}});
     });

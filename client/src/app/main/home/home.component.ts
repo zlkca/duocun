@@ -20,6 +20,7 @@ import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
 import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
 import { Account } from '../../account/account.model';
 import { AccountActions } from '../../account/account.actions';
+import { MatSnackBar } from '../../../../node_modules/@angular/material';
 
 declare var google;
 
@@ -57,6 +58,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
+    private snackBar: MatSnackBar
   ) {
     const self = this;
     this.route.queryParamMap.subscribe(queryParams => {
@@ -68,6 +70,13 @@ export class HomeComponent implements OnInit, OnDestroy {
           self.accountSvc.getCurrentUser().subscribe((account: Account) => {
             if (account) {
               self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+              this.snackBar.open('', '微信登录成功。', {
+                duration: 2000
+              });
+            } else {
+              this.snackBar.open('', '微信登录失败。', {
+                duration: 1000
+              });
             }
           });
         }

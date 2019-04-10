@@ -4,7 +4,7 @@
   </div>
 
   <form [formGroup]="form">
-    <div class="contact-block" *ngIf="restaurantName && contact" (click)="changeContact()">
+    <div class="contact-block" *ngIf="contact" (click)="changeContact()">
       <div class="row label-sm">
         <span i18n="@@DeliverTo">Deliver to</span>:
       </div>
@@ -18,7 +18,7 @@
       <!-- <div>Estimate: 11:45~1:45</div> -->
     </div>
 
-    <div class="title-md restaurant">{{restaurantName}}</div>
+    <div class="title-md restaurant" *ngIf="restaurant">{{restaurant.name}}</div>
     <div class="bg-light product-list" *ngIf="cart.items && cart.items.length>0">
       <div *ngFor="let item of cart.items" class="text-sm row">
         <div class="col-6 product-col">{{item.productName}}</div>
@@ -36,18 +36,11 @@
         <div class="col-3">${{productTotal | number : '1.2-2'}}</div>
       </div>
       <div class="row">
-          <div class="col-9">
-            <span i18n="@@DeliveryFee">Delivery Fee</span>
-            <span>:</span>
-          </div>
-        <div class="col-3">${{fullDeliveryFee | number : '1.2-2'}}</div>
-      </div>
-      <div class="row">
         <div class="col-9">
-          <span i18n="@@Tips">Tips</span>
+          <span i18n="@@DeliveryFee">Delivery Fee</span>
           <span>:</span>
         </div>
-        <div class="col-3">${{tips | number : '1.2-2'}}</div>
+        <div class="col-3">${{fullDeliveryFee | number : '1.2-2'}}</div>
       </div>
       <div class="row">
         <div class="col-9">
@@ -56,13 +49,22 @@
         </div>
         <div class="col-3">${{tax | number : '1.2-2'}}</div>
       </div>
-      <div class="row">
-          <div class="col-9">
-              <span i18n="@@Subtotal">Sub Total</span>
-              <span>:</span>
-          </div>
-          <div class="col-3">${{subtotal | number : '1.2-2'}}</div>
+      <!-- <div class="row">
+        <div class="col-9">
+            <span i18n="@@Subtotal">Sub Total</span>
+            <span>:</span>
         </div>
+        <div class="col-3">${{subtotal | number : '1.2-2'}}</div>
+      </div> -->
+
+      <div class="row">
+        <div class="col-9">
+          <span i18n="@@Tips">Tips</span>
+          <span>:</span>
+        </div>
+        <div class="col-3">${{tips | number : '1.2-2'}}</div>
+      </div>
+
       <div class="row">
           <div class="col-9">
             <span i18n="@@DeliveryDiscount">Delivery Discount</span>

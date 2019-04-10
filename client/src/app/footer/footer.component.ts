@@ -66,7 +66,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       } else if (x === 'order-confirm') {
         self.bCart = false;
         self.bPay = true;
-      } else if ( x === 'contact-form') {
+      } else if (x === 'contact-form') {
         self.bCart = false;
         self.bPay = false;
         self.bHide = true;
@@ -110,7 +110,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   toHome() {
     this.rx.dispatch({
       type: CommandActions.SEND,
-      payload: {name: 'clear-address', args: null}
+      payload: { name: 'clear-address', args: null }
     });
     this.router.navigate(['main/home']);
   }
@@ -144,7 +144,11 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   toAccount() {
-    this.router.navigate(['account/login']);
+    if (this.account) {
+      this.router.navigate(['account/info']);
+    } else {
+      this.router.navigate(['account/login']);
+    }
   }
 
   toAdmin() {
@@ -168,7 +172,7 @@ export class FooterComponent implements OnInit, OnDestroy {
             r[0].location = self.location;
             r[0].address = self.locationSvc.getAddrString(self.location);
             r[0].modified = new Date();
-            this.rx.dispatch({type: ContactActions.UPDATE, payload: r[0]});
+            this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
           } else {
             const contact = new Contact({
               accountId: account.id,
@@ -183,7 +187,7 @@ export class FooterComponent implements OnInit, OnDestroy {
               modified: new Date()
             });
             self.contactSvc.save(contact).subscribe(() => {
-              self.rx.dispatch({type: ContactActions.UPDATE, payload: contact});
+              self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
               self.router.navigate(['contact/list']);
             });
           }
@@ -199,7 +203,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       if (this.quantity > 0) {
         this.rx.dispatch({
           type: CommandActions.SEND,
-          payload: {name: 'pay', args: null}
+          payload: { name: 'pay', args: null }
         });
       }
       this.bCart = false;

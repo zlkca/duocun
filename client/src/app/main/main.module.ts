@@ -8,6 +8,7 @@ import { SharedModule } from '../shared/shared.module';
 import { AccountService } from '../account/account.service';
 import { AuthService } from '../account/auth.service';
 import { RestaurantFilterPageComponent } from './restaurant-filter-page/restaurant-filter-page.component';
+import { MatSnackBarModule } from '../../../node_modules/@angular/material';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { RestaurantFilterPageComponent } from './restaurant-filter-page/restaura
     MainRoutingModule,
     SharedModule,
     LocationModule,
+    MatSnackBarModule,
   ],
   declarations: [
     HomeComponent,
