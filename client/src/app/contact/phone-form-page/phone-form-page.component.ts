@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgRedux } from '@angular-redux/store';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -29,6 +29,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
   bGettingCode = false;
   counter = 60;
   countDown;
+  fromPage;
 
   constructor(
     private fb: FormBuilder,
@@ -36,8 +37,10 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService,
     private rx: NgRedux<IAppState>,
     private router: Router,
+    private route: ActivatedRoute,
     private snackBar: MatSnackBar
   ) {
+    const self = this;
     this.form = this.fb.group({
       phone: [''],
       verificationCode: ['']
@@ -47,6 +50,8 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
       type: PageActions.UPDATE_URL,
       payload: 'phone-form'
     });
+
+    this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
   }
 
   ngOnInit() {
@@ -56,19 +61,32 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe(account => {
       self.account = account;
-    });
 
-    this.rx.select('contact').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((contact: IContact) => {
-      if (contact) {
-        this.contact = new Contact(contact);
-        if (!contact.phone) {
-          this.phoneVerified = false;
-        }
-        this.form.patchValue(contact);
+      if (this.fromPage === 'account-setting') {
+        self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+          if (r && r.length > 0) {
+            this.contact = new Contact(r[0]);
+            if (!r[0].phone) {
+              this.phoneVerified = false;
+            }
+            this.form.patchValue(r[0]);
+          }
+        });
+      } else {
+        this.rx.select('contact').pipe(
+          takeUntil(this.onDestroy$)
+        ).subscribe((contact: IContact) => {
+          if (contact) {
+            this.contact = new Contact(contact);
+            if (!contact.phone) {
+              this.phoneVerified = false;
+            }
+            this.form.patchValue(contact);
+          }
+        });
       }
     });
+
   }
 
   ngOnDestroy() {
@@ -100,6 +118,11 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
 
   cancel() {
     const self = this;
+    if (this.fromPage === 'account-setting') {
+      this.router.navigate(['account/setting']);
+    } else if (this.fromPage === 'restaurant-detail') {
+      this.router.navigate(['contact/list']);
+    }
   }
 
   save() {
@@ -119,9 +142,17 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     });
 
     this.contactSvc.replace(this.contact).subscribe(x => {
-      self.router.navigate(['contact/list']);
+      if (self.fromPage === 'account-setting') {
+        self.router.navigate(['account/setting']);
+      } else if (self.fromPage === 'restaurant-detail') {
+        self.router.navigate(['contact/list']);
+      }
     }, err => {
-      self.router.navigate(['contact/list']);
+      if (self.fromPage === 'account-setting') {
+        self.router.navigate(['account/setting']);
+      } else if (self.fromPage === 'restaurant-detail') {
+        self.router.navigate(['contact/list']);
+      }
     });
   }
 

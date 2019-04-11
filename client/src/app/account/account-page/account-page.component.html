@@ -1,24 +1,22 @@
 <div class="page">
-    <div class="title-row title-bg" i18n="@@Account">
-      Account
-    </div>
-
-    <div *ngIf="account">
-        <div class="portrait-block">
-          <div class="portrait-frame">
-            <img class="portrait" [src]="account.imageurl"/>
-          </div>
+  <div *ngIf="account">
+    <div class="row head-block">
+      <div class="col-8 name-block title-bg">{{account.username}}</div>
+      <div class="col-4 portrait-block">
+        <div class="portrait-frame">
+          <img class="portrait" [src]="account.imageurl"/>
         </div>
-      
-        <div>{{account.username}}</div>
-
-        <!-- <div>
-          <div>Phone:</div>
-          <div>{{account.phone}}</div>
-        </div> -->
+      </div>
     </div>
-    <div *ngIf="!account">
-      Please re-enter Duocun.
-    </div>
+    
 
+    <div class="row form-group">
+      <div class="row label-sm">
+        <span i18n="@@PhoneNumber">Phone Number</span><span>*</span>
+      </div>
+      <div class="phone-input" (click)="changePhoneNumber()">
+        {{phone}}
+      </div>
+    </div>
+  </div>
 </div>

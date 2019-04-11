@@ -145,7 +145,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   toAccount() {
     if (this.account) {
-      this.router.navigate(['account/info']);
+      this.router.navigate(['account/setting']);
     } else {
       this.router.navigate(['account/login']);
     }
@@ -176,7 +176,7 @@ export class FooterComponent implements OnInit, OnDestroy {
           if (r[0].phone) {
             self.router.navigate(['contact/list']);
           } else {
-            self.router.navigate(['contact/phone-form']);
+            self.router.navigate(['contact/phone-form'], {queryParams: {fromPage: 'restaurant-detail'}});
           }
 
         } else {
@@ -197,7 +197,7 @@ export class FooterComponent implements OnInit, OnDestroy {
             if (contact.phone) {
               self.router.navigate(['contact/list']);
             } else {
-              self.router.navigate(['contact/phone-form']);
+              self.router.navigate(['contact/phone-form'], {queryParams: {fromPage: 'restaurant-detail'}});
             }
           });
         }

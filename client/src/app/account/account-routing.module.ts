@@ -9,7 +9,7 @@ const routes: Routes = [
   { path: 'forget-password', component: ForgetPasswordComponent },
   { path: 'login', component: LoginFormComponent },
   { path: 'signup', component: SignupComponent },
-  { path: 'info', component: AccountPageComponent}
+  { path: 'setting', component: AccountPageComponent}
 ];
 
 @NgModule({
