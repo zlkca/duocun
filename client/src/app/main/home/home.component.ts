@@ -19,6 +19,10 @@ import { IDeliveryTime } from '../../delivery/delivery.model';
 import { Account } from '../../account/account.model';
 import { AccountActions } from '../../account/account.actions';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
+import { ContactService } from '../../contact/contact.service';
+import { IContact, Contact } from '../../contact/contact.model';
+import { IContactAction } from '../../contact/contact.reducer';
+import { ContactActions } from '../../contact/contact.actions';
 
 declare var google;
 
@@ -44,7 +48,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   overdue;
   afternoon;
   deliveryTime: IDeliveryTime = { type: '', text: '' };
-
+  contact;
   inRange = false;
   onDestroy$ = new Subject<any>();
 
@@ -52,6 +56,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     private authSvc: AuthService,
+    private contactSvc: ContactService,
     private socketSvc: SocketService,
     private router: Router,
     private route: ActivatedRoute,
@@ -80,6 +85,19 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.snackBar.open('', '微信登录成功。', {
                   duration: 1000
                 });
+
+                self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+                  if (r && r.length > 0) {
+                    self.contact = new Contact(r[0]);
+                    self.rx.dispatch<ILocationAction>({
+                      type: LocationActions.UPDATE,
+                      payload: self.contact.location
+                    });
+                    this.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
+                    this.router.navigate(['main/filter']);
+                  }
+                });
+
               } else {
                 this.snackBar.open('', '微信登录失败。', {
                   duration: 1000

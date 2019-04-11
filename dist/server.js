@@ -22,6 +22,7 @@ const mall_1 = require("./mall");
 const location_1 = require("./location");
 const distance_1 = require("./distance");
 const contact_1 = require("./contact");
+const phone_1 = require("./phone");
 const utils_1 = require("./utils");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
@@ -50,6 +51,7 @@ let mall;
 let location;
 let distance;
 let contact;
+let phone;
 let mysocket; // Socket;
 let io;
 dbo.init(cfg.DATABASE).then(dbClient => {
@@ -63,6 +65,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     location = new location_1.Location(dbo);
     distance = new distance_1.Distance(dbo);
     contact = new contact_1.Contact(dbo);
+    phone = new phone_1.Phone(dbo);
     // socket = new Socket(dbo, io);
     // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
     //   const uId = data.userId;
@@ -354,10 +357,10 @@ app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
     distance.get(req, res);
 });
 app.post('/' + ROUTE_PREFIX + '/smsverify', (req, res) => {
-    contact.verifyCode(req, res);
+    phone.verifyCode(req, res);
 });
 app.post('/' + ROUTE_PREFIX + '/sendVerifyMsg', (req, res) => {
-    contact.sendVerificationMessage(req, res);
+    phone.sendVerificationMessage(req, res);
 });
 app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
     contact.insertOne(req.body).then((x) => {

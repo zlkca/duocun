@@ -25,6 +25,7 @@
     [orderDeadline]="orderDeadline"
     [deliveryDiscount]="deliveryDiscount" (afterSelectDate)="onSelectDeliveryTime($event)">
   </app-delivery-date-list>
+
   <div *ngIf="!inRange && !showLocationList()" class="row option-item no-free not-in-range-item">
     <div class="col-12">
         <div class="text-sm">

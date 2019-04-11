@@ -66,7 +66,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       } else if (x === 'order-confirm') {
         self.bCart = false;
         self.bPay = true;
-      } else if (x === 'contact-form') {
+      } else if (x === 'contact-form' || x === 'phone-form' || x === 'address-form') {
         self.bCart = false;
         self.bPay = false;
         self.bHide = true;
@@ -192,14 +192,14 @@ export class FooterComponent implements OnInit, OnDestroy {
             created: new Date(),
             modified: new Date()
           });
-          self.contactSvc.save(contact).subscribe(() => {
+          // self.contactSvc.save(contact).subscribe(() => {
             self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
             if (contact.phone) {
               self.router.navigate(['contact/list']);
             } else {
               self.router.navigate(['contact/phone-form'], {queryParams: {fromPage: 'restaurant-detail'}});
             }
-          });
+          // });
         }
       });
     }

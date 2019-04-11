@@ -13,7 +13,7 @@ import { ContactService } from '../contact.service';
 import { IAppState } from '../../store';
 import { AccountService } from '../../account/account.service';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
-
+import * as Cookies from 'js-cookie';
 
 @Component({
   selector: 'app-phone-form-page',
@@ -61,32 +61,19 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe(account => {
       self.account = account;
-
-      if (this.fromPage === 'account-setting') {
-        self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
-          if (r && r.length > 0) {
-            this.contact = new Contact(r[0]);
-            if (!r[0].phone) {
-              this.phoneVerified = false;
-            }
-            this.form.patchValue(r[0]);
-          }
-        });
-      } else {
-        this.rx.select('contact').pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe((contact: IContact) => {
-          if (contact) {
-            this.contact = new Contact(contact);
-            if (!contact.phone) {
-              this.phoneVerified = false;
-            }
-            this.form.patchValue(contact);
-          }
-        });
-      }
     });
 
+    this.rx.select('contact').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((contact: IContact) => {
+      if (contact) {
+        this.contact = new Contact(contact);
+        if (!contact.phone) {
+          this.phoneVerified = false;
+        }
+        this.form.patchValue(contact);
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -118,6 +105,18 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
 
   cancel() {
     const self = this;
+    const phone = Cookies.get('duocun-old-phone');
+    if (!this.contact) {
+      this.contact = new Contact();
+    }
+    this.contact.phone = phone;
+
+    this.rx.dispatch<IContactAction>({
+      type: ContactActions.UPDATE,
+      payload: this.contact
+    });
+    Cookies.remove('duocun-old-phone');
+
     if (this.fromPage === 'account-setting') {
       this.router.navigate(['account/setting']);
     } else if (this.fromPage === 'restaurant-detail') {
@@ -133,6 +132,11 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     }
 
     const v = this.form.value;
+
+    if (!this.contact) {
+      this.contact = new Contact();
+    }
+
     this.contact.phone = v.phone;
     this.contact.verificationCode = v.verificationCode;
 
@@ -162,7 +166,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
 
     if (phone) {
       phone = phone.match(/\d+/g).join('');
-      this.contact.phone = phone;
+      const contact = { phone: phone, accountId: self.account.id };
       this.bGettingCode = true;
       this.counter = 60;
       this.countDown = setInterval(function () {
@@ -172,7 +176,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
           self.bGettingCode = false;
         }
       }, 1000);
-      this.contactSvc.sendVerifyMessage(this.contact).subscribe(x => {
+      this.contactSvc.sendVerifyMessage(contact).subscribe(x => {
         this.snackBar.open('', '短信验证码已发送', {
           duration: 1000
         });

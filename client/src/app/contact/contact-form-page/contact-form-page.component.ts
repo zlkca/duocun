@@ -249,9 +249,9 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
 
   save() {
     const self = this;
-    if (!this.phoneVerified) {
-      return;
-    }
+    // if (!this.phoneVerified) {
+    //   return;
+    // }
 
     const contact = this.getContact();
 

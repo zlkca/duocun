@@ -7,6 +7,12 @@ import { Router } from '@angular/router';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { IContact, Contact } from '../../contact/contact.model';
 import { Subject } from '../../../../node_modules/rxjs';
+import { ContactService } from '../../contact/contact.service';
+import { IContactAction } from '../../contact/contact.reducer';
+import { ContactActions } from '../../contact/contact.actions';
+import * as Cookies from 'js-cookie';
+import { PageActions } from '../../main/main.actions';
+import { LocationService } from '../../location/location.service';
 
 @Component({
   selector: 'app-account-page',
@@ -16,6 +22,7 @@ import { Subject } from '../../../../node_modules/rxjs';
 export class AccountPageComponent implements OnInit, OnDestroy {
   account: Account;
   phone;
+  address;
   onDestroy$ = new Subject<any>();
   contact;
   phoneVerified;
@@ -24,17 +31,35 @@ export class AccountPageComponent implements OnInit, OnDestroy {
   constructor(
     private accountSvc: AccountService,
     private rx: NgRedux<IAppState>,
-    private router: Router
+    private router: Router,
+    private locationSvc: LocationService,
+    private contactSvc: ContactService
   ) {
     const self = this;
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'account-setting'
+    });
 
     self.accountSvc.getCurrentUser().subscribe((account: Account) => {
       self.account = account;
-      // if (account) {
-      //   self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-      // }
+      self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+        if (r && r.length > 0) {
+          self.contact = new Contact(r[0]);
+          self.rx.dispatch<IContactAction>({
+            type: ContactActions.UPDATE,
+            payload: self.contact
+          });
 
-
+          Cookies.set('duocun-old-phone', self.contact.phone);
+          Cookies.set('duocun-old-location', self.contact.location);
+        } else {
+          self.rx.dispatch<IContactAction>({
+            type: ContactActions.UPDATE,
+            payload: null
+          });
+        }
+      });
     });
   }
 
@@ -45,6 +70,11 @@ export class AccountPageComponent implements OnInit, OnDestroy {
       if (contact) {
         this.contact = contact;
         this.phone = contact.phone; // render
+        this.address = this.locationSvc.getAddrString(contact.location);
+      } else {
+        this.contact = { phone: '', address: ''};
+        this.phone = '';
+        this.address = '';
       }
     });
   }
@@ -56,5 +86,9 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
   changePhoneNumber() {
     this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'account-setting' } });
+  }
+
+  changeAddress() {
+    this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'account-setting' }});
   }
 }

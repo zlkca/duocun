@@ -22,7 +22,7 @@ import { Mall } from "./mall";
 import { Location } from "./location";
 import { Distance } from "./distance";
 import { Contact } from "./contact";
-
+import { Phone } from "./phone";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
@@ -55,6 +55,7 @@ let mall: Mall;
 let location: Location;
 let distance: Distance;
 let contact: Contact;
+let phone: Phone;
 let mysocket: any;// Socket;
 let io: any;
 
@@ -70,6 +71,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   location = new Location(dbo);
   distance = new Distance(dbo);
   contact = new Contact(dbo);
+  phone = new Phone(dbo);
   // socket = new Socket(dbo, io);
 
   // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
@@ -387,11 +389,12 @@ app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
 });
 
 app.post('/' + ROUTE_PREFIX + '/smsverify', (req, res) => {
-  contact.verifyCode(req, res);
+  phone.verifyCode(req, res);
 });
 app.post('/' + ROUTE_PREFIX + '/sendVerifyMsg', (req, res) => {
-  contact.sendVerificationMessage(req, res);
+  phone.sendVerificationMessage(req, res);
 });
+
 app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
   contact.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');

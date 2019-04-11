@@ -31,8 +31,8 @@
         </div>
       </div>
     </form>
-    <div class="row phone-save-row">
+    <div class="row phone-save-row" *ngIf="this.fromPage === 'account-setting'">
         <div class="col-6 title-md cancel-col" (click)="cancel()" i18n="@@Cancel">Cancel</div>
-        <div class="col-6 title-md save-col" (click)="save()" i18n="@@Save">Save</div>
+        <!-- <div class="col-6 title-md save-col" (click)="save()" i18n="@@Save">Save</div> -->
       </div>
   </div>

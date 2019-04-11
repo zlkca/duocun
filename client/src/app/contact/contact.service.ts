@@ -29,7 +29,7 @@ export class ContactService extends EntityService {
     return this.http.put(this.url, d);
   }
 
-  sendVerifyMessage(d: IContact): Observable<any> {
+  sendVerifyMessage(d: any): Observable<any> {
     const url = super.getBaseUrl() + 'sendVerifyMsg';
     return this.http.post(url, d);
   }

@@ -1348,6 +1348,14 @@
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="DefaultAddress" datatype="html">
+        <source>Default Address</source>
+        <target>默认地址</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-form/account-form.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>
