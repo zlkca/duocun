@@ -1,0 +1,25 @@
+<div class="page">
+    <div class="title-row title-bg" i18n="@@Address">
+      Edit Address
+    </div>
+
+    <form [formGroup]="form">
+      <div class="row form-group">
+        <div class="row label-sm">
+          <span i18n="@@DeliverAddress">Delivery Address</span><span>*</span>
+        </div>
+        <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
+          (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
+          [value]="deliveryAddress">
+        </app-address-input>
+      </div>
+      <app-location-list [account]="account" [places]="options"
+        (placeSeleted)="onSelectPlace($event)">
+      </app-location-list>
+    </form>
+
+    <div class="row address-save-row">
+        <div class="col-6 title-md cancel-col" (click)="cancel()" i18n="@@Cancel">Cancel</div>
+        <div class="col-6 title-md save-col" (click)="save()" i18n="@@Ok">Ok</div>
+      </div>
+  </div>
