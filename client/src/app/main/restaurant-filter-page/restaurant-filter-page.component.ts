@@ -14,6 +14,7 @@ import { AccountService } from '../../account/account.service';
 import { LocationService } from '../../location/location.service';
 import { ILocationAction } from '../../location/location.reducer';
 import { LocationActions } from '../../location/location.actions';
+import { SharedService } from '../../shared/shared.service';
 
 @Component({
   selector: 'app-restaurant-filter-page',
@@ -30,7 +31,8 @@ export class RestaurantFilterPageComponent implements OnInit {
   places: IPlace[] = [];
   inRange = false;
   onDestroy$ = new Subject<any>();
-
+  today;
+  overdue = false;
   deliveryAddress;
 
   account;
@@ -40,9 +42,14 @@ export class RestaurantFilterPageComponent implements OnInit {
     private accountSvc: AccountService,
     private mallSvc: MallService,
     private locationSvc: LocationService,
+    private sharedSvc: SharedService,
     private rx: NgRedux<IAppState>
   ) {
     const self = this;
+    const today = this.sharedSvc.getTodayString();
+    this.today = {type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:30'};
+    this.overdue = this.sharedSvc.isOverdue(this.orderDeadline.h, this.orderDeadline.m);
+
     this.accountSvc.getCurrent().pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(account => {

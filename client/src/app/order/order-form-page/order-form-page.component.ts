@@ -89,7 +89,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     ]).subscribe(vals => {
       const malls = vals[0];
       const cart = vals[1];
-      this.contact = vals[2];
+      self.contact = vals[2];
       if (malls && malls.length > 0) {
         this.malls = malls;
         this.fullDeliveryFee = Math.ceil(malls[0].fullDeliverFee * 100) / 100;

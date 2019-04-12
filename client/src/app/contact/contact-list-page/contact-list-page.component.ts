@@ -87,36 +87,6 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
       contact.address = self.locationSvc.getAddrString(contact.location);
       this.items = [contact];
     });
-    // forkJoin([
-    //   this.rx.select<IAccount>('account').pipe(
-    //     first(),
-    //     takeUntil(this.onDestroy$)
-    //   ),
-    //   this.rx.select<ILocation>('location').pipe(
-    //     first(),
-    //     takeUntil(this.onDestroy$)
-    //   )
-    // ]).subscribe(vals => {
-    //   const account = vals[0];
-    //   const location = vals[1];
-    //   self.contactSvc.find({where: {accountId: account.id}}).subscribe(r => {
-    //     if (r && r.length > 0) {
-    //       this.items = r;
-    //     } else {
-    //       const data = new Contact({
-    //         accountId: account.id,
-    //         username: account.username,
-    //         phone: account.phone,
-    //         location: location,
-    //         unit: '',
-    //         buzzCode: '',
-    //         address: self.locationSvc.getAddrString(location)
-    //       });
-    //       this.items = [data];
-    //       this.contactSvc.save(data).subscribe(() => {});
-    //     }
-    //   });
-    // });
   }
 
   ngOnDestroy() {

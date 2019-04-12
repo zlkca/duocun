@@ -63,6 +63,7 @@ class User extends entity_1.Entity {
             });
         }, err => {
             console.log(err);
+            res.send();
         });
     }
     get(req, res) {

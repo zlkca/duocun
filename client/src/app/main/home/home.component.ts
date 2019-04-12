@@ -73,37 +73,10 @@ export class HomeComponent implements OnInit, OnDestroy {
           takeUntil(this.onDestroy$)
         ).subscribe((data: any) => {
           if (data) {
-            self.authSvc.setUserId(data.userId);
-            self.authSvc.setAccessToken(data.id);
-            self.accountSvc.getCurrentUser().pipe(
-              takeUntil(this.onDestroy$)
-            ).subscribe((account: Account) => {
-              if (account) {
-                self.account = account;
-                self.socketSvc.init(this.authSvc.getAccessToken());
-                self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-                this.snackBar.open('', '微信登录成功。', {
-                  duration: 1000
-                });
-
-                self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
-                  if (r && r.length > 0) {
-                    self.contact = new Contact(r[0]);
-                    self.rx.dispatch<ILocationAction>({
-                      type: LocationActions.UPDATE,
-                      payload: self.contact.location
-                    });
-                    this.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
-                    this.router.navigate(['main/filter']);
-                  }
-                });
-
-              } else {
-                this.snackBar.open('', '微信登录失败。', {
-                  duration: 1000
-                });
-              }
-            });
+            self.wechatLoginHandler(data);
+          } else { // failed from shared link login
+            // tslint:disable-next-line:max-line-length
+            window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0591bdd165898739&redirect_uri=https://duocun.com.cn&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
           }
         });
       } else { // no code in router
@@ -116,6 +89,41 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  wechatLoginHandler(data: any) {
+    const self = this;
+    self.authSvc.setUserId(data.userId);
+    self.authSvc.setAccessToken(data.id);
+    self.accountSvc.getCurrentUser().pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((account: Account) => {
+      if (account) {
+        self.account = account;
+        self.socketSvc.init(this.authSvc.getAccessToken());
+        self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+        this.snackBar.open('', '微信登录成功。', {
+          duration: 1000
+        });
+
+        self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+          if (r && r.length > 0) {
+            self.contact = new Contact(r[0]);
+            self.rx.dispatch<ILocationAction>({
+              type: LocationActions.UPDATE,
+              payload: self.contact.location
+            });
+            this.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
+            this.router.navigate(['main/filter']);
+          }
+        });
+      } else {
+        this.snackBar.open('', '微信登录失败。', {
+          duration: 1000
+        });
+      }
+    });
+  }
+
 
   ngOnInit() {
     const self = this;

@@ -21,17 +21,34 @@
     </div>
   </div>
 
-  <app-delivery-date-list *ngIf="inRange && !showLocationList()"
-    [orderDeadline]="orderDeadline"
-    [deliveryDiscount]="deliveryDiscount" (afterSelectDate)="onSelectDeliveryTime($event)">
-  </app-delivery-date-list>
+  <div class="time-options">
+    <div *ngIf="overdue" class="row option-item no-free lunch-overdue">
+      <div class="col-12 text-sm">
+        <span class="text-md" i18n="@@LunchToday">Lunch Today</span>
+        <span class="text-sm date">{{today.date | date: 'MMMd E' }} </span>
+        <span class="text-sm time">{{today.startTime}}~{{today.endTime}} </span>
+      </div>
+      <div class="col-12">
+        <span *ngIf="overdue" class="overdue-note">
+          <span i18n="@@Over">Over</span>9:30&nbsp;
+          <span i18n="@@CannotDeliverNotes">Can not deliver, please order in advance next time</span>
+        </span>
+      </div>
+    </div>
 
-  <div *ngIf="!inRange && !showLocationList()" class="row option-item no-free not-in-range-item">
-    <div class="col-12">
-        <div class="text-sm">
-          <span i18n="@@NotInFreeDeliveryRange">Your address is not in free delivery range</span>
-        </div>
+    <div class="row">
+      <app-delivery-date-list *ngIf="inRange && !showLocationList()"
+        [orderDeadline]="orderDeadline"
+        [deliveryDiscount]="deliveryDiscount" (afterSelectDate)="onSelectDeliveryTime($event)">
+      </app-delivery-date-list>
+    </div>
+
+    <div *ngIf="!inRange && !showLocationList()" class="row option-item no-free not-in-range-item">
+      <div class="col-12">
+          <div class="text-sm">
+            <span i18n="@@NotInFreeDeliveryRange">Your address is not in free delivery range</span>
+          </div>
+      </div>
     </div>
   </div>
-
 </div>

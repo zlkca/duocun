@@ -138,7 +138,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.contact.accountId = self.account.id;
     }
 
-    this.contact.location = location ? JSON.parse(location) : null;
+    this.contact.location = (location !== 'undefined') ? JSON.parse(location) : null;
 
     this.rx.dispatch<IContactAction>({
       type: ContactActions.UPDATE,
@@ -150,6 +150,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       self.router.navigate(['account/setting']);
     } else if (self.fromPage === 'restaurant-detail') {
       self.router.navigate(['contact/list']);
+    } else if (self.fromPage === 'contact-form') {
+      self.router.navigate(['contact/form']);
     }
   }
 
@@ -160,6 +162,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     }
     const contact = this.contact;
     contact.accountId = self.account.id;
+    contact.username = self.account.username;
     contact.location = this.location;
     contact.address = this.deliveryAddress;
     contact.phone = self.contact ? self.contact.phone : '';

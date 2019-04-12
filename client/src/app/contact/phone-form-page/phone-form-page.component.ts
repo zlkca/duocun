@@ -165,7 +165,8 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
         });
       } else {
         const contact = new Contact();
-        contact.accountId = this.account.id;
+        contact.accountId = self.account.id;
+        contact.username = self.account.username;
         contact.phone = v.phone;
         contact.verificationCode = v.verificationCode;
 

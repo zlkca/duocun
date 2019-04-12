@@ -73,6 +73,7 @@ export class User extends Entity{
       });
     }, err => {
       console.log(err);
+      res.send();
     });
   }
 

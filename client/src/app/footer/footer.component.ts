@@ -188,7 +188,7 @@ export class FooterComponent implements OnInit, OnDestroy {
           const contact = new Contact({
             accountId: account.id,
             username: account.username,
-            phone: account.phone,
+            phone: '', // account.phone,
             placeId: self.location.place_id,
             location: self.location,
             unit: '',
