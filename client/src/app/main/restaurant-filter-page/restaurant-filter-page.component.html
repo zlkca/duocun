@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <div class="time-options">
+  <div class="time-options" *ngIf="!showLocationList()">
     <div *ngIf="overdue" class="row option-item no-free lunch-overdue">
       <div class="col-12 text-sm">
         <span class="text-md" i18n="@@LunchToday">Lunch Today</span>
@@ -37,13 +37,13 @@
     </div>
 
     <div class="row">
-      <app-delivery-date-list *ngIf="inRange && !showLocationList()"
+      <app-delivery-date-list *ngIf="inRange"
         [orderDeadline]="orderDeadline"
         [deliveryDiscount]="deliveryDiscount" (afterSelectDate)="onSelectDeliveryTime($event)">
       </app-delivery-date-list>
     </div>
 
-    <div *ngIf="!inRange && !showLocationList()" class="row option-item no-free not-in-range-item">
+    <div *ngIf="!inRange" class="row option-item no-free not-in-range-item">
       <div class="col-12">
           <div class="text-sm">
             <span i18n="@@NotInFreeDeliveryRange">Your address is not in free delivery range</span>

@@ -23,6 +23,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
   @Output() addrClear = new EventEmitter();
   @Output() inputFocus = new EventEmitter();
   @Input() value;
+  @ViewChild('search') searchElement: ElementRef;
 
   placeForm;
   gAutocomplete: any;
@@ -76,9 +77,13 @@ export class AddressInputComponent implements OnInit, OnChanges {
   }
 
   clearAddr() {
+    const self = this;
     this.input = '';
     this.placeForm.get('addr').patchValue(this.input);
     this.addrClear.emit();
     this.bClearBtn = false;
+    setTimeout(() => { // this will make the execution after the above boolean has changed
+      self.searchElement.nativeElement.focus();
+    }, 0);
   }
 }

@@ -2,14 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { IPlace, ILocation } from '../../location/location.model';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
-import { ILocationAction } from '../../location/location.reducer';
-import { LocationActions } from '../../location/location.actions';
 import { PageActions } from '../../main/main.actions';
 import { IContact, Contact } from '../contact.model';
 import { IContactAction } from '../contact.reducer';
 import { ContactActions } from '../contact.actions';
 import { ActivatedRoute, Router } from '../../../../node_modules/@angular/router';
-import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { ContactService } from '../contact.service';
@@ -40,8 +37,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService,
     private rx: NgRedux<IAppState>,
     private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private route: ActivatedRoute
   ) {
     this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
 
@@ -62,6 +58,11 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe(account => {
       self.account = account;
+      if (this.account && this.account.id) {
+        this.locationSvc.getHistoryLocations(this.account.id).then(a => {
+          self.options = a;
+        });
+      }
     });
 
     this.rx.select('contact').pipe(
@@ -93,9 +94,11 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   }
 
   onAddressClear(e) {
+    const self = this;
     this.deliveryAddress = '';
     this.options = [];
     this.onAddressInputFocus();
+
   }
 
   onAddressInputFocus(e?: any) {

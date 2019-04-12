@@ -1,6 +1,6 @@
 <div class="address-input-container">
   <form [formGroup]="placeForm" class="address-input">
-      <input type="text" placeholder="{{placeholder}}" i18n-placeholder [formControl]="placeForm.controls.addr"  
+      <input type="text" #search placeholder="{{placeholder}}" i18n-placeholder [formControl]="placeForm.controls.addr"  
       (input)="onValueChange($event)"
       (focus)="onFocus($event)" [class.expanded]="!bClearBtn" />
   </form>
