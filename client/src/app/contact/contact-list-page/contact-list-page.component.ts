@@ -15,6 +15,7 @@ import { MallService } from '../../mall/mall.service';
 import { IMall } from '../../mall/mall.model';
 import { MallActions } from '../../mall/mall.actions';
 import { IDeliveryTime } from '../../delivery/delivery.model';
+import { LocationService } from '../../location/location.service';
 
 @Component({
   selector: 'app-contact-list-page',
@@ -32,7 +33,7 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<any>();
   constructor(
     private contactSvc: ContactService,
-    private sharedSvc: SharedService,
+    private locationSvc: LocationService,
     private mallSvc: MallService,
     private rx: NgRedux<IAppState>,
     private router: Router
@@ -83,6 +84,7 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     this.rx.select('contact').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((contact: IContact) => {
+      contact.address = self.locationSvc.getAddrString(contact.location);
       this.items = [contact];
     });
     // forkJoin([
@@ -138,11 +140,11 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
       });
     });
 
-    if (!contact.phone || !contact.address) {
-      this.router.navigate(['contact/form']);
-    } else {
-      this.router.navigate(['order/form']);
-    }
+    // if (!contact.phone || !contact.address) {
+    //   this.router.navigate(['contact/form']);
+    // } else {
+    this.router.navigate(['order/form']);
+    // }
   }
 
   edit(item: IContact) {

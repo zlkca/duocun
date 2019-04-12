@@ -868,7 +868,7 @@
       </trans-unit>
       <trans-unit id="PhoneNumber" datatype="html">
         <source>Phone Number</source>
-        <target>电话号码</target>
+        <target>手机</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/account/institution-signup/institution-signup.component.ts</context>
           <context context-type="linenumber">41</context>

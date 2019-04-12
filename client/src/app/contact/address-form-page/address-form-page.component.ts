@@ -162,6 +162,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     contact.accountId = self.account.id;
     contact.location = this.location;
     contact.address = this.deliveryAddress;
+    contact.phone = self.contact ? self.contact.phone : '';
     contact.modified = new Date();
     // Cookies.remove('duocun-old-delivery-time');
 
@@ -175,23 +176,23 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     //   payload: this.location
     // });
 
-    if (contact.id) {
-      this.contactSvc.replace(contact).subscribe(x => {
-        if (self.fromPage === 'account-setting') {
+    if (self.fromPage === 'account-setting') {
+      if (contact.id) {
+        this.contactSvc.replace(contact).subscribe(x => {
           self.router.navigate(['account/setting']);
-        } else if (self.fromPage === 'restaurant-detail') {
-          self.router.navigate(['contact/list']);
-        }
-      });
-    } else {
-      this.contactSvc.save(contact).subscribe(x => {
-        if (self.fromPage === 'account-setting') {
+        });
+      } else {
+        this.contactSvc.save(contact).subscribe(x => {
           self.router.navigate(['account/setting']);
-        } else if (self.fromPage === 'restaurant-detail') {
-          self.router.navigate(['contact/list']);
-        }
-      });
+        });
+      }
+    } else if (self.fromPage === 'restaurant-detail') {
+      self.router.navigate(['contact/list']);
+    } else if (self.fromPage === 'contact-form') {
+      self.router.navigate(['contact/form']);
     }
+
   }
 
 }
+

@@ -14,6 +14,7 @@ import { LocationService } from '../location/location.service';
 import { Contact, IContact } from '../contact/contact.model';
 import { ILocation } from '../location/location.model';
 import { ContactActions } from '../contact/contact.actions';
+import { IContactAction } from '../contact/contact.reducer';
 
 @Component({
   selector: 'app-footer',
@@ -144,6 +145,10 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   toAccount() {
+    this.rx.dispatch<IContactAction>({
+      type: ContactActions.UPDATE,
+      payload: null
+    });
     if (this.account) {
       this.router.navigate(['account/setting']);
     } else {

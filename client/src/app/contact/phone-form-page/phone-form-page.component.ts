@@ -14,6 +14,7 @@ import { IAppState } from '../../store';
 import { AccountService } from '../../account/account.service';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import * as Cookies from 'js-cookie';
+import { ILocation } from '../../location/location.model';
 
 @Component({
   selector: 'app-phone-form-page',
@@ -30,6 +31,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
   counter = 60;
   countDown;
   fromPage;
+  location;
 
   constructor(
     private fb: FormBuilder,
@@ -73,6 +75,12 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
         }
         this.form.patchValue(contact);
       }
+    });
+
+    this.rx.select('location').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((loc: ILocation) => {
+      self.location = loc;
     });
   }
 
@@ -126,36 +134,57 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
 
   save() {
     const self = this;
+    const v = this.form.value;
 
     if (!this.phoneVerified) {
       return;
     }
 
-    const v = this.form.value;
+    this.contactSvc.find({ where: { accountId: this.account.id } }).subscribe(oldContacts => {
+      if (oldContacts && oldContacts.length > 0) {
+        const oldContact = oldContacts[0];
+        oldContact.phone = v.phone;
+        oldContact.verificationCode = v.verificationCode;
 
-    if (!this.contact) {
-      this.contact = new Contact();
-    }
+        // replace phone number only
+        self.contactSvc.replace(oldContact).subscribe(x => {
+          if (self.fromPage === 'account-setting') {
+            self.rx.dispatch<IContactAction>({
+              type: ContactActions.UPDATE,
+              payload: oldContact
+            });
+            self.router.navigate(['account/setting']);
+          } else if (self.fromPage === 'restaurant-detail') {
+            x.location = self.contact.location; // update address for the order
+            self.rx.dispatch<IContactAction>({
+              type: ContactActions.UPDATE,
+              payload: x
+            });
+            self.router.navigate(['contact/list']);
+          }
+        });
+      } else {
+        const contact = new Contact();
+        contact.accountId = this.account.id;
+        contact.phone = v.phone;
+        contact.verificationCode = v.verificationCode;
 
-    this.contact.phone = v.phone;
-    this.contact.verificationCode = v.verificationCode;
-
-    this.rx.dispatch<IContactAction>({
-      type: ContactActions.UPDATE,
-      payload: this.contact
-    });
-
-    this.contactSvc.replace(this.contact).subscribe(x => {
-      if (self.fromPage === 'account-setting') {
-        self.router.navigate(['account/setting']);
-      } else if (self.fromPage === 'restaurant-detail') {
-        self.router.navigate(['contact/list']);
-      }
-    }, err => {
-      if (self.fromPage === 'account-setting') {
-        self.router.navigate(['account/setting']);
-      } else if (self.fromPage === 'restaurant-detail') {
-        self.router.navigate(['contact/list']);
+        self.contactSvc.save(contact).subscribe(x => {
+          if (self.fromPage === 'account-setting') {
+            self.rx.dispatch<IContactAction>({
+              type: ContactActions.UPDATE,
+              payload: x
+            });
+            self.router.navigate(['account/setting']);
+          } else if (self.fromPage === 'restaurant-detail') {
+            x.location = self.location;
+            self.rx.dispatch<IContactAction>({
+              type: ContactActions.UPDATE,
+              payload: x
+            });
+            self.router.navigate(['contact/list']);
+          }
+        });
       }
     });
   }

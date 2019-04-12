@@ -109,6 +109,10 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
+  changeAddress() {
+    this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'contact-form' }} );
+  }
+
   onAddressChange(e) {
     const self = this;
     this.options = [];
@@ -261,27 +265,22 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
       type: ContactActions.UPDATE,
       payload: contact
     });
-    // self.mallSvc.calcMalls({ lat: v.location.lat, lng: v.location.lng }, self.deliverTimeType).then((malls: IMall[]) => {
-    //   self.malls = malls;
-    //   self.rx.dispatch({
-    //     type: MallActions.UPDATE,
-    //     payload: self.malls.filter(r => r.type === 'real')
-    //   });
-    // });
 
-    if (contact.id) {
-      this.contactSvc.replace(contact).subscribe(x => {
-        self.router.navigate(['contact/list']);
-      }, err => {
-        self.router.navigate(['contact/list']);
-      });
-    } else {
-      this.contactSvc.save(contact).subscribe(x => {
-        self.router.navigate(['contact/list']);
-      }, err => {
-        self.router.navigate(['contact/list']);
-      });
-    }
+    self.router.navigate(['contact/list']);
+
+    // if (contact.id) {
+    //   this.contactSvc.replace(contact).subscribe(x => {
+    //     self.router.navigate(['contact/list']);
+    //   }, err => {
+    //     self.router.navigate(['contact/list']);
+    //   });
+    // } else {
+    //   this.contactSvc.save(contact).subscribe(x => {
+    //     self.router.navigate(['contact/list']);
+    //   }, err => {
+    //     self.router.navigate(['contact/list']);
+    //   });
+    // }
   }
 
   sendVerify() {
