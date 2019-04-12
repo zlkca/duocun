@@ -113,7 +113,14 @@ export class FooterComponent implements OnInit, OnDestroy {
       type: CommandActions.SEND,
       payload: { name: 'clear-location-list', args: null }
     });
-    this.router.navigate(['main/home']);
+
+    this.contactSvc.find({ where: { accountId: this.account.id } }).subscribe((r: IContact[]) => {
+      if (r && r.length > 0 && r[0].location) {
+        this.router.navigate(['main/filter']);
+      } else {
+        this.router.navigate(['main/home']);
+      }
+    });
   }
 
   toOrder() {
@@ -181,7 +188,7 @@ export class FooterComponent implements OnInit, OnDestroy {
           if (r[0].phone) {
             self.router.navigate(['contact/list']);
           } else {
-            self.router.navigate(['contact/phone-form'], {queryParams: {fromPage: 'restaurant-detail'}});
+            self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
           }
 
         } else {
@@ -198,12 +205,12 @@ export class FooterComponent implements OnInit, OnDestroy {
             modified: new Date()
           });
           // self.contactSvc.save(contact).subscribe(() => {
-            self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
-            if (contact.phone) {
-              self.router.navigate(['contact/list']);
-            } else {
-              self.router.navigate(['contact/phone-form'], {queryParams: {fromPage: 'restaurant-detail'}});
-            }
+          self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
+          if (contact.phone) {
+            self.router.navigate(['contact/list']);
+          } else {
+            self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+          }
           // });
         }
       });

@@ -31,7 +31,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject<any>();
 
   constructor(
-    private fb: FormBuilder,
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     private contactSvc: ContactService,
@@ -40,10 +39,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute
   ) {
     this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
-
-    this.form = this.fb.group({
-      verificationCode: [''],
-    });
 
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,

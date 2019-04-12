@@ -260,7 +260,7 @@
       </trans-unit>
       <trans-unit id="Home" datatype="html">
         <source>Home</source>
-        <target>主页</target>
+        <target>首页</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/shared/header/header.component.ts</context>
           <context context-type="linenumber">11</context>

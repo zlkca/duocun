@@ -9,6 +9,7 @@ import { AccountService } from '../account/account.service';
 import { AuthService } from '../account/auth.service';
 import { RestaurantFilterPageComponent } from './restaurant-filter-page/restaurant-filter-page.component';
 import { MatSnackBarModule } from '../../../node_modules/@angular/material';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   imports: [
@@ -17,6 +18,7 @@ import { MatSnackBarModule } from '../../../node_modules/@angular/material';
     SharedModule,
     LocationModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule
   ],
   declarations: [
     HomeComponent,

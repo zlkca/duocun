@@ -51,6 +51,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   contact;
   inRange = false;
   onDestroy$ = new Subject<any>();
+  loading = false;
 
   constructor(
     private accountSvc: AccountService,
@@ -64,11 +65,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {
     const self = this;
+
     this.route.queryParamMap.pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(queryParams => {
       const code = queryParams.get('code');
       if (code) {
+        this.loading = true;
         this.accountSvc.wechatLogin(code).pipe(
           takeUntil(this.onDestroy$)
         ).subscribe((data: any) => {
@@ -101,9 +104,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         self.account = account;
         self.socketSvc.init(this.authSvc.getAccessToken());
         self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+
         this.snackBar.open('', '微信登录成功。', {
           duration: 1000
         });
+        self.loading = false;
 
         self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {
@@ -112,8 +117,9 @@ export class HomeComponent implements OnInit, OnDestroy {
               type: LocationActions.UPDATE,
               payload: self.contact.location
             });
-            this.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
-            this.router.navigate(['main/filter']);
+            self.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
+
+            self.router.navigate(['main/filter']);
           }
         });
       } else {

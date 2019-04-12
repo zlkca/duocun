@@ -18,7 +18,21 @@ $menu-height: 60px;
     height: 0px;
 }
 
+.loading-spinner{
+  width: 100%;
+  margin-top: 220px;
 
+  mat-spinner{
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .loading-text{
+    width: 90px;
+    font-size: 14px;
+    padding-top: 25px;
+    margin: auto;
+  }
+}
 
 @media #{$desktop}{
 
@@ -36,12 +50,24 @@ and (orientation: landscape) {
 
 @media #{$mobile}{
   .map-block{
+    padding-top: 200px;
+
     .background-img{
+      width: 90px;
+      margin-left: auto;
+      margin-right: auto;
       img {
-        width: 100%;
-        height: 100%;
+        width: 90px;
+        // height: 100%;
       }
     }
+  }
+
+  .slogan{
+    width: 100%;
+    padding-top: 100px;
+    text-align: center;
+    font-size: 14px;
   }
   
   .address-search-block{

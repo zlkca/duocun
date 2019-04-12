@@ -1,4 +1,4 @@
-<div class="page">
+<div class="page" *ngIf="!loading">
   <div class="location-list-block" *ngIf="showLocationList()">
     <app-location-list [account]="account" [places]="places"
       (placeSeleted)="onSelectPlace($event)">
@@ -7,9 +7,11 @@
 
   <div class="map-block" *ngIf="!showLocationList()">
     <div class="background-img" *ngIf="mapFullScreen">
-      <img src="assets/map.png" />
+      <img src="assets/logo.png" />
     </div>
   </div>
+
+  <div class="slogan" *ngIf="!showLocationList() ">多村外卖，免运费</div>
 
   <div class="input-group address-search-block">
     <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
@@ -21,4 +23,8 @@
         i18n="@@CurrentLocation">Current Location</button>
     </div>
   </div>
+</div>
+<div class="loading-spinner" *ngIf="loading">
+  <mat-spinner></mat-spinner>
+  <div class="loading-text">拼命加载中...</div>
 </div>
