@@ -7,12 +7,12 @@ import { Picture } from '../picture.model';
 export interface IOrder {
   clientId: number;
   username: string;
-  restaurantId: string;
-  workerId: string;
+  merchantId: string;
+  stuffId: string;
   status: string;
   clientStatus: string;
   workerStatus: string;
-  restaurantStatus: string;
+  merchantStatus: string;
   notes?: string;
   address: string;
   delivered?: Date;
@@ -31,12 +31,12 @@ export interface IOrder {
 export class Order implements IOrder {
   clientId: number;
   username: string;
-  restaurantId: string;
-  workerId: string;
+  merchantId: string;
+  stuffId: string;
   status: string;
   clientStatus: string;
   workerStatus: string;
-  restaurantStatus: string;
+  merchantStatus: string;
   notes: string;
   address: string;
   delivered: Date;

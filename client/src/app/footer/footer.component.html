@@ -1,5 +1,5 @@
 <footer *ngIf="!bHide">
-  <div class="row bottom-nav-menus" *ngIf="!bCart && !bPay">
+  <div class="row bottom-nav-menus" *ngIf="!bCart">
     <div class="menu" (click)="toHome()">
       <div class="icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
@@ -56,12 +56,5 @@
       ${{subtotal | number : '1.2-2'}}
     </div>
     <div class="title-md checkout-col" (click)="checkout()" i18n="@@Checkout">Check Out</div>
-  </div>
-
-  <div class="row checkout-row" *ngIf="bPay">
-    <div class="col-9 title-md amount-col">
-      ${{total | number : '1.2-2'}}
-    </div>
-    <div class="col-3 title-md pay-col" (click)="pay()" i18n="@@Submit">Submit</div>
   </div>
 </footer>

@@ -4,7 +4,7 @@ export interface ICartItem {
   productId: string;
   productName: string; // product name
   pictures: Picture[];
-  restaurantId: string;
+  merchantId: string;
   restaurantName: string;
   price: number;
   quantity: number;

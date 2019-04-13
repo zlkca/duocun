@@ -17,7 +17,7 @@ const ADD_IMAGE = 'add_photo.png';
 export class ProductListComponent implements OnInit {
   MEDIA_URL: string = environment.MEDIA_URL;
 
-  @Input() restaurantId;
+  @Input() merchantId;
   @Input() products: Product[];
   @Input() mode: string;
   @Output() select = new EventEmitter();
@@ -77,7 +77,7 @@ export class ProductListComponent implements OnInit {
 
   add() {
     // this.router.navigate(['admin/product']);
-    this.router.navigate(['admin/product'], { queryParams: { restaurant_id: this.restaurantId } });
+    this.router.navigate(['admin/product'], { queryParams: { restaurant_id: this.merchantId } });
   }
 
   delete(p) {

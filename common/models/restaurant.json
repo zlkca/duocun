@@ -41,12 +41,12 @@
     "products": {
       "type": "hasMany",
       "model": "Product",
-      "foreignKey": "restaurantId"
+      "foreignKey": "merchantId"
     },
     "orders": {
       "type": "hasMany",
       "model": "Order",
-      "foreignKey": "restaurantId"
+      "foreignKey": "merchantId"
     },
     "pictures": {
       "type": "hasMany",

@@ -150,6 +150,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       self.router.navigate(['contact/list']);
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
+    } else if (self.fromPage === 'restaurant-filter' ) {
+      self.router.navigate(['main/filter']);
     }
   }
 
@@ -191,6 +193,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       self.router.navigate(['contact/list']);
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
+    } else if (self.fromPage === 'restaurant-filter' ) {
+      self.router.navigate(['main/filter']);
     }
 
   }

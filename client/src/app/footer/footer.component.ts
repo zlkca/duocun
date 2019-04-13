@@ -25,7 +25,6 @@ export class FooterComponent implements OnInit, OnDestroy {
   year = 2018;
   account: Account;
   bCart = false;
-  bPay = false;
   bContact = false;
   total;
   quantity = 0;
@@ -63,17 +62,15 @@ export class FooterComponent implements OnInit, OnDestroy {
     ).subscribe(x => {
       if (x === 'restaurant-detail' || x === 'cart') {
         self.bCart = true;
-        self.bPay = false;
+        self.bHide = false;
       } else if (x === 'order-confirm') {
         self.bCart = false;
-        self.bPay = true;
+        self.bHide = true;
       } else if (x === 'contact-form' || x === 'phone-form' || x === 'address-form') {
         self.bCart = false;
-        self.bPay = false;
         self.bHide = true;
       } else {
         self.bCart = false;
-        self.bPay = false;
         self.bHide = false;
       }
     });
@@ -217,22 +214,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     }
   }
 
-  pay() {
-    if (this.account.type === 'user' || this.account.type === 'super') {
-      if (this.quantity > 0) {
-        this.rx.dispatch({
-          type: CommandActions.SEND,
-          payload: { name: 'pay', args: null }
-        });
-      }
-      this.bCart = false;
-      this.bPay = false;
-    } else {
-      this.bCart = false;
-      this.bPay = false;
-      this.router.navigate(['account/login']);
-    }
-  }
 
   // saveContact() {
   //   this.rx.dispatch({

@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-
-declare var moment: any;
-declare var io: any;
+import * as moment from 'moment';
 
 @Injectable()
 export class SharedService {
@@ -19,14 +17,6 @@ export class SharedService {
   getMsg(): Observable<any> {
     return this.subject.asObservable();
   }
-
-  // initSocket() {
-  //   const socket = io('http://localhost:3000');
-  //   socket.on('[POST]http://localhost:3000/api/Orders', function (data) {
-  //     console.log(data);
-  //     socket.emit('my other event', { my: 'data' });
-  //   });
-  // }
 
   // scale image inside frame
   resizeImage(frame_w: number, frame_h: number, w: number, h: number) {
@@ -47,6 +37,7 @@ export class SharedService {
     // s --- dd-mm-yyy:hh:mm:ss.z000
     return s.split('.')[0].replace('T', ' ');
   }
+
 
   getTotal(items) {
     let total = 0;

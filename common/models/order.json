@@ -10,7 +10,7 @@
       "type": "number",
       "required": true
     },
-    "restaurantId": {
+    "merchantId": {
       "type": "number",
       "required": true
     },
@@ -24,7 +24,7 @@
       "required": true,
       "default": ""
     },
-    "notes": {
+    "note": {
       "type": "string",
       "required": false,
       "default": ""
@@ -52,7 +52,7 @@
     "restaurant": {
       "type": "belongsTo",
       "model": "Restaurant",
-      "foreignKey": "restaurantId"
+      "foreignKey": "merchantId"
     },
     "items": {
       "type": "hasMany",

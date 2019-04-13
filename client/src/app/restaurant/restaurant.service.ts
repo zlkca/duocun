@@ -31,11 +31,11 @@ export class RestaurantService extends EntityService {
   }
 
   // create(restaurant: Restaurant): Observable<Restaurant> {
-  //   let restaurantId;
+  //   let merchantId;
   //   return this.restaurantApi.create(restaurant)
   //     .pipe(
   //       mergeMap((rest: Restaurant) => {
-  //         restaurantId = rest.id;
+  //         merchantId = rest.id;
   //         if (restaurant.pictures && restaurant.pictures.length) {
   //           return this.updateRestaurantImages(rest.id, restaurant.pictures);
   //         } else {
@@ -44,13 +44,13 @@ export class RestaurantService extends EntityService {
   //       }),
   //       mergeMap(() => {
   //         if (restaurant.address) {
-  //           return this.restaurantApi.createAddress(restaurantId, restaurant.address);
+  //           return this.restaurantApi.createAddress(merchantId, restaurant.address);
   //         } else {
   //           return new Observable(i => i.next());
   //         }
   //       }),
   //       mergeMap(() => {
-  //         return this.restaurantApi.findById(restaurantId, { include: ['pictures', 'address'] });
+  //         return this.restaurantApi.findById(merchantId, { include: ['pictures', 'address'] });
   //       })
   //     );
   // }
@@ -157,7 +157,7 @@ export class RestaurantService extends EntityService {
   //   return this.orderApi.onCreate([])
   //     .pipe(
   //       mergeMap((orders: Order[]) => {
-  //         if (orders[0] && orders[0].id && orders[0].restaurantId === id) {
+  //         if (orders[0] && orders[0].id && orders[0].merchantId === id) {
   //           return this.orderApi.findById(orders[0].id, filter);
   //         } else {
   //           return [];

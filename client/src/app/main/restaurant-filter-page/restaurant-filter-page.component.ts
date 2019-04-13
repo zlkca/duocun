@@ -166,4 +166,8 @@ export class RestaurantFilterPageComponent implements OnInit {
   showLocationList() {
     return this.places && this.places.length > 0;
   }
+
+  changeAddress() {
+    this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-filter' }});
+  }
 }

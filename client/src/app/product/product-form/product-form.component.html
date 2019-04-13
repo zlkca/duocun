@@ -18,7 +18,7 @@
     <div class="row">
         <div class="col-6">
           <div class="label-sm" i18n="@@Restaurant">Restaurant</div>
-          <select name="restaurant" formControlName="restaurantId">
+          <select name="restaurant" formControlName="merchantId">
               <option *ngFor="let m of restaurantList" [value]="m.id">{{m.name}}</option>
           </select>
         </div>

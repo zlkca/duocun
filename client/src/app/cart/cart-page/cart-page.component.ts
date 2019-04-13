@@ -67,7 +67,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
       payload: { productId: item.productId, productName: item.productName, price: item.price,
-        restaurantId: item.restaurantId, restaurantName: item.restaurantName  }
+        merchantId: item.merchantId, restaurantName: item.restaurantName  }
     });
   }
 
@@ -76,7 +76,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
       payload: { productId: item.productId, productName: item.productName, price: item.price,
-        restaurantId: item.restaurantId, restaurantName: item.restaurantName  }
+        merchantId: item.merchantId, restaurantName: item.restaurantName  }
     });
   }
 
@@ -84,7 +84,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     this.rx.dispatch({
       type: CartActions.UPDATE_QUANTITY,
       payload: { productId: item.productId, productName: item.productName, price: item.price,
-        restaurantId: item.restaurantId, restaurantName: item.restaurantName, quantity: item.quantity }
+        merchantId: item.merchantId, restaurantName: item.restaurantName, quantity: item.quantity }
     });
   }
 
@@ -103,23 +103,23 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   createOrders(cart: ICart) {
-    const ids = cart.items.map(x => x.restaurantId);
-    const restaurantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
+    const ids = cart.items.map(x => x.merchantId);
+    const merchantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
     const orders = [];
 
-    for (const id of restaurantIds) {
-      orders.push({ restaurantId: id, items: [], accountId: this.account.id });
+    for (const id of merchantIds) {
+      orders.push({ merchantId: id, items: [], accountId: this.account.id });
     }
 
     for (const item of cart.items) {
       for (const order of orders) {
-        if (item.restaurantId === order.restaurantId) {
+        if (item.merchantId === order.merchantId) {
           order.items.push({
             productName: item.productName,
             price: item.price,
             quantity: item.quantity,
             productId: item.productId,
-            restaurantId: item.restaurantId
+            merchantId: item.merchantId
           });
         }
       }

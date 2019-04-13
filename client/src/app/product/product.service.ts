@@ -254,6 +254,6 @@ export class ProductService extends EntityService {
   // }
 
   // findByRestaurant(resturantId): Observable<Product[]> {
-  //   return this.productApi.find({ where: {restaurantId: resturantId}, include: ['category', 'pictures'] });
+  //   return this.productApi.find({ where: {merchantId: resturantId}, include: ['category', 'pictures'] });
   // }
 }

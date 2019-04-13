@@ -106,11 +106,11 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
 
   addToCart(p: IProduct) {
     if (this.cart.items && this.cart.items.length > 0) {
-      if (p.restaurantId === this.cart.items[0].restaurantId) {
+      if (p.merchantId === this.cart.items[0].merchantId) {
         this.rx.dispatch({
           type: CartActions.ADD_TO_CART, payload:
             { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
-              restaurantId: p.restaurantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
+              merchantId: p.merchantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
         });
       } else {
         this.openDialog();
@@ -119,7 +119,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
       this.rx.dispatch({
         type: CartActions.ADD_TO_CART, payload:
           { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
-            restaurantId: p.restaurantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
+            merchantId: p.merchantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
       });
     }
   }
@@ -128,7 +128,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
       payload: { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
-         restaurantId: p.restaurantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
+         merchantId: p.merchantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
     });
   }
 

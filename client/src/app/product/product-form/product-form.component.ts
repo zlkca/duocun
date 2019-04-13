@@ -35,7 +35,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     name: new FormControl('', [Validators.required, Validators.minLength(3)]),
     description: new FormControl('', [Validators.maxLength(980)]),
     price: new FormControl(),
-    restaurantId: new FormControl(),
+    merchantId: new FormControl(),
     categoryId: new FormControl(),
   });
 
@@ -55,7 +55,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', Validators.maxLength(750)],
       price: ['', Validators.required],
-      restaurantId: ['', Validators.required],
+      merchantId: ['', Validators.required],
       categoryId: [''],
       // ownerId: new FormControl(),
     });
@@ -70,7 +70,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     this.form.get('name').setValue(this.product.name);
     this.form.get('description').setValue(this.product.description);
     this.form.get('price').setValue(this.product.price);
-    this.form.get('restaurantId').setValue(this.product.restaurantId);
+    this.form.get('merchantId').setValue(this.product.merchantId);
     this.form.get('categoryId').setValue(this.product.categoryId);
 
     this.restaurantSvc.find().subscribe(r => {
@@ -188,7 +188,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     const self = this;
     const newV = this.form.value;
     const p: Product = new Product(newV);
-    const restaurantId = p.restaurantId;
+    const merchantId = p.merchantId;
 
     p.id = self.product ? self.product.id : null;
     p.pictures = this.product.pictures;
@@ -197,7 +197,7 @@ export class ProductFormComponent implements OnInit, OnChanges {
     } else {
       this.productSvc.save(p).subscribe(r => {});
     }
-    self.afterSave.emit({ restaurant_id: restaurantId });
+    self.afterSave.emit({ restaurant_id: merchantId });
   }
 }
 

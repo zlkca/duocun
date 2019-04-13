@@ -23,7 +23,7 @@
     <div *ngIf="workers?.length" class="row">
       <div class="col-6">
         <div class="label-sm">Workers</div>
-        <select name="worker" formControlName="workerId">
+        <select name="worker" formControlName="stuffId">
           <option *ngFor="let w of workers" [value]="w.id">{{w.username}}</option>
         </select>
       </div>

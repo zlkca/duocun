@@ -190,7 +190,7 @@ app.delete('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
     });
 });
 app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
-    product.find({ restaurantId: req.params.id }).then((x) => {
+    product.find({ merchantId: req.params.id }).then((x) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
     });
@@ -247,10 +247,10 @@ app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
 });
 app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
     let d = req.body;
-    if (d.restaurantStatus === 'process') {
+    if (d.merchantStatus === 'process') {
         d.status = 'cooking';
     }
-    if (d.restaurantStatus === 'done') {
+    if (d.merchantStatus === 'done') {
         d.status = 'finished cooking';
     }
     if (d.workerStatus === 'process') {
@@ -261,7 +261,7 @@ app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
     }
     // fix me!!!
     user.findOne({ username: 'worker' }).then(worker => {
-        d.workerId = worker.id.toString();
+        d.stuffId = worker.id.toString();
         order.replaceById(req.body.id, d).then((x) => {
             res.setHeader('Content-Type', 'application/json');
             io.emit('updateOrders', x);

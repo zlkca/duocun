@@ -15,7 +15,7 @@ import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
   styleUrls: ['./delivery-date-list-page.component.scss']
 })
 export class DeliveryDateListPageComponent implements OnInit {
-  deliveryTime: IDeliveryTime = { type: '', text: '' };
+  deliveryTime: IDeliveryTime = { type: '', text: '', date: '', startTime: '', endTime: '' };
   deliveryDiscount = 2;
   orderDeadline = { h: 9, m: 30 };
   onDestroy$ = new Subject<any>();

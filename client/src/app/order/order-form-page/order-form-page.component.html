@@ -98,4 +98,11 @@
       </div>
     </div>
   </form>
+
+  <div class="row checkout-row">
+    <div class="col-9 title-md amount-col">
+      ${{total | number : '1.2-2'}}
+    </div>
+    <div class="col-3 title-md pay-col" (click)="pay()" i18n="@@Submit">Submit</div>
+  </div>
 </div>

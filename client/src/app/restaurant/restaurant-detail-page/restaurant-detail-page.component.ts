@@ -38,8 +38,8 @@ export class RestaurantDetailPageComponent implements OnInit {
   ngOnInit() {
     const self = this;
     self.route.params.subscribe(params => {
-      const restaurantId = params['id'];
-      self.restaurantSvc.findById(restaurantId, { include: ['pictures', 'address'] }).subscribe(
+      const merchantId = params['id'];
+      self.restaurantSvc.findById(merchantId, { include: ['pictures', 'address'] }).subscribe(
         (restaurant: Restaurant) => {
           self.restaurant = restaurant;
         },
@@ -48,8 +48,8 @@ export class RestaurantDetailPageComponent implements OnInit {
         }
       );
 
-      self.productSvc.find({where: {restaurantId: restaurantId}}).subscribe(products => {
-      // self.restaurantSvc.getProducts(restaurantId).subscribe(products => {
+      self.productSvc.find({where: {merchantId: merchantId}}).subscribe(products => {
+      // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
         self.groupedProducts = self.groupByCategory(products);
         const categoryIds = Object.keys(self.groupedProducts);
 

@@ -130,25 +130,25 @@ var createData = function(ds) {
       return ds.models.Product.create([
         {
           name: 'prod 1',
-          restaurantId: 1,
+          merchantId: 1,
           categoryId: 1,
           price: 13,
         },
         {
           name: 'prod 2',
-          restaurantId: 1,
+          merchantId: 1,
           categoryId: 1,
           price: 12,
         },
         {
           name: 'prod 3',
-          restaurantId: 1,
+          merchantId: 1,
           categoryId: 1,
           price: 4,
         },
         {
           name: 'prod 4',
-          restaurantId: 2,
+          merchantId: 2,
           categoryId: 1,
           price: 18,
         },
