@@ -20,7 +20,7 @@
 
     <div class="title-md restaurant" *ngIf="restaurant">{{restaurant.name}}</div>
     <div class="bg-light product-list" *ngIf="cart.items && cart.items.length>0">
-      <div *ngFor="let item of cart.items" class="text-sm row">
+      <div *ngFor="let item of items" class="text-sm row">
         <div class="col-6 product-col">{{item.productName}}</div>
         <div class="col-3 quantity-col">x{{item.quantity}}</div>
         <div class="col-3 price-col">${{item.price * item.quantity | number : '1.2-2'}}</div>
@@ -94,7 +94,7 @@
         <span i18n="@@NotesToMerchant">Notes to Merchant</span>:
       </div>
       <div class="row">
-        <textarea name="notes" formControlName="notes"></textarea>
+        <textarea name="note" formControlName="note"></textarea>
       </div>
     </div>
   </form>

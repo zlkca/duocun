@@ -11,6 +11,14 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
+import { ContactService } from '../../contact/contact.service';
+import { LocationService } from '../../location/location.service';
+import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
+import { ContactActions } from '../../contact/contact.actions';
+import { Contact, IContact } from '../../contact/contact.model';
+import { ILocation } from '../../location/location.model';
+import { RestaurantActions } from '../../restaurant/restaurant.actions';
+import { RestaurantService } from '../../restaurant/restaurant.service';
 
 @Component({
   selector: 'app-cart-page',
@@ -24,13 +32,19 @@ export class CartPageComponent implements OnInit, OnDestroy {
   account: Account;
   defaultProductPicture = window.location.protocol + '//placehold.it/400x300';
   private onDestroy$ = new Subject<void>();
+  carts;
+  location;
 
   @ViewChild('orderDetailModal') orderDetailModal;
 
   constructor(
     private rx: NgRedux<IAppState>,
-    private accountServ: AccountService,
-    private sharedSvc: SharedService
+    private accountSvc: AccountService,
+    private contactSvc: ContactService,
+    private locationSvc: LocationService,
+    private restaurantSvc: RestaurantService,
+    private sharedSvc: SharedService,
+    private router: Router
   ) {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
@@ -41,65 +55,118 @@ export class CartPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.rx.select<ICart>('cart').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe(
-      cart => {
-        this.total = 0;
-        this.quantity = 0;
-        this.cart = cart;
-        this.cart.items.map(x => {
-          this.total += x.price * x.quantity;
-          this.quantity += x.quantity;
-        });
+    ).subscribe((cart: ICart) => {
+      this.total = 0;
+      this.quantity = 0;
+      cart.items.map(x => {
+        this.total += x.price * x.quantity;
+        this.quantity += x.quantity;
       });
+      this.carts = this.groupItemsByRestaurant(cart.items);
+    });
 
-    this.accountServ.getCurrent().pipe(
+    this.accountSvc.getCurrent().pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((acc: Account) => {
-        console.log(acc);
-        this.account = acc;
-      });
+      this.account = acc;
+    });
+
+    this.rx.select('location').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((loc: ILocation) => {
+      this.location = loc;
+    });
   }
 
-
-
+  groupItemsByRestaurant(items: ICartItem[]) {
+    const groupedCarts = [];
+    items.map(item => {
+      const cart = groupedCarts.find(group => group.merchantId === item.merchantId);
+      if (cart) {
+        cart.productTotal += item.price * item.quantity;
+        cart.items.push(item);
+      } else {
+        groupedCarts.push({
+          merchantId: item.merchantId,
+          merchantName: item.merchantName,
+          productTotal: item.price * item.quantity,
+          items: [item]
+        });
+      }
+    });
+    return groupedCarts;
+  }
 
   addToCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
-      payload: { productId: item.productId, productName: item.productName, price: item.price,
-        merchantId: item.merchantId, restaurantName: item.restaurantName  }
+      payload: [{
+        productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
+        merchantId: item.merchantId, merchantName: item.merchantName
+      }]
     });
   }
-
 
   removeFromCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: { productId: item.productId, productName: item.productName, price: item.price,
-        merchantId: item.merchantId, restaurantName: item.restaurantName  }
+      payload: [{
+        productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
+        merchantId: item.merchantId, merchantName: item.merchantName
+      }]
     });
   }
 
-  updateQuantity(item: ICartItem) {
-    this.rx.dispatch({
-      type: CartActions.UPDATE_QUANTITY,
-      payload: { productId: item.productId, productName: item.productName, price: item.price,
-        merchantId: item.merchantId, restaurantName: item.restaurantName, quantity: item.quantity }
-    });
-  }
+  // cart --- grouped cart
+  checkout(cart: any) {
+    const self = this;
+    const account = this.account;
 
-  checkout() {
-    // const orders = this.createOrders(this.cart);
-    // if (orders[0].accountId) {
-    //   // this.modalServ.open(this.orderDetailModal);
-    //   this.router.navigate(['order/list-client']);
-    // } else {
-    //   this.router.navigate(['account/login']);
-    // }
+    if (this.quantity > 0) {
+      this.restaurantSvc.findById(cart.merchantId).subscribe(r => {
+        this.rx.dispatch({
+          type: RestaurantActions.UPDATE,
+          payload: r
+        });
+      });
+
+      self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+        if (r && r.length > 0) {
+
+          r[0].placeId = self.location.place_id;
+          r[0].location = self.location;
+          r[0].address = self.locationSvc.getAddrString(self.location);
+          r[0].modified = new Date();
+          this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
+
+          if (r[0].phone) {
+            self.router.navigate(['contact/list']);
+          } else {
+            self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+          }
+        } else {
+          const contact = new Contact({
+            accountId: account.id,
+            username: account.username,
+            phone: '', // account.phone,
+            placeId: self.location.place_id,
+            location: self.location,
+            unit: '',
+            buzzCode: '',
+            address: self.locationSvc.getAddrString(self.location),
+            created: new Date(),
+            modified: new Date()
+          });
+
+          self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
+          self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+        }
+      });
+    }
   }
 
   clearCart() {
-    this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
+    this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
   }
 
   createOrders(cart: ICart) {
@@ -108,7 +175,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     const orders = [];
 
     for (const id of merchantIds) {
-      orders.push({ merchantId: id, items: [], accountId: this.account.id });
+      orders.push({ merchantId: id, items: [], accountId: this.account.id, clientName: this.account.username });
     }
 
     for (const item of cart.items) {
@@ -138,6 +205,10 @@ export class CartPageComponent implements OnInit, OnDestroy {
     } else {
       return this.defaultProductPicture;
     }
+  }
+
+  onAfterCheckout(e) {
+    const self = this;
   }
 }
 

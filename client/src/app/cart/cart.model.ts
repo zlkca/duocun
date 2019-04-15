@@ -1,11 +1,11 @@
-import { Picture } from '../picture.model';
+// import { Picture } from '../picture.model';
 
 export interface ICartItem {
   productId: string;
   productName: string; // product name
-  pictures: Picture[];
+  // pictures: Picture[];
   merchantId: string;
-  restaurantName: string;
+  merchantName: string;
   price: number;
   quantity: number;
 }

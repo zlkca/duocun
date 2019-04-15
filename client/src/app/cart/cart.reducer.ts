@@ -3,57 +3,53 @@ import { ICart, ICartItem } from './cart.model';
 
 export interface ICartAction {
   type: string;
-  payload: ICartItem;
+  payload: ICartItem[];
 }
 
 export function cartReducer(state: ICart = { items: [] }, action: ICartAction) {
+  const items = [];
   if (action.payload) {
-    const payload = action.payload;
-    const item = state.items.find(x => x.productId === payload.productId);
+    // const payload = action.payload;
+    // const item = state.items.find(x => x.productId === payload.productId);
 
     switch (action.type) {
       case CartActions.ADD_TO_CART:
-        if (item) {
-          const newItems = state.items.map(x => {
-            if (x.productId === payload.productId) {
-              x.quantity = x.quantity + 1;
-            }
-            return x;
-          });
+        const itemsToAdd = action.payload;
+        itemsToAdd.map(itemToAdd => {
+          const x = state.items.find(item => item.productId === itemToAdd.productId);
+          if (x) {
+            items.push({ ...x, quantity: x.quantity + itemToAdd.quantity });
+          } else {
+            items.push({ ...itemToAdd });
+          }
+        });
 
-          return { ...state, items: newItems };
-        } else {
-          return {
-            ...state,
-            items: [...state.items, { ...action.payload, 'quantity': 1 }]
-          };
-        }
+        state.items.map(x => {
+          const it = items.find(y => y.productId === x.productId);
+          if (!it) {
+            items.push(x);
+          }
+        });
+
+        return {
+          ...state,
+          items: items
+        };
       case CartActions.REMOVE_FROM_CART:
-        if (item) {
-          const newItems = state.items.map(x => {
-            if (x.productId === payload.productId) {
-              x.quantity = x.quantity - 1;
-            }
-            return x;
-          });
-
-          return { ...state, items: newItems.filter(x => x.quantity > 0) };
-        } else {
-          return state;
-        }
-      case CartActions.UPDATE_QUANTITY:
-        if (item) {
-          const newItems = state.items.map(x => {
-            if (x.productId === payload.productId) {
-              x.quantity = payload.quantity;
-            }
-            return x;
-          });
-
-          return { ...state, items: newItems.filter(x => x.quantity > 0) };
-        } else {
-          return state;
-        }
+        const itemsToRemove: ICartItem[] = action.payload;
+        itemsToRemove.map((itemToRemove: ICartItem) => {
+          const x = state.items.find(item => item.productId === itemToRemove.productId);
+          if (x) {
+            items.push({ ...x, quantity: x.quantity - itemToRemove.quantity });
+          }
+        });
+        state.items.map(x => {
+          const it = items.find(y => y.productId === x.productId);
+          if (!it) {
+            items.push(x);
+          }
+        });
+        return { ...state, items: items.filter(x => x.quantity > 0) };
       case CartActions.CLEAR_CART:
         return { ...state, items: [] };
     }

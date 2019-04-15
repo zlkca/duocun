@@ -8,9 +8,10 @@ import { SharedService } from '../../shared/shared.service';
 import { Product, IProduct } from '../../product/product.model';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
-import { ICart } from '../../cart/cart.model';
+import { ICart, ICartItem } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
 import { WarningDialogComponent } from '../../shared/warning-dialog/warning-dialog.component';
+import { IRestaurant } from '../../restaurant/restaurant.model';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -29,6 +30,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   groupedOrders: any = {};
   private onDestroy$ = new Subject<void>();
 
+  @Input() restaurant: IRestaurant;
   @Input() categories;
   @Input() groupedProducts: Product[][];
   @Input() mode: string;
@@ -46,7 +48,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
         const categoryIds = Object.keys(this.groupedProducts);
         categoryIds.map(categoryId => {
           this.groupedOrders[categoryId].map(order => {
-            const cartItem = cart.items.find(item => item.productId === order.productId);
+            const cartItem: ICartItem = cart.items.find(item => item.productId === order.productId);
             order.quantity = cartItem ? cartItem.quantity : 0;
           });
         });
@@ -77,7 +79,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
         const products = this.groupedProducts[categoryId];
         const orders = [];
         products.map(product => {
-          const cartItem = this.cart.items.find(item => item.productId === product.id);
+          const cartItem: ICartItem = this.cart.items.find(item => item.productId === product.id);
           if (cartItem) {
             orders.push({ productId: product.id, quantity: cartItem.quantity });
           } else {
@@ -106,20 +108,16 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
 
   addToCart(p: IProduct) {
     if (this.cart.items && this.cart.items.length > 0) {
-      if (p.merchantId === this.cart.items[0].merchantId) {
-        this.rx.dispatch({
-          type: CartActions.ADD_TO_CART, payload:
-            { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
-              merchantId: p.merchantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
-        });
-      } else {
-        this.openDialog();
-      }
+      this.rx.dispatch({
+        type: CartActions.ADD_TO_CART, payload:
+          [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+            merchantId: p.merchantId, merchantName: this.restaurant.name }]
+      });
     } else {
       this.rx.dispatch({
         type: CartActions.ADD_TO_CART, payload:
-          { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
-            merchantId: p.merchantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
+          [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+            merchantId: p.merchantId, merchantName: this.restaurant.name }]
       });
     }
   }
@@ -127,8 +125,8 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   removeFromCart(p: IProduct) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: { productId: p.id, productName: p.name, price: p.price, pictures: p.pictures,
-         merchantId: p.merchantId, restaurantName: p.restaurant ? p.restaurant.name : '' }
+      payload: [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+         merchantId: p.merchantId, merchantName: this.restaurant.name }]
     });
   }
 

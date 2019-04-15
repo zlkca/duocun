@@ -1,6 +1,5 @@
-import { Restaurant } from '../restaurant/restaurant.model';
+
 import { GeoPoint } from '../location/location.model';
-import { Order } from '../order/order.model';
 export interface IAccount {
   type: string; // wechat, google, fb
   realm?: string;
@@ -15,8 +14,6 @@ export interface IAccount {
   imageurl?: string;
   unionid?: string; // wechat unionid
   accessTokens?: any[];
-  // restaurants?: Restaurant[];
-  // orders?: Order[];
   address?: IAddress;
 }
 
@@ -34,8 +31,6 @@ export class Account implements IAccount {
   imageurl?: string;
   unionid?: string; // wechat unionid
   accessTokens?: any[];
-  // restaurants?: Restaurant[];
-  // orders?: Order[];
   address?: Address;
   constructor(data?: IAccount) {
     Object.assign(this, data);

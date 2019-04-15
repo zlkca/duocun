@@ -47,6 +47,26 @@ export class SharedService {
     return total.toFixed(2);
   }
 
+
+  // type --- 'day', 'date', week', 'month', 'year', 12:00 am
+  getStartOf(type) {
+    return moment().startOf(type);
+  }
+
+  // type --- 'day', 'date', week', 'month', 'year', 23:59:59.999
+  getEndOf(type) {
+    return moment().endOf(type);
+  }
+
+  // offset 0 -- monday
+  getWeekday(date, offset) {
+    return date.weekday(offset);
+  }
+
+  formatDateTime(date) {
+    return date.format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
+  }
+
   getToday() {
     const m = moment(); // .utcOffset(0);
     return m.set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DDTHH:mm:ss') + '.000Z';

@@ -4,6 +4,9 @@ import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
 import { Order } from '../order.model';
 import { SocketService } from '../../shared/socket.service';
+import { NgRedux } from '../../../../node_modules/@angular-redux/store';
+import { IAppState } from '../../store';
+import { PageActions } from '../../main/main.actions';
 
 @Component({
   selector: 'app-order-history',
@@ -20,9 +23,13 @@ export class OrderHistoryComponent implements OnInit {
     private accountSvc: AccountService,
     private orderSvc: OrderService,
     private sharedSvc: SharedService,
-    private socketSvc: SocketService
+    private socketSvc: SocketService,
+    private rx: NgRedux<IAppState>
   ) {
-
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'order-history'
+    });
   }
 
   ngOnInit() {

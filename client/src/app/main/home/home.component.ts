@@ -23,6 +23,7 @@ import { ContactService } from '../../contact/contact.service';
 import { IContact, Contact } from '../../contact/contact.model';
 import { IContactAction } from '../../contact/contact.reducer';
 import { ContactActions } from '../../contact/contact.actions';
+import { CommandActions } from '../../shared/command.actions';
 
 declare var google;
 
@@ -66,6 +67,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {
     const self = this;
 
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: 'home'
+    });
+
     this.route.queryParamMap.pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(queryParams => {
@@ -86,11 +92,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.accountSvc.getCurrent().pipe(
           takeUntil(this.onDestroy$)
         ).subscribe(account => {
-          self.account = account;
-          self.socketSvc.init(this.authSvc.getAccessToken());
+          if (account) {
+            self.account = account;
+            self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
+            self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+            self.socketSvc.init(this.authSvc.getAccessToken());
+          }
         });
       }
     });
+
+
   }
 
   wechatLoginHandler(data: any) {
@@ -109,6 +121,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           duration: 1000
         });
         self.loading = false;
+        self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
 
         self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {

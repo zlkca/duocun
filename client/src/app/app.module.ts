@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { NgReduxModule, NgRedux } from '@angular-redux/store';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { rootReducer, INITIAL_STATE } from './store';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+// import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { CoreModule } from './core/core.module';
 import { AppComponent } from './app.component';
@@ -82,7 +82,7 @@ const appRoutes: Routes = [
             // { enableTracing: true } // <-- debugging purposes only
         ),
         // SDKBrowserModule.forRoot(), // for socket
-        NgbModule.forRoot(),
+        // NgbModule.forRoot(),
         NgReduxModule,
         BrowserAnimationsModule,
 

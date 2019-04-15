@@ -5,7 +5,8 @@ import { CartRoutingModule } from './cart-routing.module';
 import { CartPageComponent } from './cart-page/cart-page.component';
 import { SharedModule } from '../shared/shared.module';
 import { AccountService } from '../account/account.service';
-import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.component';
+import { CartNavbarComponent } from './cart-navbar/cart-navbar.component';
+import { RestaurantService } from '../restaurant/restaurant.service';
 
 @NgModule({
   imports: [
@@ -13,9 +14,16 @@ import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.
     CartRoutingModule,
     SharedModule
   ],
-  declarations: [CartPageComponent],
+  declarations: [
+    CartNavbarComponent,
+    CartPageComponent
+  ],
+  exports: [
+    CartNavbarComponent
+  ],
   providers: [
-    AccountService
+    AccountService,
+    RestaurantService
   ]
 })
 export class CartModule { }

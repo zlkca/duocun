@@ -712,7 +712,7 @@
       </trans-unit>
       <trans-unit id="Checkout" datatype="html">
         <source>Check out</source>
-        <target>下单</target>
+        <target>去结算</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/cart/cart.component.ts</context>
           <context context-type="linenumber">36</context>

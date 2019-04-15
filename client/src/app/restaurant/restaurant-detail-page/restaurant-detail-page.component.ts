@@ -3,11 +3,13 @@ import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../product/product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { Restaurant } from '../restaurant.model';
-import { Product, IProduct } from '../../product/product.model';
+import { IProduct } from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
 import { CategoryService } from '../../category/category.service';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
 
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -20,7 +22,8 @@ export class RestaurantDetailPageComponent implements OnInit {
   restaurant: any;
   subscription;
   cart;
-  tabs = [{ code: 'menu', text: 'Menu' }, { code: 'ratings', text: 'Rating' }, { code: 'about', text: 'About' }];
+  onDestroy$ = new Subject<any>();
+
   constructor(
     private productSvc: ProductService,
     private categorySvc: CategoryService,
@@ -29,15 +32,19 @@ export class RestaurantDetailPageComponent implements OnInit {
     private rx: NgRedux<IAppState>
     // private actions: CartActions
   ) {
+    const self = this;
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: 'restaurant-detail'
     });
+
   }
 
   ngOnInit() {
     const self = this;
-    self.route.params.subscribe(params => {
+    self.route.params.pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(params => {
       const merchantId = params['id'];
       self.restaurantSvc.findById(merchantId, { include: ['pictures', 'address'] }).subscribe(
         (restaurant: Restaurant) => {
@@ -98,5 +105,9 @@ export class RestaurantDetailPageComponent implements OnInit {
   //   this.bHideMap = false;
   //   this.bRestaurant = false;
   // }
+
+  onAfterCheckout(e) {
+
+  }
 }
 

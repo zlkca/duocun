@@ -1,0 +1,56 @@
+
+  // badge
+  .cart-row{
+    height: 60px;
+    margin: 0px;
+    
+    .fa-stack[data-count]:after{
+      position:absolute;
+      left: 45px;
+      top: 5px;
+      content: attr(data-count);
+      font-size:10px;
+      padding:.6em;
+      border-radius:999px;
+      line-height:.75em;
+      color: white;
+      background:rgba(255,0,0,.85);
+      text-align:center;
+      min-width:2em;
+      font-weight:bold;
+    }
+
+    .fa-stack{
+      margin-left: 5px;
+    }
+    .img-shopping-cart{
+      margin-left: 0px;
+    }
+
+    .cart-col, .amount-col{
+      height: 60px;
+      float: left;
+      padding-left:15px;
+    }
+
+    .checkout-col{
+      height: 60px;
+      float: left;
+      text-align: center;
+    }
+
+    .cart-col{
+      width: 80px;
+      border-right: solid 1px #ddd;
+      padding-top: 10px;
+    }
+    .amount-col{
+      padding-top: 15px;
+      border-right: solid 1px #ddd;
+      width: calc(100% - 175px);
+    }
+    .checkout-col{
+      width: 95px;
+      padding-top: 15px;
+    }
+  }

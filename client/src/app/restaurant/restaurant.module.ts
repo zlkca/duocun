@@ -11,7 +11,7 @@ import { RestaurantGridComponent } from './restaurant-grid/restaurant-grid.compo
 import { RestaurantService } from './restaurant.service';
 // import { LocationService } from '../shared/location/location.service';
 // import { ImageUploadModule } from 'angular2-image-upload';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+// import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
 import { RestaurantAboutComponent } from './restaurant-about/restaurant-about.component';
 import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-list-page.component';
@@ -22,11 +22,12 @@ import { ProductModule } from '../product/product.module';
 import { ProductService } from '../product/product.service';
 import { CategoryService } from '../category/category.service';
 import { OrderService } from '../order/order.service';
+import { CartModule } from '../cart/cart.module';
 
 @NgModule({
     imports: [
         CommonModule,
-        NgbModule,
+        // NgbModule,
         SharedModule,
         FormsModule,
         ReactiveFormsModule,
@@ -35,7 +36,8 @@ import { OrderService } from '../order/order.service';
         ProductModule,
         // OrderModule,
         // ImageUploadModule.forRoot(),
-        ImageUploaderModule
+        ImageUploaderModule,
+        CartModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     providers: [

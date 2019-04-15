@@ -3,18 +3,17 @@ import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { Subject, forkJoin } from '../../../../node_modules/rxjs';
 import { takeUntil, first } from '../../../../node_modules/rxjs/operators';
-import { ICart } from '../../cart/cart.model';
+import { ICart, ICartItem } from '../../cart/cart.model';
 import { IMall } from '../../mall/mall.model';
 import { IContact } from '../../contact/contact.model';
 import { Router } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { OrderService } from '../order.service';
-import { IOrder } from '../order.model';
+import { IOrder, IOrderItem } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
 import { AmountActions } from '../order.actions';
 import { IRestaurant } from '../../restaurant/restaurant.model';
-import { ICommand } from '../../shared/command.reducers';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { IDeliveryTime } from '../../delivery/delivery.model';
 import * as moment from 'moment';
@@ -29,7 +28,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   delivery;
   cart;
   subtotal;
-  quantity;
   total = 0;
   tips = 3;
   malls: IMall[] = [];
@@ -43,6 +41,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   form;
   account;
   deliveryDateTime: Date;
+  items: ICartItem[];
 
   constructor(
     private fb: FormBuilder,
@@ -53,7 +52,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   ) {
     const self = this;
     this.form = this.fb.group({
-      notes: ['']
+      note: ['']
     });
 
     this.rx.dispatch({
@@ -61,15 +60,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       payload: 'order-confirm'
     });
 
-    this.rx.select('restaurant').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((x: IRestaurant) => {
-      this.restaurant = x;
-    });
     this.rx.select('deliveryTime').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((x: IDeliveryTime) => {
-      self.deliveryDateTime =  self.getDateTime(x.date, x.startTime);
+      self.deliveryDateTime = self.getDateTime(x.date, x.startTime);
     });
     this.rx.select('account').pipe(
       takeUntil(this.onDestroy$)
@@ -92,11 +86,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.rx.select<IContact>('contact').pipe(
         first(),
         takeUntil(this.onDestroy$)
+      ),
+      this.rx.select<IRestaurant>('restaurant').pipe(
+        first(),
+        takeUntil(this.onDestroy$)
       )
     ]).subscribe(vals => {
       const malls = vals[0];
       const cart = vals[1];
       self.contact = vals[2];
+      self.restaurant = vals[3];
       if (malls && malls.length > 0) {
         this.malls = malls;
         this.fullDeliveryFee = Math.ceil(malls[0].fullDeliverFee * 100) / 100;
@@ -104,13 +103,15 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         this.deliveryDiscount = this.fullDeliveryFee - this.deliveryFee;
       }
       this.productTotal = 0;
-      this.quantity = 0;
       this.cart = cart;
+      this.items = [];
       const items = this.cart.items;
       if (items && items.length > 0) {
         items.map(x => {
-          this.productTotal += x.price * x.quantity;
-          this.quantity += x.quantity;
+          if (x.merchantId === self.restaurant.id) {
+            this.productTotal += x.price * x.quantity;
+            this.items.push(x);
+          }
         });
       }
       this.subtotal = this.productTotal + this.fullDeliveryFee;
@@ -118,7 +119,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.subtotal = this.subtotal + this.tax;
       this.total = this.subtotal - this.deliveryDiscount + this.tips;
 
-      this.rx.dispatch({ type: AmountActions.UPDATE, payload: {total: this.total}});
+      this.rx.dispatch({ type: AmountActions.UPDATE, payload: { total: this.total } });
     });
   }
 
@@ -138,77 +139,55 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return m.set({ hour: parseInt(hm[0], 10), minute: parseInt(hm[1], 10), second: 0, millisecond: 0 }).toDate();
   }
 
-  createOrders() {
+  createOrder(merchantId: string, contact: IContact, note: string) {
     const self = this;
-    const orders: any[] = []; // fix me
-    const v = this.form.value;
-    const items = this.cart ? this.cart.items : [];
-    const contact = this.contact;
-
-    if (items && items.length > 0) {
-      const ids = items.map(x => x.merchantId);
-      const merchantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
-
-      for (const id of merchantIds) {
-        orders.push({
-          merchantId: id,
-          items: [],
-          clientId: contact.accountId,
-          username: contact.username,
-          created: new Date(),
-          delivered: this.deliveryDateTime,
-          address: this.contact.address,
-          notes: v.notes,
-          restaurant: self.restaurant,
-          deliverFee: self.deliveryFee,
-          deliveryDiscount: self.deliveryDiscount,
-          total: self.total,
-          status: 'new',
-          clientStatus: 'new',
-          workerStatus: 'new',
-          merchantStatus: 'new',
-          stuffId: self.malls[0].workers[0] ? self.malls[0].workers[0].id : null // fix me
-        });
-      }
-
-      for (const item of items) {
-        for (const order of orders) {
-          if (item.merchantId === order.merchantId) {
-            order.items.push({
-              name: item.productName,
-              price: item.price,
-              quantity: item.quantity,
-              productId: item.productId
-            });
-          }
-        }
-      }
+    if (this.cart && this.cart.items && this.cart.items.length > 0) {
+      const items: IOrderItem[] = this.cart.items.filter(x => x.merchantId === merchantId);
+      const order: IOrder = {
+        clientId: contact.accountId,
+        clientName: contact.username,
+        merchantId: merchantId,
+        merchantName: self.restaurant.name,
+        items: items,
+        created: new Date(),
+        delivered: this.deliveryDateTime,
+        address: this.contact.address,
+        note: note,
+        deliveryFee: self.deliveryFee,
+        deliveryDiscount: self.deliveryDiscount,
+        total: self.total,
+        status: 'new',
+        clientStatus: 'new',
+        workerStatus: 'new',
+        merchantStatus: 'new',
+        stuffId: self.malls[0].workers[0] ? self.malls[0].workers[0].id : null // fix me
+      };
+      return order;
+    } else {
+      return null;
     }
-
-    return orders;
   }
 
   pay() {
+    const self = this;
     if (this.account) {
-      if (this.quantity > 0) {
-        const orders = this.createOrders();
-        const self = this;
-
-        if (orders && orders.length > 0) {
-          self.orderSvc.save(orders[0]).subscribe((order: IOrder) => {
-            // self.afterSubmit.emit(order);
-            this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: {} });
-            this.snackBar.open('', '您的订单已经成功提交。', {
-              duration: 1000
-            }); // Fix me
+      const v = this.form.value;
+      const order = this.createOrder(this.restaurant.id, this.contact, v.note);
+      if (order) {
+        self.orderSvc.save(order).subscribe((r: IOrder) => {
+          // self.afterSubmit.emit(order);
+          const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === this.restaurant.id);
+          this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });
+          this.snackBar.open('', '您的订单已经成功提交。', {
+            duration: 1000
+          }); // Fix me
           this.router.navigate(['home']);
-          });
-        }
+        });
+      } else {
+        this.snackBar.open('', '登录已过期，请重新从公众号进入', {
+          duration: 1000
+        });
       }
-    } else {
-      this.snackBar.open('', '登录已过期，请重新从公众号进入', {
-        duration: 1000
-      });
     }
   }
 }

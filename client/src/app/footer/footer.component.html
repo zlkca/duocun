@@ -1,5 +1,5 @@
 <footer *ngIf="!bHide">
-  <div class="row bottom-nav-menus" *ngIf="!bCart">
+  <div class="row bottom-nav-menus">
     <div class="menu" (click)="toHome()">
       <div class="icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
@@ -16,18 +16,14 @@
       </div>
       <div class="icon-text" i18n="@@Order">Order</div>
     </div>
+    
     <div class="menu" *ngIf="account && account.type !== 'super'" (click)="toCart()">
       <div class="icon">
         <img src="assets/outline-shopping_cart-24px.svg" alt="cart" />
       </div>
       <div class="icon-text" i18n="@@Cart">Cart</div>
     </div>
-    <!-- <div class="menu" *ngIf="account && account.type === 'super'" (click)="toAdmin()">
-      <div class="icon">
-        <img src="assets/outline-settings-24px.svg" alt="admin" />
-      </div>
-      <div class="icon-text" i18n="@@Admin">Admin</div>
-    </div> -->
+
     <div class="menu" (click)="toAccount()">
       <div class="icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
@@ -45,16 +41,5 @@
       <span class="created">Created by <a rel="nofollow" href="http://www.yocompute.com">yocompute.com</a></span>
   </div>
   
-  <div class="row cart-row" *ngIf="bCart">
-    <div class="cart-col" (click)="toCart()">
-      <span class="fa-stack fa-2x has-badge" [attr.data-count]="quantity">
-        <!-- <i class="fa fa-shopping-cart fa-3x"></i> -->
-        <img class="img-shopping-cart" src="assets/outline-shopping_cart-24px.svg" alt="cart" height="40px" width="40px" />
-      </span>
-    </div>
-    <div class="title-md amount-col">
-      ${{subtotal | number : '1.2-2'}}
-    </div>
-    <div class="title-md checkout-col" (click)="checkout()" i18n="@@Checkout">Check Out</div>
-  </div>
+
 </footer>

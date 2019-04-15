@@ -13,7 +13,7 @@
 
   <div class="slogan" *ngIf="!showLocationList() ">多村外卖，免运费</div>
 
-  <div class="input-group address-search-block">
+  <div class="input-group address-search-block" *ngIf="!loading">
     <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
       (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
       [value]="deliveryAddress"></app-address-input>

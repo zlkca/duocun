@@ -10,22 +10,15 @@
   }
 }
 
-.cart {
-  .title{
-    padding: 10px;
-    .title-left{
-      text-align: center;
-    }
-  }
-
+.cart-block {
+  padding: 10px 0px;
+  border-bottom: solid 1px #eee;
 
   .item-list{
-    .row{
-      margin: 0px;
-    }
     .item-row{
-      height: 110px;
-      padding: 4px 10px;
+      margin: 0px;
+      height: 100px;
+      padding: 10px;
 
       .image-col{
         height: 100%;
@@ -84,6 +77,17 @@
       background-color: #eee;
     }
   }
+
+  .cart-bottom{
+    padding-top:10px;
+
+    .price-col{
+      font-size: 20px;
+    }
+    .btn{
+      float: right;
+    }
+  }
 }
 
 .list-group-item {
@@ -114,4 +118,15 @@
             line-height: 20px;
         }
     }
+}
+
+app-cart-navbar{
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  height: 60px;
+  margin: 0px;
+  padding: 0px;
+  border-top: solid 1px #eee;
+  background-color: white;
 }

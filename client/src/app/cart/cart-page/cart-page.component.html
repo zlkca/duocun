@@ -2,26 +2,23 @@
   <div class="title-row">
     <span class="title-bg" i18n="@@ShoppingCart">Shopping Cart</span>
   </div>
-  <div class="empty-cart" *ngIf="!cart || !cart.items || cart.items.length==0">
+  <div class="empty-cart" *ngIf="!carts || carts.length==0">
       <div class="cart-image">
         <img src="assets/outline-shopping_cart-24px.svg" alt="cart" />
       </div>
       <span i18n="@@CartEmptyMsg">Your Cart is empty</span>
   </div>
 
-  <div class="cart" *ngIf="cart && cart.items && cart.items.length>0">
-      <!-- <div class="row title">
-        <div class="col-9 title-lg title-left" i18n="@@ShoppingCart">Shopping Cart</div>
-        <div class="col-3 title-sm pull-right" i18n="@@ClearCart" (click)="clearCart()">Clear</div>
-      </div> -->
-      <div class="container item-list">
-        <div *ngFor="let item of cart.items">
-          <div class="row item-row">
-            <div class="col-5 image-col">
+
+  <div *ngFor="let cart of carts">
+    <div class="cart-block" *ngIf="cart && cart.items && cart.items.length>0">
+      <div class="col-12 merchant-block">{{cart.merchantName}}</div>
+      <div class="item-list">
+        <div class="row item-row" *ngFor="let item of cart.items">
+            <div class="col-4 image-col">
               <img [src]="getProductImage(item)">
             </div>
-  
-            <div class="col-7 text-col">
+            <div class="col-8 text-col">
               <div class="col-12 name-row">
                 <div>{{item.productName}}</div>
               </div>
@@ -46,8 +43,15 @@
                 </div>
               </div>
             </div>
-          </div>
         </div>
       </div><!--end of item-list-->
+
+      <div class="row cart-bottom">
+        <div class="price-col col-8">${{cart.productTotal}}</div>
+        <div class="btn-block col-4">
+          <div class="btn btn-sm btn-primary" (click)="checkout(cart)" i18n="@@Checkout">Checkout</div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>

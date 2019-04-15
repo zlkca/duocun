@@ -22,10 +22,10 @@
               <span class="title-xs" i18n="@@Status">Status</span>:
               <span class="text-xs">{{order.status}}</span>
             </div> -->
-            <div class="col-12 col-sm-2" *ngIf="order.restaurant">
+            <div class="col-12 col-sm-2">
               <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
-              <span class="text-xs">{{order.restaurant.name}}</span>
-              <span class="text-xs">({{order.restaurant.address.sublocality? order.restaurant.address.sublocality : order.restaurant.address.city}})</span>
+              <span class="text-xs">{{order.merchantName}}</span>
+              <!-- <span class="text-xs">({{order.restaurant.address.sublocality? order.restaurant.address.sublocality : order.restaurant.address.city}})</span> -->
             </div>
             <!-- <div class="col-6 col-sm-2">
               <span class="title-xs" i18n="@@Customer">Customer</span>:
@@ -52,7 +52,7 @@
           <div class="row order-detail">
             <div class="col-7">
               <div *ngFor="let it of order.items">
-                <div class="text-xs">{{it.name}} x {{it.quantity}}</div>
+                <div class="text-xs">{{it.productName}} x {{it.quantity}}</div>
               </div>
             </div>
             <div class="col-5 text-sm total" *ngIf="order.total">
