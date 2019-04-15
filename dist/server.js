@@ -259,15 +259,20 @@ app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
     if (d.workerStatus === 'done') {
         d.status = 'delivered';
     }
-    // fix me!!!
-    user.findOne({ username: 'worker' }).then(worker => {
-        d.stuffId = worker.id.toString();
-        order.replaceById(req.body.id, d).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            io.emit('updateOrders', x);
-            res.end(JSON.stringify(x, null, 3));
-        });
+    order.replaceById(req.body.id, req.body).then((x) => {
+        res.setHeader('Content-Type', 'application/json');
+        io.emit('updateOrders', x);
+        res.end(JSON.stringify(x, null, 3));
     });
+    // fix me!!!
+    // user.findOne({username: 'worker'}).then(worker => {
+    //   d.stuffId = worker.id.toString();
+    //   order.replaceById(req.body.id, d).then((x: any) => {
+    //     res.setHeader('Content-Type', 'application/json');
+    //     io.emit('updateOrders', x);
+    //     res.end(JSON.stringify(x, null, 3));
+    //   });
+    // });
 });
 app.post('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
     order.insertOne(req.body).then((x) => {

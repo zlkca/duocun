@@ -4,9 +4,12 @@ import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
 import { Order } from '../order.model';
 import { SocketService } from '../../shared/socket.service';
-import { NgRedux } from '../../../../node_modules/@angular-redux/store';
+import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
+import { OrderActions } from '../order.actions';
+import { CartActions } from '../../cart/cart.actions';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-order-history',
@@ -24,7 +27,8 @@ export class OrderHistoryComponent implements OnInit {
     private orderSvc: OrderService,
     private sharedSvc: SharedService,
     private socketSvc: SocketService,
-    private rx: NgRedux<IAppState>
+    private rx: NgRedux<IAppState>,
+    private router: Router
   ) {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
@@ -77,6 +81,20 @@ export class OrderHistoryComponent implements OnInit {
       });
       self.orders = orders;
     });
+  }
+
+  canChange(order: Order) {
+    const deliverDate = this.sharedSvc.getDate(order.delivered);
+    const now = this.sharedSvc.getDate(new Date());
+    const allowDateTime = deliverDate.set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
+    return allowDateTime.isAfter(now);
+  }
+
+  changeOrder(order: Order) {
+    this.rx.dispatch({ type: OrderActions.UPDATE, payload: order });
+    this.rx.dispatch({ type: CartActions.UPDATE_BY_MERCHANT, payload: order.items });
+
+    this.router.navigate(['restaurant/list/' + order.merchantId]);
   }
 
   onSelect(c) {

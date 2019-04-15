@@ -22,11 +22,7 @@
               <span class="title-xs" i18n="@@Status">Status</span>:
               <span class="text-xs">{{order.status}}</span>
             </div> -->
-            <div class="col-12 col-sm-2">
-              <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
-              <span class="text-xs">{{order.merchantName}}</span>
-              <!-- <span class="text-xs">({{order.restaurant.address.sublocality? order.restaurant.address.sublocality : order.restaurant.address.city}})</span> -->
-            </div>
+
             <!-- <div class="col-6 col-sm-2">
               <span class="title-xs" i18n="@@Customer">Customer</span>:
               <span class="title-xs">{{order.username}}</span>
@@ -35,9 +31,20 @@
               <span class="title-xs" i18n="@@NotesToMerchant">Notes</span>:
               <span class="text-xs">{{(order.note)}}</span>
             </div> -->
-            <div class="col-12 col-sm-3">
-              <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
-              <span class="text-xs">{{toDateTimeString(order.created)}}</span>
+
+            <div class="col-9">
+              <div class="col-12 col-sm-2">
+                <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
+                <span class="text-xs">{{order.merchantName}}</span>
+                <!-- <span class="text-xs">({{order.restaurant.address.sublocality? order.restaurant.address.sublocality : order.restaurant.address.city}})</span> -->
+              </div>
+              <div class="col-12 col-sm-3">
+                <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
+                <span class="text-xs">{{toDateTimeString(order.created)}}</span>
+              </div>
+            </div>
+            <div class="col-3" *ngIf="canChange(order)">
+              <div class="btn btn-sm btn-primary btn-change" i18n="@@Change" (click)="changeOrder(order)">Change</div>
             </div>
             <!-- <div class="col-12 col-sm-3">
               <span class="title-xs" i18n="@@DeliverDate">Deliver Date</span>:
@@ -65,6 +72,8 @@
               <div class="btn btn-primary btn-xs pull-right" (click)="sendForDeliver(order)">Delivered</div>
             </div> -->
           </div>
+
+
         </div>
     </div>
   </div>

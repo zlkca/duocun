@@ -22,6 +22,16 @@
 
     .order-header{
         padding: 5px 0px;
+        .col-9 {
+          padding-left: 0px;
+        }
+        .col-3 {
+          padding-top: 4px;
+          padding-right: 0px;
+        }
+        .btn-change{
+          float: right;
+        }
     }
     .total{
         padding-top:8px;

@@ -4,10 +4,9 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
-import { IAmount } from '../../order/order.model';
 import { IContact, Contact } from '../../contact/contact.model';
 import { ContactService } from '../../contact/contact.service';
-import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
+import { Router } from '../../../../node_modules/@angular/router';
 import { LocationService } from '../../location/location.service';
 import { ContactActions } from '../../contact/contact.actions';
 import { ILocation } from '../../location/location.model';
@@ -21,7 +20,6 @@ export class CartNavbarComponent implements OnInit {
   onDestroy$ = new Subject<any>();
   quantity;
   productTotal;
-  total;
   location;
   account;
 
@@ -63,12 +61,6 @@ export class CartNavbarComponent implements OnInit {
         });
       }
     });
-
-    this.rx.select<IAmount>('amount').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((x: IAmount) => {
-      this.total = x ? x.total : 0;
-    });
   }
 
 
@@ -80,7 +72,7 @@ export class CartNavbarComponent implements OnInit {
     const self = this;
 
     if (this.quantity > 0) {
-      this.afterCheckout.emit({ total: this.total, productTotal: this.productTotal, quantity: this.quantity });
+      this.afterCheckout.emit({ productTotal: this.productTotal, quantity: this.quantity });
       const account = this.account;
       self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {

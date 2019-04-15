@@ -12,11 +12,11 @@ import { OrderService } from '../order.service';
 import { IOrder, IOrderItem } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
-import { AmountActions } from '../order.actions';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { IDeliveryTime } from '../../delivery/delivery.model';
 import * as moment from 'moment';
+import { OrderActions } from '../order.actions';
 
 @Component({
   selector: 'app-order-form-page',
@@ -42,6 +42,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   account;
   deliveryDateTime: Date;
   items: ICartItem[];
+  order: IOrder;
 
   constructor(
     private fb: FormBuilder,
@@ -69,6 +70,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((account: Account) => {
       this.account = account;
+    });
+    this.rx.select('order').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((order: IOrder) => {
+      this.order = order;
     });
   }
 
@@ -118,8 +124,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.tax = Math.ceil(this.subtotal * 13) / 100;
       this.subtotal = this.subtotal + this.tax;
       this.total = this.subtotal - this.deliveryDiscount + this.tips;
-
-      this.rx.dispatch({ type: AmountActions.UPDATE, payload: { total: this.total } });
     });
   }
 
@@ -172,21 +176,44 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     if (this.account) {
       const v = this.form.value;
-      const order = this.createOrder(this.restaurant.id, this.contact, v.note);
-      if (order) {
-        self.orderSvc.save(order).subscribe((r: IOrder) => {
-          // self.afterSubmit.emit(order);
-          const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === this.restaurant.id);
-          this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });
-          this.snackBar.open('', '您的订单已经成功提交。', {
+
+      if (this.order && this.order.id) {
+        const order = this.createOrder(this.restaurant.id, this.contact, v.note);
+        order.id = this.order.id;
+        order.created = this.order.created;
+        if (order) {
+          self.orderSvc.replace(order).subscribe((r: IOrder) => {
+            // self.afterSubmit.emit(order);
+            const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === this.restaurant.id);
+            this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });
+            this.rx.dispatch({ type: OrderActions.CLEAR, payload: null });
+            this.snackBar.open('', '您的订单已经成功修改。', {
+              duration: 1000
+            }); // Fix me
+            this.router.navigate(['home']);
+          });
+        } else {
+          this.snackBar.open('', '登录已过期，请重新从公众号进入', {
             duration: 1000
-          }); // Fix me
-          this.router.navigate(['home']);
-        });
+          });
+        }
       } else {
-        this.snackBar.open('', '登录已过期，请重新从公众号进入', {
-          duration: 1000
-        });
+        const order = this.createOrder(this.restaurant.id, this.contact, v.note);
+        if (order) {
+          self.orderSvc.save(order).subscribe((r: IOrder) => {
+            // self.afterSubmit.emit(order);
+            const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === this.restaurant.id);
+            this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });
+            this.snackBar.open('', '您的订单已经成功提交。', {
+              duration: 1000
+            }); // Fix me
+            this.router.navigate(['home']);
+          });
+        } else {
+          this.snackBar.open('', '登录已过期，请重新从公众号进入', {
+            duration: 1000
+          });
+        }
       }
     }
   }

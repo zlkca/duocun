@@ -1364,6 +1364,14 @@
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Change" datatype="html">
+        <source>Change</source>
+        <target>更改</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-history/order-history.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

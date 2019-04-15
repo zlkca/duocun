@@ -16,12 +16,12 @@ import { IContact } from './contact/contact.model';
 import { contactReducer } from './contact/contact.reducer';
 import { ICart } from './cart/cart.model';
 import { cartReducer } from './cart/cart.reducer';
-import { amountReducer } from './order/order.reducers';
-import { IAmount } from './order/order.model';
 import { restaurantReducer } from './restaurant/restaurant.reducer';
 import { IRestaurant } from './restaurant/restaurant.model';
 import { Account } from './account/account.model';
 import { deliveryTimeReducer } from './delivery/delivery-time.reducer';
+import { orderReducer } from './order/order.reducers';
+import { IOrder } from './order/order.model';
 
 export interface IAppState {
     cart: ICart;
@@ -35,7 +35,7 @@ export interface IAppState {
     malls: IMall[];
     delivery: IDelivery;
     contact: IContact;
-    amount: IAmount;
+    order: IOrder;
 }
 
 export const INITIAL_STATE: IAppState = {
@@ -50,7 +50,7 @@ export const INITIAL_STATE: IAppState = {
     malls: [DEFAULT_MALL],
     delivery: null,
     contact: null,
-    amount: null,
+    order: null,
 };
 
 // export function rootReducer(last:IAppState, action:Action):IAppState{
@@ -75,5 +75,5 @@ export const rootReducer = combineReducers({
     malls: mallReducer,
     delivery: deliveryReducer,
     contact: contactReducer,
-    amount: amountReducer
+    order: orderReducer
 });

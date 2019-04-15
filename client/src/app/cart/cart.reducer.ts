@@ -9,7 +9,6 @@ export interface ICartAction {
 export function cartReducer(state: ICart = { items: [] }, action: ICartAction) {
   const items = [];
   if (action.payload) {
-    // const payload = action.payload;
     // const item = state.items.find(x => x.productId === payload.productId);
 
     switch (action.type) {
@@ -50,6 +49,20 @@ export function cartReducer(state: ICart = { items: [] }, action: ICartAction) {
           }
         });
         return { ...state, items: items.filter(x => x.quantity > 0) };
+
+      case CartActions.UPDATE_BY_MERCHANT:
+        const merchantId = action.payload[0].merchantId;
+        state.items.map(x => {
+          if (x.merchantId !== merchantId) {
+            items.push(x);
+          }
+        });
+
+        return {
+          ...state,
+          items: [...items, ...action.payload]
+        };
+
       case CartActions.CLEAR_CART:
         return { ...state, items: [] };
     }

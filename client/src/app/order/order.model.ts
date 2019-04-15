@@ -6,17 +6,17 @@ import { Picture } from '../picture.model';
 
 export interface IOrder {
   id?: string;
-  clientId: string;
-  clientName: string;
-  merchantId: string;
-  merchantName: string;
-  stuffId: string;
-  status: string;
-  clientStatus: string;
-  workerStatus: string;
-  merchantStatus: string;
+  clientId?: string;
+  clientName?: string;
+  merchantId?: string;
+  merchantName?: string;
+  stuffId?: string;
+  status?: string;
+  clientStatus?: string;
+  workerStatus?: string;
+  merchantStatus?: string;
   note?: string;
-  address: string;
+  address?: string;
   delivered?: Date;
   created?: Date;
   modified?: Date;
@@ -76,6 +76,3 @@ export class OrderItem implements IOrderItem {
   }
 }
 
-export interface IAmount {
-  total?: number;
-}

@@ -67,9 +67,8 @@ export class SharedService {
     return date.format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
   }
 
-  getToday() {
-    const m = moment(); // .utcOffset(0);
-    return m.set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
+  getDate(date: Date) {
+    return moment(date);
   }
 
   getTodayString() {
