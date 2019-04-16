@@ -133,7 +133,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
       self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
 
-          r[0].placeId = self.location.place_id;
+          r[0].placeId = self.location.placeId;
           r[0].location = self.location;
           r[0].address = self.locationSvc.getAddrString(self.location);
           r[0].modified = new Date();
@@ -149,7 +149,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
             accountId: account.id,
             username: account.username,
             phone: '', // account.phone,
-            placeId: self.location.place_id,
+            placeId: self.location.placeId,
             location: self.location,
             unit: '',
             buzzCode: '',

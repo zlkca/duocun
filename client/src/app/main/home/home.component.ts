@@ -72,36 +72,49 @@ export class HomeComponent implements OnInit, OnDestroy {
       payload: 'home'
     });
 
-    this.route.queryParamMap.pipe(
+    self.route.queryParamMap.pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(queryParams => {
       const code = queryParams.get('code');
-      if (code) {
-        this.loading = true;
-        this.accountSvc.wechatLogin(code).pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe((data: any) => {
-          if (data) {
-            self.wechatLoginHandler(data);
-          } else { // failed from shared link login
-            // tslint:disable-next-line:max-line-length
-            window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0591bdd165898739&redirect_uri=https://duocun.com.cn&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
-          }
-        });
-      } else { // no code in router
-        this.accountSvc.getCurrent().pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe(account => {
-          if (account) {
-            self.account = account;
-            self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
-            self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-            self.socketSvc.init(this.authSvc.getAccessToken());
-          }
-        });
-      }
-    });
 
+      self.accountSvc.getCurrent().pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe(account => {
+        if (account) {
+          self.account = account;
+          self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
+          self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+          self.socketSvc.init(this.authSvc.getAccessToken());
+        } else {
+          if (code) {
+            this.loading = true;
+            this.accountSvc.wechatLogin(code).pipe(
+              takeUntil(this.onDestroy$)
+            ).subscribe((data: any) => {
+              if (data) {
+                self.wechatLoginHandler(data);
+              } else { // failed from shared link login
+                // tslint:disable-next-line:max-line-length
+                window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0591bdd165898739&redirect_uri=https://duocun.com.cn&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
+              }
+            });
+          } else { // no code in router
+            // this.accountSvc.getCurrent().pipe(
+            //   takeUntil(this.onDestroy$)
+            // ).subscribe(account => {
+            //   if (account) {
+            //     self.account = account;
+            //     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
+            //     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+            //     self.socketSvc.init(this.authSvc.getAccessToken());
+            //   }
+            // });
+          }
+        }
+      }, err => {
+        console.log('login failed');
+      });
+    });
 
   }
 
@@ -230,7 +243,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       // fix me!!!
       // if (self.account) {
       //   self.locationSvc.save({ userId: self.account.id, type: 'history',
-      //     placeId: r.place_id, location: r, created: new Date() }).subscribe(x => {
+      //     placeId: r.placeId, location: r, created: new Date() }).subscribe(x => {
       //   });
       // }
     },

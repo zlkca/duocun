@@ -23,6 +23,9 @@ import { ProductService } from '../product/product.service';
 import { CategoryService } from '../category/category.service';
 import { OrderService } from '../order/order.service';
 import { CartModule } from '../cart/cart.module';
+import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.component';
+import { MatDialogModule } from '../../../node_modules/@angular/material';
+import { DistanceService } from '../location/distance.service';
 
 @NgModule({
     imports: [
@@ -32,6 +35,7 @@ import { CartModule } from '../cart/cart.module';
         FormsModule,
         ReactiveFormsModule,
         MatTabsModule,
+        MatDialogModule,
         RestaurantRoutingModule,
         ProductModule,
         // OrderModule,
@@ -44,7 +48,8 @@ import { CartModule } from '../cart/cart.module';
       RestaurantService,
       ProductService,
       CategoryService,
-      OrderService
+      OrderService,
+      DistanceService
     ],
     declarations: [
       RestaurantGridComponent,
@@ -55,6 +60,7 @@ import { CartModule } from '../cart/cart.module';
     exports: [
       RestaurantGridComponent,
       RestaurantAboutComponent
-    ]
+    ],
+    entryComponents: [WarningDialogComponent]
 })
 export class RestaurantModule { }

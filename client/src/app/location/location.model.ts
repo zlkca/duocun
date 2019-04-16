@@ -7,15 +7,15 @@ export interface GeoPoint  {
 }
 
 export interface ILocation {
-  place_id: string;
-  city: string;
+  placeId: string;
+  city?: string;
   lat: number;
   lng: number;
-  postal_code: string;
-  province: string;
-  street_name: string;
-  street_number: string;
-  sub_locality: string;
+  postalCode?: string;
+  province?: string;
+  streetName?: string;
+  streetNumber?: string;
+  subLocality?: string;
 }
 
 export interface ILatLng {
@@ -36,7 +36,7 @@ export interface IPlace {
   id?: string;
   type?: string;
   description?: string;
-  place_id?: string;
+  placeId?: string;
   structured_formatting: IStructuredAddress;
   terms?: IPlaceTerm[];
   location?: ILocation;
@@ -64,10 +64,20 @@ export interface IPair {
   text: string;
 }
 
-export interface IDistance {
-  origin: ILocation;
-  destination: ILocation;
-  status: string;
+export interface IDistanceElement {
+  status?: string;
   duration: IPair;
   distance: IPair;
 }
+
+export interface IDistance {
+  originPlaceId: string;
+  destinationPlaceId: string;
+  origin: ILocation;
+  destination: ILocation;
+  element: IDistanceElement;
+}
+      // placeId: origin.placeId,
+      // origin: origin,
+      // destination: req.body.destinations[i], // destination is mall
+      // element: rows[0].elements,

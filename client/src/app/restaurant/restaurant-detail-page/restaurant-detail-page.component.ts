@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
+
 import { ProductService } from '../../product/product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { Restaurant } from '../restaurant.model';
@@ -10,26 +12,30 @@ import { PageActions } from '../../main/main.actions';
 import { CategoryService } from '../../category/category.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
+import { WarningDialogComponent } from '../../shared/warning-dialog/warning-dialog.component';
+import { MatDialog } from '../../../../node_modules/@angular/material';
 
 @Component({
   selector: 'app-restaurant-detail-page',
   templateUrl: './restaurant-detail-page.component.html',
   styleUrls: ['./restaurant-detail-page.component.scss']
 })
-export class RestaurantDetailPageComponent implements OnInit {
+export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
   categories;
   groupedProducts: any = [];
   restaurant: any;
   subscription;
   cart;
   onDestroy$ = new Subject<any>();
-
+  locationSubscription;
   constructor(
     private productSvc: ProductService,
     private categorySvc: CategoryService,
     private restaurantSvc: RestaurantService,
     private route: ActivatedRoute,
-    private rx: NgRedux<IAppState>
+    private rx: NgRedux<IAppState>,
+    private location: Location,
+    public dialog: MatDialog
     // private actions: CartActions
   ) {
     const self = this;
@@ -38,6 +44,13 @@ export class RestaurantDetailPageComponent implements OnInit {
       payload: 'restaurant-detail'
     });
 
+    this.locationSubscription = this.location.subscribe((x) => {
+      if (window.location.pathname.indexOf('restaurant/list') !== -1) {
+        // alert(x);
+        // window.history.forward();
+        this.openDialog();
+      }
+    });
   }
 
   ngOnInit() {
@@ -65,6 +78,22 @@ export class RestaurantDetailPageComponent implements OnInit {
           self.categories = res;
         });
       });
+    });
+  }
+
+  ngOnDestroy() {
+    this.locationSubscription.unsubscribe();
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
+
+  openDialog(): void {
+    const dialogRef = this.dialog.open(WarningDialogComponent, {
+      width: '250px',
+      data: {title: '提示', content: '离开后将清空购物车。'}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
     });
   }
 

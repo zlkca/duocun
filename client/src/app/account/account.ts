@@ -25,10 +25,10 @@ export class User {
 export class Address {
     id: string;
     street: string;
-    postal_code: string;
+    postalCode: string;
     province: string;
     city: string;
-    sub_locality: string;
+    subLocality: string;
     lat: string;
     lng: string;
 
@@ -36,10 +36,10 @@ export class Address {
         if (o) {
             this.id = o.id;
             this.street = o.street;
-            this.postal_code = o.postal_code;
+            this.postalCode = o.postalCode;
             this.province = o.province;
             this.city = o.city;
-            this.sub_locality = o.sub_locality;
+            this.subLocality = o.subLocality;
             this.lat = o.lat;
             this.lng = o.lng;
         }

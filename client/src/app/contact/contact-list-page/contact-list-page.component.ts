@@ -102,7 +102,7 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
       payload: contact
     });
 
-    self.mallSvc.calcMalls({ lat: contact.location.lat, lng: contact.location.lng }, self.deliverTimeType).then((malls: IMall[]) => {
+    self.mallSvc.calcMalls(contact.location, self.deliverTimeType).then((malls: IMall[]) => {
       self.malls = malls;
       self.rx.dispatch({
         type: MallActions.UPDATE,

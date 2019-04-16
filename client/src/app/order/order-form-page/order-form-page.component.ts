@@ -103,7 +103,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       self.contact = vals[2];
       self.restaurant = vals[3];
       if (malls && malls.length > 0) {
-        this.malls = malls;
+        this.malls = malls; // fix me
         this.fullDeliveryFee = Math.ceil(malls[0].fullDeliverFee * 100) / 100;
         this.deliveryFee = Math.ceil(malls[0].deliverFee * 100) / 100; // fix me
         this.deliveryDiscount = this.fullDeliveryFee - this.deliveryFee;

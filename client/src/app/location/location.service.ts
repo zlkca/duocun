@@ -37,10 +37,10 @@ export class LocationService extends EntityService {
     return this.http.post(this.url, locationHistory);
   }
 
-  // query -- { where: { userId: self.account.id, placeId: r.place_id }}
+  // query -- { where: { userId: self.account.id, placeId: r.placeId }}
   // lh --- {
   //   userId: self.account.id, type: 'history',
-  //   placeId: r.place_id, location: r, created: new Date()
+  //   placeId: r.placeId, location: r, created: new Date()
   // }
   saveIfNot(query, lh: ILocationHistory): Observable<any> {
     return this.find(query).pipe(
@@ -140,29 +140,29 @@ getLocationFromGeocode(geocodeResult): ILocation {
   const oLocation = geocodeResult.geometry.location;
   if (addr && addr.length) {
     const loc: ILocation = {
-      place_id: geocodeResult.place_id,
-      street_number: '',
-      street_name: '',
-      sub_locality: '',
+      placeId: geocodeResult.place_id,
+      streetNumber: '',
+      streetName: '',
+      subLocality: '',
       city: '',
       province: '',
-      postal_code: '',
+      postalCode: '',
       lat: typeof oLocation.lat === 'function' ? oLocation.lat() : oLocation.lat,
       lng: typeof oLocation.lng === 'function' ? oLocation.lng() : oLocation.lng
     };
 
     addr.forEach(compo => {
       if (compo.types.indexOf('street_number') !== -1) {
-        loc.street_number = compo.long_name;
+        loc.streetNumber = compo.long_name;
       }
       if (compo.types.indexOf('route') !== -1) {
-        loc.street_name = compo.long_name;
+        loc.streetName = compo.long_name;
       }
       if (compo.types.indexOf('postal_code') !== -1) {
-        loc.postal_code = compo.long_name;
+        loc.postalCode = compo.long_name;
       }
       if (compo.types.indexOf('sublocality_level_1') !== -1 && compo.types.indexOf('sublocality') !== -1) {
-        loc.sub_locality = compo.long_name;
+        loc.subLocality = compo.long_name;
       }
       if (compo.types.indexOf('locality') !== -1) {
         loc.city = compo.long_name;
@@ -178,9 +178,9 @@ getLocationFromGeocode(geocodeResult): ILocation {
 }
 
 getAddrString(location: ILocation) {
-  const city = location.sub_locality ? location.sub_locality : location.city;
-  return location.street_number + ' ' + location.street_name + ', ' + city + ', ' + location.province;
-  // + ', ' + location.postal_code;
+  const city = location.subLocality ? location.subLocality : location.city;
+  return location.streetNumber + ' ' + location.streetName + ', ' + city + ', ' + location.province;
+  // + ', ' + location.postalCode;
 }
 
 getAddrStringByPlace(place) {
@@ -197,7 +197,8 @@ getAddrStringByPlace(place) {
   }
 }
 
-getRoadDistances(origin: ILatLng, destinations: IMall[]): Observable < any > { // IDistance[]
+// 
+reqRoadDistances(origin: ILocation, destinations: ILocation[]): Observable < any > { // IDistance[]
   const url = super.getBaseUrl() + 'distances';
   return this.http.post(url, { origins: [origin], destinations: destinations });
 }
@@ -235,8 +236,8 @@ getHistoryLocations(accountId: string): Promise < IPlace[] > {
         const p: IPlace = {
           type: 'history',
           structured_formatting: {
-            main_text: loc.street_number + ' ' + loc.street_name,
-            secondary_text: (loc.sub_locality ? loc.sub_locality : loc.city) + ',' + loc.province
+            main_text: loc.streetNumber + ' ' + loc.streetName,
+            secondary_text: (loc.subLocality ? loc.subLocality : loc.city) + ',' + loc.province
           },
           location: loc
         };

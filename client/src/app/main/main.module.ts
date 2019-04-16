@@ -8,8 +8,9 @@ import { SharedModule } from '../shared/shared.module';
 import { AccountService } from '../account/account.service';
 import { AuthService } from '../account/auth.service';
 import { RestaurantFilterPageComponent } from './restaurant-filter-page/restaurant-filter-page.component';
-import { MatSnackBarModule } from '../../../node_modules/@angular/material';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   imports: [
@@ -18,7 +19,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     SharedModule,
     LocationModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatButtonModule
   ],
   declarations: [
     HomeComponent,

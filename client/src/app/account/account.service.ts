@@ -2,6 +2,7 @@ import { throwError as observableThrowError, Observable } from 'rxjs';
 import { map, catchError, mergeMap, flatMap } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { empty, of } from 'rxjs';
 
 
 import { environment } from '../../environments/environment';
@@ -61,20 +62,25 @@ export class AccountService extends EntityService {
   // return Account object or null
   getCurrentUser(): Observable<any> {
     const id: any = this.authSvc.getUserId();
-    const url = id ? (this.url + '/' + id) : (this.url + '/__anonymous__');
-    return this.http.get(url);
+    // const url = id ? (this.url + '/' + id) : (this.url + '/__anonymous__');
+    if (id) {
+      return this.http.get(this.url + '/' + id);
+    } else {
+      return of(null);
+    }
   }
 
   getCurrent(forceGet: boolean = false): Observable<Account> {
     const self = this;
     const state: any = this.ngRedux.getState();
     if (!state || !state.account.id || forceGet) {
-      return this.getCurrentUser().pipe(
-        flatMap((acc: Account) => {
-          self.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
-          return new Observable(observer => observer.next(acc));
-        })
-      );
+      return this.getCurrentUser();
+      // .pipe(
+      //   flatMap((acc: Account) => {
+      //     self.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
+      //     return new Observable(observer => observer.next(acc));
+      //   })
+      // );
     } else {
       return this.ngRedux.select<Account>('account');
     }
@@ -91,7 +97,7 @@ export class AccountService extends EntityService {
     if (filter) {
       headers = headers.append('filter', JSON.stringify(filter));
     }
-    return this.http.get(this.url, {headers: headers});
+    return this.http.get(this.url, { headers: headers });
   }
 
   // override method
@@ -107,7 +113,7 @@ export class AccountService extends EntityService {
       headers = headers.append('filter', JSON.stringify(filter));
     }
     const url = id ? (this.url + '/' + id) : (this.url + '/__anonymous__');
-    return this.http.get(url, {headers: headers});
+    return this.http.get(url, { headers: headers });
   }
 
   create(account: Account): Observable<any> {

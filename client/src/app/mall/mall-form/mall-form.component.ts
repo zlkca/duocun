@@ -32,7 +32,7 @@ export class MallFormComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', Validators.maxLength(750)],
       // street: ['', Validators.required],
-      // postal_code:['', Validators.required]
+      // postalCode:['', Validators.required]
       address: this.fb.group({
         // street: ['', [Validators.required]],
         unit: ['', [Validators.required]],
@@ -47,7 +47,7 @@ export class MallFormComponent implements OnInit {
     this.location = e.addr;
     this.address = e.sAddr;
     if (this.location) {
-      this.form.get('address').patchValue({ postalCode: this.location.postal_code });
+      this.form.get('address').patchValue({ postalCode: this.location.postalCode });
     }
 
     // this.sharedSvc.emitMsg({ name: 'OnUpdateAddress', addr: e.addr });
@@ -89,12 +89,12 @@ export class MallFormComponent implements OnInit {
 
 //   currentAccount: Account;
 //   location = { // ILocation
-//     street_name: '',
-//     street_number: '',
-//     sub_locality: '',
+//     streetName: '',
+//     streetNumber: '',
+//     subLocality: '',
 //     city: '',
 //     province: '',
-//     postal_code: '',
+//     postalCode: '',
 //     lat: 0,
 //     lng: 0
 //   };
@@ -138,10 +138,10 @@ export class MallFormComponent implements OnInit {
 //       if (this.restaurant.address) {
 //         const addr = this.restaurant.address;
 //         this.location.city = addr.city;
-//         this.location.street_name = addr.streetName;
-//         this.location.street_number = addr.streetNumber;
-//         this.location.sub_locality = addr.sublocality;
-//         this.location.postal_code = addr.postalCode;
+//         this.location.streetName = addr.streetName;
+//         this.location.streetNumber = addr.streetNumber;
+//         this.location.subLocality = addr.sublocality;
+//         this.location.postalCode = addr.postalCode;
 //         this.location.province = addr.province;
 //         this.location.lat = this.restaurant.location.lat;
 //         this.location.lng = this.restaurant.location.lng;
@@ -204,10 +204,10 @@ export class MallFormComponent implements OnInit {
 //       const addr = changes.restaurant.currentValue.address;
 //       if (addr) {
 //         this.location.city = addr.city;
-//         this.location.street_name = addr.streetName;
-//         this.location.street_number = addr.streetNumber;
-//         this.location.sub_locality = addr.sublocality;
-//         this.location.postal_code = addr.postalCode;
+//         this.location.streetName = addr.streetName;
+//         this.location.streetNumber = addr.streetNumber;
+//         this.location.subLocality = addr.sublocality;
+//         this.location.postalCode = addr.postalCode;
 //         this.location.province = addr.province;
 //         this.location.lat = restaurant.location.lat;
 //         this.location.lng = restaurant.location.lng;
@@ -288,14 +288,14 @@ export class MallFormComponent implements OnInit {
 //   //   restaurant.location = { lat: this.location.lat, lng: this.location.lng };
 //   //   restaurant.address = new Address({
 //   //     id: this.restaurant.address ? this.restaurant.address.id : null,
-//   //     streetName: this.location.street_name,
-//   //     streetNumber: this.location.street_number,
-//   //     sublocality: this.location.sub_locality,
+//   //     streetName: this.location.streetName,
+//   //     streetNumber: this.location.streetNumber,
+//   //     sublocality: this.location.subLocality,
 //   //     city: this.location.city,
 //   //     province: this.location.province,
 //   //     formattedAddress: this.locationSvc.getAddrString(this.location),
 //   //     unit: this.form.get('address').get('unit').value,
-//   //     postalCode: this.location.postal_code,
+//   //     postalCode: this.location.postalCode,
 //   //     location: {
 //   //       lat: this.location.lat,
 //   //       lng: this.location.lng
@@ -329,14 +329,14 @@ export class MallFormComponent implements OnInit {
 //     restaurant.location = { lat: this.location.lat, lng: this.location.lng };
 //     restaurant.address = new Address({
 //       id: this.restaurant.address ? this.restaurant.address.id : null,
-//       streetName: this.location.street_name,
-//       streetNumber: this.location.street_number,
-//       sublocality: this.location.sub_locality,
+//       streetName: this.location.streetName,
+//       streetNumber: this.location.streetNumber,
+//       sublocality: this.location.subLocality,
 //       city: this.location.city,
 //       province: this.location.province,
 //       formattedAddress: '', // this.locationSvc.getAddrString(this.location),
 //       unit: this.form.get('address').get('unit').value,
-//       postalCode: this.location.postal_code,
+//       postalCode: this.location.postalCode,
 //       // location: {
 //       //   lat: this.location.lat,
 //       //   lng: this.location.lng

@@ -232,7 +232,7 @@ body{
     height: 80px;
   }
 
-  input, button, select {
+  input, select {
     height: $item-height;
   }
 
@@ -425,7 +425,7 @@ body{
 
 .pac-container:after{display:none !important;}
 
-input, textarea, button, select{
+input, textarea, select{
   border-radius: 0;
   -webkit-border-radius: 0;
   -moz-border-radius: 0;

@@ -9,11 +9,12 @@ export interface IUserBase {
 
 export interface IMall {
   id?: string;
-  name: string;
+  name?: string;
   description?: string;
-  type: string;
-  lat: number;
-  lng: number;
+  type?: string;
+  placeId?: string;
+  lat?: number;
+  lng?: number;
   radius?: number; // m
   restaurants?: IEntityBase[];
   workers?: IUserBase[];
@@ -30,6 +31,7 @@ export class Mall implements IMall {
   name: string;
   description?: string;
   type: string;
+  placeId?: string;
   lat: number;
   lng: number;
   radius: number; // m

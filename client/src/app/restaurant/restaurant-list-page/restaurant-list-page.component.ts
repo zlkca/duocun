@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { Restaurant, IRestaurant } from '../../restaurant/restaurant.model';
-import { ILocation, ILatLng } from '../../location/location.model';
+import { ILocation, ILatLng, IDistance } from '../../location/location.model';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { MallActions } from '../../mall/mall.actions';
@@ -10,6 +10,7 @@ import { takeUntil, first } from 'rxjs/operators';
 import { IMall } from '../../mall/mall.model';
 import { PageActions } from '../../main/main.actions';
 import { MallService } from '../../mall/mall.service';
+import { DistanceService } from '../../location/distance.service';
 
 @Component({
   selector: 'app-restaurant-list-page',
@@ -31,6 +32,7 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<void>();
   constructor(
     private restaurantSvc: RestaurantService,
+    private distanceSvc: DistanceService,
     private mallSvc: MallService,
     private rx: NgRedux<IAppState>,
   ) {
@@ -56,14 +58,34 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
       self.deliverTimeType = vals[0];
       if (location) {
         self.center = { lat: location.lat, lng: location.lng };
-        self.mallSvc.calcMalls({ lat: location.lat, lng: location.lng }, self.deliverTimeType).then((malls: IMall[]) => {
-          self.malls = malls;
-          self.rx.dispatch({
-            type: MallActions.UPDATE,
-            payload: self.malls.filter(r => r.type === 'real')
-          });
 
-          self.loadRestaurants();
+        self.distanceSvc.find({where: {originPlaceId: location.placeId}}).pipe(
+          takeUntil(self.onDestroy$)
+        ).subscribe((ds: IDistance[]) => {
+          if (ds && ds.length > 0) {
+            // fix me load malls
+            const distance = ds[0].element.distance.value / 1000;
+            const fullDeliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
+            const deliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
+            self.rx.dispatch({
+              type: MallActions.UPDATE,
+              payload: [{
+                distance: distance,
+                deliverFee: deliveryFee,
+                fullDeliverFee: fullDeliveryFee
+              }]
+            });
+            self.loadRestaurants(ds[0].element.distance.value / 1000);
+          } else {
+            self.mallSvc.calcMalls(location, self.deliverTimeType).then((malls: IMall[]) => {
+              self.malls = malls;
+              self.rx.dispatch({
+                type: MallActions.UPDATE,
+                payload: self.malls.filter(r => r.type === 'real')
+              });
+              self.loadRestaurants(malls[0].distance);
+            });
+          }
         });
       }
     });
@@ -74,8 +96,11 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  loadRestaurants() {
+  loadRestaurants(distance: number) {
     const self = this;
+    const fullDeliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
+    const deliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
+
     this.restaurantSvc.find().subscribe((ps: IRestaurant[]) => {
       self.restaurants = ps; // self.toProductGrid(data);
       const a = [];
@@ -87,10 +112,10 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
             name: restaurant.name
           });
         }
-        // fix me
-        restaurant.distance = self.malls[0].distance;
-        restaurant.fullDeliveryFee = self.malls[0].fullDeliverFee;
-        restaurant.deliveryFee = self.malls[0].deliverFee;
+        // fix me !!!
+        restaurant.distance = distance;
+        restaurant.fullDeliveryFee = fullDeliveryFee;
+        restaurant.deliveryFee = deliveryFee;
       });
       self.places = a;
     },
@@ -141,7 +166,7 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
       s = '?' + conditions.join('&');
     }
 
-    this.loadRestaurants();
+    // this.loadRestaurants();
   }
 
 

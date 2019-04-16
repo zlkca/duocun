@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 
 
 import { WizardComponent } from './wizard/wizard.component';
@@ -31,7 +32,8 @@ import { DeliveryDateListComponent } from './delivery-date-list/delivery-date-li
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    MatDialogModule
+    MatDialogModule,
+    MatButtonModule
   ],
   declarations: [
     WizardComponent,

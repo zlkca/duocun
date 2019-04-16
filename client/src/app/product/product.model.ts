@@ -10,7 +10,7 @@ export interface IProduct {
   created?: Date;
   modified?: Date;
   id?: string;
-  owner?: Restaurant;
+  openDays?: number[];
   restaurant?: Restaurant;
   category?: Category;
   pictures?: Picture[];

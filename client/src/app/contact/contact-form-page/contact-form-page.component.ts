@@ -154,10 +154,10 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
       this.contact.location = r;
       this.deliveryAddress = e.address; // set address text to input
       if (self.account) {
-        const query = { where: { userId: self.account.id, placeId: r.place_id } };
+        const query = { where: { userId: self.account.id, placeId: r.placeId } };
         const lh = {
           userId: self.account.id, type: 'history',
-          placeId: r.place_id, location: r, created: new Date()
+          placeId: r.placeId, location: r, created: new Date()
         };
         self.locationSvc.saveIfNot(query, lh).pipe(
           takeUntil(this.onDestroy$)
@@ -244,7 +244,7 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     }
     v.modified = new Date();
     v.accountId = this.account.id;
-    v.placeId = this.contact.location.place_id;
+    v.placeId = this.contact.location.placeId;
     v.location = this.contact.location;
     v.address = this.deliveryAddress;
     // v.verificationCode = this.oldVerificationCode;

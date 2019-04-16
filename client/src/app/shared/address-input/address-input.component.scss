@@ -23,7 +23,8 @@ $bg-color: white;
     width: 100%;
   }
 
-  button.clear-btn{
+  .clear-btn{
+    height: 40px;
     background-color: $bg-color;
     border: solid 1px #b1b1b1;
     border-left: 0px;

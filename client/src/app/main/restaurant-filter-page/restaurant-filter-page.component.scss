@@ -1,4 +1,8 @@
+
+$green: rgb(24, 128, 56);
+$yellow: rgb(244, 160, 0);
 $red: rgb(219, 68, 55);
+
 $position-btn-width: 60px;
 $map-height: 220px;
 $address-search-height: 46px;
@@ -17,6 +21,9 @@ $menu-height: 60px;
   position: absolute;
   top: 220px; // 80px; // 220px;
   width: 100%;
+  height: calc(100% - 60px - 220px);
+  overflow: scroll;
+  padding: 0px 10px;
 }
 
 .change-addr-btn {
@@ -36,10 +43,12 @@ app-delivery-date-list, .not-in-range-item{
 }
 
 .option-item{
-  padding: 10px 0px;
   width: 100%;
-  height: 74px;
-  border-bottom: solid 1px #ddd;
+  height: 85px;
+  padding: 5px 0px 10px 0px;
+  margin-top: 10px;
+  text-align: left;
+  background-color:#eee;
 
   .date{
     padding-left: 15px;
@@ -50,23 +59,40 @@ app-delivery-date-list, .not-in-range-item{
   }
   .overdue-note{
     font-size: 12px;
-    color: white;
+    color: $red;
+  }
+  .overdue-note-1st{
+    padding-left: 15px;
+  }
+  .second-row{
+    line-height: 12px;
+  }
+  .third-row{
+    padding-top: 5px;
+    line-height: 16px;
   }
 }
 
+// .no-free{
+//   background-color: $red;
+
+//   .text-sm{
+//     color: white;
+//   }
+//   .text-md{
+//     font-size: 18px;
+//     color: white;
+//     font-weight: 400
+//   }
+// }
 .no-free{
-  background-color: $red;
-
-  .text-sm{
-    color: white;
-  }
+  color: $red;
   .text-md{
+    color: #666;
     font-size: 18px;
-    color: white;
-    font-weight: 400
+    font-weight: 600
   }
 }
-
 .address-search-block{
   position: fixed;
   top: 6px;
@@ -94,5 +120,11 @@ app-delivery-date-list, .not-in-range-item{
 
   app-location-list {
     width: 100%;
+  }
+}
+
+.not-in-range-item{
+  .text-md{
+    color: $red;
   }
 }

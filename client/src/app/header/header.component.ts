@@ -37,7 +37,7 @@ export class HeaderComponent implements OnInit {
     //   });
 
     // this.locationSvc.get().subscribe((addr: ILocation) => {
-    //     this.locality = addr && (addr.sub_locality || addr.city);
+    //     this.locality = addr && (addr.subLocality || addr.city);
     // });
     // const self = this;
     // const s = localStorage.getItem('location-' + APP);
@@ -55,7 +55,7 @@ export class HeaderComponent implements OnInit {
 
   // getCurrentCity() {
   //   if (this.addr) {
-  //     return this.addr.sub_locality ? this.addr.sub_locality : this.addr.city;
+  //     return this.addr.subLocality ? this.addr.subLocality : this.addr.city;
   //   } else {
   //     return '';
   //   }

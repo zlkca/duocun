@@ -30,7 +30,7 @@ import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.
     ProductListComponent,
     ProductGridComponent
   ],
-  exports: [ProductFormComponent, ProductListComponent, ProductGridComponent
+  exports: [ProductFormComponent, ProductListComponent, ProductGridComponent, WarningDialogComponent
   ],
   providers: [
     CategoryService

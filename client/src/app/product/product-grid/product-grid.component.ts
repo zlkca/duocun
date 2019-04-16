@@ -96,16 +96,6 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  openDialog(): void {
-    const dialogRef = this.dialog.open(WarningDialogComponent, {
-      width: '250px',
-      data: {title: '提示', content: '只能选同一餐厅的商品'}
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-    });
-  }
-
   addToCart(p: IProduct) {
     if (this.cart.items && this.cart.items.length > 0) {
       this.rx.dispatch({

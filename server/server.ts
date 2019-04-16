@@ -163,7 +163,7 @@ app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
   utils.getPlaces(req, res);
 });
 app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
-  utils.getRoadDistances(req, res);
+  distance.reqRoadDistances(req, res);
 });
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
 });
@@ -391,6 +391,7 @@ app.get('/' + ROUTE_PREFIX + '/Distances', (req: any, res) => {
     res.end(JSON.stringify(x, null, 3));
   });
 });
+
 app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
   distance.get(req, res);
 });

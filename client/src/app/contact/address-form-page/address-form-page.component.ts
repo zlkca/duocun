@@ -114,10 +114,10 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.location = r;
       this.deliveryAddress = e.address; // set address text to input
       if (self.account) {
-        const query = { where: { userId: self.account.id, placeId: r.place_id } };
+        const query = { where: { userId: self.account.id, placeId: r.placeId } };
         const lh = {
           userId: self.account.id, type: 'history',
-          placeId: r.place_id, location: r, created: new Date()
+          placeId: r.placeId, location: r, created: new Date()
         };
         self.locationSvc.saveIfNot(query, lh).pipe(
           takeUntil(this.onDestroy$)
