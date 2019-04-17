@@ -66,7 +66,7 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
             // fix me load malls
             const distance = ds[0].element.distance.value / 1000;
             const fullDeliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
-            const deliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
+            const deliveryFee = self.distanceSvc.getDeliveryFee(distance, self.deliverTimeType);
             self.rx.dispatch({
               type: MallActions.UPDATE,
               payload: [{

@@ -84,7 +84,9 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     this.rx.select('contact').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((contact: IContact) => {
-      contact.address = self.locationSvc.getAddrString(contact.location);
+      if (contact.location) {
+        contact.address = self.locationSvc.getAddrString(contact.location);
+      }
       this.items = [contact];
     });
   }

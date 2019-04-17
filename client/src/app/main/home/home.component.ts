@@ -97,16 +97,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               }
             });
           } else { // no code in router
-            // this.accountSvc.getCurrent().pipe(
-            //   takeUntil(this.onDestroy$)
-            // ).subscribe(account => {
-            //   if (account) {
-            //     self.account = account;
-            //     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
-            //     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-            //     self.socketSvc.init(this.authSvc.getAccessToken());
-            //   }
-            // });
+
           }
         }
       }, err => {
@@ -150,13 +141,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
       if (r && r.length > 0) {
         self.contact = new Contact(r[0]);
-        self.rx.dispatch<ILocationAction>({
-          type: LocationActions.UPDATE,
-          payload: self.contact.location
-        });
-        self.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
 
-        self.router.navigate(['main/filter']);
+        if (self.contact.location) {
+          self.rx.dispatch<ILocationAction>({
+            type: LocationActions.UPDATE,
+            payload: self.contact.location
+          });
+          self.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
+          self.router.navigate(['main/filter']);
+        }
       }
     });
   }

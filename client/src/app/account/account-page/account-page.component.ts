@@ -70,9 +70,11 @@ export class AccountPageComponent implements OnInit, OnDestroy {
       if (contact) {
         this.contact = contact;
         this.phone = contact.phone; // render
-        this.address = this.locationSvc.getAddrString(contact.location);
+        if (contact.location) {
+          this.address = this.locationSvc.getAddrString(contact.location);
+        }
       } else {
-        this.contact = { phone: '', address: ''};
+        this.contact = { phone: '', address: '' };
         this.phone = '';
         this.address = '';
       }
@@ -89,6 +91,6 @@ export class AccountPageComponent implements OnInit, OnDestroy {
   }
 
   changeAddress() {
-    this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'account-setting' }});
+    this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'account-setting' } });
   }
 }

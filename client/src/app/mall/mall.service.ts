@@ -67,11 +67,7 @@ export class MallService extends EntityService {
             if (d) {
               mall.distance = d.element.distance.value / 1000;
               mall.fullDeliverFee = self.distanceSvc.getFullDeliveryFee(mall.distance);
-              if (deliverTimeType === 'immediate') {
-                mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance);
-              } else {
-                mall.deliverFee = 0;
-              }
+              mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, deliverTimeType);
             }
           });
 

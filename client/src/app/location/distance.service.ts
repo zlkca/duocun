@@ -24,11 +24,15 @@ export class DistanceService extends EntityService {
     }
   }
 
-  getDeliveryFee(distance: number) {
-    if (distance <= 3) {
-      return 3;
+  getDeliveryFee(distance: number, deliverTimeType: string) {
+    if (deliverTimeType === 'immediate') {
+      if (distance <= 3) {
+        return 3;
+      } else {
+        return 3 + 1.5 * Math.ceil(distance - 3);
+      }
     } else {
-      return 3 + 1.5 * Math.ceil(distance - 3);
+      return 0;
     }
   }
 
