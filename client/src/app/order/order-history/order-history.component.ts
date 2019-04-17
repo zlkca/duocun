@@ -92,7 +92,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   reload(clientId) {
     const self = this;
-    self.orderSvc.find({ where: { clientId: clientId } }).subscribe(orders => {
+    self.orderSvc.find({ where: { clientId: clientId } }).pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(orders => {
       orders.sort((a: Order, b: Order) => {
         if (this.sharedSvc.compareDateTime(a.created, b.created)) {
           return -1;
@@ -128,7 +130,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       data: { title: '提示', content: '确认要删除该订单吗？', buttonTextNo: '取消', buttonTextYes: '删除', orderId: orderId },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(result => {
     });
   }
 
@@ -145,7 +149,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   // takeOrder(order) {
   //   const self = this;
   //   order.workerStatus = 'process';
-  //   this.orderSvc.replace(order).subscribe(x => {
+  //   this.orderSvc.replace(order).pipe(
+          //   takeUntil(this.onDestroy$)
+          // ).subscribe(x => {
   //     // self.afterSave.emit({name: 'OnUpdateOrder'});
   //     self.reload(self.account.id);
   //   });
@@ -154,7 +160,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   // sendForDeliver(order) {
   //   const self = this;
   //   order.workerStatus = 'done';
-  //   this.orderSvc.replace(order).subscribe(x => {
+  //   this.orderSvc.replace(order).pipe(
+          //   takeUntil(this.onDestroy$)
+          // ).subscribe(x => {
   //     // self.afterSave.emit({name: 'OnUpdateOrder'});
   //     self.reload(self.account.id);
   //   });

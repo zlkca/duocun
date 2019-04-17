@@ -11,6 +11,7 @@ export interface DialogData {
   buttonTextNo: string;
   buttonTextYes: string;
   merchantId: string;
+  fromPage: string;
 }
 
 @Component({
@@ -34,7 +35,11 @@ export class QuitRestaurantDialogComponent implements OnInit {
   onClickLeave(): void {
     this.dialogRef.close();
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
-    this.router.navigate(['restaurant/list']);
+    if (this.data.fromPage === 'restaurant-list') {
+      this.router.navigate(['restaurant/list']);
+    } else if (this.data.fromPage === 'order-history') {
+      this.router.navigate(['order/history']);
+    }
   }
 
   onClickStay(): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormArray, FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { NgRedux } from '@angular-redux/store';
@@ -11,20 +11,22 @@ import { Jsonp } from '@angular/http';
 import { SharedService } from '../../shared/shared.service';
 import { environment } from '../../../environments/environment';
 import { Picture } from '../../picture.model';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
 
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss']
 })
-export class ProductFormComponent implements OnInit, OnChanges {
+export class ProductFormComponent implements OnInit, OnChanges, OnDestroy {
   categoryList = [];
   restaurantList = [];
   // colorList:Color[] = [];
   // id: number;
   uploadedPictures: string[] = [];
   uploadUrl: string = environment.API_URL + 'files/upload';
-
+  onDestroy$ = new Subject();
   urls = [];
   file;
 
@@ -73,16 +75,25 @@ export class ProductFormComponent implements OnInit, OnChanges {
     this.form.get('merchantId').setValue(this.product.merchantId);
     this.form.get('categoryId').setValue(this.product.categoryId);
 
-    this.restaurantSvc.find().subscribe(r => {
+    this.restaurantSvc.find().pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(r => {
       this.restaurantList = r;
     });
 
     this.loadCategoryList();
   }
 
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
+
   loadCategoryList() {
     const self = this;
-    // this.productSvc.findCategories().subscribe(
+    // this.productSvc.findCategories().pipe(
+          //   takeUntil(this.onDestroy$)
+          // ).subscribe(
     //   (r: Category[]) => {
     //     self.categoryList = r;
     //   },
@@ -193,9 +204,13 @@ export class ProductFormComponent implements OnInit, OnChanges {
     p.id = self.product ? self.product.id : null;
     p.pictures = this.product.pictures;
     if (this.product && this.product.id) {
-      this.productSvc.replace(p).subscribe(r => {});
+      this.productSvc.replace(p).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe(r => {});
     } else {
-      this.productSvc.save(p).subscribe(r => {});
+      this.productSvc.save(p).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe(r => {});
     }
     self.afterSave.emit({ restaurant_id: merchantId });
   }

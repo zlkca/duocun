@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { IDeliveryTime } from '../../delivery/delivery.model';
 import { Subject } from '../../../../node_modules/rxjs';
 import { Router } from '../../../../node_modules/@angular/router';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../main.actions';
-import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { takeUntil, take } from '../../../../node_modules/rxjs/operators';
 import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
 import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
 import { ILocation, IPlace } from '../../location/location.model';
@@ -21,7 +21,7 @@ import { SharedService } from '../../shared/shared.service';
   templateUrl: './restaurant-filter-page.component.html',
   styleUrls: ['./restaurant-filter-page.component.scss']
 })
-export class RestaurantFilterPageComponent implements OnInit {
+export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
 
   deliveryTime: IDeliveryTime = { type: '', text: '' };
   deliveryDiscount = 2;
@@ -81,6 +81,10 @@ export class RestaurantFilterPageComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
   onSelectDeliveryTime(e: IDeliveryTime) {
     const self = this;
     const r = self.location;
@@ -131,7 +135,9 @@ export class RestaurantFilterPageComponent implements OnInit {
   onAddressChange(e) {
     const self = this;
     this.places = [];
-    this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
+    this.locationSvc.reqPlaces(e.input).pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
         for (const p of ps) {
           p.type = 'suggest';

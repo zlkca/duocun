@@ -138,7 +138,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.socketSvc.init(this.authSvc.getAccessToken());
 
     // redirect to filter if contact have default address
-    self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+    self.contactSvc.find({ where: { accountId: account.id } }).pipe(
+      takeUntil(self.onDestroy$)
+    ).subscribe((r: IContact[]) => {
       if (r && r.length > 0) {
         self.contact = new Contact(r[0]);
 
@@ -209,7 +211,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   onAddressChange(e) {
     const self = this;
     this.places = [];
-    this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
+    this.locationSvc.reqPlaces(e.input).pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
         for (const p of ps) {
           p.type = 'suggest';

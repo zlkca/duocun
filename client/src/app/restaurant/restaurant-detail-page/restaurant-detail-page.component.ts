@@ -54,7 +54,11 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       if (window.location.pathname.endsWith('restaurant/list')) {
         // window.history.forward();
         if (self.restaurant && self.cart && self.cart.items && self.cart.items.length > 0) {
-          this.openDialog(self.restaurant.id);
+          this.openDialog(self.restaurant.id, 'restaurant-list');
+        }
+      } else if (window.location.pathname.endsWith('order/history')) {
+        if (self.restaurant && self.cart && self.cart.items && self.cart.items.length > 0) {
+          this.openDialog(self.restaurant.id, 'order-history');
         }
       }
     });
@@ -66,7 +70,9 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe(params => {
       const merchantId = params['id'];
-      self.restaurantSvc.findById(merchantId, { include: ['pictures', 'address'] }).subscribe(
+      self.restaurantSvc.findById(merchantId, { include: ['pictures', 'address'] }).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe(
         (restaurant: Restaurant) => {
           self.restaurant = restaurant;
         },
@@ -75,13 +81,17 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
         }
       );
 
-      self.productSvc.find({ where: { merchantId: merchantId } }).subscribe(products => {
+      self.productSvc.find({ where: { merchantId: merchantId } }).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe(products => {
         // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
         self.groupedProducts = self.groupByCategory(products);
         const categoryIds = Object.keys(self.groupedProducts);
 
         // fix me !!!
-        self.categorySvc.find({ where: { id: { $in: categoryIds } } }).subscribe(res => {
+        self.categorySvc.find({ where: { id: { $in: categoryIds } } }).pipe(
+          takeUntil(this.onDestroy$)
+        ).subscribe(res => {
           self.categories = res;
         });
       });
@@ -94,13 +104,16 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  openDialog(merchantId: string): void {
+  openDialog(merchantId: string, fromPage: string): void {
     const dialogRef = this.dialog.open(QuitRestaurantDialogComponent, {
       width: '300px',
-      data: { title: '提示', content: '离开后将清空购物车。', buttonTextNo: '离开', buttonTextYes: '留下', merchantId: merchantId },
+      data: { title: '提示', content: '离开后将清空购物车。', buttonTextNo: '离开', buttonTextYes: '留下',
+      merchantId: merchantId, fromPage: fromPage },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(result => {
     });
   }
 

@@ -47,12 +47,11 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
   }
 
   onClickRemove(): void {
-    this.dialogRef.close();
     if (this.data && this.data.orderId) {
       this.orderSvc.removeById(this.data.orderId).pipe(
         takeUntil(this.onDestroy$)
       ).subscribe(x => {
-        // this.router.navigate(['order/history']);
+        this.dialogRef.close();
         this.rx.dispatch({
           type: CommandActions.SEND,
           payload: { name: 'reload-orders', args: null }
@@ -60,6 +59,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
         this.snackBar.open('', '订单已删除', {
           duration: 1000
         });
+        this.router.navigate(['order/history']);
       });
     }
   }

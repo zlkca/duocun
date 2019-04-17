@@ -182,7 +182,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         order.id = this.order.id;
         order.created = this.order.created;
         if (order) {
-          self.orderSvc.replace(order).subscribe((r: IOrder) => {
+          self.orderSvc.replace(order).pipe(
+            takeUntil(this.onDestroy$)
+          ).subscribe((r: IOrder) => {
             // self.afterSubmit.emit(order);
             const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === this.restaurant.id);
             this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });
@@ -204,7 +206,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       } else {
         const order = this.createOrder(this.restaurant.id, this.contact, v.note);
         if (order) {
-          self.orderSvc.save(order).subscribe((r: IOrder) => {
+          self.orderSvc.save(order).pipe(
+            takeUntil(this.onDestroy$)
+          ).subscribe((r: IOrder) => {
             // self.afterSubmit.emit(order);
             const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === this.restaurant.id);
             this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });

@@ -50,34 +50,34 @@ export class MallService extends EntityService {
     return this.http.put(this.url, mall);
   }
 
-  calcMalls(origin: ILocation, deliverTimeType: string): Promise<any> {
-    const self = this;
-    // tslint:disable-next-line:no-shadowed-variable
-    return new Promise((resolve: any, reject) => {
+  // calcMalls(origin: ILocation, deliverTimeType: string): Promise<any> {
+  //   const self = this;
+  //   // tslint:disable-next-line:no-shadowed-variable
+  //   return new Promise((resolve: any, reject) => {
 
-      const destinations: ILocation[] = [];
-      self.malls.filter(r => r.type === 'real').map(m => {
-        destinations.push({lat: m.lat, lng: m.lng, placeId: m.placeId});
-      });
-      self.locationSvc.reqRoadDistances(origin, destinations).subscribe((rs: IDistance[]) => {
-        if (rs) {
-          const reallDistances = rs; // .filter(r => r.type === 'real');
-          self.malls.map((mall: IMall) => {
-            const d = reallDistances.find(rm => rm.destination.lat === mall.lat && rm.destination.lng === mall.lng);
-            if (d) {
-              mall.distance = d.element.distance.value / 1000;
-              mall.fullDeliverFee = self.distanceSvc.getFullDeliveryFee(mall.distance);
-              mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, deliverTimeType);
-            }
-          });
+  //     const destinations: ILocation[] = [];
+  //     self.malls.filter(r => r.type === 'real').map(m => {
+  //       destinations.push({lat: m.lat, lng: m.lng, placeId: m.placeId});
+  //     });
+  //     self.locationSvc.reqRoadDistances(origin, destinations).subscribe((rs: IDistance[]) => {
+  //       if (rs) {
+  //         const reallDistances = rs; // .filter(r => r.type === 'real');
+  //         self.malls.map((mall: IMall) => {
+  //           const d = reallDistances.find(rm => rm.destination.lat === mall.lat && rm.destination.lng === mall.lng);
+  //           if (d) {
+  //             mall.distance = d.element.distance.value / 1000;
+  //             mall.fullDeliverFee = self.distanceSvc.getFullDeliveryFee(mall.distance);
+  //             mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, deliverTimeType);
+  //           }
+  //         });
 
-          resolve(self.malls);
-        }
-      }, err => {
-        reject([]);
-      });
-    });
-  }
+  //         resolve(self.malls);
+  //       }
+  //     }, err => {
+  //       reject([]);
+  //     });
+  //   });
+  // }
 
 
 

@@ -13,6 +13,7 @@ import { DeliveryDateListPageComponent } from './delivery-date-list-page/deliver
 import { PhoneFormPageComponent } from './phone-form-page/phone-form-page.component';
 import { MatSnackBarModule } from '../../../node_modules/@angular/material';
 import { AddressFormPageComponent } from './address-form-page/address-form-page.component';
+import { DistanceService } from '../location/distance.service';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { AddressFormPageComponent } from './address-form-page/address-form-page.
   ],
   providers: [
     LocationService,
-    AccountService
+    AccountService,
+    DistanceService
   ]
 })
 export class ContactModule { }

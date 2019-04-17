@@ -197,7 +197,6 @@ getAddrStringByPlace(place) {
   }
 }
 
-// 
 reqRoadDistances(origin: ILocation, destinations: ILocation[]): Observable < any > { // IDistance[]
   const url = super.getBaseUrl() + 'distances';
   return this.http.post(url, { origins: [origin], destinations: destinations });

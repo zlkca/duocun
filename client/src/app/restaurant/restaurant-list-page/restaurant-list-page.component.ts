@@ -9,8 +9,8 @@ import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, first } from 'rxjs/operators';
 import { IMall } from '../../mall/mall.model';
 import { PageActions } from '../../main/main.actions';
-import { MallService } from '../../mall/mall.service';
 import { DistanceService } from '../../location/distance.service';
+import { LocationService } from '../../location/location.service';
 
 @Component({
   selector: 'app-restaurant-list-page',
@@ -27,13 +27,30 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
   deliveryAddress;
   deliverTimeType = 'immediate';
 
-  malls: IMall[];
-
+  // malls: IMall[];
+  malls: IMall[] = [
+    {
+      id: '1', name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
+      placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
+    },
+    {
+      id: '2', name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
+      placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
+    },
+    {
+      id: '3', name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
+      placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
+    },
+    {
+      id: '4', name: 'Richmond Hill', type: 'virtual', lat: 43.884244, lng: -79.467925, radius: 8,
+      placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
+    }
+  ];
   private onDestroy$ = new Subject<void>();
   constructor(
     private restaurantSvc: RestaurantService,
     private distanceSvc: DistanceService,
-    private mallSvc: MallService,
+    private locationSvc: LocationService,
     private rx: NgRedux<IAppState>,
   ) {
     this.rx.dispatch({
@@ -77,13 +94,32 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
             });
             self.loadRestaurants(ds[0].element.distance.value / 1000);
           } else {
-            self.mallSvc.calcMalls(location, self.deliverTimeType).then((malls: IMall[]) => {
-              self.malls = malls;
-              self.rx.dispatch({
-                type: MallActions.UPDATE,
-                payload: self.malls.filter(r => r.type === 'real')
-              });
-              self.loadRestaurants(malls[0].distance);
+            const destinations: ILocation[] = [];
+            self.malls.filter(r => r.type === 'real').map(m => {
+              destinations.push({lat: m.lat, lng: m.lng, placeId: m.placeId});
+            });
+            self.locationSvc.reqRoadDistances(location, destinations).pipe(
+              takeUntil(this.onDestroy$)
+            ).subscribe((rs: IDistance[]) => {
+              if (rs) {
+                const reallDistances = rs; // .filter(r => r.type === 'real');
+                self.malls.map((mall: IMall) => {
+                  const d = reallDistances.find(rm => rm.destination.lat === mall.lat && rm.destination.lng === mall.lng);
+                  if (d) {
+                    mall.distance = d.element.distance.value / 1000;
+                    mall.fullDeliverFee = self.distanceSvc.getFullDeliveryFee(mall.distance);
+                    mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliverTimeType);
+                  }
+                });
+                self.rx.dispatch({
+                  type: MallActions.UPDATE,
+                  payload: self.malls.filter(r => r.type === 'real')
+                });
+                self.loadRestaurants(self.malls.filter(r => r.type === 'real')[0].distance);
+                // resolve(self.malls);
+              }
+            }, err => {
+              // reject([]);
             });
           }
         });
@@ -101,7 +137,9 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
     const fullDeliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
     const deliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
 
-    this.restaurantSvc.find().subscribe((ps: IRestaurant[]) => {
+    this.restaurantSvc.find().pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((ps: IRestaurant[]) => {
       self.restaurants = ps; // self.toProductGrid(data);
       const a = [];
       ps.map(restaurant => {
