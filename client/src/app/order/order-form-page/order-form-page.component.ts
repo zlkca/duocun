@@ -164,7 +164,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         clientStatus: 'new',
         workerStatus: 'new',
         merchantStatus: 'new',
-        stuffId: self.malls[0].workers[0] ? self.malls[0].workers[0].id : null // fix me
+        stuffId: '' // self.malls[0].workers[0] ? self.malls[0].workers[0].id : null // fix me
       };
       return order;
     } else {
@@ -190,7 +190,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             this.snackBar.open('', '您的订单已经成功修改。', {
               duration: 1000
             }); // Fix me
-            this.router.navigate(['home']);
+            if (this.contact.location) {
+              this.router.navigate(['main/filter']);
+            } else {
+              this.router.navigate(['main/home']);
+            }
           });
         } else {
           this.snackBar.open('', '登录已过期，请重新从公众号进入', {
@@ -207,7 +211,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             this.snackBar.open('', '您的订单已经成功提交。', {
               duration: 1000
             }); // Fix me
-            this.router.navigate(['home']);
+            if (this.contact.location) {
+              this.router.navigate(['main/filter']);
+            } else {
+              this.router.navigate(['main/home']);
+            }
           });
         } else {
           this.snackBar.open('', '登录已过期，请重新从公众号进入', {

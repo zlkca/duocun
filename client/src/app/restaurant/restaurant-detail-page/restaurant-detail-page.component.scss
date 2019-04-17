@@ -3,8 +3,6 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
-
-
 .restaurant-name{
   text-align: center;
   padding-bottom: 15px;
@@ -33,4 +31,8 @@ app-cart-navbar{
 
 .mat-tab-body-content{
   height: calc(100% - 95px - 60px - 48px);
+}
+
+.content-block{
+  margin-top: 60px;
 }

@@ -2,18 +2,19 @@
     <div class="title-row title-bg" i18n="@@EditContact">
       Edit Contact
     </div>
-    <div class="row form-group">
-      <div class="row label-sm">
-        <span i18n="@@DeliveryDate">Delivery Date</span><span>*</span>
+    <div class="content-block">
+      <div class="row form-group">
+        <div class="row label-sm">
+          <span i18n="@@DeliveryDate">Delivery Date</span><span>*</span>
+        </div>
+        <div class="delivery-input" *ngIf="deliveryTime">
+          {{deliveryTime.text}} {{deliveryTime.date | date: 'MMMd E' }} {{deliveryTime.startTime}}-{{deliveryTime.endTime}}
+        </div>
       </div>
-      <div class="delivery-input" *ngIf="deliveryTime">
-        {{deliveryTime.text}} {{deliveryTime.date | date: 'MMMd E' }} {{deliveryTime.startTime}}-{{deliveryTime.endTime}}
-      </div>
+      <app-delivery-date-list [orderDeadline]="orderDeadline"
+        [deliveryDiscount]="deliveryDiscount" (afterSelectDate)="onSelectDeliveryTime($event)">
+      </app-delivery-date-list>
     </div>
-    <app-delivery-date-list [orderDeadline]="orderDeadline"
-      [deliveryDiscount]="deliveryDiscount" (afterSelectDate)="onSelectDeliveryTime($event)">
-    </app-delivery-date-list>
-
 </div>
 
 

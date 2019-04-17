@@ -14,7 +14,7 @@
 // empty status
 .empty-cart{
   text-align: center;
-  margin-top: 150px;
+  margin-top: 210px;
   img{
     width: 56px;
     height: 56px;
@@ -150,11 +150,15 @@
   padding: 0px;
   border-top: solid 1px #eee;
   background-color: white;
-  
+
   .back-col{
     vertical-align: middle;
     text-align: center;
     padding-top: 15px;
     border-right: 1px solid #eee;
   }
+}
+
+.carts{
+  margin-top: 60px;
 }
