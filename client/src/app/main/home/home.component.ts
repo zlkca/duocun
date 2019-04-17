@@ -82,9 +82,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       ).subscribe(account => {
         if (account) {
           self.account = account;
-          self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
-          self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-          self.socketSvc.init(this.authSvc.getAccessToken());
+          self.init(account);
         } else {
           if (code) {
             this.loading = true;
@@ -127,27 +125,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     ).subscribe((account: Account) => {
       if (account) {
         self.account = account;
-        self.socketSvc.init(this.authSvc.getAccessToken());
-        self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
 
         this.snackBar.open('', '微信登录成功。', {
           duration: 1000
         });
         self.loading = false;
-        self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
-
-        self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
-          if (r && r.length > 0) {
-            self.contact = new Contact(r[0]);
-            self.rx.dispatch<ILocationAction>({
-              type: LocationActions.UPDATE,
-              payload: self.contact.location
-            });
-            self.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
-
-            self.router.navigate(['main/filter']);
-          }
-        });
+        self.init(account);
       } else {
         this.snackBar.open('', '微信登录失败。', {
           duration: 1000
@@ -156,6 +139,27 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  init(account: Account) {
+    const self = this;
+    self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
+    self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+
+    self.socketSvc.init(this.authSvc.getAccessToken());
+
+    // redirect to filter if contact have default address
+    self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+      if (r && r.length > 0) {
+        self.contact = new Contact(r[0]);
+        self.rx.dispatch<ILocationAction>({
+          type: LocationActions.UPDATE,
+          payload: self.contact.location
+        });
+        self.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
+
+        self.router.navigate(['main/filter']);
+      }
+    });
+  }
 
   ngOnInit() {
     const self = this;

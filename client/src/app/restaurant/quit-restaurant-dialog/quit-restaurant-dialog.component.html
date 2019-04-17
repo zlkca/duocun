@@ -5,7 +5,9 @@
     <!-- <input matInput [(ngModel)]="data.animal"> -->
   </mat-form-field>
 </div>
+
 <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()" >{{data.buttonTextNo}}</button>
-  <button mat-button (click)="onYesClick()" >{{data.buttonTextYes}}</button>
+  <div mat-button class="btn-leave" (click)="onClickLeave()" >{{data.buttonTextNo}}</div>
+  <div mat-button class="btn-stay" (click)="onClickStay()" >{{data.buttonTextYes}}</div>
 </div>
+

@@ -12,8 +12,9 @@ import { PageActions } from '../../main/main.actions';
 import { CategoryService } from '../../category/category.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
-import { WarningDialogComponent } from '../../shared/warning-dialog/warning-dialog.component';
 import { MatDialog } from '../../../../node_modules/@angular/material';
+import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-restaurant-dialog.component';
+import { ICart } from '../../cart/cart.model';
 
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -25,7 +26,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
   groupedProducts: any = [];
   restaurant: any;
   subscription;
-  cart;
+  cart: ICart;
   onDestroy$ = new Subject<any>();
   locationSubscription;
   constructor(
@@ -36,7 +37,6 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private location: Location,
     public dialog: MatDialog
-    // private actions: CartActions
   ) {
     const self = this;
     this.rx.dispatch({
@@ -44,11 +44,18 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       payload: 'restaurant-detail'
     });
 
+    this.rx.select<ICart>('cart').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((cart: ICart) => {
+      this.cart = cart;
+    });
+
     this.locationSubscription = this.location.subscribe((x) => {
-      if (window.location.pathname.indexOf('restaurant/list') !== -1) {
-        // alert(x);
+      if (window.location.pathname.endsWith('restaurant/list')) {
         // window.history.forward();
-        this.openDialog();
+        if (self.restaurant && self.cart && self.cart.items && self.cart.items.length > 0) {
+          this.openDialog(self.restaurant.id);
+        }
       }
     });
   }
@@ -68,13 +75,13 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
         }
       );
 
-      self.productSvc.find({where: {merchantId: merchantId}}).subscribe(products => {
-      // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
+      self.productSvc.find({ where: { merchantId: merchantId } }).subscribe(products => {
+        // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
         self.groupedProducts = self.groupByCategory(products);
         const categoryIds = Object.keys(self.groupedProducts);
 
         // fix me !!!
-        self.categorySvc.find({where: {id: {$in: categoryIds}}}).subscribe(res => {
+        self.categorySvc.find({ where: { id: { $in: categoryIds } } }).subscribe(res => {
           self.categories = res;
         });
       });
@@ -87,10 +94,10 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  openDialog(): void {
-    const dialogRef = this.dialog.open(WarningDialogComponent, {
-      width: '250px',
-      data: {title: '提示', content: '离开后将清空购物车。'}
+  openDialog(merchantId: string): void {
+    const dialogRef = this.dialog.open(QuitRestaurantDialogComponent, {
+      width: '300px',
+      data: { title: '提示', content: '离开后将清空购物车。', buttonTextNo: '离开', buttonTextYes: '留下', merchantId: merchantId },
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -99,7 +106,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
 
   groupByCategory(products: IProduct[]) {
     const self = this;
-    return products.reduce( (r, p: IProduct) => {
+    return products.reduce((r, p: IProduct) => {
       const catId = p.categoryId;
       p.restaurant = self.restaurant; // fix me
       r[catId] = r[catId] || [];

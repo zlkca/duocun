@@ -696,7 +696,7 @@
       </trans-unit>
       <trans-unit id="ClearCart" datatype="html">
         <source>Clear Cart</source>
-        <target>清空购物车</target>
+        <target>全部清空</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/order/cart/cart.component.html</context>
           <context context-type="linenumber">4</context>
