@@ -94,15 +94,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   toOrder() {
     if (this.account) {
-      if (this.account.type === 'user' || this.account.type === 'super') {
-        this.router.navigate(['order/history']);
-      } else if (this.account.type === 'worker') {
-        this.router.navigate(['order/list-worker']);
-      } else if (this.account.type === 'restaurant') {
-        this.router.navigate(['order/list-restaurant']);
-      } else {
-        this.router.navigate(['account/login']);
-      }
+      this.router.navigate(['order/history']);
     } else {
       this.router.navigate(['account/login']);
     }

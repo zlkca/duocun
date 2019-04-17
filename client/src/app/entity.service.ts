@@ -17,7 +17,6 @@ export class EntityService {
     public authSvc: AuthService,
     public http: HttpClient
   ) {
-
   }
 
   getBaseUrl() {
@@ -58,5 +57,16 @@ export class EntityService {
 
   replace(entity: IEntity): Observable<any> {
     return this.http.put(this.url, entity);
+  }
+
+  removeById(id: string): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json');
+    const accessTokenId = this.authSvc.getAccessToken();
+    if (accessTokenId) {
+      headers = headers.append('Authorization', this.authPrefix + accessTokenId);
+      // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
+    }
+    return this.http.delete(this.url + '/' + id, {headers: headers});
   }
 }

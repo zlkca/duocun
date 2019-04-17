@@ -38,6 +38,9 @@ export class SharedService {
     return s.split('.')[0].replace('T', ' ');
   }
 
+  toDateString(s) {
+    // s --- dd-mm-yyy:hh:mm:ss.z000
+    return s.split('.')[0].split('T')[0];  }
 
   getTotal(items) {
     let total = 0;

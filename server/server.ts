@@ -320,6 +320,12 @@ app.get('/' + ROUTE_PREFIX + '/Orders', (req: any, res) => {
 app.get('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
   order.get(req, res);
 });
+app.delete('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
+  order.deleteById(req.params.id).then(x => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
+});
 
 app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
   mall.replaceById(req.body.id, req.body).then((x: any) => {

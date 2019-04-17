@@ -1,0 +1,13 @@
+<h1 mat-dialog-title class="title-bg">{{data.title}}</h1>
+<div mat-dialog-content>
+  <p>{{data.content}}</p>
+  <mat-form-field>
+    <!-- <input matInput [(ngModel)]="data.animal"> -->
+  </mat-form-field>
+</div>
+
+<div mat-dialog-actions>
+  <div mat-button class="btn-cancel" (click)="onClickCancel()" >{{data.buttonTextNo}}</div>
+  <div mat-button class="btn-remove" (click)="onClickRemove()" >{{data.buttonTextYes}}</div>
+</div>
+

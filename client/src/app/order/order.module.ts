@@ -12,6 +12,8 @@ import { OrderRoutingModule } from './order-routing.module';
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { OrderFormPageComponent } from './order-form-page/order-form-page.component';
 import { AccountService } from '../account/account.service';
+import { MatDialogModule } from '../../../node_modules/@angular/material';
+import { RemoveOrderDialogComponent } from './remove-order-dialog/remove-order-dialog.component';
 
 @NgModule({
   imports: [
@@ -21,6 +23,7 @@ import { AccountService } from '../account/account.service';
     ReactiveFormsModule,
     MatTabsModule,
     MatSnackBarModule,
+    MatDialogModule,
     OrderRoutingModule,
     SharedModule
   ],
@@ -33,10 +36,12 @@ import { AccountService } from '../account/account.service';
   ],
   declarations: [
     OrderHistoryComponent,
-    OrderFormPageComponent
+    OrderFormPageComponent,
+    RemoveOrderDialogComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA
-  ]
+  ],
+  entryComponents: [RemoveOrderDialogComponent]
 })
 export class OrderModule { }
