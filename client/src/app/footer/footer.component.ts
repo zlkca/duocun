@@ -12,6 +12,7 @@ import { IContact } from '../contact/contact.model';
 import { ContactActions } from '../contact/contact.actions';
 import { IContactAction } from '../contact/contact.reducer';
 import { ICommand } from '../shared/command.reducers';
+import { ICart } from '../cart/cart.model';
 
 @Component({
   selector: 'app-footer',
@@ -22,6 +23,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   year = 2018;
   account: Account;
   bHide = false;
+  page;
 
   private onDestroy$ = new Subject<void>();
 
@@ -38,16 +40,20 @@ export class FooterComponent implements OnInit, OnDestroy {
       self.account = account;
     });
 
-    // this.rx.select('location').pipe(
-    //   takeUntil(this.onDestroy$)
-    // ).subscribe((loc: ILocation) => {
-    //   self.location = loc;
-    // });
+    this.rx.select('cart').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((cart: ICart) => {
+      if (self.page === 'cart') {
+        self.bHide = cart.items.length > 0;
+      }
+    });
+
     this.rx.select<string>('page').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(x => {
+      self.page = x;
       if (x === 'contact-form' || x === 'phone-form' || x === 'address-form' || x === 'restaurant-detail' ||
-       x === 'order-confirm' || x === 'home') {
+        x === 'cart' || x === 'order-confirm' || x === 'home') {
         self.bHide = true;
       } else {
         self.bHide = false;

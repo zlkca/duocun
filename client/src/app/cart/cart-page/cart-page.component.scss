@@ -130,7 +130,18 @@
     }
 }
 
-app-cart-navbar{
+// app-cart-navbar{
+//   position: fixed;
+//   bottom: 0px;
+//   width: 100%;
+//   height: 60px;
+//   margin: 0px;
+//   padding: 0px;
+//   border-top: solid 1px #eee;
+//   background-color: white;
+// }
+
+.bottom-menus {
   position: fixed;
   bottom: 0px;
   width: 100%;
@@ -139,4 +150,11 @@ app-cart-navbar{
   padding: 0px;
   border-top: solid 1px #eee;
   background-color: white;
+  
+  .back-col{
+    vertical-align: middle;
+    text-align: center;
+    padding-top: 15px;
+    border-right: 1px solid #eee;
+  }
 }

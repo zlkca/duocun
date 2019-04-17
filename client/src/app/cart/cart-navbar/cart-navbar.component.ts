@@ -65,7 +65,9 @@ export class CartNavbarComponent implements OnInit {
 
 
   toCart() {
-    this.router.navigate(['cart']);
+    if (this.quantity > 0) { // prevent missing bottom menus
+      this.router.navigate(['cart']);
+    }
   }
 
   checkout() {

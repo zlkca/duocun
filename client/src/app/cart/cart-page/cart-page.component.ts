@@ -19,6 +19,7 @@ import { Contact, IContact } from '../../contact/contact.model';
 import { ILocation } from '../../location/location.model';
 import { RestaurantActions } from '../../restaurant/restaurant.actions';
 import { RestaurantService } from '../../restaurant/restaurant.service';
+import { IRestaurant } from '../../restaurant/restaurant.model';
 
 @Component({
   selector: 'app-cart-page',
@@ -34,6 +35,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<void>();
   carts;
   location;
+  restaurant;
 
   @ViewChild('orderDetailModal') orderDetailModal;
 
@@ -75,6 +77,12 @@ export class CartPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((loc: ILocation) => {
       this.location = loc;
+    });
+
+    this.rx.select('restaurant').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((r: IRestaurant) => {
+      this.restaurant = r;
     });
   }
 
@@ -209,6 +217,12 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
   onAfterCheckout(e) {
     const self = this;
+  }
+
+  back() {
+    if (this.restaurant) {
+      this.router.navigate(['restaurant/list/' +  this.restaurant.id]);
+    }
   }
 }
 
