@@ -50,7 +50,6 @@ export class SharedService {
     return total.toFixed(2);
   }
 
-
   // type --- 'day', 'date', week', 'month', 'year', 12:00 am
   getStartOf(type) {
     return moment().startOf(type);
@@ -72,6 +71,10 @@ export class SharedService {
 
   getDate(date: Date) {
     return moment(date);
+  }
+
+  getNow() {
+    return moment();
   }
 
   getTodayString() {

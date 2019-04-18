@@ -14,6 +14,7 @@ export interface IProduct {
   restaurant?: Restaurant;
   category?: Category;
   pictures?: Picture[];
+  dow?: string[];
 }
 
 export class Product implements IProduct {
@@ -29,6 +30,7 @@ export class Product implements IProduct {
   restaurant: Restaurant;
   category: Category;
   pictures: Picture[];
+  dow?: string[];
   constructor(data?: IProduct) {
     Object.assign(this, data);
   }

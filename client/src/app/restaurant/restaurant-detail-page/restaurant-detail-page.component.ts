@@ -15,6 +15,8 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { MatDialog } from '../../../../node_modules/@angular/material';
 import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-restaurant-dialog.component';
 import { ICart } from '../../cart/cart.model';
+import { SharedService } from '../../shared/shared.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -29,6 +31,8 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
   cart: ICart;
   onDestroy$ = new Subject<any>();
   locationSubscription;
+  dow: number; // day of week
+
   constructor(
     private productSvc: ProductService,
     private categorySvc: CategoryService,
@@ -39,6 +43,9 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     public dialog: MatDialog
   ) {
     const self = this;
+
+    this.dow = moment().day();
+
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: 'restaurant-detail'
@@ -81,7 +88,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
         }
       );
 
-      self.productSvc.find({ where: { merchantId: merchantId } }).pipe(
+      self.productSvc.find({ where: { merchantId: merchantId, dow: this.dow } }).pipe(
         takeUntil(this.onDestroy$)
       ).subscribe(products => {
         // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
