@@ -23,6 +23,7 @@ const location_1 = require("./location");
 const distance_1 = require("./distance");
 const contact_1 = require("./contact");
 const phone_1 = require("./phone");
+const merchant_stuff_1 = require("./merchant-stuff");
 const utils_1 = require("./utils");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
@@ -52,6 +53,7 @@ let location;
 let distance;
 let contact;
 let phone;
+let merchantStuff;
 let mysocket; // Socket;
 let io;
 dbo.init(cfg.DATABASE).then(dbClient => {
@@ -66,6 +68,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     distance = new distance_1.Distance(dbo);
     contact = new contact_1.Contact(dbo);
     phone = new phone_1.Phone(dbo);
+    merchantStuff = new merchant_stuff_1.MerchantStuff(dbo);
     // socket = new Socket(dbo, io);
     // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
     //   const uId = data.userId;
@@ -151,6 +154,12 @@ app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
     distance.reqRoadDistances(req, res);
 });
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
+});
+app.post('/' + ROUTE_PREFIX + '/Accounts/applyMerchant', (req, res) => {
+    merchantStuff.applyMerchant(req, res);
+});
+app.post('/' + ROUTE_PREFIX + '/Accounts/getMerchantApplication', (req, res) => {
+    merchantStuff.getApplication(req, res);
 });
 app.post('/' + ROUTE_PREFIX + '/Accounts/login', (req, res) => {
     user.login(req, res);

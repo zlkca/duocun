@@ -154,6 +154,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
               payload: oldContact
             });
             self.router.navigate(['account/setting']);
+            self.snackBar.open('', '默认手机号已成功修改。', {duration: 1000});
           } else if (self.fromPage === 'restaurant-detail') {
             x.location = self.contact.location; // update address for the order
             self.rx.dispatch<IContactAction>({
@@ -161,6 +162,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
               payload: x
             });
             self.router.navigate(['contact/list']);
+            self.snackBar.open('', '默认手机号已成功保存。', {duration: 1000});
           }
         });
       } else {
@@ -177,6 +179,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
               payload: x
             });
             self.router.navigate(['account/setting']);
+            self.snackBar.open('', '默认手机号已成功保存。', {duration: 1000});
           } else if (self.fromPage === 'restaurant-detail') {
             x.location = self.location;
             self.rx.dispatch<IContactAction>({
@@ -184,6 +187,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
               payload: x
             });
             self.router.navigate(['contact/list']);
+            self.snackBar.open('', '默认手机号已成功保存。', {duration: 1000});
           }
         });
       }

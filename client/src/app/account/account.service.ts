@@ -71,19 +71,19 @@ export class AccountService extends EntityService {
   }
 
   getCurrent(forceGet: boolean = false): Observable<Account> {
-    const self = this;
-    const state: any = this.ngRedux.getState();
-    if (!state || !state.account.id || forceGet) {
+    // const self = this;
+    // const state: any = this.ngRedux.getState();
+    // if (!state || !state.account.id || forceGet) {
       return this.getCurrentUser();
-      // .pipe(
-      //   flatMap((acc: Account) => {
-      //     self.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
-      //     return new Observable(observer => observer.next(acc));
-      //   })
-      // );
-    } else {
-      return this.ngRedux.select<Account>('account');
-    }
+    //   // .pipe(
+    //   //   flatMap((acc: Account) => {
+    //   //     self.ngRedux.dispatch({ type: AccountActions.UPDATE, payload: acc });
+    //   //     return new Observable(observer => observer.next(acc));
+    //   //   })
+    //   // );
+    // } else {
+    //   return this.ngRedux.select<Account>('account');
+    // }
   }
 
   find(filter?: any): Observable<any> {

@@ -1,6 +1,5 @@
-import { Action } from 'redux';
 import { combineReducers } from 'redux';
-import { DEFAULT_ACCOUNT, accountReducer } from './account/account.reducer';
+import { accountReducer } from './account/account.reducer';
 // import { pictureReducer } from './commerce/commerce.reducers';
 import { locationReducer } from './location/location.reducer';
 import { ILocation } from './location/location.model';
@@ -40,7 +39,7 @@ export interface IAppState {
 
 export const INITIAL_STATE: IAppState = {
     cart: { items: [] },
-    account: DEFAULT_ACCOUNT,
+    account: null,
     // picture: DEFAULT_PICTURE,
     location: null,
     page: 'home',

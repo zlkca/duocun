@@ -23,6 +23,7 @@ import { Location } from "./location";
 import { Distance } from "./distance";
 import { Contact } from "./contact";
 import { Phone } from "./phone";
+import { MerchantStuff } from "./merchant-stuff";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
@@ -56,6 +57,7 @@ let location: Location;
 let distance: Distance;
 let contact: Contact;
 let phone: Phone;
+let merchantStuff: MerchantStuff;
 let mysocket: any;// Socket;
 let io: any;
 
@@ -72,6 +74,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   distance = new Distance(dbo);
   contact = new Contact(dbo);
   phone = new Phone(dbo);
+  merchantStuff = new MerchantStuff(dbo);
   // socket = new Socket(dbo, io);
 
   // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
@@ -168,7 +171,12 @@ app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
 });
 
-
+app.post('/' + ROUTE_PREFIX + '/Accounts/applyMerchant', (req, res) => {
+  merchantStuff.applyMerchant(req, res);
+});
+app.post('/' + ROUTE_PREFIX + '/Accounts/getMerchantApplication', (req, res) => {
+  merchantStuff.getApplication(req, res);
+});
 app.post('/' + ROUTE_PREFIX + '/Accounts/login', (req, res) => {
   user.login(req, res);
 });

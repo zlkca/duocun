@@ -14,6 +14,7 @@ import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import * as Cookies from 'js-cookie';
+import { MatSnackBar } from '../../../../node_modules/@angular/material';
 
 @Component({
   selector: 'app-address-form-page',
@@ -36,7 +37,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService,
     private rx: NgRedux<IAppState>,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar
   ) {
     this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
 
@@ -183,18 +185,23 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       if (contact.id) {
         this.contactSvc.replace(contact).subscribe(x => {
           self.router.navigate(['account/setting']);
+          self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1000});
         });
       } else {
         this.contactSvc.save(contact).subscribe(x => {
           self.router.navigate(['account/setting']);
+          self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1000});
         });
       }
     } else if (self.fromPage === 'restaurant-detail') {
       self.router.navigate(['contact/list']);
+      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1000});
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
+      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1000});
     } else if (self.fromPage === 'restaurant-filter' ) {
       self.router.navigate(['main/filter']);
+      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1000});
     }
 
   }

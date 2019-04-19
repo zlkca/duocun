@@ -1,17 +1,18 @@
 import { AccountActions } from './account.actions';
 import { Account } from './account.model';
 
-export const DEFAULT_ACCOUNT = new Account();
+export function accountReducer(state: Account = null, action: any) {
 
-export function accountReducer(state: Account = DEFAULT_ACCOUNT, action: any) {
-    if (action.payload) {
-        const payload = action.payload;
+  const payload = action.payload;
 
-        switch (action.type) {
-            case AccountActions.UPDATE:
-                return payload;
-        }
-    }
+  switch (action.type) {
+    case AccountActions.UPDATE:
+      return payload;
+    case AccountActions.LOGOUT:
+      return null;
+    case AccountActions.CLEAR:
+      return null;
+  }
 
-    return state;
+  return state;
 }

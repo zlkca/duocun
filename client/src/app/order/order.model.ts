@@ -3,6 +3,7 @@ import { Product } from '../product/product.model';
 import { Address } from '../account/account.model';
 import { Restaurant, IRestaurant } from '../restaurant/restaurant.model';
 import { Picture } from '../picture.model';
+import { ILocation } from '../location/location.model';
 
 export interface IOrder {
   id?: string;
@@ -17,6 +18,7 @@ export interface IOrder {
   merchantStatus?: string;
   note?: string;
   address?: string;
+  location?: ILocation;
   delivered?: Date;
   created?: Date;
   modified?: Date;
@@ -40,6 +42,7 @@ export class Order implements IOrder {
   merchantStatus: string;
   note: string;
   address: string;
+  location?: ILocation;
   delivered: Date;
   created: Date;
   modified: Date;

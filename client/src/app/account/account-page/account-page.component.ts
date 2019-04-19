@@ -13,6 +13,10 @@ import { ContactActions } from '../../contact/contact.actions';
 import * as Cookies from 'js-cookie';
 import { PageActions } from '../../main/main.actions';
 import { LocationService } from '../../location/location.service';
+import { AuthService } from '../auth.service';
+import { AccountActions } from '../account.actions';
+
+declare var WeixinJSBridge;
 
 @Component({
   selector: 'app-account-page',
@@ -30,6 +34,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private accountSvc: AccountService,
+    private authSvc: AuthService,
     private rx: NgRedux<IAppState>,
     private router: Router,
     private locationSvc: LocationService,
@@ -41,9 +46,13 @@ export class AccountPageComponent implements OnInit, OnDestroy {
       payload: 'account-setting'
     });
 
-    self.accountSvc.getCurrentUser().subscribe((account: Account) => {
+    self.accountSvc.getCurrentUser().pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((account: Account) => {
       self.account = account;
-      self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+      self.contactSvc.find({ where: { accountId: account.id } }).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
           self.contact = new Contact(r[0]);
           self.rx.dispatch<IContactAction>({
@@ -92,5 +101,13 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
   changeAddress() {
     this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'account-setting' } });
+  }
+
+  logout() {
+    this.authSvc.removeCookies();
+    if (WeixinJSBridge) {
+      WeixinJSBridge.call('closeWindow');
+    }
+    // this.rx.dispatch({ type: AccountActions.LOGOUT, payload: null });
   }
 }

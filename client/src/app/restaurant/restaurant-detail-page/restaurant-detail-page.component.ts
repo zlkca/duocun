@@ -17,6 +17,7 @@ import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-re
 import { ICart } from '../../cart/cart.model';
 import { SharedService } from '../../shared/shared.service';
 import * as moment from 'moment';
+import { IDeliveryTime } from '../../delivery/delivery.model';
 
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -43,12 +44,24 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     public dialog: MatDialog
   ) {
     const self = this;
-
-    this.dow = moment().day();
-
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: 'restaurant-detail'
+    });
+
+    this.rx.select<IDeliveryTime>('deliveryTime').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((t: IDeliveryTime) => {
+      if (t) {
+        if (t.type === 'lunch today') {
+          this.dow = moment().day();
+        } else if (t.type === 'lunch tomorrow') {
+          this.dow = moment().add(1, 'days').day();
+        } else if (t.type === 'lunch after tomorrow') {
+          this.dow = moment().add(2, 'days').day();
+        }
+        // self.deliverTime = t;
+      }
     });
 
     this.rx.select<ICart>('cart').pipe(
@@ -114,8 +127,10 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
   openDialog(merchantId: string, fromPage: string): void {
     const dialogRef = this.dialog.open(QuitRestaurantDialogComponent, {
       width: '300px',
-      data: { title: '提示', content: '离开后将清空购物车。', buttonTextNo: '离开', buttonTextYes: '留下',
-      merchantId: merchantId, fromPage: fromPage },
+      data: {
+        title: '提示', content: '离开后将清空购物车。', buttonTextNo: '离开', buttonTextYes: '留下',
+        merchantId: merchantId, fromPage: fromPage
+      },
     });
 
     dialogRef.afterClosed().pipe(

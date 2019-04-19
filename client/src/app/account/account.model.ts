@@ -15,6 +15,7 @@ export interface IAccount {
   unionid?: string; // wechat unionid
   accessTokens?: any[];
   address?: IAddress;
+  roles?: string[]; // 'super', 'merchant-admin', 'merchant-stuff', 'stuff', 'user'
 }
 
 export class Account implements IAccount {
@@ -32,6 +33,7 @@ export class Account implements IAccount {
   unionid?: string; // wechat unionid
   accessTokens?: any[];
   address?: Address;
+  roles?: string[]; // 'super', 'merchant-admin', 'merchant-stuff', 'stuff', 'user'
   constructor(data?: IAccount) {
     Object.assign(this, data);
   }

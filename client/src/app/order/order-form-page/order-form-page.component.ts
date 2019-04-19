@@ -156,6 +156,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         created: new Date(),
         delivered: this.deliveryDateTime,
         address: this.contact.address,
+        location: this.contact.location,
         note: note,
         deliveryFee: self.deliveryFee,
         deliveryDiscount: self.deliveryDiscount,
@@ -187,9 +188,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           ).subscribe((r: IOrder) => {
             // self.afterSubmit.emit(order);
             const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === this.restaurant.id);
-            this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });
-            this.rx.dispatch({ type: OrderActions.CLEAR, payload: null });
-            this.snackBar.open('', '您的订单已经成功修改。', {
+            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });
+            self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
+            self.snackBar.open('', '您的订单已经成功修改。', {
               duration: 1000
             }); // Fix me
             if (this.contact.location) {

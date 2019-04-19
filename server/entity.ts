@@ -65,7 +65,7 @@ export class Entity {
     const self = this;
     if (query && query.hasOwnProperty('id')) {
       let body = query.id;
-      if (body && '$in' in body) {
+      if (body && body.hasOwnProperty('$in')) {
         let a = body['$in'];
         const arr: any[] = [];
         a.map((id: string) => {

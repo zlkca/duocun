@@ -15,6 +15,8 @@ import { MatDialog } from '../../../../node_modules/@angular/material';
 import { ICommand } from '../../shared/command.reducers';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
+import { ILocationAction } from '../../location/location.reducer';
+import { LocationActions } from '../../location/location.actions';
 
 @Component({
   selector: 'app-order-history',
@@ -116,7 +118,10 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   changeOrder(order: Order) {
     this.rx.dispatch({ type: OrderActions.UPDATE, payload: order });
     this.rx.dispatch({ type: CartActions.UPDATE_BY_MERCHANT, payload: order.items });
-
+    this.rx.dispatch<ILocationAction>({
+      type: LocationActions.UPDATE,
+      payload: order.location
+    });
     this.router.navigate(['restaurant/list/' + order.merchantId]);
   }
 
