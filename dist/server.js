@@ -221,7 +221,7 @@ app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
     });
 });
 app.get('/' + ROUTE_PREFIX + '/Products', (req, res) => {
-    const query = req.headers ? JSON.parse(req.headers.filter) : null;
+    const query = req.headers && req.headers.filter ? JSON.parse(req.headers.filter) : null;
     product.find(query ? query.where : {}).then((x) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
