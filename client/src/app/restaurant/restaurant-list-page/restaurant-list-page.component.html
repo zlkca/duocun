@@ -1,20 +1,3 @@
-<!-- <div class="col-12 deliver-address-row">
-  <div class="row">
-    <div class="col-12 col-sm-7 search-bar-wrapper">
-      <div class="input-group search-bar">
-        <app-address-input (addrChange)="onAddressChange($event)" 
-          (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
-          placeholder="InputDeliveryAddress"
-          [value]="deliveryAddress"></app-address-input>
-        <div class="input-group-append">
-          <button type="button" class="btn btn-primary btn-current-location" (click)="useCurrentLocation()"
-            i18n="@@CurrentLocation">Current Location</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> -->
-
 <div class="page">
   <div *ngIf="restaurants" class="col-12 restaurant-list">
     <div *ngIf="deliveryTime === 'immediate'" class="text-md overdue time-title" style="font-weight: 400"

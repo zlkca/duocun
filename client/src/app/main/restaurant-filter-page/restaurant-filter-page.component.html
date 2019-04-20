@@ -35,7 +35,7 @@
   </div>  -->
 
   <div class="time-options" *ngIf="!showLocationList()">
-    <button mat-flat-button *ngIf="overdue" class="row option-item no-free lunch-overdue">
+    <button mat-raised-button *ngIf="overdue" class="row option-item no-free lunch-overdue">
       <div class="col-12 text-sm">
           <span class="text-md" i18n="@@LunchToday">Lunch Today</span>
       </div>
@@ -57,7 +57,7 @@
       </app-delivery-date-list>
     </div>
 
-    <button mat-flat-button *ngIf="!inRange" class="row option-item no-free not-in-range-item">
+    <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item">
       <div class="col-12">
           <div class="text-md">
             <span i18n="@@NotInFreeDeliveryRange">Your address is not in free delivery range</span>

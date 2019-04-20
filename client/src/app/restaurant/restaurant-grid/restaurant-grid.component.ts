@@ -8,7 +8,8 @@ import { PageActions } from '../../main/main.actions';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { RestaurantActions } from '../restaurant.actions';
-
+import * as moment from 'moment';
+import { RestaurantService } from '../restaurant.service';
 
 @Component({
   selector: 'app-restaurant-grid',
@@ -32,9 +33,9 @@ export class RestaurantGridComponent implements OnInit {
   constructor(
     private router: Router,
     private sharedSvc: SharedService,
+    private restaurantSvc: RestaurantService,
     private rx: NgRedux<IAppState>
   ) {
-
   }
 
   ngOnInit() {
@@ -60,6 +61,10 @@ export class RestaurantGridComponent implements OnInit {
     } else {
       return this.defaultPicture;
     }
+  }
+
+  isClosed(restaurant: IRestaurant) {
+    return this.restaurantSvc.isClosed(restaurant);
   }
 
   toDetail(r: Restaurant) {

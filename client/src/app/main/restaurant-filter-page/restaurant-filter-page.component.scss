@@ -49,7 +49,9 @@ app-delivery-date-list, .not-in-range-item{
   margin-top: 10px;
   text-align: left;
   background-color:#eee;
-
+  border: none;
+  border-radius: 2px;
+  
   .date{
     padding-left: 15px;
   }

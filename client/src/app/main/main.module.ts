@@ -2,29 +2,30 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MainRoutingModule } from './main-routing.module';
-import { HomeComponent } from './home/home.component';
 import { LocationModule } from '../location/location.module';
-import { SharedModule } from '../shared/shared.module';
 import { AccountService } from '../account/account.service';
 import { AuthService } from '../account/auth.service';
-import { RestaurantFilterPageComponent } from './restaurant-filter-page/restaurant-filter-page.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatButtonModule } from '@angular/material/button';
+
+import { RestaurantFilterPageComponent } from './restaurant-filter-page/restaurant-filter-page.component';
+import { HomeComponent } from './home/home.component';
+import { ReactiveFormsModule } from '../../../node_modules/@angular/forms';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MainRoutingModule,
-    SharedModule,
-    LocationModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    MatButtonModule
+    LocationModule,
+    SharedModule
   ],
   declarations: [
     HomeComponent,
-    RestaurantFilterPageComponent
+    RestaurantFilterPageComponent,
   ],
   exports: [
   ],

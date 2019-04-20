@@ -4,8 +4,11 @@
         <div class="col-lg-3 col-md-3 col-sm-12 col-12 grid-item" *ngFor="let r of restaurantList; let i = index;" (click)="toDetail(r)">
             <div class="row grid-item-body" *ngIf="r.distance!==null">
                 <div class="col-6 image-body">
-                    <img [src]="getImageSrc(r)" [alt]="r.name">
-                    <div *ngIf="deliverTimeType !== 'immediate'" class="free delivery-fee notify-badge">
+                    <img [src]="getImageSrc(r)"  [alt]="r.name">
+                    <div class="shadow-layer" *ngIf="isClosed(r)"></div>
+                    <div class="title-md rest-1" *ngIf="isClosed(r)">休息中</div>
+                    <div class="title-sm rest-2" *ngIf="isClosed(r)">暂不提供配送</div>
+                    <div *ngIf="deliverTimeType !== 'immediate' && !isClosed(r)" class="free delivery-fee notify-badge">
                       <div class="text-sm" i18n="@@FreeDelivery">Free delivery</div>
                       <del><span>${{r.fullDeliveryFee}}</span></del>
                     </div>

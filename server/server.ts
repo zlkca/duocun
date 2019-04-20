@@ -43,10 +43,11 @@ const storage = multer.diskStorage({
       cb(null, 'uploads/')
   },
   filename: function (req: any, file, cb) {
-      cb(null, req.body.fname);
+      cb(null, req.body.fname + '.' + req.body.ext);
   }
 });
 const upload = multer({ storage: storage });
+// const upload = multer({ dest: 'uploads/' });
 let user: User;
 let order: Order;
 let category: Category;
@@ -170,7 +171,9 @@ app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
 });
 app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
 });
-
+app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res) => {
+  product.uploadPicture(req, res);
+});
 app.post('/' + ROUTE_PREFIX + '/Accounts/applyMerchant', (req, res) => {
   merchantStuff.applyMerchant(req, res);
 });

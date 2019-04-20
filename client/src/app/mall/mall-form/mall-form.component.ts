@@ -41,7 +41,6 @@ export class MallFormComponent implements OnInit {
     });
   }
 
-    // callback of app-address-input
   onAddressChange(e) {
     // localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
     this.location = e.addr;

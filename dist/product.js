@@ -18,6 +18,15 @@ class Product extends entity_1.Entity {
             }
         });
     }
+    uploadPicture(req, res) {
+        const fname = req.body.fname + '.' + req.body.ext;
+        if (fname) {
+            res.send(JSON.stringify({ fname: fname, url: fname }, null, 3));
+        }
+        else {
+            res.send(JSON.stringify(null, null, 3));
+        }
+    }
     find(query, options) {
         const self = this;
         if (query && query.hasOwnProperty('id')) {

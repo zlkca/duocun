@@ -3,7 +3,7 @@ import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
 import { Order } from '../order.model';
-import { SocketService } from '../../shared/socket.service';
+// import { SocketService } from '../../shared/socket.service';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
@@ -33,7 +33,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService,
     private orderSvc: OrderService,
     private sharedSvc: SharedService,
-    private socketSvc: SocketService,
+    // private socketSvc: SocketService,
     private rx: NgRedux<IAppState>,
     private router: Router,
     public dialog: MatDialog
@@ -58,25 +58,24 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       }
     });
 
-    // this.socket.connect(this.authSvc.getToken());
-    this.socketSvc.on('updateOrders', x => {
-      // self.onFilterOrders(this.selectedRange);
-      if (x.clientId === self.account.id) {
-        const index = self.orders.findIndex(i => i.id === x.id);
-        if (index !== -1) {
-          self.orders[index] = x;
-        } else {
-          self.orders.push(x);
-        }
-        self.orders.sort((a: Order, b: Order) => {
-          if (this.sharedSvc.compareDateTime(a.created, b.created)) {
-            return -1;
-          } else {
-            return 1;
-          }
-        });
-      }
-    });
+    // this.socketSvc.on('updateOrders', x => {
+    //   // self.onFilterOrders(this.selectedRange);
+    //   if (x.clientId === self.account.id) {
+    //     const index = self.orders.findIndex(i => i.id === x.id);
+    //     if (index !== -1) {
+    //       self.orders[index] = x;
+    //     } else {
+    //       self.orders.push(x);
+    //     }
+    //     self.orders.sort((a: Order, b: Order) => {
+    //       if (this.sharedSvc.compareDateTime(a.created, b.created)) {
+    //         return -1;
+    //       } else {
+    //         return 1;
+    //       }
+    //     });
+    //   }
+    // });
 
     this.rx.select<ICommand>('cmd').pipe(
       takeUntil(this.onDestroy$)

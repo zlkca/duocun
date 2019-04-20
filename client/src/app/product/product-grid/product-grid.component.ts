@@ -11,7 +11,8 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
 import { WarningDialogComponent } from '../../shared/warning-dialog/warning-dialog.component';
-import { IRestaurant } from '../../restaurant/restaurant.model';
+import { IRestaurant, Restaurant } from '../../restaurant/restaurant.model';
+import { RestaurantService } from '../../restaurant/restaurant.service';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -38,6 +39,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private rx: NgRedux<IAppState>,
     private sharedSvc: SharedService,
+    private restaurantSvc: RestaurantService,
     public dialog: MatDialog
   ) {
     rx.select<ICart>('cart').pipe(
@@ -97,6 +99,10 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   addToCart(p: IProduct) {
+    if (this.restaurantSvc.isClosed(this.restaurant)) {
+      alert('该商家休息，暂时无法配送');
+      return;
+    }
     if (this.cart.items && this.cart.items.length > 0) {
       this.rx.dispatch({
         type: CartActions.ADD_TO_CART, payload:

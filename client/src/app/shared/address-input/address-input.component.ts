@@ -1,15 +1,8 @@
 // output addrChange({addr:x, sAddr:'Formatted address string'})
 
 import { Component, OnInit, ViewChild, OnChanges, ElementRef, Output, EventEmitter, Input, SimpleChange } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormBuilder } from '@angular/forms';
-// import { LocationService } from '../location/location.service';
-declare var google;
+import { FormBuilder } from '@angular/forms';
 
-// export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
-//     provide: NG_VALUE_ACCESSOR,
-//     useExisting: forwardRef(() => AddressInputComponent),
-//     multi: true
-// };
 
 @Component({
   selector: 'app-address-input',

@@ -10,6 +10,8 @@ import { Router } from '../../../../node_modules/@angular/router';
 import { LocationService } from '../../location/location.service';
 import { ContactActions } from '../../contact/contact.actions';
 import { ILocation } from '../../location/location.model';
+import { IRestaurant, Restaurant } from '../../restaurant/restaurant.model';
+import { RestaurantService } from '../../restaurant/restaurant.service';
 
 @Component({
   selector: 'app-cart-navbar',
@@ -23,13 +25,14 @@ export class CartNavbarComponent implements OnInit {
   location;
   account;
 
-  @Input() merchantId: string;
+  @Input() restaurant: IRestaurant;
   @Output() afterCheckout = new EventEmitter();
 
   constructor(
     private rx: NgRedux<IAppState>,
     private contactSvc: ContactService,
     private locationSvc: LocationService,
+    private restaurantSvc: RestaurantService,
     private router: Router,
   ) {
     this.rx.select('account').pipe(
@@ -54,7 +57,7 @@ export class CartNavbarComponent implements OnInit {
       const items: ICartItem[] = cart.items;
       if (items && items.length > 0) {
         items.map(x => {
-          if (x.merchantId === self.merchantId) {
+          if (x.merchantId === self.restaurant.id) {
             this.productTotal += (x.price * x.quantity);
             this.quantity += x.quantity;
           }
@@ -72,6 +75,11 @@ export class CartNavbarComponent implements OnInit {
 
   checkout() {
     const self = this;
+
+    if (this.restaurantSvc.isClosed(this.restaurant)) {
+      alert('该商家休息，暂时无法配送');
+      return;
+    }
 
     if (this.quantity > 0) {
       this.afterCheckout.emit({ productTotal: this.productTotal, quantity: this.quantity });

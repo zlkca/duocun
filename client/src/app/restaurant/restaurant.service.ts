@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 // import { RestaurantApi, LoopBackFilter, GeoPoint, Order, OrderApi, Product, Picture, PictureApi } from '../lb-sdk';
-
-import { Restaurant } from './restaurant.model';
+import * as moment from 'moment';
+import { Restaurant, IRestaurant } from './restaurant.model';
 import { Observable } from 'rxjs';
 import { mergeMap, flatMap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -30,6 +30,19 @@ export class RestaurantService extends EntityService {
     return this.http.put(this.url, restaurant);
   }
 
+  isClosed(restaurant: IRestaurant) {
+    const now = moment();
+    if (restaurant.closed) {
+      const deadline = moment().set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
+      if (now.isAfter(deadline)) {
+        return restaurant.closed.find(d => moment(d).isSame(moment().add(1, 'days'), 'day'));
+      } else {
+        return restaurant.closed.find(d => moment(d).isSame(now, 'day'));
+      }
+    } else {
+      return false;
+    }
+  }
   // create(restaurant: Restaurant): Observable<Restaurant> {
   //   let merchantId;
   //   return this.restaurantApi.create(restaurant)

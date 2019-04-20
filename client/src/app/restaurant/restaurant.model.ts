@@ -13,6 +13,7 @@ export interface IRestaurant {
   mallId?: string;
   created?: Date;
   modified?: Date;
+  closed?: Date[];
   id?: string;
   distance?: number;
   deliveryFee?: number;
@@ -32,6 +33,7 @@ export class Restaurant implements IRestaurant {
   mallId: string;
   created: Date;
   modified: Date;
+  closed?: Date[];
   id: string;
   products: Product[];
   pictures: Picture[];

@@ -81,8 +81,6 @@ const appRoutes: Routes = [
             appRoutes,
             // { enableTracing: true } // <-- debugging purposes only
         ),
-        // SDKBrowserModule.forRoot(), // for socket
-        // NgbModule.forRoot(),
         NgReduxModule,
         BrowserAnimationsModule,
 

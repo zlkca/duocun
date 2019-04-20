@@ -6,7 +6,7 @@ import { ILocationHistory, IPlace, ILocation, ILatLng, GeoPoint } from '../../lo
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
-import { SocketService } from '../../shared/socket.service';
+// import { SocketService } from '../../shared/socket.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../account/auth.service';
 import { IPageAction } from '../main.reducers';
@@ -21,11 +21,7 @@ import { AccountActions } from '../../account/account.actions';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { ContactService } from '../../contact/contact.service';
 import { IContact, Contact } from '../../contact/contact.model';
-import { IContactAction } from '../../contact/contact.reducer';
-import { ContactActions } from '../../contact/contact.actions';
 import { CommandActions } from '../../shared/command.actions';
-
-declare var google;
 
 const APP = environment.APP;
 
@@ -59,14 +55,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     private locationSvc: LocationService,
     private authSvc: AuthService,
     private contactSvc: ContactService,
-    private socketSvc: SocketService,
+    // private socketSvc: SocketService,
     private router: Router,
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
     private snackBar: MatSnackBar
   ) {
     const self = this;
-
+    this.loading = true;
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: 'home'
@@ -83,6 +79,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (account) {
           self.account = account;
           self.init(account);
+          this.loading = false;
         } else {
           if (code) {
             this.loading = true;
@@ -93,14 +90,16 @@ export class HomeComponent implements OnInit, OnDestroy {
                 self.wechatLoginHandler(data);
               } else { // failed from shared link login
                 // tslint:disable-next-line:max-line-length
+                this.loading = false;
                 window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0591bdd165898739&redirect_uri=https://duocun.com.cn&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
               }
             });
           } else { // no code in router
-
+            this.loading = false;
           }
         }
       }, err => {
+        this.loading = false;
         console.log('login failed');
       });
     });
@@ -126,6 +125,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.snackBar.open('', '微信登录失败。', {
           duration: 1000
         });
+        self.loading = false;
       }
     });
   }
@@ -135,7 +135,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
 
-    self.socketSvc.init(this.authSvc.getAccessToken());
+    // self.socketSvc.init(this.authSvc.getAccessToken());
 
     // redirect to filter if contact have default address
     self.contactSvc.find({ where: { accountId: account.id } }).pipe(

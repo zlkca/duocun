@@ -4,6 +4,7 @@ import { DB } from "./db";
 import { Entity } from "./entity";
 
 export class Product extends Entity{
+
   constructor(dbo: DB) {
 		super(dbo, 'products');
   }
@@ -19,6 +20,15 @@ export class Product extends Entity{
         res.send(JSON.stringify(null, null, 3))
       }
     });
+  }
+
+  uploadPicture(req: Request, res: Response){
+    const fname = req.body.fname + '.' + req.body.ext;
+    if(fname){
+      res.send(JSON.stringify({fname: fname, url: fname}, null, 3));
+    }else{
+      res.send(JSON.stringify(null, null, 3))
+    }
   }
 
   find(query: any, options?: any): Promise<any> {
