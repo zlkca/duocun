@@ -1,22 +1,25 @@
 <div class="page" *ngIf="!loading">
   <div class="location-list-block" *ngIf="showLocationList()">
-    <app-location-list [account]="account" [places]="places"
-      (placeSeleted)="onSelectPlace($event)">
+    <app-location-list [account]="account" [places]="places" (placeSeleted)="onSelectPlace($event)">
     </app-location-list>
   </div>
 
-  <div class="map-block" *ngIf="!showLocationList()">
+  <!-- <div class="map-block" *ngIf="!showLocationList()">
     <div class="background-img" *ngIf="mapFullScreen">
       <img src="assets/logo.png" />
     </div>
-  </div>
+  </div> -->
 
   <div class="slogan" *ngIf="!showLocationList() ">多村外卖，免运费</div>
 
-  <div class="input-group address-search-block" *ngIf="!loading">
+  <div class="input-group address-search-block" *ngIf="!loading"
+    #tooltip="matTooltip"
+    matTooltip="第一步：点这个地址框， 输入您想送达的地址。或者点击蓝色的定位按钮，用您当前的位置作为送达地址。"
+    [matTooltipPosition]="'below'"
+  >
     <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
       (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
-      [value]="deliveryAddress"></app-address-input>
+      [value]="deliveryAddress" ></app-address-input>
     <!-- <input #div type="text" id="userlocationinput" placeholder="Search by Street or Postal Code"/> -->
     <div class="input-group-append">
       <button type="button" class="btn btn-primary btn-current-location" (click)="useCurrentLocation()"

@@ -30,14 +30,28 @@ export class RestaurantService extends EntityService {
     return this.http.put(this.url, restaurant);
   }
 
-  isClosed(restaurant: IRestaurant) {
+  isClosed(restaurant: IRestaurant, type: any) { // deliverTimeType
     const now = moment();
     if (restaurant.closed) {
       const deadline = moment().set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
       if (now.isAfter(deadline)) {
-        return restaurant.closed.find(d => moment(d).isSame(moment().add(1, 'days'), 'day'));
+        if (type === 'lunch tomorrow') {
+          return restaurant.closed.find(d => moment(d).isSame(moment().add(1, 'days'), 'day'));
+        } else if (type === 'lunch after tomorrow') {
+          return restaurant.closed.find(d => moment(d).isSame(moment().add(2, 'days'), 'day'));
+        } else {
+          return false;
+        }
       } else {
-        return restaurant.closed.find(d => moment(d).isSame(now, 'day'));
+        if (type === 'lunch today') {
+          return restaurant.closed.find(d => moment(d).isSame(moment(), 'day'));
+        } else if (type === 'lunch tomorrow') {
+          return restaurant.closed.find(d => moment(d).isSame(moment().add(1, 'days'), 'day'));
+        } else if (type === 'lunch after tomorrow') {
+          return restaurant.closed.find(d => moment(d).isSame(moment().add(2, 'days'), 'day'));
+        } else {
+          return false;
+        }
       }
     } else {
       return false;

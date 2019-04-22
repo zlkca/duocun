@@ -24,6 +24,7 @@ export class CartNavbarComponent implements OnInit {
   productTotal;
   location;
   account;
+  deliveryTime;
 
   @Input() restaurant: IRestaurant;
   @Output() afterCheckout = new EventEmitter();
@@ -40,6 +41,13 @@ export class CartNavbarComponent implements OnInit {
     ).subscribe((account: Account) => {
       this.account = account;
     });
+
+    this.rx.select<string>('deliveryTime').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(x => {
+      this.deliveryTime = x;
+    });
+
     this.rx.select('location').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((loc: ILocation) => {
@@ -76,7 +84,7 @@ export class CartNavbarComponent implements OnInit {
   checkout() {
     const self = this;
 
-    if (this.restaurantSvc.isClosed(this.restaurant)) {
+    if (this.restaurantSvc.isClosed(this.restaurant, this.deliveryTime.type)) {
       alert('该商家休息，暂时无法配送');
       return;
     }
@@ -84,38 +92,40 @@ export class CartNavbarComponent implements OnInit {
     if (this.quantity > 0) {
       this.afterCheckout.emit({ productTotal: this.productTotal, quantity: this.quantity });
       const account = this.account;
-      self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
-        if (r && r.length > 0) {
+      if (account && account.id) {
+        self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+          if (r && r.length > 0) {
 
-          r[0].placeId = self.location.placeId;
-          r[0].location = self.location;
-          r[0].address = self.locationSvc.getAddrString(self.location);
-          r[0].modified = new Date();
-          this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
+            r[0].placeId = self.location.placeId;
+            r[0].location = self.location;
+            r[0].address = self.locationSvc.getAddrString(self.location);
+            r[0].modified = new Date();
+            this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
 
-          if (r[0].phone) {
-            self.router.navigate(['contact/list']);
+            if (r[0].phone) {
+              self.router.navigate(['contact/list']);
+            } else {
+              self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+            }
           } else {
+            const contact = new Contact({
+              accountId: account.id,
+              username: account.username,
+              phone: '', // account.phone,
+              placeId: self.location.placeId,
+              location: self.location,
+              unit: '',
+              buzzCode: '',
+              address: self.locationSvc.getAddrString(self.location),
+              created: new Date(),
+              modified: new Date()
+            });
+
+            self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
             self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
           }
-        } else {
-          const contact = new Contact({
-            accountId: account.id,
-            username: account.username,
-            phone: '', // account.phone,
-            placeId: self.location.placeId,
-            location: self.location,
-            unit: '',
-            buzzCode: '',
-            address: self.locationSvc.getAddrString(self.location),
-            created: new Date(),
-            modified: new Date()
-          });
-
-          self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
-          self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-        }
-      });
+        });
+      }
     }
   }
 

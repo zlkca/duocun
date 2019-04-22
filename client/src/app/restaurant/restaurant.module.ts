@@ -4,15 +4,8 @@ import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 
-
-// import { ProductModule } from '../product/product.module';
 import { RestaurantGridComponent } from './restaurant-grid/restaurant-grid.component';
-// import { OrderModule } from '../order/order.module';
 import { RestaurantService } from './restaurant.service';
-// import { LocationService } from '../shared/location/location.service';
-// import { ImageUploadModule } from 'angular2-image-upload';
-// import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
 import { RestaurantAboutComponent } from './restaurant-about/restaurant-about.component';
 import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-list-page.component';
 import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaurant-detail-page.component';
@@ -30,7 +23,6 @@ import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-res
 @NgModule({
     imports: [
         CommonModule,
-        // NgbModule,
         SharedModule,
         FormsModule,
         ReactiveFormsModule,
@@ -38,9 +30,6 @@ import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-res
         MatDialogModule,
         RestaurantRoutingModule,
         ProductModule,
-        // OrderModule,
-        // ImageUploadModule.forRoot(),
-        ImageUploaderModule,
         CartModule
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],

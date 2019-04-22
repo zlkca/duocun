@@ -65,18 +65,18 @@ and (orientation: landscape) {
 
   .slogan{
     width: 100%;
-    padding-top: 100px;
+    padding-top: 450px;
     text-align: center;
     font-size: 14px;
   }
   
   .address-search-block{
     position: fixed;
-    top: 6px;
+    top: 10px;
     left: 0px;
     margin: 0px;
-    padding-left:6px;
-    padding-right:6px;
+    padding-left:10px;
+    padding-right:10px;
     
     .input-group-append{
       width: $position-btn-width;

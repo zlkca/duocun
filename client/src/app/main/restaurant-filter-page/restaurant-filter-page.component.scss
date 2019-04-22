@@ -51,7 +51,7 @@ app-delivery-date-list, .not-in-range-item{
   background-color:#eee;
   border: none;
   border-radius: 2px;
-  
+
   .date{
     padding-left: 15px;
   }
@@ -68,10 +68,12 @@ app-delivery-date-list, .not-in-range-item{
   }
   .second-row{
     line-height: 12px;
+    width: 100%;
   }
   .third-row{
     padding-top: 5px;
     line-height: 16px;
+    width: 100%;
   }
 }
 

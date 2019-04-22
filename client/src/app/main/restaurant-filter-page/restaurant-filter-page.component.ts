@@ -85,6 +85,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }
+
   onSelectDeliveryTime(e: IDeliveryTime) {
     const self = this;
     const r = self.location;
@@ -100,6 +101,8 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
           userId: self.account.id, type: 'history',
           placeId: r.placeId, location: r, created: new Date()
         };
+
+        // save location history
         self.locationSvc.saveIfNot(query, lh).pipe(
           takeUntil(this.onDestroy$)
         ).subscribe(() => {
@@ -114,7 +117,9 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     const self = this;
     this.places = [];
     if (this.account && this.account.id) {
-      this.locationSvc.getHistoryLocations(this.account.id).then(a => {
+      this.locationSvc.getHistoryLocations(this.account.id).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe(a => {
         self.places = a;
       });
     }

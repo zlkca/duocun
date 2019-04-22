@@ -268,15 +268,11 @@ body{
       }
 
       img{
-          width:100px;
-          height:100px;
-          border:1px solid #eee;
-          margin-right:15px;
-          margin-bottom:15px;
-      }
-
-      input{
-        width:480px;
+        width:100px;
+        height:100px;
+        border:1px solid #eee;
+        margin-right:15px;
+        margin-bottom:15px;
       }
 
       input.input-dt{
@@ -284,9 +280,9 @@ body{
       }
 
       input[type="checkbox"], input[type="radio"] {
-          margin:6px;
-          width:18px;
-          height:18px;
+        margin:6px;
+        width:18px;
+        height:18px;
       }
 
       .upload-input{
@@ -496,3 +492,4 @@ select:not([multiple]) {
       max-width: 760px;
     }
   }
+

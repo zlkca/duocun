@@ -29,6 +29,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   cart: any;
   categoryIds;
   groupedOrders: any = {};
+  deliverTimeType;
   private onDestroy$ = new Subject<void>();
 
   @Input() restaurant: IRestaurant;
@@ -59,7 +60,11 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-
+    this.rx.select<string>('deliverTime').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(x => {
+      this.deliverTimeType = x;
+    });
   }
 
   ngOnDestroy() {
@@ -99,7 +104,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   addToCart(p: IProduct) {
-    if (this.restaurantSvc.isClosed(this.restaurant)) {
+    if (this.restaurantSvc.isClosed(this.restaurant, this.deliverTimeType)) {
       alert('该商家休息，暂时无法配送');
       return;
     }

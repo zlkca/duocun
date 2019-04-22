@@ -136,7 +136,9 @@ export class ContactFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     this.options = [];
     if (this.account && this.account.id) {
-      this.locationSvc.getHistoryLocations(this.account.id).then(a => {
+      this.locationSvc.getHistoryLocations(this.account.id).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe(a => {
         self.options = a;
       });
     }

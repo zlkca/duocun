@@ -126,33 +126,46 @@ export class ContactListPageComponent implements OnInit, OnDestroy {
     self.malls.filter(r => r.type === 'real').map(m => {
       destinations.push({lat: m.lat, lng: m.lng, placeId: m.placeId});
     });
-    self.locationSvc.reqRoadDistances(contact.location, destinations).pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((rs: IDistance[]) => {
-      if (rs) {
-        const reallDistances = rs; // .filter(r => r.type === 'real');
-        self.malls.map((mall: IMall) => {
-          const d = reallDistances.find(rm => rm.destination.lat === mall.lat && rm.destination.lng === mall.lng);
-          if (d) {
-            mall.distance = d.element.distance.value / 1000;
-            mall.fullDeliverFee = self.distanceSvc.getFullDeliveryFee(mall.distance);
-            mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliverTimeType);
+
+    self.distanceSvc.find({where: {originPlaceId: contact.location.placeId}}).pipe(
+      takeUntil(self.onDestroy$)
+    ).subscribe((ds: IDistance[]) => {
+      if (ds && ds.length > 0) {
+        self.updateDistanceToMalls(ds);
+        self.router.navigate(['order/form']);
+      } else {
+        self.locationSvc.reqRoadDistances(contact.location, destinations).pipe(
+          takeUntil(this.onDestroy$)
+        ).subscribe((rs: IDistance[]) => {
+          if (rs) {
+            self.updateDistanceToMalls(rs);
+            self.router.navigate(['order/form']);
+          } else {
+            alert('地址有误无法下单，请退出重试');
           }
-        });
-        self.rx.dispatch({
-          type: MallActions.UPDATE,
-          payload: self.malls.filter(r => r.type === 'real')
+        }, err => {
+          alert(err);
+          // reject([]);
         });
       }
-    }, err => {
-      // reject([]);
     });
+  }
 
-    // if (!contact.phone || !contact.address) {
-    //   this.router.navigate(['contact/form']);
-    // } else {
-    this.router.navigate(['order/form']);
-    // }
+  updateDistanceToMalls(rs) {
+    const self = this;
+    const reallDistances = rs; // .filter(r => r.type === 'real');
+    self.malls.map((mall: IMall) => {
+      const d = reallDistances.find(rm => rm.destination.lat === mall.lat && rm.destination.lng === mall.lng);
+      if (d) {
+        mall.distance = d.element.distance.value / 1000;
+        mall.fullDeliverFee = self.distanceSvc.getFullDeliveryFee(mall.distance);
+        mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliverTimeType);
+      }
+    });
+    self.rx.dispatch({
+      type: MallActions.UPDATE,
+      payload: self.malls.filter(r => r.type === 'real')
+    });
   }
 
   edit(item: IContact) {

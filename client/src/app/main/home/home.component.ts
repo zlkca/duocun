@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
@@ -18,7 +18,7 @@ import { ICommand } from '../../shared/command.reducers';
 import { IDeliveryTime } from '../../delivery/delivery.model';
 import { Account } from '../../account/account.model';
 import { AccountActions } from '../../account/account.actions';
-import { MatSnackBar } from '../../../../node_modules/@angular/material';
+import { MatSnackBar, MatTooltip } from '../../../../node_modules/@angular/material';
 import { ContactService } from '../../contact/contact.service';
 import { IContact, Contact } from '../../contact/contact.model';
 import { CommandActions } from '../../shared/command.actions';
@@ -49,6 +49,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   inRange = false;
   onDestroy$ = new Subject<any>();
   loading = false;
+  location;
+  @ViewChild('tooltip') tooltip: MatTooltip;
 
   constructor(
     private accountSvc: AccountService,
@@ -59,7 +61,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cd: ChangeDetectorRef
   ) {
     const self = this;
     this.loading = true;
@@ -80,6 +83,9 @@ export class HomeComponent implements OnInit, OnDestroy {
           self.account = account;
           self.init(account);
           this.loading = false;
+          setTimeout(() => {
+            self.tooltip.show();
+          }, 1000);
         } else {
           if (code) {
             this.loading = true;
@@ -96,6 +102,9 @@ export class HomeComponent implements OnInit, OnDestroy {
             });
           } else { // no code in router
             this.loading = false;
+            setTimeout(() => {
+              self.tooltip.show();
+            }, 1000);
           }
         }
       }, err => {
@@ -126,6 +135,9 @@ export class HomeComponent implements OnInit, OnDestroy {
           duration: 1000
         });
         self.loading = false;
+        setTimeout(() => {
+          self.tooltip.show();
+        }, 1000);
       }
     });
   }
@@ -154,8 +166,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       }
     });
-  }
 
+  }
+  // ngAfterViewInit() {
+  //   this.tooltip.show();
+  //   this.cd.detectChanges();
+  //   setTimeout(() => this.tooltip.hide(2000));
+  // }
   ngOnInit() {
     const self = this;
     this.places = []; // clear address list
@@ -171,6 +188,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.places = [];
       }
     });
+
     this.rx.select('location').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((loc: ILocation) => {
@@ -189,9 +207,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     const self = this;
     this.places = [];
     if (this.account && this.account.id) {
-      this.locationSvc.getHistoryLocations(this.account.id).then(a => {
+      this.locationSvc.getHistoryLocations(this.account.id).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe((a: IPlace[]) => {
         self.places = a;
       });
+    }
+    if (this.tooltip) {
+      this.tooltip.hide();
     }
   }
 
@@ -232,7 +255,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   useCurrentLocation() {
     const self = this;
     self.places = [];
+    self.loading = true;
     this.locationSvc.getCurrentLocation().then(r => {
+      self.loading = false;
       self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
 
       self.rx.dispatch<ILocationAction>({

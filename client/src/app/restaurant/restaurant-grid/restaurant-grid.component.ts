@@ -64,7 +64,7 @@ export class RestaurantGridComponent implements OnInit {
   }
 
   isClosed(restaurant: IRestaurant) {
-    return this.restaurantSvc.isClosed(restaurant);
+    return this.restaurantSvc.isClosed(restaurant, this.deliverTimeType);
   }
 
   toDetail(r: Restaurant) {

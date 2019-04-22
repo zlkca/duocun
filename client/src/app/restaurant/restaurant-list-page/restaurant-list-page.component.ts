@@ -11,6 +11,7 @@ import { IMall } from '../../mall/mall.model';
 import { PageActions } from '../../main/main.actions';
 import { DistanceService } from '../../location/distance.service';
 import { LocationService } from '../../location/location.service';
+import { IDeliveryTime } from '../../delivery/delivery.model';
 
 @Component({
   selector: 'app-restaurant-list-page',
@@ -20,12 +21,11 @@ import { LocationService } from '../../location/location.service';
 export class RestaurantListPageComponent implements OnInit, OnDestroy {
   private places;
   location;
-  deliveryTime = '';
+  deliveryTime;
   restaurants: IRestaurant[];
   center;
   realMalls;
   deliveryAddress;
-  deliverTimeType = 'immediate';
 
   // malls: IMall[];
   malls: IMall[] = [
@@ -62,7 +62,7 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const self = this;
     forkJoin([
-      this.rx.select<string>('deliverTime').pipe(
+      this.rx.select<string>('deliveryTime').pipe(
         first(),
         takeUntil(this.onDestroy$)
       ),
@@ -72,7 +72,7 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
       )
     ]).subscribe(vals => {
       const location = vals[1];
-      self.deliverTimeType = vals[0];
+      self.deliveryTime = vals[0];
       if (location) {
         self.center = { lat: location.lat, lng: location.lng };
 
@@ -80,19 +80,8 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
           takeUntil(self.onDestroy$)
         ).subscribe((ds: IDistance[]) => {
           if (ds && ds.length > 0) {
-            // fix me load malls
-            const distance = ds[0].element.distance.value / 1000;
-            const fullDeliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
-            const deliveryFee = self.distanceSvc.getDeliveryFee(distance, self.deliverTimeType);
-            self.rx.dispatch({
-              type: MallActions.UPDATE,
-              payload: [{
-                distance: distance,
-                deliverFee: deliveryFee,
-                fullDeliverFee: fullDeliveryFee
-              }]
-            });
-            self.loadRestaurants(ds[0].element.distance.value / 1000);
+            const distance = self.updateMallInfo(ds);
+            self.loadRestaurants(distance);
           } else {
             const destinations: ILocation[] = [];
             self.malls.filter(r => r.type === 'real').map(m => {
@@ -102,24 +91,11 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
               takeUntil(this.onDestroy$)
             ).subscribe((rs: IDistance[]) => {
               if (rs) {
-                const reallDistances = rs; // .filter(r => r.type === 'real');
-                self.malls.map((mall: IMall) => {
-                  const d = reallDistances.find(rm => rm.destination.lat === mall.lat && rm.destination.lng === mall.lng);
-                  if (d) {
-                    mall.distance = d.element.distance.value / 1000;
-                    mall.fullDeliverFee = self.distanceSvc.getFullDeliveryFee(mall.distance);
-                    mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliverTimeType);
-                  }
-                });
-                self.rx.dispatch({
-                  type: MallActions.UPDATE,
-                  payload: self.malls.filter(r => r.type === 'real')
-                });
-                self.loadRestaurants(self.malls.filter(r => r.type === 'real')[0].distance);
-                // resolve(self.malls);
+                const distance = self.updateMallInfo(rs);
+                self.loadRestaurants(distance);
               }
             }, err => {
-              // reject([]);
+              console.log(err);
             });
           }
         });
@@ -130,6 +106,25 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.onDestroy$.next();
     this.onDestroy$.complete();
+  }
+
+  updateMallInfo(rs: IDistance[]) {
+    const self = this;
+    const reallDistances = rs; // .filter(r => r.type === 'real');
+    self.malls.map((mall: IMall) => {
+      const d = reallDistances.find(rm => rm.destination.lat === mall.lat && rm.destination.lng === mall.lng);
+      if (d) {
+        mall.distance = d.element.distance.value / 1000;
+        mall.fullDeliverFee = self.distanceSvc.getFullDeliveryFee(mall.distance);
+        mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliveryTime.type);
+      }
+    });
+    self.rx.dispatch({
+      type: MallActions.UPDATE,
+      payload: self.malls.filter(r => r.type === 'real')
+    });
+
+    return self.malls.filter(r => r.type === 'real')[0].distance;
   }
 
   loadRestaurants(distance: number) {

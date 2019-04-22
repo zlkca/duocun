@@ -3,12 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ProductFormComponent } from './product-form/product-form.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductGridComponent } from './product-grid/product-grid.component';
-// import { OrderModule } from '../order/order.module';
-// import { ImageUploadModule } from 'angular2-image-upload';
-import { ImageUploaderModule } from '../image-uploader/image-uploader.module';
 import { ProductRoutingModule } from './product-routing.module';
 import { CategoryService } from '../category/category.service';
 import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.component';
@@ -19,18 +15,14 @@ import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.
     FormsModule,
     ReactiveFormsModule,
     ProductRoutingModule,
-    SharedModule,
-    // OrderModule,
-    // ImageUploadModule.forRoot(),
-    ImageUploaderModule
+    SharedModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
-    ProductFormComponent,
     ProductListComponent,
     ProductGridComponent
   ],
-  exports: [ProductFormComponent, ProductListComponent, ProductGridComponent, WarningDialogComponent
+  exports: [ProductListComponent, ProductGridComponent, WarningDialogComponent
   ],
   providers: [
     CategoryService

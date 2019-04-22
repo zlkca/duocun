@@ -1,5 +1,15 @@
 
 import { GeoPoint } from '../location/location.model';
+
+export enum Role {
+  SUPER = 1,
+  MERCHANT_ADMIN = 2,
+  MERCHANT_STUFF = 3,
+  MANAGER = 4,
+  STUFF = 5,
+  CLIENT = 6
+}
+
 export interface IAccount {
   type: string; // wechat, google, fb
   realm?: string;
@@ -15,7 +25,7 @@ export interface IAccount {
   unionid?: string; // wechat unionid
   accessTokens?: any[];
   address?: IAddress;
-  roles?: string[]; // 'super', 'merchant-admin', 'merchant-stuff', 'stuff', 'user'
+  roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'stuff', 'user'
 }
 
 export class Account implements IAccount {
@@ -33,7 +43,7 @@ export class Account implements IAccount {
   unionid?: string; // wechat unionid
   accessTokens?: any[];
   address?: Address;
-  roles?: string[]; // 'super', 'merchant-admin', 'merchant-stuff', 'stuff', 'user'
+  roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'stuff', 'user'
   constructor(data?: IAccount) {
     Object.assign(this, data);
   }
