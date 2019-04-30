@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { AccountService } from '../../account/account.service';
-import { Product } from '../../product/product.model';
+import { Product, IProduct } from '../../product/product.model';
 import { Account } from '../../account/account.model';
 
 import { PageActions } from '../../main/main.actions';
@@ -20,6 +20,7 @@ import { ILocation } from '../../location/location.model';
 import { RestaurantActions } from '../../restaurant/restaurant.actions';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
+import { ProductService } from '../../product/product.service';
 
 @Component({
   selector: 'app-cart-page',
@@ -36,6 +37,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   carts;
   location;
   restaurant;
+  products: IProduct[];
 
   @ViewChild('orderDetailModal') orderDetailModal;
 
@@ -45,6 +47,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService,
     private locationSvc: LocationService,
     private restaurantSvc: RestaurantService,
+    private productSvc: ProductService,
     private sharedSvc: SharedService,
     private router: Router
   ) {
@@ -83,6 +86,12 @@ export class CartPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((r: IRestaurant) => {
       this.restaurant = r;
+
+      this.productSvc.find({merchantId: r.id}).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe((ps: IProduct[]) => {
+        this.products = ps;
+      });
     });
   }
 
@@ -106,10 +115,12 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   addToCart(item: ICartItem) {
+    const product = this.products.find(x => x.id === item.productId);
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
       payload: [{
         productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
+        cost: product ? product.cost : 0,
         merchantId: item.merchantId, merchantName: item.merchantName
       }]
     });
@@ -148,7 +159,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
           this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
 
           if (r[0].phone) {
-            self.router.navigate(['contact/list']);
+            self.router.navigate(['order/form']);
           } else {
             self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
           }
@@ -189,9 +200,11 @@ export class CartPageComponent implements OnInit, OnDestroy {
     for (const item of cart.items) {
       for (const order of orders) {
         if (item.merchantId === order.merchantId) {
+          const product = this.products.find(x => x.id === item.productId);
           order.items.push({
             productName: item.productName,
             price: item.price,
+            cost: product ? product.cost : 0,
             quantity: item.quantity,
             productId: item.productId,
             merchantId: item.merchantId

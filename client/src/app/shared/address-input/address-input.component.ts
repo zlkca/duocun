@@ -15,8 +15,9 @@ export class AddressInputComponent implements OnInit, OnChanges {
   @Output() addrChange = new EventEmitter();
   @Output() addrClear = new EventEmitter();
   @Output() inputFocus = new EventEmitter();
+  @Output() backHistory = new EventEmitter();
   @Input() value;
-  @ViewChild('search') searchElement: ElementRef;
+  @ViewChild('search') addressInput: ElementRef;
 
   placeForm;
   gAutocomplete: any;
@@ -33,9 +34,15 @@ export class AddressInputComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    const self = this;
     if (this.input !== undefined) {
       this.placeForm.get('addr').patchValue(this.input);
     }
+    // setTimeout(() => { // this will make the execution after the above boolean has changed
+    //   if (self.addressInput.nativeElement) {
+    //     self.addressInput.nativeElement.focus();
+    //   }
+    // }, 0);
   }
 
   ngOnChanges(changes) {
@@ -72,11 +79,17 @@ export class AddressInputComponent implements OnInit, OnChanges {
   clearAddr() {
     const self = this;
     this.input = '';
-    this.placeForm.get('addr').patchValue(this.input);
-    this.addrClear.emit();
-    this.bClearBtn = false;
-    setTimeout(() => { // this will make the execution after the above boolean has changed
-      self.searchElement.nativeElement.focus();
-    }, 0);
+    if (this.bClearBtn) {
+      this.placeForm.get('addr').patchValue(this.input);
+      this.addrClear.emit();
+      this.bClearBtn = false;
+      setTimeout(() => { // this will make the execution after the above boolean has changed
+        self.addressInput.nativeElement.focus();
+      }, 0);
+    }
+  }
+
+  back() {
+    this.backHistory.emit();
   }
 }

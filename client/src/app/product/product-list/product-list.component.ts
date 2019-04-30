@@ -39,24 +39,7 @@ export class ProductListComponent implements OnInit {
   }
 
   onClick(p) {
-    // if (this.mode == 'edit') {
-
-    // } else {
-    //     this.router.navigate(["product/" + p.id]);
-    // }
   }
-
-  // addToCart(p) {
-  //     this.rx.dispatch({
-  //         type: CartActions.ADD_TO_CART, payload:
-  //             { pid: p.id, name: p.name, price: p.price, restaurant_id: p.restaurant.id }
-  //     });
-  // }
-
-  // removeFromCart(p) {
-  //     this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART,
-  //         payload: { pid: p.id, name: p.name, price: p.price, restaurant_id: p.restaurant.id } });
-  // }
 
   getImageSrc(p) {
     if (p.fpath) {

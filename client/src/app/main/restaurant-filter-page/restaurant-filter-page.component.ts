@@ -181,4 +181,9 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   changeAddress() {
     this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-filter' }});
   }
+
+  onBack(e) {
+    // this.deliveryAddress = '';
+    this.places = [];
+  }
 }

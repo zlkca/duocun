@@ -65,6 +65,8 @@ export class FooterComponent implements OnInit, OnDestroy {
     ).subscribe((x: ICommand) => {
       if (x.name === 'loggedIn') {
         self.bHide = false;
+      } else if (x.name === 'firstTimeUse') {
+        self.bHide = true;
       }
     });
   }

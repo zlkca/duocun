@@ -26,6 +26,7 @@ export interface IAccount {
   accessTokens?: any[];
   address?: IAddress;
   roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'stuff', 'user'
+  used?: boolean;
 }
 
 export class Account implements IAccount {
@@ -44,6 +45,7 @@ export class Account implements IAccount {
   accessTokens?: any[];
   address?: Address;
   roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'stuff', 'user'
+  used?: boolean;
   constructor(data?: IAccount) {
     Object.assign(this, data);
   }

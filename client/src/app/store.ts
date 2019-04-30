@@ -21,6 +21,7 @@ import { Account } from './account/account.model';
 import { deliveryTimeReducer } from './delivery/delivery-time.reducer';
 import { orderReducer } from './order/order.reducers';
 import { IOrder } from './order/order.model';
+import { addressReducer } from './location/address.reducer';
 
 export interface IAppState {
     cart: ICart;
@@ -35,6 +36,7 @@ export interface IAppState {
     delivery: IDelivery;
     contact: IContact;
     order: IOrder;
+    address: string;
 }
 
 export const INITIAL_STATE: IAppState = {
@@ -50,6 +52,7 @@ export const INITIAL_STATE: IAppState = {
     delivery: null,
     contact: null,
     order: null,
+    address: ''
 };
 
 // export function rootReducer(last:IAppState, action:Action):IAppState{
@@ -74,5 +77,6 @@ export const rootReducer = combineReducers({
     malls: mallReducer,
     delivery: deliveryReducer,
     contact: contactReducer,
-    order: orderReducer
+    order: orderReducer,
+    address: addressReducer
 });

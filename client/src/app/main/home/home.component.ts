@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
@@ -16,12 +16,15 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICommand } from '../../shared/command.reducers';
 import { IDeliveryTime } from '../../delivery/delivery.model';
-import { Account } from '../../account/account.model';
+import { Account, IAccount } from '../../account/account.model';
 import { AccountActions } from '../../account/account.actions';
 import { MatSnackBar, MatTooltip } from '../../../../node_modules/@angular/material';
 import { ContactService } from '../../contact/contact.service';
 import { IContact, Contact } from '../../contact/contact.model';
 import { CommandActions } from '../../shared/command.actions';
+import { FormBuilder } from '../../../../node_modules/@angular/forms';
+import { IAddressAction } from '../../location/address.reducer';
+import { AddressActions } from '../../location/address.actions';
 
 const APP = environment.APP;
 
@@ -38,7 +41,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   placeholder = 'Delivery Address';
   mapFullScreen = true;
   subscrAccount;
-  account;
+  account: IAccount;
   bHideMap = false;
   bTimeOptions = false;
   orderDeadline = { h: 9, m: 30 };
@@ -50,6 +53,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject<any>();
   loading = false;
   location;
+  bFirstTime = true;
+  bInputLocation = false;
+  placeForm;
+  historyAddressList = [];
   @ViewChild('tooltip') tooltip: MatTooltip;
 
   constructor(
@@ -62,13 +69,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
     private snackBar: MatSnackBar,
-    private cd: ChangeDetectorRef
+    private fb: FormBuilder
   ) {
     const self = this;
+    this.placeForm = this.fb.group({
+      addr: ['']
+    });
     this.loading = true;
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: 'home'
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'home' });
+
+    this.rx.select('location').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((loc: ILocation) => {
+      if (loc) {
+        self.deliveryAddress = self.locationSvc.getAddrString(loc);
+        self.placeForm.get('addr').patchValue(self.deliveryAddress);
+      }
     });
 
     self.route.queryParamMap.pipe(
@@ -80,12 +96,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         takeUntil(this.onDestroy$)
       ).subscribe(account => {
         if (account) {
+          self.bFirstTime = !account.used ? true : false;
           self.account = account;
           self.init(account);
           this.loading = false;
-          setTimeout(() => {
-            self.tooltip.show();
-          }, 1000);
         } else {
           if (code) {
             this.loading = true;
@@ -102,9 +116,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             });
           } else { // no code in router
             this.loading = false;
-            setTimeout(() => {
-              self.tooltip.show();
-            }, 1000);
           }
         }
       }, err => {
@@ -123,6 +134,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((account: Account) => {
       if (account) {
+        self.bFirstTime = !account.used ? true : false;
         self.account = account;
 
         this.snackBar.open('', '微信登录成功。', {
@@ -135,9 +147,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           duration: 1000
         });
         self.loading = false;
-        setTimeout(() => {
-          self.tooltip.show();
-        }, 1000);
       }
     });
   }
@@ -146,7 +155,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     const self = this;
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-
+    if (this.bFirstTime) {
+      this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: true } });
+    }
+    this.locationSvc.getHistoryLocations(this.account.id).pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((a: IPlace[]) => {
+      if (a && a.length > 0) {
+        self.historyAddressList = a;
+      }
+    });
     // self.socketSvc.init(this.authSvc.getAccessToken());
 
     // redirect to filter if contact have default address
@@ -166,13 +184,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       }
     });
-
   }
-  // ngAfterViewInit() {
-  //   this.tooltip.show();
-  //   this.cd.detectChanges();
-  //   setTimeout(() => this.tooltip.hide(2000));
-  // }
+
   ngOnInit() {
     const self = this;
     this.places = []; // clear address list
@@ -188,14 +201,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.places = [];
       }
     });
-
-    this.rx.select('location').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((loc: ILocation) => {
-      if (loc) {
-        self.deliveryAddress = self.locationSvc.getAddrString(loc);
-      }
-    });
   }
 
   ngOnDestroy() {
@@ -203,38 +208,74 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
+  // useCurrentLocation() {
+  //   const self = this;
+  //   self.places = [];
+  //   self.bFirstTime = false;
+  //   self.loading = true;
+  //   this.locationSvc.getCurrentLocation().then(r => {
+  //     self.loading = false;
+  //     self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
+
+  //     self.rx.dispatch<ILocationAction>({
+  //       type: LocationActions.UPDATE,
+  //       payload: r
+  //     });
+
+  //     this.router.navigate(['main/filter']);
+  //   },
+  //     err => {
+  //       console.log(err);
+  //     });
+  // }
+
+  showLocationList() {
+    return this.places && this.places.length > 0;
+  }
+
   onAddressInputFocus(e?: any) {
     const self = this;
     this.places = [];
-    if (this.account && this.account.id) {
-      this.locationSvc.getHistoryLocations(this.account.id).pipe(
-        takeUntil(this.onDestroy$)
-      ).subscribe((a: IPlace[]) => {
-        self.places = a;
+    this.bFirstTime = false;
+    this.account.used = true;
+    this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
+    this.locationSvc.getHistoryLocations(this.account.id).pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((a: IPlace[]) => {
+      a.map(x => { x.type = 'history'; });
+      self.places = a;
+    });
+  }
+
+  onAddressInputChange(e) {
+    const v = e.input;
+    if (v && v.length >= 3) {
+      this.rx.dispatch<IAddressAction>({
+        type: AddressActions.UPDATE,
+        payload: v
       });
-    }
-    if (this.tooltip) {
-      this.tooltip.hide();
+      this.bFirstTime = false;
+      this.account.used = true;
+      this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
+      this.getSuggestLocationList(e.input);
     }
   }
 
-  onSelectPlace(e) {
-    const r: ILocation = e.location;
+  onBack() {
+    // this.deliveryAddress = '';
     this.places = [];
-    if (r) {
-      this.rx.dispatch<ILocationAction>({
-        type: LocationActions.UPDATE,
-        payload: r
-      });
-      this.deliveryAddress = e.address; // set address text to input
-      this.router.navigate(['main/filter']);
-    }
   }
 
-  onAddressChange(e) {
+  onAddressInputClear(e) {
+    this.deliveryAddress = '';
+    this.places = [];
+    this.onAddressInputFocus();
+  }
+
+  getSuggestLocationList(input: string) {
     const self = this;
     this.places = [];
-    this.locationSvc.reqPlaces(e.input).pipe(
+    this.locationSvc.reqPlaces(input).pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
@@ -246,40 +287,33 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  onAddressClear(e) {
-    this.deliveryAddress = '';
-    this.places = [];
-    this.onAddressInputFocus();
-  }
-
-  useCurrentLocation() {
+  onSelectPlace(e) {
     const self = this;
-    self.places = [];
-    self.loading = true;
-    this.locationSvc.getCurrentLocation().then(r => {
-      self.loading = false;
-      self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
+    const r: ILocation = e.location;
+    this.places = [];
+    if (r) {
+      this.location = r;
+      this.deliveryAddress = e.address; // set address text to input
 
       self.rx.dispatch<ILocationAction>({
         type: LocationActions.UPDATE,
         payload: r
       });
 
+      if (self.account) {
+        const query = { where: { userId: self.account.id, placeId: r.placeId } };
+        const lh = {
+          userId: self.account.id, type: 'history',
+          placeId: r.placeId, location: r, created: new Date()
+        };
+        self.locationSvc.saveIfNot(query, lh).pipe(
+          takeUntil(this.onDestroy$)
+        ).subscribe(() => {
+
+        });
+      }
+
       this.router.navigate(['main/filter']);
-      // fix me!!!
-      // if (self.account) {
-      //   self.locationSvc.save({ userId: self.account.id, type: 'history',
-      //     placeId: r.placeId, location: r, created: new Date() }).subscribe(x => {
-      //   });
-      // }
-    },
-      err => {
-        console.log(err);
-      });
+    }
   }
-
-  showLocationList() {
-    return this.places && this.places.length > 0;
-  }
-
 }

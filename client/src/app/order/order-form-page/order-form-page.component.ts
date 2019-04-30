@@ -133,7 +133,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
   changeContact() {
-    this.router.navigate(['contact/list']);
+    // this.router.navigate(['contact/list']);
   }
 
 
@@ -150,6 +150,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const order: IOrder = {
         clientId: contact.accountId,
         clientName: contact.username,
+        clientPhoneNumber: contact.phone,
         merchantId: merchantId,
         merchantName: self.restaurant.name,
         items: items,

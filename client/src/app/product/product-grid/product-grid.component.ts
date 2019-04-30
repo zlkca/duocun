@@ -13,6 +13,7 @@ import { CartActions } from '../../cart/cart.actions';
 import { WarningDialogComponent } from '../../shared/warning-dialog/warning-dialog.component';
 import { IRestaurant, Restaurant } from '../../restaurant/restaurant.model';
 import { RestaurantService } from '../../restaurant/restaurant.service';
+import { IDeliveryTime } from '../../delivery/delivery.model';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -60,10 +61,10 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-    this.rx.select<string>('deliverTime').pipe(
+    this.rx.select('deliveryTime').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe(x => {
-      this.deliverTimeType = x;
+    ).subscribe((x: IDeliveryTime) => {
+      this.deliverTimeType = x.type;
     });
   }
 
@@ -112,12 +113,14 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
       this.rx.dispatch({
         type: CartActions.ADD_TO_CART, payload:
           [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+            cost: p.cost,
             merchantId: p.merchantId, merchantName: this.restaurant.name }]
       });
     } else {
       this.rx.dispatch({
         type: CartActions.ADD_TO_CART, payload:
           [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+            cost: p.cost,
             merchantId: p.merchantId, merchantName: this.restaurant.name }]
       });
     }

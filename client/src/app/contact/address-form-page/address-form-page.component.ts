@@ -82,7 +82,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   onAddressChange(e) {
     const self = this;
     this.options = [];
-    this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
+    this.locationSvc.reqPlaces(e.input).pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
         for (const p of ps) {
           p.type = 'suggest';
@@ -93,11 +95,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   }
 
   onAddressClear(e) {
-    const self = this;
     this.deliveryAddress = '';
     this.options = [];
     this.onAddressInputFocus();
-
   }
 
   onAddressInputFocus(e?: any) {
@@ -106,7 +106,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     if (this.account && this.account.id) {
       this.locationSvc.getHistoryLocations(this.account.id).pipe(
         takeUntil(this.onDestroy$)
-      ).subscribe(a => {
+      ).subscribe((a: IPlace[]) => {
+        a.map(x => { x.type = 'history'; });
         self.options = a;
       });
     }

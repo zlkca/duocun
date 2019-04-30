@@ -21,11 +21,10 @@ import { createStore } from '../../node_modules/redux';
 
 
 const appRoutes: Routes = [
-
-    // { path: 'restaurant-detail/:id', component: RestaurantDetailComponent },
-
-
-    // { path: 'restaurants/:id', component: RestaurantDetailPageComponent},
+    {
+      path: 'location',
+      loadChildren: './location/location.module#LocationModule'
+    },
     {
       path: 'restaurant',
       loadChildren: './restaurant/restaurant.module#RestaurantModule'

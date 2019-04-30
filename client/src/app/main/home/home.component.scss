@@ -8,7 +8,7 @@ $yellow: rgb(244, 160, 0);
 $red: rgb(219, 68, 55);
 
 
-$position-btn-width: 60px;
+$position-btn-width: 0px;
 $map-height: 220px;
 $address-search-height: 46px;
 $menu-height: 60px;
@@ -34,6 +34,22 @@ $menu-height: 60px;
   }
 }
 
+.address-search-block {
+  position: fixed;
+  top: 10px;
+  left: 0px;
+  margin: 0px;
+  width: 100%;
+  padding-left:10px;
+  padding-right:10px;
+}
+
+app-location-list{
+  position: absolute;
+  top: 50px;
+  width: 100%;
+}
+
 @media #{$desktop}{
 
 }
@@ -49,15 +65,15 @@ and (orientation: landscape) {
 }
 
 @media #{$mobile}{
-  .map-block{
-    padding-top: 200px;
+  .branding-block{
+    padding-top: 180px;
 
     .background-img{
-      width: 90px;
+      width: 70px;
       margin-left: auto;
       margin-right: auto;
       img {
-        width: 90px;
+        width: 70px;
         // height: 100%;
       }
     }
@@ -65,43 +81,9 @@ and (orientation: landscape) {
 
   .slogan{
     width: 100%;
-    padding-top: 450px;
+    padding-top: 20px;
     text-align: center;
     font-size: 14px;
-  }
-  
-  .address-search-block{
-    position: fixed;
-    top: 10px;
-    left: 0px;
-    margin: 0px;
-    padding-left:10px;
-    padding-right:10px;
-    
-    .input-group-append{
-      width: $position-btn-width;
-
-      .btn-current-location{
-        border-radius: 0px;
-      }
-    }
-    
-    app-address-input {
-      width: calc(100% - #{$position-btn-width});
-    }
-  }
-
-  .location-list-block{
-    position: fixed;
-    left: 0px;
-    top: $address-search-height;
-    height: calc(100% - #{$address-search-height} - #{$menu-height});
-    width: 100%;
-    overflow: scroll;
-  
-    app-location-list {
-      width: 100%;
-    }
   }
 
   .pac-container{
@@ -111,3 +93,27 @@ and (orientation: landscape) {
 
 }
 
+#finger-svg {
+  margin-left: 25px;
+  animation-name: beat;
+  animation-duration: 1.5s;
+  animation-timing-function: ease;
+  animation-iteration-count: 3;
+}
+@keyframes beat {
+  0% { 
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.tip{
+  position: absolute;
+  top: 40px;
+  left: 20px;
+}

@@ -128,7 +128,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     if (this.fromPage === 'account-setting') {
       this.router.navigate(['account/setting']);
     } else if (this.fromPage === 'restaurant-detail') {
-      this.router.navigate(['contact/list']);
+      this.router.navigate(['order/form']);
     }
   }
 
@@ -161,7 +161,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
               type: ContactActions.UPDATE,
               payload: x
             });
-            self.router.navigate(['contact/list']);
+            self.router.navigate(['order/form']);
             self.snackBar.open('', '默认手机号已成功保存。', {duration: 1000});
           }
         });
@@ -186,7 +186,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
               type: ContactActions.UPDATE,
               payload: x
             });
-            self.router.navigate(['contact/list']);
+            self.router.navigate(['order/form']);
             self.snackBar.open('', '默认手机号已成功保存。', {duration: 1000});
           }
         });

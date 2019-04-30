@@ -6,17 +6,18 @@ import { DeliveryDateListPageComponent } from './delivery-date-list-page/deliver
 import { PhoneFormPageComponent } from './phone-form-page/phone-form-page.component';
 import { AddressFormPageComponent } from './address-form-page/address-form-page.component';
 
-const routes: Routes = [{
-  path: 'list', component: ContactListPageComponent
-}, {
-  path: 'form', component: ContactFormPageComponent
-}, {
-  path: 'delivery-date', component: DeliveryDateListPageComponent
-}, {
-  path: 'phone-form', component: PhoneFormPageComponent
-}, {
-  path: 'address-form', component: AddressFormPageComponent
-}];
+const routes: Routes = [
+  { path: 'list', component: ContactListPageComponent },
+  {
+    path: 'form', component: ContactFormPageComponent
+  }, {
+    path: 'delivery-date', component: DeliveryDateListPageComponent
+  }, {
+    path: 'phone-form', component: PhoneFormPageComponent
+  }, {
+    path: 'address-form', component: AddressFormPageComponent
+  }
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

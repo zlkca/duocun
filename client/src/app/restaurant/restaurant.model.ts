@@ -14,6 +14,8 @@ export interface IRestaurant {
   created?: Date;
   modified?: Date;
   closed?: Date[];
+  dow?: string[]; // day of week opening
+  isClosed?: boolean;
   id?: string;
   distance?: number;
   deliveryFee?: number;
@@ -34,6 +36,7 @@ export class Restaurant implements IRestaurant {
   created: Date;
   modified: Date;
   closed?: Date[];
+  dow?: string[]; // day of week opening
   id: string;
   products: Product[];
   pictures: Picture[];

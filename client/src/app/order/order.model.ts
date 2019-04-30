@@ -9,6 +9,7 @@ export interface IOrder {
   id?: string;
   clientId?: string;
   clientName?: string;
+  clientPhoneNumber?: string;
   merchantId?: string;
   merchantName?: string;
   stuffId?: string;
@@ -33,6 +34,7 @@ export class Order implements IOrder {
   id: string;
   clientId: string;
   clientName: string;
+  clientPhoneNumber?: string;
   merchantId: string;
   merchantName: string;
   stuffId: string;
@@ -63,6 +65,7 @@ export interface IOrderItem {
   merchantId: string;
   merchantName: string;
   price: number;
+  cost?: number;
   quantity: number;
 }
 
@@ -73,6 +76,7 @@ export class OrderItem implements IOrderItem {
   merchantId: string;
   merchantName: string;
   price: number;
+  cost?: number;
   quantity: number;
   constructor(data?: IOrderItem) {
     Object.assign(this, data);

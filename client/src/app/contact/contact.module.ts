@@ -12,8 +12,8 @@ import { AccountService } from '../account/account.service';
 import { DeliveryDateListPageComponent } from './delivery-date-list-page/delivery-date-list-page.component';
 import { PhoneFormPageComponent } from './phone-form-page/phone-form-page.component';
 import { MatSnackBarModule } from '../../../node_modules/@angular/material';
-import { AddressFormPageComponent } from './address-form-page/address-form-page.component';
 import { DistanceService } from '../location/distance.service';
+import { AddressFormPageComponent } from './address-form-page/address-form-page.component';
 
 @NgModule({
   imports: [

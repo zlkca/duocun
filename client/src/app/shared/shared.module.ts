@@ -53,7 +53,9 @@ import { AddressInputComponent } from './address-input/address-input.component';
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
-    WizardComponent, ImageViewerComponent, FeedbackComponent,
+    WizardComponent,
+    ImageViewerComponent,
+    FeedbackComponent,
     MapComponent,
     // HeaderComponent,
     // FooterComponent,

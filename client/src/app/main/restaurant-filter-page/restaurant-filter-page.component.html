@@ -1,24 +1,23 @@
 <div class="page">
 
-  <div class="location-list-block" *ngIf="showLocationList()">
+  <div class="location-list-block" *ngIf="places && places.length > 0">
     <app-location-list [account]="account" [places]="places"
       (placeSeleted)="onSelectPlace($event)">
     </app-location-list>
   </div>
 
-  <div class="map-block" *ngIf="!showLocationList()">
+  <div class="map-block" *ngIf="!(places && places.length > 0)">
     <app-map [center]="location" [zoom]="14" [places]="places"></app-map>
   </div>
   
   <div class="input-group address-search-block">
-    <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
-      (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
+    <app-address-input  placeholder="InputDeliveryAddress"
+      (addrChange)="onAddressChange($event)"
+      (addrClear)="onAddressClear($event)"
+      (inputFocus)="onAddressInputFocus($event)"
+      (backHistory)="onBack($event)"
       [value]="deliveryAddress">
     </app-address-input>
-    <div class="input-group-append">
-      <button type="button" class="btn btn-primary btn-current-location" (click)="useCurrentLocation()"
-        i18n="@@CurrentLocation">Current Location</button>
-    </div>
   </div>
 
   <!-- <div class="input-group address-search-block">
@@ -34,7 +33,7 @@
     </div>
   </div>  -->
 
-  <div class="time-options" *ngIf="!showLocationList()">
+  <div class="time-options" *ngIf="!(places && places.length > 0)">
     <button mat-raised-button *ngIf="overdue" class="row option-item no-free lunch-overdue">
       <div class="col-12 text-sm">
           <span class="text-md" i18n="@@LunchToday">Lunch Today</span>

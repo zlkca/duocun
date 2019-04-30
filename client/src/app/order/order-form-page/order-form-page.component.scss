@@ -22,8 +22,9 @@
   .phone-col{
     padding-left: 15px;
   }
-  .title-sm {
+  .title-md {
     padding-top: 8px;
+    font-size: 14px;
   }
 }
 
@@ -58,6 +59,9 @@
 .product-list{
   padding: 5px 15px;
   .quantity-col {
+    padding-left: 0px;
+  }
+  .product-col {
     padding-left: 0px;
   }
 }

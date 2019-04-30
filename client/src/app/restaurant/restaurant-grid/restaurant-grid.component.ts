@@ -40,19 +40,43 @@ export class RestaurantGridComponent implements OnInit {
 
   ngOnInit() {
     const self = this;
-    if (this.malls && this.malls.length > 0) {
-      this.workers = this.malls[0].workers;
-      // sort by distance
+    if (self.restaurantList && self.restaurantList.length > 0) {
+      self.restaurantList.map(r => {
+        r.isClosed = self.restaurantSvc.isClosed(r, this.deliverTimeType);
+      });
+
+      // sort by isClosed && distance
       self.restaurantList.sort((a: IRestaurant, b: IRestaurant) => {
-        if (a.distance < b.distance) {
-          return -1;
-        }
-        if (a.distance > b.distance) {
+        if (a.isClosed && !b.isClosed) {
           return 1;
+        } else if (!a.isClosed && b.isClosed) {
+          return -1;
+        } else {
+          if (a.distance < b.distance) {
+            return -1;
+          }
+          if (a.distance > b.distance) {
+            return 1;
+          }
+          return 0;
         }
-        return 0;
       });
     }
+
+    // if (this.malls && this.malls.length > 0) {
+    //   this.workers = this.malls[0].workers;
+
+    //   // sort by distance
+    //   self.restaurantList.sort((a: IRestaurant, b: IRestaurant) => {
+    //     if (a.distance < b.distance) {
+    //       return -1;
+    //     }
+    //     if (a.distance > b.distance) {
+    //       return 1;
+    //     }
+    //     return 0;
+    //   });
+    // }
   }
 
   getImageSrc(restaurant: any) {
@@ -61,10 +85,6 @@ export class RestaurantGridComponent implements OnInit {
     } else {
       return this.defaultPicture;
     }
-  }
-
-  isClosed(restaurant: IRestaurant) {
-    return this.restaurantSvc.isClosed(restaurant, this.deliverTimeType);
   }
 
   toDetail(r: Restaurant) {

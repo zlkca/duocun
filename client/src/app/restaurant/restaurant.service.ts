@@ -32,29 +32,93 @@ export class RestaurantService extends EntityService {
 
   isClosed(restaurant: IRestaurant, type: any) { // deliverTimeType
     const now = moment();
-    if (restaurant.closed) {
-      const deadline = moment().set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
-      if (now.isAfter(deadline)) {
-        if (type === 'lunch tomorrow') {
-          return restaurant.closed.find(d => moment(d).isSame(moment().add(1, 'days'), 'day'));
-        } else if (type === 'lunch after tomorrow') {
-          return restaurant.closed.find(d => moment(d).isSame(moment().add(2, 'days'), 'day'));
+    const tomorrow = moment().add(1, 'days');
+    const afterTomorrow = moment().add(2, 'days');
+
+    if (restaurant.closed) { // has special close day
+      // const deadline = moment().set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
+      if (type === 'lunch today') {
+        if (restaurant.closed.find(d => moment(d).isSame(now, 'day'))) {
+          return true;
         } else {
-          return false;
+          return this.isClosePerWeek(restaurant, now);
+        }
+      } else if (type === 'lunch tomorrow') {
+        if (restaurant.closed.find(d => moment(d).isSame(tomorrow, 'day'))) {
+          return true;
+        } else {
+          return this.isClosePerWeek(restaurant, tomorrow);
+        }
+      } else if (type === 'lunch after tomorrow') {
+        if (restaurant.closed.find(d => moment(d).isSame(afterTomorrow, 'day'))) {
+          return true;
+        } else {
+          return this.isClosePerWeek(restaurant, afterTomorrow);
         }
       } else {
-        if (type === 'lunch today') {
-          return restaurant.closed.find(d => moment(d).isSame(moment(), 'day'));
-        } else if (type === 'lunch tomorrow') {
-          return restaurant.closed.find(d => moment(d).isSame(moment().add(1, 'days'), 'day'));
-        } else if (type === 'lunch after tomorrow') {
-          return restaurant.closed.find(d => moment(d).isSame(moment().add(2, 'days'), 'day'));
-        } else {
-          return false;
-        }
+        return true; // this.isClosePerWeek(restaurant, );
+      }
+      // if (now.isAfter(deadline)) {
+      //   if (type === 'lunch tomorrow') {
+      //     if (restaurant.closed.find(d => moment(d).isSame(tomorrow, 'day'))) {
+      //       return true;
+      //     } else {
+      //       return this.isClosePerWeek(restaurant, tomorrow);
+      //     }
+      //   } else if (type === 'lunch after tomorrow') {
+      //     if (restaurant.closed.find(d => moment(d).isSame(afterTomorrow, 'day'))) {
+      //       return true;
+      //     }
+      //   } else {
+      //     return true; // this.isClosePerWeek(restaurant, now);
+      //   }
+      // } else {
+      //   if (type === 'lunch today') {
+      //     if (restaurant.closed.find(d => moment(d).isSame(now, 'day'))) {
+      //       return true;
+      //     } else {
+      //       return this.isClosePerWeek(restaurant, now);
+      //     }
+      //   } else if (type === 'lunch tomorrow') {
+      //     if (restaurant.closed.find(d => moment(d).isSame(tomorrow, 'day'))) {
+      //       return true;
+      //     } else {
+      //       return this.isClosePerWeek(restaurant, tomorrow);
+      //     }
+      //   } else if (type === 'lunch after tomorrow') {
+      //     if (restaurant.closed.find(d => moment(d).isSame(afterTomorrow, 'day'))) {
+      //       return true;
+      //     } else {
+      //       return this.isClosePerWeek(restaurant, afterTomorrow);
+      //     }
+      //   } else {
+      //     return true; // this.isClosePerWeek(restaurant, );
+      //   }
+      // }
+    } else {
+      if (type === 'lunch today') {
+        return this.isClosePerWeek(restaurant, now);
+      } else if (type === 'lunch tomorrow') {
+        return this.isClosePerWeek(restaurant, tomorrow);
+      } else if (type === 'lunch after tomorrow') {
+        return this.isClosePerWeek(restaurant, afterTomorrow);
+      } else {
+        return true; // this.isClosePerWeek(restaurant, );
+      }
+    }
+  }
+
+  isClosePerWeek(restaurant: IRestaurant, day: any) {
+    if (restaurant.dow) {
+      const openAll = restaurant.dow.find(d => d === 'all');
+      if (openAll) {
+        return false;
+      } else {
+        const r = restaurant.dow.find(d => day === +d);
+        return r ? false : true;
       }
     } else {
-      return false;
+      return true;
     }
   }
   // create(restaurant: Restaurant): Observable<Restaurant> {

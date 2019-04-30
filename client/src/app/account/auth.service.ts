@@ -30,6 +30,7 @@ export class AuthService {
     return Cookies.get('duocun-userId');
   }
 
+
   // setLocation(loc: ILocation) {
   //   Cookies.remove('duocun-location');
   //   Cookies.set('duocun-location', JSON.stringify(loc));

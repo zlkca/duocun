@@ -12,6 +12,7 @@ import { ContactActions } from '../../contact/contact.actions';
 import { ILocation } from '../../location/location.model';
 import { IRestaurant, Restaurant } from '../../restaurant/restaurant.model';
 import { RestaurantService } from '../../restaurant/restaurant.service';
+import { IDeliveryTime } from '../../delivery/delivery.model';
 
 @Component({
   selector: 'app-cart-navbar',
@@ -42,9 +43,9 @@ export class CartNavbarComponent implements OnInit {
       this.account = account;
     });
 
-    this.rx.select<string>('deliveryTime').pipe(
+    this.rx.select('deliveryTime').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe(x => {
+    ).subscribe((x: IDeliveryTime) => {
       this.deliveryTime = x;
     });
 
@@ -103,7 +104,7 @@ export class CartNavbarComponent implements OnInit {
             this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
 
             if (r[0].phone) {
-              self.router.navigate(['contact/list']);
+              self.router.navigate(['order/form']);
             } else {
               self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
             }
