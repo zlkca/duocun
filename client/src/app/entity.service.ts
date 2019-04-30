@@ -59,6 +59,10 @@ export class EntityService {
     return this.http.put(this.url, entity);
   }
 
+  update(filter: any, data: any): Observable<any> {
+    return this.http.patch(this.url, {filter: filter, data: data});
+  }
+
   removeById(id: string): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');

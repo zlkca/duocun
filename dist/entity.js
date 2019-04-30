@@ -99,6 +99,23 @@ class Entity {
             });
         });
     }
+    updateOne(query, doc, options) {
+        if (query && query.hasOwnProperty('id')) {
+            query['_id'] = new mongodb_1.ObjectID(query.id);
+            delete query['id'];
+        }
+        return new Promise((resolve, reject) => {
+            this.getCollection().then((c) => {
+                c.updateOne(query, { $set: doc }, options, (err, result) => {
+                    if (result && result._id) {
+                        result.id = result._id;
+                        delete (result._id);
+                    }
+                    resolve(result);
+                });
+            });
+        });
+    }
     replaceById(id, doc, options) {
         return new Promise((resolve, reject) => {
             this.getCollection().then((c) => {

@@ -109,6 +109,24 @@ export class Entity {
     });
   }
 
+  updateOne(query: any, doc: any, options?: any): Promise<any> {
+    if (query && query.hasOwnProperty('id')) {
+      query['_id'] = new ObjectID(query.id);
+      delete query['id'];
+    }
+    return new Promise((resolve, reject) => {
+      this.getCollection().then((c: Collection) => {
+        c.updateOne(query, {$set: doc}, options, (err, result:any) => {
+          if(result && result._id){
+            result.id = result._id;
+            delete(result._id);
+          }
+          resolve(result);
+        });
+      });
+    });
+  }
+
   replaceById(id: string, doc: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {

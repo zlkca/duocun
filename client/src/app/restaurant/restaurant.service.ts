@@ -109,12 +109,12 @@ export class RestaurantService extends EntityService {
   }
 
   isClosePerWeek(restaurant: IRestaurant, day: any) {
-    if (restaurant.dow) {
+    if (restaurant.dow && restaurant.dow.length > 0) {
       const openAll = restaurant.dow.find(d => d === 'all');
       if (openAll) {
         return false;
       } else {
-        const r = restaurant.dow.find(d => day === +d);
+        const r = restaurant.dow.find(d => day === d);
         return r ? false : true;
       }
     } else {

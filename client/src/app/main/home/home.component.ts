@@ -57,6 +57,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   bInputLocation = false;
   placeForm;
   historyAddressList = [];
+  suggestAddressList = [];
   @ViewChild('tooltip') tooltip: MatTooltip;
 
   constructor(
@@ -84,6 +85,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (loc) {
         self.deliveryAddress = self.locationSvc.getAddrString(loc);
         self.placeForm.get('addr').patchValue(self.deliveryAddress);
+        if (self.deliveryAddress) {
+          self.getSuggestLocationList(self.deliveryAddress, false);
+        }
       }
     });
 
@@ -96,7 +100,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         takeUntil(this.onDestroy$)
       ).subscribe(account => {
         if (account) {
-          self.bFirstTime = !account.used ? true : false;
+          self.bFirstTime = !account.visited ? true : false;
           self.account = account;
           self.init(account);
           this.loading = false;
@@ -134,7 +138,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((account: Account) => {
       if (account) {
-        self.bFirstTime = !account.used ? true : false;
+        self.bFirstTime = !account.visited ? true : false;
         self.account = account;
 
         this.snackBar.open('', '微信登录成功。', {
@@ -155,13 +159,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     const self = this;
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-    if (this.bFirstTime) {
-      this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: true } });
-    }
+    this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
     this.locationSvc.getHistoryLocations(this.account.id).pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((a: IPlace[]) => {
       if (a && a.length > 0) {
+        a.map(x => { x.type = 'history'; });
         self.historyAddressList = a;
       }
     });
@@ -236,15 +239,29 @@ export class HomeComponent implements OnInit, OnDestroy {
   onAddressInputFocus(e?: any) {
     const self = this;
     this.places = [];
-    this.bFirstTime = false;
-    this.account.used = true;
-    this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
-    this.locationSvc.getHistoryLocations(this.account.id).pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((a: IPlace[]) => {
-      a.map(x => { x.type = 'history'; });
-      self.places = a;
-    });
+
+    if (this.bFirstTime) {
+      this.bFirstTime = false;
+      if (this.account) {
+        this.account.visited = true;
+        this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
+        this.accountSvc.update({ id: this.account.id }, { visited: true }).pipe(
+          takeUntil(this.onDestroy$)
+        ).subscribe(r => {
+          console.log('update user account');
+        });
+      }
+    }
+
+    if (this.account) {
+      if (e.input) {
+        this.places = this.suggestAddressList;
+        // this.getSuggestLocationList(e.input);
+      } else {
+        this.places = this.historyAddressList.map(x => Object.assign({}, x));
+      }
+    }
+
   }
 
   onAddressInputChange(e) {
@@ -254,10 +271,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         type: AddressActions.UPDATE,
         payload: v
       });
-      this.bFirstTime = false;
-      this.account.used = true;
-      this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
-      this.getSuggestLocationList(e.input);
+      // this.bFirstTime = false;
+      // this.account.visited = true;
+      // this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
+      this.getSuggestLocationList(e.input, true);
     }
   }
 
@@ -272,17 +289,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.onAddressInputFocus();
   }
 
-  getSuggestLocationList(input: string) {
+  getSuggestLocationList(input: string, bShowList: boolean) {
     const self = this;
     this.places = [];
     this.locationSvc.reqPlaces(input).pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
-        for (const p of ps) {
+        const places = [];
+        ps.map(p => {
           p.type = 'suggest';
-          self.places.push(p); // without lat lng
+          places.push(Object.assign({}, p));
+        });
+
+        self.suggestAddressList = places;
+        if (bShowList) {
+          self.places = places; // without lat lng
         }
+
       }
     });
   }

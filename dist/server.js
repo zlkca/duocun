@@ -180,6 +180,12 @@ app.post('/' + ROUTE_PREFIX + '/Accounts/signup', (req, res) => {
 app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
     user.get(req, res);
 });
+app.patch('/' + ROUTE_PREFIX + '/Accounts', (req, res) => {
+    user.updateOne(req.body.filter, req.body.data).then((x) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(x, null, 3));
+    });
+});
 app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
     restaurant.insertOne(req.body).then((x) => {
         res.setHeader('Content-Type', 'application/json');

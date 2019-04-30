@@ -196,6 +196,12 @@ app.post('/' + ROUTE_PREFIX + '/Accounts/signup', (req, res) => {
 app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
   user.get(req, res);
 });
+app.patch('/' + ROUTE_PREFIX + '/Accounts', (req, res) => {
+  user.updateOne(req.body.filter, req.body.data).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
+  });
+});
 
 app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
   restaurant.insertOne(req.body).then((x: any) => {

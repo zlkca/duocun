@@ -71,9 +71,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
   }
 
   onFocus(e) {
-    if (!e.target.value) {
-      this.inputFocus.emit();
-    }
+    this.inputFocus.emit({ 'input': e.target.value });
   }
 
   clearAddr() {
