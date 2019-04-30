@@ -183,7 +183,7 @@ app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
 app.patch('/' + ROUTE_PREFIX + '/Accounts', (req, res) => {
     user.updateOne(req.body.filter, req.body.data).then((x) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
+        res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
     });
 });
 app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {

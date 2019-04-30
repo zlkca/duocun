@@ -67,6 +67,10 @@ class Entity {
                 });
                 query = { $or: arr };
             }
+            else if (typeof body === "string") {
+                query['_id'] = new mongodb_1.ObjectID(query.id);
+                delete query['id'];
+            }
         }
         return new Promise((resolve, reject) => {
             self.getCollection().then((c) => {

@@ -73,6 +73,9 @@ export class Entity {
         });
 
         query = { $or: arr };
+      } else if(typeof body === "string"){
+        query['_id'] = new ObjectID(query.id);
+        delete query['id'];
       }
     }
 
