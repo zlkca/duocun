@@ -15,16 +15,25 @@
   padding: 10px 0px;
   border-bottom: solid 1px #eee;
 
+  .label{
+    width: 70px;
+    float: left;
+  }
   .row{
     margin: 0px;
-    padding-bottom: 5px;
+    padding-bottom: 0px;
   }
   .phone-col{
     padding-left: 15px;
   }
   .title-md {
-    padding-top: 8px;
+    padding-top: 0px;
     font-size: 14px;
+    line-height: 22px;
+  }
+
+  .address-text{
+    font-weight: bold;
   }
 }
 

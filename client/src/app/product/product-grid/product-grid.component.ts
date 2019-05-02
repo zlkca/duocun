@@ -30,7 +30,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   cart: any;
   categoryIds;
   groupedOrders: any = {};
-  deliverTimeType;
+  deliveryTime: IDeliveryTime;
   private onDestroy$ = new Subject<void>();
 
   @Input() restaurant: IRestaurant;
@@ -64,7 +64,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
     this.rx.select('deliveryTime').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((x: IDeliveryTime) => {
-      this.deliverTimeType = x.type;
+      this.deliveryTime = x;
     });
   }
 
@@ -105,25 +105,26 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   addToCart(p: IProduct) {
-    if (this.restaurantSvc.isClosed(this.restaurant, this.deliverTimeType)) {
+    if (this.restaurantSvc.isClosed(this.restaurant, this.deliveryTime)) {
       alert('该商家休息，暂时无法配送');
       return;
     }
-    if (this.cart.items && this.cart.items.length > 0) {
-      this.rx.dispatch({
-        type: CartActions.ADD_TO_CART, payload:
-          [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
-            cost: p.cost,
-            merchantId: p.merchantId, merchantName: this.restaurant.name }]
-      });
-    } else {
-      this.rx.dispatch({
-        type: CartActions.ADD_TO_CART, payload:
-          [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
-            cost: p.cost,
-            merchantId: p.merchantId, merchantName: this.restaurant.name }]
-      });
-    }
+    // if (this.cart.items && this.cart.items.length > 0) {
+    this.rx.dispatch({
+      type: CartActions.ADD_TO_CART, payload:
+        [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+          cost: p.cost,
+          merchantId: p.merchantId, merchantName: this.restaurant.name }]
+    });
+
+    // } else {
+    //   this.rx.dispatch({
+    //     type: CartActions.ADD_TO_CART, payload:
+    //       [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+    //         cost: p.cost,
+    //         merchantId: p.merchantId, merchantName: this.restaurant.name }]
+    //   });
+    // }
   }
 
   removeFromCart(p: IProduct) {

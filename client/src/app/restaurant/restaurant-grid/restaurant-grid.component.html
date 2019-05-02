@@ -8,16 +8,16 @@
                     <div class="shadow-layer" *ngIf="r.isClosed"></div>
                     <div class="title-md rest-1" *ngIf="r.isClosed">休息中</div>
                     <div class="title-sm rest-2" *ngIf="r.isClosed">暂不提供配送</div>
-                    <div *ngIf="deliverTimeType !== 'immediate' && !r.isClosed" class="free delivery-fee notify-badge">
+                    <div *ngIf="!r.isClosed" class="free delivery-fee notify-badge">
                       <div class="text-sm" i18n="@@FreeDelivery">Free delivery</div>
                       <del><span>${{r.fullDeliveryFee}}</span></del>
                     </div>
-                    <div *ngIf="deliverTimeType === 'immediate'" class="immediate delivery-fee notify-badge">
+                    <!-- <div class="immediate delivery-fee notify-badge">
                       <div class="text-sm">
                         <span i18n="@@DeliveryFee">Delivery Fee</span>&nbsp;${{r.deliveryFee}}
                       </div>
                       <del><span>${{r.fullDeliveryFee}}</span></del>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="col-6 text-body">

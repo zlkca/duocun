@@ -61,12 +61,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
     this.rx.select<ICart>('cart').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((cart: ICart) => {
-      this.total = 0;
-      this.quantity = 0;
-      cart.items.map(x => {
-        this.total += x.price * x.quantity;
-        this.quantity += x.quantity;
-      });
+      this.total = cart.total;
+      this.quantity = cart.quantity;
       this.carts = this.groupItemsByRestaurant(cart.items);
     });
 
@@ -114,6 +110,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
     return groupedCarts;
   }
 
+
+
   addToCart(item: ICartItem) {
     const product = this.products.find(x => x.id === item.productId);
     this.rx.dispatch({
@@ -151,7 +149,6 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
       self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
-
           r[0].placeId = self.location.placeId;
           r[0].location = self.location;
           r[0].address = self.locationSvc.getAddrString(self.location);
@@ -188,32 +185,32 @@ export class CartPageComponent implements OnInit, OnDestroy {
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
   }
 
-  createOrders(cart: ICart) {
-    const ids = cart.items.map(x => x.merchantId);
-    const merchantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
-    const orders = [];
+  // createOrders(cart: ICart) {
+  //   const ids = cart.items.map(x => x.merchantId);
+  //   const merchantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
+  //   const orders = [];
 
-    for (const id of merchantIds) {
-      orders.push({ merchantId: id, items: [], accountId: this.account.id, clientName: this.account.username });
-    }
+  //   for (const id of merchantIds) {
+  //     orders.push({ merchantId: id, items: [], accountId: this.account.id, clientName: this.account.username });
+  //   }
 
-    for (const item of cart.items) {
-      for (const order of orders) {
-        if (item.merchantId === order.merchantId) {
-          const product = this.products.find(x => x.id === item.productId);
-          order.items.push({
-            productName: item.productName,
-            price: item.price,
-            cost: product ? product.cost : 0,
-            quantity: item.quantity,
-            productId: item.productId,
-            merchantId: item.merchantId
-          });
-        }
-      }
-    }
-    return orders;
-  }
+  //   for (const item of cart.items) {
+  //     for (const order of orders) {
+  //       if (item.merchantId === order.merchantId) {
+  //         const product = this.products.find(x => x.id === item.productId);
+  //         order.items.push({
+  //           productName: item.productName,
+  //           price: item.price,
+  //           cost: product ? product.cost : 0,
+  //           quantity: item.quantity,
+  //           productId: item.productId,
+  //           merchantId: item.merchantId
+  //         });
+  //       }
+  //     }
+  //   }
+  //   return orders;
+  // }
 
   ngOnDestroy() {
     this.onDestroy$.next();

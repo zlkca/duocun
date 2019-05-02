@@ -1,3 +1,5 @@
+import { IRange } from '../range/range.model';
+
 export interface IEntityBase {
   id?: string;
 }
@@ -11,11 +13,12 @@ export interface IMall {
   id?: string;
   name?: string;
   description?: string;
-  type?: string;
+  // type?: string;
   placeId?: string;
   lat?: number;
   lng?: number;
-  radius?: number; // m
+  // radius?: number; // m
+  ranges?: IRange[];
   restaurants?: IEntityBase[];
   workers?: IUserBase[];
   distance?: number; // Dynamic
@@ -30,11 +33,12 @@ export class Mall implements IMall {
   id: string;
   name: string;
   description?: string;
-  type: string;
+  // type: string;
   placeId?: string;
   lat: number;
   lng: number;
-  radius: number; // m
+  // radius: number; // m
+  ranges?: IRange[];
   restaurants: IEntityBase[];
   workers: IUserBase[];
   created?: Date;
@@ -44,3 +48,4 @@ export class Mall implements IMall {
     Object.assign(this, data);
   }
 }
+

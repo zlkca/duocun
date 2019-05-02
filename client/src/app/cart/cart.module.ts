@@ -7,6 +7,7 @@ import { SharedModule } from '../shared/shared.module';
 import { AccountService } from '../account/account.service';
 import { CartNavbarComponent } from './cart-navbar/cart-navbar.component';
 import { RestaurantService } from '../restaurant/restaurant.service';
+import { CartService } from './cart.service';
 
 @NgModule({
   imports: [
@@ -23,7 +24,8 @@ import { RestaurantService } from '../restaurant/restaurant.service';
   ],
   providers: [
     AccountService,
-    RestaurantService
+    RestaurantService,
+    CartService
   ]
 })
 export class CartModule { }

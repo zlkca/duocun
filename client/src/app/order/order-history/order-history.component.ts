@@ -17,6 +17,8 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { ILocationAction } from '../../location/location.reducer';
 import { LocationActions } from '../../location/location.actions';
+import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-order-history',
@@ -121,6 +123,22 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       type: LocationActions.UPDATE,
       payload: order.location
     });
+
+    const from = moment(order.delivered).toDate();
+    const to = moment(order.delivered).set({ hour: 13, minute: 30, second: 0, millisecond: 0 }).toDate();
+    let text = '';
+    if (moment(order.delivered).isSame(moment())) {
+      text = '今天午餐';
+    } else if (moment(order.delivered).isSame(moment().add(1, 'days'))) {
+      text = '明天午餐';
+    } else if (moment(order.delivered).isSame(moment().add(2, 'days'))) {
+      text = '后天午餐';
+    }
+    const deliveryTime = { text: text, from: from, to: to };
+    this.rx.dispatch({
+      type: DeliveryTimeActions.UPDATE,
+      payload: deliveryTime
+    });
     this.router.navigate(['restaurant/list/' + order.merchantId]);
   }
 
@@ -154,8 +172,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   //   const self = this;
   //   order.workerStatus = 'process';
   //   this.orderSvc.replace(order).pipe(
-          //   takeUntil(this.onDestroy$)
-          // ).subscribe(x => {
+  //   takeUntil(this.onDestroy$)
+  // ).subscribe(x => {
   //     // self.afterSave.emit({name: 'OnUpdateOrder'});
   //     self.reload(self.account.id);
   //   });
@@ -165,8 +183,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   //   const self = this;
   //   order.workerStatus = 'done';
   //   this.orderSvc.replace(order).pipe(
-          //   takeUntil(this.onDestroy$)
-          // ).subscribe(x => {
+  //   takeUntil(this.onDestroy$)
+  // ).subscribe(x => {
   //     // self.afterSave.emit({name: 'OnUpdateOrder'});
   //     self.reload(self.account.id);
   //   });

@@ -19,6 +19,7 @@ import { Product } from "./product";
 import { Category } from "./category";
 import { Order } from "./order";
 import { Mall } from "./mall";
+import { Range } from "./range";
 import { Location } from "./location";
 import { Distance } from "./distance";
 import { Contact } from "./contact";
@@ -55,6 +56,7 @@ let category: Category;
 let restaurant: Restaurant;
 let product: Product;
 let mall: Mall;
+let range: Range;
 let location: Location;
 let distance: Distance;
 let contact: Contact;
@@ -73,6 +75,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   restaurant = new Restaurant(dbo);
   product = new Product(dbo);
   mall = new Mall(dbo);
+  range = new Range(dbo);
   location = new Location(dbo);
   distance = new Distance(dbo);
   contact = new Contact(dbo);
@@ -372,6 +375,14 @@ app.get('/' + ROUTE_PREFIX + '/Malls', (req: any, res) => {
 });
 app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
   mall.get(req, res);
+});
+
+app.get('/' + ROUTE_PREFIX + '/Ranges', (req: any, res) => {
+  const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+  range.find(query ? query.where: {}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
 });
 
 app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {

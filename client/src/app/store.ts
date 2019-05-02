@@ -14,7 +14,7 @@ import { deliveryReducer } from './delivery/delivery.reducer';
 import { IContact } from './contact/contact.model';
 import { contactReducer } from './contact/contact.reducer';
 import { ICart } from './cart/cart.model';
-import { cartReducer } from './cart/cart.reducer';
+import { cartReducer, DEFAULT_CART } from './cart/cart.reducer';
 import { restaurantReducer } from './restaurant/restaurant.reducer';
 import { IRestaurant } from './restaurant/restaurant.model';
 import { Account } from './account/account.model';
@@ -40,13 +40,13 @@ export interface IAppState {
 }
 
 export const INITIAL_STATE: IAppState = {
-    cart: { items: [] },
+    cart: DEFAULT_CART,
     account: null,
     // picture: DEFAULT_PICTURE,
     location: null,
     page: 'home',
     cmd: {name: '', args: ''},
-    deliveryTime: {type: '', text: ''},
+    deliveryTime: {text: '', from: null, to: null},
     restaurant: null,
     malls: [DEFAULT_MALL],
     delivery: null,

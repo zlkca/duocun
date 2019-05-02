@@ -60,18 +60,9 @@ export class CartNavbarComponent implements OnInit {
     const self = this;
     this.rx.select<ICart>('cart').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe(cart => {
-      this.quantity = 0;
-      this.productTotal = 0;
-      const items: ICartItem[] = cart.items;
-      if (items && items.length > 0) {
-        items.map(x => {
-          if (x.merchantId === self.restaurant.id) {
-            this.productTotal += (x.price * x.quantity);
-            this.quantity += x.quantity;
-          }
-        });
-      }
+    ).subscribe((cart: ICart) => {
+      this.quantity = cart.quantity;
+      this.productTotal = cart.productTotal;
     });
   }
 
@@ -85,7 +76,7 @@ export class CartNavbarComponent implements OnInit {
   checkout() {
     const self = this;
 
-    if (this.restaurantSvc.isClosed(this.restaurant, this.deliveryTime.type)) {
+    if (this.restaurantSvc.isClosed(this.restaurant, this.deliveryTime)) {
       alert('该商家休息，暂时无法配送');
       return;
     }
@@ -96,7 +87,6 @@ export class CartNavbarComponent implements OnInit {
       if (account && account.id) {
         self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {
-
             r[0].placeId = self.location.placeId;
             r[0].location = self.location;
             r[0].address = self.locationSvc.getAddrString(self.location);

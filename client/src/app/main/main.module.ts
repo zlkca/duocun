@@ -12,6 +12,7 @@ import { RestaurantFilterPageComponent } from './restaurant-filter-page/restaura
 import { HomeComponent } from './home/home.component';
 import { ReactiveFormsModule } from '../../../node_modules/@angular/forms';
 import { SharedModule } from '../shared/shared.module';
+import { RangeService } from '../range/range.service';
 
 @NgModule({
   imports: [
@@ -31,7 +32,8 @@ import { SharedModule } from '../shared/shared.module';
   ],
   providers: [
     AccountService,
-    AuthService
+    AuthService,
+    RangeService
   ]
 })
 export class MainModule { }

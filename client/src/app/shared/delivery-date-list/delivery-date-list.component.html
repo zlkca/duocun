@@ -11,7 +11,7 @@
           </div>
         </div>
       </div> -->
-    <button mat-raised-button class="row option-item free" *ngIf="!afternoon && !overdue" (click)="onSelectTime('lunch today')">
+    <button mat-raised-button class="row option-item free" *ngIf="!afternoon && !overdue" (click)="onSelectTime(list[0])">
       <div class="row">
         <div class="col-8">
           <div class="first-row">
@@ -19,8 +19,8 @@
             <span class="free-delivery" i18n="@@FreeDelivery">Free delivery</span>
           </div>
           <div class="row second-row">
-            <span class="text-sm date">{{list[0].date | date: 'MMMd E' }} </span>
-            <span class="text-sm time">{{list[0].startTime}}~{{list[0].endTime}} </span>
+            <span class="text-sm date">{{list[0].from | date: 'MMMd E' }} </span>
+            <span class="text-sm time">{{list[0].from | date: 'HH:mm'}}~{{list[0].to | date: 'HH:mm'}} </span>
             <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
           </div>
         </div>
@@ -33,7 +33,7 @@
         </div>
       </div>
     </button>
-    <button mat-raised-button class="row option-item free" (click)="onSelectTime('lunch tomorrow')">
+    <button mat-raised-button class="row option-item free" (click)="onSelectTime(list[1])">
       <div class="row">
         <div class="col-8">
           <div class="first-row">
@@ -41,8 +41,8 @@
             <span class="free-delivery" i18n="@@FreeDelivery">Free Delivery</span>
           </div>
           <div class="second-row">
-            <span class="text-sm date">{{list[1].date | date: 'MMMd E'}} </span>
-            <span class="text-sm time">{{list[1].startTime}}~{{list[1].endTime}} </span>
+            <span class="text-sm date">{{list[1].from | date: 'MMMd E' }} </span>
+            <span class="text-sm time">{{list[1].from | date: 'HH:mm'}}~{{list[1].to | date: 'HH:mm'}} </span>
             <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
           </div>
         </div>
@@ -55,7 +55,7 @@
         </div>
       </div>
     </button>
-    <button mat-raised-button class="row option-item free" (click)="onSelectTime('lunch after tomorrow')">
+    <button mat-raised-button class="row option-item free" (click)="onSelectTime(list[2])">
       <div class="row">
         <div class="col-8">
           <div class="first-row">
@@ -63,8 +63,8 @@
             <span class="free-delivery" i18n="@@FreeDelivery">Free delivery</span>
           </div>
           <div class="second-row">
-            <span class="text-sm date">{{list[2].date | date: 'MMMd E'}} </span>
-            <span class="text-sm time">{{list[2].startTime}}~{{list[2].endTime}} </span>
+            <span class="text-sm date">{{list[2].from | date: 'MMMd E' }} </span>
+            <span class="text-sm time">{{list[2].from | date: 'HH:mm'}}~{{list[2].to | date: 'HH:mm'}} </span>
             <span class="text-sm arrive" i18n="@@Arrive">Arrive</span>
           </div>
         </div>

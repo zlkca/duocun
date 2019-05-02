@@ -10,6 +10,10 @@ import { IAppState } from '../../store';
 import { RestaurantActions } from '../restaurant.actions';
 import * as moment from 'moment';
 import { RestaurantService } from '../restaurant.service';
+import { IDeliveryTime } from '../../delivery/delivery.model';
+import { CartActions } from '../../cart/cart.actions';
+import { DistanceService } from '../../location/distance.service';
+import { IMall } from '../../mall/mall.model';
 
 @Component({
   selector: 'app-restaurant-grid',
@@ -25,8 +29,8 @@ export class RestaurantGridComponent implements OnInit {
   defaultPicture = window.location.protocol + '//placehold.it/400x300';
   workers;
 
-  @Input() deliverTimeType;
-  @Input() malls;
+  @Input() deliveryTime: IDeliveryTime;
+  @Input() malls: IMall[];
   @Input() restaurantList: IRestaurant[];
   @Input() center;
 
@@ -34,6 +38,7 @@ export class RestaurantGridComponent implements OnInit {
     private router: Router,
     private sharedSvc: SharedService,
     private restaurantSvc: RestaurantService,
+    private distanceSvc: DistanceService,
     private rx: NgRedux<IAppState>
   ) {
   }
@@ -42,7 +47,7 @@ export class RestaurantGridComponent implements OnInit {
     const self = this;
     if (self.restaurantList && self.restaurantList.length > 0) {
       self.restaurantList.map(r => {
-        r.isClosed = self.restaurantSvc.isClosed(r, this.deliverTimeType);
+        r.isClosed = self.restaurantSvc.isClosed(r, this.deliveryTime);
       });
 
       // sort by isClosed && distance
@@ -88,14 +93,16 @@ export class RestaurantGridComponent implements OnInit {
   }
 
   toDetail(r: Restaurant) {
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: 'restaurants'
-    });
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'restaurants' });
+    this.rx.dispatch({ type: RestaurantActions.UPDATE, payload: r });
 
-    this.rx.dispatch({
-      type: RestaurantActions.UPDATE,
-      payload: r
+    const mall = this.malls.find(m => m.id === r.mallId );
+    const deliveryCost = this.distanceSvc.getDeliveryCost(mall.distance);
+    this.rx.dispatch({ type: CartActions.UPDATE, payload: {
+        deliveryCost: deliveryCost,
+        deliveryFee: this.distanceSvc.getDeliveryFee(mall.distance, this.deliveryTime),
+        deliveryDiscount: deliveryCost
+      }
     });
 
     this.router.navigate(['restaurant/list/' + r.id]);

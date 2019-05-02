@@ -80,4 +80,4 @@ export interface IDistance {
       // placeId: origin.placeId,
       // origin: origin,
       // destination: req.body.destinations[i], // destination is mall
-      // element: rows[0].elements,
+      // element: rows[0].elements ,

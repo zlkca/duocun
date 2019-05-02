@@ -12,6 +12,7 @@ import { PageActions } from '../../main/main.actions';
 import { DistanceService } from '../../location/distance.service';
 import { LocationService } from '../../location/location.service';
 import { IDeliveryTime } from '../../delivery/delivery.model';
+import { MallService } from '../../mall/mall.service';
 
 @Component({
   selector: 'app-restaurant-list-page',
@@ -28,35 +29,50 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
   deliveryAddress;
 
   // malls: IMall[];
-  malls: IMall[] = [
-    {
-      id: '1', name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
-      placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
-    },
-    {
-      id: '2', name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
-      placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
-    },
-    {
-      id: '3', name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
-      placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
-    },
-    {
-      id: '4', name: 'Richmond Hill', type: 'virtual', lat: 43.884244, lng: -79.467925, radius: 8,
-      placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
-    }
-  ];
+  // malls: IMall[] = [
+  //   {
+  //     id: '1', name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
+  //     placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
+  //   },
+  //   {
+  //     id: '2', name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
+  //     placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
+  //   },
+  //   {
+  //     id: '3', name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
+  //     placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
+  //   },
+  //   {
+  //     id: '4', name: 'Richmond Hill', type: 'virtual', lat: 43.884244, lng: -79.467925, radius: 8,
+  //     placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
+  //   }
+  // ];
   private onDestroy$ = new Subject<void>();
   constructor(
     private restaurantSvc: RestaurantService,
     private distanceSvc: DistanceService,
     private locationSvc: LocationService,
+    private mallSvc: MallService,
     private rx: NgRedux<IAppState>,
   ) {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: 'restaurant-list'
     });
+  }
+
+  getNewMalls(ds, malls) {
+    const ms = [];
+    for (let i = 0; i < ds.length; i++) {
+      for (let j = 0; j < malls.length; j++) {
+        const rm = ds[i];
+        const mall = malls[j];
+        if (rm.destination.lat !== +mall.lat && rm.destination.lng !== +mall.lng) {
+          ms.push({ lat: mall.lat, lng: mall.lng, placeId: mall.placeId });
+        }
+      }
+    }
+    return ms;
   }
 
   ngOnInit() {
@@ -76,29 +92,67 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
       if (location) {
         self.center = { lat: location.lat, lng: location.lng };
 
-        self.distanceSvc.find({where: {originPlaceId: location.placeId}}).pipe(
-          takeUntil(self.onDestroy$)
-        ).subscribe((ds: IDistance[]) => {
-          if (ds && ds.length > 0) {
-            const distance = self.updateMallInfo(ds);
-            self.loadRestaurants(distance);
-          } else {
-            const destinations: ILocation[] = [];
-            self.malls.filter(r => r.type === 'real').map(m => {
-              destinations.push({lat: m.lat, lng: m.lng, placeId: m.placeId});
-            });
-            self.locationSvc.reqRoadDistances(location, destinations).pipe(
-              takeUntil(this.onDestroy$)
-            ).subscribe((rs: IDistance[]) => {
-              if (rs) {
-                const distance = self.updateMallInfo(rs);
-                self.loadRestaurants(distance);
-              }
-            }, err => {
-              console.log(err);
-            });
-          }
+        self.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+          // check if road distance in database
+          self.distanceSvc.find({ where: { originPlaceId: location.placeId } }).pipe(
+            takeUntil(self.onDestroy$)
+          ).subscribe((ds: IDistance[]) => {
+            if (ds && ds.length > 0) {
+              // const newDestinations = self.getNewMalls(ds, malls);
+              // if (newDestinations && newDestinations.length > 0) {
+              //   self.locationSvc.reqRoadDistances(location, newDestinations).pipe(
+              //     takeUntil(this.onDestroy$)
+              //   ).subscribe((ns: IDistance[]) => {
+              //     const ms = self.updateMallInfo(ds.concat(ns), malls);
+              //     self.loadRestaurants(ms);
+              //   });
+              // } else {
+                const ms = self.updateMallInfo(ds, malls);
+                self.loadRestaurants(ms);
+              // }
+            } else {
+              const destinations: ILocation[] = [];
+              malls.map(m => {
+                destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
+              });
+              self.locationSvc.reqRoadDistances(location, destinations).pipe(
+                takeUntil(this.onDestroy$)
+              ).subscribe((rs: IDistance[]) => {
+                if (rs) {
+                  const ms = self.updateMallInfo(rs, malls);
+                  self.loadRestaurants(ms);
+                }
+              }, err => {
+                console.log(err);
+              });
+            }
+          });
+          // self.loadRestaurants(ms);
         });
+
+        // self.distanceSvc.find({where: {originPlaceId: location.placeId}}).pipe(
+        //   takeUntil(self.onDestroy$)
+        // ).subscribe((ds: IDistance[]) => {
+        //   if (ds && ds.length > 0) {
+        //     const distance = self.updateMallInfo(ds);
+        //     self.loadRestaurants(distance);
+        //   } else {
+        //     const destinations: ILocation[] = [];
+        //     self.malls.filter(r => r.type === 'real').map(m => {
+        //       destinations.push({lat: m.lat, lng: m.lng, placeId: m.placeId});
+        //     });
+        //     self.locationSvc.reqRoadDistances(location, destinations).pipe(
+        //       takeUntil(this.onDestroy$)
+        //     ).subscribe((rs: IDistance[]) => {
+        //       if (rs) {
+        //         const distance = self.updateMallInfo(rs);
+        //         self.loadRestaurants(distance);
+        //       }
+        //     }, err => {
+        //       console.log(err);
+        //     });
+        //   }
+        // });
       }
     });
   }
@@ -108,36 +162,30 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  updateMallInfo(rs: IDistance[]) {
+  updateMallInfo(rs: IDistance[], malls: IMall[]) {
     const self = this;
-    const reallDistances = rs; // .filter(r => r.type === 'real');
-    self.malls.map((mall: IMall) => {
-      const d = reallDistances.find(rm => rm.destination.lat === mall.lat && rm.destination.lng === mall.lng);
+    malls.map((mall: IMall) => {
+      // const d = rs.find(rm => rm.destination.lat === +mall.lat && rm.destination.lng === +mall.lng);
+      const d = rs.find(r => r.destinationPlaceId === mall.placeId);
       if (d) {
         mall.distance = d.element.distance.value / 1000;
-        mall.fullDeliverFee = self.distanceSvc.getFullDeliveryFee(mall.distance);
-        mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliveryTime.type);
+        mall.fullDeliverFee = self.distanceSvc.getDeliveryCost(mall.distance);
+        mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliveryTime);
       }
     });
-    self.rx.dispatch({
-      type: MallActions.UPDATE,
-      payload: self.malls.filter(r => r.type === 'real')
-    });
-
-    return self.malls.filter(r => r.type === 'real')[0].distance;
+    self.rx.dispatch({ type: MallActions.UPDATE, payload: malls });
+    self.realMalls = malls;
+    return malls;
   }
 
-  loadRestaurants(distance: number) {
+  loadRestaurants(malls: IMall[]) { // load with distance
     const self = this;
-    const fullDeliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
-    const deliveryFee = self.distanceSvc.getFullDeliveryFee(distance);
-
     this.restaurantSvc.find().pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((ps: IRestaurant[]) => {
-      self.restaurants = ps; // self.toProductGrid(data);
-      const a = [];
-      ps.map(restaurant => {
+    ).subscribe((rs: IRestaurant[]) => {
+      self.restaurants = rs; // self.toProductGrid(data);
+      const a = []; // for display marks on map
+      rs.map(restaurant => {
         if (restaurant.location) {
           a.push({
             lat: restaurant.location.lat,
@@ -145,10 +193,11 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
             name: restaurant.name
           });
         }
-        // fix me !!!
-        restaurant.distance = distance;
-        restaurant.fullDeliveryFee = fullDeliveryFee;
-        restaurant.deliveryFee = deliveryFee;
+
+        const mall = malls.find(m => m.id === restaurant.mallId);
+        restaurant.distance = mall.distance;
+        restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(mall.distance);
+        restaurant.deliveryFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliveryTime);
       });
       self.places = a;
     },

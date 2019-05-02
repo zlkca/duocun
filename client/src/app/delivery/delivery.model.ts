@@ -2,11 +2,13 @@ import { IAccount } from '../account/account.model';
 import { ILocation } from '../location/location.model';
 
 export interface IDeliveryTime {
-  type?: string;
+  // type?: string;
   text?: string;
-  date?: string;
-  startTime?: string;
-  endTime?: string;
+  // date?: string;
+  // startTime?: string;
+  // endTime?: string;
+  from?: Date;
+  to?: Date;
 }
 
 export interface IDelivery {

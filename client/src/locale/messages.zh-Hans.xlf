@@ -1356,6 +1356,14 @@
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="DeliveryAddress" datatype="html">
+        <source>Delivery Address</source>
+        <target>送餐地址</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-form/order-form.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="CannotDeliverNotes" datatype="html">
         <source>Cannot deliver, please order in advance next time</source>
         <target>无法配送，请下次提前预定</target>

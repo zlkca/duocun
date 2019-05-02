@@ -15,6 +15,8 @@ import { LocationService } from '../../location/location.service';
 import { ILocationAction } from '../../location/location.reducer';
 import { LocationActions } from '../../location/location.actions';
 import { SharedService } from '../../shared/shared.service';
+import { RangeService } from '../../range/range.service';
+import { OriginalSource } from '../../../../node_modules/@types/webpack-sources';
 
 @Component({
   selector: 'app-restaurant-filter-page',
@@ -23,7 +25,7 @@ import { SharedService } from '../../shared/shared.service';
 })
 export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
 
-  deliveryTime: IDeliveryTime = { type: '', text: '' };
+  deliveryTime: IDeliveryTime = { text: '', from: null, to: null };
   deliveryDiscount = 2;
   orderDeadline = { h: 9, m: 30 };
 
@@ -41,13 +43,14 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private accountSvc: AccountService,
     private mallSvc: MallService,
+    private rangeSvc: RangeService,
     private locationSvc: LocationService,
     private sharedSvc: SharedService,
     private rx: NgRedux<IAppState>
   ) {
     const self = this;
     const today = this.sharedSvc.getTodayString();
-    this.today = {type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:30'};
+    this.today = { type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:30' };
     this.overdue = this.sharedSvc.isOverdue(this.orderDeadline.h, this.orderDeadline.m);
 
     this.accountSvc.getCurrent().pipe(
@@ -76,7 +79,13 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
       if (loc) {
         self.location = loc;
         self.deliveryAddress = self.locationSvc.getAddrString(loc);
-        self.inRange = self.mallSvc.inRange(loc);
+
+        self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
+          const range = self.rangeSvc.getRange({ lat: loc.lat, lng: loc.lng }, ranges);
+          self.inRange = range ? true : false;
+        });
+
+        // self.inRange = self.mallSvc.inRange(loc);
       }
     });
   }
@@ -179,7 +188,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   }
 
   changeAddress() {
-    this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-filter' }});
+    this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-filter' } });
   }
 
   onBack(e) {

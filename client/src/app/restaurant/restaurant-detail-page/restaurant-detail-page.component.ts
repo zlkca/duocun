@@ -53,14 +53,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((t: IDeliveryTime) => {
       if (t) {
-        if (t.type === 'lunch today') {
-          this.dow = moment().day();
-        } else if (t.type === 'lunch tomorrow') {
-          this.dow = moment().add(1, 'days').day();
-        } else if (t.type === 'lunch after tomorrow') {
-          this.dow = moment().add(2, 'days').day();
-        }
-        // self.deliverTime = t;
+        this.dow = moment(t.from).day();
       }
     });
 

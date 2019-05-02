@@ -5,15 +5,25 @@
 
   <form [formGroup]="form">
     <div class="contact-block" *ngIf="contact" (click)="changeContact()">
-      <div class="row label-sm">
-        <span i18n="@@DeliverTo">Deliver to</span>:
+      <div class="title-md">
+        <div class="label">
+          <span i18n="@@DeliveryTime">Delivery Time</span>:
+        </div>
+        <span class="date">{{deliveryTime.from | date: 'MMMd E' }} </span>
+        <span class="time">{{deliveryTime.from | date: 'HH:mm'}}~{{deliveryTime.to | date: 'HH:mm'}} </span>
       </div>
       <div class="title-md">
+        <div class="label">
+          <span i18n="@@DeliverTo">Deliver to</span>:
+        </div>
         <span class="user-col">{{contact.username}}</span>
         <span class="phone-col">{{contact.phone}}</span>
       </div>
       <div class="title-md">
-        <span>{{contact.address}}</span>
+        <div class="label">
+          <span i18n="@@DeliveryAddress">Delivery Address</span>:
+        </div>
+        <span class="address-text">{{contact.address}}</span>
       </div>
       <!-- <div>Estimate: 11:45~1:45</div> -->
     </div>

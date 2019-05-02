@@ -40,7 +40,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   restaurant: IRestaurant;
   form;
   account;
-  deliveryDateTime: Date;
+  deliveryTime: IDeliveryTime;
   items: ICartItem[];
   order: IOrder;
 
@@ -64,7 +64,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.rx.select('deliveryTime').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((x: IDeliveryTime) => {
-      self.deliveryDateTime = self.getDateTime(x.date, x.startTime);
+      self.deliveryTime = x;
     });
     this.rx.select('account').pipe(
       takeUntil(this.onDestroy$)
@@ -75,6 +75,18 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((order: IOrder) => {
       this.order = order;
+    });
+    this.rx.select<IContact>('contact').pipe(
+      first(),
+      takeUntil(this.onDestroy$)
+    ).subscribe(x => {
+      self.contact = x;
+    });
+    this.rx.select<IRestaurant>('restaurant').pipe(
+      first(),
+      takeUntil(this.onDestroy$)
+    ).subscribe(x => {
+      self.restaurant = x;
     });
   }
 
@@ -89,19 +101,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         first(),
         takeUntil(this.onDestroy$)
       ),
-      this.rx.select<IContact>('contact').pipe(
-        first(),
-        takeUntil(this.onDestroy$)
-      ),
-      this.rx.select<IRestaurant>('restaurant').pipe(
-        first(),
-        takeUntil(this.onDestroy$)
-      )
     ]).subscribe(vals => {
       const malls = vals[0];
       const cart = vals[1];
-      self.contact = vals[2];
-      self.restaurant = vals[3];
       if (malls && malls.length > 0) {
         this.malls = malls; // fix me
         this.fullDeliveryFee = Math.ceil(malls[0].fullDeliverFee * 100) / 100;
@@ -111,13 +113,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.productTotal = 0;
       this.cart = cart;
       this.items = [];
-      const items = this.cart.items;
+      const items: ICartItem[] = this.cart.items;
       if (items && items.length > 0) {
         items.map(x => {
-          if (x.merchantId === self.restaurant.id) {
-            this.productTotal += x.price * x.quantity;
-            this.items.push(x);
-          }
+          this.productTotal += x.price * x.quantity;
+          this.items.push(x);
         });
       }
       this.subtotal = this.productTotal + this.fullDeliveryFee;
@@ -136,13 +136,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     // this.router.navigate(['contact/list']);
   }
 
-
-  getDateTime(d, t) {
-    const hm = t.split(':');
-    const m = moment(d); // .utcOffset(0);
-    return m.set({ hour: parseInt(hm[0], 10), minute: parseInt(hm[1], 10), second: 0, millisecond: 0 }).toDate();
-  }
-
   createOrder(merchantId: string, contact: IContact, note: string) {
     const self = this;
     if (this.cart && this.cart.items && this.cart.items.length > 0) {
@@ -155,7 +148,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         merchantName: self.restaurant.name,
         items: items,
         created: new Date(),
-        delivered: this.deliveryDateTime,
+        delivered: this.deliveryTime.from,
         address: this.contact.address,
         location: this.contact.location,
         note: note,
@@ -176,7 +169,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   pay() {
     const self = this;
-    if (this.account) {
+    if (this.account && this.deliveryTime && this.deliveryTime.from && this.contact.address && this.contact.phone) {
       const v = this.form.value;
 
       if (this.order && this.order.id) {

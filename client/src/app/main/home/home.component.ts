@@ -15,7 +15,6 @@ import { ILocationAction } from '../../location/location.reducer';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICommand } from '../../shared/command.reducers';
-import { IDeliveryTime } from '../../delivery/delivery.model';
 import { Account, IAccount } from '../../account/account.model';
 import { AccountActions } from '../../account/account.actions';
 import { MatSnackBar, MatTooltip } from '../../../../node_modules/@angular/material';
@@ -47,7 +46,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   orderDeadline = { h: 9, m: 30 };
   overdue;
   afternoon;
-  deliveryTime: IDeliveryTime = { type: '', text: '' };
   contact;
   inRange = false;
   onDestroy$ = new Subject<any>();

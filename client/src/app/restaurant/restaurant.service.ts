@@ -7,6 +7,7 @@ import { mergeMap, flatMap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../account/auth.service';
 import { EntityService } from '../entity.service';
+import { IDeliveryTime } from '../delivery/delivery.model';
 
 @Injectable()
 export class RestaurantService extends EntityService {
@@ -30,91 +31,29 @@ export class RestaurantService extends EntityService {
     return this.http.put(this.url, restaurant);
   }
 
-  isClosed(restaurant: IRestaurant, type: any) { // deliverTimeType
+  isClosed(restaurant: IRestaurant, deliveryTime: IDeliveryTime) {
     const now = moment();
     const tomorrow = moment().add(1, 'days');
     const afterTomorrow = moment().add(2, 'days');
 
     if (restaurant.closed) { // has special close day
-      // const deadline = moment().set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
-      if (type === 'lunch today') {
-        if (restaurant.closed.find(d => moment(d).isSame(now, 'day'))) {
-          return true;
-        } else {
-          return this.isClosePerWeek(restaurant, now);
-        }
-      } else if (type === 'lunch tomorrow') {
-        if (restaurant.closed.find(d => moment(d).isSame(tomorrow, 'day'))) {
-          return true;
-        } else {
-          return this.isClosePerWeek(restaurant, tomorrow);
-        }
-      } else if (type === 'lunch after tomorrow') {
-        if (restaurant.closed.find(d => moment(d).isSame(afterTomorrow, 'day'))) {
-          return true;
-        } else {
-          return this.isClosePerWeek(restaurant, afterTomorrow);
-        }
+      if (restaurant.closed.find(d => moment(d).isSame(moment(deliveryTime.from), 'day'))) {
+        return true;
       } else {
-        return true; // this.isClosePerWeek(restaurant, );
+        return this.isClosePerWeek(restaurant, deliveryTime);
       }
-      // if (now.isAfter(deadline)) {
-      //   if (type === 'lunch tomorrow') {
-      //     if (restaurant.closed.find(d => moment(d).isSame(tomorrow, 'day'))) {
-      //       return true;
-      //     } else {
-      //       return this.isClosePerWeek(restaurant, tomorrow);
-      //     }
-      //   } else if (type === 'lunch after tomorrow') {
-      //     if (restaurant.closed.find(d => moment(d).isSame(afterTomorrow, 'day'))) {
-      //       return true;
-      //     }
-      //   } else {
-      //     return true; // this.isClosePerWeek(restaurant, now);
-      //   }
-      // } else {
-      //   if (type === 'lunch today') {
-      //     if (restaurant.closed.find(d => moment(d).isSame(now, 'day'))) {
-      //       return true;
-      //     } else {
-      //       return this.isClosePerWeek(restaurant, now);
-      //     }
-      //   } else if (type === 'lunch tomorrow') {
-      //     if (restaurant.closed.find(d => moment(d).isSame(tomorrow, 'day'))) {
-      //       return true;
-      //     } else {
-      //       return this.isClosePerWeek(restaurant, tomorrow);
-      //     }
-      //   } else if (type === 'lunch after tomorrow') {
-      //     if (restaurant.closed.find(d => moment(d).isSame(afterTomorrow, 'day'))) {
-      //       return true;
-      //     } else {
-      //       return this.isClosePerWeek(restaurant, afterTomorrow);
-      //     }
-      //   } else {
-      //     return true; // this.isClosePerWeek(restaurant, );
-      //   }
-      // }
     } else {
-      if (type === 'lunch today') {
-        return this.isClosePerWeek(restaurant, now);
-      } else if (type === 'lunch tomorrow') {
-        return this.isClosePerWeek(restaurant, tomorrow);
-      } else if (type === 'lunch after tomorrow') {
-        return this.isClosePerWeek(restaurant, afterTomorrow);
-      } else {
-        return true; // this.isClosePerWeek(restaurant, );
-      }
+      return this.isClosePerWeek(restaurant, deliveryTime);
     }
   }
 
-  isClosePerWeek(restaurant: IRestaurant, day: any) {
+  isClosePerWeek(restaurant: IRestaurant, deliveryTime: IDeliveryTime) {
     if (restaurant.dow && restaurant.dow.length > 0) {
       const openAll = restaurant.dow.find(d => d === 'all');
       if (openAll) {
         return false;
       } else {
-        const r = restaurant.dow.find(d => day === d);
+        const r = restaurant.dow.find(d => moment(deliveryTime.from).day() === +d);
         return r ? false : true;
       }
     } else {
