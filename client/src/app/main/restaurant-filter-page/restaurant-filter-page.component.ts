@@ -1,22 +1,21 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { IDeliveryTime } from '../../delivery/delivery.model';
+import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { Subject } from '../../../../node_modules/rxjs';
 import { Router } from '../../../../node_modules/@angular/router';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../main.actions';
 import { takeUntil, take } from '../../../../node_modules/rxjs/operators';
-import { IDeliveryTimeAction } from '../../delivery/delivery-time.reducer';
-import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
 import { ILocation, IPlace } from '../../location/location.model';
 import { MallService } from '../../mall/mall.service';
 import { AccountService } from '../../account/account.service';
 import { LocationService } from '../../location/location.service';
-import { ILocationAction } from '../../location/location.reducer';
-import { LocationActions } from '../../location/location.actions';
 import { SharedService } from '../../shared/shared.service';
 import { RangeService } from '../../range/range.service';
-import { OriginalSource } from '../../../../node_modules/@types/webpack-sources';
+import { IRangeAction } from '../../range/range.reducer';
+import { RangeActions } from '../../range/range.actions';
+import { IDeliveryAction } from '../../delivery/delivery.reducer';
+import { DeliveryActions } from '../../delivery/delivery.actions';
 
 @Component({
   selector: 'app-restaurant-filter-page',
@@ -67,25 +66,25 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
       payload: 'restaurant-filter'
     });
 
-    this.rx.select('deliveryTime').pipe(
+    this.rx.select('delivery').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((t: IDeliveryTime) => {
-      self.deliveryTime = t;
-    });
-
-    this.rx.select('location').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((loc: ILocation) => {
-      if (loc) {
-        self.location = loc;
-        self.deliveryAddress = self.locationSvc.getAddrString(loc);
+    ).subscribe((d: IDelivery) => {
+      if (d && d.origin) {
+        self.location = d.origin;
+        self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
 
         self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
-          const range = self.rangeSvc.getRange({ lat: loc.lat, lng: loc.lng }, ranges);
-          self.inRange = range ? true : false;
+          const rs = self.rangeSvc.getAvailableRanges({ lat: d.origin.lat, lng: d.origin.lng }, ranges);
+          self.inRange = (rs && rs.length > 0) ? true : false;
+          self.rx.dispatch<IDeliveryAction>({
+            type: DeliveryActions.UPDATE_AVAILABLE_RANGES,
+            payload: { availableRanges: rs }
+          });
         });
+      }
 
-        // self.inRange = self.mallSvc.inRange(loc);
+      if (d && d.fromTime) {
+        self.deliveryTime = { from: d.fromTime, to: d.toTime };
       }
     });
   }
@@ -100,10 +99,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     const r = self.location;
     if (e) {
       this.deliveryTime = e;
-      this.rx.dispatch<IDeliveryTimeAction>({
-        type: DeliveryTimeActions.UPDATE,
-        payload: e
-      });
+      this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_TIME, payload: { fromTime: e.from, toTime: e.to } });
       if (self.account) {
         const query = { where: { userId: self.account.id, placeId: r.placeId } };
         const lh = {
@@ -138,10 +134,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     const r: ILocation = e.location;
     this.places = [];
     if (r) {
-      this.rx.dispatch<ILocationAction>({
-        type: LocationActions.UPDATE,
-        payload: r
-      });
+      this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
       this.deliveryAddress = e.address; // set address text to input
     }
   }
@@ -167,21 +160,21 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     this.onAddressInputFocus();
   }
 
-  useCurrentLocation() {
-    const self = this;
-    self.places = [];
-    this.locationSvc.getCurrentLocation().then(r => {
-      self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
+  // useCurrentLocation() {
+  //   const self = this;
+  //   self.places = [];
+  //   this.locationSvc.getCurrentLocation().then(r => {
+  //     self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
 
-      self.rx.dispatch<ILocationAction>({
-        type: LocationActions.UPDATE,
-        payload: r
-      });
-    },
-      err => {
-        console.log(err);
-      });
-  }
+  //     self.rx.dispatch<ILocationAction>({
+  //       type: LocationActions.UPDATE,
+  //       payload: r
+  //     });
+  //   },
+  //     err => {
+  //       console.log(err);
+  //     });
+  // }
 
   showLocationList() {
     return this.places && this.places.length > 0;

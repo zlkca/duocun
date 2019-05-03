@@ -116,21 +116,21 @@ export class CartPageComponent implements OnInit, OnDestroy {
     const product = this.products.find(x => x.id === item.productId);
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
-      payload: [{
+      payload: {items: [{
         productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
         cost: product ? product.cost : 0,
         merchantId: item.merchantId, merchantName: item.merchantName
-      }]
+      }]}
     });
   }
 
   removeFromCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: [{
+      payload: {items: [{
         productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
         merchantId: item.merchantId, merchantName: item.merchantName
-      }]
+      }]}
     });
   }
 

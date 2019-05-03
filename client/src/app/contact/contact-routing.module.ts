@@ -1,13 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ContactFormPageComponent } from './contact-form-page/contact-form-page.component';
 import { PhoneFormPageComponent } from './phone-form-page/phone-form-page.component';
 import { AddressFormPageComponent } from './address-form-page/address-form-page.component';
 
 const routes: Routes = [
-  {
-    path: 'form', component: ContactFormPageComponent
-  },
   {
     path: 'phone-form', component: PhoneFormPageComponent
   }, {

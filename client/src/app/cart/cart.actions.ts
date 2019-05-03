@@ -3,5 +3,6 @@ export class CartActions {
   static ADD_TO_CART = 'ADD_TO_CART';
   static REMOVE_FROM_CART = 'REMOVE_FROM_CART';
   static CLEAR_CART = 'CLEAR_CART';
-  static UPDATE_BY_MERCHANT = 'UPDATE_CART_BY_MERCHANT'; // clear the items from the same restaurant and re-add items
+  static UPDATE_FROM_CHANGE_ORDER = 'UPDATE_CART_FROM_CHANGE_ORDER'; // clear the items from the same restaurant and re-add items
+  static UPDATE_DELIVERY = 'UPDATE_DELIVERY_FOR_CART';
 }

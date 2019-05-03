@@ -19,6 +19,7 @@ import { ILocationAction } from '../../location/location.reducer';
 import { LocationActions } from '../../location/location.actions';
 import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
 import * as moment from 'moment';
+import { DeliveryActions } from '../../delivery/delivery.actions';
 
 @Component({
   selector: 'app-order-history',
@@ -118,12 +119,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   changeOrder(order: Order) {
     this.rx.dispatch({ type: OrderActions.UPDATE, payload: order });
-    this.rx.dispatch({ type: CartActions.UPDATE_BY_MERCHANT, payload: order.items });
-    this.rx.dispatch<ILocationAction>({
-      type: LocationActions.UPDATE,
-      payload: order.location
-    });
-
     const from = moment(order.delivered).toDate();
     const to = moment(order.delivered).set({ hour: 13, minute: 30, second: 0, millisecond: 0 }).toDate();
     let text = '';
@@ -134,10 +129,25 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     } else if (moment(order.delivered).isSame(moment().add(2, 'days'))) {
       text = '后天午餐';
     }
-    const deliveryTime = { text: text, from: from, to: to };
+
     this.rx.dispatch({
-      type: DeliveryTimeActions.UPDATE,
-      payload: deliveryTime
+      type: CartActions.UPDATE_FROM_CHANGE_ORDER,
+      payload: {
+        items: order.items,
+        merchantId: order.merchantId,
+        merchantName: order.merchantName,
+        deliveryCost: order.deliveryFee + order.deliveryDiscount,
+        deliveryFee: order.deliveryFee,
+        deliveryDiscount: order.deliveryDiscount,
+      }
+    });
+    this.rx.dispatch({
+      type: DeliveryActions.UPDATE_FROM_CHANGE_ORDER,
+      payload: {
+        origin: order.location,
+        fromTime: from,
+        toTime: to
+      }
     });
     this.router.navigate(['restaurant/list/' + order.merchantId]);
   }

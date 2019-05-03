@@ -24,6 +24,8 @@ import { CommandActions } from '../../shared/command.actions';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { IAddressAction } from '../../location/address.reducer';
 import { AddressActions } from '../../location/address.actions';
+import { DeliveryActions } from '../../delivery/delivery.actions';
+import { IDeliveryAction } from '../../delivery/delivery.reducer';
 
 const APP = environment.APP;
 
@@ -316,11 +318,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (r) {
       this.location = r;
       this.deliveryAddress = e.address; // set address text to input
-
-      self.rx.dispatch<ILocationAction>({
-        type: LocationActions.UPDATE,
-        payload: r
-      });
+      this.rx.dispatch<IDeliveryAction>({type: DeliveryActions.UPDATE_ORIGIN, payload: {origin: r}});
 
       if (self.account) {
         const query = { where: { userId: self.account.id, placeId: r.placeId } };

@@ -11,8 +11,10 @@ import { IMall } from '../../mall/mall.model';
 import { PageActions } from '../../main/main.actions';
 import { DistanceService } from '../../location/distance.service';
 import { LocationService } from '../../location/location.service';
-import { IDeliveryTime } from '../../delivery/delivery.model';
+import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { MallService } from '../../mall/mall.service';
+import { IRange } from '../../range/range.model';
+import { DeliveryActions } from '../../delivery/delivery.actions';
 
 @Component({
   selector: 'app-restaurant-list-page',
@@ -77,21 +79,14 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    forkJoin([
-      this.rx.select<string>('deliveryTime').pipe(
-        first(),
-        takeUntil(this.onDestroy$)
-      ),
-      this.rx.select<ILocation>('location').pipe(
-        first(),
-        takeUntil(this.onDestroy$)
-      )
-    ]).subscribe(vals => {
-      const location = vals[1];
-      self.deliveryTime = vals[0];
+
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
+      self.deliveryTime = { from: d.fromTime, to: d.toTime };
+      const location = d.origin;
+      const availableRanges: IRange[] = d.availableRanges;
+
       if (location) {
         self.center = { lat: location.lat, lng: location.lng };
-
         self.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
           // check if road distance in database
           self.distanceSvc.find({ where: { originPlaceId: location.placeId } }).pipe(
@@ -107,8 +102,13 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
               //     self.loadRestaurants(ms);
               //   });
               // } else {
-                const ms = self.updateMallInfo(ds, malls);
-                self.loadRestaurants(ms);
+
+              // update distance display
+              // const ms = self.updateMallInfo(ds, malls);
+              // get distance
+              // const d = ds.find(r => r.destinationPlaceId === mall.placeId);
+              // self.rx.dispatch({type: DeliveryActions.UPDATE_DISTANCE, payload: d.element.distance.value})
+              self.loadRestaurants(malls, availableRanges, ds);
               // }
             } else {
               const destinations: ILocation[] = [];
@@ -119,8 +119,8 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
                 takeUntil(this.onDestroy$)
               ).subscribe((rs: IDistance[]) => {
                 if (rs) {
-                  const ms = self.updateMallInfo(rs, malls);
-                  self.loadRestaurants(ms);
+                  // const ms = self.updateMallInfo(rs, malls);
+                  self.loadRestaurants(malls, availableRanges, rs);
                 }
               }, err => {
                 console.log(err);
@@ -162,30 +162,35 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  updateMallInfo(rs: IDistance[], malls: IMall[]) {
-    const self = this;
-    malls.map((mall: IMall) => {
-      // const d = rs.find(rm => rm.destination.lat === +mall.lat && rm.destination.lng === +mall.lng);
-      const d = rs.find(r => r.destinationPlaceId === mall.placeId);
-      if (d) {
-        mall.distance = d.element.distance.value / 1000;
-        mall.fullDeliverFee = self.distanceSvc.getDeliveryCost(mall.distance);
-        mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliveryTime);
-      }
-    });
-    self.rx.dispatch({ type: MallActions.UPDATE, payload: malls });
-    self.realMalls = malls;
-    return malls;
+  // return meter or null
+  getDistance(ds: IDistance[], mall: IMall) {
+    const d = ds.find(r => r.destinationPlaceId === mall.placeId);
+    return d ? d.element.distance.value : null;
   }
 
-  loadRestaurants(malls: IMall[]) { // load with distance
+  // deprecated
+  updateMallInfo(rs: IDistance[], malls: IMall[]) {
+    // const self = this;
+    // malls.map((mall: IMall) => {
+    //   // const d = rs.find(rm => rm.destination.lat === +mall.lat && rm.destination.lng === +mall.lng);
+    //   const d = rs.find(r => r.destinationPlaceId === mall.placeId);
+    //   if (d) {
+    //     mall.distance = d.element.distance.value / 1000;
+    //     mall.fullDeliverFee = self.distanceSvc.getDeliveryCost(mall.distance);
+    //     mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliveryTime);
+    //   }
+    // });
+    // self.rx.dispatch({ type: MallActions.UPDATE, payload: malls });
+    // self.realMalls = malls;
+    // return malls;
+  }
+
+  loadRestaurants(malls: IMall[], availableRanges: IRange[], distances: IDistance[]) { // load with distance
     const self = this;
-    this.restaurantSvc.find().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((rs: IRestaurant[]) => {
-      self.restaurants = rs; // self.toProductGrid(data);
+
+    this.restaurantSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRestaurant[]) => {
       const a = []; // for display marks on map
-      rs.map(restaurant => {
+      rs.map((restaurant: IRestaurant) => {
         if (restaurant.location) {
           a.push({
             lat: restaurant.location.lat,
@@ -194,17 +199,31 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
           });
         }
 
-        const mall = malls.find(m => m.id === restaurant.mallId);
-        restaurant.distance = mall.distance;
-        restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(mall.distance);
-        restaurant.deliveryFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliveryTime);
+        const mall = malls.find(m => m.id === restaurant.malls[0]); // fix me, get physical distance
+        restaurant.inRange = self.isInRange(mall, availableRanges);
+        const distance = self.getDistance(distances, mall);
+        restaurant.distance = distance / 1000;
+        restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
+        restaurant.deliveryFee = self.distanceSvc.getDeliveryFee(distance / 1000, self.deliveryTime);
+        restaurant.isClosed = self.restaurantSvc.isClosed(restaurant, self.deliveryTime);
       });
       self.places = a;
-    },
-      (err: any) => {
+      self.restaurants = rs;
+    }, (err: any) => {
         self.restaurants = [];
       }
     );
+  }
+
+  isInRange(mall: IMall, availableRanges: IRange[]) {
+    let bInRange = false;
+    mall.ranges.map((rangeId: string) => {
+      const range = availableRanges.find(ar => ar.id === rangeId);
+      if (range) {
+        bInRange = true;
+      }
+    });
+    return bInRange;
   }
 
   getFilter(query?: any) {
@@ -247,53 +266,15 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
     if (conditions.length > 0) {
       s = '?' + conditions.join('&');
     }
-
-    // this.loadRestaurants();
   }
 
 
   loadNearbyRestaurants(center) {
-    // const self = this;
-    // this.restaurantSvc.getNearby(center).subscribe(
-    //   (ps: Restaurant[]) => {
-    //     self.restaurants = ps; // self.toProductGrid(data);
-    //     const a = [];
-    //     ps.map(restaurant => {
-    //       if (restaurant.location) {
-    //         a.push({
-    //           lat: restaurant.location.lat,
-    //           lng: restaurant.location.lng,
-    //           name: restaurant.name
-    //         });
-    //       }
-    //     });
-    //     self.places = a;
-    //   },
-    //   (err: any) => {
-    //     self.restaurants = [];
-    //   }
-    // );
+
   }
 
   search() {
-    // const self = this;
-    // const s = localStorage.getItem('location-' + APP);
 
-    // if (s) {
-    //   const location = JSON.parse(s);
-    //   self.deliveryAddress = self.locationSvc.getAddrString(location);
-    //   this.center = { lat: location.lat, lng: location.lng };
-    //   self.loadNearbyRestaurants(this.center);
-    // } else {
-    //   this.locationSvc.getCurrentLocation().subscribe(r => {
-    //     localStorage.setItem('location-' + APP, JSON.stringify(r));
-    //     self.loadNearbyRestaurants(self.center);
-    //   },
-    //   err => {
-    //     console.log(err);
-    //     // alert('Do you want to turn on your GPS to find the nearest restaurants?');
-    //   });
-    // }
   }
 
   toDetail() {

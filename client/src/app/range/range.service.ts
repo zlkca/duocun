@@ -31,4 +31,19 @@ export class RangeService extends EntityService {
     }
     return null;
   }
+
+  // getAvailableRanges
+  getAvailableRanges(origin: ILatLng, ranges: IRange[]) {
+    const self = this;
+    const list = [];
+    for (let i = 0; i < ranges.length; i++) {
+      const r = ranges[i];
+      if (self.locationSvc.getDirectDistance(origin, { lat: r.lat, lng: r.lng }) < r.radius * 1000) {
+        list.push(r);
+      }
+    }
+    return list;
+  }
+
+  // getNearestRange
 }

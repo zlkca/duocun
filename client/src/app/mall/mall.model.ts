@@ -14,11 +14,11 @@ export interface IMall {
   name?: string;
   description?: string;
   // type?: string;
-  placeId?: string;
+  placeId: string;
   lat?: number;
   lng?: number;
   // radius?: number; // m
-  ranges?: IRange[];
+  ranges?: string[];
   restaurants?: IEntityBase[];
   workers?: IUserBase[];
   distance?: number; // Dynamic
@@ -34,11 +34,11 @@ export class Mall implements IMall {
   name: string;
   description?: string;
   // type: string;
-  placeId?: string;
+  placeId: string;
   lat: number;
   lng: number;
   // radius: number; // m
-  ranges?: IRange[];
+  ranges?: string[];
   restaurants: IEntityBase[];
   workers: IUserBase[];
   created?: Date;

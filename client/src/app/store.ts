@@ -10,7 +10,7 @@ import { DEFAULT_MALL } from './mall/mall.actions';
 import { IMall } from './mall/mall.model';
 import { mallReducer } from './mall/mall.reducers';
 import { IDelivery, IDeliveryTime } from './delivery/delivery.model';
-import { deliveryReducer } from './delivery/delivery.reducer';
+import { deliveryReducer, DEFAULT_DELIVERY } from './delivery/delivery.reducer';
 import { IContact } from './contact/contact.model';
 import { contactReducer } from './contact/contact.reducer';
 import { ICart } from './cart/cart.model';
@@ -22,6 +22,8 @@ import { deliveryTimeReducer } from './delivery/delivery-time.reducer';
 import { orderReducer } from './order/order.reducers';
 import { IOrder } from './order/order.model';
 import { addressReducer } from './location/address.reducer';
+import { IRange } from './range/range.model';
+import { rangeReducer } from './range/range.reducer';
 
 export interface IAppState {
     cart: ICart;
@@ -30,13 +32,14 @@ export interface IAppState {
     location: ILocation;
     page: string;
     cmd: ICommand;
-    deliveryTime: IDeliveryTime;
+    // deliveryTime: IDeliveryTime;
     restaurant: IRestaurant;
     malls: IMall[];
     delivery: IDelivery;
     contact: IContact;
     order: IOrder;
     address: string;
+    range: IRange;
 }
 
 export const INITIAL_STATE: IAppState = {
@@ -46,13 +49,14 @@ export const INITIAL_STATE: IAppState = {
     location: null,
     page: 'home',
     cmd: {name: '', args: ''},
-    deliveryTime: {text: '', from: null, to: null},
+    // deliveryTime: {text: '', from: null, to: null},
     restaurant: null,
     malls: [DEFAULT_MALL],
-    delivery: null,
+    delivery: DEFAULT_DELIVERY,
     contact: null,
     order: null,
-    address: ''
+    address: '',
+    range: null
 };
 
 // export function rootReducer(last:IAppState, action:Action):IAppState{
@@ -72,11 +76,12 @@ export const rootReducer = combineReducers({
     location: locationReducer,
     page: pageReducer,
     cmd: commandReducer,
-    deliveryTime: deliveryTimeReducer,
+    // deliveryTime: deliveryTimeReducer,
     restaurant: restaurantReducer,
     malls: mallReducer,
     delivery: deliveryReducer,
     contact: contactReducer,
     order: orderReducer,
-    address: addressReducer
+    address: addressReducer,
+    range: rangeReducer
 });

@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
-import { Subject, forkJoin } from '../../../../node_modules/rxjs';
-import { takeUntil, first } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { IMall } from '../../mall/mall.model';
 import { IContact } from '../../contact/contact.model';
@@ -12,10 +12,8 @@ import { OrderService } from '../order.service';
 import { IOrder, IOrderItem } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
-import { IRestaurant } from '../../restaurant/restaurant.model';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
-import { IDeliveryTime } from '../../delivery/delivery.model';
-import * as moment from 'moment';
+import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { OrderActions } from '../order.actions';
 
 @Component({
@@ -25,24 +23,22 @@ import { OrderActions } from '../order.actions';
 })
 export class OrderFormPageComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<any>();
-  delivery;
   cart;
   subtotal;
   total = 0;
   tips = 3;
   malls: IMall[] = [];
   productTotal = 0;
-  fullDeliveryFee = 0;
+  deliveryCost = 0;
   deliveryDiscount = 0;
   deliveryFee = 0;
   tax = 0;
   contact: IContact;
-  restaurant: IRestaurant;
   form;
   account;
-  deliveryTime: IDeliveryTime;
   items: ICartItem[];
   order: IOrder;
+  delivery: IDelivery;
 
   constructor(
     private fb: FormBuilder,
@@ -55,16 +51,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       note: ['']
     });
-
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: 'order-confirm'
     });
-
-    this.rx.select('deliveryTime').pipe(
+    this.rx.select('delivery').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((x: IDeliveryTime) => {
-      self.deliveryTime = x;
+    ).subscribe((x: IDelivery) => {
+      self.delivery = x;
     });
     this.rx.select('account').pipe(
       takeUntil(this.onDestroy$)
@@ -77,53 +71,33 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.order = order;
     });
     this.rx.select<IContact>('contact').pipe(
-      first(),
       takeUntil(this.onDestroy$)
     ).subscribe(x => {
       self.contact = x;
     });
-    this.rx.select<IRestaurant>('restaurant').pipe(
-      first(),
-      takeUntil(this.onDestroy$)
-    ).subscribe(x => {
-      self.restaurant = x;
-    });
   }
 
   ngOnInit() {
-    const self = this;
-    forkJoin([
-      this.rx.select<IMall[]>('malls').pipe(
-        first(),
-        takeUntil(this.onDestroy$)
-      ),
-      this.rx.select<ICart>('cart').pipe(
-        first(),
-        takeUntil(this.onDestroy$)
-      ),
-    ]).subscribe(vals => {
-      const malls = vals[0];
-      const cart = vals[1];
-      if (malls && malls.length > 0) {
-        this.malls = malls; // fix me
-        this.fullDeliveryFee = Math.ceil(malls[0].fullDeliverFee * 100) / 100;
-        this.deliveryFee = Math.ceil(malls[0].deliverFee * 100) / 100; // fix me
-        this.deliveryDiscount = this.fullDeliveryFee - this.deliveryFee;
-      }
+    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+      this.deliveryCost = cart.deliveryCost;
+      this.deliveryFee = cart.deliveryFee;
+      this.deliveryDiscount = cart.deliveryDiscount;
       this.productTotal = 0;
-      this.cart = cart;
       this.items = [];
-      const items: ICartItem[] = this.cart.items;
+
+      const items: ICartItem[] = cart.items;
       if (items && items.length > 0) {
         items.map(x => {
           this.productTotal += x.price * x.quantity;
           this.items.push(x);
         });
       }
-      this.subtotal = this.productTotal + this.fullDeliveryFee;
+      this.subtotal = this.productTotal + this.deliveryCost;
       this.tax = Math.ceil(this.subtotal * 13) / 100;
       this.subtotal = this.subtotal + this.tax;
       this.total = this.subtotal - this.deliveryDiscount + this.tips;
+
+      this.cart = cart;
     });
   }
 
@@ -136,29 +110,28 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     // this.router.navigate(['contact/list']);
   }
 
-  createOrder(merchantId: string, contact: IContact, note: string) {
+  createOrder(contact: IContact, note: string) {
     const self = this;
-    if (this.cart && this.cart.items && this.cart.items.length > 0) {
-      const items: IOrderItem[] = this.cart.items.filter(x => x.merchantId === merchantId);
+    const cart = this.cart;
+    if (cart && cart.items && cart.items.length > 0) {
+      const items: IOrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId);
       const order: IOrder = {
         clientId: contact.accountId,
         clientName: contact.username,
         clientPhoneNumber: contact.phone,
-        merchantId: merchantId,
-        merchantName: self.restaurant.name,
+        merchantId: cart.merchantId,
+        merchantName: cart.merchantName,
         items: items,
         created: new Date(),
-        delivered: this.deliveryTime.from,
+        delivered: this.delivery.fromTime,
         address: this.contact.address,
         location: this.contact.location,
         note: note,
+        deliveryCost: self.deliveryCost,
         deliveryFee: self.deliveryFee,
         deliveryDiscount: self.deliveryDiscount,
         total: self.total,
         status: 'new',
-        clientStatus: 'new',
-        workerStatus: 'new',
-        merchantStatus: 'new',
         stuffId: '' // self.malls[0].workers[0] ? self.malls[0].workers[0].id : null // fix me
       };
       return order;
@@ -169,11 +142,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   pay() {
     const self = this;
-    if (this.account && this.deliveryTime && this.deliveryTime.from && this.contact.address && this.contact.phone) {
+    if (this.account && this.delivery && this.delivery.fromTime && this.contact.address && this.contact.phone) {
       const v = this.form.value;
-
+      const cart = this.cart;
       if (this.order && this.order.id) {
-        const order = this.createOrder(this.restaurant.id, this.contact, v.note);
+        const order = this.createOrder(this.contact, v.note);
         order.id = this.order.id;
         order.created = this.order.created;
         if (order) {
@@ -181,8 +154,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             takeUntil(this.onDestroy$)
           ).subscribe((r: IOrder) => {
             // self.afterSubmit.emit(order);
-            const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === this.restaurant.id);
-            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });
+            const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
+            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: {items: items} });
             self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
             self.snackBar.open('', '您的订单已经成功修改。', {
               duration: 1000
@@ -199,14 +172,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           });
         }
       } else {
-        const order = this.createOrder(this.restaurant.id, this.contact, v.note);
+        const order = this.createOrder(this.contact, v.note);
         if (order) {
           self.orderSvc.save(order).pipe(
             takeUntil(this.onDestroy$)
           ).subscribe((r: IOrder) => {
             // self.afterSubmit.emit(order);
-            const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === this.restaurant.id);
-            this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: items });
+            const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
+            this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: {items: items} });
             this.snackBar.open('', '您的订单已经成功提交。', {
               duration: 1000
             }); // Fix me

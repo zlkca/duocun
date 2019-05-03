@@ -6,18 +6,19 @@ import { Order } from '../order/order.model';
 
 
 export interface IRestaurant {
+  id?: string;
   name: string;
   description?: string;
   location?: GeoPoint;
   ownerId?: string;
-  mallId?: string;
+  malls?: string[]; // mall id
+  inRange?: boolean;
   created?: Date;
   modified?: Date;
   closed?: Date[];
   dow?: string[]; // day of week opening
   isClosed?: boolean;
-  id?: string;
-  distance?: number;
+  distance?: number; // km
   deliveryFee?: number;
   fullDeliveryFee?: number;
   products?: Product[];
@@ -29,16 +30,16 @@ export interface IRestaurant {
 
 // For database
 export class Restaurant implements IRestaurant {
+  id: string;
   name: string;
   description: string;
   location: GeoPoint;
   ownerId: string;
-  mallId: string;
+  malls: string[]; // mall id
   created: Date;
   modified: Date;
   closed?: Date[];
   dow?: string[]; // day of week opening
-  id: string;
   products: Product[];
   pictures: Picture[];
   address: Address;

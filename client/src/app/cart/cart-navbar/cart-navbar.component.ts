@@ -9,10 +9,10 @@ import { ContactService } from '../../contact/contact.service';
 import { Router } from '../../../../node_modules/@angular/router';
 import { LocationService } from '../../location/location.service';
 import { ContactActions } from '../../contact/contact.actions';
-import { ILocation } from '../../location/location.model';
-import { IRestaurant, Restaurant } from '../../restaurant/restaurant.model';
+import { IRestaurant } from '../../restaurant/restaurant.model';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-import { IDeliveryTime } from '../../delivery/delivery.model';
+import { IDelivery } from '../../delivery/delivery.model';
+import { CartActions } from '../cart.actions';
 
 @Component({
   selector: 'app-cart-navbar',
@@ -26,8 +26,9 @@ export class CartNavbarComponent implements OnInit {
   location;
   account;
   deliveryTime;
+  restaurant;
 
-  @Input() restaurant: IRestaurant;
+  // @Input() restaurantId: string;
   @Output() afterCheckout = new EventEmitter();
 
   constructor(
@@ -43,16 +44,11 @@ export class CartNavbarComponent implements OnInit {
       this.account = account;
     });
 
-    this.rx.select('deliveryTime').pipe(
+    this.rx.select('delivery').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((x: IDeliveryTime) => {
-      this.deliveryTime = x;
-    });
-
-    this.rx.select('location').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((loc: ILocation) => {
-      this.location = loc;
+    ).subscribe((x: IDelivery) => {
+      this.deliveryTime = {from: x.fromTime, to: x.toTime};
+      this.location = x.origin;
     });
   }
 
@@ -61,11 +57,16 @@ export class CartNavbarComponent implements OnInit {
     this.rx.select<ICart>('cart').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((cart: ICart) => {
-      this.quantity = cart.quantity;
-      this.productTotal = cart.productTotal;
+      self.quantity = cart.quantity;
+      self.productTotal = cart.productTotal;
+    });
+
+    this.rx.select('restaurant').pipe(
+      takeUntil(this.onDestroy$)
+    ).subscribe(r => {
+      this.restaurant = r;
     });
   }
-
 
   toCart() {
     if (this.quantity > 0) { // prevent missing bottom menus
@@ -75,8 +76,9 @@ export class CartNavbarComponent implements OnInit {
 
   checkout() {
     const self = this;
+    const restaurant: IRestaurant = this.restaurant;
 
-    if (this.restaurantSvc.isClosed(this.restaurant, this.deliveryTime)) {
+    if (this.restaurantSvc.isClosed(restaurant, this.deliveryTime)) {
       alert('该商家休息，暂时无法配送');
       return;
     }
@@ -92,6 +94,15 @@ export class CartNavbarComponent implements OnInit {
             r[0].address = self.locationSvc.getAddrString(self.location);
             r[0].modified = new Date();
             this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
+
+            this.rx.dispatch({ type: CartActions.UPDATE_DELIVERY, payload: {
+                merchantId: restaurant.id,
+                merchantName: restaurant.name,
+                deliveryCost: restaurant.fullDeliveryFee,
+                deliveryFee: restaurant.deliveryFee,
+                deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
+              }
+            });
 
             if (r[0].phone) {
               self.router.navigate(['order/form']);
@@ -113,6 +124,14 @@ export class CartNavbarComponent implements OnInit {
             });
 
             self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
+            self.rx.dispatch({ type: CartActions.UPDATE_DELIVERY, payload: {
+              merchantId: restaurant.id,
+              merchantName: restaurant.name,
+              deliveryCost: restaurant.fullDeliveryFee,
+              deliveryFee: restaurant.deliveryFee,
+              deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
+            }
+          });
             self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
           }
         });

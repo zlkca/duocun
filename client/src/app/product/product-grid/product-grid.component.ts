@@ -13,7 +13,7 @@ import { CartActions } from '../../cart/cart.actions';
 import { WarningDialogComponent } from '../../shared/warning-dialog/warning-dialog.component';
 import { IRestaurant, Restaurant } from '../../restaurant/restaurant.model';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-import { IDeliveryTime } from '../../delivery/delivery.model';
+import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -61,10 +61,10 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-    this.rx.select('deliveryTime').pipe(
+    this.rx.select('delivery').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((x: IDeliveryTime) => {
-      this.deliveryTime = x;
+    ).subscribe((x: IDelivery) => {
+      this.deliveryTime = {from: x.fromTime, to: x.toTime};
     });
   }
 
@@ -109,29 +109,20 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
       alert('该商家休息，暂时无法配送');
       return;
     }
-    // if (this.cart.items && this.cart.items.length > 0) {
+
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART, payload:
-        [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+        {items: [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
           cost: p.cost,
-          merchantId: p.merchantId, merchantName: this.restaurant.name }]
+          merchantId: p.merchantId, merchantName: this.restaurant.name }]}
     });
-
-    // } else {
-    //   this.rx.dispatch({
-    //     type: CartActions.ADD_TO_CART, payload:
-    //       [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
-    //         cost: p.cost,
-    //         merchantId: p.merchantId, merchantName: this.restaurant.name }]
-    //   });
-    // }
   }
 
   removeFromCart(p: IProduct) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
-         merchantId: p.merchantId, merchantName: this.restaurant.name }]
+      payload: {items: [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+         merchantId: p.merchantId, merchantName: this.restaurant.name }]}
     });
   }
 

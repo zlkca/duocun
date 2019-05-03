@@ -17,7 +17,7 @@ import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-re
 import { ICart } from '../../cart/cart.model';
 import { SharedService } from '../../shared/shared.service';
 import * as moment from 'moment';
-import { IDeliveryTime } from '../../delivery/delivery.model';
+import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -49,11 +49,11 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       payload: 'restaurant-detail'
     });
 
-    this.rx.select<IDeliveryTime>('deliveryTime').pipe(
+    this.rx.select<IDelivery>('delivery').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((t: IDeliveryTime) => {
+    ).subscribe((t: IDelivery) => {
       if (t) {
-        this.dow = moment(t.from).day();
+        this.dow = moment(t.fromTime).day();
       }
     });
 

@@ -14,9 +14,6 @@ export interface IOrder {
   merchantName?: string;
   stuffId?: string;
   status?: string;
-  clientStatus?: string;
-  workerStatus?: string;
-  merchantStatus?: string;
   note?: string;
   address?: string;
   location?: ILocation;
@@ -25,6 +22,7 @@ export interface IOrder {
   modified?: Date;
   items?: IOrderItem[];
   deliveryAddress?: Address;
+  deliveryCost?: number;
   deliveryFee?: number;
   deliveryDiscount?: number;
   total?: number;
@@ -39,9 +37,6 @@ export class Order implements IOrder {
   merchantName: string;
   stuffId: string;
   status: string;
-  clientStatus: string;
-  workerStatus: string;
-  merchantStatus: string;
   note: string;
   address: string;
   location?: ILocation;
@@ -50,6 +45,7 @@ export class Order implements IOrder {
   modified: Date;
   items: OrderItem[];
   deliveryAddress: Address;
+  deliveryCost?: number;
   deliveryFee: number;
   deliveryDiscount: number;
   total: number;

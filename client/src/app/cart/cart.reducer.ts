@@ -3,7 +3,7 @@ import { ICart, ICartItem } from './cart.model';
 
 export interface ICartAction {
   type: string;
-  payload: ICartItem[];
+  payload: ICart;
 }
 
 
@@ -54,10 +54,21 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
       case CartActions.UPDATE:
         return {
           ...state,
-          ...action.payload
+          ...action.payload.items
         };
+
+      case CartActions.UPDATE_DELIVERY:
+        return {
+          ...state,
+          merchantId: action.payload.merchantId,
+          merchantName: action.payload.merchantName,
+          deliveryCost: action.payload.deliveryCost,
+          deliveryFee: action.payload.deliveryFee,
+          deliveryDiscount: action.payload.deliveryDiscount
+        };
+
       case CartActions.ADD_TO_CART:
-        const itemsToAdd = action.payload;
+        const itemsToAdd = action.payload.items;
         itemsToAdd.map(itemToAdd => {
           const x = state.items.find(item => item.productId === itemToAdd.productId);
           if (x) {
@@ -80,7 +91,7 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
           items: items
         };
       case CartActions.REMOVE_FROM_CART:
-        const itemsToRemove: ICartItem[] = action.payload;
+        const itemsToRemove: ICartItem[] = action.payload.items;
         itemsToRemove.map((itemToRemove: ICartItem) => {
           const x = state.items.find(item => item.productId === itemToRemove.productId);
           if (x) {
@@ -103,20 +114,18 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
           items: its
         };
 
-      case CartActions.UPDATE_BY_MERCHANT:
-        const merchantId = action.payload[0].merchantId;
-        state.items.map(x => {
-          if (x.merchantId !== merchantId) {
-            items.push(x);
-          }
-        });
-
-        its = [...items, ...action.payload];
+      case CartActions.UPDATE_FROM_CHANGE_ORDER:
+        its = [...action.payload.items];
         updated = updateCart(state, its);
 
         return {
           ...state,
           ...updated,
+          merchantId: action.payload.merchantId,
+          merchantName: action.payload.merchantName,
+          deliveryCost: action.payload.deliveryCost,
+          deliveryFee: action.payload.deliveryFee,
+          deliveryDiscount: action.payload.deliveryDiscount,
           items: its
         };
 

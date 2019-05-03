@@ -3,17 +3,14 @@ import { Router } from '@angular/router';
 
 import { SharedService } from '../../shared/shared.service';
 import { environment } from '../../../environments/environment';
-import { Restaurant, IRestaurant } from '../restaurant.model';
+import { IRestaurant } from '../restaurant.model';
 import { PageActions } from '../../main/main.actions';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { RestaurantActions } from '../restaurant.actions';
-import * as moment from 'moment';
-import { RestaurantService } from '../restaurant.service';
 import { IDeliveryTime } from '../../delivery/delivery.model';
-import { CartActions } from '../../cart/cart.actions';
-import { DistanceService } from '../../location/distance.service';
 import { IMall } from '../../mall/mall.model';
+import { DeliveryActions } from '../../delivery/delivery.actions';
 
 @Component({
   selector: 'app-restaurant-grid',
@@ -37,8 +34,6 @@ export class RestaurantGridComponent implements OnInit {
   constructor(
     private router: Router,
     private sharedSvc: SharedService,
-    private restaurantSvc: RestaurantService,
-    private distanceSvc: DistanceService,
     private rx: NgRedux<IAppState>
   ) {
   }
@@ -46,10 +41,6 @@ export class RestaurantGridComponent implements OnInit {
   ngOnInit() {
     const self = this;
     if (self.restaurantList && self.restaurantList.length > 0) {
-      self.restaurantList.map(r => {
-        r.isClosed = self.restaurantSvc.isClosed(r, this.deliveryTime);
-      });
-
       // sort by isClosed && distance
       self.restaurantList.sort((a: IRestaurant, b: IRestaurant) => {
         if (a.isClosed && !b.isClosed) {
@@ -92,17 +83,12 @@ export class RestaurantGridComponent implements OnInit {
     }
   }
 
-  toDetail(r: Restaurant) {
+  toDetail(r: IRestaurant) {
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'restaurants' });
     this.rx.dispatch({ type: RestaurantActions.UPDATE, payload: r });
-
-    const mall = this.malls.find(m => m.id === r.mallId );
-    const deliveryCost = this.distanceSvc.getDeliveryCost(mall.distance);
-    this.rx.dispatch({ type: CartActions.UPDATE, payload: {
-        deliveryCost: deliveryCost,
-        deliveryFee: this.distanceSvc.getDeliveryFee(mall.distance, this.deliveryTime),
-        deliveryDiscount: deliveryCost
-      }
+    this.rx.dispatch({
+      type: DeliveryActions.UPDATE_DESTINATION,
+      payload: {destination: r.location, distance: r.distance }
     });
 
     this.router.navigate(['restaurant/list/' + r.id]);
