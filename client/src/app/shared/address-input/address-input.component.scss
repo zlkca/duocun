@@ -2,6 +2,7 @@ $bg-color: white;
 $border-color: #b1b1b1;
 $input-height: 46px;
 $icon-height: 22px;
+$btn-width: 34px;
 
 // Bootstrap's .modal z-index is by default 1050.
 // jQuery UI's .ui-autocomplete z-index is by default 3.
@@ -11,14 +12,14 @@ $icon-height: 22px;
 
 .address-input{
   input{
-    width: calc(100% - 60px);
+    width: calc(100% - #{$btn-width} - #{$btn-width});
     height: $input-height;
     display: inline-block;
     border-right: none;
     border-left: none;
     background-color: $bg-color;
-    padding-left: 3px;
-    padding-right: 3px;
+    padding-left: 0px;
+    padding-right: 0px;
   }
 }
 
@@ -27,7 +28,7 @@ button:focus {
 }
 
 .back-btn, .clear-btn{
-  width: 30px;
+  width: $btn-width;
   height: $input-height;
   padding-top: 8px; // ($input-height - $icon-height)/2;
   border: 1px solid $border-color;

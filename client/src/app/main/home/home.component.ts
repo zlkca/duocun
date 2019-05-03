@@ -26,6 +26,7 @@ import { IAddressAction } from '../../location/address.reducer';
 import { AddressActions } from '../../location/address.actions';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
+import { IDelivery } from '../../delivery/delivery.model';
 
 const APP = environment.APP;
 
@@ -54,6 +55,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   loading = false;
   location;
   bFirstTime = true;
+  bUpdateLocationList = true;
   bInputLocation = false;
   placeForm;
   historyAddressList = [];
@@ -79,17 +81,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'home' });
 
-    this.rx.select('location').pipe(
+    this.rx.select('delivery').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((loc: ILocation) => {
-      if (loc) {
-        self.deliveryAddress = self.locationSvc.getAddrString(loc);
+    ).subscribe((d: IDelivery) => {
+      if (d && d.origin) {
+        self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
         self.placeForm.get('addr').patchValue(self.deliveryAddress);
-        if (self.deliveryAddress) {
+        if (self.deliveryAddress && self.bUpdateLocationList) {
           self.getSuggestLocationList(self.deliveryAddress, false);
         }
       }
     });
+
 
     self.route.queryParamMap.pipe(
       takeUntil(this.onDestroy$)
@@ -160,6 +163,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
     this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
+
     this.locationSvc.getHistoryLocations(this.account.id).pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((a: IPlace[]) => {
@@ -178,9 +182,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         self.contact = new Contact(r[0]);
 
         if (self.contact.location) {
-          self.rx.dispatch<ILocationAction>({
-            type: LocationActions.UPDATE,
-            payload: self.contact.location
+          self.bUpdateLocationList = false;
+          self.rx.dispatch({
+            type: DeliveryActions.UPDATE_ORIGIN,
+            payload: { origin: self.contact.location }
           });
           self.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
           self.router.navigate(['main/filter']);
@@ -239,7 +244,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   onAddressInputFocus(e?: any) {
     const self = this;
     this.places = [];
-
+    self.bUpdateLocationList = true;
     if (this.bFirstTime) {
       this.bFirstTime = false;
       if (this.account) {
@@ -286,7 +291,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   onAddressInputClear(e) {
     this.deliveryAddress = '';
     this.places = [];
-    this.onAddressInputFocus();
+    this.bUpdateLocationList = true;
+    this.rx.dispatch({
+      type: DeliveryActions.UPDATE_ORIGIN,
+      payload: { origin: null }
+    });
+    this.onAddressInputFocus({input: ''});
   }
 
   getSuggestLocationList(input: string, bShowList: boolean) {
@@ -306,7 +316,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (bShowList) {
           self.places = places; // without lat lng
         }
-
       }
     });
   }
@@ -315,6 +324,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const self = this;
     const r: ILocation = e.location;
     this.places = [];
+    this.bUpdateLocationList = false;
     if (r) {
       this.location = r;
       this.deliveryAddress = e.address; // set address text to input

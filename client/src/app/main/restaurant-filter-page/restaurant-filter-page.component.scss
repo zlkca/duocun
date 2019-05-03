@@ -14,14 +14,18 @@ $menu-height: 60px;
   left: 0px;
   padding:0px;
   width: 100%;
-  height: 220px;
+  height: $map-height;
+  app-map{
+    width: 100%;
+    height: $map-height;
+  }
 }
 
 .time-options{
   position: absolute;
-  top: 220px;
+  top: $map-height;
   width: 100%;
-  height: calc(100% - 60px - 220px);
+  height: calc(100% - 60px - #{$map-height});
   /* overflow: scroll; */
   padding: 0px 10px;
   height: 310px;

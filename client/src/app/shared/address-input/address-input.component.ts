@@ -38,11 +38,6 @@ export class AddressInputComponent implements OnInit, OnChanges {
     if (this.input !== undefined) {
       this.placeForm.get('addr').patchValue(this.input);
     }
-    // setTimeout(() => { // this will make the execution after the above boolean has changed
-    //   if (self.addressInput.nativeElement) {
-    //     self.addressInput.nativeElement.focus();
-    //   }
-    // }, 0);
   }
 
   ngOnChanges(changes) {
@@ -79,8 +74,8 @@ export class AddressInputComponent implements OnInit, OnChanges {
     this.input = '';
     if (this.bClearBtn) {
       this.placeForm.get('addr').patchValue(this.input);
-      this.addrClear.emit();
       this.bClearBtn = false;
+      self.addrClear.emit();
       setTimeout(() => { // this will make the execution after the above boolean has changed
         self.addressInput.nativeElement.focus();
       }, 0);

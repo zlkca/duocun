@@ -16,6 +16,7 @@ import { IRangeAction } from '../../range/range.reducer';
 import { RangeActions } from '../../range/range.actions';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
 import { DeliveryActions } from '../../delivery/delivery.actions';
+import { IRange } from '../../range/range.model';
 
 @Component({
   selector: 'app-restaurant-filter-page',
@@ -35,7 +36,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   today;
   overdue = false;
   deliveryAddress;
-
+  availableRanges: IRange[];
   account;
 
   constructor(
@@ -76,10 +77,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
         self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
           const rs = self.rangeSvc.getAvailableRanges({ lat: d.origin.lat, lng: d.origin.lng }, ranges);
           self.inRange = (rs && rs.length > 0) ? true : false;
-          self.rx.dispatch<IDeliveryAction>({
-            type: DeliveryActions.UPDATE_AVAILABLE_RANGES,
-            payload: { availableRanges: rs }
-          });
+          self.availableRanges = rs;
         });
       }
 
@@ -99,7 +97,10 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     const r = self.location;
     if (e) {
       this.deliveryTime = e;
-      this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_TIME, payload: { fromTime: e.from, toTime: e.to } });
+      this.rx.dispatch<IDeliveryAction>({
+        type: DeliveryActions.UPDATE_TIME_AND_RANGES,
+        payload: { fromTime: e.from, toTime: e.to, availableRanges: self.availableRanges }
+      });
       if (self.account) {
         const query = { where: { userId: self.account.id, placeId: r.placeId } };
         const lh = {
@@ -157,7 +158,11 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   onAddressClear(e) {
     this.deliveryAddress = '';
     this.places = [];
-    this.onAddressInputFocus();
+    this.rx.dispatch({
+      type: DeliveryActions.UPDATE_ORIGIN,
+      payload: { origin: null }
+    });
+    this.onAddressInputFocus({input: ''});
   }
 
   // useCurrentLocation() {

@@ -48,7 +48,7 @@ export class Product extends Entity{
 
     if (query && query.hasOwnProperty('dow')) {
       if(query.dow){
-        query['dow'] = { $in:[ query.dow, 'all'] };
+        query['dow'] = { $in:[ query.dow.toString(), 'all'] };
       }
     }
 

@@ -97,7 +97,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   onAddressClear(e) {
     this.deliveryAddress = '';
     this.options = [];
-    this.onAddressInputFocus();
+    this.onAddressInputFocus({input: ''});
   }
 
   onAddressInputFocus(e?: any) {

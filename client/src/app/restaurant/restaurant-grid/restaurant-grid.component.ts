@@ -43,9 +43,9 @@ export class RestaurantGridComponent implements OnInit {
     if (self.restaurantList && self.restaurantList.length > 0) {
       // sort by isClosed && distance
       self.restaurantList.sort((a: IRestaurant, b: IRestaurant) => {
-        if (a.isClosed && !b.isClosed) {
+        if (!a.isClosed && b.isClosed) {
           return 1;
-        } else if (!a.isClosed && b.isClosed) {
+        } else if (a.isClosed && !b.isClosed) {
           return -1;
         } else {
           if (a.distance < b.distance) {

@@ -15,10 +15,9 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { MatDialog } from '../../../../node_modules/@angular/material';
 import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-restaurant-dialog.component';
 import { ICart } from '../../cart/cart.model';
-import { SharedService } from '../../shared/shared.service';
 import * as moment from 'moment';
-import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
-
+import { IDelivery } from '../../delivery/delivery.model';
+// import { SharedService } from '../../shared/shared.service';
 @Component({
   selector: 'app-restaurant-detail-page',
   templateUrl: './restaurant-detail-page.component.html',
@@ -33,6 +32,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject<any>();
   locationSubscription;
   dow: number; // day of week
+  delivery: IDelivery;
 
   constructor(
     private productSvc: ProductService,
@@ -41,6 +41,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
     private location: Location,
+    // private sharedSvc: SharedService,
     public dialog: MatDialog
   ) {
     const self = this;
@@ -52,9 +53,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     this.rx.select<IDelivery>('delivery').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((t: IDelivery) => {
-      if (t) {
-        this.dow = moment(t.fromTime).day();
-      }
+      self.delivery = t;
     });
 
     this.rx.select<ICart>('cart').pipe(
@@ -94,20 +93,25 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
         }
       );
 
-      self.productSvc.find({ where: { merchantId: merchantId, dow: this.dow } }).pipe(
-        takeUntil(this.onDestroy$)
-      ).subscribe(products => {
-        // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
-        self.groupedProducts = self.groupByCategory(products);
-        const categoryIds = Object.keys(self.groupedProducts);
-
-        // fix me !!!
-        self.categorySvc.find({ where: { id: { $in: categoryIds } } }).pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe(res => {
-          self.categories = res;
+      setTimeout(() => {
+        if (self.delivery && self.delivery.fromTime) {
+          self.dow = moment(self.delivery.fromTime).day();
+        }
+        self.productSvc.find({ where: { merchantId: merchantId, dow: self.dow } }).pipe(
+          takeUntil(self.onDestroy$)
+        ).subscribe(products => {
+          // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
+          self.groupedProducts = self.groupByCategory(products);
+          const categoryIds = Object.keys(self.groupedProducts);
+          // fix me !!!
+          self.categorySvc.find({ where: { id: { $in: categoryIds } } }).pipe(
+            takeUntil(self.onDestroy$)
+          ).subscribe(res => {
+            self.categories = res;
+          });
         });
-      });
+      }, 500);
+
     });
   }
 

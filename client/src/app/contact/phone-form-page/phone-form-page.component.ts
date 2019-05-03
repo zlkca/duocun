@@ -15,6 +15,7 @@ import { AccountService } from '../../account/account.service';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import * as Cookies from 'js-cookie';
 import { ILocation } from '../../location/location.model';
+import { IDelivery } from '../../delivery/delivery.model';
 
 @Component({
   selector: 'app-phone-form-page',
@@ -77,10 +78,10 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.rx.select('location').pipe(
+    this.rx.select('delivery').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((loc: ILocation) => {
-      self.location = loc;
+    ).subscribe((d: IDelivery) => {
+      self.location = d.origin;
     });
   }
 

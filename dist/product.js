@@ -42,7 +42,7 @@ class Product extends entity_1.Entity {
         }
         if (query && query.hasOwnProperty('dow')) {
             if (query.dow) {
-                query['dow'] = { $in: [query.dow, 'all'] };
+                query['dow'] = { $in: [query.dow.toString(), 'all'] };
             }
         }
         return new Promise((resolve, reject) => {

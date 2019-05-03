@@ -23,12 +23,13 @@ class Distance extends entity_1.Entity {
             }
         });
     }
+    // input --- {origin:{lat, lng, placeId}, destination: {lat, lng, placeId}}
     reqRoadDistances(req, res) {
         let key = this.cfg.GOOGLE_DISTANCE_KEY;
         let origin = req.body.origins[0]; // should be only one location
         let sOrigin = `${origin.lat},${origin.lng}`;
         // let malls = req.body.destinations;
-        let destinations = [];
+        const destinations = [];
         req.body.destinations.map((d) => {
             destinations.push(`${d.lat},${d.lng}`);
         });

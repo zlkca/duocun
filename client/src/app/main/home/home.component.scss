@@ -46,8 +46,9 @@ $menu-height: 60px;
 
 app-location-list{
   position: absolute;
-  top: 50px;
+  top: 58px;
   width: 100%;
+  height: calc(100% - 58px - 61px);
 }
 
 @media #{$desktop}{

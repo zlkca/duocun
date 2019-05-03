@@ -21,6 +21,7 @@ import { RestaurantActions } from '../../restaurant/restaurant.actions';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { ProductService } from '../../product/product.service';
+import { IDelivery } from '../../delivery/delivery.model';
 
 @Component({
   selector: 'app-cart-page',
@@ -72,10 +73,10 @@ export class CartPageComponent implements OnInit, OnDestroy {
       this.account = acc;
     });
 
-    this.rx.select('location').pipe(
+    this.rx.select('delivery').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((loc: ILocation) => {
-      this.location = loc;
+    ).subscribe((d: IDelivery) => {
+      this.location = d.origin;
     });
 
     this.rx.select('restaurant').pipe(
