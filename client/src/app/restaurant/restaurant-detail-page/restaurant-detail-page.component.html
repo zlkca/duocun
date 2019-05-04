@@ -22,4 +22,4 @@
     </div>
   </div>
 </div>
-<app-cart-navbar *ngIf="restaurant" (afterCheckout)="onAfterCheckout($event)"></app-cart-navbar>
+<app-cart-navbar *ngIf="restaurant" [restaurant]="restaurant" (afterCheckout)="onAfterCheckout($event)"></app-cart-navbar>

@@ -11,6 +11,7 @@ import { RestaurantActions } from '../restaurant.actions';
 import { IDeliveryTime } from '../../delivery/delivery.model';
 import { IMall } from '../../mall/mall.model';
 import { DeliveryActions } from '../../delivery/delivery.actions';
+import { CartActions } from '../../cart/cart.actions';
 
 @Component({
   selector: 'app-restaurant-grid',
@@ -91,6 +92,16 @@ export class RestaurantGridComponent implements OnInit {
       payload: {destination: r.location, distance: r.distance }
     });
 
+    this.rx.dispatch({
+      type: CartActions.UPDATE_DELIVERY,
+      payload: {
+        merchantId: r.id,
+        merchantName: r.name,
+        deliveryCost: r.fullDeliveryFee,
+        deliveryFee: r.deliveryFee,
+        deliveryDiscount: r.fullDeliveryFee
+      }
+    });
     this.router.navigate(['restaurant/list/' + r.id]);
   }
 

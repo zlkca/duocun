@@ -1,7 +1,8 @@
 import { Picture } from '../picture.model';
-import { Restaurant } from '../restaurant/restaurant.model';
+import { Restaurant, IRestaurant } from '../restaurant/restaurant.model';
 
 export interface IProduct {
+  id?: string;
   name: string;
   description?: string;
   price?: number;
@@ -10,26 +11,25 @@ export interface IProduct {
   categoryId: string;
   created?: Date;
   modified?: Date;
-  id?: string;
   openDays?: number[];
-  restaurant?: Restaurant;
+  restaurant?: IRestaurant;
   category?: Category;
   pictures?: Picture[];
   dow?: string[];
 }
 
 export class Product implements IProduct {
+  id: string;
   name: string;
   description: string;
   price: number;
   cost?: number;
-  categoryId: string;
   merchantId: string;
+  categoryId: string;
   created: Date;
   modified: Date;
-  id: string;
-  owner: Restaurant;
-  restaurant: Restaurant;
+  // owner: Restaurant;
+  // restaurant: Restaurant;
   category: Category;
   pictures: Picture[];
   dow?: string[];
@@ -44,7 +44,7 @@ export interface ICategory {
   created?: Date;
   modified?: Date;
   id?: string;
-  products?: Product[];
+  // products?: Product[];
 }
 
 export class Category implements ICategory {
@@ -53,7 +53,7 @@ export class Category implements ICategory {
   created: Date;
   modified: Date;
   id: string;
-  products: Product[];
+  // products: Product[];
   constructor(data?: ICategory) {
     Object.assign(this, data);
   }

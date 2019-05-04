@@ -20,6 +20,7 @@ import { Category } from "./category";
 import { Order } from "./order";
 import { Mall } from "./mall";
 import { Range } from "./range";
+import { Region } from "./region";
 import { Location } from "./location";
 import { Distance } from "./distance";
 import { Contact } from "./contact";
@@ -57,6 +58,7 @@ let restaurant: Restaurant;
 let product: Product;
 let mall: Mall;
 let range: Range;
+let region: Region;
 let location: Location;
 let distance: Distance;
 let contact: Contact;
@@ -76,6 +78,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   product = new Product(dbo);
   mall = new Mall(dbo);
   range = new Range(dbo);
+  region = new Region(dbo);
   location = new Location(dbo);
   distance = new Distance(dbo);
   contact = new Contact(dbo);
@@ -380,6 +383,14 @@ app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
 app.get('/' + ROUTE_PREFIX + '/Ranges', (req: any, res) => {
   const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
   range.find(query ? query.where: {}).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x, null, 3));
+  });
+});
+
+app.get('/' + ROUTE_PREFIX + '/Regions', (req: any, res) => {
+  const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+  region.find(query ? query.where: {}).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3));
   });

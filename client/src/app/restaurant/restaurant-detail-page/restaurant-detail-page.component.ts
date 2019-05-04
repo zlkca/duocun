@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 
 import { ProductService } from '../../product/product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
-import { Restaurant } from '../restaurant.model';
+import { Restaurant, IRestaurant } from '../restaurant.model';
 import { IProduct } from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
@@ -17,6 +17,7 @@ import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-re
 import { ICart } from '../../cart/cart.model';
 import * as moment from 'moment';
 import { IDelivery } from '../../delivery/delivery.model';
+import { RangeService } from '../../range/range.service';
 // import { SharedService } from '../../shared/shared.service';
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -26,7 +27,7 @@ import { IDelivery } from '../../delivery/delivery.model';
 export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
   categories;
   groupedProducts: any = [];
-  restaurant: any;
+  restaurant: IRestaurant;
   subscription;
   cart: ICart;
   onDestroy$ = new Subject<any>();
@@ -41,7 +42,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
     private location: Location,
-    // private sharedSvc: SharedService,
+    private rangeSvc: RangeService,
     public dialog: MatDialog
   ) {
     const self = this;
@@ -74,6 +75,12 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    // this.rx.select('restaurant').pipe(
+    //   takeUntil(this.onDestroy$)
+    // ).subscribe((r: IRestaurant) => {
+    //   this.restaurant = r;
+    // });
   }
 
   ngOnInit() {
@@ -85,32 +92,41 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       self.restaurantSvc.findById(merchantId, { include: ['pictures', 'address'] }).pipe(
         takeUntil(this.onDestroy$)
       ).subscribe(
-        (restaurant: Restaurant) => {
-          self.restaurant = restaurant;
+        (restaurant: IRestaurant) => {
+
+          self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
+            const origin = self.delivery.origin;
+            const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
+            restaurant.inRange = (rs && rs.length > 0) ? true : false;
+
+            restaurant.fullDeliveryFee = self.cart.deliveryCost;
+            restaurant.deliveryFee = self.cart.deliveryFee;
+            restaurant.deliveryDiscount = self.cart.deliveryDiscount;
+
+            self.restaurant = restaurant;
+          });
         },
         (err: any) => {
           self.restaurant = null;
         }
       );
 
-      setTimeout(() => {
-        if (self.delivery && self.delivery.fromTime) {
-          self.dow = moment(self.delivery.fromTime).day();
-        }
-        self.productSvc.find({ where: { merchantId: merchantId, dow: self.dow } }).pipe(
+      if (self.delivery && self.delivery.fromTime) {
+        self.dow = moment(self.delivery.fromTime).day(); // 0 for sunday
+      }
+      self.productSvc.find({ where: { merchantId: merchantId, dow: self.dow } }).pipe(
+        takeUntil(self.onDestroy$)
+      ).subscribe(products => {
+        // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
+        self.groupedProducts = self.groupByCategory(products);
+        const categoryIds = Object.keys(self.groupedProducts);
+        // fix me !!!
+        self.categorySvc.find({ where: { id: { $in: categoryIds } } }).pipe(
           takeUntil(self.onDestroy$)
-        ).subscribe(products => {
-          // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
-          self.groupedProducts = self.groupByCategory(products);
-          const categoryIds = Object.keys(self.groupedProducts);
-          // fix me !!!
-          self.categorySvc.find({ where: { id: { $in: categoryIds } } }).pipe(
-            takeUntil(self.onDestroy$)
-          ).subscribe(res => {
-            self.categories = res;
-          });
+        ).subscribe(res => {
+          self.categories = res;
         });
-      }, 500);
+      });
 
     });
   }

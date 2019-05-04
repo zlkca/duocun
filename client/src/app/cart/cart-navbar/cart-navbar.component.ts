@@ -26,9 +26,8 @@ export class CartNavbarComponent implements OnInit {
   location;
   account;
   deliveryTime;
-  restaurant;
 
-  // @Input() restaurantId: string;
+  @Input() restaurant: IRestaurant;
   @Output() afterCheckout = new EventEmitter();
 
   constructor(
@@ -47,7 +46,7 @@ export class CartNavbarComponent implements OnInit {
     this.rx.select('delivery').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((x: IDelivery) => {
-      this.deliveryTime = {from: x.fromTime, to: x.toTime};
+      this.deliveryTime = { from: x.fromTime, to: x.toTime };
       this.location = x.origin;
     });
   }
@@ -61,11 +60,11 @@ export class CartNavbarComponent implements OnInit {
       self.productTotal = cart.productTotal;
     });
 
-    this.rx.select('restaurant').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(r => {
-      this.restaurant = r;
-    });
+    // this.rx.select('restaurant').pipe(
+    //   takeUntil(this.onDestroy$)
+    // ).subscribe((r: IRestaurant) => {
+    //   this.restaurant = r;
+    // });
   }
 
   toCart() {
@@ -83,6 +82,11 @@ export class CartNavbarComponent implements OnInit {
       return;
     }
 
+    if (!this.restaurant.inRange) {
+      alert('该商家不在配送范围内，暂时无法配送');
+      return;
+    }
+
     if (this.quantity > 0) {
       this.afterCheckout.emit({ productTotal: this.productTotal, quantity: this.quantity });
       const account = this.account;
@@ -95,7 +99,8 @@ export class CartNavbarComponent implements OnInit {
             r[0].modified = new Date();
             this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
 
-            this.rx.dispatch({ type: CartActions.UPDATE_DELIVERY, payload: {
+            this.rx.dispatch({
+              type: CartActions.UPDATE_DELIVERY, payload: {
                 merchantId: restaurant.id,
                 merchantName: restaurant.name,
                 deliveryCost: restaurant.fullDeliveryFee,
@@ -124,14 +129,15 @@ export class CartNavbarComponent implements OnInit {
             });
 
             self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
-            self.rx.dispatch({ type: CartActions.UPDATE_DELIVERY, payload: {
-              merchantId: restaurant.id,
-              merchantName: restaurant.name,
-              deliveryCost: restaurant.fullDeliveryFee,
-              deliveryFee: restaurant.deliveryFee,
-              deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
-            }
-          });
+            self.rx.dispatch({
+              type: CartActions.UPDATE_DELIVERY, payload: {
+                merchantId: restaurant.id,
+                merchantName: restaurant.name,
+                deliveryCost: restaurant.fullDeliveryFee,
+                deliveryFee: restaurant.deliveryFee,
+                deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
+              }
+            });
             self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
           }
         });

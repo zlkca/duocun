@@ -81,6 +81,9 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
     }
     if (gps) {
       this.groupedProducts = gps;
+    }
+
+    if (this.categories && this.groupedProducts && this.categories.length > 0) {
       const categoryIds = Object.keys(this.groupedProducts);
 
       categoryIds.map(categoryId => {
@@ -105,11 +108,15 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   addToCart(p: IProduct) {
+    // fix me
     if (this.restaurantSvc.isClosed(this.restaurant, this.deliveryTime)) {
       alert('该商家休息，暂时无法配送');
       return;
     }
-
+    if (!this.restaurant.inRange) {
+      alert('该商家不在配送范围内，暂时无法配送');
+      return;
+    }
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART, payload:
         {items: [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
@@ -122,7 +129,7 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
       payload: {items: [{ productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
-         merchantId: p.merchantId, merchantName: this.restaurant.name }]}
+         merchantId: p.merchantId, merchantName: this.restaurant.name  }]}
     });
   }
 

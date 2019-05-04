@@ -20,6 +20,7 @@ const category_1 = require("./category");
 const order_1 = require("./order");
 const mall_1 = require("./mall");
 const range_1 = require("./range");
+const region_1 = require("./region");
 const location_1 = require("./location");
 const distance_1 = require("./distance");
 const contact_1 = require("./contact");
@@ -53,6 +54,7 @@ let restaurant;
 let product;
 let mall;
 let range;
+let region;
 let location;
 let distance;
 let contact;
@@ -70,6 +72,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     product = new product_1.Product(dbo);
     mall = new mall_1.Mall(dbo);
     range = new range_1.Range(dbo);
+    region = new region_1.Region(dbo);
     location = new location_1.Location(dbo);
     distance = new distance_1.Distance(dbo);
     contact = new contact_1.Contact(dbo);
@@ -350,6 +353,13 @@ app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
 app.get('/' + ROUTE_PREFIX + '/Ranges', (req, res) => {
     const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     range.find(query ? query.where : {}).then((x) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(x, null, 3));
+    });
+});
+app.get('/' + ROUTE_PREFIX + '/Regions', (req, res) => {
+    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    region.find(query ? query.where : {}).then((x) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
     });

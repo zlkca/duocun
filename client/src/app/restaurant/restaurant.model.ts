@@ -21,6 +21,7 @@ export interface IRestaurant {
   distance?: number; // km
   deliveryFee?: number;
   fullDeliveryFee?: number;
+  deliveryDiscount?: number;
   products?: Product[];
   orders?: Order[];
   pictures?: Picture[];

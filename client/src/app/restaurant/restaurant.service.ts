@@ -32,9 +32,9 @@ export class RestaurantService extends EntityService {
   }
 
   isClosed(restaurant: IRestaurant, deliveryTime: IDeliveryTime) {
-    const now = moment();
-    const tomorrow = moment().add(1, 'days');
-    const afterTomorrow = moment().add(2, 'days');
+    // const now = moment();
+    // const tomorrow = moment().add(1, 'days');
+    // const afterTomorrow = moment().add(2, 'days');
 
     if (restaurant.closed) { // has special close day
       if (restaurant.closed.find(d => moment(d).isSame(moment(deliveryTime.from), 'day'))) {
