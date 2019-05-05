@@ -13,6 +13,7 @@ export interface IOrder {
   merchantId?: string;
   merchantName?: string;
   stuffId?: string;
+  stuffName?: string;
   status?: string;
   note?: string;
   address?: string;
@@ -36,6 +37,7 @@ export class Order implements IOrder {
   merchantId: string;
   merchantName: string;
   stuffId: string;
+  stuffName?: string;
   status: string;
   note: string;
   address: string;

@@ -294,7 +294,7 @@ app.get('/' + ROUTE_PREFIX + '/Categories/:id', (req, res) => {
   category.get(req, res);
 });
 app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-  order.insertOne(req.body).then((x: any) => {
+  category.insertOne(req.body).then((x: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x.ops[0], null, 3))
   });
@@ -354,6 +354,12 @@ app.delete('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
   order.deleteById(req.params.id).then(x => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(x, null, 3));
+  });
+});
+app.patch('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
+  order.updateOne(req.body.filter, req.body.data).then((x: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
   });
 });
 
