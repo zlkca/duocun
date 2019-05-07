@@ -45,9 +45,13 @@ export class RestaurantGridComponent implements OnInit {
       // sort by isClosed && distance
       self.restaurantList.sort((a: IRestaurant, b: IRestaurant) => {
         if (!a.isClosed && b.isClosed) {
-          return 1;
-        } else if (a.isClosed && !b.isClosed) {
           return -1;
+        } else if (a.isClosed && !b.isClosed) {
+          return 1;
+        } else if (a.inRange && !b.inRange) {
+          return -1;
+        } else if (!a.inRange && b.inRange) {
+          return 1;
         } else {
           if (a.distance < b.distance) {
             return -1;
@@ -59,21 +63,6 @@ export class RestaurantGridComponent implements OnInit {
         }
       });
     }
-
-    // if (this.malls && this.malls.length > 0) {
-    //   this.workers = this.malls[0].workers;
-
-    //   // sort by distance
-    //   self.restaurantList.sort((a: IRestaurant, b: IRestaurant) => {
-    //     if (a.distance < b.distance) {
-    //       return -1;
-    //     }
-    //     if (a.distance > b.distance) {
-    //       return 1;
-    //     }
-    //     return 0;
-    //   });
-    // }
   }
 
   getImageSrc(restaurant: any) {
@@ -89,7 +78,7 @@ export class RestaurantGridComponent implements OnInit {
     this.rx.dispatch({ type: RestaurantActions.UPDATE, payload: r });
     this.rx.dispatch({
       type: DeliveryActions.UPDATE_DESTINATION,
-      payload: {destination: r.location, distance: r.distance }
+      payload: { destination: r.location, distance: r.distance }
     });
 
     this.rx.dispatch({

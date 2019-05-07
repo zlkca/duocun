@@ -5,7 +5,7 @@ import { Location } from '@angular/common';
 import { ProductService } from '../../product/product.service';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { Restaurant, IRestaurant } from '../restaurant.model';
-import { IProduct } from '../../product/product.model';
+import { IProduct, ICategory } from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
@@ -117,17 +117,21 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       self.productSvc.find({ where: { merchantId: merchantId, dow: self.dow } }).pipe(
         takeUntil(self.onDestroy$)
       ).subscribe(products => {
-        // self.restaurantSvc.getProducts(merchantId).subscribe(products => {
-        self.groupedProducts = self.groupByCategory(products);
-        const categoryIds = Object.keys(self.groupedProducts);
-        // fix me !!!
-        self.categorySvc.find({ where: { id: { $in: categoryIds } } }).pipe(
-          takeUntil(self.onDestroy$)
-        ).subscribe(res => {
-          self.categories = res;
+        self.categories = self.getCategoriesFromProducts(products);
+        const pcList = self.groupByCategory(products, self.categories);
+        pcList.map(ps => {
+          ps = ps.sort((a: IProduct, b: IProduct) => {
+              if (a.order < b.order) {
+                return -1;
+              }
+              if (a.order > b.order) {
+                return 1;
+              }
+              return 0;
+          });
         });
+        self.groupedProducts = pcList;
       });
-
     });
   }
 
@@ -152,15 +156,34 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  groupByCategory(products: IProduct[]) {
-    const self = this;
-    return products.reduce((r, p: IProduct) => {
-      const catId = p.categoryId;
-      p.restaurant = self.restaurant; // fix me
-      r[catId] = r[catId] || [];
-      r[catId].push(p);
-      return r;
-    }, Object.create(null));
+  getCategoriesFromProducts(products: IProduct[]) {
+    const cats: ICategory[] = [];
+    products.map((p: IProduct) => {
+      const category = cats.find(cat => cat.id === p.category.id);
+      if (!category) {
+        cats.push({ ...p.category });
+      }
+    });
+
+    cats.sort((a: ICategory, b: ICategory) => {
+      if (a.order < b.order) {
+        return -1;
+      }
+      if (a.order > b.order) {
+        return 1;
+      }
+      return 0;
+    });
+    return cats;
+  }
+
+  groupByCategory(products: IProduct[], categories: ICategory[]) {
+    const ret = [];
+    categories.map(c => { ret[c.id] = []; });
+    products.map(p => {
+      ret[p.category.id].push({ ...p });
+    });
+    return ret;
   }
 
   // onAddressChange(e) {

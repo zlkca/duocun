@@ -76,11 +76,15 @@ export class ProductGridComponent implements OnInit, OnChanges, OnDestroy {
   ngOnChanges(v) {
     const cats = v.categories ? v.categories.currentValue : null;
     const gps = v.groupedProducts ? v.groupedProducts.currentValue : null;
+    const restaurant = v.restaurant ? v.restaurant.currentValue : null;
     if (cats) {
       this.categories = cats;
     }
     if (gps) {
       this.groupedProducts = gps;
+    }
+    if (restaurant) {
+      this.restaurant = restaurant;
     }
 
     if (this.categories && this.groupedProducts && this.categories.length > 0) {

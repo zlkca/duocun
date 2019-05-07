@@ -13,9 +13,10 @@ export interface IProduct {
   modified?: Date;
   openDays?: number[];
   restaurant?: IRestaurant;
-  category?: Category;
+  category?: ICategory;
   pictures?: Picture[];
   dow?: string[];
+  order?: number;
 }
 
 export class Product implements IProduct {
@@ -33,6 +34,7 @@ export class Product implements IProduct {
   category: Category;
   pictures: Picture[];
   dow?: string[];
+  order?: number;
   constructor(data?: IProduct) {
     Object.assign(this, data);
   }
@@ -44,7 +46,7 @@ export interface ICategory {
   created?: Date;
   modified?: Date;
   id?: string;
-  // products?: Product[];
+  order?: number;
 }
 
 export class Category implements ICategory {
@@ -53,7 +55,7 @@ export class Category implements ICategory {
   created: Date;
   modified: Date;
   id: string;
-  // products: Product[];
+  order?: number;
   constructor(data?: ICategory) {
     Object.assign(this, data);
   }
