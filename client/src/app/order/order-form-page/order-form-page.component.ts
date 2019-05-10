@@ -158,7 +158,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: {items: items} });
             self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
             self.snackBar.open('', '您的订单已经成功修改。', {
-              duration: 1000
+              duration: 1800
             }); // Fix me
             if (this.contact.location) {
               this.router.navigate(['main/filter']);
@@ -168,7 +168,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           });
         } else {
           this.snackBar.open('', '登录已过期，请重新从公众号进入', {
-            duration: 1000
+            duration: 1800
           });
         }
       } else {
@@ -181,7 +181,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
             this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: {items: items} });
             this.snackBar.open('', '您的订单已经成功提交。', {
-              duration: 1000
+              duration: 1800
             }); // Fix me
             if (this.contact.location) {
               this.router.navigate(['main/filter']);
@@ -191,7 +191,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           });
         } else {
           this.snackBar.open('', '登录已过期，请重新从公众号进入', {
-            duration: 1000
+            duration: 1800
           });
         }
       }

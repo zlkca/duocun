@@ -13,11 +13,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("./config");
 //import * as SocketIOAuth from "socketio-auth";
 const db_1 = require("./db");
-const user_1 = require("./user");
 const restaurant_1 = require("./restaurant");
 const product_1 = require("./product");
 const category_1 = require("./category");
-const order_1 = require("./order");
 const mall_1 = require("./mall");
 const range_1 = require("./range");
 const region_1 = require("./region");
@@ -28,6 +26,10 @@ const phone_1 = require("./phone");
 const merchant_stuff_1 = require("./merchant-stuff");
 const picture_1 = require("./picture");
 const utils_1 = require("./utils");
+const account_route_1 = require("./routers/account-route");
+const order_route_1 = require("./routers/order-route");
+const assignment_route_1 = require("./routers/assignment-route");
+const merchant_payment_route_1 = require("./routers/merchant-payment-route");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
@@ -47,8 +49,6 @@ const storage = multer_1.default.diskStorage({
 });
 const upload = multer_1.default({ storage: storage });
 // const upload = multer({ dest: 'uploads/' });
-let user;
-let order;
 let category;
 let restaurant;
 let product;
@@ -63,10 +63,36 @@ let merchantStuff;
 let picture;
 let mysocket; // Socket;
 let io;
-dbo.init(cfg.DATABASE).then(dbClient => {
+function setupSocket(server) {
     io = socket_io_1.default(server);
-    user = new user_1.User(dbo);
-    order = new order_1.Order(dbo);
+    io.on('connection', function (socket) {
+        console.log('server socket connected:' + socket.id);
+        socket.on('authentication', function (token) {
+            const cfg = new config_1.Config();
+            if (token) {
+                jsonwebtoken_1.default.verify(token, cfg.JWT.SECRET, { algorithms: [cfg.JWT.ALGORITHM] }, (err, decoded) => {
+                    if (err) {
+                        console.log('socket authentication error:' + err);
+                    }
+                    if (decoded) {
+                        console.log('socket authenticated:' + decoded.id);
+                        if (decoded.id) {
+                            socket.emit('authenticated', { userId: decoded.id });
+                        }
+                    }
+                });
+            }
+            else {
+                console.log('socket authentication failed: access token is null.');
+            }
+        });
+        socket.on('disconnect', () => {
+            console.log('server socket disconnect');
+        });
+    });
+}
+// create db connection pool and return connection instance
+dbo.init(cfg.DATABASE).then(dbClient => {
     category = new category_1.Category(dbo);
     restaurant = new restaurant_1.Restaurant(dbo);
     product = new product_1.Product(dbo);
@@ -95,31 +121,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     //     callback(null, false);
     //   }
     // }, timeout: 200000});
-    io.on('connection', function (socket) {
-        console.log('server socket connected:' + socket.id);
-        socket.on('authentication', function (token) {
-            const cfg = new config_1.Config();
-            if (token) {
-                jsonwebtoken_1.default.verify(token, cfg.JWT.SECRET, { algorithms: [cfg.JWT.ALGORITHM] }, (err, decoded) => {
-                    if (err) {
-                        console.log('socket authentication error:' + err);
-                    }
-                    if (decoded) {
-                        console.log('socket authenticated:' + decoded.id);
-                        if (decoded.id) {
-                            socket.emit('authenticated', { userId: decoded.id });
-                        }
-                    }
-                });
-            }
-            else {
-                console.log('socket authentication failed: access token is null.');
-            }
-        });
-        socket.on('disconnect', () => {
-            console.log('server socket disconnect');
-        });
-    });
     // io.on("updateOrders", (x: any) => {
     //   const ss = x;
     // });
@@ -134,6 +135,252 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     //     });
     //   }
     // });
+    app.get('/wx', (req, res) => {
+        utils.genWechatToken(req, res);
+    });
+    // app.get('/wechatAccessToken', (req, res) => {
+    //   utils.getWechatAccessToken(req, res);
+    // });
+    // app.get('/wechatRefreshAccessToken', (req, res) => {
+    //   utils.refreshWechatAccessToken(req, res);
+    // });
+    app.get('/' + ROUTE_PREFIX + '/geocodeLocations', (req, res) => {
+        utils.getGeocodeLocationList(req, res);
+    });
+    app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
+        utils.getPlaces(req, res);
+    });
+    app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
+        distance.reqRoadDistances(req, res);
+    });
+    app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
+    });
+    app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res) => {
+        product.uploadPicture(req, res);
+    });
+    app.get('/' + ROUTE_PREFIX + '/Pictures', (req, res) => {
+        picture.get(req, res);
+    });
+    app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
+        restaurant.insertOne(req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
+        restaurant.replaceById(req.body.id, req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
+        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+        restaurant.find(query ? query.where : {}).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
+        restaurant.get(req, res);
+    });
+    app.delete('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
+        restaurant.deleteById(req.params.id).then(x => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
+        product.find({ merchantId: req.params.id }).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
+        product.replaceById(req.body.id, req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
+        product.insertOne(req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Products', (req, res) => {
+        const query = req.headers && req.headers.filter ? JSON.parse(req.headers.filter) : null;
+        product.find(query ? query.where : {}).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
+        product.get(req, res);
+    });
+    app.delete('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
+        product.deleteById(req.params.id).then(x => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
+        category.insertOne(req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
+        const query = req.headers ? JSON.parse(req.headers.filter) : null;
+        category.find(query ? query.where : {}).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Categories/:id', (req, res) => {
+        category.get(req, res);
+    });
+    app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
+        category.insertOne(req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x.ops[0], null, 3));
+        });
+    });
+    app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
+        mall.replaceById(req.body.id, req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.post('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
+        mall.insertOne(req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
+        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+        mall.find(query ? query.where : {}).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
+        mall.get(req, res);
+    });
+    app.get('/' + ROUTE_PREFIX + '/Ranges', (req, res) => {
+        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+        range.find(query ? query.where : {}).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Regions', (req, res) => {
+        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+        region.find(query ? query.where : {}).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
+        location.find({ userId: req.body.userId, placeId: req.body.placeId }).then((r) => {
+            if (r && r.length > 0) {
+                res.send(JSON.stringify(null, null, 3));
+            }
+            else {
+                location.insertOne(req.body).then((x) => {
+                    res.setHeader('Content-Type', 'application/json');
+                    io.emit('updateOrders', x);
+                    res.end(JSON.stringify(x, null, 3));
+                });
+            }
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
+        const query = req.headers ? JSON.parse(req.headers.filter) : null;
+        res.setHeader('Content-Type', 'application/json');
+        if (query) {
+            location.find(query.where).then((x) => {
+                res.end(JSON.stringify(x, null, 3));
+            });
+        }
+        else {
+            res.end(JSON.stringify(null, null, 3));
+        }
+    });
+    app.put('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
+        distance.replaceById(req.body.id, req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.post('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
+        distance.insertOne(req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
+        const query = req.headers ? JSON.parse(req.headers.filter) : null;
+        distance.find(query ? query.where : {}).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
+        distance.get(req, res);
+    });
+    app.post('/' + ROUTE_PREFIX + '/smsverify', (req, res) => {
+        phone.verifyCode(req, res);
+    });
+    app.post('/' + ROUTE_PREFIX + '/sendVerifyMsg', (req, res) => {
+        phone.sendVerificationMessage(req, res);
+    });
+    app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
+        contact.insertOne(req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            x.verificationCode = '';
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.put('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
+        contact.replaceById(req.body.id, req.body).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            x.verificationCode = '';
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
+        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+        contact.find(query ? query.where : {}).then((x) => {
+            res.setHeader('Content-Type', 'application/json');
+            if (x && x.length > 0) {
+                x[0].verificationCode = '';
+            }
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.get('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
+        contact.get(req, res);
+    });
+    app.delete('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
+        contact.deleteById(req.params.id).then(x => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(x, null, 3));
+        });
+    });
+    app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
+        res.send('upload file success');
+    });
+    app.use('/' + ROUTE_PREFIX + '/Accounts', account_route_1.AccountRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Orders', order_route_1.OrderRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Assignments', assignment_route_1.AssignmentRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/MerchantPayments', merchant_payment_route_1.MerchantPaymentRouter(dbo));
+    app.use(express_1.default.static(path_1.default.join(__dirname, '/../uploads')));
+    app.set('port', process.env.PORT || SERVER.PORT);
+    const server = app.listen(app.get("port"), () => {
+        console.log("API is running on :%d/n", app.get("port"));
+    });
+    setupSocket(server);
 });
 app.use(cors_1.default());
 app.use(body_parser_1.default.urlencoded({ extended: false, limit: '1mb' }));
@@ -142,329 +389,6 @@ app.use(body_parser_1.default.json({ limit: '1mb' }));
 const staticPath = path_1.default.resolve('uploads');
 console.log(staticPath + '/n/r');
 app.use(express_1.default.static(staticPath));
-app.get('/wx', (req, res) => {
-    utils.genWechatToken(req, res);
-});
-app.get('/' + ROUTE_PREFIX + '/wechatLogin', (req, res) => {
-    user.wechatLogin(req, res);
-});
-// app.get('/wechatAccessToken', (req, res) => {
-//   utils.getWechatAccessToken(req, res);
-// });
-// app.get('/wechatRefreshAccessToken', (req, res) => {
-//   utils.refreshWechatAccessToken(req, res);
-// });
-app.get('/' + ROUTE_PREFIX + '/geocodeLocations', (req, res) => {
-    utils.getGeocodeLocationList(req, res);
-});
-app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
-    utils.getPlaces(req, res);
-});
-app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
-    distance.reqRoadDistances(req, res);
-});
-app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
-});
-app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res) => {
-    product.uploadPicture(req, res);
-});
-app.get('/' + ROUTE_PREFIX + '/Pictures', (req, res) => {
-    picture.get(req, res);
-});
-app.post('/' + ROUTE_PREFIX + '/Accounts/applyMerchant', (req, res) => {
-    merchantStuff.applyMerchant(req, res);
-});
-app.post('/' + ROUTE_PREFIX + '/Accounts/getMerchantApplication', (req, res) => {
-    merchantStuff.getApplication(req, res);
-});
-app.post('/' + ROUTE_PREFIX + '/Accounts/login', (req, res) => {
-    user.login(req, res);
-});
-app.post('/' + ROUTE_PREFIX + '/Accounts/signup', (req, res) => {
-    user.signup(req, res);
-});
-app.get('/' + ROUTE_PREFIX + '/Accounts/:id', (req, res) => {
-    user.get(req, res);
-});
-app.patch('/' + ROUTE_PREFIX + '/Accounts', (req, res) => {
-    user.updateOne(req.body.filter, req.body.data).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
-    });
-});
-app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-    restaurant.insertOne(req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-    restaurant.replaceById(req.body.id, req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    restaurant.find(query ? query.where : {}).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
-    restaurant.get(req, res);
-});
-app.delete('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
-    restaurant.deleteById(req.params.id).then(x => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
-    product.find({ merchantId: req.params.id }).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
-    product.replaceById(req.body.id, req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
-    product.insertOne(req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Products', (req, res) => {
-    const query = req.headers && req.headers.filter ? JSON.parse(req.headers.filter) : null;
-    product.find(query ? query.where : {}).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
-    product.get(req, res);
-});
-app.delete('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
-    product.deleteById(req.params.id).then(x => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-    category.insertOne(req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-    const query = req.headers ? JSON.parse(req.headers.filter) : null;
-    category.find(query ? query.where : {}).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Categories/:id', (req, res) => {
-    category.get(req, res);
-});
-app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-    category.insertOne(req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.ops[0], null, 3));
-    });
-});
-app.put('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
-    let d = req.body;
-    if (d.merchantStatus === 'process') {
-        d.status = 'cooking';
-    }
-    if (d.merchantStatus === 'done') {
-        d.status = 'finished cooking';
-    }
-    if (d.workerStatus === 'process') {
-        d.status = 'delivering';
-    }
-    if (d.workerStatus === 'done') {
-        d.status = 'delivered';
-    }
-    order.replaceById(req.body.id, req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        io.emit('updateOrders', x);
-        res.end(JSON.stringify(x, null, 3));
-    });
-    // fix me!!!
-    // user.findOne({username: 'worker'}).then(worker => {
-    //   d.stuffId = worker.id.toString();
-    //   order.replaceById(req.body.id, d).then((x: any) => {
-    //     res.setHeader('Content-Type', 'application/json');
-    //     io.emit('updateOrders', x);
-    //     res.end(JSON.stringify(x, null, 3));
-    //   });
-    // });
-});
-app.post('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
-    order.insertOne(req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        io.emit('updateOrders', x);
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
-    const query = req.headers ? JSON.parse(req.headers.filter) : null;
-    order.find(query ? query.where : {}).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
-    order.get(req, res);
-});
-app.delete('/' + ROUTE_PREFIX + '/Orders/:id', (req, res) => {
-    order.deleteById(req.params.id).then(x => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.patch('/' + ROUTE_PREFIX + '/Orders', (req, res) => {
-    order.updateOne(req.body.filter, req.body.data).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
-    });
-});
-app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
-    mall.replaceById(req.body.id, req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.post('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
-    mall.insertOne(req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
-    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    mall.find(query ? query.where : {}).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
-    mall.get(req, res);
-});
-app.get('/' + ROUTE_PREFIX + '/Ranges', (req, res) => {
-    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    range.find(query ? query.where : {}).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Regions', (req, res) => {
-    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    region.find(query ? query.where : {}).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
-    location.find({ userId: req.body.userId, placeId: req.body.placeId }).then((r) => {
-        if (r && r.length > 0) {
-            res.send(JSON.stringify(null, null, 3));
-        }
-        else {
-            location.insertOne(req.body).then((x) => {
-                res.setHeader('Content-Type', 'application/json');
-                io.emit('updateOrders', x);
-                res.end(JSON.stringify(x, null, 3));
-            });
-        }
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
-    const query = req.headers ? JSON.parse(req.headers.filter) : null;
-    res.setHeader('Content-Type', 'application/json');
-    if (query) {
-        location.find(query.where).then((x) => {
-            res.end(JSON.stringify(x, null, 3));
-        });
-    }
-    else {
-        res.end(JSON.stringify(null, null, 3));
-    }
-});
-app.put('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
-    distance.replaceById(req.body.id, req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.post('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
-    distance.insertOne(req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
-    const query = req.headers ? JSON.parse(req.headers.filter) : null;
-    distance.find(query ? query.where : {}).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
-    distance.get(req, res);
-});
-app.post('/' + ROUTE_PREFIX + '/smsverify', (req, res) => {
-    phone.verifyCode(req, res);
-});
-app.post('/' + ROUTE_PREFIX + '/sendVerifyMsg', (req, res) => {
-    phone.sendVerificationMessage(req, res);
-});
-app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
-    contact.insertOne(req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        x.verificationCode = '';
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.put('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
-    contact.replaceById(req.body.id, req.body).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        x.verificationCode = '';
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
-    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    contact.find(query ? query.where : {}).then((x) => {
-        res.setHeader('Content-Type', 'application/json');
-        if (x && x.length > 0) {
-            x[0].verificationCode = '';
-        }
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.get('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
-    contact.get(req, res);
-});
-app.delete('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
-    contact.deleteById(req.params.id).then(x => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-    });
-});
-app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
-    res.send('upload file success');
-});
-app.use(express_1.default.static(path_1.default.join(__dirname, '/../uploads')));
-app.set('port', process.env.PORT || SERVER.PORT);
-const server = app.listen(app.get("port"), () => {
-    console.log("API is running on :%d/n", app.get("port"));
-});
 // const http = require('http');
 // const express = require('express')
 // const path = require('path')

@@ -158,6 +158,15 @@ class Entity {
             });
         });
     }
+    deleteMany(query, options) {
+        return new Promise((resolve, reject) => {
+            this.getCollection().then((c) => {
+                c.deleteMany(query, options, (err, ret) => {
+                    resolve(ret);
+                });
+            });
+        });
+    }
 }
 exports.Entity = Entity;
 //# sourceMappingURL=entity.js.map

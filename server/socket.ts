@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import https from 'https';
 import { DB } from "./db";
-import { User } from "./user";
 import { ObjectID } from "mongodb";
 
 

@@ -1,9 +1,10 @@
 import { Collection, ObjectId, ObjectID } from "mongodb";
 import { DB } from "./db";
 import { resolve } from "path";
+import { Db } from 'mongodb';
 
 export class Entity {
-  private db: any;
+  private db: Db;
   private collectionName: string;
 
   constructor(dbo: DB, name: string) {
@@ -165,6 +166,16 @@ export class Entity {
       this.getCollection().then((c: Collection) => {
         c.insertMany(items, (err, docs) => {
           resolve(docs);
+        });
+      });
+    });
+  }
+
+  deleteMany(query: any, options?: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.getCollection().then((c: Collection) => {
+        c.deleteMany(query, options, (err, ret) => {
+          resolve(ret);
         });
       });
     });

@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongodb_1 = require("mongodb");
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const entity_1 = require("./entity");
 const config_1 = require("./config");
@@ -83,72 +82,6 @@ class User extends entity_1.Entity {
                 }
             });
         }
-    }
-    signup(req, rsp) {
-        const user = req.body;
-        const dt = new Date();
-        const self = this;
-        user['created'] = dt.toISOString();
-        user['type'] = 'user';
-        this.findOne({ username: user.username }).then((r) => {
-            if (r != null) {
-                // validateSignup(user, function(errors){
-                //self.saveUser(user, errors, rsp);
-                // });
-                return rsp.json(null);
-            }
-            else {
-                bcrypt_1.default.hash(user.password, saltRounds, (err, hash) => {
-                    user['password'] = hash;
-                    self.insertOne(user).then(x => {
-                        x.password = '';
-                        return rsp.json(x);
-                    });
-                });
-            }
-        });
-    }
-    // cb --- function(errors)
-    // validateLoginPassword( user, hashedPassword, cb ){
-    // 	const errors = [];
-    // 	if( user.password ){
-    // 		ut.checkHash(user.password, hashedPassword, function(err, bMatch){
-    // 			if(!bMatch){
-    // 				errors.push(Error.PASSWORD_MISMATCH);
-    // 			}
-    // 			if(cb){
-    // 				cb(errors);
-    // 			}
-    // 		});
-    // 	}else{
-    // 		if(cb){
-    // 			cb(errors);
-    // 		}
-    // 	}
-    // }
-    login(req, res) {
-        const self = this;
-        const credential = { username: req.body.username, password: req.body.password };
-        this.findOne({ username: credential.username }).then((r) => {
-            if (r != null) {
-                bcrypt_1.default.compare(credential.password, r.password, (err, matched) => {
-                    if (matched) {
-                        res.setHeader('Content-Type', 'application/json');
-                        r.password = '';
-                        const cfg = new config_1.Config();
-                        const tokenId = jsonwebtoken_1.default.sign(r, cfg.JWT.SECRET); // SHA256
-                        const token = { id: tokenId, ttl: 10000, userId: r.id };
-                        res.send(JSON.stringify(token, null, 3));
-                    }
-                    else {
-                        res.send(JSON.stringify(null, null, 3));
-                    }
-                });
-            }
-            else {
-                return res.json({ 'errors': [], 'token': 'token', 'decoded': 'user' });
-            }
-        });
     }
 }
 exports.User = User;
