@@ -8,6 +8,8 @@ export function AccountRouter(db: DB){
   const controller = new Account(db);
   const merchantStuff = new MerchantStuff(db);
 
+  router.get('/wechatLogin', (req, res) => { controller.wechatLogin(req, res); });
+
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
   router.post('/', (req, res) => { controller.create(req, res); });
@@ -21,7 +23,6 @@ export function AccountRouter(db: DB){
   router.post('/login', (req, res) => { controller.login(req, res); });
   router.route('/signup').post((req, res) => {controller.signup(req, res); });
 
-  router.get('/wechatLogin', (req, res) => { controller.wechatLogin(req, res); });
 
   return router;
 };

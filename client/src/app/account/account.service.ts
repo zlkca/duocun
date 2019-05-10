@@ -132,7 +132,7 @@ export class AccountService extends EntityService {
   // }
 
   wechatLogin(authCode: string) {
-    const url = this.url + 'wechatLogin?code=' + authCode;
+    const url = this.url + '/wechatLogin?code=' + authCode;
     return this.http.get(url);
   }
 
