@@ -39,7 +39,7 @@ export class Account extends Entity {
   }
 
   create(req: Request, res: Response) {
-    if (req.body.isArray()) {
+    if (req.body instanceof Array) {
       this.insertMany(req.body).then((x: any) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
