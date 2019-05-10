@@ -115,21 +115,19 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
   cancel() {
     const self = this;
     const phone = Cookies.get('duocun-old-phone');
-    if (!this.contact) {
-      this.contact = new Contact();
+    if (!self.contact) {
+      self.contact = new Contact();
     }
-    this.contact.phone = phone;
+    self.contact.phone = phone;
 
-    this.rx.dispatch<IContactAction>({
-      type: ContactActions.UPDATE,
-      payload: this.contact
-    });
+    self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_PHONE_NUM, payload: { phone: phone } });
+
     Cookies.remove('duocun-old-phone');
 
-    if (this.fromPage === 'account-setting') {
-      this.router.navigate(['account/setting']);
-    } else if (this.fromPage === 'restaurant-detail') {
-      this.router.navigate(['order/form']);
+    if (self.fromPage === 'account-setting') {
+      self.router.navigate(['account/setting']);
+    } else if (self.fromPage === 'restaurant-detail') {
+      self.router.navigate(['order/form']);
     }
   }
 
@@ -141,29 +139,29 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.contactSvc.find({ where: { accountId: this.account.id } }).subscribe(oldContacts => {
+    this.contactSvc.find({ where: { accountId: self.account.id } }).pipe(
+      takeUntil(self.onDestroy$)
+    ).subscribe(oldContacts => {
       if (oldContacts && oldContacts.length > 0) {
         const oldContact = oldContacts[0];
         oldContact.phone = v.phone;
         oldContact.verificationCode = v.verificationCode;
 
         // replace phone number only
-        self.contactSvc.replace(oldContact).subscribe(x => {
-          if (self.fromPage === 'account-setting') {
-            self.rx.dispatch<IContactAction>({
-              type: ContactActions.UPDATE,
-              payload: oldContact
-            });
-            self.router.navigate(['account/setting']);
-            self.snackBar.open('', '默认手机号已成功修改。', {duration: 1000});
-          } else if (self.fromPage === 'restaurant-detail') {
-            x.location = self.contact.location; // update address for the order
-            self.rx.dispatch<IContactAction>({
-              type: ContactActions.UPDATE,
-              payload: x
-            });
-            self.router.navigate(['order/form']);
-            self.snackBar.open('', '默认手机号已成功保存。', {duration: 1000});
+        self.contactSvc.update({ accountId: self.account.id }, { phone: v.phone, verificationCode: v.verificationCode }).pipe(
+          takeUntil(self.onDestroy$)
+        ).subscribe(x => {
+          if (x.ok === 1) {
+            if (self.fromPage === 'account-setting') {
+              self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact });
+              self.router.navigate(['account/setting']);
+              self.snackBar.open('', '默认手机号已成功修改。', { duration: 1500 });
+            } else if (self.fromPage === 'restaurant-detail') {
+              // x.location = self.contact.location; // update address for the order
+              self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact });
+              self.router.navigate(['order/form']);
+              self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
+            }
           }
         });
       } else {
@@ -175,20 +173,13 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
 
         self.contactSvc.save(contact).subscribe(x => {
           if (self.fromPage === 'account-setting') {
-            self.rx.dispatch<IContactAction>({
-              type: ContactActions.UPDATE,
-              payload: x
-            });
+            self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: x });
             self.router.navigate(['account/setting']);
-            self.snackBar.open('', '默认手机号已成功保存。', {duration: 1000});
+            self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
           } else if (self.fromPage === 'restaurant-detail') {
-            x.location = self.location;
-            self.rx.dispatch<IContactAction>({
-              type: ContactActions.UPDATE,
-              payload: x
-            });
+            self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_WITHOUT_LOCATION, payload: contact });
             self.router.navigate(['order/form']);
-            self.snackBar.open('', '默认手机号已成功保存。', {duration: 1000});
+            self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
           }
         });
       }

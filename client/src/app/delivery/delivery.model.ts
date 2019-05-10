@@ -9,8 +9,8 @@ export interface IDeliveryTime {
 }
 
 export interface IDelivery {
-  origin?: ILocation;
-  destination?: ILocation;
+  origin?: ILocation; // client location
+  destination?: ILocation; // mall location
   availableRanges?: IRange[];
   distance?: number; // m
   fromTime?: Date;

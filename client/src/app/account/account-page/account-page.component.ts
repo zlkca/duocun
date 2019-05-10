@@ -50,23 +50,18 @@ export class AccountPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((account: Account) => {
       self.account = account;
+
       self.contactSvc.find({ where: { accountId: account.id } }).pipe(
         takeUntil(this.onDestroy$)
       ).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
           self.contact = new Contact(r[0]);
-          self.rx.dispatch<IContactAction>({
-            type: ContactActions.UPDATE,
-            payload: self.contact
-          });
+          self.rx.dispatch<IContactAction>({type: ContactActions.LOAD_FROM_DB, payload: self.contact});
 
           Cookies.set('duocun-old-phone', self.contact.phone);
           Cookies.set('duocun-old-location', self.contact.location);
         } else {
-          self.rx.dispatch<IContactAction>({
-            type: ContactActions.UPDATE,
-            payload: null
-          });
+          self.rx.dispatch<IContactAction>({type: ContactActions.CLEAR, payload: null});
         }
       });
     });

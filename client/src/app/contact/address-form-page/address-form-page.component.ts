@@ -146,8 +146,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     this.contact.location = (location !== 'undefined') ? JSON.parse(location) : null;
 
     this.rx.dispatch<IContactAction>({
-      type: ContactActions.UPDATE,
-      payload: this.contact
+      type: ContactActions.UPDATE_LOCATION,
+      payload: {location: this.contact.location}
     });
 
     Cookies.remove('duocun-old-location');
@@ -177,8 +177,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     // Cookies.remove('duocun-old-delivery-time');
 
     this.rx.dispatch<IContactAction>({
-      type: ContactActions.UPDATE,
-      payload: contact
+      type: ContactActions.UPDATE_LOCATION,
+      payload: {location: this.location}
     });
 
     // this.rx.dispatch<ILocationAction>({
@@ -190,23 +190,23 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       if (contact.id) {
         this.contactSvc.replace(contact).subscribe(x => {
           self.router.navigate(['account/setting']);
-          self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1000});
+          self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500});
         });
       } else {
         this.contactSvc.save(contact).subscribe(x => {
           self.router.navigate(['account/setting']);
-          self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1000});
+          self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1500});
         });
       }
     } else if (self.fromPage === 'restaurant-detail') {
       self.router.navigate(['contact/list']);
-      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1000});
+      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1500});
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
-      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1000});
+      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1500});
     } else if (self.fromPage === 'restaurant-filter' ) {
       self.router.navigate(['main/filter']);
-      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1000});
+      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1500});
     }
 
   }

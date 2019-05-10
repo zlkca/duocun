@@ -107,10 +107,6 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   toAccount() {
-    this.rx.dispatch<IContactAction>({
-      type: ContactActions.UPDATE,
-      payload: null
-    });
     if (this.account) {
       this.router.navigate(['account/setting']);
     } else {

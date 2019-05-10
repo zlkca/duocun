@@ -57,10 +57,14 @@ export class Order extends Entity {
   }
 
   update(req: Request, res: Response) {
-    this.updateOne(req.body.filter, req.body.data).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
-    });
+    if(req.body && req.body.filter){
+      this.updateOne(req.body.filter, req.body.data).then((x: any) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
+      });
+    }else{
+      res.end();
+    }
   }
 
   remove(req: Request, res: Response) {

@@ -27,6 +27,7 @@ import { AddressActions } from '../../location/address.actions';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
 import { IDelivery } from '../../delivery/delivery.model';
+import { ContactActions } from '../../contact/contact.actions';
 
 const APP = environment.APP;
 
@@ -175,18 +176,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     // self.socketSvc.init(this.authSvc.getAccessToken());
 
     // redirect to filter if contact have default address
-    self.contactSvc.find({ where: { accountId: account.id } }).pipe(
-      takeUntil(self.onDestroy$)
-    ).subscribe((r: IContact[]) => {
+    self.contactSvc.find({ where: { accountId: account.id } }).pipe(takeUntil(self.onDestroy$)).subscribe((r: IContact[]) => {
       if (r && r.length > 0) {
         self.contact = new Contact(r[0]);
-
+        self.rx.dispatch({type: ContactActions.LOAD_FROM_DB, payload: self.contact});
         if (self.contact.location) {
           self.bUpdateLocationList = false;
-          self.rx.dispatch({
-            type: DeliveryActions.UPDATE_ORIGIN,
-            payload: { origin: self.contact.location }
-          });
+          self.rx.dispatch({type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: self.contact.location }});
           self.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
           self.router.navigate(['main/filter']);
         }

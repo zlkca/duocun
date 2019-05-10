@@ -3,15 +3,15 @@ import { ILocation } from '../location/location.model';
 
 export interface IContact {
   id?: string;
-  accountId: string;
-  username: string;
-  phone: string;
+  accountId?: string;
+  username?: string;
+  phone?: string;
   // account: IAccount;
-  placeId: string;
-  location: ILocation;
+  placeId?: string;
+  location?: ILocation;
   address?: string;
-  unit: string;
-  buzzCode: string;
+  unit?: string;
+  buzzCode?: string;
   verificationCode?: string;
   created?: Date;
   modified?: Date;

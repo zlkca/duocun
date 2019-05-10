@@ -349,6 +349,17 @@ dbo.init(cfg.DATABASE).then(dbClient => {
             res.end(JSON.stringify(x, null, 3));
         });
     });
+    app.patch('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
+        if (req.body && req.body.filter) {
+            contact.updateOne(req.body.filter, req.body.data).then((x) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
+            });
+        }
+        else {
+            res.end();
+        }
+    });
     app.get('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
         const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
         contact.find(query ? query.where : {}).then((x) => {

@@ -16,6 +16,7 @@ import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { OrderActions } from '../order.actions';
 import { IAccount, Role } from '../../account/account.model';
+import { LocationService } from '../../location/location.service';
 
 @Component({
   selector: 'app-order-form-page',
@@ -40,12 +41,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   items: ICartItem[];
   order: IOrder;
   delivery: IDelivery;
+  address: string;
 
   constructor(
     private fb: FormBuilder,
     private rx: NgRedux<IAppState>,
     private router: Router,
     private orderSvc: OrderService,
+    private locationSvc: LocationService,
     private snackBar: MatSnackBar
   ) {
     const self = this;
@@ -60,6 +63,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((x: IDelivery) => {
       self.delivery = x;
+      self.address = this.locationSvc.getAddrString(x.origin);
     });
     this.rx.select('account').pipe(
       takeUntil(this.onDestroy$)
@@ -71,9 +75,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     ).subscribe((order: IOrder) => {
       this.order = order;
     });
-    this.rx.select<IContact>('contact').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(x => {
+
+    this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
       self.contact = x;
     });
   }
@@ -132,8 +135,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         items: items,
         created: new Date(),
         delivered: this.delivery.fromTime,
-        address: this.contact.address,
-        location: this.contact.location,
+        address: this.locationSvc.getAddrString(this.delivery.origin),
+        location: this.delivery.origin,
         note: note,
         deliveryCost: self.deliveryCost,
         deliveryFee: self.deliveryFee,
@@ -150,7 +153,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   pay() {
     const self = this;
-    if (this.account && this.delivery && this.delivery.fromTime && this.contact.address && this.contact.phone) {
+    if (this.account && this.delivery && this.delivery.fromTime && this.delivery.origin && this.contact.phone) {
       const v = this.form.value;
       const cart = this.cart;
       if (this.order && this.order.id) {
