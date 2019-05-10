@@ -10,6 +10,8 @@ export interface IOrder {
   clientId?: string;
   clientName?: string;
   clientPhoneNumber?: string;
+  prepaidClient?: boolean;
+  clientBalance?: number;
   merchantId?: string;
   merchantName?: string;
   stuffId?: string;
@@ -34,6 +36,8 @@ export class Order implements IOrder {
   clientId: string;
   clientName: string;
   clientPhoneNumber?: string;
+  prepaidClient?: boolean;
+  clientBalance?: number;
   merchantId: string;
   merchantName: string;
   stuffId: string;

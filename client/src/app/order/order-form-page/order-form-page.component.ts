@@ -15,6 +15,7 @@ import { PageActions } from '../../main/main.actions';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { OrderActions } from '../order.actions';
+import { IAccount, Role } from '../../account/account.model';
 
 @Component({
   selector: 'app-order-form-page',
@@ -62,7 +63,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
     this.rx.select('account').pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe((account: Account) => {
+    ).subscribe((account: IAccount) => {
       this.account = account;
     });
     this.rx.select('order').pipe(
@@ -110,6 +111,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     // this.router.navigate(['contact/list']);
   }
 
+  isPrepaidClient(account: IAccount) {
+    return account && account.roles.indexOf(Role.PREPAID_CLIENT) !== -1;
+  }
+
   createOrder(contact: IContact, note: string) {
     const self = this;
     const cart = this.cart;
@@ -119,6 +124,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         clientId: contact.accountId,
         clientName: contact.username,
         clientPhoneNumber: contact.phone,
+        prepaidClient: self.isPrepaidClient(this.account),
+        clientBalance: 0,
         merchantId: cart.merchantId,
         merchantName: cart.merchantName,
         items: items,
