@@ -20,7 +20,6 @@ import { Mall } from "./mall";
 import { Range } from "./range";
 import { Region } from "./region";
 import { Location } from "./location";
-import { Distance } from "./distance";
 import { Contact } from "./contact";
 import { Phone } from "./phone";
 import { MerchantStuff } from "./merchant-stuff";
@@ -29,9 +28,13 @@ import { Utils } from "./utils";
 import { Socket } from "./socket";
 
 import { AccountRouter } from "./routers/account-route";
+import { DistanceRouter } from "./routers/distance-route";
 import { OrderRouter } from "./routers/order-route";
 import { AssignmentRouter } from "./routers/assignment-route";
 import { MerchantPaymentRouter } from "./routers/merchant-payment-route";
+import { MerchantBalanceRouter } from "./routers/merchant-balance-route";
+import { ClientPaymentRouter } from "./routers/client-payment-route";
+import { ClientBalanceRouter } from "./routers/client-balance-route";
 
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
@@ -61,7 +64,6 @@ let mall: Mall;
 let range: Range;
 let region: Region;
 let location: Location;
-let distance: Distance;
 let contact: Contact;
 let phone: Phone;
 let merchantStuff: MerchantStuff;
@@ -109,7 +111,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   range = new Range(dbo);
   region = new Region(dbo);
   location = new Location(dbo);
-  distance = new Distance(dbo);
   contact = new Contact(dbo);
   phone = new Phone(dbo);
   merchantStuff = new MerchantStuff(dbo);
@@ -166,9 +167,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
     utils.getPlaces(req, res);
   });
-  app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
-    distance.reqRoadDistances(req, res);
-  });
+
   app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
   });
   app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res) => {
@@ -324,7 +323,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   });
   
   app.get('/' + ROUTE_PREFIX + '/Locations', (req: any, res) => {
-    const query = req.headers ? JSON.parse(req.headers.filter) : null;
+    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     res.setHeader('Content-Type', 'application/json');
     if (query) {
       location.find(query.where).then((x: any) => {
@@ -335,31 +334,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     }
   });
   
-  
-  app.put('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
-    distance.replaceById(req.body.id, req.body).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  });
-  
-  app.post('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
-    distance.insertOne(req.body).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  });
-  app.get('/' + ROUTE_PREFIX + '/Distances', (req: any, res) => {
-    const query = req.headers ? JSON.parse(req.headers.filter) : null;
-    distance.find(query ? query.where : {}).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  });
-  
-  app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
-    distance.get(req, res);
-  });
   
   app.post('/' + ROUTE_PREFIX + '/smsverify', (req, res) => {
     phone.verifyCode(req, res);
@@ -417,9 +391,14 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   });
 
   app.use('/' + ROUTE_PREFIX + '/Accounts', AccountRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Distances', DistanceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Orders', OrderRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Assignments', AssignmentRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/MerchantPayments', MerchantPaymentRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/MerchantBalances', MerchantBalanceRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/ClientPayments', ClientPaymentRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/ClientBalances', ClientBalanceRouter(dbo));
+
   app.use(express.static(path.join(__dirname, '/../uploads')));
   app.set('port', process.env.PORT || SERVER.PORT)
 

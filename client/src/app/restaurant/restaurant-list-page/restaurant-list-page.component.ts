@@ -93,29 +93,13 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
             takeUntil(self.onDestroy$)
           ).subscribe((ds: IDistance[]) => {
             if (ds && ds.length > 0) {
-              // const newDestinations = self.getNewMalls(ds, malls);
-              // if (newDestinations && newDestinations.length > 0) {
-              //   self.locationSvc.reqRoadDistances(location, newDestinations).pipe(
-              //     takeUntil(this.onDestroy$)
-              //   ).subscribe((ns: IDistance[]) => {
-              //     const ms = self.updateMallInfo(ds.concat(ns), malls);
-              //     self.loadRestaurants(ms);
-              //   });
-              // } else {
-
-              // update distance display
-              // const ms = self.updateMallInfo(ds, malls);
-              // get distance
-              // const d = ds.find(r => r.destinationPlaceId === mall.placeId);
-              // self.rx.dispatch({type: DeliveryActions.UPDATE_DISTANCE, payload: d.element.distance.value})
               self.loadRestaurants(malls, availableRanges, ds);
-              // }
             } else {
               const destinations: ILocation[] = [];
               malls.map(m => {
                 destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
               });
-              self.locationSvc.reqRoadDistances(location, destinations).pipe(
+              self.distanceSvc.reqRoadDistances(location, destinations).pipe(
                 takeUntil(this.onDestroy$)
               ).subscribe((rs: IDistance[]) => {
                 if (rs) {
@@ -129,30 +113,6 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
           });
           // self.loadRestaurants(ms);
         });
-
-        // self.distanceSvc.find({where: {originPlaceId: location.placeId}}).pipe(
-        //   takeUntil(self.onDestroy$)
-        // ).subscribe((ds: IDistance[]) => {
-        //   if (ds && ds.length > 0) {
-        //     const distance = self.updateMallInfo(ds);
-        //     self.loadRestaurants(distance);
-        //   } else {
-        //     const destinations: ILocation[] = [];
-        //     self.malls.filter(r => r.type === 'real').map(m => {
-        //       destinations.push({lat: m.lat, lng: m.lng, placeId: m.placeId});
-        //     });
-        //     self.locationSvc.reqRoadDistances(location, destinations).pipe(
-        //       takeUntil(this.onDestroy$)
-        //     ).subscribe((rs: IDistance[]) => {
-        //       if (rs) {
-        //         const distance = self.updateMallInfo(rs);
-        //         self.loadRestaurants(distance);
-        //       }
-        //     }, err => {
-        //       console.log(err);
-        //     });
-        //   }
-        // });
       }
     });
   }
@@ -170,19 +130,7 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
 
   // deprecated
   updateMallInfo(rs: IDistance[], malls: IMall[]) {
-    // const self = this;
-    // malls.map((mall: IMall) => {
-    //   // const d = rs.find(rm => rm.destination.lat === +mall.lat && rm.destination.lng === +mall.lng);
-    //   const d = rs.find(r => r.destinationPlaceId === mall.placeId);
-    //   if (d) {
-    //     mall.distance = d.element.distance.value / 1000;
-    //     mall.fullDeliverFee = self.distanceSvc.getDeliveryCost(mall.distance);
-    //     mall.deliverFee = self.distanceSvc.getDeliveryFee(mall.distance, self.deliveryTime);
-    //   }
-    // });
-    // self.rx.dispatch({ type: MallActions.UPDATE, payload: malls });
-    // self.realMalls = malls;
-    // return malls;
+
   }
 
   loadRestaurants(malls: IMall[], availableRanges: IRange[], distances: IDistance[]) { // load with distance

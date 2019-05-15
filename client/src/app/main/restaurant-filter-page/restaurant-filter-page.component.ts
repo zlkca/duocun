@@ -36,8 +36,12 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   today;
   overdue = false;
   deliveryAddress;
+  compareRanges: IRange[];
   availableRanges: IRange[];
   account;
+  mapZoom = 14;
+  rangeMap = false;
+  mapCenter;
 
   constructor(
     private router: Router,
@@ -78,6 +82,22 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
           const rs = self.rangeSvc.getAvailableRanges({ lat: d.origin.lat, lng: d.origin.lng }, ranges);
           self.inRange = (rs && rs.length > 0) ? true : false;
           self.availableRanges = rs;
+          if (self.inRange) {
+            self.compareRanges = [];
+            self.mapZoom = 14;
+            self.rangeMap = false;
+            self.mapCenter = d.origin;
+          } else {
+            self.compareRanges = ranges;
+            self.mapZoom = 9;
+            self.rangeMap = true;
+
+            const farNorth = { lat: 44.2653618, lng: -79.4191007 };
+            self.mapCenter = {
+              lat: (d.origin.lat + farNorth.lat) / 2,
+              lng: (d.origin.lng + farNorth.lng) / 2
+            };
+          }
         });
       }
 
@@ -104,7 +124,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
       if (self.account) {
         const query = { where: { userId: self.account.id, placeId: r.placeId } };
         const lh = {
-          userId: self.account.id, type: 'history',
+          userId: self.account.id, accountName: self.account.username, type: 'history',
           placeId: r.placeId, location: r, created: new Date()
         };
 
@@ -162,7 +182,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
       type: DeliveryActions.UPDATE_ORIGIN,
       payload: { origin: null }
     });
-    this.onAddressInputFocus({input: ''});
+    this.onAddressInputFocus({ input: '' });
   }
 
   // useCurrentLocation() {

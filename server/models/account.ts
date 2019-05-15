@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import { ObjectID } from "mongodb";
 import { DB } from "../db";
-import { Entity } from "../entity";
+import { Model } from "./model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Config } from "../config";
@@ -9,69 +8,10 @@ import { Utils } from "../utils";
 
 const saltRounds = 10;
 
-export class Account extends Entity {
+export class Account extends Model {
   constructor(dbo: DB) {
     super(dbo, 'users');
   }
-
-  list(req: Request, res: Response) {
-    let query = null;
-    if(req.headers && req.headers.filter && typeof req.headers.filter === 'string'){
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
-    this.find(query ? query.where : {}).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  }
-
-  get(req: Request, res: Response) {
-    const id = req.params.id;
-    if (id) {
-      this.findOne({ _id: new ObjectID(id) }).then((r: any) => {
-        if (r) {
-          res.send(JSON.stringify(r, null, 3));
-        } else {
-          res.send(JSON.stringify(null, null, 3))
-        }
-      });
-    }
-  }
-
-  create(req: Request, res: Response) {
-    if (req.body instanceof Array) {
-      this.insertMany(req.body).then((x: any) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-      });
-    } else {
-      this.insertOne(req.body).then((x: any) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
-      });
-    }
-  }
-
-  replace(req: Request, res: Response) {
-
-  }
-
-  update(req: Request, res: Response) {
-    if(req.body && req.body.filter){
-      this.updateOne(req.body.filter, req.body.data).then((x: any) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
-      });
-    }else{
-      res.end();
-    }
-  }
-
-  remove(req: Request, res: Response) {
-
-  }
-
-
 
 	signup(req: Request, rsp: Response){
 		const user = req.body;
@@ -162,7 +102,6 @@ export class Account extends Entity {
 	// 		});
 	// 	},
   // };
-  
 
   wechatLogin(req: Request, res: Response){
     const utils = new Utils();
@@ -194,7 +133,9 @@ export class Account extends Entity {
               imageurl: x.headimgurl,
               realm: 'wechat',
               openId: x.openid,
-              unionId: x.unionid
+              unionId: x.unionid,
+              created: new Date(),
+              modified: new Date()
             };
             this.insertOne(user).then(account => {
               account.password = '';

@@ -90,7 +90,13 @@
         <div class="col-3">${{total | number : '1.2-2'}}</div>
       </div>
     </div>
-
+    <div class="group-order-block" *ngIf="productTotal < 20">
+      <div class="row label-sm"><span>拼单优惠</span>:</div>
+      <div class="row">同一地址另有一单，每单减$1，优惠价<span class="red-text">${{total-1 | number : '1.2-2'}}</span></div>
+      <div class="row">同一地址另有两单，每单减$2，优惠价<span class="red-text">${{total-2 | number : '1.2-2'}}</span></div>
+      <div class="row">同一地址另有三单或以上，每单减$3，优惠价<span class="red-text">${{total-3 | number : '1.2-2'}}</span></div>
+      <!-- <div >同一地址另有四单或以上，每单减$4，优惠价<span class="red-text"></span>${{total-4}}</span></div> -->
+    </div>
     <div class="payment-method-block">
       <div class="row label-sm">
         <span i18n="@@PaymentMethod">Payment Method</span>:
@@ -98,7 +104,7 @@
       <div class="row" i18n="@@CashWhenDelivered">Cash when Delivered</div>
       <!-- <input name="paymentMethod" readonly /> -->
     </div>
-
+    
     <div class="notes-block">
       <div class="row label-sm">
         <span i18n="@@NotesToMerchant">Notes to Merchant</span>:

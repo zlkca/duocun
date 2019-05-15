@@ -1,6 +1,5 @@
 import { Collection, ObjectId, ObjectID } from "mongodb";
 import { DB } from "./db";
-import { resolve } from "path";
 import { Db } from 'mongodb';
 
 export class Entity {

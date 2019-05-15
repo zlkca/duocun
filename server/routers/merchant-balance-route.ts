@@ -1,10 +1,10 @@
 import express from "express";
 import { DB } from "../db";
-import { MerchantPayment } from "../models/merchant-payment";
+import { MerchantBalance } from "../models/merchant-balance";
 
-export function MerchantPaymentRouter(db: DB){
+export function MerchantBalanceRouter(db: DB){
   const router = express.Router();
-  const controller = new MerchantPayment(db);
+  const controller = new MerchantBalance(db);
 
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });

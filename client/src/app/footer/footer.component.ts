@@ -24,7 +24,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   account: Account;
   bHide = false;
   page;
-
+  selected = 'home';
   private onDestroy$ = new Subject<void>();
 
   constructor(
@@ -89,6 +89,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       if (r && r.length > 0 && r[0].location) {
         this.router.navigate(['main/filter']);
       } else {
+        this.selected = 'home';
         this.router.navigate(['main/home']);
       }
     });
@@ -96,6 +97,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   toOrder() {
     if (this.account) {
+      this.selected = 'order';
       this.router.navigate(['order/history']);
     } else {
       this.router.navigate(['account/login']);
@@ -108,6 +110,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   toAccount() {
     if (this.account) {
+      this.selected = 'account';
       this.router.navigate(['account/setting']);
     } else {
       this.router.navigate(['account/login']);
@@ -122,7 +125,12 @@ export class FooterComponent implements OnInit, OnDestroy {
     }
   }
 
-
+  getColor(menu) {
+    return (this.selected === menu) ? '#4285F4' : 'black';
+    // .fill{
+    //   color: '#F4B400'; // '#0F9D58' // green
+    // }
+  }
 
   // saveContact() {
   //   this.rx.dispatch({

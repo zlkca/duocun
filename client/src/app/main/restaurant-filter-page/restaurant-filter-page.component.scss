@@ -21,6 +21,11 @@ $menu-height: 60px;
   }
 }
 
+.range{
+  height: 400px;
+}
+
+
 .time-options{
   position: absolute;
   top: $map-height;
@@ -137,4 +142,10 @@ app-delivery-date-list, .not-in-range-item{
   .text-md{
     color: $red;
   }
+}
+
+.notInRange{
+  top: 400px;
+  width: 100%;
+  height: calc(100% - 460px);
 }

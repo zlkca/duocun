@@ -296,7 +296,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
         });
     });
     app.get('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
-        const query = req.headers ? JSON.parse(req.headers.filter) : null;
+        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
         res.setHeader('Content-Type', 'application/json');
         if (query) {
             location.find(query.where).then((x) => {
@@ -320,7 +320,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
         });
     });
     app.get('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
-        const query = req.headers ? JSON.parse(req.headers.filter) : null;
+        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
         distance.find(query ? query.where : {}).then((x) => {
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(x, null, 3));

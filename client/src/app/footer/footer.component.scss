@@ -38,6 +38,7 @@ footer{
         width: 33%;
         margin: 0px;
 
+
         img, svg{
           width: 28px;
           height: 28px;
@@ -53,10 +54,13 @@ footer{
           text-align: center;
         }
       }
+
+      .hightlighted{
+        .icon-text{
+          color:#4285F4;// #0F9D58;// #F4B400;
+        }
+      }
     }
-
-
-
 }
 
 @media #{$tablet}{

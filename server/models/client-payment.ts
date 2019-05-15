@@ -1,8 +1,8 @@
 import { DB } from "../db";
 import { Model } from "./model";
 
-export class Assignment extends Model{
+export class ClientPayment extends Model{
   constructor(dbo: DB) {
-		super(dbo, 'assignments');
+		super(dbo, 'client_payments');
   }
 }

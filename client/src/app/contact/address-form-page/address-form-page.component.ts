@@ -123,7 +123,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       if (self.account) {
         const query = { where: { userId: self.account.id, placeId: r.placeId } };
         const lh = {
-          userId: self.account.id, type: 'history',
+          userId: self.account.id, accountName: self.account.username, type: 'history',
           placeId: r.placeId, location: r, created: new Date()
         };
         self.locationSvc.saveIfNot(query, lh).pipe(

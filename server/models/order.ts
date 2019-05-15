@@ -1,35 +1,10 @@
 import { Request, Response } from "express";
-import { ObjectID } from "mongodb";
 import { DB } from "../db";
-import { Entity } from "../entity";
+import { Model } from "./model";
 
-export class Order extends Entity {
+export class Order extends Model {
   constructor(dbo: DB) {
     super(dbo, 'orders');
-  }
-
-  list(req: Request, res: Response) {
-    let query = null;
-    if(req.headers && req.headers.filter && typeof req.headers.filter === 'string'){
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
-    this.find(query ? query.where : {}).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  }
-
-  get(req: Request, res: Response) {
-    const id = req.params.id;
-    if (id) {
-      this.findOne({ _id: new ObjectID(id) }).then((r: any) => {
-        if (r) {
-          res.send(JSON.stringify(r, null, 3));
-        } else {
-          res.send(JSON.stringify(null, null, 3))
-        }
-      });
-    }
   }
 
   create(req: Request, res: Response) {
@@ -56,25 +31,7 @@ export class Order extends Entity {
     });
   }
 
-  update(req: Request, res: Response) {
-    if(req.body && req.body.filter){
-      this.updateOne(req.body.filter, req.body.data).then((x: any) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
-      });
-    }else{
-      res.end();
-    }
-  }
 
-  remove(req: Request, res: Response) {
 
-  }
 
-  removeOne(req: Request, res: Response) {
-    this.deleteById(req.params.id).then(x => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  }
 }

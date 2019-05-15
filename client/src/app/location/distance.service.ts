@@ -3,6 +3,8 @@ import { EntityService } from '../entity.service';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../account/auth.service';
 import { IDeliveryTime } from '../delivery/delivery.model';
+import { ILocation } from './location.model';
+import { Observable } from '../../../node_modules/rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -34,4 +36,8 @@ export class DistanceService extends EntityService {
       return 0;
   }
 
+  reqRoadDistances(origin: ILocation, destinations: ILocation[]): Observable<any> { // IDistance[]
+    const url = this.url + '/Road';
+    return this.http.post(url, { origins: [origin], destinations: destinations });
+  }
 }

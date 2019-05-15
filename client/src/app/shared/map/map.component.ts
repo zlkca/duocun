@@ -10,6 +10,7 @@ declare let MarkerClusterer: any;
   styleUrls: ['./map.component.scss']
 })
 export class MapComponent implements OnInit, OnChanges {
+  @Input() location: any;
   @Input() center: any;
   @Input() zoom: any;
   @Input() places: any[];
@@ -37,7 +38,7 @@ export class MapComponent implements OnInit, OnChanges {
       });
 
       const marker = new google.maps.Marker({
-        position: self.center,
+        position: self.location,
         map: map,
         label: ''
       });

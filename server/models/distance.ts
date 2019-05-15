@@ -1,28 +1,15 @@
-import { Request, Response } from "express";
-import { ObjectID } from "mongodb";
-import { DB } from "./db";
-import { Entity } from "./entity";
-import { Config } from "./config";
 import { IncomingMessage } from "http";
 import https from 'https';
+import { Request, Response } from "express";
+import { DB } from "../db";
+import { Model } from "./model";
+import { Config } from "../config";
 
-export class Distance extends Entity{
+export class Distance extends Model{
   cfg: Config;
   constructor(dbo: DB) {
     super(dbo, 'distances');
     this.cfg = new Config();
-  }
-
-  get(req: Request, res: Response){
-    const id = req.params.id;
-    
-    this.findOne({_id: new ObjectID(id)}).then((r: any) => {
-      if(r){
-        res.send(JSON.stringify(r, null, 3));
-      }else{
-        res.send(JSON.stringify(null, null, 3))
-      }
-    });
   }
 
   // input --- {origin:{lat, lng, placeId}, destination: {lat, lng, placeId}}
@@ -56,12 +43,6 @@ export class Distance extends Entity{
           if (rows && rows.length > 0 && rows[0].elements && rows[0].elements.length > 0) {
             // const elements = rows[0].elements;
             for (let i = 0; i < destinations.length; i++) {
-              // elements[i].id = malls[i].id;
-              // elements[i].stuffs = malls[i].stuffs;
-              // elements[i].name = malls[i].name;
-              // elements[i].type = malls[i].type;
-              // elements[i].origin = origin;
-              // elements[i].destination = destinations[i];
 
               const destination = req.body.destinations[i];
 
@@ -89,5 +70,4 @@ export class Distance extends Entity{
       });
     });
   }
-
 }

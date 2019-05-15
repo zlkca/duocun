@@ -45,6 +45,7 @@ export interface IPlace {
 export interface ILocationHistory {
   id?: string;
   userId: string;
+  accountName?: string;
   placeId: string;
   location: ILocation;
   created: Date;

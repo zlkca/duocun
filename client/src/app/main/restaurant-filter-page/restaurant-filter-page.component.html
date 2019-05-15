@@ -6,8 +6,8 @@
     </app-location-list>
   </div>
 
-  <div class="map-block" *ngIf="!(places && places.length > 0)">
-    <app-map [center]="location" [zoom]="14" [places]="places"></app-map>
+  <div class="map-block" [class.range]="rangeMap" *ngIf="!(places && places.length > 0)">
+    <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="places" [ranges]="compareRanges"></app-map>
   </div>
   
   <div class="input-group address-search-block">
@@ -33,7 +33,7 @@
     </div>
   </div>  -->
 
-  <div class="time-options" *ngIf="!(places && places.length > 0)">
+  <div class="time-options" [class.notInRange]="rangeMap" *ngIf="!(places && places.length > 0)">
     <button mat-raised-button *ngIf="overdue" class="row option-item no-free lunch-overdue">
       <div class="col-12 text-sm">
           <span class="text-md" i18n="@@LunchToday">Lunch Today</span>
