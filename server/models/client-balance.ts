@@ -5,4 +5,5 @@ export class ClientBalance extends Model{
   constructor(dbo: DB) {
 		super(dbo, 'client_balances');
   }
+
 }

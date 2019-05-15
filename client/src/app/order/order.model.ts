@@ -14,8 +14,8 @@ export interface IOrder {
   clientBalance?: number;
   merchantId?: string;
   merchantName?: string;
-  stuffId?: string;
-  stuffName?: string;
+  driverId?: string;
+  driverName?: string;
   status?: string;
   note?: string;
   address?: string;
@@ -40,8 +40,8 @@ export class Order implements IOrder {
   clientBalance?: number;
   merchantId: string;
   merchantName: string;
-  stuffId: string;
-  stuffName?: string;
+  driverId?: string;
+  driverName?: string;
   status: string;
   note: string;
   address: string;

@@ -5,12 +5,15 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Config } from "../config";
 import { Utils } from "../utils";
+import { Entity } from "../entity";
 
 const saltRounds = 10;
 
 export class Account extends Model {
+  balanceEntity: Entity;
   constructor(dbo: DB) {
     super(dbo, 'users');
+    this.balanceEntity = new Entity(dbo, 'client_balances');
   }
 
 	signup(req: Request, rsp: Response){
@@ -118,6 +121,18 @@ export class Account extends Model {
             r.address.country = x.country;
 
             this.replaceById(r.id, r).then(account => {
+              const id = account.id.toString();
+              this.balanceEntity.find({ accountId: id }).then((x:any) => {
+                if (!(x && x.length > 0)) {
+                  this.balanceEntity.insertOne({
+                    accountId: id,
+                    accountName: account.username,
+                    amount: 0,
+                    created: new Date(),
+                    modified: new Date()
+                  }).then(() => { });
+                }
+              });
               account.password = '';
               const tokenId = jwt.sign(account, cfg.JWT.SECRET); // SHA256
               const token = {id: tokenId, ttl: 10000, userId: account.id};
@@ -138,6 +153,18 @@ export class Account extends Model {
               modified: new Date()
             };
             this.insertOne(user).then(account => {
+              const id = account.id.toString();
+              this.balanceEntity.find({ accountId: id }).then((x:any) => {
+                if (!(x && x.length > 0)) {
+                  this.balanceEntity.insertOne({
+                    accountId: id,
+                    accountName: account.username,
+                    amount: 0,
+                    created: new Date(),
+                    modified: new Date()
+                  }).then(() => { });
+                }
+              });
               account.password = '';
               const tokenId = jwt.sign(account, cfg.JWT.SECRET); // SHA256
               const token = {id: tokenId, ttl: 10000, userId: account.id};

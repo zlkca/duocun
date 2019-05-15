@@ -20,16 +20,19 @@ const mall_1 = require("./mall");
 const range_1 = require("./range");
 const region_1 = require("./region");
 const location_1 = require("./location");
-const distance_1 = require("./distance");
 const contact_1 = require("./contact");
 const phone_1 = require("./phone");
 const merchant_stuff_1 = require("./merchant-stuff");
 const picture_1 = require("./picture");
 const utils_1 = require("./utils");
 const account_route_1 = require("./routers/account-route");
+const distance_route_1 = require("./routers/distance-route");
 const order_route_1 = require("./routers/order-route");
 const assignment_route_1 = require("./routers/assignment-route");
 const merchant_payment_route_1 = require("./routers/merchant-payment-route");
+const merchant_balance_route_1 = require("./routers/merchant-balance-route");
+const client_payment_route_1 = require("./routers/client-payment-route");
+const client_balance_route_1 = require("./routers/client-balance-route");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
@@ -56,7 +59,6 @@ let mall;
 let range;
 let region;
 let location;
-let distance;
 let contact;
 let phone;
 let merchantStuff;
@@ -100,7 +102,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     range = new range_1.Range(dbo);
     region = new region_1.Region(dbo);
     location = new location_1.Location(dbo);
-    distance = new distance_1.Distance(dbo);
     contact = new contact_1.Contact(dbo);
     phone = new phone_1.Phone(dbo);
     merchantStuff = new merchant_stuff_1.MerchantStuff(dbo);
@@ -149,9 +150,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     });
     app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
         utils.getPlaces(req, res);
-    });
-    app.post('/' + ROUTE_PREFIX + '/distances', (req, res) => {
-        distance.reqRoadDistances(req, res);
     });
     app.get('/' + ROUTE_PREFIX + '/users', (req, res) => {
     });
@@ -307,28 +305,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
             res.end(JSON.stringify(null, null, 3));
         }
     });
-    app.put('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
-        distance.replaceById(req.body.id, req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.post('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
-        distance.insertOne(req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Distances', (req, res) => {
-        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-        distance.find(query ? query.where : {}).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Distances/:id', (req, res) => {
-        distance.get(req, res);
-    });
     app.post('/' + ROUTE_PREFIX + '/smsverify', (req, res) => {
         phone.verifyCode(req, res);
     });
@@ -383,9 +359,13 @@ dbo.init(cfg.DATABASE).then(dbClient => {
         res.send('upload file success');
     });
     app.use('/' + ROUTE_PREFIX + '/Accounts', account_route_1.AccountRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Distances', distance_route_1.DistanceRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Orders', order_route_1.OrderRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Assignments', assignment_route_1.AssignmentRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/MerchantPayments', merchant_payment_route_1.MerchantPaymentRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/MerchantBalances', merchant_balance_route_1.MerchantBalanceRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/ClientPayments', client_payment_route_1.ClientPaymentRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/ClientBalances', client_balance_route_1.ClientBalanceRouter(dbo));
     app.use(express_1.default.static(path_1.default.join(__dirname, '/../uploads')));
     app.set('port', process.env.PORT || SERVER.PORT);
     const server = app.listen(app.get("port"), () => {
