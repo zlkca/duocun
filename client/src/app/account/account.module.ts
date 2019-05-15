@@ -15,6 +15,9 @@ import { AccountRoutingModule } from './account-routing.module';
 import { AccountService } from './account.service';
 import { AuthService } from './auth.service';
 import { AccountPageComponent } from './account-page/account-page.component';
+import { BalanceService } from '../payment/balance.service';
+import { PaymentService } from '../payment/payment.service';
+import { BalancePageComponent } from './balance-page/balance-page.component';
 
 @NgModule({
     imports: [
@@ -37,11 +40,14 @@ import { AccountPageComponent } from './account-page/account-page.component';
       ProfileFormComponent,
       AccountListComponent,
       AccountFormComponent,
-      AccountPageComponent
+      AccountPageComponent,
+      BalancePageComponent
     ],
     providers: [
       AccountService,
-      AuthService
+      AuthService,
+      BalanceService,
+      PaymentService
     ]
 })
 export class AccountModule { }

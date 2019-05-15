@@ -9,6 +9,18 @@
       </div>
     </div>
   
+    <div class="row balance-block" *ngIf="balance" (click)="toBalancePage()">
+        <div class="col-12 title-sm" i18n="@@CurrentBalance">Current Balance</div>
+        <div class="col-12 title-bg">${{balance.amount | number : '1.2-2'}}</div>
+        <div class="col-12 title-sm">
+          <span i18n="@@ViewDetail">View Detail</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="#666"/>
+            <path d="M0 0h24v24H0z" fill="none"/>
+          </svg>
+        </div>
+    </div>
+
     <div class="row form-group">
       <div class="row label-sm">
         <span i18n="@@PhoneNumber">Phone Number</span><span>*</span>

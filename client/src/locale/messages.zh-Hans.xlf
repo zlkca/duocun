@@ -1412,6 +1412,46 @@
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="CurrentBalance" datatype="html">
+        <source>Current Balance</source>
+        <target>当前余额</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ViewDetail" datatype="html">
+        <source>View Detail</source>
+        <target>查看详情</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="BalanceDetail" datatype="html">
+        <source>Balance Detail</source>
+        <target>余额明细</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Credit" datatype="html">
+        <source>Credit</source>
+        <target>存入</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Debit" datatype="html">
+        <source>Debit</source>
+        <target>支出</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

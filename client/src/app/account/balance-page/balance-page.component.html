@@ -1,0 +1,22 @@
+<div class="page">
+  <div class="row title-row">
+    <div class="col-12 title-bg" i18n="@@BalanceDetail">BalanceDetail</div>
+  </div>
+  <div class="detail-list">
+    <div *ngFor="let p of payments">
+      <div class="title-sm date-row">{{p.created | date: 'MMMd E' }}</div>
+      <div class="text-sm credit" *ngIf="p.credit !==0">
+        <span i18n="@@Credit">Credit</span>:&nbsp;
+        <span>${{p.credit | number : '1.2-2'}}</span>
+      </div>
+      <div class="text-sm debit" *ngIf="p.debit !==0">
+        <span i18n="@@Debit">Debit</span>:&nbsp;
+        <span>${{p.debit | number : '1.2-2'}}</span>
+      </div>
+    </div>
+  </div>
+  <div class="balance-block" *ngIf="balance">
+    <span i18n="@@CurrentBalance">Current Balance</span>:&nbsp;
+    <span>${{balance.amount | number : '1.2-2'}}</span>
+  </div>
+</div>

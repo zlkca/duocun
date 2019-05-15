@@ -49,3 +49,19 @@ $blue: #4285F3;
     width: 100%;
   }
 }
+
+.balance-block{
+  .title-sm{
+    text-align: center;
+    font-size: 16px;
+    span{
+      padding-left: 20px;
+      font-size: 12px;
+    }
+  }
+  .title-bg{
+    padding: 8px 0px;
+    text-align: center;
+    font-weight: 600;
+  }
+}

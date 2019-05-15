@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AccountService } from '../account.service';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { IAccount } from '../account.model';
 import { Router } from '@angular/router';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { IContact, Contact } from '../../contact/contact.model';
@@ -14,7 +13,9 @@ import * as Cookies from 'js-cookie';
 import { PageActions } from '../../main/main.actions';
 import { LocationService } from '../../location/location.service';
 import { AuthService } from '../auth.service';
-import { AccountActions } from '../account.actions';
+import { BalanceService } from '../../payment/balance.service';
+import { IBalance } from '../../payment/payment.model';
+import * as moment from 'moment';
 
 declare var WeixinJSBridge;
 
@@ -31,6 +32,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
   contact;
   phoneVerified;
   form;
+  balance;
 
   constructor(
     private accountSvc: AccountService,
@@ -38,7 +40,8 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private router: Router,
     private locationSvc: LocationService,
-    private contactSvc: ContactService
+    private contactSvc: ContactService,
+    private balanceSvc: BalanceService
   ) {
     const self = this;
     this.rx.dispatch({
@@ -56,12 +59,28 @@ export class AccountPageComponent implements OnInit, OnDestroy {
       ).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
           self.contact = new Contact(r[0]);
-          self.rx.dispatch<IContactAction>({type: ContactActions.LOAD_FROM_DB, payload: self.contact});
+          self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: self.contact });
 
           Cookies.set('duocun-old-phone', self.contact.phone);
           Cookies.set('duocun-old-location', self.contact.location);
         } else {
-          self.rx.dispatch<IContactAction>({type: ContactActions.CLEAR, payload: null});
+          self.rx.dispatch<IContactAction>({ type: ContactActions.CLEAR, payload: null });
+        }
+      });
+
+      self.balanceSvc.find({ where: { accountId: account.id } }).pipe(
+        takeUntil(this.onDestroy$)
+      ).subscribe((bs: IBalance[]) => {
+        if (bs && bs.length > 0) {
+          const balances = bs.sort((a: IBalance, b: IBalance) => {
+            if (moment(a.created).isAfter(b.created)) {
+              return -1;
+            } else {
+              return 1;
+            }
+          });
+
+          this.balance = balances[0];
         }
       });
     });
@@ -104,5 +123,9 @@ export class AccountPageComponent implements OnInit, OnDestroy {
       WeixinJSBridge.call('closeWindow');
     }
     // this.rx.dispatch({ type: AccountActions.LOGOUT, payload: null });
+  }
+
+  toBalancePage() {
+    this.router.navigate(['account/balance']);
   }
 }
