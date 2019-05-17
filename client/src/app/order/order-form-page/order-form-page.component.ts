@@ -17,6 +17,8 @@ import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { OrderActions } from '../order.actions';
 import { IAccount, Role } from '../../account/account.model';
 import { LocationService } from '../../location/location.service';
+import { BalanceService } from '../../payment/balance.service';
+import { IBalance } from '../../payment/payment.model';
 
 @Component({
   selector: 'app-order-form-page',
@@ -42,6 +44,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   order: IOrder;
   delivery: IDelivery;
   address: string;
+  balance: IBalance;
 
   constructor(
     private fb: FormBuilder,
@@ -49,6 +52,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private orderSvc: OrderService,
     private locationSvc: LocationService,
+    private balanceSvc: BalanceService,
     private snackBar: MatSnackBar
   ) {
     const self = this;
@@ -65,11 +69,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       self.delivery = x;
       self.address = this.locationSvc.getAddrString(x.origin);
     });
-    this.rx.select('account').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((account: IAccount) => {
+
+    this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       this.account = account;
+      this.balanceSvc.find({ where: { accountId: account.id } }).pipe(takeUntil(this.onDestroy$)).subscribe((bs: IBalance[]) => {
+        if (bs && bs.length > 0) {
+          this.balance = bs[0];
+        }
+      });
     });
+
     this.rx.select('order').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((order: IOrder) => {
@@ -129,7 +138,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         clientName: contact.username,
         clientPhoneNumber: contact.phone,
         prepaidClient: self.isPrepaidClient(this.account),
-        clientBalance: 0,
+        clientBalance: this.balance ? this.balance.amount : 0,
         merchantId: cart.merchantId,
         merchantName: cart.merchantName,
         items: items,
@@ -166,7 +175,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           ).subscribe((r: IOrder) => {
             // self.afterSubmit.emit(order);
             const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
-            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: {items: items} });
+            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
             self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
             self.snackBar.open('', '您的订单已经成功修改。', {
               duration: 1800
@@ -190,7 +199,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           ).subscribe((r: IOrder) => {
             // self.afterSubmit.emit(order);
             const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
-            this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: {items: items} });
+            this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
             this.snackBar.open('', '您的订单已经成功提交。', {
               duration: 1800
             }); // Fix me

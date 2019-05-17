@@ -24,6 +24,8 @@ export interface IOrder {
   created?: Date;
   modified?: Date;
   items?: IOrderItem[];
+  tax?: number;
+  tips?: number;
   deliveryAddress?: Address;
   deliveryCost?: number;
   deliveryFee?: number;

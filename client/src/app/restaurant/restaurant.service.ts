@@ -8,6 +8,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../account/auth.service';
 import { EntityService } from '../entity.service';
 import { IDeliveryTime } from '../delivery/delivery.model';
+import { IMall } from '../mall/mall.model';
 
 @Injectable()
 export class RestaurantService extends EntityService {
@@ -32,12 +33,12 @@ export class RestaurantService extends EntityService {
   }
 
   isClosed(restaurant: IRestaurant, deliveryTime: IDeliveryTime) {
-    // const now = moment();
+    const deliverDate = moment(deliveryTime.from);
     // const tomorrow = moment().add(1, 'days');
     // const afterTomorrow = moment().add(2, 'days');
 
     if (restaurant.closed) { // has special close day
-      if (restaurant.closed.find(d => moment(d).isSame(moment(deliveryTime.from), 'day'))) {
+      if (restaurant.closed.find(d => moment(d).isSame(deliverDate, 'day'))) {
         return true;
       } else {
         return this.isClosePerWeek(restaurant, deliveryTime);

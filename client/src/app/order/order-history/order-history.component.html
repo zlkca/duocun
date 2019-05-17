@@ -48,13 +48,17 @@
               <div class="row order-detail">
                 <div class="col-7 items-col">
                   <div *ngFor="let item of order.items" class="text-sm row">
-                    <div class="col-9 product-col">{{item.productName}}</div>
-                    <div class="col-3 quantity-col">x {{item.quantity}}</div>
-                    <!-- <div class="col-3 price-col">${{item.price * item.quantity | number : '1.2-2'}}</div> -->
+                    <div class="col-7 product-col">{{item.productName}}</div>
+                    <div class="col-2 quantity-col">x {{item.quantity}}</div>
+                    <div class="col-3 price-col">${{item.price | number : '1.2-2'}}</div>
                   </div>
                 </div>
                 <div class="col-5 text-sm total-col" *ngIf="order.total">
-                  <span i18n="@@Total">Total</span>: ${{order.total | number : '1.2-2'}}
+                  <div class="row">
+                    <div class="col-12"><span i18n="@@Tax">Tax</span>: ${{order.tax | number : '1.2-2'}}</div>
+                    <div class="col-12"><span i18n="@@Tips">Tips</span>: ${{order.tips | number : '1.2-2'}}</div>
+                    <div class="col-12"><span i18n="@@Total">Total</span>: ${{order.total | number : '1.2-2'}}</div>
+                  </div>
                 </div>
                 <!-- <div class="col-6" *ngIf="order.status === 'new'">
                   <div class="btn btn-primary btn-xs pull-right" (click)="takeOrder(order)">Take Order</div>

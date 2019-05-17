@@ -29,6 +29,7 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
   center;
   realMalls;
   deliveryAddress;
+  delivery;
 
   // malls: IMall[];
   // malls: IMall[] = [

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
-import { Order } from '../order.model';
+import { Order, IOrder } from '../order.model';
 // import { SocketService } from '../../shared/socket.service';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
@@ -98,8 +98,14 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     const self = this;
     self.orderSvc.find({ where: { clientId: clientId } }).pipe(
       takeUntil(this.onDestroy$)
-    ).subscribe(orders => {
-      orders.sort((a: Order, b: Order) => {
+    ).subscribe((orders: IOrder[]) => {
+      orders.map((order: IOrder) => {
+        order.tips = 3;
+        const s1 = order.total - order.tips + order.deliveryDiscount;
+        order.tax = s1 - s1 / 1.13;
+      });
+
+      orders.sort((a: IOrder, b: IOrder) => {
         if (this.sharedSvc.compareDateTime(a.created, b.created)) {
           return -1;
         } else {
@@ -110,14 +116,14 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  canChange(order: Order) {
+  canChange(order: IOrder) {
     const deliverDate = this.sharedSvc.getDate(order.delivered);
     const now = this.sharedSvc.getDate(new Date());
     const allowDateTime = deliverDate.set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
     return allowDateTime.isAfter(now);
   }
 
-  changeOrder(order: Order) {
+  changeOrder(order: IOrder) {
     this.rx.dispatch({ type: OrderActions.UPDATE, payload: order });
     const from = moment(order.delivered).toDate();
     const to = moment(order.delivered).set({ hour: 13, minute: 30, second: 0, millisecond: 0 }).toDate();
@@ -152,7 +158,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.router.navigate(['restaurant/list/' + order.merchantId]);
   }
 
-  deleteOrder(order: Order) {
+  deleteOrder(order: IOrder) {
     this.openDialog(order.id);
   }
 

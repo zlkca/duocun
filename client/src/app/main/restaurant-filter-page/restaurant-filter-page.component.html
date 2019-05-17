@@ -34,14 +34,14 @@
   </div>  -->
 
   <div class="time-options" [class.notInRange]="rangeMap" *ngIf="!(places && places.length > 0)">
-    <button mat-raised-button *ngIf="overdue" class="row option-item no-free lunch-overdue">
+    <button mat-raised-button *ngIf="overdue && inRange" class="row option-item no-free lunch-overdue">
       <div class="col-12 text-sm">
           <span class="text-md" i18n="@@LunchToday">Lunch Today</span>
       </div>
       <div class="second-row">
           <span class="overdue-note overdue-note-1st" i18n="@@Over">Over</span>
           <span class="overdue-note">9:30&nbsp;</span>
-          <span class="overdue-note" i18n="@@CannotDeliverNotes">Can not deliver, please order in advance next time</span>
+          <span class="overdue-note" i18n="@@CannotOrderNotes">Can not order, please order in advance next time</span>
       </div>
       <div class="third-row">
         <span class="text-sm date">{{today.date | date: 'MMMd E' }} </span>

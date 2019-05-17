@@ -1364,9 +1364,9 @@
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="CannotDeliverNotes" datatype="html">
-        <source>Cannot deliver, please order in advance next time</source>
-        <target>无法配送，请下次提前预定</target>
+      <trans-unit id="CannotOrderNotes" datatype="html">
+        <source>Cannot Order, please order in advance next time</source>
+        <target>无法订餐，请下次提前预定</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/main/restaurant-filter/restaurant-filter.component.html</context>
           <context context-type="linenumber">30</context>

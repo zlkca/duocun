@@ -8,6 +8,11 @@ export interface IUserBase {
   id: string;
   username: string;
 }
+export interface IRegionOpening {
+  regionId?: string;
+  regionName?: string;
+  dow?: string[];
+}
 
 export interface IMall {
   id?: string;
@@ -17,6 +22,9 @@ export interface IMall {
   placeId: string;
   lat?: number;
   lng?: number;
+  // regionId?: string;
+  // regionName?: string;
+  // openings?: IRegionOpening[];
   // radius?: number; // m
   ranges?: string[];
   restaurants?: IEntityBase[];
@@ -37,6 +45,9 @@ export class Mall implements IMall {
   placeId: string;
   lat: number;
   lng: number;
+  // regionId?: string;
+  // regionName?: string;
+  // openings?: IRegionOpening[];
   // radius: number; // m
   ranges?: string[];
   restaurants: IEntityBase[];
