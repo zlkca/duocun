@@ -163,7 +163,7 @@ export class Entity {
   insertMany(items: any[]): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
-        c.insertMany(items, (err, docs) => {
+        c.insertMany(items, {}, (err, docs) => {
           resolve(docs);
         });
       });

@@ -152,7 +152,7 @@ class Entity {
     insertMany(items) {
         return new Promise((resolve, reject) => {
             this.getCollection().then((c) => {
-                c.insertMany(items, (err, docs) => {
+                c.insertMany(items, {}, (err, docs) => {
                     resolve(docs);
                 });
             });

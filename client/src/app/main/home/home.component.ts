@@ -95,14 +95,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
 
-    self.route.queryParamMap.pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(queryParams => {
+    self.route.queryParamMap.pipe(takeUntil(this.onDestroy$)).subscribe(queryParams => {
       const code = queryParams.get('code');
 
-      self.accountSvc.getCurrent().pipe(
-        takeUntil(this.onDestroy$)
-      ).subscribe(account => {
+      self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
         if (account) {
           self.bFirstTime = !account.visited ? true : false;
           self.account = account;
@@ -145,15 +141,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         self.bFirstTime = !account.visited ? true : false;
         self.account = account;
 
-        this.snackBar.open('', '微信登录成功。', {
-          duration: 1000
-        });
+        this.snackBar.open('', '微信登录成功。', { duration: 1000 });
         self.loading = false;
         self.init(account);
       } else {
-        this.snackBar.open('', '微信登录失败。', {
-          duration: 1000
-        });
+        this.snackBar.open('', '微信登录失败。', { duration: 1000 });
         self.loading = false;
       }
     });
