@@ -2,12 +2,16 @@
   margin-top: 60px;
   padding: 10px;
 
-  .credit{
-    padding-left: 80px;
+  .row{
+    height: 22px;
   }
 
-  .debit{
-    padding-left: 210px;
+  .date-col, .credit-col, .debit-col{
+    padding: 0px;
+  }
+
+  .date-col{
+    font-weight: 600;
   }
 }
 

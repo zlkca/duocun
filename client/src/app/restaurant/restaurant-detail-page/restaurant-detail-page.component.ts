@@ -117,17 +117,32 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       self.productSvc.find({ where: { merchantId: merchantId, dow: self.dow } }).pipe(
         takeUntil(self.onDestroy$)
       ).subscribe(products => {
-        self.categories = self.getCategoriesFromProducts(products);
-        const pcList = self.groupByCategory(products, self.categories);
+
+        const productList = products.sort((a: IProduct, b: IProduct) => {
+          if (a.order && !b.order) {
+            return 1;
+          } else if (!a.order && b.order) {
+            return -1;
+          } else {
+            if (a.order > b.order) {
+              return 1;
+            } else {
+              return -1;
+            }
+          }
+        });
+
+        self.categories = self.getCategoriesFromProducts(productList);
+        const pcList = self.groupByCategory(productList, self.categories);
         pcList.map(ps => {
           ps = ps.sort((a: IProduct, b: IProduct) => {
-              if (a.order < b.order) {
-                return -1;
-              }
-              if (a.order > b.order) {
-                return 1;
-              }
-              return 0;
+            if (a.order < b.order) {
+              return -1;
+            }
+            if (a.order > b.order) {
+              return 1;
+            }
+            return 0;
           });
         });
         self.groupedProducts = pcList;

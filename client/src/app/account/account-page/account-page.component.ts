@@ -13,10 +13,14 @@ import * as Cookies from 'js-cookie';
 import { PageActions } from '../../main/main.actions';
 import { LocationService } from '../../location/location.service';
 import { AuthService } from '../auth.service';
-import { BalanceService } from '../../payment/balance.service';
-import { IBalance } from '../../payment/payment.model';
+// import { BalanceService } from '../../payment/balance.service';
+// import { IBalance } from '../../payment/payment.model';
+// import * as moment from 'moment';
+import { PaymentService } from '../../payment/payment.service';
+import { IClientPayment } from '../../payment/payment.model';
+import { IOrder } from '../../order/order.model';
+import { OrderService } from '../../order/order.service';
 import * as moment from 'moment';
-
 declare var WeixinJSBridge;
 
 @Component({
@@ -41,7 +45,9 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private locationSvc: LocationService,
     private contactSvc: ContactService,
-    private balanceSvc: BalanceService
+    // private balanceSvc: BalanceService,
+    private paymentSvc: PaymentService,
+    private orderSvc: OrderService
   ) {
     const self = this;
     this.rx.dispatch({
@@ -68,21 +74,50 @@ export class AccountPageComponent implements OnInit, OnDestroy {
         }
       });
 
-      self.balanceSvc.find({ where: { accountId: account.id } }).pipe(
-        takeUntil(this.onDestroy$)
-      ).subscribe((bs: IBalance[]) => {
-        if (bs && bs.length > 0) {
-          const balances = bs.sort((a: IBalance, b: IBalance) => {
-            if (moment(a.created).isAfter(b.created)) {
-              return -1;
-            } else {
-              return 1;
+      // self.balanceSvc.find({ where: { accountId: account.id } }).pipe(
+      //   takeUntil(this.onDestroy$)
+      // ).subscribe((bs: IBalance[]) => {
+      //   if (bs && bs.length > 0) {
+      //     const balances = bs.sort((a: IBalance, b: IBalance) => {
+      //       if (moment(a.created).isAfter(b.created)) {
+      //         return -1;
+      //       } else {
+      //         return 1;
+      //       }
+      //     });
+      //     this.balance = balances[0];
+      //   }
+      // });
+
+
+      self.balance = 0;
+
+      self.orderSvc.find({ where: {
+        clientId: account.id,
+        delivered: { $gt: moment('15 May 2019').toDate() }
+      } }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
+        os.map(order => {
+          self.balance -= order.total;
+        });
+
+
+        self.paymentSvc.find({
+          where: {
+            clientId: account.id,
+            created: { $gt: moment('15 May 2019').toDate() }
+          }
+        }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IClientPayment[]) => {
+
+          ps.map(p => {
+            if (p.type === 'credit' && p.amount > 0) {
+              self.balance += p.amount;
             }
           });
+        });
 
-          this.balance = balances[0];
-        }
       });
+
+
     });
   }
 

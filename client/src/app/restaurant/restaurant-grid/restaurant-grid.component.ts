@@ -43,7 +43,7 @@ export class RestaurantGridComponent implements OnInit {
     const self = this;
     if (self.restaurantList && self.restaurantList.length > 0) {
       // sort by isClosed && distance
-      self.restaurantList.sort((a: IRestaurant, b: IRestaurant) => {
+      self.restaurantList = self.restaurantList.sort((a: IRestaurant, b: IRestaurant) => {
         if (!a.isClosed && b.isClosed) {
           return -1;
         } else if (a.isClosed && !b.isClosed) {
@@ -53,12 +53,25 @@ export class RestaurantGridComponent implements OnInit {
         } else if (!a.inRange && b.inRange) {
           return 1;
         } else {
-          if (a.distance < b.distance) {
+          if (a.order && !b.order) {
             return -1;
-          }
-          if (a.distance > b.distance) {
+          } else if (!a.order && b.order) {
             return 1;
+          } else if (a.order && b.order) {
+            if (a.order > b.order) {
+              return 1;
+            } else {
+              return -1;
+            }
+          } else {
+            if (a.distance < b.distance) {
+              return -1;
+            }
+            if (a.distance > b.distance) {
+              return 1;
+            }
           }
+
           return 0;
         }
       });

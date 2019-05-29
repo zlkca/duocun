@@ -20,3 +20,21 @@ export interface IBalance {
   created?: Date;
   modified?: Date;
 }
+
+export interface IClientPayment {
+  id?: string;
+  orderId?: string;
+  merchantId?: string;
+  merchantName?: string;
+  clientId?: string;
+  clientName?: string;
+  driverId?: string;
+  driverName?: string;
+  type?: string; // debit credit
+  amount?: number;
+  note?: string;
+  delivered?: Date;
+  status?: string;
+  created?: Date;
+  modified?: Date;
+}

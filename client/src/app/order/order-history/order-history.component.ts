@@ -168,9 +168,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       data: { title: '提示', content: '确认要删除该订单吗？', buttonTextNo: '取消', buttonTextYes: '删除', orderId: orderId },
     });
 
-    dialogRef.afterClosed().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntil(this.onDestroy$)).subscribe(result => {
+
     });
   }
 

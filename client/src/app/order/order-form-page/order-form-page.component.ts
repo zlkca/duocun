@@ -18,7 +18,8 @@ import { OrderActions } from '../order.actions';
 import { IAccount, Role } from '../../account/account.model';
 import { LocationService } from '../../location/location.service';
 import { BalanceService } from '../../payment/balance.service';
-import { IBalance } from '../../payment/payment.model';
+import { IBalance, IClientPayment } from '../../payment/payment.model';
+import { PaymentService } from '../../payment/payment.service';
 
 @Component({
   selector: 'app-order-form-page',
@@ -53,6 +54,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private orderSvc: OrderService,
     private locationSvc: LocationService,
     private balanceSvc: BalanceService,
+    private paymentSvc: PaymentService,
     private snackBar: MatSnackBar
   ) {
     const self = this;
@@ -170,21 +172,23 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         order.id = this.order.id;
         order.created = this.order.created;
         if (order) {
-          self.orderSvc.replace(order).pipe(
-            takeUntil(this.onDestroy$)
-          ).subscribe((r: IOrder) => {
-            // self.afterSubmit.emit(order);
+
+
+          self.orderSvc.replace(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
             const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
             self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-            self.snackBar.open('', '您的订单已经成功修改。', {
-              duration: 1800
-            }); // Fix me
-            if (this.contact.location) {
-              this.router.navigate(['main/filter']);
-            } else {
-              this.router.navigate(['main/home']);
-            }
+            self.snackBar.open('', '您的订单已经成功修改。', { duration: 1800});
+
+            self.paymentSvc.update({orderId: r.id}, {amount: order.total, type: 'debit'}).pipe(
+              takeUntil(this.onDestroy$)).subscribe(x => {
+              self.snackBar.open('', '已更新客户的余额', { duration: 1200 });
+              if (this.contact.location) {
+                this.router.navigate(['main/filter']);
+              } else {
+                this.router.navigate(['main/home']);
+              }
+            });
           });
         } else {
           this.snackBar.open('', '登录已过期，请重新从公众号进入', {
@@ -200,14 +204,26 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             // self.afterSubmit.emit(order);
             const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
             this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-            this.snackBar.open('', '您的订单已经成功提交。', {
-              duration: 1800
-            }); // Fix me
-            if (this.contact.location) {
-              this.router.navigate(['main/filter']);
-            } else {
-              this.router.navigate(['main/home']);
-            }
+            this.snackBar.open('', '您的订单已经成功提交。', { duration: 1800 });
+            const clientPayment: IClientPayment = {
+              orderId: r.id,
+              clientId: r.clientId,
+              clientName: r.clientName,
+              driverId: '',
+              driverName: '',
+              type: 'debit',
+              amount: r.total,
+              created: new Date(),
+              modified: new Date(),
+            };
+            this.paymentSvc.save(clientPayment).pipe(takeUntil(this.onDestroy$)).subscribe((cps: IClientPayment[]) => {
+              this.snackBar.open('', '已保存客户的余额', { duration: 1200 });
+              if (this.contact.location) {
+                this.router.navigate(['main/filter']);
+              } else {
+                this.router.navigate(['main/home']);
+              }
+            });
           });
         } else {
           this.snackBar.open('', '登录已过期，请重新从公众号进入', {

@@ -18,6 +18,7 @@ import { AccountPageComponent } from './account-page/account-page.component';
 import { BalanceService } from '../payment/balance.service';
 import { PaymentService } from '../payment/payment.service';
 import { BalancePageComponent } from './balance-page/balance-page.component';
+import { OrderService } from '../order/order.service';
 
 @NgModule({
     imports: [
@@ -47,7 +48,8 @@ import { BalancePageComponent } from './balance-page/balance-page.component';
       AccountService,
       AuthService,
       BalanceService,
-      PaymentService
+      PaymentService,
+      OrderService
     ]
 })
 export class AccountModule { }

@@ -14,6 +14,7 @@ import { OrderFormPageComponent } from './order-form-page/order-form-page.compon
 import { AccountService } from '../account/account.service';
 import { MatDialogModule } from '../../../node_modules/@angular/material';
 import { RemoveOrderDialogComponent } from './remove-order-dialog/remove-order-dialog.component';
+import { PaymentService } from '../payment/payment.service';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { RemoveOrderDialogComponent } from './remove-order-dialog/remove-order-d
   providers: [
     OrderService,
     RestaurantService,
-    AccountService
+    AccountService,
+    PaymentService
   ],
   declarations: [
     OrderHistoryComponent,

@@ -7,6 +7,7 @@ import { OrderService } from '../order.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { CommandActions } from '../../shared/command.actions';
+import { PaymentService } from '../../payment/payment.service';
 
 export interface DialogData {
   title: string;
@@ -28,6 +29,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private router: Router,
     private orderSvc: OrderService,
+    private paymentSvc: PaymentService,
     private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<RemoveOrderDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData
@@ -48,20 +50,38 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
 
   onClickRemove(): void {
     if (this.data && this.data.orderId) {
+      // this.paymentSvc.remove({where: {orderId: this.data.orderId}}).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
+      //   this.snackBar.open('', '已还原客户的余额', { duration: 1500 });
+      // });
+
       this.orderSvc.removeById(this.data.orderId).pipe(
         takeUntil(this.onDestroy$)
       ).subscribe(x => {
         this.dialogRef.close();
-        this.rx.dispatch({
-          type: CommandActions.SEND,
-          payload: { name: 'reload-orders', args: null }
-        });
-        this.snackBar.open('', '订单已删除', {
-          duration: 1000
-        });
+        this.rx.dispatch({type: CommandActions.SEND, payload: { name: 'reload-orders', args: null }});
+        this.snackBar.open('', '订单已删除', {duration: 1000});
         this.router.navigate(['order/history']);
       });
     }
   }
 
+
+
+  // updateBalance(order: IOrder) {
+  //   const clientPayment: IPayment = {
+  //     clientId: order.clientId,
+  //     clientName: order.clientName,
+  //     driverId: '',
+  //     driverName: '',
+  //     credit: 0,
+  //     debit: order.total,
+  //     balance: -order.total,
+  //     created: new Date(),
+  //     modified: new Date(),
+  //   };
+
+  //   this.paymentSvc.save(clientPayment).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
+  //     this.snackBar.open('', '已保存客户的余额', { duration: 2300 });
+  //   });
+  // }
 }

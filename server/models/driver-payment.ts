@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { Entity } from "../entity";
 
 export class DriverPayment extends Model {
-  balanceEntity: Entity;
+  // balanceEntity: Entity;
   constructor(dbo: DB) {
     super(dbo, 'driver_payments');
 

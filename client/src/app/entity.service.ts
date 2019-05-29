@@ -14,7 +14,7 @@ export class EntityService {
   public url = environment.API_URL;
 
   constructor(
-    public authSvc: AuthService,
+    public cookieSvc: AuthService,
     public http: HttpClient
   ) {
   }
@@ -26,7 +26,7 @@ export class EntityService {
   find(filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.authSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessToken();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
@@ -40,7 +40,7 @@ export class EntityService {
   findById(id: string, filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.authSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessToken();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
@@ -63,10 +63,23 @@ export class EntityService {
     return this.http.patch(this.url, {filter: filter, data: data});
   }
 
+  remove(filter?: any): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json');
+    const accessTokenId = this.cookieSvc.getAccessToken();
+    if (accessTokenId) {
+      headers = headers.append('Authorization', this.authPrefix + accessTokenId);
+    }
+    if (filter) {
+      headers = headers.append('filter', JSON.stringify(filter));
+    }
+    return this.http.delete(this.url, {headers: headers});
+  }
+
   removeById(id: string): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.authSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessToken();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);

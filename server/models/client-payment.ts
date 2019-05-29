@@ -5,30 +5,68 @@ import { Entity } from "../entity";
 
 export class ClientPayment extends Model {
   balanceEntity: Entity;
+  orderEntity: Entity;
+  
   constructor(dbo: DB) {
     super(dbo, 'client_payments');
-
+    this.orderEntity = new Entity(dbo, 'orders');
     this.balanceEntity = new Entity(dbo, 'client_balances');
   }
 
-  createAndUpdateBalance(req: Request, rsp: Response) {
+  createAndUpdateBalance(req: Request, res: Response) {
+    if(req.body instanceof Array){
+      this.insertMany(req.body).then((x: any) => {
+        this.updateBalance(req, res);
+      });
+    }else{
+      this.insertOne(req.body).then((x: any) => {
+        this.updateBalance(req, res);
+      });
+    }
+  }
+
+  updateBalance(req: Request, res: Response){
+    const self = this;
+    const date = new Date('2019-05-15T00:00:00').toISOString();
+    let balance = 0;
+
     const payment = req.body;
-    this.balanceEntity.find({ accountId: payment.clientId }).then((x:any) => {
-      if (x && x.length > 0) {
-        this.balanceEntity.updateOne(
-          {accountId: payment.clientId}, 
-          {amount: x[0].amount + payment.balance}
-        ).then(() => { });
-      }else{
-        this.balanceEntity.insertOne({
-          accountId: payment.clientId,
-          accountName: payment.clientName,
-          amount: payment.balance,
-          created: new Date(),
-          modified: new Date()
-        }).then(() => { });
-      }
+    const clientId = payment.clientId;
+
+    self.orderEntity.find({clientId: clientId, delivered: { $gt: date }} ).then( os => {
+      os.map((order: any) => {
+        balance -= order.total;
+      });
+
+      self.find({ clientId: clientId, created: { $gt: date }}).then(ps => {
+        ps.map((p: any) => {
+          if (p.type === 'credit' && p.amount > 0) {
+            balance += p.amount;
+          }
+        });
+
+        self.balanceEntity.find({ accountId: clientId }).then((x:any) => {
+          if (x && x.length > 0) {
+            self.balanceEntity.updateOne({accountId: clientId}, {amount: balance}).then(() => {
+
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(x, null, 3));
+            });
+          }else{
+            self.balanceEntity.insertOne({
+              accountId: payment.clientId,
+              accountName: payment.clientName,
+              amount: balance,
+              created: new Date(),
+              modified: new Date()
+            }).then(() => { 
+
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(x, null, 3));
+            });
+          }
+        });
+      });
     });
-    this.create(req, rsp);
   }
 }
