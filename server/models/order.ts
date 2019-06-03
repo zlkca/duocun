@@ -14,11 +14,34 @@ export class Order extends Model {
         res.end(JSON.stringify(x, null, 3));
       });
     } else {
-      this.insertOne(req.body).then((x: any) => {
-        res.setHeader('Content-Type', 'application/json');
-        // fix me
-        // io.emit('updateOrders', x);
-        res.end(JSON.stringify(x, null, 3));
+      const date = req.body.delivered;
+      const address = req.body.address;
+      this.find({delivered: date, address: address}).then(orders => {
+
+        // let groupDiscount = 0;
+        // if (orders && orders.length > 0) {
+        //   if (orders.length >= 3) {
+        //     groupDiscount = 3;
+        //   } else {
+        //     groupDiscount = orders.length;
+        //   }
+        // } else {
+        //   groupDiscount = 0;
+        // }
+        let newGroupDiscount = req.body.groupDiscount;
+        orders.map((order: any) => {
+          const total = order.total + (order.groupDiscount? order.groupDiscount : 0);
+          this.updateOne({id: order.id}, {groupDiscount: newGroupDiscount, total: total - newGroupDiscount}).then(()=>{
+            console.log('update order:' + order.id);
+          });
+        });
+
+        this.insertOne(req.body).then((x: any) => {
+          res.setHeader('Content-Type', 'application/json');
+          // fix me
+          // io.emit('updateOrders', x);
+          res.end(JSON.stringify(x, null, 3));
+        });
       });
     }
   }
@@ -32,6 +55,43 @@ export class Order extends Model {
   }
 
 
+  removeOne(req: Request, res: Response) {
+
+    this.find({id: req.params.id}).then(docs => {
+
+      if(docs && docs.length>0){
+        const date = docs[0].delivered;
+        const address = docs[0].address;
+  
+        this.deleteById(req.params.id).then(x => {
+          this.find({delivered: date, address: address}).then(orders => {
+            let groupDiscount = 0;
+            if (orders && orders.length > 1) {
+              if (orders.length >= 4) {
+                groupDiscount = 3;
+              } else {
+                groupDiscount = orders.length - 1;
+              }
+            } else {
+              groupDiscount = 0;
+            }
+            orders.map((order: any) => {
+              const total = order.total + (order.groupDiscount? order.groupDiscount : 0);
+              this.updateOne({id: order.id}, {groupDiscount: groupDiscount, total: total - groupDiscount}).then(()=>{
+                // console.log('update order:' + order.id);
+              });
+            });
+          });
+  
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(x, null, 3));
+        });
+      }else{
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(null, null, 3));
+      }
+    });
+  }
 
 
 }

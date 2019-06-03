@@ -79,9 +79,6 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
         self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
 
         self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
-        });
-
-        self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
           const rs = self.rangeSvc.getAvailableRanges({ lat: d.origin.lat, lng: d.origin.lng }, ranges);
           self.inRange = (rs && rs.length > 0) ? true : false;
           self.availableRanges = rs;

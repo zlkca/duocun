@@ -46,6 +46,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   delivery: IDelivery;
   address: string;
   balance: IBalance;
+  groupDiscount = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -61,15 +62,18 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       note: ['']
     });
+
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: 'order-confirm'
     });
+
     this.rx.select('delivery').pipe(
       takeUntil(this.onDestroy$)
     ).subscribe((x: IDelivery) => {
       self.delivery = x;
       self.address = this.locationSvc.getAddrString(x.origin);
+      this.reloadGroupDiscount(x.fromTime, self.address);
     });
 
     this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
@@ -111,7 +115,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.tax = Math.ceil(this.subtotal * 13) / 100;
       this.subtotal = this.subtotal + this.tax;
       this.total = this.subtotal - this.deliveryDiscount + this.tips;
-
       this.cart = cart;
     });
   }
@@ -119,6 +122,22 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.onDestroy$.next();
     this.onDestroy$.complete();
+  }
+
+  // for display purpose, update price should be run on backend
+  reloadGroupDiscount(date: Date, address: string) {
+    this.orderSvc.find({ where: { delivered: date, address: address } }).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
+      // fix me modify order issue
+      if (orders && orders.length > 0) {
+        if (orders.length >= 3) {
+          this.groupDiscount = 3;
+        } else {
+          this.groupDiscount = orders.length;
+        }
+      } else {
+        this.groupDiscount = 0;
+      }
+    });
   }
 
   changeContact() {
@@ -152,7 +171,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         deliveryCost: self.deliveryCost,
         deliveryFee: self.deliveryFee,
         deliveryDiscount: self.deliveryDiscount,
-        total: self.total,
+        groupDiscount: self.groupDiscount,
+        total: self.total - self.groupDiscount,
         status: 'new',
         driverId: '' // self.malls[0].workers[0] ? self.malls[0].workers[0].id : null // fix me
       };
@@ -171,31 +191,29 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const order = this.createOrder(this.contact, v.note);
         order.id = this.order.id;
         order.created = this.order.created;
-        if (order) {
-
-
+        if (order) { // modify
           self.orderSvc.replace(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
             const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
             self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-            self.snackBar.open('', '您的订单已经成功修改。', { duration: 1800});
+            self.snackBar.open('', '您的订单已经成功修改。', { duration: 1800 });
 
-            self.paymentSvc.update({orderId: r.id}, {amount: order.total, type: 'debit'}).pipe(
+            self.paymentSvc.update({ orderId: r.id }, { amount: order.total, type: 'debit' }).pipe(
               takeUntil(this.onDestroy$)).subscribe(x => {
-              self.snackBar.open('', '已更新客户的余额', { duration: 1200 });
-              if (this.contact.location) {
-                this.router.navigate(['main/filter']);
-              } else {
-                this.router.navigate(['main/home']);
-              }
-            });
+                self.snackBar.open('', '已更新客户的余额', { duration: 1200 });
+                if (this.contact.location) {
+                  this.router.navigate(['main/filter']);
+                } else {
+                  this.router.navigate(['main/home']);
+                }
+              });
           });
         } else {
           this.snackBar.open('', '登录已过期，请重新从公众号进入', {
             duration: 1800
           });
         }
-      } else {
+      } else { // create new
         const order = this.createOrder(this.contact, v.note);
         if (order) {
           self.orderSvc.save(order).pipe(
@@ -212,7 +230,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               driverId: '',
               driverName: '',
               type: 'debit',
-              amount: r.total,
+              amount: r.total - this.groupDiscount,
               created: new Date(),
               modified: new Date(),
             };

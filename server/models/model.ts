@@ -55,13 +55,18 @@ export class Model extends Entity{
   }
 
   update(req: Request, res: Response){
-    if(req.body && req.body.filter){
-      this.updateOne(req.body.filter, req.body.data).then((x: any) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
-      });
-    }else{
+    if(req.body instanceof Array){
+      this.bulkUpdate(req.body);
       res.end();
+    }else{
+      if(req.body && req.body.filter){
+        this.updateOne(req.body.filter, req.body.data).then((x: any) => {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
+        });
+      }else{
+        res.end();
+      }
     }
   }
 
@@ -70,7 +75,8 @@ export class Model extends Entity{
     if(req.headers && req.headers.filter && typeof req.headers.filter === 'string'){
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
-    this.find(query ? query.where : {}).then((assignments: any) => {
+    
+    this.find(query ? query.where : {id: "-1"}).then((assignments: any) => {
       if(assignments && assignments.length>0){
         this.deleteMany(query ? query.where : {}).then((x: any) => {
           res.setHeader('Content-Type', 'application/json');

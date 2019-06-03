@@ -82,12 +82,25 @@
           </div>
         <div class="col-3">-${{deliveryDiscount | number : '1.2-2'}}</div>
       </div>
+
+      <div class="row" *ngIf="groupDiscount>0">
+          <div class="col-9">
+            <span i18n="@@GroupDiscount">Group Discount</span>
+            <span>:</span>
+          </div>
+        <div class="col-3">-${{groupDiscount | number : '1.2-2'}}</div>
+      </div>
+
       <div class="row total-row">
         <div class="col-9">
           <span i18n="@@Total">Total</span>
           <span>:</span>
         </div>
-        <div class="col-3">${{total | number : '1.2-2'}}</div>
+        <div class="col-3" *ngIf="groupDiscount===0"><span>${{total | number : '1.2-2'}}</span></div>
+        <div class="col-3" *ngIf="groupDiscount>0">
+          <span style="text-decoration:line-through">${{total | number : '1.2-2'}}</span>&nbsp;
+          <span>${{total - groupDiscount | number : '1.2-2'}}</span>
+        </div>
       </div>
     </div>
     <div class="group-order-block" *ngIf="productTotal < 20">

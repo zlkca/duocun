@@ -18,7 +18,6 @@ const product_1 = require("./product");
 const category_1 = require("./category");
 const mall_1 = require("./mall");
 const range_1 = require("./range");
-const region_1 = require("./region");
 const location_1 = require("./location");
 const contact_1 = require("./contact");
 const phone_1 = require("./phone");
@@ -34,6 +33,7 @@ const merchant_balance_route_1 = require("./routers/merchant-balance-route");
 const client_payment_route_1 = require("./routers/client-payment-route");
 const client_balance_route_1 = require("./routers/client-balance-route");
 const driver_payment_route_1 = require("./routers/driver-payment-route");
+const region_route_1 = require("./routers/region-route");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
@@ -58,7 +58,6 @@ let restaurant;
 let product;
 let mall;
 let range;
-let region;
 let location;
 let contact;
 let phone;
@@ -101,7 +100,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     product = new product_1.Product(dbo);
     mall = new mall_1.Mall(dbo);
     range = new range_1.Range(dbo);
-    region = new region_1.Region(dbo);
     location = new location_1.Location(dbo);
     contact = new contact_1.Contact(dbo);
     phone = new phone_1.Phone(dbo);
@@ -273,13 +271,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
             res.end(JSON.stringify(x, null, 3));
         });
     });
-    app.get('/' + ROUTE_PREFIX + '/Regions', (req, res) => {
-        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-        region.find(query ? query.where : {}).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
     app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
         location.find({ userId: req.body.userId, placeId: req.body.placeId }).then((r) => {
             if (r && r.length > 0) {
@@ -361,6 +352,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     });
     app.use('/' + ROUTE_PREFIX + '/Accounts', account_route_1.AccountRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Distances', distance_route_1.DistanceRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Regions', region_route_1.RegionRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Orders', order_route_1.OrderRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Assignments', assignment_route_1.AssignmentRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/MerchantPayments', merchant_payment_route_1.MerchantPaymentRouter(dbo));

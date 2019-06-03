@@ -30,6 +30,7 @@ export interface IOrder {
   deliveryCost?: number;
   deliveryFee?: number;
   deliveryDiscount?: number;
+  groupDiscount?: number;
   total?: number;
 }
 
@@ -56,6 +57,7 @@ export class Order implements IOrder {
   deliveryCost?: number;
   deliveryFee: number;
   deliveryDiscount: number;
+  groupDiscount?: number;
   total: number;
   constructor(data?: IOrder) {
     Object.assign(this, data);

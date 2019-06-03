@@ -56,8 +56,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       if (account && account.id) {
         self.reload(account.id);
       } else {
-        // should never be here.
-        self.orders = [];
+        self.orders = []; // should never be here.
       }
     });
 
@@ -101,7 +100,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     ).subscribe((orders: IOrder[]) => {
       orders.map((order: IOrder) => {
         order.tips = 3;
-        const s1 = order.total - order.tips + order.deliveryDiscount;
+        const groupDiscount = order.groupDiscount ? order.groupDiscount : 0;
+        const s1 = order.total + groupDiscount - order.tips + order.deliveryDiscount;
         order.tax = s1 - s1 / 1.13;
       });
 

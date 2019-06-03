@@ -6,6 +6,10 @@
             <div class="row grid-item-body">
                 <div class="col-md-12 col-4 image-body">
                     <img [src]="getProductImage(p)" alt="{{p.name}}">
+                    <div *ngIf="p.status && p.status==='new'" class="new notify-badge">
+                      <div class="text-sm" i18n="@@New">New</div>
+                      <!-- <del><span *ngIf="r.fullDeliveryFee">${{r.fullDeliveryFee}}</span></del> -->
+                    </div>
                 </div>
                 <div class="col-md-12 col-8 text-body">
                     <div class="title-bg">{{p.name}}</div>

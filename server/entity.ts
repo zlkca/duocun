@@ -130,6 +130,29 @@ export class Entity {
     });
   }
 
+  bulkUpdate(items: any[], options?: any){
+    this.getCollection().then((c: Collection) => {
+      items.map(item => {
+        let query = item.query;
+        let doc = item.data;
+        if (query && query.hasOwnProperty('id')) {
+          query['_id'] = new ObjectID(query.id);
+          delete query['id'];
+        }
+        if(doc.orderId === '5cae0a7d9687ac4a075e2f56'){
+          console.log('update orderId 5cdb784e7bc49d383b6f3e87');
+        }
+        c.updateOne(query, {$set: doc}, options, (err, result:any) => {
+          if(result && result._id){
+            result.id = result._id;
+            delete(result._id);
+          }
+        });
+      });
+    });
+  }
+
+
   replaceById(id: string, doc: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {

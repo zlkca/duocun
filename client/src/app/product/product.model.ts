@@ -17,6 +17,7 @@ export interface IProduct {
   pictures?: Picture[];
   dow?: string[];
   order?: number;
+  status?: string;
 }
 
 export class Product implements IProduct {
@@ -35,6 +36,7 @@ export class Product implements IProduct {
   pictures: Picture[];
   dow?: string[];
   order?: number;
+  status?: string;
   constructor(data?: IProduct) {
     Object.assign(this, data);
   }

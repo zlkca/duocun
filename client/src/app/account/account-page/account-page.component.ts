@@ -94,7 +94,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
       self.orderSvc.find({ where: {
         clientId: account.id,
-        delivered: { $gt: moment('15 May 2019').toDate() }
+        delivered: { $gte: moment('15 May 2019').toDate() }
       } }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
         os.map(order => {
           self.balance -= order.total;
@@ -104,7 +104,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
         self.paymentSvc.find({
           where: {
             clientId: account.id,
-            created: { $gt: moment('15 May 2019').toDate() }
+            created: { $gte: moment('15 May 2019').toDate() }
           }
         }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IClientPayment[]) => {
 
