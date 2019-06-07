@@ -92,32 +92,23 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
       self.balance = 0;
 
-      self.orderSvc.find({ where: {
-        clientId: account.id,
-        delivered: { $gte: moment('15 May 2019').toDate() }
-      } }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
+      self.orderSvc.find({ where: { clientId: account.id } }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
         os.map(order => {
-          self.balance -= order.total;
+          if (order.status !== 'bad') {
+            self.balance -= order.total;
+          }
         });
 
-
         self.paymentSvc.find({
-          where: {
-            clientId: account.id,
-            created: { $gte: moment('15 May 2019').toDate() }
-          }
+          where: { clientId: account.id }
         }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IClientPayment[]) => {
-
           ps.map(p => {
             if (p.type === 'credit' && p.amount > 0) {
               self.balance += p.amount;
             }
           });
         });
-
       });
-
-
     });
   }
 

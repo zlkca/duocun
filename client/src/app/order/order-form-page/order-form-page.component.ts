@@ -231,6 +231,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               driverName: '',
               type: 'debit',
               amount: r.total - this.groupDiscount,
+              delivered: this.delivery.fromTime,
               created: new Date(),
               modified: new Date(),
             };

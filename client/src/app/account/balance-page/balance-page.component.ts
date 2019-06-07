@@ -64,37 +64,26 @@ export class BalancePageComponent implements OnInit, OnDestroy {
       // });
       self.balance = 0;
 
-      self.orderSvc.find({
-        where: {
-          clientId: account.id,
-          delivered: { $gte: moment('15 May 2019').toDate() }
-        }
-      }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
-
+      self.orderSvc.find({ where: { clientId: account.id } }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
         let payments = [];
 
         os.map(order => {
-          self.balance -= order.total;
-          payments.push({delivered: order.delivered, amount: order.total, type: 'debit'});
+          if (order.status !== 'bad') {
+            self.balance -= order.total;
+            payments.push({ delivered: order.delivered, amount: order.total, type: 'debit' });
+          }
         });
 
-
-        self.paymentSvc.find({
-          where: {
-            clientId: account.id,
-            created: { $gte: moment('15 May 2019').toDate() }
-          }
-        }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IClientPayment[]) => {
-
+        self.paymentSvc.find({where: {clientId: account.id}}).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IClientPayment[]) => {
           ps.map(p => {
             if (p.type === 'credit' && p.amount > 0) {
               self.balance += p.amount;
-              payments.push({delivered: p.created, amount: p.amount, type: 'credit'});
+              payments.push({ delivered: p.created, amount: p.amount, type: 'credit' });
             }
           });
 
-          payments = payments.sort((a: IBalance, b: IBalance) => {
-            if (moment(a.created).isAfter(b.created)) {
+          payments = payments.sort((a: IClientPayment, b: IClientPayment) => {
+            if (moment(a.delivered).isAfter(moment(b.delivered))) {
               return -1;
             } else {
               return 1;
@@ -103,10 +92,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
 
           this.payments = payments;
         });
-
       });
-
-
     });
   }
 

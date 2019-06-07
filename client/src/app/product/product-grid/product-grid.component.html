@@ -10,6 +10,10 @@
                       <div class="text-sm" i18n="@@New">New</div>
                       <!-- <del><span *ngIf="r.fullDeliveryFee">${{r.fullDeliveryFee}}</span></del> -->
                     </div>
+                    <div *ngIf="p.status && p.status==='promotion'" class="promotion notify-badge">
+                      <div class="text-sm" i18n="@@Promotion">Promotion</div>
+                      <!-- <del><span *ngIf="r.fullDeliveryFee">${{r.fullDeliveryFee}}</span></del> -->
+                    </div>
                 </div>
                 <div class="col-md-12 col-8 text-body">
                     <div class="title-bg">{{p.name}}</div>
