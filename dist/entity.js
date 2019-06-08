@@ -41,6 +41,20 @@ class Entity {
             });
         });
     }
+    distinct(key, query, options) {
+        const self = this;
+        return new Promise((resolve, reject) => {
+            self.getCollection().then((c) => {
+                c.distinct(key, query, options, (err, doc) => {
+                    if (doc && doc._id) {
+                        doc.id = doc._id;
+                        delete (doc._id);
+                    }
+                    resolve(doc);
+                });
+            });
+        });
+    }
     findOne(query, options) {
         const self = this;
         return new Promise((resolve, reject) => {
@@ -128,9 +142,6 @@ class Entity {
                 if (query && query.hasOwnProperty('id')) {
                     query['_id'] = new mongodb_1.ObjectID(query.id);
                     delete query['id'];
-                }
-                if (doc.orderId === '5cae0a7d9687ac4a075e2f56') {
-                    console.log('update orderId 5cdb784e7bc49d383b6f3e87');
                 }
                 c.updateOne(query, { $set: doc }, options, (err, result) => {
                     if (result && result._id) {

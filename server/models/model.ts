@@ -10,13 +10,26 @@ export class Model extends Entity{
 
   list(req: Request, res: Response){
     let query = null;
+    let key = null;
     if(req.headers && req.headers.filter && typeof req.headers.filter === 'string'){
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
-    this.find(query ? query.where : {}).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
+    if(req.headers && req.headers.distinct && typeof req.headers.distinct === 'string'){
+      key = (req.headers && req.headers.distinct) ? JSON.parse(req.headers.distinct) : null;
+    }
+    const q = query ? query.where : {};
+    if(key && key.distinct){
+      this.distinct(key.distinct, q).then((x: any) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(x, null, 3));
+      });
+    }else{
+      this.find(q).then((x: any) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(x, null, 3));
+      });
+    }
+
   }
 
   get(req: Request, res: Response) {
@@ -55,12 +68,12 @@ export class Model extends Entity{
   }
 
   update(req: Request, res: Response){
-    if(req.body instanceof Array){
-      this.bulkUpdate(req.body);
+    if(req.body.data instanceof Array){
+      this.bulkUpdate(req.body.data, req.body.options);
       res.end();
     }else{
       if(req.body && req.body.filter){
-        this.updateOne(req.body.filter, req.body.data).then((x: any) => {
+        this.updateOne(req.body.filter, req.body.data, req.body.options).then((x: any) => {
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
         });

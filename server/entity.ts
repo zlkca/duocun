@@ -46,6 +46,21 @@ export class Entity {
     });
   }
 
+  distinct(key: string, query: any, options?: any): Promise<any> {
+    const self = this;
+    return new Promise((resolve, reject) => {
+      self.getCollection().then((c: Collection) => {
+        c.distinct(key, query, options, (err, doc) => {
+          if(doc && doc._id){
+            doc.id = doc._id;
+            delete(doc._id);
+          }
+          resolve(doc);
+        });
+      });
+    });
+  }
+
   findOne(query: any, options?: any): Promise<any> {
     const self = this;
     return new Promise((resolve, reject) => {
