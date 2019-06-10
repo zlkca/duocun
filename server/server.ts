@@ -35,7 +35,9 @@ import { MerchantBalanceRouter } from "./routers/merchant-balance-route";
 import { ClientPaymentRouter } from "./routers/client-payment-route";
 import { ClientBalanceRouter } from "./routers/client-balance-route";
 import { DriverPaymentRouter } from "./routers/driver-payment-route";
+import { DriverBalanceRouter } from "./routers/driver-balance-route";
 import { RegionRouter } from "./routers/region-route";
+import { TransactionRouter } from "./routers/transaction-route";
 
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
@@ -391,7 +393,9 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/ClientPayments', ClientPaymentRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/ClientBalances', ClientBalanceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/DriverPayments', DriverPaymentRouter(dbo));
-  
+  app.use('/' + ROUTE_PREFIX + '/DriverBalances', DriverBalanceRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Transactions', TransactionRouter(dbo));
+
   app.use(express.static(path.join(__dirname, '/../uploads')));
   app.set('port', process.env.PORT || SERVER.PORT)
 
