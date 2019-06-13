@@ -38,3 +38,12 @@ export interface IClientPayment {
   created?: Date;
   modified?: Date;
 }
+
+export interface IClientPaymentData {
+  date: Date;
+  consumed: number;
+  paid: number;
+  balance: number;
+  type: string; // credit, debit
+  description: string;
+}

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
 
 import { LoginFormComponent } from './login-form/login-form.component';
 import { SignupComponent } from './signup/signup.component';
@@ -19,12 +21,15 @@ import { BalanceService } from '../payment/balance.service';
 import { PaymentService } from '../payment/payment.service';
 import { BalancePageComponent } from './balance-page/balance-page.component';
 import { OrderService } from '../order/order.service';
+import { TransactionService } from '../transaction/transaction.service';
 
 @NgModule({
     imports: [
         CommonModule,
         ReactiveFormsModule,
         RouterModule,
+        MatTableModule,
+        MatSortModule,
         AccountRoutingModule,
         SharedModule
     ],
@@ -49,7 +54,8 @@ import { OrderService } from '../order/order.service';
       AuthService,
       BalanceService,
       PaymentService,
-      OrderService
+      OrderService,
+      TransactionService
     ]
 })
 export class AccountModule { }

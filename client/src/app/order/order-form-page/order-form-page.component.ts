@@ -126,9 +126,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   // for display purpose, update price should be run on backend
   reloadGroupDiscount(date: Date, address: string) {
-    this.orderSvc.find({ where: { delivered: date, address: address } }).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
+    this.orderSvc.find({ delivered: date, address: address }).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
       // fix me modify order issue
-      if (orders && orders.length > 0) {
+      if (orders && orders.length > 1) {
         if (orders.length >= 3) {
           this.groupDiscount = 3;
         } else {
