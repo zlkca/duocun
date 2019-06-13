@@ -13,14 +13,10 @@ import * as Cookies from 'js-cookie';
 import { PageActions } from '../../main/main.actions';
 import { LocationService } from '../../location/location.service';
 import { AuthService } from '../auth.service';
-// import { BalanceService } from '../../payment/balance.service';
-// import { IBalance } from '../../payment/payment.model';
-// import * as moment from 'moment';
-import { PaymentService } from '../../payment/payment.service';
-import { IClientPayment } from '../../payment/payment.model';
 import { IOrder } from '../../order/order.model';
 import { OrderService } from '../../order/order.service';
-import * as moment from 'moment';
+import { TransactionService } from '../../transaction/transaction.service';
+import { ITransaction } from '../../transaction/transaction.model';
 declare var WeixinJSBridge;
 
 @Component({
@@ -45,8 +41,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private locationSvc: LocationService,
     private contactSvc: ContactService,
-    // private balanceSvc: BalanceService,
-    private paymentSvc: PaymentService,
+    private transactionSvc: TransactionService,
     private orderSvc: OrderService
   ) {
     const self = this;
@@ -55,14 +50,9 @@ export class AccountPageComponent implements OnInit, OnDestroy {
       payload: 'account-setting'
     });
 
-    self.accountSvc.getCurrentUser().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((account: Account) => {
+    self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
       self.account = account;
-
-      self.contactSvc.find({ where: { accountId: account.id } }).pipe(
-        takeUntil(this.onDestroy$)
-      ).subscribe((r: IContact[]) => {
+      self.contactSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
           self.contact = new Contact(r[0]);
           self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: self.contact });
@@ -74,48 +64,27 @@ export class AccountPageComponent implements OnInit, OnDestroy {
         }
       });
 
-      // self.balanceSvc.find({ where: { accountId: account.id } }).pipe(
-      //   takeUntil(this.onDestroy$)
-      // ).subscribe((bs: IBalance[]) => {
-      //   if (bs && bs.length > 0) {
-      //     const balances = bs.sort((a: IBalance, b: IBalance) => {
-      //       if (moment(a.created).isAfter(b.created)) {
-      //         return -1;
-      //       } else {
-      //         return 1;
-      //       }
-      //     });
-      //     this.balance = balances[0];
-      //   }
-      // });
+      let balance = 0;
 
-
-      self.balance = 0;
-
-      self.orderSvc.find({ where: { clientId: account.id } }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
+      self.orderSvc.find({ clientId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
         os.map(order => {
           if (order.status !== 'bad') {
-            self.balance -= order.total;
+            balance -= order.total;
           }
         });
 
-        self.paymentSvc.find({
-          where: { clientId: account.id }
-        }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IClientPayment[]) => {
-          ps.map(p => {
-            if (p.type === 'credit' && p.amount > 0) {
-              self.balance += p.amount;
-            }
-          });
+        self.transactionSvc.find({ type: 'credit', fromId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: ITransaction[]) => {
+          ps.map(p => { balance += p.amount; });
+
+          self.balance = balance;
         });
       });
+
     });
   }
 
   ngOnInit() {
-    this.rx.select('contact').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((contact: IContact) => {
+    this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
       if (contact) {
         this.contact = contact;
         this.phone = contact.phone; // render

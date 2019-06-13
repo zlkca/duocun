@@ -47,3 +47,18 @@ export interface IClientPaymentData {
   type: string; // credit, debit
   description: string;
 }
+
+export interface IPayable {
+  id?: string;
+  orderId?: string;
+  fromId?: string;
+  fromName?: string;
+  toId?: string;
+  toName?: string;
+  type?: string;
+  amount?: number;
+  note?: string;
+  status?: string;
+  created?: Date;
+  modified?: Date;
+}

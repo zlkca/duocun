@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, AfterViewInit, ElementRef } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
@@ -21,7 +22,6 @@ import { MatSnackBar, MatTooltip } from '../../../../node_modules/@angular/mater
 import { ContactService } from '../../contact/contact.service';
 import { IContact, Contact } from '../../contact/contact.model';
 import { CommandActions } from '../../shared/command.actions';
-import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { IAddressAction } from '../../location/address.reducer';
 import { AddressActions } from '../../location/address.actions';
 import { DeliveryActions } from '../../delivery/delivery.actions';
@@ -171,10 +171,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.contactSvc.find({ where: { accountId: account.id } }).pipe(takeUntil(self.onDestroy$)).subscribe((r: IContact[]) => {
       if (r && r.length > 0) {
         self.contact = new Contact(r[0]);
-        self.rx.dispatch({type: ContactActions.LOAD_FROM_DB, payload: self.contact});
+        self.rx.dispatch({ type: ContactActions.LOAD_FROM_DB, payload: self.contact });
         if (self.contact.location) {
           self.bUpdateLocationList = false;
-          self.rx.dispatch({type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: self.contact.location }});
+          self.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: self.contact.location } });
           self.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
           self.router.navigate(['main/filter']);
         }
@@ -284,7 +284,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       type: DeliveryActions.UPDATE_ORIGIN,
       payload: { origin: null }
     });
-    this.onAddressInputFocus({input: ''});
+    this.onAddressInputFocus({ input: '' });
   }
 
   getSuggestLocationList(input: string, bShowList: boolean) {
@@ -316,7 +316,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (r) {
       this.location = r;
       this.deliveryAddress = e.address; // set address text to input
-      this.rx.dispatch<IDeliveryAction>({type: DeliveryActions.UPDATE_ORIGIN, payload: {origin: r}});
+      this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
 
       if (self.account) {
         const query = { where: { userId: self.account.id, placeId: r.placeId } };
