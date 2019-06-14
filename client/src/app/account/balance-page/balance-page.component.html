@@ -8,7 +8,7 @@
   
       <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@Date">Date</th>
-        <td mat-cell *matCellDef="let row"> {{row.date | date: 'MMMd E'}} </td>
+        <td mat-cell *matCellDef="let row"> {{row.date | date: 'MMMdE'}} </td>
       </ng-container>
   
       <ng-container matColumnDef="description">
@@ -17,17 +17,17 @@
       </ng-container>
   
       <ng-container matColumnDef="consumed">
-        <th mat-header-cell *matHeaderCellDef i18n="@@Consumed"> Consumed </th>
+        <th mat-header-cell *matHeaderCellDef i18n="@@PayableIncrease"> Payable Increase </th>
         <td mat-cell *matCellDef="let row"> {{row.consumed | number : '1.2-2'}} </td>
       </ng-container>
   
       <ng-container matColumnDef="paid">
-        <th mat-header-cell *matHeaderCellDef i18n="@@Paid"> Paid </th>
+        <th mat-header-cell *matHeaderCellDef i18n="@@PayableDecrease"> Payable Decrease </th>
         <td mat-cell *matCellDef="let row"> {{row.paid | number : '1.2-2'}} </td>
       </ng-container>
   
       <ng-container matColumnDef="balance">
-        <th mat-header-cell *matHeaderCellDef i18n="@@Balance"> Balance </th>
+        <th mat-header-cell *matHeaderCellDef i18n="@@Payable"> Payable </th>
         <td mat-cell *matCellDef="let row" [style.color]="row.balance"> {{row.balance | number : '1.2-2'}} </td>
       </ng-container>
   

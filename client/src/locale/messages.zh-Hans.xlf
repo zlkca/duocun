@@ -1508,6 +1508,30 @@
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="PayableIncrease" datatype="html">
+        <source>PayableIncrease</source>
+        <target>应付增加</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="PayableDecrease" datatype="html">
+        <source>PayableDecrease</source>
+        <target>应付减少</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Payable" datatype="html">
+        <source>Payable</source>
+        <target>应付</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

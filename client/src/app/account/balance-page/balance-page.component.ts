@@ -181,10 +181,6 @@ export class BalancePageComponent implements OnInit, OnDestroy {
       this.transactionSvc.find({ type: 'credit', fromId: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
         let list = [];
         let balance = 0;
-        ts.map(t => {
-          list.push({ date: t.created, description: '付给司机充入', type: t.type, paid: t.amount,
-            consumed: 0, balance: 0 });
-        });
 
         os.map(order => {
           const t = {
@@ -198,8 +194,16 @@ export class BalancePageComponent implements OnInit, OnDestroy {
             created: order.delivered,
             modified: order.modified
           };
-          list.push({ date: t.created, description: order.merchantName, type: t.type, paid: 0,
-            consumed: t.amount, balance: 0 });
+          list.push({ date: t.created, description: order.merchantName, type: t.type, paid: 0, consumed: t.amount, balance: 0 });
+        });
+
+        ts.map(t => {
+          const item = list.find(l => moment(l.date).isSame(moment(t.created), 'day'));
+          if (item) {
+            item.paid = t.amount;
+          } else {
+            list.push({ date: t.created, description: '', type: t.type, paid: t.amount, consumed: 0, balance: 0 });
+          }
         });
 
         list = list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
@@ -207,41 +211,33 @@ export class BalancePageComponent implements OnInit, OnDestroy {
           const bMoment = moment(b.date);
           if (aMoment.isAfter(bMoment)) {
             return 1; // b at top
-          } else if (bMoment.isAfter(aMoment)) {
-            return -1;
           } else {
-            if (a.type === 'debit' && b.type === 'credit') {
-              return -1;
-            } else {
-              return 1;
-            }
+            return -1;
           }
         });
 
         list.map(item => {
-          if (item.type === 'debit') {
-            balance -= item.consumed;
-          } else if (item.type === 'credit') {
-            balance += item.paid;
-          }
+          balance += item.consumed;
+          balance -= item.paid;
           item.balance = balance;
         });
 
         list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
-                const aMoment = moment(a.date);
-                const bMoment = moment(b.date);
-                if (aMoment.isAfter(bMoment)) {
-                  return -1; // b at top
-                } else if (bMoment.isAfter(aMoment)) {
-                  return 1;
-                } else {
-                  if (a.type === 'debit' && b.type === 'credit') {
-                    return 1;
-                  } else {
-                    return -1;
-                  }
-                }
-              });
+          const aMoment = moment(a.date);
+          const bMoment = moment(b.date);
+          if (aMoment.isAfter(bMoment)) {
+            return -1; // b at top
+          } else if (bMoment.isAfter(aMoment)) {
+            return 1;
+          } else {
+            if (a.type === 'debit' && b.type === 'credit') {
+              return 1;
+            } else {
+              return -1;
+            }
+          }
+        });
+
         this.dataSource = new MatTableDataSource(list);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;

@@ -8,12 +8,16 @@ table{
   width: 100%;
 }
 
+td.mat-cell{
+  padding-left: 4px;
+}
+
 td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:first-of-type {
   padding-left: 10px;
 }
 
 td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type {
-  padding-right: 4px;
+  padding-right: 0px;
 }
 // .detail-list{
 //   margin-top: 60px;
