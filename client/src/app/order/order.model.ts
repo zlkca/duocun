@@ -7,6 +7,7 @@ import { ILocation } from '../location/location.model';
 
 export interface IOrder {
   id?: string;
+  code?: string;
   clientId?: string;
   clientName?: string;
   clientPhoneNumber?: string;
@@ -36,6 +37,7 @@ export interface IOrder {
 
 export class Order implements IOrder {
   id: string;
+  code?: string;
   clientId: string;
   clientName: string;
   clientPhoneNumber?: string;

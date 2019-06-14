@@ -1,7 +1,7 @@
 import { DB } from "../db";
 import { Model } from "./model";
 import { Request, Response } from "express";
-import * as moment from 'moment';
+import moment, { now } from 'moment';
 
 export class OrderSequence extends Model {
     constructor(dbo: DB) {
@@ -9,15 +9,22 @@ export class OrderSequence extends Model {
     }
 
     generate(req: Request, res: Response) {
-        const today = moment();
-        const range = { "created": { "$gte": new Date(), "$lt": new Date(2012, 7, 15) } })
-        // this.findOne()
-        if (req.body instanceof Array) {
-            // this.insertMany(req.body).then((x: any) => {
-            //     res.setHeader('Content-Type', 'application/json');
-            //     res.end(JSON.stringify(x, null, 3));
-            // });
-        } else {
+      const start = moment().startOf('day').toDate();
+      const end = moment().endOf('day').toDate();
+
+      const range = { "created": { "$gte": start, "$lte": end }};
+      this.findOne(range).then(x => {
+        if(x){
+          this.updateOne(range, {index: x.index + 1}).then(() => {
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(x.index + 1, null, 3));
+          });
+        }else{
+          this.insertOne({index: 1, created: start}).then(() => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(1, null, 3));
+          });
         }
+      });
     }
 }

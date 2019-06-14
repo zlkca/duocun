@@ -21,6 +21,7 @@ import { BalanceService } from '../../payment/balance.service';
 import { IBalance, IClientPayment } from '../../payment/payment.model';
 import { PaymentService } from '../../payment/payment.service';
 import { ILocation } from '../../location/location.model';
+import { OrderSequenceService } from '../order-sequence.service';
 
 @Component({
   selector: 'app-order-form-page',
@@ -54,6 +55,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private router: Router,
     private orderSvc: OrderService,
+    private sequenceSvc: OrderSequenceService,
     private locationSvc: LocationService,
     private balanceSvc: BalanceService,
     private paymentSvc: PaymentService,
@@ -152,9 +154,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   getCode(location: ILocation, n) {
     const regionName = location.subLocality ? location.subLocality : location.city;
-    const index = n > 9 ? ('' + n) : ('0' + n);
+    const index = n > 9 ? ('' + n) : ('00' + n);
     const streetName = location.streetName.toUpperCase();
-    return regionName.charAt(0).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 2);
+    const streetNumber = Number(location.streetNumber);
+    const streetNum = streetNumber ? (streetNumber > 9 ? ('' + streetNumber) : ('00' + streetNumber)) : '00';
+    return regionName.charAt(0).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 1) + streetNum;
   }
 
   createOrder(contact: IContact, note: string) {
@@ -197,66 +201,70 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const cart = this.cart;
       if (this.order && this.order.id) {
         const order = this.createOrder(this.contact, v.note);
-        order.id = this.order.id;
-        order.created = this.order.created;
-        if (order) { // modify
-          self.orderSvc.replace(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
-            const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
-            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-            self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-            self.snackBar.open('', '您的订单已经成功修改。', { duration: 1800 });
+        this.sequenceSvc.find().subscribe(sq => {
+          order.id = this.order.id;
+          order.code = this.getCode(order.location, sq);
+          order.created = this.order.created;
+          if (order) { // modify
+            self.orderSvc.replace(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+              const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
+              self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+              self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
+              self.snackBar.open('', '您的订单已经成功修改。', { duration: 1800 });
 
-            self.paymentSvc.update({ orderId: r.id }, { amount: order.total, type: 'debit' }).pipe(
-              takeUntil(this.onDestroy$)).subscribe(x => {
-                self.snackBar.open('', '已更新客户的余额', { duration: 1200 });
+              self.paymentSvc.update({ orderId: r.id }, { amount: order.total, type: 'debit' }).pipe(
+                takeUntil(this.onDestroy$)).subscribe(x => {
+                  self.snackBar.open('', '已更新客户的余额', { duration: 1200 });
+                  if (this.contact.location) {
+                    this.router.navigate(['main/filter']);
+                  } else {
+                    this.router.navigate(['main/home']);
+                  }
+                });
+            });
+          } else {
+            this.snackBar.open('', '登录已过期，请重新从公众号进入', {
+              duration: 1800
+            });
+          }
+        });
+      } else { // create new
+        this.sequenceSvc.find().subscribe(sq => {
+          const order = this.createOrder(this.contact, v.note);
+          order.code = this.getCode(order.location, sq);
+          if (order) {
+            self.orderSvc.save(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+              // self.afterSubmit.emit(order);
+              const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
+              this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+              this.snackBar.open('', '您的订单已经成功提交。', { duration: 1800 });
+              const clientPayment: IClientPayment = {
+                orderId: r.id,
+                clientId: r.clientId,
+                clientName: r.clientName,
+                driverId: '',
+                driverName: '',
+                type: 'debit',
+                amount: r.total - this.groupDiscount,
+                delivered: this.delivery.fromTime,
+                created: new Date(),
+                modified: new Date(),
+              };
+              this.paymentSvc.save(clientPayment).pipe(takeUntil(this.onDestroy$)).subscribe((cps: IClientPayment[]) => {
+                this.snackBar.open('', '已保存客户的余额', { duration: 1200 });
                 if (this.contact.location) {
                   this.router.navigate(['main/filter']);
                 } else {
                   this.router.navigate(['main/home']);
                 }
               });
-          });
-        } else {
-          this.snackBar.open('', '登录已过期，请重新从公众号进入', {
-            duration: 1800
-          });
-        }
-      } else { // create new
-        const order = this.createOrder(this.contact, v.note);
-        if (order) {
-          self.orderSvc.save(order).pipe(
-            takeUntil(this.onDestroy$)
-          ).subscribe((r: IOrder) => {
-            // self.afterSubmit.emit(order);
-            const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
-            this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-            this.snackBar.open('', '您的订单已经成功提交。', { duration: 1800 });
-            const clientPayment: IClientPayment = {
-              orderId: r.id,
-              clientId: r.clientId,
-              clientName: r.clientName,
-              driverId: '',
-              driverName: '',
-              type: 'debit',
-              amount: r.total - this.groupDiscount,
-              delivered: this.delivery.fromTime,
-              created: new Date(),
-              modified: new Date(),
-            };
-            this.paymentSvc.save(clientPayment).pipe(takeUntil(this.onDestroy$)).subscribe((cps: IClientPayment[]) => {
-              this.snackBar.open('', '已保存客户的余额', { duration: 1200 });
-              if (this.contact.location) {
-                this.router.navigate(['main/filter']);
-              } else {
-                this.router.navigate(['main/home']);
-              }
             });
-          });
-        } else {
-          this.snackBar.open('', '登录已过期，请重新从公众号进入', {
-            duration: 1800
-          });
-        }
+          } else {
+            this.snackBar.open('', '登录已过期，请重新从公众号进入', {
+              duration: 1800
+            });
+          }
+        });
       }
     }
   }
