@@ -20,6 +20,7 @@ import { LocationService } from '../../location/location.service';
 import { BalanceService } from '../../payment/balance.service';
 import { IBalance, IClientPayment } from '../../payment/payment.model';
 import { PaymentService } from '../../payment/payment.service';
+import { ILocation } from '../../location/location.model';
 
 @Component({
   selector: 'app-order-form-page',
@@ -147,6 +148,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   isPrepaidClient(account: IAccount) {
     return account && account.roles && account.roles.length > 0
       && account.roles.indexOf(Role.PREPAID_CLIENT) !== -1;
+  }
+
+  getCode(location: ILocation, n) {
+    const regionName = location.subLocality ? location.subLocality : location.city;
+    const index = n > 9 ? ('' + n) : ('0' + n);
+    const streetName = location.streetName.toUpperCase();
+    return regionName.charAt(0).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 2);
   }
 
   createOrder(contact: IContact, note: string) {

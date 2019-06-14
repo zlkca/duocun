@@ -36,6 +36,7 @@ const driver_payment_route_1 = require("./routers/driver-payment-route");
 const driver_balance_route_1 = require("./routers/driver-balance-route");
 const region_route_1 = require("./routers/region-route");
 const transaction_route_1 = require("./routers/transaction-route");
+const order_sequence_route_1 = require("./routers/order-sequence-route");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
@@ -364,6 +365,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     app.use('/' + ROUTE_PREFIX + '/DriverPayments', driver_payment_route_1.DriverPaymentRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/DriverBalances', driver_balance_route_1.DriverBalanceRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Transactions', transaction_route_1.TransactionRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/OrderSequences', order_sequence_route_1.OrderSequenceRouter(dbo));
     app.use(express_1.default.static(path_1.default.join(__dirname, '/../uploads')));
     app.set('port', process.env.PORT || SERVER.PORT);
     const server = app.listen(app.get("port"), () => {

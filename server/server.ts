@@ -38,6 +38,7 @@ import { DriverPaymentRouter } from "./routers/driver-payment-route";
 import { DriverBalanceRouter } from "./routers/driver-balance-route";
 import { RegionRouter } from "./routers/region-route";
 import { TransactionRouter } from "./routers/transaction-route";
+import { OrderSequenceRouter } from "./routers/order-sequence-route";
 
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
@@ -73,7 +74,7 @@ let picture: Picture;
 let mysocket: any;// Socket;
 let io: any;
 
-function setupSocket(server: any){
+function setupSocket(server: any) {
   io = Server(server);
 
   io.on('connection', function (socket: any) {
@@ -155,7 +156,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.get('/wx', (req, res) => {
     utils.genWechatToken(req, res);
   });
-  
+
   // app.get('/wechatAccessToken', (req, res) => {
   //   utils.getWechatAccessToken(req, res);
   // });
@@ -177,21 +178,21 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.get('/' + ROUTE_PREFIX + '/Pictures', (req, res) => {
     picture.get(req, res);
   });
-  
+
   app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
     restaurant.insertOne(req.body).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(x, null, 3));
     });
   });
-  
+
   app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
     restaurant.replaceById(req.body.id, req.body).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(x, null, 3));
     });
   });
-  
+
   app.get('/' + ROUTE_PREFIX + '/Restaurants', (req: any, res) => {
     const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     restaurant.find(query ? query.where : {}).then((x: any) => {
@@ -208,21 +209,21 @@ dbo.init(cfg.DATABASE).then(dbClient => {
       res.end(JSON.stringify(x, null, 3));
     });
   });
-  
+
   app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
     product.find({ merchantId: req.params.id }).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(x, null, 3));
     });
   });
-  
+
   app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
     product.replaceById(req.body.id, req.body).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(x, null, 3));
     });
   });
-  
+
   app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
     product.insertOne(req.body).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
@@ -245,7 +246,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
       res.end(JSON.stringify(x, null, 3));
     });
   });
-  
+
   app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
     category.insertOne(req.body).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
@@ -268,8 +269,8 @@ dbo.init(cfg.DATABASE).then(dbClient => {
       res.end(JSON.stringify(x.ops[0], null, 3))
     });
   });
-  
-  
+
+
   app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
     mall.replaceById(req.body.id, req.body).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
@@ -292,7 +293,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
     mall.get(req, res);
   });
-  
+
   app.get('/' + ROUTE_PREFIX + '/Ranges', (req: any, res) => {
     const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     range.find(query ? query.where : {}).then((x: any) => {
@@ -300,7 +301,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
       res.end(JSON.stringify(x, null, 3));
     });
   });
-  
+
   app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
     location.find({ userId: req.body.userId, placeId: req.body.placeId }).then((r: any) => {
       if (r && r.length > 0) {
@@ -314,7 +315,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
       }
     });
   });
-  
+
   app.get('/' + ROUTE_PREFIX + '/Locations', (req: any, res) => {
     const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     res.setHeader('Content-Type', 'application/json');
@@ -326,15 +327,15 @@ dbo.init(cfg.DATABASE).then(dbClient => {
       res.end(JSON.stringify(null, null, 3));
     }
   });
-  
-  
+
+
   app.post('/' + ROUTE_PREFIX + '/smsverify', (req, res) => {
     phone.verifyCode(req, res);
   });
   app.post('/' + ROUTE_PREFIX + '/sendVerifyMsg', (req, res) => {
     phone.sendVerificationMessage(req, res);
   });
-  
+
   app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
     contact.insertOne(req.body).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
@@ -350,12 +351,12 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     });
   });
   app.patch('/' + ROUTE_PREFIX + '/Contacts', (req: any, res) => {
-    if(req.body && req.body.filter){
+    if (req.body && req.body.filter) {
       contact.updateOne(req.body.filter, req.body.data).then((x: any) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
       });
-    }else{
+    } else {
       res.end();
     }
   });
@@ -378,7 +379,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
       res.end(JSON.stringify(x, null, 3));
     });
   });
-  
+
   app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
     res.send('upload file success');
   });
@@ -395,6 +396,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/DriverPayments', DriverPaymentRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/DriverBalances', DriverBalanceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Transactions', TransactionRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/OrderSequences', OrderSequenceRouter(dbo));
 
   app.use(express.static(path.join(__dirname, '/../uploads')));
   app.set('port', process.env.PORT || SERVER.PORT)
