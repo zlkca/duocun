@@ -39,6 +39,7 @@ import { DriverBalanceRouter } from "./routers/driver-balance-route";
 import { RegionRouter } from "./routers/region-route";
 import { TransactionRouter } from "./routers/transaction-route";
 import { OrderSequenceRouter } from "./routers/order-sequence-route";
+import { DriverHourRouter } from "./routers/driver-hour-route";
 
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
@@ -397,6 +398,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/DriverBalances', DriverBalanceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Transactions', TransactionRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/OrderSequences', OrderSequenceRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/DriverHours', DriverHourRouter(dbo));
 
   app.use(express.static(path.join(__dirname, '/../uploads')));
   app.set('port', process.env.PORT || SERVER.PORT)
