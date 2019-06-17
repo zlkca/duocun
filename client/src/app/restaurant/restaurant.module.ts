@@ -13,7 +13,6 @@ import { RestaurantRoutingModule } from './restaurant-routing.module';
 import { ProductModule } from '../product/product.module';
 
 import { ProductService } from '../product/product.service';
-import { CategoryService } from '../category/category.service';
 import { OrderService } from '../order/order.service';
 import { CartModule } from '../cart/cart.module';
 import { MatDialogModule } from '../../../node_modules/@angular/material';
@@ -36,7 +35,6 @@ import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-res
     providers: [
       RestaurantService,
       ProductService,
-      CategoryService,
       OrderService,
       DistanceService
     ],

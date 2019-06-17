@@ -6,7 +6,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductGridComponent } from './product-grid/product-grid.component';
 import { ProductRoutingModule } from './product-routing.module';
-import { CategoryService } from '../category/category.service';
 import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.component';
 
 @NgModule({
@@ -25,7 +24,6 @@ import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.
   exports: [ProductListComponent, ProductGridComponent, WarningDialogComponent
   ],
   providers: [
-    CategoryService
   ],
   entryComponents: [WarningDialogComponent]
 })

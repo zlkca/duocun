@@ -37,15 +37,11 @@ export class CartNavbarComponent implements OnInit {
     private restaurantSvc: RestaurantService,
     private router: Router,
   ) {
-    this.rx.select('account').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((account: Account) => {
+    this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
       this.account = account;
     });
 
-    this.rx.select('delivery').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((x: IDelivery) => {
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       this.deliveryTime = { from: x.fromTime, to: x.toTime };
       this.location = x.origin;
     });
@@ -53,18 +49,10 @@ export class CartNavbarComponent implements OnInit {
 
   ngOnInit() {
     const self = this;
-    this.rx.select<ICart>('cart').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((cart: ICart) => {
+    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       self.quantity = cart.quantity;
       self.productTotal = cart.productTotal;
     });
-
-    // this.rx.select('restaurant').pipe(
-    //   takeUntil(this.onDestroy$)
-    // ).subscribe((r: IRestaurant) => {
-    //   this.restaurant = r;
-    // });
   }
 
   toCart() {
@@ -91,7 +79,7 @@ export class CartNavbarComponent implements OnInit {
       this.afterCheckout.emit({ productTotal: this.productTotal, quantity: this.quantity });
       const account = this.account;
       if (account && account.id) {
-        self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+        self.contactSvc.find({ accountId: account.id}).pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {
             // r[0].placeId = self.location.placeId;
             // r[0].location = self.location;

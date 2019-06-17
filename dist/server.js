@@ -13,14 +13,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("./config");
 //import * as SocketIOAuth from "socketio-auth";
 const db_1 = require("./db");
-const restaurant_1 = require("./restaurant");
-const product_1 = require("./product");
-const category_1 = require("./category");
 const mall_1 = require("./mall");
 const range_1 = require("./range");
 const location_1 = require("./location");
-const contact_1 = require("./contact");
-const phone_1 = require("./phone");
 const merchant_stuff_1 = require("./merchant-stuff");
 const picture_1 = require("./picture");
 const utils_1 = require("./utils");
@@ -38,6 +33,12 @@ const region_route_1 = require("./routers/region-route");
 const transaction_route_1 = require("./routers/transaction-route");
 const order_sequence_route_1 = require("./routers/order-sequence-route");
 const driver_hour_route_1 = require("./routers/driver-hour-route");
+const category_route_1 = require("./routers/category-route");
+const restaurant_route_1 = require("./routers/restaurant-route");
+const product_route_1 = require("./routers/product-route");
+const contact_route_1 = require("./routers/contact-route");
+const phone_route_1 = require("./routers/phone-route");
+const product_1 = require("./models/product");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
@@ -57,14 +58,10 @@ const storage = multer_1.default.diskStorage({
 });
 const upload = multer_1.default({ storage: storage });
 // const upload = multer({ dest: 'uploads/' });
-let category;
-let restaurant;
 let product;
 let mall;
 let range;
 let location;
-let contact;
-let phone;
 let merchantStuff;
 let picture;
 let mysocket; // Socket;
@@ -99,14 +96,10 @@ function setupSocket(server) {
 }
 // create db connection pool and return connection instance
 dbo.init(cfg.DATABASE).then(dbClient => {
-    category = new category_1.Category(dbo);
-    restaurant = new restaurant_1.Restaurant(dbo);
     product = new product_1.Product(dbo);
     mall = new mall_1.Mall(dbo);
     range = new range_1.Range(dbo);
     location = new location_1.Location(dbo);
-    contact = new contact_1.Contact(dbo);
-    phone = new phone_1.Phone(dbo);
     merchantStuff = new merchant_stuff_1.MerchantStuff(dbo);
     picture = new picture_1.Picture();
     // socket = new Socket(dbo, io);
@@ -162,90 +155,12 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     app.get('/' + ROUTE_PREFIX + '/Pictures', (req, res) => {
         picture.get(req, res);
     });
-    app.post('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-        restaurant.insertOne(req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.put('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-        restaurant.replaceById(req.body.id, req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Restaurants', (req, res) => {
-        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-        restaurant.find(query ? query.where : {}).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
-        restaurant.get(req, res);
-    });
-    app.delete('/' + ROUTE_PREFIX + '/Restaurants/:id', (req, res) => {
-        restaurant.deleteById(req.params.id).then(x => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
-        product.find({ merchantId: req.params.id }).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.put('/' + ROUTE_PREFIX + '/Products', (req, res) => {
-        product.replaceById(req.body.id, req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.post('/' + ROUTE_PREFIX + '/Products', (req, res) => {
-        product.insertOne(req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Products', (req, res) => {
-        const query = req.headers && req.headers.filter ? JSON.parse(req.headers.filter) : null;
-        product.find(query ? query.where : {}).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
-        product.get(req, res);
-    });
-    app.delete('/' + ROUTE_PREFIX + '/Products/:id', (req, res) => {
-        product.deleteById(req.params.id).then(x => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-        category.insertOne(req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-        const query = req.headers ? JSON.parse(req.headers.filter) : null;
-        category.find(query ? query.where : {}).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Categories/:id', (req, res) => {
-        category.get(req, res);
-    });
-    app.post('/' + ROUTE_PREFIX + '/Categories', (req, res) => {
-        category.insertOne(req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x.ops[0], null, 3));
-        });
-    });
+    // app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
+    //   product.find({ merchantId: req.params.id }).then((x: any) => {
+    //     res.setHeader('Content-Type', 'application/json');
+    //     res.end(JSON.stringify(x, null, 3));
+    //   });
+    // });
     app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
         mall.replaceById(req.body.id, req.body).then((x) => {
             res.setHeader('Content-Type', 'application/json');
@@ -301,59 +216,57 @@ dbo.init(cfg.DATABASE).then(dbClient => {
             res.end(JSON.stringify(null, null, 3));
         }
     });
-    app.post('/' + ROUTE_PREFIX + '/smsverify', (req, res) => {
-        phone.verifyCode(req, res);
-    });
-    app.post('/' + ROUTE_PREFIX + '/sendVerifyMsg', (req, res) => {
-        phone.sendVerificationMessage(req, res);
-    });
-    app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
-        contact.insertOne(req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            x.verificationCode = '';
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.put('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
-        contact.replaceById(req.body.id, req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            x.verificationCode = '';
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.patch('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
-        if (req.body && req.body.filter) {
-            contact.updateOne(req.body.filter, req.body.data).then((x) => {
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
-            });
-        }
-        else {
-            res.end();
-        }
-    });
-    app.get('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
-        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-        contact.find(query ? query.where : {}).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            if (x && x.length > 0) {
-                x[0].verificationCode = '';
-            }
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
-        contact.get(req, res);
-    });
-    app.delete('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
-        contact.deleteById(req.params.id).then(x => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
+    // app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
+    //   contact.insertOne(req.body).then((x: any) => {
+    //     res.setHeader('Content-Type', 'application/json');
+    //     x.verificationCode = '';
+    //     res.end(JSON.stringify(x, null, 3));
+    //   });
+    // });
+    // app.put('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
+    //   contact.replaceById(req.body.id, req.body).then((x: any) => {
+    //     res.setHeader('Content-Type', 'application/json');
+    //     x.verificationCode = '';
+    //     res.end(JSON.stringify(x, null, 3));
+    //   });
+    // });
+    // app.patch('/' + ROUTE_PREFIX + '/Contacts', (req: any, res) => {
+    //   if (req.body && req.body.filter) {
+    //     contact.updateOne(req.body.filter, req.body.data).then((x: any) => {
+    //       res.setHeader('Content-Type', 'application/json');
+    //       res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
+    //     });
+    //   } else {
+    //     res.end();
+    //   }
+    // });
+    // app.get('/' + ROUTE_PREFIX + '/Contacts', (req: any, res) => {
+    //   const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    //   contact.find(query ? query.where : {}).then((x: any) => {
+    //     res.setHeader('Content-Type', 'application/json');
+    //     if (x && x.length > 0) {
+    //       x[0].verificationCode = '';
+    //     }
+    //     res.end(JSON.stringify(x, null, 3));
+    //   });
+    // });
+    // app.get('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
+    //   contact.get(req, res);
+    // });
+    // app.delete('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
+    //   contact.deleteById(req.params.id).then(x => {
+    //     res.setHeader('Content-Type', 'application/json');
+    //     res.end(JSON.stringify(x, null, 3));
+    //   });
+    // });
     app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
         res.send('upload file success');
     });
+    app.use('/' + ROUTE_PREFIX + '/Categories', category_route_1.CategoryRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Restaurants', restaurant_route_1.RestaurantRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Products', product_route_1.ProductRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Contacts', contact_route_1.ContactRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Phones', phone_route_1.PhoneRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Accounts', account_route_1.AccountRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Distances', distance_route_1.DistanceRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Regions', region_route_1.RegionRouter(dbo));

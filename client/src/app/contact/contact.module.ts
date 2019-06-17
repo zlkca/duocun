@@ -11,6 +11,7 @@ import { PhoneFormPageComponent } from './phone-form-page/phone-form-page.compon
 import { MatSnackBarModule } from '../../../node_modules/@angular/material';
 import { DistanceService } from '../location/distance.service';
 import { AddressFormPageComponent } from './address-form-page/address-form-page.component';
+import { PhoneService } from './phone.service';
 
 @NgModule({
   imports: [
@@ -28,7 +29,8 @@ import { AddressFormPageComponent } from './address-form-page/address-form-page.
   providers: [
     LocationService,
     AccountService,
-    DistanceService
+    DistanceService,
+    PhoneService
   ]
 })
 export class ContactModule { }

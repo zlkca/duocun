@@ -16,6 +16,7 @@ import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import * as Cookies from 'js-cookie';
 import { ILocation } from '../../location/location.model';
 import { IDelivery } from '../../delivery/delivery.model';
+import { PhoneService } from '../phone.service';
 
 @Component({
   selector: 'app-phone-form-page',
@@ -38,6 +39,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private accountSvc: AccountService,
     private contactSvc: ContactService,
+    private phoneSvc: PhoneService,
     private rx: NgRedux<IAppState>,
     private router: Router,
     private route: ActivatedRoute,
@@ -59,16 +61,11 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-
-    this.accountSvc.getCurrent().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(account => {
+    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
     });
 
-    this.rx.select('contact').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((contact: IContact) => {
+    this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
       if (contact) {
         this.contact = new Contact(contact);
         if (!contact.phone) {
@@ -78,9 +75,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.rx.select('delivery').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((d: IDelivery) => {
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
       self.location = d.origin;
     });
   }
@@ -98,7 +93,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     if (e.target.value && e.target.value.length === 4) {
       const code = e.target.value;
-      this.contactSvc.verifyCode(code, this.account.id).subscribe(verified => {
+      this.phoneSvc.verifyCode(code, this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe(verified => {
         this.phoneVerified = verified;
         if (verified) {
           if (self.countDown) {
@@ -139,9 +134,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.contactSvc.find({ where: { accountId: self.account.id } }).pipe(
-      takeUntil(self.onDestroy$)
-    ).subscribe(oldContacts => {
+    this.contactSvc.find({ accountId: self.account.id }).pipe(takeUntil(self.onDestroy$)).subscribe(oldContacts => {
       if (oldContacts && oldContacts.length > 0) {
         const oldContact = oldContacts[0];
         oldContact.phone = v.phone;
@@ -171,7 +164,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
         contact.phone = v.phone;
         contact.verificationCode = v.verificationCode;
 
-        self.contactSvc.save(contact).subscribe(x => {
+        self.contactSvc.save(contact).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
           if (self.fromPage === 'account-setting') {
             self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: x });
             self.router.navigate(['account/setting']);
@@ -202,7 +195,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
           self.bGettingCode = false;
         }
       }, 1000);
-      this.contactSvc.sendVerifyMessage(contact).subscribe(x => {
+      this.phoneSvc.sendVerifyMessage(contact).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
         this.snackBar.open('', '短信验证码已发送', {
           duration: 1000
         });
@@ -210,13 +203,4 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  // verify(code: string, accountId: string) {
-  //   const v = this.form.value;
-  //   this.contactSvc.verifyCode(code, accountId).subscribe(verified => {
-  //     this.phoneVerified = verified;
-  //     if (verified) {
-  //       this.router.navigate(['contact/list']);
-  //     }
-  //   });
-  // }
 }

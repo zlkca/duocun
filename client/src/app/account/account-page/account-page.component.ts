@@ -28,7 +28,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
   account: Account;
   phone;
   address;
-  onDestroy$ = new Subject<any>();
+  onDestroy$ = new Subject();
   contact;
   phoneVerified;
   form;
@@ -59,8 +59,12 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
           Cookies.set('duocun-old-phone', self.contact.phone);
           Cookies.set('duocun-old-location', self.contact.location);
+          // this.phone = self.contact.phone;
+          // this.address = self.locationSvc.getAddrString(self.contact.location);
         } else {
           self.rx.dispatch<IContactAction>({ type: ContactActions.CLEAR, payload: null });
+          // this.phone = '';
+          // this.address = '';
         }
       });
 
@@ -72,8 +76,8 @@ export class AccountPageComponent implements OnInit, OnDestroy {
             balance -= order.total;
           }
         });
-
-        self.transactionSvc.find({ type: 'credit', fromId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: ITransaction[]) => {
+        const q = { type: 'credit', fromId: account.id };
+        self.transactionSvc.find(q).pipe(takeUntil(this.onDestroy$)).subscribe((ps: ITransaction[]) => {
           ps.map(p => { balance += p.amount; });
 
           self.balance = balance;

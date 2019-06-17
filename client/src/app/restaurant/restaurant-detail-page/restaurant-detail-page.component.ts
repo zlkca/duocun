@@ -9,7 +9,6 @@ import { IProduct, ICategory } from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
-import { CategoryService } from '../../category/category.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { MatDialog } from '../../../../node_modules/@angular/material';
@@ -37,7 +36,6 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private productSvc: ProductService,
-    private categorySvc: CategoryService,
     private restaurantSvc: RestaurantService,
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
@@ -51,15 +49,11 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       payload: 'restaurant-detail'
     });
 
-    this.rx.select<IDelivery>('delivery').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((t: IDelivery) => {
+    this.rx.select<IDelivery>('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((t: IDelivery) => {
       self.delivery = t;
     });
 
-    this.rx.select<ICart>('cart').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((cart: ICart) => {
+    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.cart = cart;
     });
 
@@ -85,13 +79,9 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    self.route.params.pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(params => {
+    self.route.params.pipe(takeUntil(this.onDestroy$)).subscribe(params => {
       const merchantId = params['id'];
-      self.restaurantSvc.findById(merchantId, { include: ['pictures', 'address'] }).pipe(
-        takeUntil(this.onDestroy$)
-      ).subscribe(
+      self.restaurantSvc.findById(merchantId).pipe(takeUntil(this.onDestroy$)).subscribe(
         (restaurant: IRestaurant) => {
 
           self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
@@ -114,10 +104,9 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       if (self.delivery && self.delivery.fromTime) {
         self.dow = moment(self.delivery.fromTime).day(); // 0 for sunday
       }
-      self.productSvc.find({ where: { merchantId: merchantId, dow: self.dow } }).pipe(
-        takeUntil(self.onDestroy$)
-      ).subscribe(products => {
 
+      const q = { merchantId: merchantId, dow: {$in: [self.dow.toString(), 'all']} };
+      self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
         const productList = products.sort((a: IProduct, b: IProduct) => {
           if (a.order && !b.order) {
             return 1;
@@ -133,6 +122,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
         });
 
         self.categories = self.getCategoriesFromProducts(productList);
+
         const pcList = self.groupByCategory(productList, self.categories);
         pcList.map(ps => {
           ps = ps.sort((a: IProduct, b: IProduct) => {
