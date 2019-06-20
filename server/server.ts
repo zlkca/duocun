@@ -43,10 +43,12 @@ import { MallRouter } from "./routers/mall-route";
 
 import { Product } from "./models/product";
 
+import { ApiMiddleWare } from "./api-middleware";
+
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
-
+const apimw = new ApiMiddleWare();
 const utils = new Utils();
 const cfg = new Config();
 const SERVER = cfg.API_SERVER;
@@ -254,6 +256,10 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
     res.send('upload file success');
   });
+
+
+  app.use(apimw.auth);
+
 
   app.use('/' + ROUTE_PREFIX + '/Categories', CategoryRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Restaurants', RestaurantRouter(dbo));

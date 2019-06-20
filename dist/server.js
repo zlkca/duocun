@@ -39,9 +39,11 @@ const phone_route_1 = require("./routers/phone-route");
 const range_route_1 = require("./routers/range-route");
 const mall_route_1 = require("./routers/mall-route");
 const product_1 = require("./models/product");
+const api_middleware_1 = require("./api-middleware");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
+const apimw = new api_middleware_1.ApiMiddleWare();
 const utils = new utils_1.Utils();
 const cfg = new config_1.Config();
 const SERVER = cfg.API_SERVER;
@@ -229,6 +231,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
         res.send('upload file success');
     });
+    app.use(apimw.auth);
     app.use('/' + ROUTE_PREFIX + '/Categories', category_route_1.CategoryRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Restaurants', restaurant_route_1.RestaurantRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Products', product_route_1.ProductRouter(dbo));
