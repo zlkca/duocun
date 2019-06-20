@@ -13,8 +13,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("./config");
 //import * as SocketIOAuth from "socketio-auth";
 const db_1 = require("./db");
-const mall_1 = require("./mall");
-const range_1 = require("./range");
 const location_1 = require("./location");
 const merchant_stuff_1 = require("./merchant-stuff");
 const picture_1 = require("./picture");
@@ -61,8 +59,6 @@ const storage = multer_1.default.diskStorage({
 const upload = multer_1.default({ storage: storage });
 // const upload = multer({ dest: 'uploads/' });
 let product;
-let mall;
-let range;
 let location;
 let merchantStuff;
 let picture;
@@ -99,8 +95,6 @@ function setupSocket(server) {
 // create db connection pool and return connection instance
 dbo.init(cfg.DATABASE).then(dbClient => {
     product = new product_1.Product(dbo);
-    mall = new mall_1.Mall(dbo);
-    range = new range_1.Range(dbo);
     location = new location_1.Location(dbo);
     merchantStuff = new merchant_stuff_1.MerchantStuff(dbo);
     picture = new picture_1.Picture();
