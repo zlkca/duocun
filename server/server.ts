@@ -13,8 +13,6 @@ import { Config } from "./config";
 //import * as SocketIOAuth from "socketio-auth";
 
 import { DB } from "./db";
-import { Mall } from "./mall";
-import { Range } from "./range";
 import { Location } from "./location";
 import { MerchantStuff } from "./merchant-stuff";
 import { Picture } from "./picture";
@@ -67,8 +65,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 // const upload = multer({ dest: 'uploads/' });
 let product: Product;
-let mall: Mall;
-let range: Range;
 let location: Location;
 let merchantStuff: MerchantStuff;
 let picture: Picture;
@@ -109,8 +105,6 @@ function setupSocket(server: any) {
 // create db connection pool and return connection instance
 dbo.init(cfg.DATABASE).then(dbClient => {
   product = new Product(dbo);
-  mall = new Mall(dbo);
-  range = new Range(dbo);
   location = new Location(dbo);
   merchantStuff = new MerchantStuff(dbo);
   picture = new Picture();
