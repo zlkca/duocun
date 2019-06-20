@@ -16,16 +16,15 @@ export class Distance extends Model{
   reqRoadDistances(req: Request, res: Response) {
     let key = this.cfg.GOOGLE_DISTANCE_KEY;
     let origin = req.body.origins[0]; // should be only one location
-    let sOrigin = `${origin.lat},${origin.lng}`;
-    // let malls = req.body.destinations;
     const destinations: any[] = [];
     req.body.destinations.map((d: any) => {
       destinations.push(`${d.lat},${d.lng}`);
     });
     let sDestinations = destinations.join('|');
 
-    let url = 'https://maps.googleapis.com/maps/api/distancematrix/json?region=ca&origins=' + sOrigin + '&destinations=' + sDestinations + '&key=' + key;
-
+    let url = 'https://maps.googleapis.com/maps/api/distancematrix/json?&region=ca&origins=' + origin.address + '&destinations=' + sDestinations + '&key=' + key;
+    // let url = 'https://maps.googleapis.com/maps/api/directions/json?mode=driving&units=metric&region=ca&origin=' + sOrigin + '&destination=' + sDestination + '&key=' + key;
+    
     https.get(url, (res1: IncomingMessage) => {
       let data = '';
       res1.on('data', (d) => {

@@ -88,7 +88,8 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
 
       if (origin) {
         self.center = { lat: origin.lat, lng: origin.lng };
-        self.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+        self.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+          this.realMalls = malls;
           // check if road distance in database
           const q = { originPlaceId: origin.placeId }; // origin --- client origin
           self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
@@ -134,7 +135,7 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
   loadRestaurants(malls: IMall[], availableRanges: IRange[], distances: IDistance[]) { // load with distance
     const self = this;
 
-    this.restaurantSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRestaurant[]) => {
+    this.restaurantSvc.find({status: 'active'}).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRestaurant[]) => {
       const a = []; // for display marks on map
       rs.map((restaurant: IRestaurant) => {
         if (restaurant.location) {
@@ -156,19 +157,21 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
       self.places = a;
       self.restaurants = rs;
     }, (err: any) => {
-        self.restaurants = [];
-      }
+      self.restaurants = [];
+    }
     );
   }
 
   isInRange(mall: IMall, availableRanges: IRange[]) {
     let bInRange = false;
-    mall.ranges.map((rangeId: string) => {
-      const range = availableRanges.find(ar => ar.id === rangeId);
-      if (range) {
-        bInRange = true;
-      }
-    });
+    if (mall.ranges) {
+      mall.ranges.map((rangeId: string) => {
+        const range = availableRanges.find(ar => ar.id === rangeId);
+        if (range) {
+          bInRange = true;
+        }
+      });
+    }
     return bInRange;
   }
 

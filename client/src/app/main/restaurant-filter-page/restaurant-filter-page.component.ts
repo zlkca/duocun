@@ -7,7 +7,6 @@ import { IAppState } from '../../store';
 import { PageActions } from '../main.actions';
 import { takeUntil, take } from '../../../../node_modules/rxjs/operators';
 import { ILocation, IPlace } from '../../location/location.model';
-import { MallService } from '../../mall/mall.service';
 import { AccountService } from '../../account/account.service';
 import { LocationService } from '../../location/location.service';
 import { SharedService } from '../../shared/shared.service';
@@ -46,7 +45,6 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private accountSvc: AccountService,
-    private mallSvc: MallService,
     private rangeSvc: RangeService,
     private locationSvc: LocationService,
     private sharedSvc: SharedService,

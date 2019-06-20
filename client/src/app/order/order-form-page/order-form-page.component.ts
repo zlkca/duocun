@@ -177,7 +177,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         groupDiscount: self.groupDiscount,
         total: self.total - self.groupDiscount,
         status: 'new',
-        driverId: '' // self.malls[0].workers[0] ? self.malls[0].workers[0].id : null // fix me
+        driverId: ''
       };
       return order;
     } else {

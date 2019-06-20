@@ -38,6 +38,14 @@ export class DistanceService extends EntityService {
 
   reqRoadDistances(origin: ILocation, destinations: ILocation[]): Observable<any> { // IDistance[]
     const url = this.url + '/Road';
-    return this.http.post(url, { origins: [origin], destinations: destinations });
+
+    const address = origin.streetNumber.split(' ').join('+') + '+'
+      + origin.streetName.split(' ').join('+') + '+'
+      + (origin.subLocality ? origin.subLocality : origin.city).split(' ').join('+') + '+'
+      + origin.province;
+
+    const originLocation = { ...origin, address: address};
+
+    return this.http.post(url, { origins: [originLocation], destinations: destinations });
   }
 }
