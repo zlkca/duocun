@@ -40,6 +40,9 @@ import { RestaurantRouter } from "./routers/restaurant-route";
 import { ProductRouter } from "./routers/product-route";
 import { ContactRouter } from "./routers/contact-route";
 import { PhoneRouter } from "./routers/phone-route";
+import { RangeRouter } from "./routers/range-route";
+import { MallRouter } from "./routers/mall-route";
+
 import { Product } from "./models/product";
 
 // console.log = function (msg: any) {
@@ -184,37 +187,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   // });
 
 
-  app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
-    mall.replaceById(req.body.id, req.body).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  });
-  app.post('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
-    mall.insertOne(req.body).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  });
-  app.get('/' + ROUTE_PREFIX + '/Malls', (req: any, res) => {
-    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    mall.find(query ? query.where : {}).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  });
-  app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
-    mall.get(req, res);
-  });
-
-  app.get('/' + ROUTE_PREFIX + '/Ranges', (req: any, res) => {
-    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    range.find(query ? query.where : {}).then((x: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
-  });
-
   app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
     location.find({ userId: req.body.userId, placeId: req.body.placeId }).then((r: any) => {
       if (r && r.length > 0) {
@@ -240,9 +212,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
       res.end(JSON.stringify(null, null, 3));
     }
   });
-
-
-
 
   // app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
   //   contact.insertOne(req.body).then((x: any) => {
@@ -297,6 +266,8 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Products', ProductRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Contacts', ContactRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Phones', PhoneRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Ranges', RangeRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Malls', MallRouter(dbo));
 
   app.use('/' + ROUTE_PREFIX + '/Accounts', AccountRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Distances', DistanceRouter(dbo));

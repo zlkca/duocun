@@ -38,6 +38,8 @@ const restaurant_route_1 = require("./routers/restaurant-route");
 const product_route_1 = require("./routers/product-route");
 const contact_route_1 = require("./routers/contact-route");
 const phone_route_1 = require("./routers/phone-route");
+const range_route_1 = require("./routers/range-route");
+const mall_route_1 = require("./routers/mall-route");
 const product_1 = require("./models/product");
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
@@ -161,35 +163,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     //     res.end(JSON.stringify(x, null, 3));
     //   });
     // });
-    app.put('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
-        mall.replaceById(req.body.id, req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.post('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
-        mall.insertOne(req.body).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Malls', (req, res) => {
-        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-        mall.find(query ? query.where : {}).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Malls/:id', (req, res) => {
-        mall.get(req, res);
-    });
-    app.get('/' + ROUTE_PREFIX + '/Ranges', (req, res) => {
-        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-        range.find(query ? query.where : {}).then((x) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(x, null, 3));
-        });
-    });
     app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
         location.find({ userId: req.body.userId, placeId: req.body.placeId }).then((r) => {
             if (r && r.length > 0) {
@@ -267,6 +240,8 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     app.use('/' + ROUTE_PREFIX + '/Products', product_route_1.ProductRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Contacts', contact_route_1.ContactRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Phones', phone_route_1.PhoneRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Ranges', range_route_1.RangeRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Malls', mall_route_1.MallRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Accounts', account_route_1.AccountRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Distances', distance_route_1.DistanceRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Regions', region_route_1.RegionRouter(dbo));

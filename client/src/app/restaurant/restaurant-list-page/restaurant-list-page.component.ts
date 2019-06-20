@@ -83,16 +83,15 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
       self.deliveryTime = { from: d.fromTime, to: d.toTime };
-      const location = d.origin;
+      const origin = d.origin;
       const availableRanges: IRange[] = d.availableRanges;
 
-      if (location) {
-        self.center = { lat: location.lat, lng: location.lng };
+      if (origin) {
+        self.center = { lat: origin.lat, lng: origin.lng };
         self.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
           // check if road distance in database
-          self.distanceSvc.find({ where: { originPlaceId: location.placeId } }).pipe(
-            takeUntil(self.onDestroy$)
-          ).subscribe((ds: IDistance[]) => {
+          const q = { originPlaceId: origin.placeId }; // origin --- client origin
+          self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
             if (ds && ds.length > 0) {
               self.loadRestaurants(malls, availableRanges, ds);
             } else {
@@ -100,9 +99,7 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
               malls.map(m => {
                 destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
               });
-              self.distanceSvc.reqRoadDistances(location, destinations).pipe(
-                takeUntil(this.onDestroy$)
-              ).subscribe((rs: IDistance[]) => {
+              self.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IDistance[]) => {
                 if (rs) {
                   // const ms = self.updateMallInfo(rs, malls);
                   self.loadRestaurants(malls, availableRanges, rs);
