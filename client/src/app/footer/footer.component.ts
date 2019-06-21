@@ -7,10 +7,7 @@ import { CommandActions } from '../shared/command.actions';
 import { takeUntil } from '../../../node_modules/rxjs/operators';
 import { Subject } from '../../../node_modules/rxjs';
 import { ContactService } from '../contact/contact.service';
-import { LocationService } from '../location/location.service';
 import { IContact } from '../contact/contact.model';
-import { ContactActions } from '../contact/contact.actions';
-import { IContactAction } from '../contact/contact.reducer';
 import { ICommand } from '../shared/command.reducers';
 import { ICart } from '../cart/cart.model';
 
@@ -31,7 +28,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     private router: Router,
     private rx: NgRedux<IAppState>,
     private contactSvc: ContactService,
-    private locationSvc: LocationService
   ) {
     const self = this;
     this.rx.select('account').pipe(

@@ -1,6 +1,8 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { LocationService } from '../location.service';
 import { IPlace } from '../location.model';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
 
 @Component({
   selector: 'app-location-list',
@@ -14,7 +16,7 @@ export class LocationListComponent implements OnInit {
   @Output() placeSeleted = new EventEmitter();
 
   address;
-
+  onDestroy$ = new Subject();
   constructor(
     private locationSvc: LocationService
   ) { }
@@ -25,9 +27,9 @@ export class LocationListComponent implements OnInit {
   onSelectPlace(place: IPlace) {
     const self = this;
     const address = place.structured_formatting.main_text + ' ' + place.structured_formatting.secondary_text;
-    // self.locationSvc.getAddrString(place.location); // set address text to input
     if (place.type === 'suggest') {
-      this.locationSvc.reqLocationByAddress(address).then(r => {
+      this.locationSvc.reqLocationByAddress(address).pipe(takeUntil(this.onDestroy$)).subscribe(xs => {
+        const r = this.locationSvc.getLocationFromGeocode(xs[0]);
         self.placeSeleted.emit({address: address, location: r});
       });
     } else if (place.type === 'history') {

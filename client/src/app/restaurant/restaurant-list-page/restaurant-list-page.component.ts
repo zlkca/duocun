@@ -10,7 +10,6 @@ import { takeUntil, first } from 'rxjs/operators';
 import { IMall } from '../../mall/mall.model';
 import { PageActions } from '../../main/main.actions';
 import { DistanceService } from '../../location/distance.service';
-import { LocationService } from '../../location/location.service';
 import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { MallService } from '../../mall/mall.service';
 import { IRange } from '../../range/range.model';
@@ -54,7 +53,6 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
   constructor(
     private restaurantSvc: RestaurantService,
     private distanceSvc: DistanceService,
-    private locationSvc: LocationService,
     private mallSvc: MallService,
     private rx: NgRedux<IAppState>,
   ) {

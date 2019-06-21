@@ -1,4 +1,4 @@
-   <div class="col-md-12 col-sm-12 col-12 product-grid" *ngIf="groupedProducts">
+   <div class="col-md-12 col-sm-12 col-12 product-grid" *ngIf="groupedProducts && categories">
      <div *ngFor="let cat of categories">
        <div *ngIf="groupedProducts[cat.id]">
         <div class="category-row text-sm">{{cat.name}}</div>

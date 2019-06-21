@@ -121,9 +121,9 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
           }
         });
 
-        self.categories = self.getCategoriesFromProducts(productList);
+        const categories = self.getCategoriesFromProducts(productList);
 
-        const pcList = self.groupByCategory(productList, self.categories);
+        const pcList = self.groupByCategory(productList, categories);
         pcList.map(ps => {
           ps = ps.sort((a: IProduct, b: IProduct) => {
             if (a.order < b.order) {
@@ -136,6 +136,7 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
           });
         });
         self.groupedProducts = pcList;
+        self.categories = categories;
       });
     });
   }
@@ -190,33 +191,6 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
     });
     return ret;
   }
-
-  // onAddressChange(e) {
-  //   const self = this;
-  //   this.bHideMap = true;
-  //   this.bRestaurant = false;
-  //   this.bTimeOptions = false;
-  //   this.options = [];
-  //   this.locationSvc.reqPlaces(e.input).subscribe((ps: IPlace[]) => {
-  //     if (ps && ps.length > 0) {
-  //       for (const p of ps) {
-  //         const loc: ILocation = this.getLocation(p);
-  //         self.options.push({ location: loc, type: 'suggest' }); // without lat lng
-  //       }
-  //     }
-  //   });
-  //   // localStorage.setItem('location-' + APP, JSON.stringify(e.addr));
-  //   // this.sharedSvc.emitMsg({name: 'OnUpdateAddress', addr: e.addr});
-  //   this.mapFullScreen = false;
-  // }
-
-  // onAddressClear(e) {
-  //   this.deliveryAddress = '';
-  //   this.mapFullScreen = true;
-  //   this.options = [];
-  //   this.bHideMap = false;
-  //   this.bRestaurant = false;
-  // }
 
   onAfterCheckout(e) {
 

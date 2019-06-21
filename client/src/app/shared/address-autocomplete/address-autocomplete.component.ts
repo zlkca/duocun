@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, OnChanges, ElementRef, Output, EventEmitter, Input, SimpleChange } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { ILocation } from '../../location/location.model';
-// import { LocationService } from '../location/location.service';
 declare var google;
 @Component({
   selector: 'app-address-autocomplete',
@@ -21,7 +20,6 @@ export class AddressAutocompleteComponent implements OnInit {
   private innerValue: any = '';
 
   constructor(
-    // private locationSvc: LocationService,
     private elm: ElementRef
   ) {
     const placeholder = elm.nativeElement.getAttribute('placeholder');

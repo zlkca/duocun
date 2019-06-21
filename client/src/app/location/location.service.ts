@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { ILocation, ILatLng, ILocationHistory, IDistance, IPlace } from './location.model';
+import { ILocation, ILatLng, ILocationHistory, IPlace } from './location.model';
 import { Observable, of } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { IMall } from '../mall/mall.model';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../account/auth.service';
 import { EntityService } from '../entity.service';
-import { resolve } from 'url';
 import { mergeMap, map } from '../../../node_modules/rxjs/operators';
 
 declare let google: any;
@@ -31,10 +29,6 @@ export class LocationService extends EntityService {
     } catch (error) {
       this.geocoder = null;
     }
-  }
-
-  save(locationHistory: ILocationHistory): Observable<any> {
-    return this.http.post(this.url, locationHistory);
   }
 
   // query -- { where: { userId: self.account.id, placeId: r.placeId }}
@@ -69,38 +63,33 @@ export class LocationService extends EntityService {
 
   reqPlaces(input: string): Observable<any> {
     const url = super.getBaseUrl() + 'places?input=' + input;
-    return this.http.get(url);
+    return this.doGet(url);
   }
 
-  getCurrentLocation(): Promise<ILocation> {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      self.getCurrentPosition().then(pos => {
-        self.reqLocationByLatLng(pos).subscribe((x: ILocation) => {
-          resolve(x);
-        });
-      });
-    });
-  }
+  // getCurrentLocation(): Promise<ILocation> {
+  //   const self = this;
+  //   return new Promise((resolve, reject) => {
+  //     self.getCurrentPosition().then(pos => {
+  //       self.reqLocationByLatLng(pos).subscribe((x: ILocation) => {
+  //         resolve(x);
+  //       });
+  //     });
+  //   });
+  // }
 
-  reqLocationByLatLng(pos): Observable<ILocation> {
-    const url = super.getBaseUrl() + 'geocodeLocations?lat=' + pos.lat + '&lng=' + pos.lng;
-    return this.http.get(url).pipe(
-      map((xs: any[]) => {
-        const geoLocations = xs.filter(r => r.types.indexOf('street_address') !== -1);
-        return this.getLocationFromGeocode(geoLocations[0]);
-      })
-    );
-  }
+  // reqLocationByLatLng(pos): Observable<ILocation> {
+  //   const url = super.getBaseUrl() + 'geocodeLocations?lat=' + pos.lat + '&lng=' + pos.lng;
+  //   return this.http.get(url).pipe(
+  //     map((xs: any[]) => {
+  //       const geoLocations = xs.filter(r => r.types.indexOf('street_address') !== -1);
+  //       return this.getLocationFromGeocode(geoLocations[0]);
+  //     })
+  //   );
+  // }
 
-  reqLocationByAddress(address: string): Promise<any> {
+  reqLocationByAddress(address: string): Observable<any> {
     const url = super.getBaseUrl() + 'geocodeLocations?address=' + address;
-    return new Promise((resolve, reject) => {
-      this.http.get(url).subscribe(xs => {
-        const ret = this.getLocationFromGeocode(xs[0]);
-        resolve(ret);
-      });
-    });
+    return this.doGet(url);
   }
 
   getCurrentPosition(): Promise<ILatLng> {
@@ -223,7 +212,7 @@ export class LocationService extends EntityService {
   }
 
   getHistoryLocations(accountId: string): Observable<IPlace[]> {
-    return this.find({ where: { userId: accountId } }).pipe(
+    return this.find({ userId: accountId }).pipe(
       map((lhs: ILocationHistory[]) => {
         const options: IPlace[] = [];
         for (let i = lhs.length - 1; i >= 0; i--) {

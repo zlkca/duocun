@@ -8,12 +8,33 @@ export class ApiMiddleWare {
     }
 
     auth(req: Request, res: Response, next: any) {
-        const token = req.get('Authentication');
+      const token = req.get('Authorization');
+
+      if(req.path === '/api/Accounts/wechatLogin' || req.path === '/api/Accounts/login' || req.path === '/api/Accounts/signup' || req.path === '/api/Accounts/logout'
+        || req.path.includes('.jpeg') || req.path.includes('.jpg') || req.path.includes('.png')){
+        next();
+      }else{
         const cfg = new Config();
         if (token) {
-            const payload = jwt.verify(token.toString(), cfg.JWT.SECRET);
+          try {
+            const account = jwt.verify(token, cfg.JWT.SECRET);
+            // log.debug("payload={}", payload);
+            // lookup user id
+            // authenticate("duocun:auth:" + payload.username);
+    
+            // TODO: compare redis token
+            if(account){
+              next();
+            }else{
+              return res.status(401).send("Authorization: bad token");
+            }
+          } catch (err) {
+            return res.status(401).send("Authorization: bad token err=" + err);
+          }
+            
         } else {
-            return res.status(401).send("API Authentication token is required.");
+            return res.status(401).send("API Authorization token is required.");
         }
+      }
     }
 }

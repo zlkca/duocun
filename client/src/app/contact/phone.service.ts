@@ -19,11 +19,11 @@ export class PhoneService extends EntityService {
 
   sendVerifyMessage(d: any): Observable<any> {
     const url = this.url + '/sendVerifyMsg';
-    return this.http.post(url, d);
+    return this.doPost(url, d);
   }
 
   verifyCode(code: string, accountId: string): Observable<any> {
     const url = this.url + '/smsverify';
-    return this.http.post(url, {code: code, accountId: accountId});
+    return this.doPost(url, {code: code, accountId: accountId});
   }
 }

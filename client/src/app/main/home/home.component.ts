@@ -157,9 +157,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
     this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
 
-    this.locationSvc.getHistoryLocations(this.account.id).pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((a: IPlace[]) => {
+    this.locationSvc.getHistoryLocations(this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe((a: IPlace[]) => {
       if (a && a.length > 0) {
         a.map(x => { x.type = 'history'; });
         self.historyAddressList = a;
@@ -203,27 +201,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }
-
-  // useCurrentLocation() {
-  //   const self = this;
-  //   self.places = [];
-  //   self.bFirstTime = false;
-  //   self.loading = true;
-  //   this.locationSvc.getCurrentLocation().then(r => {
-  //     self.loading = false;
-  //     self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
-
-  //     self.rx.dispatch<ILocationAction>({
-  //       type: LocationActions.UPDATE,
-  //       payload: r
-  //     });
-
-  //     this.router.navigate(['main/filter']);
-  //   },
-  //     err => {
-  //       console.log(err);
-  //     });
-  // }
 
   showLocationList() {
     return this.places && this.places.length > 0;

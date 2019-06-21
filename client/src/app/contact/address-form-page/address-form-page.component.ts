@@ -56,9 +56,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     ).subscribe(account => {
       self.account = account;
       if (this.account && this.account.id) {
-        this.locationSvc.getHistoryLocations(this.account.id).pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe(a => {
+        this.locationSvc.getHistoryLocations(this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe(a => {
           self.options = a;
         });
       }
@@ -82,9 +80,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   onAddressChange(e) {
     const self = this;
     this.options = [];
-    this.locationSvc.reqPlaces(e.input).pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((ps: IPlace[]) => {
+    this.locationSvc.reqPlaces(e.input).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
         for (const p of ps) {
           p.type = 'suggest';
@@ -104,9 +100,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     this.options = [];
     if (this.account && this.account.id) {
-      this.locationSvc.getHistoryLocations(this.account.id).pipe(
-        takeUntil(this.onDestroy$)
-      ).subscribe((a: IPlace[]) => {
+      this.locationSvc.getHistoryLocations(this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe((a: IPlace[]) => {
         a.map(x => { x.type = 'history'; });
         self.options = a;
       });

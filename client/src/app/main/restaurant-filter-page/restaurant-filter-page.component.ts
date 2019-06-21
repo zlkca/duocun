@@ -11,8 +11,6 @@ import { AccountService } from '../../account/account.service';
 import { LocationService } from '../../location/location.service';
 import { SharedService } from '../../shared/shared.service';
 import { RangeService } from '../../range/range.service';
-import { IRangeAction } from '../../range/range.reducer';
-import { RangeActions } from '../../range/range.actions';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { IRange } from '../../range/range.model';
@@ -141,9 +139,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     const self = this;
     this.places = [];
     if (this.account && this.account.id) {
-      this.locationSvc.getHistoryLocations(this.account.id).pipe(
-        takeUntil(this.onDestroy$)
-      ).subscribe(a => {
+      this.locationSvc.getHistoryLocations(this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe(a => {
         self.places = a;
       });
     }
@@ -183,21 +179,6 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     this.onAddressInputFocus({ input: '' });
   }
 
-  // useCurrentLocation() {
-  //   const self = this;
-  //   self.places = [];
-  //   this.locationSvc.getCurrentLocation().then(r => {
-  //     self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
-
-  //     self.rx.dispatch<ILocationAction>({
-  //       type: LocationActions.UPDATE,
-  //       payload: r
-  //     });
-  //   },
-  //     err => {
-  //       console.log(err);
-  //     });
-  // }
 
   showLocationList() {
     return this.places && this.places.length > 0;

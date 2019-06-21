@@ -64,7 +64,7 @@ export class AccountService extends EntityService {
     const id: any = this.authSvc.getUserId();
     // const url = id ? (this.url + '/' + id) : (this.url + '/__anonymous__');
     if (id) {
-      return this.http.get(this.url + '/' + id);
+      return this.findById(id);
     } else {
       return of(null);
     }
@@ -78,48 +78,6 @@ export class AccountService extends EntityService {
     } else {
       return this.ngRedux.select<Account>('account');
     }
-  }
-
-  find(filter?: any): Observable<any> {
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.authSvc.getAccessToken();
-    if (accessTokenId) {
-      headers = headers.append('Authorization', '' + accessTokenId);
-      // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
-    }
-    if (filter) {
-      headers = headers.append('filter', JSON.stringify(filter));
-    }
-    return this.http.get(this.url, { headers: headers });
-  }
-
-  // override method
-  findById(id: string, filter?: any): Observable<any> {
-    let headers: HttpHeaders = new HttpHeaders();
-    headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.authSvc.getAccessToken();
-    if (accessTokenId) {
-      headers = headers.append('Authorization', '' + accessTokenId);
-      // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
-    }
-    if (filter) {
-      headers = headers.append('filter', JSON.stringify(filter));
-    }
-    const url = id ? (this.url + '/' + id) : (this.url + '/__anonymous__');
-    return this.http.get(url, { headers: headers });
-  }
-
-  create(account: Account): Observable<any> {
-    return this.http.post(this.url, account);
-  }
-
-  replaceById(id: number, account: Account) {
-    return this.http.put(this.url, account);
-  }
-
-  rmAccount(id): Observable<any> {
-    return this.http.get(this.url);
   }
 
   // getWechatAccessToken(authCode: string) {

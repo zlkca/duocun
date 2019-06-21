@@ -43,7 +43,6 @@ export class EntityService {
     const accessTokenId = this.cookieSvc.getAccessToken();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
-      // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
     }
     if (filter) {
       headers = headers.append('filter', JSON.stringify(filter));
@@ -51,16 +50,57 @@ export class EntityService {
     return this.http.get(this.url + '/' + id, {headers: headers});
   }
 
+  doGet(url: string, filter?: any): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json');
+    const accessTokenId = this.cookieSvc.getAccessToken();
+    if (accessTokenId) {
+      headers = headers.append('Authorization', this.authPrefix + accessTokenId);
+    }
+    if (filter) {
+      headers = headers.append('filter', JSON.stringify(filter));
+    }
+    return this.http.get(url, {headers: headers});
+  }
+
+  doPost(url: string, entity: any): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json');
+    const accessTokenId = this.cookieSvc.getAccessToken();
+    if (accessTokenId) {
+      headers = headers.append('Authorization', this.authPrefix + accessTokenId);
+    }
+    return this.http.post(url, entity, {headers: headers});
+  }
+
   save(entity: IEntity): Observable<any> {
-    return this.http.post(this.url, entity);
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json');
+    const accessTokenId = this.cookieSvc.getAccessToken();
+    if (accessTokenId) {
+      headers = headers.append('Authorization', this.authPrefix + accessTokenId);
+    }
+    return this.http.post(this.url, entity, {headers: headers});
   }
 
   replace(entity: IEntity): Observable<any> {
-    return this.http.put(this.url, entity);
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json');
+    const accessTokenId = this.cookieSvc.getAccessToken();
+    if (accessTokenId) {
+      headers = headers.append('Authorization', this.authPrefix + accessTokenId);
+    }
+    return this.http.put(this.url, entity, {headers: headers});
   }
 
   update(filter: any, data: any): Observable<any> {
-    return this.http.patch(this.url, {filter: filter, data: data});
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json');
+    const accessTokenId = this.cookieSvc.getAccessToken();
+    if (accessTokenId) {
+      headers = headers.append('Authorization', this.authPrefix + accessTokenId);
+    }
+    return this.http.patch(this.url, {filter: filter, data: data}, {headers: headers});
   }
 
   remove(filter?: any): Observable<any> {

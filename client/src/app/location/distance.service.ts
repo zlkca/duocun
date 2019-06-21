@@ -45,7 +45,6 @@ export class DistanceService extends EntityService {
       + origin.province;
 
     const originLocation = { ...origin, address: address};
-
-    return this.http.post(url, { origins: [originLocation], destinations: destinations });
+    return this.doPost(url, { origins: [originLocation], destinations: destinations });
   }
 }

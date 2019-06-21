@@ -59,12 +59,8 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
           Cookies.set('duocun-old-phone', self.contact.phone);
           Cookies.set('duocun-old-location', self.contact.location);
-          // this.phone = self.contact.phone;
-          // this.address = self.locationSvc.getAddrString(self.contact.location);
         } else {
           self.rx.dispatch<IContactAction>({ type: ContactActions.CLEAR, payload: null });
-          // this.phone = '';
-          // this.address = '';
         }
       });
 

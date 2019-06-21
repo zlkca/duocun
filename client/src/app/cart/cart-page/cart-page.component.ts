@@ -150,12 +150,6 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
       self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
-          // r[0].placeId = self.location.placeId;
-          // r[0].location = self.location;
-          // r[0].address = self.locationSvc.getAddrString(self.location);
-          // r[0].modified = new Date();
-          // this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
-
           if (r[0].phone) {
             self.router.navigate(['order/form']);
           } else {

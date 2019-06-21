@@ -81,11 +81,6 @@ export class CartNavbarComponent implements OnInit {
       if (account && account.id) {
         self.contactSvc.find({ accountId: account.id}).pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {
-            // r[0].placeId = self.location.placeId;
-            // r[0].location = self.location;
-            // r[0].address = self.locationSvc.getAddrString(self.location);
-            // r[0].modified = new Date();
-            // this.rx.dispatch({ type: ContactActions.UPDATE, payload: r[0] });
 
             this.rx.dispatch({
               type: CartActions.UPDATE_DELIVERY, payload: {
