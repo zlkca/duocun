@@ -99,10 +99,19 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe((orders: IOrder[]) => {
       orders.map((order: IOrder) => {
+        let productTotal = 0;
+        let subTotal = 0;
+        const items = order.items;
+        if (items && items.length > 0) {
+          items.map(x => {
+            productTotal += x.price * x.quantity;
+          });
+        }
+        subTotal = productTotal + order.deliveryCost;
+        order.tax = Math.ceil(subTotal * 13) / 100;
+
+        order.productTotal = productTotal;
         order.tips = 3;
-        const groupDiscount = order.groupDiscount ? order.groupDiscount : 0;
-        const s1 = order.total + groupDiscount - order.tips + order.deliveryDiscount;
-        order.tax = s1 - s1 / 1.13;
       });
 
       orders.sort((a: IOrder, b: IOrder) => {

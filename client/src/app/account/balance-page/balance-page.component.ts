@@ -40,11 +40,8 @@ export class BalancePageComponent implements OnInit, OnDestroy {
     const self = this;
     self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       this.account = account;
-      if (account && account.roles) {
-        const roles = account.roles;
-        if (roles && roles.length > 0 && roles.indexOf(Role.SUPER) !== -1) {
-          self.reload(account.id);
-        }
+      if (account) {
+        self.reload(account.id);
       } else {
 
       }
@@ -87,10 +84,19 @@ export class BalancePageComponent implements OnInit, OnDestroy {
           list.push({ date: t.created, description: order.merchantName, type: t.type, paid: 0, consumed: t.amount, balance: 0 });
         });
 
-        ts.map(t => {
-          const item = list.find(l => moment(l.date).isSame(moment(t.created), 'day'));
-          if (item) {
-            item.paid = t.amount;
+        const groupedTransactions = this.groupBy(ts, 'created');
+        const transactions = [];
+
+        Object.keys(groupedTransactions).map(date => {
+          let total = 0;
+          groupedTransactions[date].map(t => { total += t.amount; });
+          transactions.push({created: date, type: 'credit', amount: total});
+        });
+
+        transactions.map(t => {
+          const items = list.filter(l => moment(l.date).isSame(moment(t.created), 'day'));
+          if (items && items.length > 0) {
+            items[0].paid = t.amount;
           } else {
             list.push({ date: t.created, description: '', type: t.type, paid: t.amount, consumed: 0, balance: 0 });
           }

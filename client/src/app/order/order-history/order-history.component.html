@@ -55,8 +55,11 @@
                 </div>
                 <div class="col-5 text-sm total-col" *ngIf="order.total">
                   <div class="row">
+                    <div class="col-12"><span i18n="@@ProductTotal">ProductTotal</span>: ${{order.productTotal | number : '1.2-2'}}</div>
+                    <div class="col-12"><span i18n="@@DeliveryFee">Delivery Fee</span>: ${{order.deliveryCost | number : '1.2-2'}}</div>
                     <div class="col-12"><span i18n="@@Tax">Tax</span>: ${{order.tax | number : '1.2-2'}}</div>
                     <div class="col-12"><span i18n="@@Tips">Tips</span>: ${{order.tips | number : '1.2-2'}}</div>
+                    <div class="col-12"><span i18n="@@DeliveryDiscount">Delivery Discount</span>: ${{order.deliveryDiscount | number : '1.2-2'}}</div>
                     <div class="col-12" *ngIf="order.groupDiscount>0" ><span i18n="@@GroupDiscount">GroupDiscount</span>: ${{order.groupDiscount | number : '1.2-2'}}</div>
                     <div class="col-12" ><span i18n="@@Total">Total</span>: ${{ order.total | number : '1.2-2'}}</div>
                   </div>

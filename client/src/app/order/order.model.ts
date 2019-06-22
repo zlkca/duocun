@@ -32,6 +32,7 @@ export interface IOrder {
   deliveryFee?: number;
   deliveryDiscount?: number;
   groupDiscount?: number;
+  productTotal?: number;
   total?: number;
 }
 
