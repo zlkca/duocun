@@ -6,7 +6,7 @@ import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../main.actions';
 import { takeUntil, take } from '../../../../node_modules/rxjs/operators';
-import { ILocation, IPlace } from '../../location/location.model';
+import { ILocation, IPlace, ILocationHistory } from '../../location/location.model';
 import { AccountService } from '../../account/account.service';
 import { LocationService } from '../../location/location.service';
 import { SharedService } from '../../shared/shared.service';
@@ -139,7 +139,8 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     const self = this;
     this.places = [];
     if (this.account && this.account.id) {
-      this.locationSvc.getHistoryLocations(this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe(a => {
+      this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+        const a = this.locationSvc.toPlaces(lhs);
         self.places = a;
       });
     }

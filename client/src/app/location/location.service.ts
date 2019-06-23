@@ -211,25 +211,21 @@ export class LocationService extends EntityService {
     }
   }
 
-  getHistoryLocations(accountId: string): Observable<IPlace[]> {
-    return this.find({ userId: accountId }).pipe(
-      map((lhs: ILocationHistory[]) => {
-        const options: IPlace[] = [];
-        for (let i = lhs.length - 1; i >= 0; i--) {
-          const lh = lhs[i];
-          const loc = lh.location;
-          const p: IPlace = {
-            type: 'history',
-            structured_formatting: {
-              main_text: loc.streetNumber + ' ' + loc.streetName,
-              secondary_text: (loc.subLocality ? loc.subLocality : loc.city) + ',' + loc.province
-            },
-            location: loc
-          };
-          options.push(p);
-        }
-        return options;
-      })
-    );
+  toPlaces(lhs: ILocationHistory[]) {
+    const options: IPlace[] = [];
+    for (let i = lhs.length - 1; i >= 0; i--) {
+      const lh = lhs[i];
+      const loc = lh.location;
+      const p: IPlace = {
+        type: 'history',
+        structured_formatting: {
+          main_text: loc.streetNumber + ' ' + loc.streetName,
+          secondary_text: (loc.subLocality ? loc.subLocality : loc.city) + ',' + loc.province
+        },
+        location: loc
+      };
+      options.push(p);
+    }
+    return options;
   }
 }

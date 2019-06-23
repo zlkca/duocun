@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { IPlace, ILocation } from '../../location/location.model';
+import { IPlace, ILocation, ILocationHistory } from '../../location/location.model';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { PageActions } from '../../main/main.actions';
@@ -50,13 +50,11 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-
-    this.accountSvc.getCurrent().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(account => {
+    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
       if (this.account && this.account.id) {
-        this.locationSvc.getHistoryLocations(this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe(a => {
+        this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+          const a = this.locationSvc.toPlaces(lhs);
           self.options = a;
         });
       }
@@ -100,8 +98,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     this.options = [];
     if (this.account && this.account.id) {
-      this.locationSvc.getHistoryLocations(this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe((a: IPlace[]) => {
-        a.map(x => { x.type = 'history'; });
+      this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+        const a = this.locationSvc.toPlaces(lhs);
         self.options = a;
       });
     }

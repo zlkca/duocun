@@ -157,11 +157,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
     this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
 
-    this.locationSvc.getHistoryLocations(this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe((a: IPlace[]) => {
-      if (a && a.length > 0) {
-        a.map(x => { x.type = 'history'; });
-        self.historyAddressList = a;
-      }
+    this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+      const a = this.locationSvc.toPlaces(lhs);
+      self.historyAddressList = a;
     });
     // self.socketSvc.init(this.authSvc.getAccessToken());
 
@@ -215,9 +213,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (this.account) {
         this.account.visited = true;
         this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
-        this.accountSvc.update({ id: this.account.id }, { visited: true }).pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe(r => {
+        this.accountSvc.update({ id: this.account.id }, { visited: true }).pipe(takeUntil(this.onDestroy$)).subscribe(r => {
           console.log('update user account');
         });
       }
