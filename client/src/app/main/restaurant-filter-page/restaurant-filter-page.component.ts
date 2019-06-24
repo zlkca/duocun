@@ -118,7 +118,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
         payload: { fromTime: e.from, toTime: e.to, availableRanges: self.availableRanges }
       });
       if (self.account) {
-        const query = { where: { userId: self.account.id, placeId: r.placeId } };
+        const query = { userId: self.account.id, placeId: r.placeId };
         const lh = {
           userId: self.account.id, accountName: self.account.username, type: 'history',
           placeId: r.placeId, location: r, created: new Date()

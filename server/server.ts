@@ -13,7 +13,6 @@ import { Config } from "./config";
 //import * as SocketIOAuth from "socketio-auth";
 
 import { DB } from "./db";
-import { Location } from "./location";
 import { MerchantStuff } from "./merchant-stuff";
 import { Picture } from "./picture";
 import { Utils } from "./utils";
@@ -40,6 +39,7 @@ import { ContactRouter } from "./routers/contact-route";
 import { PhoneRouter } from "./routers/phone-route";
 import { RangeRouter } from "./routers/range-route";
 import { MallRouter } from "./routers/mall-route";
+import { LocationRouter } from "./routers/location-route";
 
 import { Product } from "./models/product";
 
@@ -107,7 +107,6 @@ function setupSocket(server: any) {
 // create db connection pool and return connection instance
 dbo.init(cfg.DATABASE).then(dbClient => {
   product = new Product(dbo);
-  location = new Location(dbo);
   merchantStuff = new MerchantStuff(dbo);
   picture = new Picture();
   // socket = new Socket(dbo, io);
@@ -182,33 +181,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   //   });
   // });
 
-
-  app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
-    location.find({ userId: req.body.userId, placeId: req.body.placeId }).then((r: any) => {
-      if (r && r.length > 0) {
-        res.send(JSON.stringify(null, null, 3));
-      } else {
-        location.insertOne(req.body).then((x: any) => {
-          res.setHeader('Content-Type', 'application/json');
-          io.emit('updateOrders', x);
-          res.end(JSON.stringify(x, null, 3));
-        });
-      }
-    });
-  });
-
-  app.get('/' + ROUTE_PREFIX + '/Locations', (req: any, res) => {
-    const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    res.setHeader('Content-Type', 'application/json');
-    if (query) {
-      location.find(query.where).then((x: any) => {
-        res.end(JSON.stringify(x, null, 3));
-      });
-    } else {
-      res.end(JSON.stringify(null, null, 3));
-    }
-  });
-
   // app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
   //   contact.insertOne(req.body).then((x: any) => {
   //     res.setHeader('Content-Type', 'application/json');
@@ -268,6 +240,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Phones', PhoneRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Ranges', RangeRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Malls', MallRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Locations', LocationRouter(dbo));
 
   app.use('/' + ROUTE_PREFIX + '/Accounts', AccountRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Distances', DistanceRouter(dbo));

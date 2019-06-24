@@ -13,7 +13,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("./config");
 //import * as SocketIOAuth from "socketio-auth";
 const db_1 = require("./db");
-const location_1 = require("./location");
 const merchant_stuff_1 = require("./merchant-stuff");
 const picture_1 = require("./picture");
 const utils_1 = require("./utils");
@@ -38,6 +37,7 @@ const contact_route_1 = require("./routers/contact-route");
 const phone_route_1 = require("./routers/phone-route");
 const range_route_1 = require("./routers/range-route");
 const mall_route_1 = require("./routers/mall-route");
+const location_route_1 = require("./routers/location-route");
 const product_1 = require("./models/product");
 const api_middleware_1 = require("./api-middleware");
 // console.log = function (msg: any) {
@@ -97,7 +97,6 @@ function setupSocket(server) {
 // create db connection pool and return connection instance
 dbo.init(cfg.DATABASE).then(dbClient => {
     product = new product_1.Product(dbo);
-    location = new location_1.Location(dbo);
     merchantStuff = new merchant_stuff_1.MerchantStuff(dbo);
     picture = new picture_1.Picture();
     // socket = new Socket(dbo, io);
@@ -159,32 +158,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     //     res.end(JSON.stringify(x, null, 3));
     //   });
     // });
-    app.post('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
-        location.find({ userId: req.body.userId, placeId: req.body.placeId }).then((r) => {
-            if (r && r.length > 0) {
-                res.send(JSON.stringify(null, null, 3));
-            }
-            else {
-                location.insertOne(req.body).then((x) => {
-                    res.setHeader('Content-Type', 'application/json');
-                    io.emit('updateOrders', x);
-                    res.end(JSON.stringify(x, null, 3));
-                });
-            }
-        });
-    });
-    app.get('/' + ROUTE_PREFIX + '/Locations', (req, res) => {
-        const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-        res.setHeader('Content-Type', 'application/json');
-        if (query) {
-            location.find(query.where).then((x) => {
-                res.end(JSON.stringify(x, null, 3));
-            });
-        }
-        else {
-            res.end(JSON.stringify(null, null, 3));
-        }
-    });
     // app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
     //   contact.insertOne(req.body).then((x: any) => {
     //     res.setHeader('Content-Type', 'application/json');
@@ -239,6 +212,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     app.use('/' + ROUTE_PREFIX + '/Phones', phone_route_1.PhoneRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Ranges', range_route_1.RangeRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Malls', mall_route_1.MallRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Locations', location_route_1.LocationRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Accounts', account_route_1.AccountRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Distances', distance_route_1.DistanceRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Regions', region_route_1.RegionRouter(dbo));

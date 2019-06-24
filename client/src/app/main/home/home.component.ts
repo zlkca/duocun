@@ -164,7 +164,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     // self.socketSvc.init(this.authSvc.getAccessToken());
 
     // redirect to filter if contact have default address
-    self.contactSvc.find({ where: { accountId: account.id } }).pipe(takeUntil(self.onDestroy$)).subscribe((r: IContact[]) => {
+    self.contactSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe((r: IContact[]) => {
       if (r && r.length > 0) {
         self.contact = new Contact(r[0]);
         self.rx.dispatch({ type: ContactActions.LOAD_FROM_DB, payload: self.contact });
@@ -186,9 +186,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       type: PageActions.UPDATE_URL,
       payload: 'home'
     });
-    this.rx.select('cmd').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((x: ICommand) => {
+    this.rx.select('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'clear-location-list') {
         this.places = [];
       }
@@ -292,7 +290,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
 
       if (self.account) {
-        const query = { where: { userId: self.account.id, placeId: r.placeId } };
+        const query = { userId: self.account.id, placeId: r.placeId };
         const lh = {
           userId: self.account.id, accountName: self.account.username, type: 'history',
           placeId: r.placeId, location: r, created: new Date()
