@@ -17,17 +17,6 @@ export class Order extends Model {
       const date = req.body.delivered;
       const address = req.body.address;
       this.find({delivered: date, address: address}).then(orders => {
-
-        // let groupDiscount = 0;
-        // if (orders && orders.length > 0) {
-        //   if (orders.length >= 3) {
-        //     groupDiscount = 3;
-        //   } else {
-        //     groupDiscount = orders.length;
-        //   }
-        // } else {
-        //   groupDiscount = 0;
-        // }
         let newGroupDiscount = req.body.groupDiscount;
         orders.map((order: any) => {
           const total = order.total + (order.groupDiscount? order.groupDiscount : 0);
@@ -67,10 +56,10 @@ export class Order extends Model {
           this.find({delivered: date, address: address}).then(orders => {
             let groupDiscount = 0;
             if (orders && orders.length > 1) {
-              if (orders.length >= 4) {
+              if (orders.length >= 3) {
                 groupDiscount = 3;
               } else {
-                groupDiscount = orders.length - 1;
+                groupDiscount = orders.length;
               }
             } else {
               groupDiscount = 0;

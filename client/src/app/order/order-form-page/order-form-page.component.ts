@@ -145,7 +145,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   getCode(location: ILocation, n) {
     const regionName = location.subLocality ? location.subLocality : location.city;
-    const index = n > 9 ? ('' + n) : ('00' + n);
+    const index = n > 9 ? ('' + n) : ('0' + n);
     const streetName = location.streetName.toUpperCase();
     const streetNumber = Number(location.streetNumber);
     const streetNum = streetNumber ? (streetNumber > 9 ? ('' + streetNumber) : ('00' + streetNumber)) : '00';
@@ -188,20 +188,20 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   getGroupDiscount(orders, bNew) {
     if (bNew) { // new order didn't insert yet
       if (orders && orders.length > 0) {
-        if (orders.length >= 3) {
+        if (orders.length >= 2) {
           return 3;
         } else {
-          return orders.length;
+          return orders.length + 1;
         }
       } else {
         return 0;
       }
     } else {
       if (orders && orders.length > 1) {
-        if (orders.length >= 4) {
+        if (orders.length >= 3) {
           return 3;
         } else {
-          return orders.length - 1;
+          return orders.length;
         }
       } else {
         return 0;
