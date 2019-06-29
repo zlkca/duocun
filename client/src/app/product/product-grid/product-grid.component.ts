@@ -15,6 +15,7 @@ import { IRestaurant, Restaurant } from '../../restaurant/restaurant.model';
 import { RestaurantService } from '../../restaurant/restaurant.service';
 import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { CategoryService } from '../../category/category.service';
+import * as moment from 'moment';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -65,9 +66,7 @@ export class ProductGridComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    this.rx.select('delivery').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((x: IDelivery) => {
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       this.deliveryTime = { from: x.fromTime, to: x.toTime };
     });
     self.categorySvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(categories => {
@@ -130,6 +129,15 @@ export class ProductGridComponent implements OnInit, OnDestroy {
     });
   }
 
+  isAfterOrderDeadline(restaurant) {
+    const m = moment(this.deliveryTime.from);
+    if (moment().isSame(m, 'day')) {
+      return this.restaurantSvc.isAfterOrderDeadline(restaurant);
+    } else {
+      return false;
+    }
+  }
+
   addToCart(p: IProduct) {
     // fix me
     if (this.restaurantSvc.isClosed(this.restaurant, this.deliveryTime)) {
@@ -140,7 +148,7 @@ export class ProductGridComponent implements OnInit, OnDestroy {
       alert('该商家不在配送范围内，暂时无法配送');
       return;
     }
-    if (this.restaurantSvc.isAfterOrderDeadline(this.restaurant)) {
+    if (this.isAfterOrderDeadline(this.restaurant)) {
       alert('已过下单时间，该商家下单截止到' + this.restaurant.orderDeadline + 'am' );
       return;
     }

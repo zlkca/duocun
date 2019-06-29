@@ -121,7 +121,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
 
     if (self.fromPage === 'account-setting') {
       self.router.navigate(['account/setting']);
-    } else if (self.fromPage === 'restaurant-detail') {
+    } else if (self.fromPage === 'restaurant-detail' || self.fromPage === 'order-form') {
       self.router.navigate(['order/form']);
     }
   }
@@ -149,7 +149,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
               self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact });
               self.router.navigate(['account/setting']);
               self.snackBar.open('', '默认手机号已成功修改。', { duration: 1500 });
-            } else if (self.fromPage === 'restaurant-detail') {
+            } else if (self.fromPage === 'restaurant-detail' || self.fromPage === 'order-form') {
               // x.location = self.contact.location; // update address for the order
               self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact });
               self.router.navigate(['order/form']);

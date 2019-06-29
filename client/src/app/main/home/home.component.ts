@@ -47,7 +47,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   account: IAccount;
   bHideMap = false;
   bTimeOptions = false;
-  orderDeadline = { h: 9, m: 30 };
   overdue;
   afternoon;
   contact;

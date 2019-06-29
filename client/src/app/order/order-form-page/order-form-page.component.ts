@@ -211,7 +211,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   pay() {
     const self = this;
-    if (this.account && this.delivery && this.delivery.fromTime && this.delivery.origin && this.contact.phone) {
+    if (this.account && this.delivery && this.delivery.fromTime && this.delivery.origin) {
       const v = this.form.value;
       const cart = this.cart;
       const date = this.delivery.fromTime;
@@ -250,7 +250,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           });
         });
       } else { // create new
-        this.sequenceSvc.find().subscribe(sq => {
+
+        // if (!(this.contact && this.contact.phone)) {
+        //   self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
+        //   return;
+        // }
+
+        this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
           this.orderSvc.find({ delivered: date, address: address }).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
             self.groupDiscount = this.getGroupDiscount(orders, true);
             const order = this.createOrder(this.contact, v.note);

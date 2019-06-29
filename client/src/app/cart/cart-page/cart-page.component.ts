@@ -148,6 +148,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
         });
       });
 
+      // self.router.navigate(['order/form']);
+
       self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
           if (r[0].phone) {

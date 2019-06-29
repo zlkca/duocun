@@ -79,9 +79,9 @@ export class CartNavbarComponent implements OnInit {
       this.afterCheckout.emit({ productTotal: this.productTotal, quantity: this.quantity });
       const account = this.account;
       if (account && account.id) {
+        // self.router.navigate(['order/form']);
         self.contactSvc.find({ accountId: account.id}).pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact[]) => {
           if (r && r.length > 0) {
-
             this.rx.dispatch({
               type: CartActions.UPDATE_DELIVERY, payload: {
                 merchantId: restaurant.id,

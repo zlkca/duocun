@@ -26,7 +26,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
 
   deliveryTime: IDeliveryTime = { text: '', from: null, to: null };
   deliveryDiscount = 2;
-  orderDeadline = { h: 9, m: 30 };
+  orderDeadline;
   sOrderDeadline;
   location: ILocation;
   places: IPlace[] = [];
