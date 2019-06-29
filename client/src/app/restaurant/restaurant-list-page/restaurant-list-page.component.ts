@@ -29,27 +29,8 @@ export class RestaurantListPageComponent implements OnInit, OnDestroy {
   realMalls;
   deliveryAddress;
   delivery;
-
-  // malls: IMall[];
-  // malls: IMall[] = [
-  //   {
-  //     id: '1', name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
-  //     placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
-  //   },
-  //   {
-  //     id: '2', name: 'Arora', type: 'virtual', lat: 43.995042, lng: -79.442369, radius: 8,
-  //     placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
-  //   },
-  //   {
-  //     id: '3', name: 'Markham', type: 'virtual', lat: 43.867055, lng: -79.284616, radius: 8,
-  //     placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
-  //   },
-  //   {
-  //     id: '4', name: 'Richmond Hill', type: 'virtual', lat: 43.884244, lng: -79.467925, radius: 8,
-  //     placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
-  //   }
-  // ];
   private onDestroy$ = new Subject<void>();
+
   constructor(
     private restaurantSvc: RestaurantService,
     private distanceSvc: DistanceService,

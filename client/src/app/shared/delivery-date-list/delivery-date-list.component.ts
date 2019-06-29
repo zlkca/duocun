@@ -54,4 +54,5 @@ export class DeliveryDateListComponent implements OnInit {
   onSelectTime(t: IDeliveryTime) {
     this.afterSelectDate.emit(t);
   }
+
 }

@@ -17,6 +17,7 @@ import { ICart } from '../../cart/cart.model';
 import * as moment from 'moment';
 import { IDelivery } from '../../delivery/delivery.model';
 import { RangeService } from '../../range/range.service';
+import { CategoryService } from '../../category/category.service';
 // import { SharedService } from '../../shared/shared.service';
 @Component({
   selector: 'app-restaurant-detail-page',
@@ -33,9 +34,11 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
   locationSubscription;
   dow: number; // day of week
   delivery: IDelivery;
+  products;
 
   constructor(
     private productSvc: ProductService,
+    private categorySvc: CategoryService,
     private restaurantSvc: RestaurantService,
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
@@ -86,13 +89,14 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
 
           self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
             const origin = self.delivery.origin;
-            const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
-            restaurant.inRange = (rs && rs.length > 0) ? true : false;
+            if (origin) {
+              const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
+              restaurant.inRange = (rs && rs.length > 0) ? true : false;
 
-            restaurant.fullDeliveryFee = self.cart.deliveryCost;
-            restaurant.deliveryFee = self.cart.deliveryFee;
-            restaurant.deliveryDiscount = self.cart.deliveryDiscount;
-
+              restaurant.fullDeliveryFee = self.cart.deliveryCost;
+              restaurant.deliveryFee = self.cart.deliveryFee;
+              restaurant.deliveryDiscount = self.cart.deliveryDiscount;
+            }
             self.restaurant = restaurant;
           });
         },
@@ -105,38 +109,9 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
         self.dow = moment(self.delivery.fromTime).day(); // 0 for sunday
       }
 
-      const q = { merchantId: merchantId, dow: {$in: [self.dow.toString(), 'all']} };
+      const q = { merchantId: merchantId, dow: { $in: [self.dow.toString(), 'all'] } };
       self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
-        const productList = products.sort((a: IProduct, b: IProduct) => {
-          if (a.order && !b.order) {
-            return 1;
-          } else if (!a.order && b.order) {
-            return -1;
-          } else {
-            if (a.order > b.order) {
-              return 1;
-            } else {
-              return -1;
-            }
-          }
-        });
-
-        const categories = self.getCategoriesFromProducts(productList);
-
-        const pcList = self.groupByCategory(productList, categories);
-        pcList.map(ps => {
-          ps = ps.sort((a: IProduct, b: IProduct) => {
-            if (a.order < b.order) {
-              return -1;
-            }
-            if (a.order > b.order) {
-              return 1;
-            }
-            return 0;
-          });
-        });
-        self.groupedProducts = pcList;
-        self.categories = categories;
+        self.products = products;
       });
     });
   }
@@ -160,36 +135,6 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
       takeUntil(this.onDestroy$)
     ).subscribe(result => {
     });
-  }
-
-  getCategoriesFromProducts(products: IProduct[]) {
-    const cats: ICategory[] = [];
-    products.map((p: IProduct) => {
-      const category = cats.find(cat => cat.id === p.category.id);
-      if (!category) {
-        cats.push({ ...p.category });
-      }
-    });
-
-    cats.sort((a: ICategory, b: ICategory) => {
-      if (a.order < b.order) {
-        return -1;
-      }
-      if (a.order > b.order) {
-        return 1;
-      }
-      return 0;
-    });
-    return cats;
-  }
-
-  groupByCategory(products: IProduct[], categories: ICategory[]) {
-    const ret = [];
-    categories.map(c => { ret[c.id] = []; });
-    products.map(p => {
-      ret[p.category.id].push({ ...p });
-    });
-    return ret;
   }
 
   onAfterCheckout(e) {

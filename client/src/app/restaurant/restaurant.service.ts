@@ -21,6 +21,21 @@ export class RestaurantService extends EntityService {
     this.url = super.getBaseUrl() + 'Restaurants';
   }
 
+  isAfterOrderDeadline(restaurant) {
+    if (restaurant.orderDeadline) {
+      const a = restaurant.orderDeadline.split(':');
+      if (a && a.length > 1) {
+        const now = moment();
+        const deadline = moment().set({ hours: +a[0], minutes: +a[1], seconds: 0});
+        return now.isAfter(deadline);
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+  }
+
   isClosed(restaurant: IRestaurant, deliveryTime: IDeliveryTime) {
     const deliverDate = moment(deliveryTime.from);
     // const tomorrow = moment().add(1, 'days');

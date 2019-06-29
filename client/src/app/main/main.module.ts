@@ -13,6 +13,7 @@ import { HomeComponent } from './home/home.component';
 import { ReactiveFormsModule } from '../../../node_modules/@angular/forms';
 import { SharedModule } from '../shared/shared.module';
 import { RangeService } from '../range/range.service';
+import { RestaurantService } from '../restaurant/restaurant.service';
 
 @NgModule({
   imports: [
@@ -33,7 +34,8 @@ import { RangeService } from '../range/range.service';
   providers: [
     AccountService,
     AuthService,
-    RangeService
+    RangeService,
+    RestaurantService
   ]
 })
 export class MainModule { }

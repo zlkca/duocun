@@ -8,16 +8,15 @@
   <div class="row content-block">
     <div class="col-xs-12 col-md-8 product-block">
       <mat-tab-group mat-align-tabs="center">
-        <mat-tab i18n-label label="Menu">
-          <app-product-grid [restaurant]="restaurant" [groupedProducts]="groupedProducts" [categories]="categories"></app-product-grid>
+        <mat-tab i18n-label label="Menu" *ngIf="products && products.length>0">
+          <app-product-grid [restaurant]="restaurant" [products]="products"></app-product-grid>
         </mat-tab>
-        <mat-tab i18n-label label="Reviews">
+        <!-- <mat-tab i18n-label label="Reviews">
           <div></div>
         </mat-tab>
         <mat-tab i18n-label label="About">
           <div></div>
-          <!-- <app-restaurant-about [restaurant]="restaurant"></app-restaurant-about> -->
-        </mat-tab>
+        </mat-tab> -->
       </mat-tab-group>
     </div>
   </div>

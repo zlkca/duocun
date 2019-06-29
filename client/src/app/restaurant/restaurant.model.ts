@@ -27,6 +27,7 @@ export interface IRestaurant {
   pictures?: Picture[];
   address?: Address;
   order?: number;
+  orderDeadline?: string;
 }
 
 // For database
@@ -45,6 +46,8 @@ export class Restaurant implements IRestaurant {
   pictures: Picture[];
   address: Address;
   order?: number;
+  orderDeadline?: string;
+
   constructor(data?: IRestaurant) {
     Object.assign(this, data);
   }

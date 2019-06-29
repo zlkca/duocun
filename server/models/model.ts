@@ -27,7 +27,6 @@ export class Model extends Entity {
       q = {};
     }
 
-
     if (key && key.distinct) {
       this.distinct(key.distinct, q).then((x: any) => {
         res.setHeader('Content-Type', 'application/json');
@@ -39,7 +38,6 @@ export class Model extends Entity {
         res.end(JSON.stringify(x, null, 3));
       });
     }
-
   }
 
   get(req: Request, res: Response) {

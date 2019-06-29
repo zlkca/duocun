@@ -12,6 +12,8 @@ import { IDeliveryTime } from '../../delivery/delivery.model';
 import { IMall } from '../../mall/mall.model';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { CartActions } from '../../cart/cart.actions';
+import * as moment from 'moment';
+import { RestaurantService } from '../restaurant.service';
 
 @Component({
   selector: 'app-restaurant-grid',
@@ -35,6 +37,7 @@ export class RestaurantGridComponent implements OnInit {
   constructor(
     private router: Router,
     private sharedSvc: SharedService,
+    private restaurantSvc: RestaurantService,
     private rx: NgRedux<IAppState>
   ) {
   }
@@ -78,6 +81,10 @@ export class RestaurantGridComponent implements OnInit {
     }
   }
 
+  isAfterOrderDeadline(restaurant) {
+    return this.restaurantSvc.isAfterOrderDeadline(restaurant);
+  }
+
   getImageSrc(restaurant: any) {
     if (restaurant.pictures && restaurant.pictures[0] && restaurant.pictures[0].url) {
       return this.sharedSvc.getMediaUrl() + restaurant.pictures[0].url;
@@ -113,16 +120,6 @@ export class RestaurantGridComponent implements OnInit {
       const s = query.categories.join(',');
       qs.push('cats=' + s);
     }
-
-    // if(query.restaurants && query.restaurants.length>0){
-    //   let s = query.restaurants.join(',');
-    //   qs.push('ms=' + s);
-    // }
-
-    // if(query.colors && query.colors.length>0){
-    //   let s = query.colors.join(',');
-    //   qs.push('colors=' + s);
-    // }
     return qs;
   }
 
@@ -130,44 +127,4 @@ export class RestaurantGridComponent implements OnInit {
     return r.distance.toFixed(2) + ' km';
   }
 
-  // doSearchRestaurants(query?: any) {
-  //     // query --- eg. {}
-  //     const self = this;
-  //     const qs = self.getFilter(query);
-  //     let s = '';
-  //     const conditions = [];
-
-  //     if (qs.length > 0) {
-  //         conditions.push(qs.join('&'));
-  //     }
-  //     if (query && query.keyword) {
-  //         conditions.push('keyword=' + query.keyword);
-  //     }
-  //     if (query && query.lat && query.lng) {
-  //         conditions.push('lat=' + query.lat + '&lng=' + query.lng);
-  //     }
-
-  //     if (conditions.length > 0) {
-  //         s = '?' + conditions.join('&');
-  //     }
-
-  //     // this.restaurantServ.getNearby(this.center).subscribe(
-  //     this.restaurantServ.find().subscribe(
-  //         (ps: Restaurant[]) => {
-  //             self.restaurantList = ps; // self.toProductGrid(data);
-  //             const a = [];
-  //             ps.map(restaurant => {
-  //                 a.push({
-  //                     lat: restaurant.location.lat,
-  //                     lng: restaurant.location.lng,
-  //                     name: restaurant.name
-  //                 });
-  //             });
-  //             self.places = a;
-  //         },
-  //         (err: any) => {
-  //             self.restaurantList = [];
-  //         }
-  //     );
-  // }
 }

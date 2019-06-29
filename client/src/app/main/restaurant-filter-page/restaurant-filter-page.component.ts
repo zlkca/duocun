@@ -14,6 +14,8 @@ import { RangeService } from '../../range/range.service';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { IRange } from '../../range/range.model';
+import { RestaurantService } from '../../restaurant/restaurant.service';
+import { IRestaurant } from '../../restaurant/restaurant.model';
 
 @Component({
   selector: 'app-restaurant-filter-page',
@@ -25,7 +27,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   deliveryTime: IDeliveryTime = { text: '', from: null, to: null };
   deliveryDiscount = 2;
   orderDeadline = { h: 9, m: 30 };
-
+  sOrderDeadline;
   location: ILocation;
   places: IPlace[] = [];
   inRange = false;
@@ -46,17 +48,24 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
     private rangeSvc: RangeService,
     private locationSvc: LocationService,
     private sharedSvc: SharedService,
+    private restaurantSvc: RestaurantService,
     private rx: NgRedux<IAppState>
   ) {
     const self = this;
     const today = this.sharedSvc.getTodayString();
     this.today = { type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:30' };
-    this.overdue = this.sharedSvc.isOverdue(this.orderDeadline.h, this.orderDeadline.m);
 
     this.accountSvc.getCurrent().pipe(
       takeUntil(this.onDestroy$)
     ).subscribe(account => {
       self.account = account;
+    });
+
+    this.restaurantSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
+      this.sOrderDeadline = this.getOrderDeadline(rs);
+      const a = this.sOrderDeadline.split(':');
+      this.orderDeadline = {h: +a[0], m: +a[1]};
+      this.overdue = this.sharedSvc.isOverdue(+a[0], +a[1]);
     });
   }
 
@@ -67,9 +76,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
       payload: 'restaurant-filter'
     });
 
-    this.rx.select('delivery').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((d: IDelivery) => {
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
       if (d && d.origin) {
         self.location = d.origin;
         self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
@@ -125,9 +132,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
         };
 
         // save location history
-        self.locationSvc.saveIfNot(query, lh).pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe(() => {
+        self.locationSvc.saveIfNot(query, lh).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
 
         });
       }
@@ -158,9 +163,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   onAddressChange(e) {
     const self = this;
     this.places = [];
-    this.locationSvc.reqPlaces(e.input).pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((ps: IPlace[]) => {
+    this.locationSvc.reqPlaces(e.input).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
         for (const p of ps) {
           p.type = 'suggest';
@@ -192,5 +195,15 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   onBack(e) {
     // this.deliveryAddress = '';
     this.places = [];
+  }
+
+  getOrderDeadline(rs: IRestaurant[]) {
+    let deadline = rs[0].orderDeadline;
+    rs.map(r => {
+      if (r.orderDeadline > deadline) {
+        deadline = r.orderDeadline;
+      }
+    });
+    return deadline;
   }
 }
