@@ -51,6 +51,39 @@ app-location-list{
   height: calc(100% - 58px - 61px);
 }
 
+
+.branding-block{
+  padding-top: 180px;
+  width: 50%;
+  float: left;
+
+  .background-img{
+    width: 126px;
+    margin-left: auto;
+    margin-right: auto;
+    img {
+      width: 126px;
+    }
+  }
+}
+
+.qrcode-block{
+  float: left;
+  width: 50%;
+  padding-top: 170px;
+
+  img {
+    width: 200px;
+  }
+}
+
+.slogan{
+  width: 100%;
+  padding-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
 @media #{$desktop}{
 
 }
@@ -67,24 +100,17 @@ and (orientation: landscape) {
 
 @media #{$mobile}{
   .branding-block{
-    padding-top: 180px;
-
+    width: 100%;
     .background-img{
       width: 70px;
-      margin-left: auto;
-      margin-right: auto;
       img {
         width: 70px;
-        // height: 100%;
       }
     }
   }
 
-  .slogan{
-    width: 100%;
-    padding-top: 20px;
-    text-align: center;
-    font-size: 14px;
+  .qrcode-block{
+    display: none;
   }
 
   .pac-container{

@@ -20,19 +20,6 @@
     </app-address-input>
   </div>
 
-  <!-- <div class="input-group address-search-block">
-    <div class="col-12 text-md">{{deliveryAddress}}</div>
-    <div class="col-12 btn-row">
-      <div class="btn btn-sm change-addr-btn"(click)="changeAddress()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-            <path d="M0 0h24v24H0z" fill="none"/>
-          </svg>
-          Edit
-      </div>
-    </div>
-  </div>  -->
-
   <div class="time-options" [class.notInRange]="rangeMap" *ngIf="!(places && places.length > 0)">
     <button mat-raised-button *ngIf="overdue && inRange" class="row option-item no-free lunch-overdue">
       <div class="col-12 text-sm">
@@ -50,8 +37,7 @@
     </button>
 
     <div class="row">
-      <app-delivery-date-list *ngIf="inRange"
-        [orderDeadline]="orderDeadline"
+      <app-delivery-date-list *ngIf="inRange && orderDeadline" [orderDeadline]="orderDeadline"
         [deliveryDiscount]="deliveryDiscount" (afterSelectDate)="onSelectDeliveryTime($event)">
       </app-delivery-date-list>
     </div>

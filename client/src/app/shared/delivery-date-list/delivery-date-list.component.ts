@@ -14,12 +14,12 @@ export class DeliveryDateListComponent implements OnInit {
   @Output() afterSelectDate = new EventEmitter();
   overdue;
   afternoon;
-
   list: IDeliveryTime[] = [];
 
   constructor(
     private sharedSvc: SharedService
   ) {
+
   }
 
   ngOnInit() {
@@ -30,12 +30,6 @@ export class DeliveryDateListComponent implements OnInit {
     const afterTomorrowStart = moment().set({ hour: 11, minute: 45, second: 0, millisecond: 0 }).add(2, 'days');
     const afterTomorrowEnd = moment().set({ hour: 13, minute: 30, second: 0, millisecond: 0 }).add(2, 'days');
 
-    // this.list = [
-    //   {type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:30'},
-    //   {type: 'lunch tomorrow', text: '明天午餐', date: tomorrow, startTime: '11:45', endTime: '13:30'},
-    //   {type: 'lunch after tomorrow', text: '后天午餐', date: dayAfterTomorrow, startTime: '11:45', endTime: '13:30'}
-    // ];
-
     this.list = [
       {text: '今天午餐', from: todayStart.toDate(), to: todayEnd.toDate() },
       {text: '明天午餐', from: tomorrowStart.toDate(), to: tomorrowEnd.toDate() },
@@ -44,10 +38,10 @@ export class DeliveryDateListComponent implements OnInit {
 
     const a = moment().set({ hour: this.orderDeadline.h, minute: this.orderDeadline.m, second: 0, millisecond: 0 });
     const b = moment();
-    this.overdue = b > a;
+    this.overdue = b.isAfter(a);
 
     const c = moment().set({ hour: todayEnd.hour(), minute: todayEnd.minute(), second: 0, millisecond: 0 });
-    this.afternoon = b > c;
+    this.afternoon = b.isAfter(c);
     this.deliveryDiscount = 2;
   }
 
