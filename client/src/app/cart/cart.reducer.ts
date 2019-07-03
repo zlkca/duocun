@@ -37,7 +37,7 @@ export const DEFAULT_CART = {
   deliveryFee: 0,
   deliveryDiscount: 0,
   tax: 0,
-  tips: 3,
+  tips: 0,
   total: 0,
   items: []
 };

@@ -111,7 +111,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         });
       }
       this.subtotal = this.productTotal + this.deliveryCost;
-      this.tips = this.subtotal * 0.05;
+      this.tips = 0; // this.subtotal * 0.05;
       this.tax = Math.ceil(this.subtotal * 13) / 100;
       this.subtotal = this.subtotal + this.tax;
       this.total = this.subtotal - this.deliveryDiscount + this.tips;
