@@ -95,9 +95,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   reload(clientId) {
     const self = this;
-    self.orderSvc.find({ where: { clientId: clientId } }).pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((orders: IOrder[]) => {
+    self.orderSvc.find({ clientId: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((orders: IOrder[]) => {
       orders.map((order: IOrder) => {
         let productTotal = 0;
         let subTotal = 0;
@@ -111,7 +109,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         order.tax = Math.ceil(subTotal * 13) / 100;
 
         order.productTotal = productTotal;
-        order.tips = 3;
       });
 
       orders.sort((a: IOrder, b: IOrder) => {

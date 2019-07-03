@@ -17,7 +17,7 @@ import { ICart } from '../cart/cart.model';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent implements OnInit, OnDestroy {
-  year = 2018;
+  year = 2019;
   account: Account;
   bHide = false;
   page;

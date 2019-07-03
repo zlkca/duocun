@@ -33,7 +33,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   cart;
   subtotal;
   total = 0;
-  tips = 3;
+  tips = 0;
   malls: IMall[] = [];
   productTotal = 0;
   deliveryCost = 0;
@@ -111,6 +111,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         });
       }
       this.subtotal = this.productTotal + this.deliveryCost;
+      this.tips = this.subtotal * 0.05;
       this.tax = Math.ceil(this.subtotal * 13) / 100;
       this.subtotal = this.subtotal + this.tax;
       this.total = this.subtotal - this.deliveryDiscount + this.tips;
@@ -176,6 +177,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         deliveryDiscount: self.deliveryDiscount,
         groupDiscount: self.groupDiscount,
         total: self.total - self.groupDiscount,
+        tax: self.tax,
+        tips: self.tips,
         status: 'new',
         driverId: ''
       };
@@ -226,13 +229,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             order.code = this.getCode(order.location, sq);
             order.created = this.order.created;
             if (order) { // modify
-              self.orderSvc.replace(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+              self.orderSvc.update({id: this.order.id}, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
                 const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
                 self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
                 self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
                 self.snackBar.open('', '您的订单已经成功修改。', { duration: 1800 });
 
-                self.paymentSvc.update({ orderId: r.id }, { amount: order.total, type: 'debit' }).pipe(
+                self.paymentSvc.update({ orderId: this.order.id }, { amount: order.total, type: 'debit' }).pipe(
                   takeUntil(this.onDestroy$)).subscribe(x => {
                     self.snackBar.open('', '已更新客户的余额', { duration: 1200 });
                     if (this.contact.location) {

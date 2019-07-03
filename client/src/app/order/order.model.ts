@@ -62,6 +62,8 @@ export class Order implements IOrder {
   deliveryDiscount: number;
   groupDiscount?: number;
   total: number;
+  tax?: number;
+  tips?: number;
   constructor(data?: IOrder) {
     Object.assign(this, data);
   }
