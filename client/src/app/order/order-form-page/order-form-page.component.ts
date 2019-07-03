@@ -191,21 +191,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   getGroupDiscount(orders, bNew) {
     if (bNew) { // new order didn't insert yet
       if (orders && orders.length > 0) {
-        if (orders.length >= 2) {
-          return 3;
-        } else {
-          return orders.length + 1;
-        }
+        return 2;
       } else {
         return 0;
       }
     } else {
       if (orders && orders.length > 1) {
-        if (orders.length >= 3) {
-          return 3;
-        } else {
-          return orders.length;
-        }
+        return 2;
       } else {
         return 0;
       }

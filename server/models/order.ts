@@ -45,9 +45,7 @@ export class Order extends Model {
 
 
   removeOne(req: Request, res: Response) {
-
     this.find({id: req.params.id}).then(docs => {
-
       if(docs && docs.length>0){
         const date = docs[0].delivered;
         const address = docs[0].address;
@@ -56,11 +54,7 @@ export class Order extends Model {
           this.find({delivered: date, address: address}).then(orders => {
             let groupDiscount = 0;
             if (orders && orders.length > 1) {
-              if (orders.length >= 3) {
-                groupDiscount = 3;
-              } else {
-                groupDiscount = orders.length;
-              }
+              groupDiscount = 2;
             } else {
               groupDiscount = 0;
             }

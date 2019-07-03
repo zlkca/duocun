@@ -104,9 +104,8 @@
       </div>
     </div>
     <div class="group-order-block" *ngIf="productTotal < 20">
-      <div class="row label-sm"><span>拼单优惠</span>:</div>
-      <div class="row">同一地址另有一单，每单减$2，优惠价<span class="red-text">${{total-2 | number : '1.2-2'}}</span></div>
-      <div class="row">同一地址另有两单或以上，每单减$3，优惠价<span class="red-text">${{total-3 | number : '1.2-2'}}</span></div>
+      <div class="row label-sm"><span>拼单优惠（同一地址另有一单或以上）</span>:</div>
+      <div class="row">拼单每单劲减$2！优惠价<span class="red-text">${{total-2 | number : '1.2-2'}}</span></div>
     </div>
     <div class="payment-method-block">
       <div class="row label-sm">
