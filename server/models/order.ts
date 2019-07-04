@@ -50,8 +50,9 @@ export class Order extends Model {
         const date = docs[0].delivered;
         const address = docs[0].address;
   
-        this.deleteById(req.params.id).then(x => {
-          this.find({delivered: date, address: address}).then(orders => {
+        // this.deleteById(req.params.id).then(x => {
+        this.updateOne({id: req.params.id}, {status: 'del'}).then(x => {
+          this.find({delivered: date, address: address, status: { $nin: ['del', 'bad']}}).then(orders => {
             let groupDiscount = 0;
             if (orders && orders.length > 1) {
               groupDiscount = 2;

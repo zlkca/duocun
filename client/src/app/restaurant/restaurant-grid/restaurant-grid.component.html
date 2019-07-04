@@ -8,6 +8,7 @@
           <div class="title-md rest-1" *ngIf="r.inRange && r.isClosed">休息中</div>
           <div class="title-md not-in-range" *ngIf="!r.inRange">不在配送范围</div>
           <div class="title-sm rest-2" *ngIf="!r.inRange || r.isClosed">暂不提供配送</div>
+          <div class="title-md rest-3" *ngIf="r.inRange && !r.isClosed && isAfterOrderDeadline(r)">{{r.orderDeadline}}截止下单</div>
           <div *ngIf="r.inRange && !r.isClosed" class="free delivery-fee notify-badge">
             <div class="text-sm" i18n="@@FreeDelivery">Free delivery</div>
             <del>

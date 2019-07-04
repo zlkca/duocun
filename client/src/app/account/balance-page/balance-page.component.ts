@@ -64,7 +64,8 @@ export class BalancePageComponent implements OnInit, OnDestroy {
   }
 
   reload(clientId: string) {
-    this.orderSvc.find({ clientId: clientId, status: { $ne: 'bad' } }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
+    const query = { clientId: clientId, status: { $nin: ['del', 'bad'] } };
+    this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
       this.transactionSvc.find({ type: 'credit', fromId: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
         let list = [];
         let balance = 0;

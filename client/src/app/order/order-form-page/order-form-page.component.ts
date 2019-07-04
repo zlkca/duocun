@@ -126,7 +126,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   // for display purpose, update price should be run on backend
   reloadGroupDiscount(date: Date, address: string) {
-    this.orderSvc.find({ delivered: date, address: address }).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
+    const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
+    this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
       if (this.order && this.order.id) {
         this.groupDiscount = this.getGroupDiscount(orders, false);
       } else {
@@ -213,7 +214,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const address = this.locationSvc.getAddrString(this.delivery.origin);
 
       if (this.order && this.order.id) {
-        this.orderSvc.find({ delivered: date, address: address }).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
+        const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] }  };
+        this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
           self.groupDiscount = this.getGroupDiscount(orders, false);
           const order = this.createOrder(this.contact, v.note);
           this.sequenceSvc.find().subscribe(sq => {
@@ -252,7 +254,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         // }
 
         this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
-          this.orderSvc.find({ delivered: date, address: address }).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
+          const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] }  };
+          this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
             self.groupDiscount = this.getGroupDiscount(orders, true);
             const order = this.createOrder(this.contact, v.note);
             order.code = this.getCode(order.location, sq);

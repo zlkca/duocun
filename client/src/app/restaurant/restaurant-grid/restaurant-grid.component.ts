@@ -81,7 +81,7 @@ export class RestaurantGridComponent implements OnInit {
     }
   }
 
-  isAfterOrderDeadline(restaurant) {
+  isAfterOrderDeadline(restaurant: IRestaurant) {
     const m = moment(this.deliveryTime.from);
     if (moment().isSame(m, 'day')) {
       return this.restaurantSvc.isAfterOrderDeadline(restaurant);

@@ -65,12 +65,10 @@ export class AccountPageComponent implements OnInit, OnDestroy {
       });
 
       let balance = 0;
-
-      self.orderSvc.find({ clientId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
+      const query = { clientId: account.id, status: { $nin: ['del', 'bad'] } };
+      self.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
         os.map(order => {
-          if (order.status !== 'bad') {
-            balance -= order.total;
-          }
+          balance -= order.total;
         });
         const q = { type: 'credit', fromId: account.id };
         self.transactionSvc.find(q).pipe(takeUntil(this.onDestroy$)).subscribe((ps: ITransaction[]) => {
