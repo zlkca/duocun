@@ -9,7 +9,7 @@ declare var google;
 })
 export class AddressAutocompleteComponent implements OnInit {
 
-  @ViewChild('div') div: ElementRef;
+  @ViewChild('div', {static: true}) div: ElementRef;
   @Output() addrChange = new EventEmitter();
   @Input() value;
 

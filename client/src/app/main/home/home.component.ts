@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   placeForm;
   historyAddressList = [];
   suggestAddressList = [];
-  @ViewChild('tooltip') tooltip: MatTooltip;
+  @ViewChild('tooltip', {static: true}) tooltip: MatTooltip;
 
   constructor(
     private accountSvc: AccountService,

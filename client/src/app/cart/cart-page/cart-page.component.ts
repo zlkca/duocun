@@ -40,7 +40,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   restaurant;
   products: IProduct[];
 
-  @ViewChild('orderDetailModal') orderDetailModal;
+  @ViewChild('orderDetailModal', {static: true}) orderDetailModal;
 
   constructor(
     private rx: NgRedux<IAppState>,

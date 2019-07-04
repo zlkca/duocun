@@ -40,6 +40,12 @@ const mall_route_1 = require("./routers/mall-route");
 const location_route_1 = require("./routers/location-route");
 const product_1 = require("./models/product");
 const api_middleware_1 = require("./api-middleware");
+const node_cron_1 = require("node-cron");
+const client_balance_1 = require("./models/client-balance");
+node_cron_1.schedule('0 06 12 * * *', () => {
+    let cb = new client_balance_1.ClientBalance(dbo);
+    cb.updateAll();
+});
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
@@ -152,55 +158,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     app.get('/' + ROUTE_PREFIX + '/Pictures', (req, res) => {
         picture.get(req, res);
     });
-    // app.get('/' + ROUTE_PREFIX + '/Restaurants/:id/Products', (req, res) => {
-    //   product.find({ merchantId: req.params.id }).then((x: any) => {
-    //     res.setHeader('Content-Type', 'application/json');
-    //     res.end(JSON.stringify(x, null, 3));
-    //   });
-    // });
-    // app.post('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
-    //   contact.insertOne(req.body).then((x: any) => {
-    //     res.setHeader('Content-Type', 'application/json');
-    //     x.verificationCode = '';
-    //     res.end(JSON.stringify(x, null, 3));
-    //   });
-    // });
-    // app.put('/' + ROUTE_PREFIX + '/Contacts', (req, res) => {
-    //   contact.replaceById(req.body.id, req.body).then((x: any) => {
-    //     res.setHeader('Content-Type', 'application/json');
-    //     x.verificationCode = '';
-    //     res.end(JSON.stringify(x, null, 3));
-    //   });
-    // });
-    // app.patch('/' + ROUTE_PREFIX + '/Contacts', (req: any, res) => {
-    //   if (req.body && req.body.filter) {
-    //     contact.updateOne(req.body.filter, req.body.data).then((x: any) => {
-    //       res.setHeader('Content-Type', 'application/json');
-    //       res.end(JSON.stringify(x.result, null, 3)); // {n: 1, nModified: 1, ok: 1}
-    //     });
-    //   } else {
-    //     res.end();
-    //   }
-    // });
-    // app.get('/' + ROUTE_PREFIX + '/Contacts', (req: any, res) => {
-    //   const query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    //   contact.find(query ? query.where : {}).then((x: any) => {
-    //     res.setHeader('Content-Type', 'application/json');
-    //     if (x && x.length > 0) {
-    //       x[0].verificationCode = '';
-    //     }
-    //     res.end(JSON.stringify(x, null, 3));
-    //   });
-    // });
-    // app.get('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
-    //   contact.get(req, res);
-    // });
-    // app.delete('/' + ROUTE_PREFIX + '/Contacts/:id', (req, res) => {
-    //   contact.deleteById(req.params.id).then(x => {
-    //     res.setHeader('Content-Type', 'application/json');
-    //     res.end(JSON.stringify(x, null, 3));
-    //   });
-    // });
     app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
         res.send('upload file success');
     });

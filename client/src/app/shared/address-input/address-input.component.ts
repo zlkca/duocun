@@ -17,7 +17,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
   @Output() inputFocus = new EventEmitter();
   @Output() backHistory = new EventEmitter();
   @Input() value;
-  @ViewChild('search') addressInput: ElementRef;
+  @ViewChild('search', {static: true}) addressInput: ElementRef;
 
   placeForm;
   gAutocomplete: any;

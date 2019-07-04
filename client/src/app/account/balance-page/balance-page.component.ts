@@ -25,8 +25,8 @@ export class BalancePageComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['date', 'description', 'consumed', 'paid', 'balance'];
   list = [];
   dataSource: MatTableDataSource<IClientPaymentData>;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
+  @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   constructor(
     private accountSvc: AccountService,
