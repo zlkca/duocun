@@ -51,7 +51,7 @@ import { ClientBalance } from "./models/client-balance";
 
 process.env.TZ = 'America/Toronto';
 
-schedule('0 5 11 * * *', () => {
+schedule('0 50 23 * * *', () => {
   let cb = new ClientBalance(dbo);
   cb.updateAll();
 });
