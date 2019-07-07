@@ -115,7 +115,7 @@ function setupSocket(server: any) {
 // create db connection pool and return connection instance
 dbo.init(cfg.DATABASE).then(dbClient => {
   product = new Product(dbo);
-  merchantStuff = new MerchantStuff(dbo);
+  // merchantStuff = new MerchantStuff(dbo);
   picture = new Picture();
 
   // socket = new Socket(dbo, io);
