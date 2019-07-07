@@ -2,7 +2,7 @@ import { DB } from "../db";
 import { Model } from "./model";
 import { Entity } from "../entity";
 import { Request, Response } from "express";
-import moment from "moment";
+import moment from "moment-timezone";
 
 export class ClientBalance extends Model{
   paymentEntity: Entity;
@@ -17,7 +17,7 @@ export class ClientBalance extends Model{
   }
 
   updateAll(){
-    const dt = moment().endOf('day').toDate().toISOString();
+    const dt = moment().tz("America/Toronto").endOf('day').toDate().toISOString();
     const orderQuery = {delivered: { $lt: dt }, status: {$nin: ['bad', 'del']}}; // , delivered: { $lt: moment().endOf('day').toDate() }};
     this.orderEntity.find(orderQuery).then(os => {
       this.transactionEntity.find({type: 'credit'}).then(ts => {

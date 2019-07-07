@@ -78,7 +78,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       this.account = account;
-      this.balanceSvc.find({ where: { accountId: account.id } }).pipe(takeUntil(this.onDestroy$)).subscribe((bs: IBalance[]) => {
+      this.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((bs: IBalance[]) => {
         if (bs && bs.length > 0) {
           this.balance = bs[0];
         }
@@ -218,7 +218,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
           self.groupDiscount = this.getGroupDiscount(orders, false);
           const order = this.createOrder(this.contact, v.note);
-          this.sequenceSvc.find().subscribe(sq => {
+          this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
             order.id = this.order.id;
             order.code = this.getCode(order.location, sq);
             order.created = this.order.created;
@@ -229,15 +229,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
                 self.snackBar.open('', '您的订单已经成功修改。', { duration: 1800 });
 
-                self.paymentSvc.update({ orderId: this.order.id }, { amount: order.total, type: 'debit' }).pipe(
-                  takeUntil(this.onDestroy$)).subscribe(x => {
-                    self.snackBar.open('', '已更新客户的余额', { duration: 1200 });
-                    if (this.contact.location) {
-                      this.router.navigate(['main/filter']);
-                    } else {
-                      this.router.navigate(['main/home']);
-                    }
-                  });
+                if (this.contact.location) {
+                  this.router.navigate(['main/filter']);
+                } else {
+                  this.router.navigate(['main/home']);
+                }
               });
             } else {
               this.snackBar.open('', '登录已过期，请重新从公众号进入', {
@@ -265,31 +261,15 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
                 this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
                 this.snackBar.open('', '您的订单已经成功提交。', { duration: 1800 });
-                const clientPayment: IClientPayment = {
-                  orderId: r.id,
-                  clientId: r.clientId,
-                  clientName: r.clientName,
-                  driverId: '',
-                  driverName: '',
-                  type: 'debit',
-                  amount: r.total - this.groupDiscount,
-                  delivered: this.delivery.fromTime,
-                  created: new Date(),
-                  modified: new Date(),
-                };
-                this.paymentSvc.save(clientPayment).pipe(takeUntil(this.onDestroy$)).subscribe((cps: IClientPayment[]) => {
-                  this.snackBar.open('', '已保存客户的余额', { duration: 1200 });
-                  if (this.contact.location) {
-                    this.router.navigate(['main/filter']);
-                  } else {
-                    this.router.navigate(['main/home']);
-                  }
-                });
+
+                if (this.contact.location) {
+                  this.router.navigate(['main/filter']);
+                } else {
+                  this.router.navigate(['main/home']);
+                }
               });
             } else {
-              this.snackBar.open('', '登录已过期，请重新从公众号进入', {
-                duration: 1800
-              });
+              this.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
             }
           });
         });

@@ -48,15 +48,16 @@ import { schedule } from "node-cron";
 
 import { ClientBalance } from "./models/client-balance";
 
-schedule('0 55 23 * * *', () => {
+
+process.env.TZ = 'America/Toronto';
+
+schedule('0 0 11 * * *', () => {
   let cb = new ClientBalance(dbo);
   cb.updateAll();
 });
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
-
-process.env.TZ = 'America/Toronto';
 
 const apimw = new ApiMiddleWare();
 const utils = new Utils();

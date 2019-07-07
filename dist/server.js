@@ -13,7 +13,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("./config");
 //import * as SocketIOAuth from "socketio-auth";
 const db_1 = require("./db");
-const merchant_stuff_1 = require("./merchant-stuff");
 const picture_1 = require("./picture");
 const utils_1 = require("./utils");
 const account_route_1 = require("./routers/account-route");
@@ -40,15 +39,16 @@ const mall_route_1 = require("./routers/mall-route");
 const location_route_1 = require("./routers/location-route");
 const product_1 = require("./models/product");
 const api_middleware_1 = require("./api-middleware");
+const node_cron_1 = require("node-cron");
 const client_balance_1 = require("./models/client-balance");
-// schedule('0 10 22 * * *', () => {
-//   let cb = new ClientBalance(dbo);
-//   cb.updateAll();
-// });
+process.env.TZ = 'America/Toronto';
+node_cron_1.schedule('0 0 11 * * *', () => {
+    let cb = new client_balance_1.ClientBalance(dbo);
+    cb.updateAll();
+});
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
-process.env.TZ = 'America/Toronto';
 const apimw = new api_middleware_1.ApiMiddleWare();
 const utils = new utils_1.Utils();
 const cfg = new config_1.Config();
@@ -67,8 +67,6 @@ const storage = multer_1.default.diskStorage({
 const upload = multer_1.default({ storage: storage });
 // const upload = multer({ dest: 'uploads/' });
 let product;
-let location;
-let merchantStuff;
 let picture;
 let mysocket; // Socket;
 let io;
@@ -103,10 +101,8 @@ function setupSocket(server) {
 // create db connection pool and return connection instance
 dbo.init(cfg.DATABASE).then(dbClient => {
     product = new product_1.Product(dbo);
-    merchantStuff = new merchant_stuff_1.MerchantStuff(dbo);
+    // merchantStuff = new MerchantStuff(dbo);
     picture = new picture_1.Picture();
-    let cb = new client_balance_1.ClientBalance(dbo);
-    cb.updateAll();
     // socket = new Socket(dbo, io);
     // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
     //   const uId = data.userId;
