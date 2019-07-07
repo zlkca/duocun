@@ -38,7 +38,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
+    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       this.account = account;
       if (account) {
         self.reload(account.id);
@@ -64,9 +64,11 @@ export class BalancePageComponent implements OnInit, OnDestroy {
   }
 
   reload(clientId: string) {
-    const query = { clientId: clientId, status: { $nin: ['del', 'bad'] } };
-    this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
-      this.transactionSvc.find({ type: 'credit', fromId: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
+    const self = this;
+    const orderQuery = { clientId: clientId, status: { $nin: ['del', 'bad'] } };
+    this.orderSvc.find(orderQuery).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
+      const transactionQuery = { type: 'credit', fromId: clientId };
+      self.transactionSvc.find(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
         let list = [];
         let balance = 0;
 
@@ -104,8 +106,8 @@ export class BalancePageComponent implements OnInit, OnDestroy {
         });
 
         list = list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
-          const aMoment = moment(a.date);
-          const bMoment = moment(b.date);
+          const aMoment = moment(a.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          const bMoment = moment(b.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
           if (aMoment.isAfter(bMoment)) {
             return 1; // b at top
           } else {
@@ -120,8 +122,8 @@ export class BalancePageComponent implements OnInit, OnDestroy {
         });
 
         list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
-          const aMoment = moment(a.date);
-          const bMoment = moment(b.date);
+          const aMoment = moment(a.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          const bMoment = moment(b.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
           if (aMoment.isAfter(bMoment)) {
             return -1; // b at top
           } else if (bMoment.isAfter(aMoment)) {

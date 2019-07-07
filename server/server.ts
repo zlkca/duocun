@@ -48,13 +48,16 @@ import { schedule } from "node-cron";
 
 import { ClientBalance } from "./models/client-balance";
 
-schedule('0 58 23 * * *', () => {
+schedule('0 55 23 * * *', () => {
   let cb = new ClientBalance(dbo);
   cb.updateAll();
 });
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
+
+process.env.TZ = 'America/Toronto';
+
 const apimw = new ApiMiddleWare();
 const utils = new Utils();
 const cfg = new Config();
@@ -74,8 +77,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 // const upload = multer({ dest: 'uploads/' });
 let product: Product;
-let location: Location;
-let merchantStuff: MerchantStuff;
 let picture: Picture;
 let mysocket: any;// Socket;
 let io: any;
@@ -116,6 +117,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   product = new Product(dbo);
   merchantStuff = new MerchantStuff(dbo);
   picture = new Picture();
+
   // socket = new Socket(dbo, io);
 
   // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {

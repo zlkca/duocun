@@ -40,15 +40,15 @@ const mall_route_1 = require("./routers/mall-route");
 const location_route_1 = require("./routers/location-route");
 const product_1 = require("./models/product");
 const api_middleware_1 = require("./api-middleware");
-const node_cron_1 = require("node-cron");
 const client_balance_1 = require("./models/client-balance");
-node_cron_1.schedule('0 06 12 * * *', () => {
-    let cb = new client_balance_1.ClientBalance(dbo);
-    cb.updateAll();
-});
+// schedule('0 10 22 * * *', () => {
+//   let cb = new ClientBalance(dbo);
+//   cb.updateAll();
+// });
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }
+process.env.TZ = 'America/Toronto';
 const apimw = new api_middleware_1.ApiMiddleWare();
 const utils = new utils_1.Utils();
 const cfg = new config_1.Config();
@@ -105,6 +105,8 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     product = new product_1.Product(dbo);
     merchantStuff = new merchant_stuff_1.MerchantStuff(dbo);
     picture = new picture_1.Picture();
+    let cb = new client_balance_1.ClientBalance(dbo);
+    cb.updateAll();
     // socket = new Socket(dbo, io);
     // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
     //   const uId = data.userId;

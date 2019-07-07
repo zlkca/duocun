@@ -17,8 +17,9 @@ export class ClientBalance extends Model{
   }
 
   updateAll(){
-    const range = { $lt: moment().endOf('day').toDate() };
-    this.orderEntity.find({status: {$nin: ['bad', 'del']}, delivered: range}).then(os => {
+    const dt = moment().endOf('day').toDate().toISOString();
+    const orderQuery = {delivered: { $lt: dt }, status: {$nin: ['bad', 'del']}}; // , delivered: { $lt: moment().endOf('day').toDate() }};
+    this.orderEntity.find(orderQuery).then(os => {
       this.transactionEntity.find({type: 'credit'}).then(ts => {
         this.find({}).then(cbs => {
           // 1. get all the clients

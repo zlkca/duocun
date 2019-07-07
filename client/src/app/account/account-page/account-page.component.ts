@@ -17,6 +17,8 @@ import { IOrder } from '../../order/order.model';
 import { OrderService } from '../../order/order.service';
 import { TransactionService } from '../../transaction/transaction.service';
 import { ITransaction } from '../../transaction/transaction.model';
+import * as moment from 'moment';
+
 declare var WeixinJSBridge;
 
 @Component({
@@ -64,20 +66,45 @@ export class AccountPageComponent implements OnInit, OnDestroy {
         }
       });
 
-      let balance = 0;
-      const query = { clientId: account.id, status: { $nin: ['del', 'bad'] } };
-      self.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
-        os.map(order => {
-          balance -= order.total;
-        });
-        const q = { type: 'credit', fromId: account.id };
-        self.transactionSvc.find(q).pipe(takeUntil(this.onDestroy$)).subscribe((ps: ITransaction[]) => {
-          ps.map(p => { balance += p.amount; });
+      self.reload(account);
+    });
+  }
 
-          self.balance = balance;
-        });
+  reload(account) {
+    const self = this;
+    let balance = 0;
+    let list = [];
+    const query = { clientId: account.id, status: { $nin: ['del', 'bad'] } };
+    this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
+      os.map(order => {
+        list.push({ date: order.delivered, type: 'debit', amount: order.total });
       });
+      const q = { type: 'credit', fromId: account.id };
+      self.transactionSvc.find(q).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
+        ts.map(t => {
+          list.push({ date: t.created, type: 'credit', amount: t.amount });
+        });
 
+        list = list.sort((a, b) => {
+          const aMoment = moment(a.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          const bMoment = moment(b.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          if (aMoment.isAfter(bMoment)) {
+            return 1; // b at top
+          } else {
+            return -1;
+          }
+        });
+
+        list.map(t => {
+          if (t.type === 'debit') {
+            balance -= t.amount;
+          } else if (t.type === 'credit') {
+            balance += t.amount;
+          }
+        });
+
+        self.balance = balance;
+      });
     });
   }
 
