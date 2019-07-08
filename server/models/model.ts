@@ -97,9 +97,9 @@ export class Model extends Entity {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
-    this.find(query ? query.where : { id: "-1" }).then((assignments: any) => {
-      if (assignments && assignments.length > 0) {
-        this.deleteMany(query ? query.where : {}).then((x: any) => {
+    this.find(query ? query: { id: "-1" }).then((rs: any) => {
+      if (rs && rs.length > 0) {
+        this.deleteMany(query ? query : {id: "-1" }).then((x: any) => {
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(x, null, 3));
         });

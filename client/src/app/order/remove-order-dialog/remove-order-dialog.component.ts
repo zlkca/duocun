@@ -50,15 +50,8 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
 
   onClickRemove(): void {
     if (this.data && this.data.orderId) {
-      // this.paymentSvc.remove({where: {orderId: this.data.orderId}}).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-      //   this.snackBar.open('', '已还原客户的余额', { duration: 1500 });
-      // });
-      this.paymentSvc.remove({where: {orderId: this.data.orderId }}).pipe(
-        takeUntil(this.onDestroy$)).subscribe(y => {
-
-        this.orderSvc.removeById(this.data.orderId).pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe(x => {
+      this.paymentSvc.remove({orderId: this.data.orderId }).pipe(takeUntil(this.onDestroy$)).subscribe(y => {
+        this.orderSvc.removeById(this.data.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
           this.dialogRef.close();
           this.rx.dispatch({type: CommandActions.SEND, payload: { name: 'reload-orders', args: null }});
           this.snackBar.open('', '订单已删除', {duration: 1000});
