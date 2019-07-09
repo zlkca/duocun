@@ -21,11 +21,26 @@ export function contactReducer(state: IContact, action: IContactAction) {
         phone: action.payload.phone,
         verificationCode: action.payload.verificationCode
       };
-      case ContactActions.UPDATE_WITHOUT_LOCATION:
+
+    case ContactActions.UPDATE_LOCATION:
+      return {
+        ...state,
+        accountId: action.payload.accountId,
+        username: action.payload.username,
+        placeId: action.payload.placeId,
+        location: action.payload.location
+      };
+    case ContactActions.UPDATE_PHONE_NUM:
       return {
         ...state,
         phone: action.payload.phone,
         // verificationCode: action.payload.verificationCode
+      };
+    case ContactActions.UPDATE_ACCOUNT:
+      return {
+        ...state,
+        accountId: action.payload.accountId,
+        username: action.payload.username,
       };
     default:
       return state || null;

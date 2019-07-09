@@ -62,10 +62,10 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
       self.account = account;
     });
 
-    this.restaurantSvc.find({status: 'active'}).pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
+    this.restaurantSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
       this.sOrderDeadline = this.getOrderDeadline(rs);
       const arr = this.sOrderDeadline.split(':');
-      this.orderDeadline = {h: +arr[0], m: +arr[1]};
+      this.orderDeadline = { h: +arr[0], m: +arr[1] };
       const a = moment().set({ hour: +arr[0], minute: +arr[1], second: 0, millisecond: 0 });
       const b = moment();
       this.overdue = b.isAfter(a);
@@ -74,7 +74,7 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    this.rx.dispatch({type: PageActions.UPDATE_URL, payload: 'restaurant-filter'});
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'restaurant-filter' });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
       if (d && d.origin) {
@@ -200,13 +200,14 @@ export class RestaurantFilterPageComponent implements OnInit, OnDestroy {
   getOrderDeadline(rs: IRestaurant[]) {
     let deadline = rs[0].orderDeadline;
     const arr1 = deadline.split(':');
-    const a = moment().set({ hour: +arr1[0], minute: +arr1[1], second: 0, millisecond: 0 });
+    let a = moment().set({ hour: +arr1[0], minute: +arr1[1], second: 0, millisecond: 0 });
 
     rs.map(r => {
       const arr2 = r.orderDeadline.split(':');
       const b = moment().set({ hour: +arr2[0], minute: +arr2[1], second: 0, millisecond: 0 });
 
       if (b.isAfter(a)) {
+        a = b;
         deadline = r.orderDeadline;
       }
     });

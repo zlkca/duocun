@@ -19,5 +19,9 @@ export const environment = {
   },
   STRIPE: {
       CLIENT_KEY: 'pk_test_RzVW9LLaIZANExpYhNg2x4Zu'
+  },
+  WECHAT: {
+    APP_ID: 'wx0591bdd165898739',
+    REDIRECT_URL: 'https://duocun.com.cn'
   }
 };

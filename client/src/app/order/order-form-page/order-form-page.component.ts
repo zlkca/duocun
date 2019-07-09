@@ -6,7 +6,7 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { IMall } from '../../mall/mall.model';
 import { IContact } from '../../contact/contact.model';
-import { Router } from '../../../../node_modules/@angular/router';
+import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { OrderService } from '../order.service';
 import { IOrder, IOrderItem } from '../order.model';
@@ -19,7 +19,6 @@ import { IAccount, Role } from '../../account/account.model';
 import { LocationService } from '../../location/location.service';
 import { BalanceService } from '../../payment/balance.service';
 import { IBalance, IClientPayment } from '../../payment/payment.model';
-import { PaymentService } from '../../payment/payment.service';
 import { ILocation } from '../../location/location.model';
 import { OrderSequenceService } from '../order-sequence.service';
 
@@ -54,11 +53,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private rx: NgRedux<IAppState>,
     private router: Router,
+    private route: ActivatedRoute,
     private orderSvc: OrderService,
     private sequenceSvc: OrderSequenceService,
     private locationSvc: LocationService,
     private balanceSvc: BalanceService,
-    private paymentSvc: PaymentService,
     private snackBar: MatSnackBar
   ) {
     const self = this;
@@ -90,12 +89,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.reloadGroupDiscount(self.delivery.fromTime, self.address);
     });
 
-    this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-      self.contact = x;
-    });
-  }
-
-  ngOnInit() {
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.deliveryCost = cart.deliveryCost;
       this.deliveryFee = cart.deliveryFee;
@@ -117,6 +110,18 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.total = this.subtotal - this.deliveryDiscount + this.tips;
       this.cart = cart;
     });
+
+    this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
+      self.contact = x;
+      const fromPage = this.route.snapshot.queryParamMap.get('fromPage');
+      if (fromPage === 'order-form') {
+        this.pay();
+      }
+    });
+  }
+
+  ngOnInit() {
+
   }
 
   ngOnDestroy() {
@@ -207,14 +212,20 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   pay() {
     const self = this;
+
+    // contact last
+    if (!this.contact || !this.contact.phone) {
+      this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
+      return;
+    }
+
     if (this.account && this.delivery && this.delivery.fromTime && this.delivery.origin) {
       const v = this.form.value;
-      const cart = this.cart;
       const date = this.delivery.fromTime;
       const address = this.locationSvc.getAddrString(this.delivery.origin);
 
       if (this.order && this.order.id) {
-        const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] }  };
+        const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
         this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
           self.groupDiscount = this.getGroupDiscount(orders, false);
           const order = this.createOrder(this.contact, v.note);
@@ -223,8 +234,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             order.code = this.getCode(order.location, sq);
             order.created = this.order.created;
             if (order) { // modify
-              self.orderSvc.update({id: this.order.id}, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
-                const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
+              self.orderSvc.update({ id: this.order.id }, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+                const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
                 self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
                 self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
                 self.snackBar.open('', '您的订单已经成功修改。', { duration: 1800 });
@@ -250,7 +261,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         // }
 
         this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
-          const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] }  };
+          const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
           this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
             self.groupDiscount = this.getGroupDiscount(orders, true);
             const order = this.createOrder(this.contact, v.note);
@@ -258,7 +269,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             if (order) {
               self.orderSvc.save(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
                 // self.afterSubmit.emit(order);
-                const items: ICartItem[] = this.cart.items.filter(x => x.merchantId === cart.merchantId);
+                const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
                 this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
                 this.snackBar.open('', '您的订单已经成功提交。', { duration: 1800 });
 

@@ -59,34 +59,23 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.rx.select<ICart>('cart').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((cart: ICart) => {
+    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe((acc: Account) => {
+      this.account = acc;
+    });
+
+    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.total = cart.total;
       this.quantity = cart.quantity;
       this.carts = this.groupItemsByRestaurant(cart.items);
     });
 
-    this.accountSvc.getCurrent().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((acc: Account) => {
-      this.account = acc;
-    });
-
-    this.rx.select('delivery').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((d: IDelivery) => {
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
       this.location = d.origin;
     });
 
-    this.rx.select('restaurant').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((r: IRestaurant) => {
+    this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IRestaurant) => {
       this.restaurant = r;
-
-      this.productSvc.find({merchantId: r.id}).pipe(
-        takeUntil(this.onDestroy$)
-      ).subscribe((ps: IProduct[]) => {
+      this.productSvc.find({merchantId: r.id}).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
         this.products = ps;
       });
     });
@@ -148,15 +137,24 @@ export class CartPageComponent implements OnInit, OnDestroy {
         });
       });
 
-      // self.router.navigate(['order/form']);
-
-      self.contactSvc.find({ where: { accountId: account.id } }).subscribe((r: IContact[]) => {
+      self.contactSvc.find({ accountId: account.id }).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
-          if (r[0].phone) {
-            self.router.navigate(['order/form']);
-          } else {
-            self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-          }
+          // this.rx.dispatch({
+          //   type: CartActions.UPDATE_DELIVERY, payload: {
+          //     merchantId: restaurant.id,
+          //     merchantName: restaurant.name,
+          //     deliveryCost: restaurant.fullDeliveryFee,
+          //     deliveryFee: restaurant.deliveryFee,
+          //     deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
+          //   }
+          // });
+
+          // load contact from database
+          self.rx.dispatch({
+            type: ContactActions.UPDATE_WITHOUT_LOCATION,
+            payload: r
+          });
+          self.router.navigate(['order/form']);
         } else {
           const contact = new Contact({
             accountId: account.id,
@@ -170,7 +168,10 @@ export class CartPageComponent implements OnInit, OnDestroy {
             created: new Date(),
             modified: new Date()
           });
-
+          self.rx.dispatch({
+            type: ContactActions.UPDATE_LOCATION,
+            payload: contact
+          });
           // self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
           self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
         }

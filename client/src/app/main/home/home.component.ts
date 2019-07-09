@@ -11,8 +11,6 @@ import { PageActions } from '../../main/main.actions';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../account/auth.service';
 import { IPageAction } from '../main.reducers';
-import { LocationActions } from '../../location/location.actions';
-import { ILocationAction } from '../../location/location.reducer';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICommand } from '../../shared/command.reducers';
@@ -30,6 +28,8 @@ import { IDelivery } from '../../delivery/delivery.model';
 import { ContactActions } from '../../contact/contact.actions';
 
 const APP = environment.APP;
+const WECHAT_APP_ID = environment.WECHAT.APP_ID;
+const WECHAT_REDIRCT_URL = environment.WECHAT.REDIRECT_URL;
 
 @Component({
   selector: 'app-home',
@@ -81,9 +81,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'home' });
 
-    this.rx.select('delivery').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((d: IDelivery) => {
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
       if (d && d.origin) {
         self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
         self.placeForm.get('addr').patchValue(self.deliveryAddress);
@@ -106,15 +104,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         } else {
           if (code) {
             this.loading = true;
-            this.accountSvc.wechatLogin(code).pipe(
-              takeUntil(this.onDestroy$)
-            ).subscribe((data: any) => {
+            this.accountSvc.wechatLogin(code).pipe(takeUntil(this.onDestroy$)).subscribe((data: any) => {
               if (data) {
                 self.wechatLoginHandler(data);
               } else { // failed from shared link login
-                // tslint:disable-next-line:max-line-length
                 this.loading = false;
-                window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0591bdd165898739&redirect_uri=https://duocun.com.cn&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
+                window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + WECHAT_APP_ID
+                  + '&redirect_uri=' + WECHAT_REDIRCT_URL
+                  + '&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
               }
             });
           } else { // no code in router
@@ -133,9 +130,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const self = this;
     self.authSvc.setUserId(data.userId);
     self.authSvc.setAccessToken(data.id);
-    self.accountSvc.getCurrentUser().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((account: Account) => {
+    self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
       if (account) {
         self.bFirstTime = !account.visited ? true : false;
         self.account = account;
@@ -178,7 +173,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    const self = this;
     this.places = []; // clear address list
 
     this.rx.dispatch<IPageAction>({
@@ -260,9 +254,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   getSuggestLocationList(input: string, bShowList: boolean) {
     const self = this;
     this.places = [];
-    this.locationSvc.reqPlaces(input).pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((ps: IPlace[]) => {
+    this.locationSvc.reqPlaces(input).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IPlace[]) => {
       if (ps && ps.length > 0) {
         const places = [];
         ps.map(p => {
@@ -294,9 +286,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           userId: self.account.id, accountName: self.account.username, type: 'history',
           placeId: r.placeId, location: r, created: new Date()
         };
-        self.locationSvc.saveIfNot(query, lh).pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe(() => {
+
+        self.locationSvc.saveIfNot(query, lh).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
 
         });
       }

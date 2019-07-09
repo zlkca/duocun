@@ -17,7 +17,7 @@
           <span i18n="@@DeliverTo">Deliver to</span>:
         </div>
         <span class="user-col">{{contact.username}}</span>
-        <span class="phone-col">{{contact.phone}}</span>
+        <span class="phone-col" *ngIf="contact && contact.phone">{{contact.phone}}</span>
       </div>
       <div class="title-md">
         <div class="label">

@@ -42,7 +42,7 @@ const api_middleware_1 = require("./api-middleware");
 const node_cron_1 = require("node-cron");
 const client_balance_1 = require("./models/client-balance");
 process.env.TZ = 'America/Toronto';
-node_cron_1.schedule('0 50 23 * * *', () => {
+node_cron_1.schedule('0 45 23 * * *', () => {
     let cb = new client_balance_1.ClientBalance(dbo);
     cb.updateAll();
 });

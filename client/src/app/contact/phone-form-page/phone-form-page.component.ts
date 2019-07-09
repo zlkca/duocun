@@ -126,35 +126,46 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  redirect(contact) {
+    const self = this;
+    if (self.fromPage === 'account-setting') {
+      self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: contact });
+      self.router.navigate(['account/setting']);
+      self.snackBar.open('', '默认手机号已成功修改。', { duration: 1500 });
+    } else if (self.fromPage === 'restaurant-detail') {
+      // x.location = self.contact.location; // update address for the order
+      // self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact }); // fix me
+      self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_WITHOUT_LOCATION, payload: contact });
+      self.router.navigate(['order/form']);
+      self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
+    } else if (self.fromPage === 'order-form') {
+      self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
+      // self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact }); // fix me
+      self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_WITHOUT_LOCATION, payload: contact });
+      self.router.navigate(['order/form'], { queryParams: { fromPage: 'order-form' } });
+    }
+  }
+
   save() {
     const self = this;
     const v = this.form.value;
+    const account = this.account;
 
     if (!this.phoneVerified) {
       return;
     }
 
-    this.contactSvc.find({ accountId: self.account.id }).pipe(takeUntil(self.onDestroy$)).subscribe(oldContacts => {
+    this.contactSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe(oldContacts => {
       if (oldContacts && oldContacts.length > 0) {
         const oldContact = oldContacts[0];
         oldContact.phone = v.phone;
         oldContact.verificationCode = v.verificationCode;
 
         // replace phone number only
-        self.contactSvc.update({ accountId: self.account.id }, { phone: v.phone, verificationCode: v.verificationCode }).pipe(
-          takeUntil(self.onDestroy$)
-        ).subscribe(x => {
+        const data = { phone: v.phone, verificationCode: v.verificationCode };
+        self.contactSvc.update({ accountId: account.id }, data).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
           if (x.ok === 1) {
-            if (self.fromPage === 'account-setting') {
-              self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact });
-              self.router.navigate(['account/setting']);
-              self.snackBar.open('', '默认手机号已成功修改。', { duration: 1500 });
-            } else if (self.fromPage === 'restaurant-detail' || self.fromPage === 'order-form') {
-              // x.location = self.contact.location; // update address for the order
-              self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact });
-              self.router.navigate(['order/form']);
-              self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
-            }
+            this.redirect(oldContact);
           }
         });
       } else {
@@ -165,15 +176,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
         contact.verificationCode = v.verificationCode;
 
         self.contactSvc.save(contact).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-          if (self.fromPage === 'account-setting') {
-            self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: x });
-            self.router.navigate(['account/setting']);
-            self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
-          } else if (self.fromPage === 'restaurant-detail') {
-            self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_WITHOUT_LOCATION, payload: contact });
-            self.router.navigate(['order/form']);
-            self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
-          }
+          this.redirect(contact);
         });
       }
     });

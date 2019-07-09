@@ -37,6 +37,7 @@ export class CartNavbarComponent implements OnInit {
     private restaurantSvc: RestaurantService,
     private router: Router,
   ) {
+    // why not load from database
     this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
       this.account = account;
     });
@@ -92,26 +93,30 @@ export class CartNavbarComponent implements OnInit {
               }
             });
 
-            if (r[0].phone) {
-              self.router.navigate(['order/form']);
-            } else {
-              self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-            }
+            // load contact from database
+            self.rx.dispatch({
+              type: ContactActions.UPDATE_WITHOUT_LOCATION,
+              payload: r
+            });
           } else {
-            const contact = new Contact({
-              accountId: account.id,
-              username: account.username,
-              phone: '', // account.phone,
-              placeId: self.location.placeId,
-              location: self.location,
-              unit: '',
-              buzzCode: '',
-              address: self.locationSvc.getAddrString(self.location),
-              created: new Date(),
-              modified: new Date()
+            // const contact = new Contact({
+            //   accountId: account.id,
+            //   username: account.username,
+            //   phone: '', // account.phone,
+            //   placeId: self.location.placeId,
+            //   location: self.location,
+            //   unit: '',
+            //   buzzCode: '',
+            //   address: self.locationSvc.getAddrString(self.location),
+            //   created: new Date(),
+            //   modified: new Date()
+            // });
+
+            self.rx.dispatch({
+              type: ContactActions.UPDATE_ACCOUNT,
+              payload: {accountId: account.id, username: account.username}
             });
 
-            // self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
             self.rx.dispatch({
               type: CartActions.UPDATE_DELIVERY, payload: {
                 merchantId: restaurant.id,
@@ -121,8 +126,8 @@ export class CartNavbarComponent implements OnInit {
                 deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
               }
             });
-            self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
           }
+          self.router.navigate(['order/form']);
         });
       }
     }

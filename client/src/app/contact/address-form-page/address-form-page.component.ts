@@ -53,16 +53,17 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
       if (this.account && this.account.id) {
+        // load location option list
         this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
           const a = this.locationSvc.toPlaces(lhs);
           self.options = a;
         });
+      } else {
+        self.options = [];
       }
     });
 
-    this.rx.select('contact').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((r: IContact) => {
+    this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact) => {
       if (r) {
         self.contact = new Contact(r);
         self.deliveryAddress = this.contact.address;
@@ -91,7 +92,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   onAddressClear(e) {
     this.deliveryAddress = '';
     this.options = [];
-    this.onAddressInputFocus({input: ''});
+    this.onAddressInputFocus({ input: '' });
   }
 
   onAddressInputFocus(e?: any) {
@@ -113,14 +114,12 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.location = r;
       this.deliveryAddress = e.address; // set address text to input
       if (self.account) {
-        const query = { where: { userId: self.account.id, placeId: r.placeId } };
+        const query = { userId: self.account.id, placeId: r.placeId };
         const lh = {
           userId: self.account.id, accountName: self.account.username, type: 'history',
           placeId: r.placeId, location: r, created: new Date()
         };
-        self.locationSvc.saveIfNot(query, lh).pipe(
-          takeUntil(this.onDestroy$)
-        ).subscribe(() => {
+        self.locationSvc.saveIfNot(query, lh).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
 
         });
       }
@@ -139,7 +138,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
     this.rx.dispatch<IContactAction>({
       type: ContactActions.UPDATE_LOCATION,
-      payload: {location: this.contact.location}
+      payload: { location: this.contact.location }
     });
 
     Cookies.remove('duocun-old-location');
@@ -149,7 +148,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       self.router.navigate(['contact/list']);
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
-    } else if (self.fromPage === 'restaurant-filter' ) {
+    } else if (self.fromPage === 'restaurant-filter') {
       self.router.navigate(['main/filter']);
     }
   }
@@ -170,7 +169,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
     this.rx.dispatch<IContactAction>({
       type: ContactActions.UPDATE_LOCATION,
-      payload: {location: this.location}
+      payload: { location: this.location }
     });
 
     // this.rx.dispatch<ILocationAction>({
@@ -182,23 +181,23 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       if (contact.id) {
         this.contactSvc.replace(contact).subscribe(x => {
           self.router.navigate(['account/setting']);
-          self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500});
+          self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
         });
       } else {
         this.contactSvc.save(contact).subscribe(x => {
           self.router.navigate(['account/setting']);
-          self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1500});
+          self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
         });
       }
     } else if (self.fromPage === 'restaurant-detail') {
       self.router.navigate(['contact/list']);
-      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1500});
+      self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
-      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1500});
-    } else if (self.fromPage === 'restaurant-filter' ) {
+      self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
+    } else if (self.fromPage === 'restaurant-filter') {
       self.router.navigate(['main/filter']);
-      self.snackBar.open('', '账号默认地址已成功保存。', {duration: 1500});
+      self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
     }
 
   }
