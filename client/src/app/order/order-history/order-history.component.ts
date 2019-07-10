@@ -15,9 +15,6 @@ import { MatDialog } from '../../../../node_modules/@angular/material';
 import { ICommand } from '../../shared/command.reducers';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
-import { ILocationAction } from '../../location/location.reducer';
-import { LocationActions } from '../../location/location.actions';
-import { DeliveryTimeActions } from '../../delivery/delivery-time.actions';
 import * as moment from 'moment';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 
@@ -31,12 +28,12 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   account;
   restaurant;
   orders = [];
+  loading = true;
 
   constructor(
     private accountSvc: AccountService,
     private orderSvc: OrderService,
     private sharedSvc: SharedService,
-    // private socketSvc: SocketService,
     private rx: NgRedux<IAppState>,
     private router: Router,
     public dialog: MatDialog
@@ -49,9 +46,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    this.accountSvc.getCurrent().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(account => {
+    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
       if (account && account.id) {
         self.reload(account.id);
@@ -79,9 +74,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     //   }
     // });
 
-    this.rx.select<ICommand>('cmd').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((x: ICommand) => {
+    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'reload-orders') {
         self.reload(this.account.id);
       }
@@ -108,18 +101,20 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         }
         subTotal = productTotal + order.deliveryCost;
         order.tax = Math.ceil(subTotal * 13) / 100;
-
         order.productTotal = productTotal;
       });
 
       orders.sort((a: IOrder, b: IOrder) => {
-        if (this.sharedSvc.compareDateTime(a.created, b.created)) {
+        const ma = moment(a.created).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        const mb = moment(b.created).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        if (moment(ma).isAfter(mb)) {
           return -1;
         } else {
           return 1;
         }
       });
       self.orders = orders;
+      self.loading = false;
     });
   }
 

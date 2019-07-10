@@ -12,18 +12,15 @@ import { WizardComponent } from './wizard/wizard.component';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 import { FeedbackComponent } from './feedback/feedback.component';
 import { MapComponent } from './map/map.component';
-// import { HeaderComponent } from './header/header.component';
-// import { FooterComponent } from './footer/footer.component';
-// import { MultiImageUploaderComponent } from './multi-image-uploader/multi-image-uploader.component';
+
 import { SharedService } from './shared.service';
 import { AddressAutocompleteComponent } from './address-autocomplete/address-autocomplete.component';
 import { EntityService } from '../entity.service';
 import { WarningDialogComponent } from './warning-dialog/warning-dialog.component';
 import { DeliveryDateListComponent } from './delivery-date-list/delivery-date-list.component';
 import { AddressInputComponent } from './address-input/address-input.component';
+import { ProgressSpinnerComponent } from './progress-spinner/progress-spinner.component';
 
-// import { PageService } from '../pages/page.service';
-// import { PagesModule } from '../pages/pages.module';
 @NgModule({
   imports: [
     CommonModule,
@@ -39,12 +36,11 @@ import { AddressInputComponent } from './address-input/address-input.component';
     ImageViewerComponent,
     FeedbackComponent,
     MapComponent,
-    // HeaderComponent,
-    // FooterComponent,
     AddressAutocompleteComponent,
     WarningDialogComponent,
     DeliveryDateListComponent,
-    AddressInputComponent
+    AddressInputComponent,
+    ProgressSpinnerComponent
   ],
   providers: [
     SharedService,
@@ -56,12 +52,11 @@ import { AddressInputComponent } from './address-input/address-input.component';
     ImageViewerComponent,
     FeedbackComponent,
     MapComponent,
-    // HeaderComponent,
-    // FooterComponent,
     AddressAutocompleteComponent,
     WarningDialogComponent,
     DeliveryDateListComponent,
-    AddressInputComponent
+    AddressInputComponent,
+    ProgressSpinnerComponent
   ]
 })
 export class SharedModule { }

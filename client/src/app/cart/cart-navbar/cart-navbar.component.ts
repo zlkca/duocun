@@ -81,8 +81,8 @@ export class CartNavbarComponent implements OnInit {
       const account = this.account;
       if (account && account.id) {
         // self.router.navigate(['order/form']);
-        self.contactSvc.find({ accountId: account.id}).pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact[]) => {
-          if (r && r.length > 0) {
+        self.contactSvc.find({ accountId: account.id}).pipe(takeUntil(this.onDestroy$)).subscribe((cs: IContact[]) => {
+          if (cs && cs.length > 0) {
             this.rx.dispatch({
               type: CartActions.UPDATE_DELIVERY, payload: {
                 merchantId: restaurant.id,
@@ -96,7 +96,7 @@ export class CartNavbarComponent implements OnInit {
             // load contact from database
             self.rx.dispatch({
               type: ContactActions.UPDATE_WITHOUT_LOCATION,
-              payload: r
+              payload: cs[0]
             });
           } else {
             // const contact = new Contact({

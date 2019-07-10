@@ -25,6 +25,7 @@ import { PaymentService } from '../payment/payment.service';
     MatTabsModule,
     MatSnackBarModule,
     MatDialogModule,
+    // MatProgressSpinnerModule,
     OrderRoutingModule,
     SharedModule
   ],

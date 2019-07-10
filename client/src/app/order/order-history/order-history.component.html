@@ -3,75 +3,68 @@
     <span class="title-bg" i18n="@@OrderHistory">Order History</span>
   </div>
 
-  <div class="empty-order" *ngIf="!orders || orders.length===0">
+  <div class="loading-spinner" *ngIf="loading">
+    <app-progress-spinner></app-progress-spinner>
+  </div>
+
+
+  <div class="empty-order" *ngIf="!loading && (!orders || orders.length===0)">
       <div class="order-image">
         <img src="assets/outline-assignment-24px.svg" alt="order" />
       </div>
       <span i18n="@@OrderEmptyMsg">You don't have any order yet.</span>
   </div>
 
-  <div class="order-list">
+  <div class="order-list" *ngIf="!loading">
     <div class="list-item" *ngFor="let order of orders;" (click)="onSelect(order)">
-            <!-- <mat-expansion-panel [displayMode]="'flat'">
-              <mat-expansion-panel-header [collapsedHeight]="'90px'" [expandedHeight]="'90px'">
-              <mat-panel-title> -->
-                <div class="row first-row">
-                  <div class="col-8 text-col">
-                    <div class="col-12">
-                      <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
-                      <span class="text-xs">{{order.merchantName}}</span>
-                      <!-- <span class="text-xs">({{order.restaurant.address.sublocality? order.restaurant.address.sublocality : order.restaurant.address.city}})</span> -->
-                    </div>
-                    <div class="col-12">
-                      <span class="title-xs" i18n="@@DeliveryDate">Deliver Date</span>:
-                      <span class="text-xs">{{toDateString(order.delivered)}}</span>
-                    </div>
-                    <div class="col-12">
-                      <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
-                      <span class="text-xs">{{toDateString(order.created)}}</span>
-                    </div>
-                  </div>
-                  <div class="col-4 btn-col" *ngIf="canChange(order)">
-                    <div class="btn btn-sm btn-primary btn-change" i18n="@@Change" (click)="changeOrder(order)">Change</div>
-                    <div class="btn btn-sm btn-primary btn-delete" i18n="@@Delete" (click)="deleteOrder(order)">Delete</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-12 address-row">
-                    <span class="title-xs" i18n="@@DeliverAddress">Deliver Address</span>:
-                    <span class="text-xs">{{order.address}}</span>
-                  </div>
-                </div>
-              <!-- </mat-panel-title>
-              </mat-expansion-panel-header>
-         -->
-              <div class="row order-detail">
-                <div class="col-7 items-col">
-                  <div *ngFor="let item of order.items" class="text-sm row">
-                    <div class="col-7 product-col">{{item.productName}}</div>
-                    <div class="col-2 quantity-col">x {{item.quantity}}</div>
-                    <div class="col-3 price-col">${{item.price | number : '1.2-2'}}</div>
-                  </div>
-                </div>
-                <div class="col-5 text-sm total-col" *ngIf="order.total">
-                  <div class="row">
-                    <div class="col-12"><span i18n="@@ProductTotal">ProductTotal</span>: ${{order.productTotal | number : '1.2-2'}}</div>
-                    <div class="col-12"><span i18n="@@DeliveryFee">Delivery Fee</span>: ${{order.deliveryCost | number : '1.2-2'}}</div>
-                    <div class="col-12"><span i18n="@@Tax">Tax</span>: ${{order.tax | number : '1.2-2'}}</div>
-                    <div class="col-12"><span i18n="@@Tips">Tips</span>: ${{order.tips | number : '1.2-2'}}</div>
-                    <div class="col-12"><span i18n="@@DeliveryDiscount">Delivery Discount</span>: -${{order.deliveryDiscount | number : '1.2-2'}}</div>
-                    <div class="col-12" *ngIf="order.groupDiscount>0" ><span i18n="@@GroupDiscount">GroupDiscount</span>: -${{order.groupDiscount | number : '1.2-2'}}</div>
-                    <div class="col-12" ><span i18n="@@Total">Total</span>: ${{ order.total | number : '1.2-2'}}</div>
-                  </div>
-                </div>
-                <!-- <div class="col-6" *ngIf="order.status === 'new'">
-                  <div class="btn btn-primary btn-xs pull-right" (click)="takeOrder(order)">Take Order</div>
-                </div>
-                <div class="col-6" *ngIf="order.status === 'process'">
-                  <div class="btn btn-primary btn-xs pull-right" (click)="sendForDeliver(order)">Delivered</div>
-                </div> -->
-              </div>
-            <!-- </mat-expansion-panel> -->
+      <div class="row first-row">
+        <div class="col-8 text-col">
+          <div class="col-12">
+            <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
+            <span class="text-xs">{{order.merchantName}}</span>
+          </div>
+          <div class="col-12">
+            <span class="title-xs" i18n="@@DeliveryDate">Deliver Date</span>:
+            <span class="text-xs">{{toDateString(order.delivered)}}</span>
+          </div>
+          <div class="col-12">
+            <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
+            <span class="text-xs">{{toDateString(order.created)}}</span>
+          </div>
+        </div>
+        <div class="col-4 btn-col" *ngIf="canChange(order)">
+          <div class="btn btn-sm btn-primary btn-change" i18n="@@Change" (click)="changeOrder(order)">Change</div>
+          <div class="btn btn-sm btn-primary btn-delete" i18n="@@Delete" (click)="deleteOrder(order)">Delete</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 address-row">
+          <span class="title-xs" i18n="@@DeliverAddress">Deliver Address</span>:
+          <span class="text-xs">{{order.address}}</span>
+        </div>
+      </div>
+
+      <div class="row order-detail">
+        <div class="col-7 items-col">
+          <div *ngFor="let item of order.items" class="text-sm row">
+            <div class="col-7 product-col">{{item.productName}}</div>
+            <div class="col-2 quantity-col">x {{item.quantity}}</div>
+            <div class="col-3 price-col">${{item.price | number : '1.2-2'}}</div>
+          </div>
+        </div>
+        <div class="col-5 text-sm total-col" *ngIf="order.total">
+          <div class="row">
+            <div class="col-12"><span i18n="@@ProductTotal">ProductTotal</span>: ${{order.productTotal | number : '1.2-2'}}</div>
+            <div class="col-12"><span i18n="@@DeliveryFee">Delivery Fee</span>: ${{order.deliveryCost | number : '1.2-2'}}</div>
+            <div class="col-12"><span i18n="@@Tax">Tax</span>: ${{order.tax | number : '1.2-2'}}</div>
+            <div class="col-12"><span i18n="@@Tips">Tips</span>: ${{order.tips | number : '1.2-2'}}</div>
+            <div class="col-12"><span i18n="@@DeliveryDiscount">Delivery Discount</span>: -${{order.deliveryDiscount | number : '1.2-2'}}</div>
+            <div class="col-12" *ngIf="order.groupDiscount>0" ><span i18n="@@GroupDiscount">GroupDiscount</span>: -${{order.groupDiscount | number : '1.2-2'}}</div>
+            <div class="col-12" ><span i18n="@@Total">Total</span>: ${{ order.total | number : '1.2-2'}}</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

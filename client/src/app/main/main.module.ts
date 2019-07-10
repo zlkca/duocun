@@ -6,7 +6,7 @@ import { LocationModule } from '../location/location.module';
 import { AccountService } from '../account/account.service';
 import { AuthService } from '../account/auth.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+// import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { RestaurantFilterPageComponent } from './restaurant-filter-page/restaurant-filter-page.component';
 import { HomeComponent } from './home/home.component';
@@ -21,7 +21,7 @@ import { RestaurantService } from '../restaurant/restaurant.service';
     ReactiveFormsModule,
     MainRoutingModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule,
+    // MatProgressSpinnerModule,
     LocationModule,
     SharedModule,
   ],
