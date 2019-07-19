@@ -30,23 +30,17 @@ export class FooterComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService,
   ) {
     const self = this;
-    this.rx.select('account').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((account: Account) => {
+    this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
       self.account = account;
     });
 
-    this.rx.select('cart').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((cart: ICart) => {
+    this.rx.select('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       if (self.page === 'cart') {
         self.bHide = cart.items.length > 0;
       }
     });
 
-    this.rx.select<string>('page').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(x => {
+    this.rx.select<string>('page').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
       self.page = x;
       if (x === 'contact-form' || x === 'phone-form' || x === 'address-form' || x === 'restaurant-detail' ||
         x === 'cart' || x === 'order-confirm' || x === 'home') {
@@ -56,9 +50,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.rx.select<ICommand>('cmd').pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe((x: ICommand) => {
+    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'loggedIn') {
         self.bHide = false;
       } else if (x.name === 'firstTimeUse') {
@@ -81,7 +73,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       payload: { name: 'clear-location-list', args: null }
     });
 
-    this.contactSvc.find({ where: { accountId: this.account.id } }).subscribe((r: IContact[]) => {
+    this.contactSvc.find({ accountId: this.account.id }).subscribe((r: IContact[]) => {
       if (r && r.length > 0 && r[0].location) {
         this.router.navigate(['main/filter']);
       } else {

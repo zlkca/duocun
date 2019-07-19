@@ -1,7 +1,10 @@
 form{
-  padding: 0px 10px;
-  margin-top: 60px;
-  
+  padding: 25px 15px;
+  // margin-top: 60px;
+  position: absolute;
+  top: 60px;
+  left: 0px;
+
   .warning{
     font-size: 12px;
     color: #DB4437;
@@ -26,8 +29,9 @@ form{
       border-right: none;
     }
   }
+
   .form-group{
-    padding-top: 20px;
+    padding-top: 30px;
   }
 
   .col-6{

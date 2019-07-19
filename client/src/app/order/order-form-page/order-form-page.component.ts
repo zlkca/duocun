@@ -238,13 +238,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
                 self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
                 self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-                self.snackBar.open('', '您的订单已经成功修改。', { duration: 1800 });
-
-                if (this.contact.location) {
-                  this.router.navigate(['main/filter']);
-                } else {
-                  this.router.navigate(['main/home']);
-                }
+                self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
+                self.router.navigate(['order/history']);
+              }, err => {
+                self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
               });
             } else {
               this.snackBar.open('', '登录已过期，请重新从公众号进入', {
@@ -271,13 +268,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 // self.afterSubmit.emit(order);
                 const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
                 this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-                this.snackBar.open('', '您的订单已经成功提交。', { duration: 1800 });
-
-                if (this.contact.location) {
-                  this.router.navigate(['main/filter']);
-                } else {
-                  this.router.navigate(['main/home']);
-                }
+                this.snackBar.open('', '您的订单已经成功提交。', { duration: 2000 });
+                self.router.navigate(['order/history']);
+              }, err => {
+                self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
               });
             } else {
               this.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });

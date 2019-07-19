@@ -1,5 +1,6 @@
 
 $yellow: rgba(244, 160, 0, 0.2);
+$blue: rgba(66,133,244, 0.1);
 
 .empty-order{
   text-align: center;
@@ -13,7 +14,7 @@ $yellow: rgba(244, 160, 0, 0.2);
 
 .order-list{
   padding: 0px 10px 60px 10px;
-  margin-top: 60px;
+  margin-top: 70px;
 
   .list-item{
     padding: 5px 0px;
@@ -76,6 +77,14 @@ $yellow: rgba(244, 160, 0, 0.2);
         padding-left: 0px;
       }
     }
+  }
+
+  .list-item:first-child{
+    background: $blue;
+    margin-left: -10px;
+    margin-right: -10px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 

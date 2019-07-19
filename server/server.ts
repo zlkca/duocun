@@ -40,6 +40,7 @@ import { PhoneRouter } from "./routers/phone-route";
 import { RangeRouter } from "./routers/range-route";
 import { MallRouter } from "./routers/mall-route";
 import { LocationRouter } from "./routers/location-route";
+import { PickupRouter } from "./routers/pickup-route";
 
 import { Product } from "./models/product";
 
@@ -199,6 +200,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Ranges', RangeRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Malls', MallRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Locations', LocationRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Pickups', PickupRouter(dbo));
 
   app.use('/' + ROUTE_PREFIX + '/Accounts', AccountRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Distances', DistanceRouter(dbo));
@@ -224,10 +226,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
 
   setupSocket(server);
 });
-
-
-
-
 
 
 app.use(cors());
