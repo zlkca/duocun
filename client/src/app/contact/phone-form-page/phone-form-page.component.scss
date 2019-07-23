@@ -1,9 +1,14 @@
+.page{
+  height: 500px;
+}
+
 form{
   padding: 25px 15px;
   // margin-top: 60px;
-  position: absolute;
+  position: fixed;
   top: 60px;
   left: 0px;
+  height: 400px;
 
   .warning{
     font-size: 12px;
