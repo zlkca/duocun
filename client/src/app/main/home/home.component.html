@@ -40,21 +40,21 @@
 </div> -->
 
 <div>
-    <div class="merchant-list" *ngIf="account && !(places && places.length > 0) && inRange">
-      <app-merchant-list [active]="inRange" [delivered]="date" [address]="address" ></app-merchant-list>
-    </div>
+  <div class="merchant-list" *ngIf="account && !(places && places.length > 0) && inRange">
+    <app-merchant-list [active]="inRange" [delivered]="date" [address]="address" ></app-merchant-list>
+  </div>
 
-    <div class="map-block" [class.range]="rangeMap" *ngIf="!(places && places.length > 0) && !inRange">
-      <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="places" [ranges]="compareRanges"></app-map>
-    
-      <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
-        <div class="col-12">
-            <div class="text-md">
-              <span>您的地址不在配送范围内，请尝试其它地址</span>
-            </div>
-        </div>
-      </button>
-    </div>
+  <div class="map-block" [class.range]="rangeMap" *ngIf="!(places && places.length > 0) && !inRange">
+    <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="places" [ranges]="compareRanges"></app-map>
+  
+    <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
+      <div class="col-12">
+          <div class="text-md">
+            <span>您的地址不在配送范围内，请尝试其它地址</span>
+          </div>
+      </div>
+    </button>
+  </div>
 
   <div class="header-block">
     <div class="address-search-block">
