@@ -26,6 +26,10 @@ import { DeliveryActions } from '../../delivery/delivery.actions';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
 import { IDelivery } from '../../delivery/delivery.model';
 import { ContactActions } from '../../contact/contact.actions';
+import * as moment from 'moment';
+import { RangeService } from '../../range/range.service';
+import { MerchantService } from '../../merchant/merchant.service';
+import { IRestaurant } from '../../restaurant/restaurant.model';
 
 const APP = environment.APP;
 const WECHAT_APP_ID = environment.WECHAT.APP_ID;
@@ -60,13 +64,27 @@ export class HomeComponent implements OnInit, OnDestroy {
   placeForm;
   historyAddressList = [];
   suggestAddressList = [];
-  @ViewChild('tooltip', {static: true}) tooltip: MatTooltip;
+  selectedDate = 'today';
+  date;
+  address;
+  compareRanges;
+  mapZoom;
+  rangeMap;
+  mapCenter;
+  availableRanges;
+  sOrderDeadline;
+  today;
+  tomorrow;
+
+  @ViewChild('tooltip', { static: true }) tooltip: MatTooltip;
 
   constructor(
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     private authSvc: AuthService,
     private contactSvc: ContactService,
+    private rangeSvc: RangeService,
+    private merchantSvc: MerchantService,
     // private socketSvc: SocketService,
     private router: Router,
     private route: ActivatedRoute,
@@ -75,6 +93,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     private fb: FormBuilder
   ) {
     const self = this;
+    const today =  moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
+    const tomorrow =  moment().add(1, 'days').set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
+    this.today = { type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:15' };
+    this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow, startTime: '11:45', endTime: '13:15' };
+
     this.placeForm = this.fb.group({
       addr: ['']
     });
@@ -88,6 +111,26 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (self.deliveryAddress && self.bUpdateLocationList) {
           self.getSuggestLocationList(self.deliveryAddress, false);
         }
+        this.address = d.origin;
+        this.checkRange(d.origin);
+      } else {
+        this.address = null;
+        this.inRange = true;
+      }
+
+      if (!(d && d.fromTime)) {
+        const todayStart = moment().set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+        const todayEnd = moment().set({ hour: 13, minute: 30, second: 0, millisecond: 0 });
+
+        this.rx.dispatch({
+          type: DeliveryActions.UPDATE_TIME,
+          payload: { fromTime: todayStart.toDate(), toTime: todayEnd.toDate() }
+        });
+        this.date = todayStart;
+      } else {
+        const date = moment(d.fromTime);
+        this.selectedDate = moment().isSame(date, 'day') ? 'today' : 'tomorrow';
+        this.date = date;
       }
     });
 
@@ -184,6 +227,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.places = [];
       }
     });
+
+    this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
+      this.sOrderDeadline = this.getOrderDeadline(rs);
+      const arr = this.sOrderDeadline.split(':');
+      const a = moment().set({ hour: +arr[0], minute: +arr[1], second: 0, millisecond: 0 });
+      const b = moment();
+      this.overdue = b.isAfter(a);
+    });
   }
 
   ngOnDestroy() {
@@ -191,6 +242,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
+  getOrderDeadline(rs: IRestaurant[]) {
+    let deadline = rs[0].orderDeadline;
+    const arr1 = deadline.split(':');
+    let a = moment().set({ hour: +arr1[0], minute: +arr1[1], second: 0, millisecond: 0 });
+
+    rs.map(r => {
+      const arr2 = r.orderDeadline.split(':');
+      const b = moment().set({ hour: +arr2[0], minute: +arr2[1], second: 0, millisecond: 0 });
+
+      if (b.isAfter(a)) {
+        a = b;
+        deadline = r.orderDeadline;
+      }
+    });
+    return deadline;
+  }
+  
   showLocationList() {
     return this.places && this.places.length > 0;
   }
@@ -275,8 +343,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     const r: ILocation = e.location;
     this.places = [];
     this.bUpdateLocationList = false;
+    this.location = r;
     if (r) {
-      this.location = r;
       this.deliveryAddress = e.address; // set address text to input
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
 
@@ -292,7 +360,67 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
       }
 
-      this.router.navigate(['main/filter']);
+      // this.router.navigate(['main/filter']);
     }
   }
+
+  onSelectDate(e) {
+    const date = e.value;
+
+    if (date === 'tomorrow') {
+      const tomorrowStart = moment().set({ hour: 11, minute: 45, second: 0, millisecond: 0 }).add(1, 'days');
+      const tomorrowEnd = moment().set({ hour: 13, minute: 30, second: 0, millisecond: 0 }).add(1, 'days');
+
+      this.rx.dispatch({
+        type: DeliveryActions.UPDATE_TIME,
+        payload: { fromTime: tomorrowStart.toDate(), toTime: tomorrowEnd.toDate() }
+      });
+    } else {
+      const todayStart = moment().set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+      const todayEnd = moment().set({ hour: 13, minute: 30, second: 0, millisecond: 0 });
+
+      this.rx.dispatch({
+        type: DeliveryActions.UPDATE_TIME,
+        payload: { fromTime: todayStart.toDate(), toTime: todayEnd.toDate() }
+      });
+    }
+  }
+
+  loadDistances(origin) {
+
+  }
+
+  checkRange(origin) {
+    const self = this;
+    self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
+      const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
+      self.inRange = (rs && rs.length > 0) ? true : false;
+      self.availableRanges = rs;
+      if (self.inRange) {
+        self.compareRanges = [];
+        self.mapZoom = 14;
+        self.rangeMap = false;
+        self.mapCenter = origin;
+      } else {
+        self.compareRanges = ranges;
+        self.mapZoom = 9;
+        self.rangeMap = true;
+
+        const farNorth = { lat: 44.2653618, lng: -79.4191007 };
+        self.mapCenter = {
+          lat: (origin.lat + farNorth.lat) / 2,
+          lng: (origin.lng + farNorth.lng) / 2
+        };
+      }
+
+      this.address = origin; // order matters
+    });
+  }
+
+  resetAddress() {
+    this.address = null;
+    this.inRange = true;
+    this.deliveryAddress = '';
+  }
+
 }

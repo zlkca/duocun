@@ -1,10 +1,16 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductService } from '../product.service';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { Product } from '../../product/product.model';
+import { Product, IProduct, Category } from '../../product/product.model';
+
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { ICart } from '../../cart/cart.model';
+import { CartActions } from '../../cart/cart.actions';
+import { Subject } from '../../../../node_modules/rxjs';
+import { CategoryService } from '../../category/category.service';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -14,31 +20,114 @@ const ADD_IMAGE = 'add_photo.png';
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   MEDIA_URL: string = environment.MEDIA_URL;
 
-  @Input() merchantId;
-  @Input() products: Product[];
+  @Input() restaurant;
+  @Input() items: any[]; // {product:x, quantity: y}
   @Input() mode: string;
   @Output() select = new EventEmitter();
   @Output() afterDelete = new EventEmitter();
+
   selected = null;
+  onDestroy$ = new Subject();
+  categories;
+  cart;
 
   ngOnInit() {
 
   }
 
-  constructor(private productSvc: ProductService,
-    private router: Router,
-    private rx: NgRedux<IAppState>
-    // private actions: CartActions
-  ) {
-
-    // this.subscription = ngRedux.select<ICart>('cart').subscribe(
-    //   cart=> this.cart = cart);
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
-  onClick(p) {
+  constructor(
+    private productSvc: ProductService,
+    private categorySvc: CategoryService,
+    private router: Router,
+    private rx: NgRedux<IAppState>
+  ) {
+    const self = this;
+    this.categorySvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(categories => {
+      this.categories = categories;
+    });
+
+    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+      this.cart = cart;
+      // if (this.products) {
+      //   self.categorySvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(categories => {
+      //     self.groups = self.groupByCategory(this.products, categories);
+      //     self.groups.map(group => {
+      //       group.items.map(groupItem => {
+      //         const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product.id);
+      //         groupItem.quantity = cartItem ? cartItem.quantity : 0;
+      //       });
+      //     });
+      //   });
+      // }
+    });
+  }
+
+
+  addToCart(p: IProduct) {
+
+    // if (this.restaurantSvc.isClosed(this.restaurant, this.deliveryTime)) {
+    //   alert('该商家休息，暂时无法配送');
+    //   return;
+    // }
+    // if (!this.restaurant.inRange) {
+    //   alert('该商家不在配送范围内，暂时无法配送');
+    //   return;
+    // }
+    // if (this.isAfterOrderDeadline(this.restaurant)) {
+    //   alert('已过下单时间，该商家下单截止到' + this.restaurant.orderDeadline + 'am' );
+    //   return;
+    // }
+    this.rx.dispatch({
+      type: CartActions.ADD_TO_CART,
+      payload: {
+        items: [{
+          productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures, cost: p.cost,
+          merchantId: p.merchantId, merchantName: this.restaurant.name
+        }]
+      }
+    });
+  }
+
+  removeFromCart(p: IProduct) {
+    this.rx.dispatch({
+      type: CartActions.REMOVE_FROM_CART,
+      payload: {
+        items: [{
+          productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+          merchantId: p.merchantId, merchantName: this.restaurant.name
+        }]
+      }
+    });
+  }
+
+  getProductImage(p: Product) {
+    if (p.pictures && p.pictures[0] && p.pictures[0].url) {
+      return environment.MEDIA_URL + p.pictures[0].url;
+    } else {
+      return null;
+    }
+  }
+
+  onQuantityChanged(v, item) {
+    const p = item.product;
+    const quantity = v ? v : 0;
+    this.rx.dispatch({
+      type: CartActions.UPDATE_QUANTITY,
+      payload: {
+        items: [{
+          productId: p.id, productName: p.name, price: p.price, quantity: quantity, pictures: p.pictures,
+          merchantId: p.merchantId, merchantName: this.restaurant.name
+        }]
+      }
+    });
   }
 
   getImageSrc(p) {
@@ -60,7 +149,7 @@ export class ProductListComponent implements OnInit {
 
   add() {
     // this.router.navigate(['admin/product']);
-    this.router.navigate(['admin/product'], { queryParams: { restaurant_id: this.merchantId } });
+    this.router.navigate(['admin/product'], { queryParams: { restaurant_id: this.restaurant.id } });
   }
 
   delete(p) {

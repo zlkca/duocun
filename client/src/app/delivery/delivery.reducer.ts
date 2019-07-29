@@ -20,6 +20,12 @@ export function deliveryReducer(state: IDelivery = DEFAULT_DELIVERY, action: IDe
       return null;
     case DeliveryActions.UPDATE:
       return action.payload;
+    case DeliveryActions.UPDATE_TIME:
+      return {
+        ...state,
+        fromTime: action.payload.fromTime,
+        toTime: action.payload.toTime
+      };
     case DeliveryActions.UPDATE_TIME_AND_RANGES:
       return {
         ...state,

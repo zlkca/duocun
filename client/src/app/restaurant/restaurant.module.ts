@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialogModule } from '../../../node_modules/@angular/material';
 
 import { RestaurantGridComponent } from './restaurant-grid/restaurant-grid.component';
 import { RestaurantService } from './restaurant.service';
@@ -15,9 +16,9 @@ import { ProductModule } from '../product/product.module';
 import { ProductService } from '../product/product.service';
 import { OrderService } from '../order/order.service';
 import { CartModule } from '../cart/cart.module';
-import { MatDialogModule } from '../../../node_modules/@angular/material';
+
 import { DistanceService } from '../location/distance.service';
-import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-restaurant-dialog.component';
+// import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-restaurant-dialog.component';
 
 @NgModule({
     imports: [
@@ -43,12 +44,11 @@ import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-res
       RestaurantAboutComponent,
       RestaurantListPageComponent,
       RestaurantDetailPageComponent,
-      QuitRestaurantDialogComponent
+      // QuitRestaurantDialogComponent
     ],
     exports: [
       RestaurantGridComponent,
       RestaurantAboutComponent
-    ],
-    entryComponents: [QuitRestaurantDialogComponent]
+    ]
 })
 export class RestaurantModule { }

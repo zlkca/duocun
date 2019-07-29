@@ -12,7 +12,7 @@ import { PageActions } from '../../main/main.actions';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { MatDialog } from '../../../../node_modules/@angular/material';
-import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-restaurant-dialog.component';
+// import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-restaurant-dialog.component';
 import { ICart } from '../../cart/cart.model';
 import * as moment from 'moment';
 import { IDelivery } from '../../delivery/delivery.model';
@@ -117,24 +117,24 @@ export class RestaurantDetailPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.locationSubscription.unsubscribe();
+    // this.locationSubscription.unsubscribe();
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }
 
   openDialog(merchantId: string, fromPage: string): void {
-    const dialogRef = this.dialog.open(QuitRestaurantDialogComponent, {
-      width: '300px',
-      data: {
-        title: '提示', content: '离开后将清空购物车。', buttonTextNo: '离开', buttonTextYes: '留下',
-        merchantId: merchantId, fromPage: fromPage
-      },
-    });
+    // const dialogRef = this.dialog.open(QuitRestaurantDialogComponent, {
+    //   width: '300px',
+    //   data: {
+    //     title: '提示', content: '离开后将清空购物车。', buttonTextNo: '离开', buttonTextYes: '留下',
+    //     merchantId: merchantId, fromPage: fromPage
+    //   },
+    // });
 
-    dialogRef.afterClosed().pipe(
-      takeUntil(this.onDestroy$)
-    ).subscribe(result => {
-    });
+    // dialogRef.afterClosed().pipe(
+    //   takeUntil(this.onDestroy$)
+    // ).subscribe(result => {
+    // });
   }
 
   onAfterCheckout(e) {

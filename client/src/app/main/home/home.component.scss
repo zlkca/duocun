@@ -6,10 +6,10 @@ $desktop: "(min-width: 1200px)";
 $green: rgb(24, 128, 56);
 $yellow: rgb(244, 160, 0);
 $red: rgb(219, 68, 55);
-
+$blue: #4285F3;
 
 $position-btn-width: 0px;
-$map-height: 220px;
+$map-height: 360px;
 $address-search-height: 46px;
 $menu-height: 60px;
 
@@ -34,14 +34,67 @@ $menu-height: 60px;
   }
 }
 
-.address-search-block {
+.map-block{
   position: fixed;
-  top: 10px;
+  top: 110px;
   left: 0px;
-  margin: 0px;
+  padding:0px;
   width: 100%;
-  padding-left:10px;
-  padding-right:10px;
+  height: $map-height;
+  app-map{
+    width: 100%;
+    height: $map-height;
+  }
+}
+
+.option-item{
+  width: 100%;
+  height: 85px;
+  padding: 5px 0px 10px 0px;
+  margin: 0px;
+  margin-top: 10px;
+  text-align: left;
+  background-color:#eee;
+  border: none;
+  border-radius: 2px;
+
+  .not-in-range-item{
+    .text-md{
+      color: $red;
+    }
+  }
+  
+  .notInRange{
+    top: 400px;
+    width: 100%;
+    height: calc(100% - 460px);
+  }
+  
+}
+
+.header-block{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  background: white;
+
+  .address-search-block {
+    margin: 5px 0px;
+    width: 100%;
+    padding:0px 10px;
+  }
+
+  .date-block{
+    width: 100%;
+    margin: 0px;
+    padding: 0px 10px;
+  }
+}
+
+.merchant-list{
+  position: absolute;
+  top: 110px;
 }
 
 app-location-list{
@@ -84,6 +137,55 @@ app-location-list{
   font-size: 14px;
 }
 
+
+
+.title-row{
+  text-align: left;
+  height: 30px;
+  line-height: 38px;
+  font-weight: 500;
+}
+
+.time-row{
+  padding-top: 5px;
+  line-height: 16px;
+  font-size: 14px;
+  width: 100%;
+  font-size: 12px;
+  color: #666;
+  padding-bottom: 5px;
+  padding-top: 3px;
+
+  .date{
+    padding-left: 0px;
+  }
+  
+  .time{
+    padding-left: 0px;
+    padding-right: 5px;
+  }
+}
+
+mat-button-toggle-group{
+  width: 100%;
+  mat-button-toggle{
+    width: 50%;
+  }
+
+  // .mat-button-toggle-focus-overlay{
+  //   background-color: $blue;
+  // }
+
+  .mat-button-toggle-checked {
+    background-color: $blue;// mat-color($accent);
+    color: white; // mat-color($accent, default-contrast);
+
+    .time-row{
+      color: white;
+    }
+  }
+}
+
 @media #{$desktop}{
 
 }
@@ -99,6 +201,7 @@ and (orientation: landscape) {
 }
 
 @media #{$mobile}{
+
   .branding-block{
     width: 100%;
     .background-img{

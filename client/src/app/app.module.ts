@@ -30,12 +30,16 @@ const appRoutes: Routes = [
       loadChildren: './restaurant/restaurant.module#RestaurantModule'
     },
     {
+      path: 'cart',
+      loadChildren: './cart/cart.module#CartModule'
+    },
+    {
       path: 'product',
       loadChildren: './product/product.module#ProductModule'
     },
     {
-      path: 'cart',
-      loadChildren: './cart/cart.module#CartModule'
+      path: 'merchant',
+      loadChildren: './merchant/merchant.module#MerchantModule'
     },
     {
       path: 'order',

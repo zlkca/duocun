@@ -37,6 +37,7 @@ const phone_route_1 = require("./routers/phone-route");
 const range_route_1 = require("./routers/range-route");
 const mall_route_1 = require("./routers/mall-route");
 const location_route_1 = require("./routers/location-route");
+const pickup_route_1 = require("./routers/pickup-route");
 const product_1 = require("./models/product");
 const api_middleware_1 = require("./api-middleware");
 const node_cron_1 = require("node-cron");
@@ -168,6 +169,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     app.use('/' + ROUTE_PREFIX + '/Ranges', range_route_1.RangeRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Malls', mall_route_1.MallRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Locations', location_route_1.LocationRouter(dbo));
+    app.use('/' + ROUTE_PREFIX + '/Pickups', pickup_route_1.PickupRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Accounts', account_route_1.AccountRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Distances', distance_route_1.DistanceRouter(dbo));
     app.use('/' + ROUTE_PREFIX + '/Regions', region_route_1.RegionRouter(dbo));

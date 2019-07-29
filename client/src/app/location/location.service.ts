@@ -62,7 +62,7 @@ export class LocationService extends EntityService {
   // }
 
   reqPlaces(input: string): Observable<any> {
-    const url = super.getBaseUrl() + 'places?input=' + input;
+    const url = encodeURI(this.url + '/Places/' + input);
     return this.doGet(url);
   }
 
@@ -88,7 +88,7 @@ export class LocationService extends EntityService {
   // }
 
   reqLocationByAddress(address: string): Observable<any> {
-    const url = super.getBaseUrl() + 'geocodeLocations?address=' + address;
+    const url = encodeURI(this.url + '/Geocodes/' + address); // super.getBaseUrl() + 'geocodeLocations?address=' + address;
     return this.doGet(url);
   }
 
@@ -142,22 +142,22 @@ export class LocationService extends EntityService {
 
       addr.forEach(compo => {
         if (compo.types.indexOf('street_number') !== -1) {
-          loc.streetNumber = compo.long_name;
+          loc.streetNumber = compo.short_name;
         }
         if (compo.types.indexOf('route') !== -1) {
-          loc.streetName = compo.long_name;
+          loc.streetName = compo.short_name;
         }
         if (compo.types.indexOf('postal_code') !== -1) {
-          loc.postalCode = compo.long_name;
+          loc.postalCode = compo.short_name;
         }
         if (compo.types.indexOf('sublocality_level_1') !== -1 && compo.types.indexOf('sublocality') !== -1) {
-          loc.subLocality = compo.long_name;
+          loc.subLocality = compo.short_name;
         }
         if (compo.types.indexOf('locality') !== -1) {
-          loc.city = compo.long_name;
+          loc.city = compo.short_name;
         }
         if (compo.types.indexOf('administrative_area_level_1') !== -1) {
-          loc.province = compo.long_name;
+          loc.province = compo.short_name;
         }
       });
       return loc;

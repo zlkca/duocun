@@ -67,6 +67,34 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
           deliveryDiscount: action.payload.deliveryDiscount
         };
 
+      case CartActions.UPDATE_QUANTITY:
+        const itemsToUpdate = action.payload.items;
+
+        itemsToUpdate.map(itemToUpdate => {
+          const x = state.items.find(item => item.productId === itemToUpdate.productId);
+          if (x) {
+            x.quantity = itemToUpdate.quantity;
+          } else {
+            items.push({ ...itemToUpdate });
+          }
+        });
+
+        state.items.map(x => {
+          const it = items.find(y => y.productId === x.productId);
+          if (!it) {
+            items.push(x);
+          }
+        });
+
+        its = items.filter(x => x.quantity > 0);
+        updated = updateCart(state, its);
+
+        return {
+          ...state,
+          ...updated,
+          items: its
+        };
+
       case CartActions.ADD_TO_CART:
         const itemsToAdd = action.payload.items;
         itemsToAdd.map(itemToAdd => {

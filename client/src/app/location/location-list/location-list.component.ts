@@ -26,7 +26,7 @@ export class LocationListComponent implements OnInit {
 
   onSelectPlace(place: IPlace) {
     const self = this;
-    const address = place.structured_formatting.main_text + ' ' + place.structured_formatting.secondary_text;
+    const address = place.structured_formatting.main_text + ', ' + place.structured_formatting.secondary_text;
     if (place.type === 'suggest') {
       this.locationSvc.reqLocationByAddress(address).pipe(takeUntil(this.onDestroy$)).subscribe(xs => {
         const r = this.locationSvc.getLocationFromGeocode(xs[0]);

@@ -8,6 +8,8 @@ export function LocationRouter(db: DB){
 
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
+  router.get('/Places/:input', (req, res) => { controller.reqPlaces(req, res); });
+  router.get('/Geocodes/:address', (req, res) => { controller.reqGeocodes(req, res); });
   router.post('/', (req, res) => { controller.create(req, res); });
   router.put('/', (req, res) => { controller.replace(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });

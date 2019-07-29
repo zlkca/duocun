@@ -1,22 +1,40 @@
-<div class="product-list">
-    <div class="list-group list-body" *ngIf="products && products.length>0">
-      <div class="list-group-item" *ngFor="let p of products; let i = index;" (click)="onSelect(p)" [ngClass]="{'active': selected == p}">
-        <div class="row">
-          <div class="col-4">
-              <!-- <img [src]="p.pictures[0]?.url || placeholder" alt="{{p.name}}" /> -->
-          </div>
-    
-          <div class="col-4 text-block">
-            <div class="title-sm">{{p.name}}</div>
-            <div class="text-sm">CAD {{p.price}}</div>
-            <div class="text-sm">{{p.description}}</div>
-          </div>
-    
-          <div class="col-4">
-            <div class="btn btn-sm btn-secondary" (click)="delete(p)" i18n="@@Delete">Delete</div>
+<div class="product-list" *ngIf="items && items.length>0">
+  <div class="col-12 list-item" *ngFor="let item of items; let i = index;">
+    <div class="row item-body" *ngIf="item">
+      <div class="col-md-12 col-4 image-body">
+        <img [src]="getProductImage(item.product)" alt="{{item.product.name}}">
+        <div *ngIf="item.product.status && item.product.status==='new'" class="new notify-badge">
+          <div class="text-sm" i18n="@@New">New</div>
+        </div>
+        <div *ngIf="item.product.status && item.product.status==='promotion'" class="promotion notify-badge">
+          <div class="text-sm" i18n="@@Promotion">Promotion</div>
+        </div>
+      </div>
+      <div class="col-md-12 col-8 text-body" *ngIf="item">
+        <div class="title-bg">{{item.product.name}}</div>
+        <div class="row order-row">
+          <div class="col-4 price-col">${{item.product.price}}</div>
+          <div class="col-8 button-col">
+            <div class="add-btn" (click)="addToCart(item.product)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                <path fill="none" d="M0 0h24v24H0V0z" />
+                <path fill="#0F9D58" d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+                />
+              </svg>
+            </div>
+            <!-- <input class="quantity" type="number" (change)="onQuantityChanged($event, item)" /> -->
+            <div class="quantity" *ngIf="item.quantity>0">{{item.quantity}}</div>
+            <div class="remove-btn" *ngIf="item.quantity>0" (click)="removeFromCart(item.product)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                <path fill="none" d="M0 0h24v24H0V0z" />
+                <path fill="#F4B400" d="M7 11v2h10v-2H7zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  
   </div>
+
+
+</div>

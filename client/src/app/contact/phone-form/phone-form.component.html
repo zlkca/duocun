@@ -1,0 +1,28 @@
+<form [formGroup]="form">
+    <div class="row form-group">
+      <div class="row label-sm">
+        <span i18n="@@PhoneNumber">Phone Number</span><span>*</span>
+      </div>
+      <input name="phone" formControlName="phone" (keyup)="onPhoneChange($event)"/>
+    </div>
+    
+    <div class="row form-group">
+      <div class="row label-sm" [class.warning]="!phoneVerified">
+        <span i18n="@@VerificationCode">Verification Code</span><span>*</span>
+      </div>
+      <input class="verification-code" name="verificationCode" formControlName="verificationCode" 
+      (keyup)="onVerificationCodeInput($event)"/>
+      
+      <div class="verification-result">
+          <svg *ngIf="phoneVerified" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="none" d="M0 0h24v24H0z"/>
+            <path fill="#0F9D58" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+          </svg>
+      </div>
+      <div *ngIf="!bGettingCode" class="btn btn-primary get-code-btn" (click)="sendVerify()" i18n="@@GetVerificationCode">Get Verification Code</div>
+      <div *ngIf="bGettingCode" class="btn btn-secondary get-code-btn">
+        <!-- <span>Sending Code</span>: -->
+        <span>{{counter}}秒后重发</span>
+      </div>
+    </div>
+  </form>

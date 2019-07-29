@@ -36,7 +36,7 @@ export class QuitRestaurantDialogComponent implements OnInit {
     this.dialogRef.close();
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
     if (this.data.fromPage === 'restaurant-list') {
-      this.router.navigate(['restaurant/list']);
+      this.router.navigate(['main/home']);
     } else if (this.data.fromPage === 'order-history') {
       this.router.navigate(['order/history']);
     }
@@ -44,7 +44,7 @@ export class QuitRestaurantDialogComponent implements OnInit {
 
   onClickStay(): void {
     this.dialogRef.close();
-    this.router.navigate(['restaurant/list/' + this.data.merchantId]);
+    this.router.navigate(['merchant/list/' + this.data.merchantId]);
   }
 
 }

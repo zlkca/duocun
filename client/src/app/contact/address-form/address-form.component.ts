@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { IPlace, ILocation, ILocationHistory, IDistance } from '../../location/location.model';
+import { IPlace, ILocation, ILocationHistory } from '../../location/location.model';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { PageActions } from '../../main/main.actions';
@@ -12,24 +12,15 @@ import { IAppState } from '../../store';
 import { ContactService } from '../contact.service';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
-import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import * as Cookies from 'js-cookie';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
-import { DeliveryActions } from '../../delivery/delivery.actions';
-import { IDeliveryAction } from '../../delivery/delivery.reducer';
-import { RangeService } from '../../range/range.service';
-import { IRestaurant } from '../../restaurant/restaurant.model';
-import { CartActions } from '../../cart/cart.actions';
-import { IMall } from '../../mall/mall.model';
-import { MallService } from '../../mall/mall.service';
-import { DistanceService } from '../../location/distance.service';
 
 @Component({
-  selector: 'app-address-form-page',
-  templateUrl: './address-form-page.component.html',
-  styleUrls: ['./address-form-page.component.scss']
+  selector: 'app-address-form',
+  templateUrl: './address-form.component.html',
+  styleUrls: ['./address-form.component.scss']
 })
-export class AddressFormPageComponent implements OnInit, OnDestroy {
+export class AddressFormComponent implements OnInit, OnDestroy {
   options;
   location;
   deliveryAddress;
@@ -38,20 +29,11 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   fromPage;
   form;
   onDestroy$ = new Subject<any>();
-  inRange;
-  compareRanges = [];
-  mapZoom = 14;
-  rangeMap = false;
-  mapCenter;
-  restaurant;
 
   constructor(
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     private contactSvc: ContactService,
-    private rangeSvc: RangeService,
-    private mallSvc: MallService,
-    private distanceSvc: DistanceService,
     private rx: NgRedux<IAppState>,
     private router: Router,
     private route: ActivatedRoute,
@@ -85,10 +67,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         self.contact = new Contact(r);
         self.deliveryAddress = this.contact.address;
       }
-    });
-
-    this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IRestaurant) => {
-      self.restaurant = r;
     });
   }
 
@@ -144,9 +122,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
         });
       }
-
-      this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
-      this.checkRange(r);
     }
   }
 
@@ -158,20 +133,18 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.contact.accountId = self.account.id;
     }
 
-    this.contact.location = location ? JSON.parse(location) : null;
+    this.contact.location = (location !== 'undefined') ? JSON.parse(location) : null;
 
-    this.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_LOCATION,
+    this.rx.dispatch<IContactAction>({
+      type: ContactActions.UPDATE_LOCATION,
       payload: { location: this.contact.location }
     });
-
-    this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN,
-      payload: { origin: this.contact.location } });
 
     Cookies.remove('duocun-old-location');
     if (self.fromPage === 'account-setting') {
       self.router.navigate(['account/setting']);
     } else if (self.fromPage === 'restaurant-detail') {
-      self.router.navigate(['merchant/list/' + this.restaurant.id]);
+      self.router.navigate(['contact/list']);
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
     } else if (self.fromPage === 'restaurant-filter') {
@@ -179,31 +152,25 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  getDistance(ds: IDistance[], mall: IMall) {
-    const d = ds.find(r => r.destinationPlaceId === mall.placeId);
-    return d ? d.element.distance.value : null;
-  }
-
-  updateDeliveryFee(restaurant, malls, mallId, ds) {
+  save() {
     const self = this;
-    const mall = malls.find(m => m.id === mallId); // restaurant.malls[0]); // fix me, get physical distance
-    const distance = ds ? self.getDistance(ds, mall) : 0;
-    restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
-    restaurant.deliveryFee = self.distanceSvc.getDeliveryFee(distance / 1000, null); // self.deliveryTime);
+    if (!this.contact) {
+      this.contact = new Contact();
+    }
+    const contact = this.contact;
+    contact.accountId = self.account.id;
+    contact.username = self.account.username;
+    contact.location = this.location;
+    contact.address = this.deliveryAddress;
+    contact.phone = self.contact ? self.contact.phone : '';
+    contact.modified = new Date();
+    // Cookies.remove('duocun-old-delivery-time');
 
-    this.rx.dispatch({
-      type: CartActions.UPDATE_DELIVERY, payload: {
-        merchantId: restaurant.id,
-        merchantName: restaurant.name,
-        deliveryCost: restaurant.fullDeliveryFee,
-        deliveryFee: restaurant.deliveryFee,
-        deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
-      }
+    this.rx.dispatch<IContactAction>({
+      type: ContactActions.UPDATE_LOCATION,
+      payload: { location: this.location }
     });
-  }
 
-  redirect(contact) {
-    const self = this;
     if (self.fromPage === 'account-setting') {
       if (contact.id) {
         this.contactSvc.replace(contact).subscribe(x => {
@@ -217,12 +184,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         });
       }
     } else if (self.fromPage === 'restaurant-detail') {
-      // update delivery fee and distances
-      if (self.contact && self.contact.phone) {
-        self.router.navigate(['order/form']);
-      } else {
-        self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-      }
+      self.router.navigate(['contact/list']);
       self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
@@ -236,97 +198,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     } else if (self.fromPage === 'contact/phone') {
       self.router.navigate(['contact/main'], { queryParams: { fromPage: 'phone-form' } });
       self.snackBar.open('', '已成功保存。', { duration: 1500 });
-    } else {
-      // self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-    }
-  }
-
-  save() {
-    const self = this;
-    const restaurant = this.restaurant;
-
-    if (!this.contact) {
-      this.contact = new Contact();
-    }
-    const contact = this.contact;
-    contact.accountId = self.account.id;
-    contact.username = self.account.username;
-    contact.location = this.location;
-    contact.address = this.deliveryAddress;
-    contact.phone = self.contact ? self.contact.phone : '';
-    contact.modified = new Date();
-    // Cookies.remove('duocun-old-delivery-time');
-
-    this.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_LOCATION,
-      payload: { location: this.location }
-    });
-
-    this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN,
-      payload: { origin: this.location } });
-
-    // The order matters
-    if (!self.inRange) {
-      self.router.navigate(['main/home']);
-      return;
     }
 
-    this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
-      // this.realMalls = malls;
-      // check if road distance in database
-      const q = { originPlaceId: this.location.placeId }; // origin --- client origin
-      self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
-        if (ds && ds.length > 0) {
-          const mall = malls.find(m => m.id === restaurant.malls[0]); // fix me, get physical distance
-          this.updateDeliveryFee(restaurant, malls, restaurant.malls[0], ds);
-          this.redirect(contact);
-        } else {
-          const destinations: ILocation[] = [];
-          malls.map(m => {
-            destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-          });
-          self.distanceSvc.reqRoadDistances(this.location, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IDistance[]) => {
-            if (rs) {
-              this.updateDeliveryFee(restaurant, malls, restaurant.malls[0], rs);
-              this.redirect(contact);
-            }
-          }, err => {
-            console.log(err);
-          });
-        }
-      });
-    });
-
-  }
-
-  checkRange(origin) {
-    const self = this;
-    self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
-      const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
-      self.inRange = (rs && rs.length > 0) ? true : false;
-      // self.availableRanges = rs;
-      if (self.inRange) {
-        self.compareRanges = [];
-        self.mapZoom = 14;
-        self.rangeMap = false;
-        self.mapCenter = origin;
-      } else {
-        self.compareRanges = ranges;
-        self.mapZoom = 9;
-        self.rangeMap = true;
-
-        const farNorth = { lat: 44.2653618, lng: -79.4191007 };
-        self.mapCenter = {
-          lat: (origin.lat + farNorth.lat) / 2,
-          lng: (origin.lng + farNorth.lng) / 2
-        };
-      }
-    });
-  }
-
-  resetAddress() {
-    this.deliveryAddress = '';
-    this.inRange = true;
   }
 
 }
-

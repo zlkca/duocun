@@ -26,6 +26,7 @@ export class CartNavbarComponent implements OnInit {
   location;
   account;
   deliveryTime;
+  contact;
 
   @Input() restaurant: IRestaurant;
   @Output() afterCheckout = new EventEmitter();
@@ -45,6 +46,10 @@ export class CartNavbarComponent implements OnInit {
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       this.deliveryTime = { from: x.fromTime, to: x.toTime };
       this.location = x.origin;
+    });
+
+    this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
+      this.contact = contact;
     });
   }
 
@@ -66,71 +71,70 @@ export class CartNavbarComponent implements OnInit {
     const self = this;
     const restaurant: IRestaurant = this.restaurant;
 
-    if (this.restaurantSvc.isClosed(restaurant, this.deliveryTime)) {
-      alert('该商家休息，暂时无法配送');
-      return;
-    }
-
-    if (!this.restaurant.inRange) {
-      alert('该商家不在配送范围内，暂时无法配送');
-      return;
-    }
-
-    if (this.quantity > 0) {
-      this.afterCheckout.emit({ productTotal: this.productTotal, quantity: this.quantity });
-      const account = this.account;
-      if (account && account.id) {
-        // self.router.navigate(['order/form']);
-        self.contactSvc.find({ accountId: account.id}).pipe(takeUntil(this.onDestroy$)).subscribe((cs: IContact[]) => {
-          if (cs && cs.length > 0) {
-            this.rx.dispatch({
-              type: CartActions.UPDATE_DELIVERY, payload: {
-                merchantId: restaurant.id,
-                merchantName: restaurant.name,
-                deliveryCost: restaurant.fullDeliveryFee,
-                deliveryFee: restaurant.deliveryFee,
-                deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
-              }
-            });
-
-            // load contact from database
-            self.rx.dispatch({
-              type: ContactActions.UPDATE_WITHOUT_LOCATION,
-              payload: cs[0]
-            });
-          } else {
-            // const contact = new Contact({
-            //   accountId: account.id,
-            //   username: account.username,
-            //   phone: '', // account.phone,
-            //   placeId: self.location.placeId,
-            //   location: self.location,
-            //   unit: '',
-            //   buzzCode: '',
-            //   address: self.locationSvc.getAddrString(self.location),
-            //   created: new Date(),
-            //   modified: new Date()
-            // });
-
-            self.rx.dispatch({
-              type: ContactActions.UPDATE_ACCOUNT,
-              payload: {accountId: account.id, username: account.username}
-            });
-
-            self.rx.dispatch({
-              type: CartActions.UPDATE_DELIVERY, payload: {
-                merchantId: restaurant.id,
-                merchantName: restaurant.name,
-                deliveryCost: restaurant.fullDeliveryFee,
-                deliveryFee: restaurant.deliveryFee,
-                deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
-              }
-            });
-          }
-          self.router.navigate(['order/form']);
-        });
+    // if it doesn't have default address
+    if (this.location) {
+      if (this.contact) {
+        self.router.navigate(['order/form']);
+      } else {
+        this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
       }
+    } else {
+      this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
     }
+    // check if have phone number
+
+    // if (this.restaurantSvc.isClosed(restaurant, this.deliveryTime)) {
+    //   alert('该商家休息，暂时无法配送');
+    //   return;
+    // }
+
+    // if (!this.restaurant.inRange) {
+    //   alert('该商家不在配送范围内，暂时无法配送');
+    //   return;
+    // }
+
+    // if (this.quantity > 0) {
+    //   this.afterCheckout.emit({ productTotal: this.productTotal, quantity: this.quantity });
+    //   const account = this.account;
+    //   if (account && account.id) {
+    //     self.contactSvc.find({ accountId: account.id}).pipe(takeUntil(this.onDestroy$)).subscribe((cs: IContact[]) => {
+    //       if (cs && cs.length > 0) {
+    //         this.rx.dispatch({
+    //           type: CartActions.UPDATE_DELIVERY, payload: {
+    //             merchantId: restaurant.id,
+    //             merchantName: restaurant.name,
+    //             deliveryCost: restaurant.fullDeliveryFee,
+    //             deliveryFee: restaurant.deliveryFee,
+    //             deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
+    //           }
+    //         });
+
+    //         // load contact from database
+    //         self.rx.dispatch({
+    //           type: ContactActions.UPDATE_WITHOUT_LOCATION,
+    //           payload: cs[0]
+    //         });
+    //       } else {
+
+    //         self.rx.dispatch({
+    //           type: ContactActions.UPDATE_ACCOUNT,
+    //           payload: {accountId: account.id, username: account.username}
+    //         });
+
+    //         self.rx.dispatch({
+    //           type: CartActions.UPDATE_DELIVERY, payload: {
+    //             merchantId: restaurant.id,
+    //             merchantName: restaurant.name,
+    //             deliveryCost: restaurant.fullDeliveryFee,
+    //             deliveryFee: restaurant.deliveryFee,
+    //             deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
+    //           }
+    //         });
+    //       }
+    //       self.router.navigate(['order/form']);
+    //     });
+    //   }
+    // }
   }
 
 }

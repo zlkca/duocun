@@ -1,0 +1,44 @@
+
+<div class="row">
+  <div class="col-12 restaurant-grid" *ngIf="restaurants && restaurants.length>0">
+    <div class="col-12 grid-item" *ngFor="let r of restaurants; let i = index;" (click)="toDetail(r)">
+      <div class="row grid-item-body" *ngIf="r.distance!==null">
+        <div class="col-6 image-body">
+          <img [src]="getImageSrc(r)" [alt]="r.name">
+          <div class="shadow-layer" *ngIf="r.isClosed || !r.inRange || isAfterOrderDeadline(r)"></div>
+          <div class="title-md rest-1" *ngIf="r.inRange && r.isClosed">休息中</div>
+          <div class="title-md not-in-range" *ngIf="!r.inRange">不在配送范围</div>
+          <div class="title-sm rest-2" *ngIf="!r.inRange || r.isClosed">暂不提供配送</div>
+          <div class="title-sm rest-3" *ngIf="r.inRange && !r.isClosed && isAfterOrderDeadline(r)">{{r.orderDeadline}}截止下单</div>
+          <div *ngIf="r.inRange && !r.isClosed" class="free delivery-fee notify-badge">
+            <div class="text-sm" i18n="@@FreeDelivery">Free delivery</div>
+            <del>
+              <span *ngIf="r.fullDeliveryFee">${{r.fullDeliveryFee}}</span>
+            </del>
+          </div>
+        </div>
+
+        <div class="col-6 text-body">
+          <div class="title-bg text-left">{{r.name}}</div>
+          <div class="text-sm text-left" *ngIf="r && r.distance">{{getDistanceString(r)}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+      <!-- <div *ngIf="restaurants" class="col-12 restaurant-list">
+        <div *ngIf="deliveryTime === 'immediate'" class="text-md overdue time-title" style="font-weight: 400"
+          i18n="@@ImmediateDeliver">Immediate Deliver</div>
+        <div *ngIf="deliveryTime === 'lunch today'" class="text-md time-title" style="font-weight: 400" [class.overdue]="overdue"
+          i18n="@@LunchToday">Lunch Today</div>
+        <div *ngIf="deliveryTime === 'lunch tomorrow'" class="text-md free time-title" style="font-weight: 400"
+          i18n="@@LunchTomorrow">Lunch Tomorrow</div>
+        <div *ngIf="deliveryTime === 'lunch after tomorrow'" class="text-md free time-title" style="font-weight: 400" 
+          i18n="@@LunchTheDayAfterTomorrow">Lunch the Day after Tomorrow</div>
+      </div> 
+    
+      <app-restaurant-grid *ngIf="restaurants" 
+        [restaurantList]="restaurants" [center]="center" 
+        [deliveryTime]="deliveryTime" [malls]="realMalls">
+      </app-restaurant-grid> -->

@@ -169,7 +169,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
             modified: new Date()
           });
           self.rx.dispatch({
-            type: ContactActions.UPDATE_LOCATION,
+            type: ContactActions.UPDATE_LOCATION_WITH_ACCOUNT,
             payload: contact
           });
           // self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
