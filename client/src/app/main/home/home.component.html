@@ -66,9 +66,6 @@
         [value]="deliveryAddress">
       </app-address-input>
     </div>
-    <app-location-list *ngIf="places && places.length > 0" [account]="account" [places]="places"
-      (placeSeleted)="onSelectPlace($event)">
-    </app-location-list>
 
     <div class="date-block" *ngIf="!(places && places.length > 0)">
       <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">
@@ -89,7 +86,9 @@
       </mat-button-toggle-group>
     </div>
   </div>
-
+  <app-location-list *ngIf="places && places.length > 0" [account]="account" [places]="places"
+    (placeSeleted)="onSelectPlace($event)">
+  </app-location-list>
 </div>
 
 <!-- <div class="loading-spinner" *ngIf="loading">
