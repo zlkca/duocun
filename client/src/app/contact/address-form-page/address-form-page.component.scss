@@ -6,6 +6,7 @@ $desktop: "(min-width: 1200px)";
 $green: rgb(24, 128, 56);
 $yellow: rgb(244, 160, 0);
 $red: rgb(219, 68, 55);
+$blue: #4285F3;
 
 $map-height: 360px;
 
@@ -60,6 +61,12 @@ app-location-list{
 
   .cancel-col{
     border-right: solid 1px #eee;
+  }
+
+  .save-col{
+    background-color: $blue;
+    color: white;
+
   }
 }
 
