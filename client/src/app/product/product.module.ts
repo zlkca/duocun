@@ -8,6 +8,7 @@ import { ProductGridComponent } from './product-grid/product-grid.component';
 import { ProductRoutingModule } from './product-routing.module';
 import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.component';
 import { CartModule } from '../cart/cart.module';
+import { MerchantService } from '../merchant/merchant.service';
 
 @NgModule({
   imports: [
@@ -27,6 +28,7 @@ import { CartModule } from '../cart/cart.module';
   exports: [ProductListComponent, ProductGridComponent, WarningDialogComponent
   ],
   providers: [
+    MerchantService
   ],
   entryComponents: [WarningDialogComponent]
 })

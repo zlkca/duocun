@@ -11,6 +11,9 @@ import { ICart } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
 import { Subject } from '../../../../node_modules/rxjs';
 import { CategoryService } from '../../category/category.service';
+import * as moment from 'moment';
+import { MerchantService } from '../../merchant/merchant.service';
+import { IDelivery } from '../../delivery/delivery.model';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -33,6 +36,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject();
   categories;
   cart;
+  deliveryTime;
 
   ngOnInit() {
 
@@ -45,6 +49,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   constructor(
     private productSvc: ProductService,
+    private merchantSvc: MerchantService,
     private categorySvc: CategoryService,
     private router: Router,
     private rx: NgRedux<IAppState>
@@ -68,23 +73,35 @@ export class ProductListComponent implements OnInit, OnDestroy {
       //   });
       // }
     });
+
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
+      this.deliveryTime = { from: x.fromTime, to: x.toTime };
+    });
   }
 
+  isAfterOrderDeadline(restaurant) {
+    const m = moment(this.deliveryTime.from);
+    if (moment().isSame(m, 'day')) {
+      return this.merchantSvc.isAfterOrderDeadline(restaurant);
+    } else {
+      return false;
+    }
+  }
 
   addToCart(p: IProduct) {
-
-    // if (this.restaurantSvc.isClosed(this.restaurant, this.deliveryTime)) {
-    //   alert('该商家休息，暂时无法配送');
-    //   return;
-    // }
+    if (this.merchantSvc.isClosed(this.restaurant, this.deliveryTime)) {
+      alert('该商家休息，暂时无法配送');
+      return;
+    }
     // if (!this.restaurant.inRange) {
     //   alert('该商家不在配送范围内，暂时无法配送');
     //   return;
     // }
-    // if (this.isAfterOrderDeadline(this.restaurant)) {
-    //   alert('已过下单时间，该商家下单截止到' + this.restaurant.orderDeadline + 'am' );
-    //   return;
-    // }
+    if (this.isAfterOrderDeadline(this.restaurant)) {
+      alert('已过下单时间，该商家下单截止到' + this.restaurant.orderDeadline + 'am' );
+      return;
+    }
+
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
       payload: {
