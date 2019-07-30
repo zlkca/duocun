@@ -66,7 +66,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   suggestAddressList = [];
   selectedDate = 'today';
   date;
-  address;
+  address: ILocation;
   compareRanges;
   mapZoom;
   rangeMap;
@@ -190,6 +190,15 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   init(account: Account) {
     const self = this;
+
+    this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
+      this.sOrderDeadline = this.getOrderDeadline(rs);
+      const arr = this.sOrderDeadline.split(':');
+      const a = moment().set({ hour: +arr[0], minute: +arr[1], second: 0, millisecond: 0 });
+      const b = moment();
+      this.overdue = b.isAfter(a);
+    });
+
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
     this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
@@ -208,8 +217,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (self.contact.location) {
           self.bUpdateLocationList = false;
           self.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: self.contact.location } });
-          self.deliveryAddress = self.locationSvc.getAddrString(r[0].location); // set address text to input
-          self.router.navigate(['main/filter']);
+          self.deliveryAddress = self.locationSvc.getAddrString(self.contact.location); // set address text to input
+          self.address = self.contact.location; // update merchant list
+          // self.router.navigate(['main/filter']);
         }
       }
     });
@@ -226,14 +236,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (x.name === 'clear-location-list') {
         this.places = [];
       }
-    });
-
-    this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
-      this.sOrderDeadline = this.getOrderDeadline(rs);
-      const arr = this.sOrderDeadline.split(':');
-      const a = moment().set({ hour: +arr[0], minute: +arr[1], second: 0, millisecond: 0 });
-      const b = moment();
-      this.overdue = b.isAfter(a);
     });
   }
 
@@ -258,7 +260,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
     return deadline;
   }
-  
+
   showLocationList() {
     return this.places && this.places.length > 0;
   }

@@ -74,12 +74,12 @@ export class FooterComponent implements OnInit, OnDestroy {
     });
 
     this.contactSvc.find({ accountId: this.account.id }).subscribe((r: IContact[]) => {
-      if (r && r.length > 0 && r[0].location) {
-        this.router.navigate(['main/filter']);
-      } else {
+      // if (r && r.length > 0 && r[0].location) {
+      //   this.router.navigate(['main/filter']);
+      // } else {
         this.selected = 'home';
         this.router.navigate(['main/home']);
-      }
+      // }
     });
   }
 

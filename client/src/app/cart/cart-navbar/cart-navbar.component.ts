@@ -81,6 +81,7 @@ export class CartNavbarComponent implements OnInit {
     } else {
       this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
     }
+
     // check if have phone number
 
     // if (this.restaurantSvc.isClosed(restaurant, this.deliveryTime)) {

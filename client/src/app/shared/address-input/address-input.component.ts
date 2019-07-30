@@ -51,6 +51,7 @@ export class AddressInputComponent implements OnInit, OnChanges {
   }
 
   onValueChange(e) {
+    const self = this;
     const v = e.target.value;
     if (v && v.length > 0) {
       this.bClearBtn = true;
@@ -61,7 +62,11 @@ export class AddressInputComponent implements OnInit, OnChanges {
     if (v && v.length >= 3) {
       this.addrChange.emit({ 'input': v });
     } else if (!v || v.length === 0) {
-      this.inputFocus.emit();
+      this.inputFocus.emit(); // used for show location list
+      self.addrClear.emit();
+      setTimeout(() => { // this will make the execution after the above boolean has changed
+        self.addressInput.nativeElement.focus();
+      }, 0);
     }
   }
 

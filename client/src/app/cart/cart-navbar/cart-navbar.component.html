@@ -8,5 +8,5 @@
   <div class="title-md amount-col">
     ${{productTotal | number : '1.2-2'}}
   </div>
-  <div class="title-md checkout-col" (click)="checkout()" i18n="@@Checkout">Check Out</div>
+  <div *ngIf="quantity > 0" class="title-md checkout-col" (click)="checkout()" i18n="@@Checkout">Check Out</div>
 </div>
