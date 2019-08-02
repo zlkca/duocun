@@ -48,7 +48,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     const self = this;
 
     // show cart on footer
-    this.rx.dispatch({type: PageActions.UPDATE_URL, payload: 'restaurant-detail'});
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'restaurant-detail' });
 
     this.categorySvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(categories => {
       self.categories = categories;
@@ -57,15 +57,17 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.cart = cart;
       if (self.products && self.categories) {
-        self.groups = self.groupByCategory(this.products, this.categories);
+        // self.groups = self.groupByCategory(this.products, this.categories);
 
         // update quantity of cart items
-        self.groups.map(group => {
-          group.items.map(groupItem => {
-            const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product.id);
-            groupItem.quantity = cartItem ? cartItem.quantity : 0;
+        if (self.groups && self.groups.length > 0) {
+          self.groups.map(group => {
+            group.items.map(groupItem => {
+              const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product.id);
+              groupItem.quantity = cartItem ? cartItem.quantity : 0;
+            });
           });
-        });
+        }
       }
     });
 
@@ -114,12 +116,12 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
       self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
         self.products = products;
-        self.groups = self.groupByCategory(products, this.categories);
+        self.groups = self.groupByCategory(products, self.categories);
 
         // update quantity of cart items
         self.groups.map(group => {
           group.items.map(groupItem => {
-            const cartItem: ICartItem = this.cart.items.find(item => item.productId === groupItem.product.id);
+            const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product.id);
             groupItem.quantity = cartItem ? cartItem.quantity : 0;
           });
         });
@@ -161,11 +163,13 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         cat.items.push({ product: p, quanlity: 0 });
       } else {
         if (category) {
-          cats.push({ categoryId: p.categoryId, categoryName: p.category.name, order: category.order,
+          cats.push({
+            categoryId: p.categoryId, categoryName: p.category.name, order: category.order,
             items: [{ product: p, quanlity: 0 }]
           });
         } else {
-          cats.push({ categoryId: p.categoryId, categoryName: p.category.name, order: 0,
+          cats.push({
+            categoryId: p.categoryId, categoryName: p.category.name, order: 0,
             items: [{ product: p, quanlity: 0 }]
           });
         }

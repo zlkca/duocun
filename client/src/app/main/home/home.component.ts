@@ -219,7 +219,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           self.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: self.contact.location } });
           self.deliveryAddress = self.locationSvc.getAddrString(self.contact.location); // set address text to input
           self.address = self.contact.location; // update merchant list
-          // self.router.navigate(['main/filter']);
         }
       }
     });
@@ -362,7 +361,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
       }
 
-      // this.router.navigate(['main/filter']);
+      if (r) {
+        self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: r });
+        self.bUpdateLocationList = false;
+        self.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
+        self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
+        self.address = r; // update merchant list
+      }
     }
   }
 
