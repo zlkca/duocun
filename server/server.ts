@@ -41,6 +41,7 @@ import { RangeRouter } from "./routers/range-route";
 import { MallRouter } from "./routers/mall-route";
 import { LocationRouter } from "./routers/location-route";
 import { PickupRouter } from "./routers/pickup-route";
+import { DriverRouter } from "./routers/driver-route";
 
 import { Product } from "./models/product";
 
@@ -169,6 +170,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.get('/' + ROUTE_PREFIX + '/geocodeLocations', (req, res) => {
     utils.getGeocodeLocationList(req, res);
   });
+  
   app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
     utils.getPlaces(req, res);
   });
@@ -191,7 +193,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
 
   app.use(apimw.auth);
 
-
   app.use('/' + ROUTE_PREFIX + '/Categories', CategoryRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Restaurants', RestaurantRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Products', ProductRouter(dbo));
@@ -201,6 +202,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Malls', MallRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Locations', LocationRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Pickups', PickupRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Drivers', DriverRouter(dbo));
 
   app.use('/' + ROUTE_PREFIX + '/Accounts', AccountRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Distances', DistanceRouter(dbo));
@@ -238,9 +240,6 @@ console.log(staticPath + '/n/r');
 app.use(express.static(staticPath));
 
 
-
-
-
 // const http = require('http');
 // const express = require('express')
 // const path = require('path')
@@ -255,8 +254,6 @@ app.use(express.static(staticPath));
 
 // const app = express();
 // const db = DB().init(cfg.DATABASE);
-
-
 
 // console.log(__dirname + '/dist');
 
