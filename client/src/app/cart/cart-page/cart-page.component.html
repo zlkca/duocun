@@ -52,20 +52,18 @@
 
         <div class="row cart-bottom">
           <div class="price-col col-8">${{cart.productTotal | number : '1.2-2'}}</div>
-          <div class="btn-block col-4">
-            <div class="btn btn-sm btn-primary" (click)="checkout(cart)" i18n="@@Checkout">Checkout</div>
-          </div>
+          <!-- <div class="btn-block col-4">
+            <div class="btn btn-sm btn-primary" (click)="checkout()" i18n="@@Checkout">Checkout</div>
+          </div> -->
         </div>
       </div>
     </div>
   </div>
   <div class="row bottom-menus" *ngIf="carts && carts.length>0">
       <div class="back-col col-6" (click)="back()" i18n="@@Back">Back</div>
-      <div class="price-col col-6">
+      <!-- <div class="price-col col-6"> -->
         <!-- ${{carts[0].productTotal | number : '1.2-2'}} -->
-      </div>
-      <!-- <div class="btn-block col-4">
-        <div class="btn btn-sm btn-primary" (click)="checkout(cart)" i18n="@@Checkout">Checkout</div>
-      </div> -->
+      <!-- </div> -->
+      <div class="checkout-col col-6" (click)="checkout()" i18n="@@Checkout">Checkout</div>
     </div>
 </div>

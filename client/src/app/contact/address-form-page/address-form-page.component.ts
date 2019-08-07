@@ -290,21 +290,21 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
         // this.realMalls = malls;
         // check if road distance in database
-        const q = { originPlaceId: this.location.placeId }; // origin --- client origin
+        const q = { originPlaceId: self.location.placeId }; // origin --- client origin
         self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
           if (ds && ds.length > 0) {
             const mall = malls.find(m => m.id === restaurant.malls[0]); // fix me, get physical distance
-            this.updateDeliveryFee(restaurant, malls, restaurant.malls[0], ds);
-            this.redirect(contact);
+            self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], ds);
+            self.redirect(contact);
           } else {
             const destinations: ILocation[] = [];
             malls.map(m => {
               destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
             });
-            self.distanceSvc.reqRoadDistances(this.location, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IDistance[]) => {
+            self.distanceSvc.reqRoadDistances(self.location, destinations).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IDistance[]) => {
               if (rs) {
-                this.updateDeliveryFee(restaurant, malls, restaurant.malls[0], rs);
-                this.redirect(contact);
+                self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], rs);
+                self.redirect(contact);
               }
             }, err => {
               console.log(err);

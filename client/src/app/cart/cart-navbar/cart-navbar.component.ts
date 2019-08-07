@@ -69,7 +69,7 @@ export class CartNavbarComponent implements OnInit {
 
   checkout() {
     const self = this;
-    const restaurant: IRestaurant = this.restaurant;
+    // const restaurant: IRestaurant = this.restaurant;
 
     // if it doesn't have default address
     if (this.location) {

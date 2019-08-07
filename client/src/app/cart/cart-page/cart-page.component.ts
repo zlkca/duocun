@@ -38,6 +38,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   carts;
   location;
   restaurant;
+  contact;
   products: IProduct[];
 
   @ViewChild('orderDetailModal', {static: true}) orderDetailModal;
@@ -78,6 +79,10 @@ export class CartPageComponent implements OnInit, OnDestroy {
       this.productSvc.find({merchantId: r.id}).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
         this.products = ps;
       });
+    });
+
+    this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
+      this.contact = contact;
     });
   }
 
@@ -125,59 +130,73 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   // cart --- grouped cart
-  checkout(cart: any) {
+  checkout() {
     const self = this;
-    const account = this.account;
 
-    if (this.quantity > 0) {
-      this.restaurantSvc.findById(cart.merchantId).subscribe(r => {
-        this.rx.dispatch({
-          type: RestaurantActions.UPDATE,
-          payload: r
-        });
-      });
-
-      self.contactSvc.find({ accountId: account.id }).subscribe((r: IContact[]) => {
-        if (r && r.length > 0) {
-          // this.rx.dispatch({
-          //   type: CartActions.UPDATE_DELIVERY, payload: {
-          //     merchantId: restaurant.id,
-          //     merchantName: restaurant.name,
-          //     deliveryCost: restaurant.fullDeliveryFee,
-          //     deliveryFee: restaurant.deliveryFee,
-          //     deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
-          //   }
-          // });
-
-          // load contact from database
-          self.rx.dispatch({
-            type: ContactActions.UPDATE_WITHOUT_LOCATION,
-            payload: r
-          });
-          self.router.navigate(['order/form']);
-        } else {
-          const contact = new Contact({
-            accountId: account.id,
-            username: account.username,
-            phone: '', // account.phone,
-            placeId: self.location.placeId,
-            location: self.location,
-            unit: '',
-            buzzCode: '',
-            address: self.locationSvc.getAddrString(self.location),
-            created: new Date(),
-            modified: new Date()
-          });
-          self.rx.dispatch({
-            type: ContactActions.UPDATE_LOCATION_WITH_ACCOUNT,
-            payload: contact
-          });
-          // self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
-          self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-        }
-      });
+    // if it doesn't have default address
+    if (this.location) {
+      if (this.contact) {
+        self.router.navigate(['order/form']);
+      } else {
+        this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+      }
+    } else {
+      this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
     }
   }
+  // checkout(cart: any) {
+  //   const self = this;
+  //   const account = this.account;
+
+  //   if (this.quantity > 0) {
+  //     this.restaurantSvc.findById(cart.merchantId).subscribe(r => {
+  //       this.rx.dispatch({
+  //         type: RestaurantActions.UPDATE,
+  //         payload: r
+  //       });
+  //     });
+
+  //     self.contactSvc.find({ accountId: account.id }).subscribe((r: IContact[]) => {
+  //       if (r && r.length > 0) {
+  //         // this.rx.dispatch({
+  //         //   type: CartActions.UPDATE_DELIVERY, payload: {
+  //         //     merchantId: restaurant.id,
+  //         //     merchantName: restaurant.name,
+  //         //     deliveryCost: restaurant.fullDeliveryFee,
+  //         //     deliveryFee: restaurant.deliveryFee,
+  //         //     deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
+  //         //   }
+  //         // });
+
+  //         // load contact from database
+  //         self.rx.dispatch({
+  //           type: ContactActions.UPDATE_WITHOUT_LOCATION,
+  //           payload: r
+  //         });
+  //         self.router.navigate(['order/form']);
+  //       } else {
+  //         const contact = new Contact({
+  //           accountId: account.id,
+  //           username: account.username,
+  //           phone: '', // account.phone,
+  //           placeId: self.location.placeId,
+  //           location: self.location,
+  //           unit: '',
+  //           buzzCode: '',
+  //           address: self.locationSvc.getAddrString(self.location),
+  //           created: new Date(),
+  //           modified: new Date()
+  //         });
+  //         self.rx.dispatch({
+  //           type: ContactActions.UPDATE_LOCATION_WITH_ACCOUNT,
+  //           payload: contact
+  //         });
+  //         // self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
+  //         self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+  //       }
+  //     });
+  //   }
+  // }
 
   clearCart() {
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
