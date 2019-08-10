@@ -167,9 +167,13 @@ export class LocationService extends EntityService {
   }
 
   getAddrString(location: ILocation) {
-    const city = location.subLocality ? location.subLocality : location.city;
-    return location.streetNumber + ' ' + location.streetName + ', ' + city + ', ' + location.province;
-    // + ', ' + location.postalCode;
+    if (location) {
+      const city = location.subLocality ? location.subLocality : location.city;
+      return location.streetNumber + ' ' + location.streetName + ', ' + city + ', ' + location.province;
+      // + ', ' + location.postalCode;
+    } else {
+      return '';
+    }
   }
 
   getAddrStringByPlace(place) {

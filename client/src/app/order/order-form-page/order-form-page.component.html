@@ -54,6 +54,13 @@
       </div>
       <div class="row">
         <div class="col-9">
+          <span i18n="@@Subtotal">Subtotal</span>
+          <span>:</span>
+        </div>
+        <div class="col-3">${{productTotal + deliveryCost | number : '1.2-2'}}</div>
+      </div>
+      <div class="row">
+        <div class="col-9">
           <span i18n="@@Tax">Tax</span>
           <span>:</span>
         </div>

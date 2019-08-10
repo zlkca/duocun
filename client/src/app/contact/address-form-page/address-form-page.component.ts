@@ -23,6 +23,7 @@ import { CartActions } from '../../cart/cart.actions';
 import { IMall } from '../../mall/mall.model';
 import { MallService } from '../../mall/mall.service';
 import { DistanceService } from '../../location/distance.service';
+import { IDelivery } from '../../delivery/delivery.model';
 
 @Component({
   selector: 'app-address-form-page',
@@ -44,6 +45,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   rangeMap = false;
   mapCenter;
   restaurant;
+  suggestAddressList;
+  historyAddressList;
+  bUpdateLocationList = true;
 
   constructor(
     private accountSvc: AccountService,
@@ -69,15 +73,20 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
-      if (this.account && this.account.id) {
-        // load location option list
-        this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
-          const a = this.locationSvc.toPlaces(lhs);
-          self.options = a;
-        });
-      } else {
-        self.options = [];
-      }
+      // if (this.account && this.account.id) {
+      //   // load location option list
+      //   this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+      //     const a = this.locationSvc.toPlaces(lhs);
+      //     self.options = a;
+      //   });
+      // } else {
+      //   self.options = [];
+      // }
+
+      this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+        const a = this.locationSvc.toPlaces(lhs);
+        self.historyAddressList = a;
+      });
     });
 
     this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact) => {
@@ -90,7 +99,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
             self.deliveryAddress = r.address ? r.address : '';
           }
         } else {
-          self.deliveryAddress = '';
+          // self.deliveryAddress = '';
+          self.deliveryAddress = self.locationSvc.getAddrString(r.location);
         }
       }
     });
@@ -106,33 +116,50 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   }
 
   onAddressChange(e) {
-    const self = this;
-    this.options = [];
-    this.locationSvc.reqPlaces(e.input).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IPlace[]) => {
-      if (ps && ps.length > 0) {
-        for (const p of ps) {
-          p.type = 'suggest';
-          self.options.push(p); // without lat lng
-        }
-      }
-    });
+    // const self = this;
+    // this.options = [];
+    // this.locationSvc.reqPlaces(e.input).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IPlace[]) => {
+    //   if (ps && ps.length > 0) {
+    //     for (const p of ps) {
+    //       p.type = 'suggest';
+    //       self.options.push(p); // without lat lng
+    //     }
+    //   }
+    // });
+
+    this.getSuggestLocationList(e.input, true);
   }
 
   onAddressClear(e) {
     this.location = null;
     this.deliveryAddress = '';
     this.options = [];
+    if (this.fromPage !== 'account-setting') {
+      this.rx.dispatch({
+        type: DeliveryActions.UPDATE_ORIGIN,
+        payload: { origin: null }
+      });
+    }
     this.onAddressInputFocus({ input: '' });
   }
 
   onAddressInputFocus(e?: any) {
     const self = this;
-    this.options = [];
-    if (this.account && this.account.id) {
-      this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
-        const a = this.locationSvc.toPlaces(lhs);
-        self.options = a;
-      });
+    // this.options = [];
+    // if (this.account && this.account.id) {
+    //   this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+    //     const a = this.locationSvc.toPlaces(lhs);
+    //     self.options = a;
+    //   });
+    // }
+
+    if (this.account) {
+      if (e.input) {
+        this.options = this.suggestAddressList;
+        // this.getSuggestLocationList(e.input);
+      } else {
+        this.options = this.historyAddressList.map(x => Object.assign({}, x));
+      }
     }
   }
 
@@ -142,7 +169,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     this.options = [];
     if (r) {
       this.location = r;
-      this.deliveryAddress = e.address; // set address text to input
+      // this.deliveryAddress = e.address; // set address text to input
+      self.deliveryAddress = self.locationSvc.getAddrString(r);
       if (self.account) {
         const query = { userId: self.account.id, placeId: r.placeId };
         const lh = {
@@ -157,6 +185,24 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
       this.checkRange(r);
     }
+  }
+
+  getSuggestLocationList(input: string, bShowList: boolean) {
+    const self = this;
+    this.locationSvc.reqPlaces(input).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IPlace[]) => {
+      if (ps && ps.length > 0) {
+        const places = [];
+        ps.map(p => {
+          p.type = 'suggest';
+          places.push(Object.assign({}, p));
+        });
+
+        self.suggestAddressList = places;
+        if (bShowList) {
+          self.options = places; // without lat lng
+        }
+      }
+    });
   }
 
   cancel() {

@@ -141,6 +141,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
         this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
       }
     } else {
+      self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: {location: null} });
       this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
     }
   }
