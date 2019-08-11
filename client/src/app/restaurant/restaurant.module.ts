@@ -6,10 +6,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule } from '../../../node_modules/@angular/material';
 
 import { RestaurantGridComponent } from './restaurant-grid/restaurant-grid.component';
-import { RestaurantService } from './restaurant.service';
 import { RestaurantAboutComponent } from './restaurant-about/restaurant-about.component';
-import { RestaurantListPageComponent } from './restaurant-list-page/restaurant-list-page.component';
-import { RestaurantDetailPageComponent } from './restaurant-detail-page/restaurant-detail-page.component';
 import { RestaurantRoutingModule } from './restaurant-routing.module';
 import { ProductModule } from '../product/product.module';
 
@@ -34,7 +31,6 @@ import { DistanceService } from '../location/distance.service';
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     providers: [
-      RestaurantService,
       ProductService,
       OrderService,
       DistanceService
@@ -42,8 +38,6 @@ import { DistanceService } from '../location/distance.service';
     declarations: [
       RestaurantGridComponent,
       RestaurantAboutComponent,
-      RestaurantListPageComponent,
-      RestaurantDetailPageComponent,
       // QuitRestaurantDialogComponent
     ],
     exports: [

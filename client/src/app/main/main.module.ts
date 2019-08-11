@@ -8,12 +8,10 @@ import { AuthService } from '../account/auth.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
-import { RestaurantFilterPageComponent } from './restaurant-filter-page/restaurant-filter-page.component';
 import { HomeComponent } from './home/home.component';
 import { ReactiveFormsModule } from '../../../node_modules/@angular/forms';
 import { SharedModule } from '../shared/shared.module';
 import { RangeService } from '../range/range.service';
-import { RestaurantService } from '../restaurant/restaurant.service';
 import { MerchantModule } from '../merchant/merchant.module';
 
 @NgModule({
@@ -28,16 +26,14 @@ import { MerchantModule } from '../merchant/merchant.module';
     MerchantModule
   ],
   declarations: [
-    HomeComponent,
-    RestaurantFilterPageComponent,
+    HomeComponent
   ],
   exports: [
   ],
   providers: [
     AccountService,
     AuthService,
-    RangeService,
-    RestaurantService
+    RangeService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProductListComponent } from './product-list/product-list.component';
-import { ProductGridComponent } from './product-grid/product-grid.component';
 import { ProductRoutingModule } from './product-routing.module';
 import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.component';
 import { CartModule } from '../cart/cart.module';
@@ -22,10 +21,11 @@ import { MerchantService } from '../merchant/merchant.service';
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
-    ProductListComponent,
-    ProductGridComponent
+    ProductListComponent
   ],
-  exports: [ProductListComponent, ProductGridComponent, WarningDialogComponent
+  exports: [
+    ProductListComponent,
+    WarningDialogComponent
   ],
   providers: [
     MerchantService

@@ -13,7 +13,7 @@ import { IMall } from '../../mall/mall.model';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { CartActions } from '../../cart/cart.actions';
 import * as moment from 'moment';
-import { RestaurantService } from '../restaurant.service';
+import { MerchantService } from '../../merchant/merchant.service';
 
 @Component({
   selector: 'app-restaurant-grid',
@@ -37,7 +37,7 @@ export class RestaurantGridComponent implements OnInit {
   constructor(
     private router: Router,
     private sharedSvc: SharedService,
-    private restaurantSvc: RestaurantService,
+    private merchantSvc: MerchantService,
     private rx: NgRedux<IAppState>
   ) {
   }
@@ -84,7 +84,7 @@ export class RestaurantGridComponent implements OnInit {
   isAfterOrderDeadline(restaurant: IRestaurant) {
     const m = moment(this.deliveryTime.from);
     if (moment().isSame(m, 'day')) {
-      return this.restaurantSvc.isAfterOrderDeadline(restaurant);
+      return this.merchantSvc.isAfterOrderDeadline(restaurant);
     } else {
       return false;
     }

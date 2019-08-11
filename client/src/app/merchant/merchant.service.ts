@@ -23,7 +23,7 @@ export class MerchantService extends EntityService {
       const a = restaurant.orderDeadline.split(':');
       if (a && a.length > 1) {
         const now = moment();
-        const deadline = moment().set({ hours: +a[0], minutes: +a[1], seconds: 0});
+        const deadline = moment().set({ hours: +a[0], minutes: +a[1], seconds: 0 });
         return now.isAfter(deadline);
       } else {
         return true;
@@ -50,13 +50,13 @@ export class MerchantService extends EntityService {
 
 
   isClosePerWeek(restaurant: IRestaurant, dateTime: string) {
-    if (restaurant.dow && restaurant.dow.length > 0) {
-      const openAll = restaurant.dow.find(d => d === 'all');
-      if (openAll) {
-        return false;
-      } else {
-        const r = restaurant.dow.find(d => moment(dateTime).day() === +d);
+    if (restaurant.dow) {
+      const days = restaurant.dow.split(',');
+      if (days && days.length > 0) {
+        const r = days.find(d => moment(dateTime).day() === +d);
         return r ? false : true;
+      } else {
+        return true;
       }
     } else {
       return true;

@@ -9,7 +9,6 @@ import { SharedModule } from '../shared/shared.module';
 import { OrderService } from './order.service';
 import { OrderHistoryComponent } from './order-history/order-history.component';
 import { OrderRoutingModule } from './order-routing.module';
-import { RestaurantService } from '../restaurant/restaurant.service';
 import { OrderFormPageComponent } from './order-form-page/order-form-page.component';
 import { AccountService } from '../account/account.service';
 import { MatDialogModule } from '../../../node_modules/@angular/material';
@@ -33,7 +32,6 @@ import { PaymentService } from '../payment/payment.service';
   ],
   providers: [
     OrderService,
-    RestaurantService,
     AccountService,
     PaymentService
   ],

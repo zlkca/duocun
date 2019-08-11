@@ -11,14 +11,9 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
-import { ContactService } from '../../contact/contact.service';
-import { LocationService } from '../../location/location.service';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { ContactActions } from '../../contact/contact.actions';
 import { Contact, IContact } from '../../contact/contact.model';
-import { ILocation } from '../../location/location.model';
-import { RestaurantActions } from '../../restaurant/restaurant.actions';
-import { RestaurantService } from '../../restaurant/restaurant.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { ProductService } from '../../product/product.service';
 import { IDelivery } from '../../delivery/delivery.model';
@@ -46,9 +41,6 @@ export class CartPageComponent implements OnInit, OnDestroy {
   constructor(
     private rx: NgRedux<IAppState>,
     private accountSvc: AccountService,
-    private contactSvc: ContactService,
-    private locationSvc: LocationService,
-    private restaurantSvc: RestaurantService,
     private productSvc: ProductService,
     private sharedSvc: SharedService,
     private router: Router
@@ -145,59 +137,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
       this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
     }
   }
-  // checkout(cart: any) {
-  //   const self = this;
-  //   const account = this.account;
 
-  //   if (this.quantity > 0) {
-  //     this.restaurantSvc.findById(cart.merchantId).subscribe(r => {
-  //       this.rx.dispatch({
-  //         type: RestaurantActions.UPDATE,
-  //         payload: r
-  //       });
-  //     });
-
-  //     self.contactSvc.find({ accountId: account.id }).subscribe((r: IContact[]) => {
-  //       if (r && r.length > 0) {
-  //         // this.rx.dispatch({
-  //         //   type: CartActions.UPDATE_DELIVERY, payload: {
-  //         //     merchantId: restaurant.id,
-  //         //     merchantName: restaurant.name,
-  //         //     deliveryCost: restaurant.fullDeliveryFee,
-  //         //     deliveryFee: restaurant.deliveryFee,
-  //         //     deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
-  //         //   }
-  //         // });
-
-  //         // load contact from database
-  //         self.rx.dispatch({
-  //           type: ContactActions.UPDATE_WITHOUT_LOCATION,
-  //           payload: r
-  //         });
-  //         self.router.navigate(['order/form']);
-  //       } else {
-  //         const contact = new Contact({
-  //           accountId: account.id,
-  //           username: account.username,
-  //           phone: '', // account.phone,
-  //           placeId: self.location.placeId,
-  //           location: self.location,
-  //           unit: '',
-  //           buzzCode: '',
-  //           address: self.locationSvc.getAddrString(self.location),
-  //           created: new Date(),
-  //           modified: new Date()
-  //         });
-  //         self.rx.dispatch({
-  //           type: ContactActions.UPDATE_LOCATION_WITH_ACCOUNT,
-  //           payload: contact
-  //         });
-  //         // self.rx.dispatch({ type: ContactActions.UPDATE, payload: contact });
-  //         self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-  //       }
-  //     });
-  //   }
-  // }
 
   clearCart() {
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });

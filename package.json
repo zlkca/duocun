@@ -43,6 +43,7 @@
     "serve-favicon": "^2.0.1",
     "socket.io": "^2.1.1",
     "socketio-auth": "^0.1.1",
+    "stripe": "^7.7.0",
     "strong-error-handler": "^3.0.0",
     "twilio": "^3.30.0"
   },
