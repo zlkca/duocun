@@ -15,9 +15,9 @@
   </div>
 
   <div class="order-list" *ngIf="!loading">
-    <div class="list-item" *ngFor="let order of orders;" (click)="onSelect(order)">
+    <div class="list-item" *ngFor="let order of orders;" (click)="onSelect(order)" [class.highlight]="order.id === highlightedOrderId">
       <div class="row first-row">
-        <div class="col-8 text-col">
+        <div class="col-12 text-col">
           <div class="col-12">
             <span class="title-xs" i18n="@@Restaurant">Restaurant</span>:
             <span class="text-xs">{{order.merchantName}}</span>
@@ -31,10 +31,6 @@
             <span class="text-xs">{{toDateString(order.created)}}</span>
           </div>
         </div>
-        <div class="col-4 btn-col" *ngIf="canChange(order)">
-          <div class="btn btn-sm btn-primary btn-change" i18n="@@Change" (click)="changeOrder(order)">Change</div>
-          <div class="btn btn-sm btn-primary btn-delete" i18n="@@Delete" (click)="deleteOrder(order)">Delete</div>
-        </div>
       </div>
       <div class="row">
         <div class="col-12 address-row">
@@ -44,24 +40,53 @@
       </div>
 
       <div class="row order-detail">
-        <div class="col-7 items-col">
-          <div *ngFor="let item of order.items" class="text-sm row">
+        <div class="col-8 items-col">
+          <div *ngFor="let item of order.items" class="text-sm row item-row">
             <div class="col-7 product-col">{{item.productName}}</div>
             <div class="col-2 quantity-col">x {{item.quantity}}</div>
             <div class="col-3 price-col">${{item.price | number : '1.2-2'}}</div>
           </div>
         </div>
-        <div class="col-5 text-sm total-col" *ngIf="order.total">
+        <div class="col-4 text-sm total-col" *ngIf="order.total">
           <div class="row">
-            <div class="col-12"><span i18n="@@ProductTotal">ProductTotal</span>: ${{order.productTotal | number : '1.2-2'}}</div>
-            <div class="col-12"><span i18n="@@DeliveryFee">Delivery Fee</span>: ${{order.deliveryCost | number : '1.2-2'}}</div>
-            <div class="col-12"><span i18n="@@Tax">Tax</span>: ${{order.tax | number : '1.2-2'}}</div>
-            <div class="col-12"><span i18n="@@Tips">Tips</span>: ${{order.tips | number : '1.2-2'}}</div>
-            <div class="col-12"><span i18n="@@DeliveryDiscount">Delivery Discount</span>: -${{order.deliveryDiscount | number : '1.2-2'}}</div>
-            <div class="col-12" *ngIf="order.groupDiscount>0" ><span i18n="@@GroupDiscount">GroupDiscount</span>: -${{order.groupDiscount | number : '1.2-2'}}</div>
-            <div class="col-12" ><span i18n="@@Total">Total</span>: ${{ order.total | number : '1.2-2'}}</div>
+            <div class="col-12">
+              <div class="title-xs"><span i18n="@@ProductTotal">ProductTotal</span>:</div>
+              <div class="text-xs">${{order.productTotal | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-12">
+              <div class="title-xs"><span i18n="@@DeliveryFee">Delivery Fee</span>:</div>
+              <div class="text-xs">${{order.deliveryCost | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-12">
+              <div class="title-xs"><span i18n="@@Subtotal">Subtotal</span>:</div>
+              <div class="text-xs">${{order.productTotal + order.deliveryCost | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-12">
+              <div class="title-xs"><span i18n="@@Tax">Tax</span>:</div>
+              <div class="text-xs">${{order.tax | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-12">
+              <div class="title-xs"><span i18n="@@Tips">Tips</span>:</div>
+              <div class="text-xs">${{order.tips | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-12">
+              <div class="title-xs"><span i18n="@@DeliveryDiscount">Delivery Discount</span>:</div>
+              <div class="text-xs">-${{order.deliveryDiscount | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-12" *ngIf="order.groupDiscount>0" >
+              <div class="title-xs"><span i18n="@@GroupDiscount">GroupDiscount</span>:</div>
+              <div class="text-xs">-${{order.groupDiscount | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-12" >
+              <div class="title-xs"><span i18n="@@Total">Total</span>:</div>
+              <div class="text-xs">${{ order.total | number : '1.2-2'}}</div>
+            </div>
           </div>
         </div>
+      </div>
+      <div class="row btn-col" *ngIf="canChange(order)">
+        <div class="btn btn-sm btn-primary btn-change" i18n="@@Change" (click)="changeOrder(order)">Change</div>
+        <div class="btn btn-sm btn-primary btn-delete" i18n="@@Delete" (click)="deleteOrder(order)">Delete</div>
       </div>
 
     </div>

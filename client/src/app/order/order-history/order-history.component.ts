@@ -29,6 +29,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   restaurant;
   orders = [];
   loading = true;
+  highlightedOrderId = 0;
 
   constructor(
     private accountSvc: AccountService,
@@ -115,6 +116,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       });
       self.orders = orders;
       self.loading = false;
+
+      self.highlightedOrderId = self.orders[0].id;
     });
   }
 
@@ -175,8 +178,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSelect(c) {
+  onSelect(order) {
     // this.select.emit({ order: c });
+    this.highlightedOrderId = order.id;
   }
 
   toDateTimeString(s) {

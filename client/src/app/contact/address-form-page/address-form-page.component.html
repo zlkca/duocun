@@ -5,6 +5,7 @@
     </div>
     <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
       (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
+      (backHistory)="onAddressBack($event)"
       [value]="deliveryAddress">
     </app-address-input>
   </div>
@@ -25,6 +26,6 @@
   <div class="row address-save-row">
     <div *ngIf="fromPage !== 'account-setting'" class="col-6 title-md cancel-col" (click)="cancel()" >返回</div>
     <div *ngIf="fromPage === 'account-setting'" class="col-6 title-md cancel-col" (click)="cancel()" i18n="@@Cancel">Cancel</div>
-    <div *ngIf="!(fromPage !== 'account-setting' && deliveryAddress ==='')" class="col-6 title-md save-col" (click)="save()" i18n="@@Ok">Ok</div>
+    <div *ngIf="(fromPage === 'account-setting' || deliveryAddress) && inRange" class="col-6 title-md save-col" (click)="save()" i18n="@@Ok">Ok</div>
   </div>
 </div>

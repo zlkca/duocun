@@ -187,6 +187,10 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  onAddressBack(e) {
+    this.options = [];
+  }
+
   getSuggestLocationList(input: string, bShowList: boolean) {
     const self = this;
     this.locationSvc.reqPlaces(input).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IPlace[]) => {
@@ -264,7 +268,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.contactSvc.find({ accountId: contact.accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((cs: IContact[]) => {
         if (cs && cs.length > 0) {
           const c = cs[0];
-          const data = {address: contact.address, location: contact.location};
+          const data = { address: contact.address, location: contact.location };
           this.contactSvc.update({ id: c.id }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
             self.router.navigate(['account/setting']);
             self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
