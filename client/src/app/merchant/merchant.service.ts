@@ -34,11 +34,11 @@ export class MerchantService extends EntityService {
   }
 
 
-  isClosed(restaurant: IRestaurant, dateTime: string) {
-    const deliverDate = moment(dateTime);
+  // dateTime --- moment object
+  isClosed(restaurant: IRestaurant, dateTime: any) {
 
     if (restaurant.closed) { // has special close day
-      if (restaurant.closed.find(d => moment(d).isSame(deliverDate, 'day'))) {
+      if (restaurant.closed.find(d => moment(d).isSame(dateTime, 'day'))) {
         return true;
       } else {
         return this.isClosePerWeek(restaurant, dateTime);
@@ -48,12 +48,12 @@ export class MerchantService extends EntityService {
     }
   }
 
-
-  isClosePerWeek(restaurant: IRestaurant, dateTime: string) {
+  // dateTime --- moment object
+  isClosePerWeek(restaurant: IRestaurant, dateTime: any) {
     if (restaurant.dow) {
       const days = restaurant.dow.split(',');
       if (days && days.length > 0) {
-        const r = days.find(d => moment(dateTime).day() === +d);
+        const r = days.find(d => dateTime.day() === +d);
         return r ? false : true;
       } else {
         return true;

@@ -93,8 +93,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private fb: FormBuilder
   ) {
     const self = this;
-    const today =  moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
-    const tomorrow =  moment().add(1, 'days').set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
+    const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
+    const tomorrow = moment().add(1, 'days').set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
     this.today = { type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:15' };
     this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow, startTime: '11:45', endTime: '13:15' };
 
@@ -118,7 +118,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.inRange = true;
       }
 
-      if (!(d && d.fromTime)) {
+      if (d && d.fromTime) {
+        const date = moment(d.fromTime);
+        const bToday = moment().isSame(date, 'day');
+        self.selectedDate =  bToday ? 'today' : 'tomorrow';
+        self.date = date;
+      } else {
         const todayStart = moment().set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
         const todayEnd = moment().set({ hour: 13, minute: 30, second: 0, millisecond: 0 });
 
@@ -127,10 +132,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           payload: { fromTime: todayStart.toDate(), toTime: todayEnd.toDate() }
         });
         this.date = todayStart;
-      } else {
-        const date = moment(d.fromTime);
-        this.selectedDate = moment().isSame(date, 'day') ? 'today' : 'tomorrow';
-        this.date = date;
       }
     });
 

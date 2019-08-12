@@ -6,7 +6,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { RouterModule, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { CommerceService } from '../commerce.service';
 import { ProductListComponent } from './product-list.component';
 
 describe('ProductListComponent', () => {
@@ -16,9 +15,8 @@ describe('ProductListComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ ProductListComponent ],
-      imports:[ FormsModule, RouterTestingModule, HttpClientTestingModule ],
-      providers: [ 
-        { provide: CommerceService, useClass: CommerceService } ]
+      imports: [ FormsModule, RouterTestingModule, HttpClientTestingModule ],
+      providers: [ ]
     })
     .compileComponents();
   }));
@@ -29,7 +27,4 @@ describe('ProductListComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', inject([CommerceService, HttpTestingController], (service: CommerceService, httpMock:HttpTestingController) => {
-    expect(component).toBeTruthy();
-  }));
 });

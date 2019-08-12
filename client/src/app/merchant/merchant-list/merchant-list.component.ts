@@ -59,7 +59,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
         // self.inRange = (rs && rs.length > 0) ? true : false;
         // self.availableRanges = rs;
-        this.loadRestaurants(this.malls, rs, null);
+        // this.loadRestaurants(this.malls, rs, null);
 
         const q = { originPlaceId: origin.placeId }; // origin --- client origin
         self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
@@ -82,6 +82,19 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         });
       });
     }
+
+    if (d.delivered) {
+      const clonedRestaurants = [];
+
+      self.restaurants.map(r => {
+        const item = Object.assign({}, r);
+        item.isClosed = self.merchantSvc.isClosed(item, self.delivered);
+        clonedRestaurants.push(item);
+      });
+
+      self.restaurants = self.sort(clonedRestaurants);
+    }
+
     // } else {
 
     // }
@@ -120,7 +133,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         restaurant.distance = distance / 1000;
         restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
         restaurant.deliveryFee = self.distanceSvc.getDeliveryFee(distance / 1000, null); // self.deliveryTime);
-        restaurant.isClosed = self.merchantSvc.isClosed(restaurant, self.delivered.toDate());
+        restaurant.isClosed = self.merchantSvc.isClosed(restaurant, self.delivered);
       });
       self.markers = markers;
       self.restaurants = this.sort(rs);
