@@ -1,96 +1,45 @@
-<!-- <div class="page" *ngIf="!loading">
+
+<app-merchant-list class="merchant-list" *ngIf="account && !(places && places.length > 0) && inRange" [active]="inRange" [delivered]="date" [address]="address"></app-merchant-list>
+
+
+<div class="map-block" [class.range]="rangeMap" *ngIf="!(places && places.length > 0) && !inRange">
+  <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="places" [ranges]="compareRanges"></app-map>
+
+  <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
+    <div class="col-12">
+      <div class="text-md">
+        <span>您的地址不在配送范围内，请尝试其它地址</span>
+      </div>
+    </div>
+  </button>
+</div>
+
+<div class="header-block">
   <div class="address-search-block">
-    <app-address-input  placeholder="InputDeliveryAddress"
-      (addrChange)="onAddressInputChange($event)"
-      (addrClear)="onAddressInputClear($event)"
-      (inputFocus)="onAddressInputFocus($event)"
-      (backHistory)="onBack($event)"
-      [value]="deliveryAddress">
+    <app-address-input placeholder="InputDeliveryAddress" (addrChange)="onAddressInputChange($event)" (addrClear)="onAddressInputClear($event)"
+      (inputFocus)="onAddressInputFocus($event)" (backHistory)="onBack()" [value]="deliveryAddress">
     </app-address-input>
   </div>
-  <app-location-list *ngIf="places && places.length > 0" [account]="account" [places]="places"
-    (placeSeleted)="onSelectPlace($event)">
-  </app-location-list>
-  <div class="branding-block" *ngIf="!loading && !(places && places.length > 0)">
-    <div class="background-img" *ngIf="mapFullScreen">
-      <img src="assets/logo.png" />
-    </div>
-    <h1 class="slogan">多村外卖，免运费小费</h1>
+
+  <div class="date-block" *ngIf="!(places && places.length > 0)">
+    <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">
+      <mat-button-toggle value="today" aria-label="Today">
+        <div class="title-row" i18n="@@LunchToday">Lunch Today</div>
+        <div class="time-row">
+          <span class="date">{{today.date | date: 'MMMd E' }} </span>
+          <span class="time">{{today.startTime}}~{{today.endTime}} </span>
+        </div>
+      </mat-button-toggle>
+      <mat-button-toggle value="tomorrow" aria-label="Tomorrow">
+        <div class="title-row" i18n="@@LunchTomorrow">Lunch Tomorrow</div>
+        <div class="time-row">
+          <span class="date">{{tomorrow.date | date: 'MMMd E' }} </span>
+          <span class="time">{{tomorrow.startTime}}~{{tomorrow.endTime}} </span>
+        </div>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
   </div>
-
-  <div class="qrcode-block">
-    <img src="assets/qrcode.jpg" />
-  </div>
-
-</div>
-<div class="loading-spinner" *ngIf="loading">
-  <app-progress-spinner></app-progress-spinner>
-</div>
-
-<div class="tip" *ngIf="!loading && bFirstTime">
-  <div class="row finger">
-  <svg id="finger-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="40" height="40" viewBox="0 0 24 24">
-    <defs>
-      <path id="a" d="M0 0h24v24H0V0z"/>
-    </defs>
-    <clipPath id="b"><use xlink:href="#a" overflow="visible"/></clipPath>
-    <path fill="rgba(0,0,0,0.7)" d="M9 11.24V7.5C9 6.12 10.12 5 11.5 5S14 6.12 14 7.5v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74zm9.84 4.63l-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.91-1.38z" clip-path="url(#b)"/>
-  </svg>
-  </div>
-</div> -->
-
-<div>
-  <div class="merchant-list" *ngIf="account && !(places && places.length > 0) && inRange">
-    <app-merchant-list [active]="inRange" [delivered]="date" [address]="address" ></app-merchant-list>
-  </div>
-
-  <div class="map-block" [class.range]="rangeMap" *ngIf="!(places && places.length > 0) && !inRange">
-    <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="places" [ranges]="compareRanges"></app-map>
-  
-    <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
-      <div class="col-12">
-          <div class="text-md">
-            <span>您的地址不在配送范围内，请尝试其它地址</span>
-          </div>
-      </div>
-    </button>
-  </div>
-
-  <div class="header-block">
-    <div class="address-search-block">
-      <app-address-input  placeholder="InputDeliveryAddress"
-        (addrChange)="onAddressInputChange($event)"
-        (addrClear)="onAddressInputClear($event)"
-        (inputFocus)="onAddressInputFocus($event)"
-        (backHistory)="onBack()"
-        [value]="deliveryAddress">
-      </app-address-input>
-    </div>
-
-    <div class="date-block" *ngIf="!(places && places.length > 0)">
-      <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">
-        <mat-button-toggle value="today" aria-label="Today">
-          <div class="title-row" i18n="@@LunchToday">Lunch Today</div>
-          <div class="time-row">
-            <span class="date">{{today.date | date: 'MMMd E' }} </span>
-            <span class="time">{{today.startTime}}~{{today.endTime}} </span>
-          </div>
-        </mat-button-toggle>
-        <mat-button-toggle value="tomorrow" aria-label="Tomorrow">
-            <div class="title-row" i18n="@@LunchTomorrow">Lunch Tomorrow</div>
-            <div class="time-row">
-              <span class="date">{{tomorrow.date | date: 'MMMd E' }} </span>
-              <span class="time">{{tomorrow.startTime}}~{{tomorrow.endTime}} </span>
-            </div>
-        </mat-button-toggle>
-      </mat-button-toggle-group>
-    </div>
-  </div>
-  <app-location-list *ngIf="places && places.length > 0" [account]="account" [places]="places"
-    (placeSeleted)="onSelectPlace($event)">
-  </app-location-list>
 </div>
 
-<!-- <div class="loading-spinner" *ngIf="loading">
-  <app-progress-spinner></app-progress-spinner>
-</div> -->
+<app-location-list *ngIf="places && places.length > 0" [account]="account" [places]="places" (placeSeleted)="onSelectPlace($event)">
+</app-location-list>

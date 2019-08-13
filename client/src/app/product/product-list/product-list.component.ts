@@ -89,7 +89,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   addToCart(p: IProduct) {
-    if (this.merchantSvc.isClosed(this.restaurant, this.deliveryTime)) {
+    if (this.merchantSvc.isClosed(this.restaurant, moment(this.deliveryTime.from))) {
       alert('该商家休息，暂时无法配送');
       return;
     }
