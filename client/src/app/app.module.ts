@@ -42,6 +42,10 @@ const appRoutes: Routes = [
       loadChildren: './merchant/merchant.module#MerchantModule'
     },
     {
+      path: 'payment',
+      loadChildren: './payment/payment.module#PaymentModule'
+    },
+    {
       path: 'order',
       loadChildren: './order/order.module#OrderModule'
     },

@@ -25,6 +25,19 @@ export class ClientPayment extends Model {
     }
   }
 
+  pay(req: Request, res: Response){
+    const stripe = require('stripe')('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+
+    (async () => {
+      const charge = await stripe.charges.create({
+        amount: 999,
+        currency: 'usd',
+        source: 'tok_visa',
+        receipt_email: 'jenny.rosen@example.com',
+      });
+    })();
+  }
+
   updateBalance(req: Request, res: Response){
     const self = this;
     const date = new Date('2019-05-15T00:00:00').toISOString();

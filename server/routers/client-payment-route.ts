@@ -13,5 +13,6 @@ export function ClientPaymentRouter(db: DB){
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
 
+  router.post('/pay', (req, res) => { controller.pay(req, res); });
   return router;
 };

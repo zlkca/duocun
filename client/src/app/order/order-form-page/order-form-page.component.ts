@@ -21,6 +21,7 @@ import { BalanceService } from '../../payment/balance.service';
 import { IBalance, IClientPayment } from '../../payment/payment.model';
 import { ILocation } from '../../location/location.model';
 import { OrderSequenceService } from '../order-sequence.service';
+import { PaymentService } from '../../payment/payment.service';
 
 @Component({
   selector: 'app-order-form-page',
@@ -58,6 +59,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private sequenceSvc: OrderSequenceService,
     private locationSvc: LocationService,
     private balanceSvc: BalanceService,
+    private paymentSvc: PaymentService,
     private snackBar: MatSnackBar
   ) {
     const self = this;
@@ -211,74 +213,75 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
   pay() {
-    const self = this;
+    this.paymentSvc.pay().pipe(takeUntil(this.onDestroy$)).subscribe(xs => {
+      const a = xs;
+    });
 
-    // contact last
-    if (!this.contact || !this.contact.phone) {
-      this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
-      return;
-    }
+    this.router.navigate(['payment/form']);
 
-    if (this.account && this.delivery && this.delivery.fromTime && this.delivery.origin) {
-      const v = this.form.value;
-      const date = this.delivery.fromTime;
-      const address = this.locationSvc.getAddrString(this.delivery.origin);
+    // const self = this;
 
-      if (this.order && this.order.id) {
-        const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
-        this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
-          self.groupDiscount = this.getGroupDiscount(orders, false);
-          const order = this.createOrder(this.contact, v.note);
-          this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
-            order.id = this.order.id;
-            order.code = this.getCode(order.location, sq);
-            order.created = this.order.created;
-            if (order) { // modify
-              self.orderSvc.update({ id: this.order.id }, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
-                const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
-                self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-                self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-                self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
-                self.router.navigate(['order/history']);
-              }, err => {
-                self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
-              });
-            } else {
-              this.snackBar.open('', '登录已过期，请重新从公众号进入', {
-                duration: 1800
-              });
-            }
-          });
-        });
-      } else { // create new
+    // // contact last
+    // if (!this.contact || !this.contact.phone) {
+    //   this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
+    //   return;
+    // }
 
-        // if (!(this.contact && this.contact.phone)) {
-        //   self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
-        //   return;
-        // }
+    // if (this.account && this.delivery && this.delivery.fromTime && this.delivery.origin) {
+    //   const v = this.form.value;
+    //   const date = this.delivery.fromTime;
+    //   const address = this.locationSvc.getAddrString(this.delivery.origin);
 
-        this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
-          const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
-          this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
-            self.groupDiscount = this.getGroupDiscount(orders, true);
-            const order = this.createOrder(this.contact, v.note);
-            order.code = this.getCode(order.location, sq);
-            if (order) {
-              self.orderSvc.save(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
-                // self.afterSubmit.emit(order);
-                const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
-                this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-                this.snackBar.open('', '您的订单已经成功提交。', { duration: 2000 });
-                self.router.navigate(['order/history']);
-              }, err => {
-                self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
-              });
-            } else {
-              this.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
-            }
-          });
-        });
-      }
-    }
+    //   if (this.order && this.order.id) {
+    //     const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
+    //     this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
+    //       self.groupDiscount = this.getGroupDiscount(orders, false);
+    //       const order = this.createOrder(this.contact, v.note);
+    //       this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
+    //         order.id = this.order.id;
+    //         order.code = this.getCode(order.location, sq);
+    //         order.created = this.order.created;
+    //         if (order) { // modify
+    //           self.orderSvc.update({ id: this.order.id }, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+    //             const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
+    //             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+    //             self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
+    //             self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
+    //             self.router.navigate(['order/history']);
+    //           }, err => {
+    //             self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
+    //           });
+    //         } else {
+    //           this.snackBar.open('', '登录已过期，请重新从公众号进入', {
+    //             duration: 1800
+    //           });
+    //         }
+    //       });
+    //     });
+    //   } else { // create new
+
+    //     this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
+    //       const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
+    //       this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
+    //         self.groupDiscount = this.getGroupDiscount(orders, true);
+    //         const order = this.createOrder(this.contact, v.note);
+    //         order.code = this.getCode(order.location, sq);
+    //         if (order) {
+    //           self.orderSvc.save(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+    //             // self.afterSubmit.emit(order);
+    //             const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
+    //             this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+    //             this.snackBar.open('', '您的订单已经成功提交。', { duration: 2000 });
+    //             self.router.navigate(['order/history']);
+    //           }, err => {
+    //             self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
+    //           });
+    //         } else {
+    //           this.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
+    //         }
+    //       });
+    //     });
+    //   }
+    // }
   }
 }

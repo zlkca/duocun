@@ -15,4 +15,8 @@ export class PaymentService extends EntityService {
     super(authSvc, http);
     this.url = super.getBaseUrl() + 'ClientPayments';
   }
+
+  pay() {
+    return this.doPost(this.url + '/pay', {a: '1'});
+  }
 }
