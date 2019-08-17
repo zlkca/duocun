@@ -21,6 +21,10 @@
     </app-address-input>
   </div>
 
+  <div class="ad-block" *ngIf="!(places && places.length > 0)">
+    <img src="assets/images/fengcha.jpeg" />
+  </div>
+
   <div class="date-block" *ngIf="!(places && places.length > 0)">
     <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">
       <mat-button-toggle value="today" aria-label="Today">

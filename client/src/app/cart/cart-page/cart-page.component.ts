@@ -189,7 +189,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
   back() {
     if (this.restaurant) {
-      this.router.navigate(['restaurant/list/' +  this.restaurant.id]);
+      this.router.navigate(['merchant/list/' +  this.restaurant.id]);
     }
   }
 }

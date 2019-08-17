@@ -89,7 +89,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   reload(clientId) {
     const self = this;
-    const query = { clientId: clientId, status: { $nin: ['del', 'bad'] }  };
+    const query = { clientId: clientId, status: { $nin: ['del', 'bad'] } };
     self.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((orders: IOrder[]) => {
       orders.map((order: IOrder) => {
         let productTotal = 0;
@@ -106,12 +106,20 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       });
 
       orders.sort((a: IOrder, b: IOrder) => {
-        const ma = moment(a.created).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-        const mb = moment(b.created).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-        if (moment(ma).isAfter(mb)) {
+        const ma = moment(a.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        const mb = moment(b.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        if (ma.isAfter(mb)) {
           return -1;
-        } else {
+        } else if (mb.isAfter(ma)) {
           return 1;
+        } else {
+          const ca = moment(a.created);
+          const cb = moment(b.created);
+          if (ca.isAfter(cb)) {
+            return -1;
+          } else {
+            return 1;
+          }
         }
       });
       self.orders = orders;
@@ -122,25 +130,12 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   canChange(order: IOrder) {
-    const deliverDate = this.sharedSvc.getDate(order.delivered);
-    const now = this.sharedSvc.getDate(new Date());
-    const allowDateTime = deliverDate.set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
-    return allowDateTime.isAfter(now);
+    const allowDateTime = moment(order.delivered).set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
+    return allowDateTime.isAfter(moment());
   }
 
   changeOrder(order: IOrder) {
     this.rx.dispatch({ type: OrderActions.UPDATE, payload: order });
-    const from = moment(order.delivered).toDate();
-    const to = moment(order.delivered).set({ hour: 13, minute: 30, second: 0, millisecond: 0 }).toDate();
-    let text = '';
-    if (moment(order.delivered).isSame(moment())) {
-      text = '今天午餐';
-    } else if (moment(order.delivered).isSame(moment().add(1, 'days'))) {
-      text = '明天午餐';
-    } else if (moment(order.delivered).isSame(moment().add(2, 'days'))) {
-      text = '后天午餐';
-    }
-
     this.rx.dispatch({
       type: CartActions.UPDATE_FROM_CHANGE_ORDER,
       payload: {
@@ -156,11 +151,11 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       type: DeliveryActions.UPDATE_FROM_CHANGE_ORDER,
       payload: {
         origin: order.location,
-        fromTime: from,
-        toTime: to
+        fromTime: moment(order.delivered).toDate(),
+        toTime: moment(order.delivered).set({ hour: 13, minute: 30, second: 0, millisecond: 0 }).toDate()
       }
     });
-    this.router.navigate(['restaurant/list/' + order.merchantId]);
+    this.router.navigate(['merchant/list/' + order.merchantId]);
   }
 
   deleteOrder(order: IOrder) {

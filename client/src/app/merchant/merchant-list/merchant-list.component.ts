@@ -64,20 +64,13 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         const q = { originPlaceId: origin.placeId }; // origin --- client origin
         self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
           if (ds && ds.length > 0) {
-            self.loadRestaurants(this.malls, rs, ds);
+            if (ds.length === self.malls.length) {
+              self.loadRestaurants(this.malls, rs, ds);
+            } else {
+              this.updateDistancesAndLoadRestaurants(origin, this.malls, rs);
+            }
           } else {
-            const destinations: ILocation[] = [];
-            this.malls.map(m => {
-              destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-            });
-            self.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((ks: IDistance[]) => {
-              if (ks) {
-                // const ms = self.updateMallInfo(rs, malls);
-                self.loadRestaurants(this.malls, rs, ks);
-              }
-            }, err => {
-              console.log(err);
-            });
+            this.updateDistancesAndLoadRestaurants(origin, this.malls, rs);
           }
         });
       });
@@ -85,13 +78,13 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
 
     if (d.delivered) {
       const clonedRestaurants = [];
-
-      self.restaurants.map(r => {
-        const item = Object.assign({}, r);
-        item.isClosed = self.merchantSvc.isClosed(item, self.delivered);
-        clonedRestaurants.push(item);
-      });
-
+      if (self.restaurants) {
+        self.restaurants.map(r => {
+          const item = Object.assign({}, r);
+          item.isClosed = self.merchantSvc.isClosed(item, self.delivered);
+          clonedRestaurants.push(item);
+        });
+      }
       self.restaurants = self.sort(clonedRestaurants);
     }
 
@@ -107,7 +100,8 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+    // because distances cached inactive malls, so need all malls
+    this.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
       this.malls = malls;
       this.loadRestaurants(malls, null, null);
     });
@@ -165,27 +159,20 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
     const self = this;
     const origin = this.address;
     if (origin) {
-      // self.center = { lat: origin.lat, lng: origin.lng };
-      this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+      // because distances cached inactive malls, so need all malls
+      this.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
         // this.realMalls = malls;
         // check if road distance in database
         const q = { originPlaceId: origin.placeId }; // origin --- client origin
         self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
           if (ds && ds.length > 0) {
-            self.loadRestaurants(malls, availableRanges, ds);
+            if (ds.length === malls.length) {
+              self.loadRestaurants(malls, availableRanges, ds);
+            } else {
+              self.updateDistancesAndLoadRestaurants(origin, malls, availableRanges);
+            }
           } else {
-            const destinations: ILocation[] = [];
-            malls.map(m => {
-              destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-            });
-            self.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IDistance[]) => {
-              if (rs) {
-                // const ms = self.updateMallInfo(rs, malls);
-                self.loadRestaurants(malls, availableRanges, rs);
-              }
-            }, err => {
-              console.log(err);
-            });
+            self.updateDistancesAndLoadRestaurants(origin, malls, availableRanges);
           }
         });
         // self.loadRestaurants(ms);
@@ -244,6 +231,22 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
 
   getDistanceString(r: IRestaurant) {
     return r.distance.toFixed(2) + ' km';
+  }
+
+  updateDistancesAndLoadRestaurants(origin, malls, ranges) {
+    const self = this;
+    const destinations: ILocation[] = [];
+    malls.map(m => {
+      destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
+    });
+    this.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((ks: IDistance[]) => {
+      if (ks) {
+        // const ms = self.updateMallInfo(rs, malls);
+        self.loadRestaurants(malls, ranges, ks);
+      }
+    }, err => {
+      console.log(err);
+    });
   }
 
   sort(restaurants) {
