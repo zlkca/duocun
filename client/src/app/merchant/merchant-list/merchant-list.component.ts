@@ -81,7 +81,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       if (self.restaurants) {
         self.restaurants.map(r => {
           const item = Object.assign({}, r);
-          item.isClosed = self.merchantSvc.isClosed(item, self.delivered);
+          item.isClosed = self.merchantSvc.isClosed(item, d.delivered);
           clonedRestaurants.push(item);
         });
       }
@@ -254,6 +254,10 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       if (!a.isClosed && b.isClosed) {
         return -1;
       } else if (a.isClosed && !b.isClosed) {
+        return 1;
+      } else if (!this.isAfterOrderDeadline(a) && this.isAfterOrderDeadline(b)) {
+        return -1;
+      } else if (this.isAfterOrderDeadline(a) && !this.isAfterOrderDeadline(b)) {
         return 1;
       } else if (a.inRange && !b.inRange) {
         return -1;
