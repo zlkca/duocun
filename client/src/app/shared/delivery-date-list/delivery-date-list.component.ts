@@ -9,7 +9,7 @@ import * as moment from 'moment';
 })
 export class DeliveryDateListComponent implements OnInit {
 
-  @Input() orderDeadline;
+  @Input() endTime;
   @Input() deliveryDiscount;
   @Output() afterSelectDate = new EventEmitter();
   overdue;
@@ -36,7 +36,7 @@ export class DeliveryDateListComponent implements OnInit {
       {text: '后天午餐', from: afterTomorrowStart.toDate(), to: afterTomorrowEnd.toDate() },
     ];
 
-    const a = moment().set({ hour: this.orderDeadline.h, minute: this.orderDeadline.m, second: 0, millisecond: 0 });
+    const a = moment().set({ hour: this.endTime.h, minute: this.endTime.m, second: 0, millisecond: 0 });
     const b = moment();
     this.overdue = b.isAfter(a);
 

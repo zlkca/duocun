@@ -45,10 +45,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     private sharedSvc: SharedService,
     private router: Router
   ) {
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: 'cart'
-    });
+    this.rx.dispatch({type: PageActions.UPDATE_URL, payload: 'cart'});
   }
 
   ngOnInit() {

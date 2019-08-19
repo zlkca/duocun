@@ -42,6 +42,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
     this.rx.select<string>('page').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
       self.page = x;
+      self.selected = x;
       if (x === 'contact-form' || x === 'phone-form' || x === 'address-form' || x === 'restaurant-detail' ||
         x === 'cart' || x === 'order-confirm' || x === 'home') {
         self.bHide = true;

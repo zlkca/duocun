@@ -29,7 +29,6 @@ export interface IOrder {
   tips?: number;
   deliveryAddress?: Address;
   deliveryCost?: number;
-  deliveryFee?: number;
   deliveryDiscount?: number;
   groupDiscount?: number;
   productTotal?: number;
@@ -57,8 +56,7 @@ export class Order implements IOrder {
   modified: Date;
   items: OrderItem[];
   deliveryAddress: Address;
-  deliveryCost?: number;
-  deliveryFee: number;
+  deliveryCost: number;
   deliveryDiscount: number;
   groupDiscount?: number;
   total: number;

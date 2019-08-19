@@ -17,7 +17,6 @@ export interface ICart {
   merchantId?: string;
   merchantName?: string;
   deliveryCost?: number;
-  deliveryFee?: number;
   deliveryDiscount?: number;
   productTotal?: number;
   tax?: number;

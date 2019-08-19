@@ -241,23 +241,22 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   getDistance(ds: IDistance[], mall: IMall) {
     const d = ds.find(r => r.destinationPlaceId === mall.placeId);
-    return d ? d.element.distance.value : null;
+    return d ? d.element.distance.value : 0;
   }
 
-  updateDeliveryFee(restaurant, malls, mallId, ds) {
+  updateDeliveryFee(restaurant, malls, mallId, ds: IDistance[]) {
     const self = this;
     const mall = malls.find(m => m.id === mallId); // restaurant.malls[0]); // fix me, get physical distance
     const distance = ds ? self.getDistance(ds, mall) : 0;
     restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
-    restaurant.deliveryFee = self.distanceSvc.getDeliveryFee(distance / 1000, null); // self.deliveryTime);
+    restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(distance / 1000);
 
     this.rx.dispatch({
       type: CartActions.UPDATE_DELIVERY, payload: {
         merchantId: restaurant.id,
         merchantName: restaurant.name,
-        deliveryCost: restaurant.fullDeliveryFee,
-        deliveryFee: restaurant.deliveryFee,
-        deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
+        deliveryCost: restaurant.deliveryCost,
+        deliveryDiscount: restaurant.deliveryCost
       }
     });
   }

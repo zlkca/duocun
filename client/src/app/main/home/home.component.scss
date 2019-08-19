@@ -12,7 +12,7 @@ $position-btn-width: 0px;
 $map-height: 360px;
 $address-search-height: 46px;
 $menu-height: 60px;
-$ad-height: 0px;// 120px;
+$ad-height: 120px;
 $date-btn-height: 50px;
 
 .pac-container:after {
@@ -88,12 +88,13 @@ $date-btn-height: 50px;
   }
 
   .ad-block{
+    padding: 1px 10px;
     width: 100%;
     height: $ad-height;
+
     img {
-      width: 354px;
+      width: 100%;
       height: $ad-height;
-      margin-left: 11px;
     }
   }
 

@@ -22,7 +22,6 @@ export class CartNavbarComponent implements OnInit {
   productTotal;
   location;
   account;
-  deliveryTime;
   contact;
 
   @Input() restaurant: IRestaurant;
@@ -38,7 +37,6 @@ export class CartNavbarComponent implements OnInit {
     });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
-      this.deliveryTime = { from: x.fromTime, to: x.toTime };
       this.location = x.origin;
     });
 
@@ -63,8 +61,6 @@ export class CartNavbarComponent implements OnInit {
 
   checkout() {
     const self = this;
-    // const restaurant: IRestaurant = this.restaurant;
-
     // if it doesn't have default address
     if (this.location) {
       if (this.contact) {

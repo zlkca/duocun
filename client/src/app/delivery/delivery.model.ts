@@ -13,8 +13,7 @@ export interface IDelivery {
   destination?: ILocation; // mall location
   availableRanges?: IRange[];
   distance?: number; // m
-  fromTime?: Date;
-  toTime?: Date;
+  date?: any; // moment object
 }
 
 export class Delivery implements IDelivery {
@@ -23,8 +22,7 @@ export class Delivery implements IDelivery {
   destination: ILocation;
   availableRanges?: IRange[];
   distance: number; // m
-  fromTime: Date;
-  toTime: Date;
+  date?: any; // moment object
   created?: Date;
   modified?: Date;
 

@@ -55,6 +55,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       if (!origin) {
         return;
       }
+
       self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
         const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
         // self.inRange = (rs && rs.length > 0) ? true : false;
@@ -81,7 +82,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       if (self.restaurants) {
         self.restaurants.map(r => {
           const item = Object.assign({}, r);
-          item.isClosed = self.merchantSvc.isClosed(item, d.delivered);
+          item.isClosed = self.merchantSvc.isClosed(item, d.delivered.currentValue);
           clonedRestaurants.push(item);
         });
       }
@@ -126,7 +127,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         const distance = distances ? self.getDistance(distances, mall) : 0;
         restaurant.distance = distance / 1000;
         restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
-        restaurant.deliveryFee = self.distanceSvc.getDeliveryFee(distance / 1000, null); // self.deliveryTime);
+        restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(distance / 1000);
         restaurant.isClosed = self.merchantSvc.isClosed(restaurant, self.delivered);
       });
       self.markers = markers;
@@ -182,10 +183,10 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  isAfterOrderDeadline(restaurant: IRestaurant) {
+  isNotOpening(restaurant: IRestaurant) {
     const m = moment(this.delivered.toDate());
     if (moment().isSame(m, 'day')) {
-      return this.merchantSvc.isAfterOrderDeadline(restaurant);
+      return this.merchantSvc.isNotOpening(restaurant);
     } else {
       return false;
     }
@@ -212,8 +213,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       payload: {
         merchantId: r.id,
         merchantName: r.name,
-        deliveryCost: r.fullDeliveryFee,
-        deliveryFee: r.deliveryFee,
+        deliveryCost: r.deliveryCost,
         deliveryDiscount: r.fullDeliveryFee
       }
     });
@@ -255,9 +255,9 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         return -1;
       } else if (a.isClosed && !b.isClosed) {
         return 1;
-      } else if (!this.isAfterOrderDeadline(a) && this.isAfterOrderDeadline(b)) {
+      } else if (!this.isNotOpening(a) && this.isNotOpening(b)) {
         return -1;
-      } else if (this.isAfterOrderDeadline(a) && !this.isAfterOrderDeadline(b)) {
+      } else if (this.isNotOpening(a) && !this.isNotOpening(b)) {
         return 1;
       } else if (a.inRange && !b.inRange) {
         return -1;

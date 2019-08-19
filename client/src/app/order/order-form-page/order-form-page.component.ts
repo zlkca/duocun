@@ -35,9 +35,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   tips = 0;
   malls: IMall[] = [];
   productTotal = 0;
-  deliveryCost = 0;
   deliveryDiscount = 0;
-  deliveryFee = 0;
+  deliveryCost = 0;
   tax = 0;
   contact: IContact;
   form;
@@ -86,12 +85,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
       this.order = order;
-      this.reloadGroupDiscount(self.delivery.fromTime, self.address);
+      const deliveryTime = self.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+      this.reloadGroupDiscount(deliveryTime, self.address);
     });
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.deliveryCost = cart.deliveryCost;
-      this.deliveryFee = cart.deliveryFee;
       this.deliveryDiscount = cart.deliveryDiscount;
       this.productTotal = 0;
       this.items = [];
@@ -130,8 +129,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
   // for display purpose, update price should be run on backend
-  reloadGroupDiscount(date: Date, address: string) {
-    const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
+  reloadGroupDiscount(date: any, address: string) { // date --- moment object
+    const query = { delivered: date.toDate(), address: address, status: { $nin: ['del', 'bad'] } };
     this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
       if (this.order && this.order.id) {
         this.groupDiscount = this.getGroupDiscount(orders, false);
@@ -174,12 +173,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         merchantName: cart.merchantName,
         items: items,
         created: new Date(),
-        delivered: this.delivery.fromTime,
+        delivered: this.delivery.date.toDate(),
         address: this.locationSvc.getAddrString(this.delivery.origin),
         location: this.delivery.origin,
         note: note,
         deliveryCost: self.deliveryCost,
-        deliveryFee: self.deliveryFee,
         deliveryDiscount: self.deliveryDiscount,
         groupDiscount: self.groupDiscount,
         total: self.total - self.groupDiscount,
@@ -219,9 +217,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.account && this.delivery && this.delivery.fromTime && this.delivery.origin) {
+    if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
       const v = this.form.value;
-      const date = this.delivery.fromTime;
+      const date = this.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
       const address = this.locationSvc.getAddrString(this.delivery.origin);
 
       if (this.order && this.order.id) {
@@ -267,14 +265,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               self.orderSvc.save(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
                 // self.afterSubmit.emit(order);
                 const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
-                this.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-                this.snackBar.open('', '您的订单已经成功提交。', { duration: 2000 });
+                self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+                self.snackBar.open('', '您的订单已经成功提交。', { duration: 2000 });
                 self.router.navigate(['order/history']);
               }, err => {
                 self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
               });
             } else {
-              this.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
+              self.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
             }
           });
         });

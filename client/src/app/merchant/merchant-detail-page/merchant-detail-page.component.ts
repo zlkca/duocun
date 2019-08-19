@@ -95,23 +95,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       const merchantId = params['id'];
       self.merchantSvc.findById(merchantId).pipe(takeUntil(this.onDestroy$)).subscribe((restaurant: IRestaurant) => {
         self.restaurant = restaurant;
-        // self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
-        //   const origin = self.delivery.origin;
-        //   if (origin) {
-        //     const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
-        //     restaurant.inRange = (rs && rs.length > 0) ? true : false;
-
-        //     restaurant.fullDeliveryFee = self.cart.deliveryCost;
-        //     restaurant.deliveryFee = self.cart.deliveryFee;
-        //     restaurant.deliveryDiscount = self.cart.deliveryDiscount;
-        //   }
-        //   self.restaurant = restaurant;
-        // });
       });
-
-      // if (self.delivery && self.delivery.fromTime) {
-      //   self.dow = moment(self.delivery.fromTime).day(); // 0 for sunday
-      // }
 
       const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
       self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {

@@ -36,7 +36,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject();
   categories;
   cart;
-  deliveryTime;
+  deliveryDate; // moment object
 
   ngOnInit() {
 
@@ -75,21 +75,20 @@ export class ProductListComponent implements OnInit, OnDestroy {
     });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
-      this.deliveryTime = { from: x.fromTime, to: x.toTime };
+      this.deliveryDate = x.date; // moment object
     });
   }
 
-  isAfterOrderDeadline(restaurant) {
-    const m = moment(this.deliveryTime.from);
-    if (moment().isSame(m, 'day')) {
-      return this.merchantSvc.isAfterOrderDeadline(restaurant);
+  isNotOpening(restaurant) {
+    if (moment().isSame(this.deliveryDate, 'day')) {
+      return this.merchantSvc.isNotOpening(restaurant);
     } else {
       return false;
     }
   }
 
   addToCart(p: IProduct) {
-    if (this.merchantSvc.isClosed(this.restaurant, moment(this.deliveryTime.from))) {
+    if (this.merchantSvc.isClosed(this.restaurant, this.deliveryDate)) {
       alert('该商家休息，暂时无法配送');
       return;
     }
@@ -97,8 +96,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     //   alert('该商家不在配送范围内，暂时无法配送');
     //   return;
     // }
-    if (this.isAfterOrderDeadline(this.restaurant)) {
-      alert('已过下单时间，该商家下单截止到' + this.restaurant.orderDeadline + 'am' );
+    if (this.isNotOpening(this.restaurant)) {
+      alert('已过下单时间，该商家下单截止到' + this.restaurant.endTime + 'am' );
       return;
     }
 

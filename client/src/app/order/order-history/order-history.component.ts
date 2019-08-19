@@ -39,10 +39,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     private router: Router,
     public dialog: MatDialog
   ) {
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: 'order-history'
-    });
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'order-history'});
   }
 
   ngOnInit() {
@@ -142,8 +139,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         items: order.items,
         merchantId: order.merchantId,
         merchantName: order.merchantName,
-        deliveryCost: order.deliveryFee + order.deliveryDiscount,
-        deliveryFee: order.deliveryFee,
+        deliveryCost: order.deliveryCost,
         deliveryDiscount: order.deliveryDiscount,
       }
     });
@@ -151,8 +147,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       type: DeliveryActions.UPDATE_FROM_CHANGE_ORDER,
       payload: {
         origin: order.location,
-        fromTime: moment(order.delivered).toDate(),
-        toTime: moment(order.delivered).set({ hour: 13, minute: 30, second: 0, millisecond: 0 }).toDate()
+        date: moment(order.delivered)
       }
     });
     this.router.navigate(['merchant/list/' + order.merchantId]);

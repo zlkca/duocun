@@ -65,7 +65,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   historyAddressList = [];
   suggestAddressList = [];
   selectedDate = 'today';
-  date;
+  date; // moment object
   address: ILocation;
   compareRanges;
   mapZoom;
@@ -93,10 +93,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     private fb: FormBuilder
   ) {
     const self = this;
-    const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
-    const tomorrow = moment().add(1, 'days').set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format('YYYY-MM-DD');
-    this.today = { type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:15' };
-    this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow, startTime: '11:45', endTime: '13:15' };
+    const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    const tomorrow = moment().add(1, 'days').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+
+    // For display purpose only
+    this.today = { type: 'lunch today', text: '今天午餐', date: today.format('YYYY-MM-DD'), startTime: '11:45', endTime: '13:15' };
+    this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow.format('YYYY-MM-DD'), startTime: '11:45', endTime: '13:15' };
 
     this.placeForm = this.fb.group({
       addr: ['']
@@ -118,20 +120,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.inRange = true;
       }
 
-      if (d && d.fromTime) {
-        const date = moment(d.fromTime);
-        const bToday = moment().isSame(date, 'day');
-        self.selectedDate =  bToday ? 'today' : 'tomorrow';
-        self.date = date;
-      } else {
-        const todayStart = moment().set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
-        const todayEnd = moment().set({ hour: 13, minute: 30, second: 0, millisecond: 0 });
-
-        this.rx.dispatch({
-          type: DeliveryActions.UPDATE_TIME,
-          payload: { fromTime: todayStart.toDate(), toTime: todayEnd.toDate() }
-        });
-        this.date = todayStart;
+      if (d && d.date) { // moment
+        self.selectedDate =  moment().isSame(d.date, 'day') ? 'today' : 'tomorrow';
+        self.date = d.date;
+      } else { // by default select today moment object
+        this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today }});
+        this.date = today;
       }
     });
 
@@ -227,11 +221,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.places = []; // clear address list
-
-    this.rx.dispatch<IPageAction>({
-      type: PageActions.UPDATE_URL,
-      payload: 'home'
-    });
+    this.rx.dispatch<IPageAction>({type: PageActions.UPDATE_URL, payload: 'home'});
     this.rx.select('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'clear-location-list') {
         this.places = [];
@@ -245,17 +235,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getOrderDeadline(rs: IRestaurant[]) {
-    let deadline = rs[0].orderDeadline;
+    let deadline = rs[0].endTime;
     const arr1 = deadline.split(':');
     let a = moment().set({ hour: +arr1[0], minute: +arr1[1], second: 0, millisecond: 0 });
 
     rs.map(r => {
-      const arr2 = r.orderDeadline.split(':');
+      const arr2 = r.endTime.split(':');
       const b = moment().set({ hour: +arr2[0], minute: +arr2[1], second: 0, millisecond: 0 });
 
       if (b.isAfter(a)) {
         a = b;
-        deadline = r.orderDeadline;
+        deadline = r.endTime;
       }
     });
     return deadline;
@@ -288,7 +278,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.places = this.historyAddressList.map(x => Object.assign({}, x));
       }
     }
-
   }
 
   onAddressInputChange(e) {
@@ -373,24 +362,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onSelectDate(e) {
-    const date = e.value;
-
-    if (date === 'tomorrow') {
-      const tomorrowStart = moment().set({ hour: 11, minute: 45, second: 0, millisecond: 0 }).add(1, 'days');
-      const tomorrowEnd = moment().set({ hour: 13, minute: 30, second: 0, millisecond: 0 }).add(1, 'days');
-
-      this.rx.dispatch({
-        type: DeliveryActions.UPDATE_TIME,
-        payload: { fromTime: tomorrowStart.toDate(), toTime: tomorrowEnd.toDate() }
-      });
+    if (e.value === 'tomorrow') {
+      const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
+      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow }});
     } else {
-      const todayStart = moment().set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
-      const todayEnd = moment().set({ hour: 13, minute: 30, second: 0, millisecond: 0 });
-
-      this.rx.dispatch({
-        type: DeliveryActions.UPDATE_TIME,
-        payload: { fromTime: todayStart.toDate(), toTime: todayEnd.toDate() }
-      });
+      const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today }});
     }
   }
 
