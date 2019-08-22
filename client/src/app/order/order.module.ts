@@ -14,6 +14,7 @@ import { AccountService } from '../account/account.service';
 import { MatDialogModule } from '../../../node_modules/@angular/material';
 import { RemoveOrderDialogComponent } from './remove-order-dialog/remove-order-dialog.component';
 import { PaymentService } from '../payment/payment.service';
+import { MerchantService } from '../merchant/merchant.service';
 
 @NgModule({
   imports: [
@@ -33,7 +34,8 @@ import { PaymentService } from '../payment/payment.service';
   providers: [
     OrderService,
     AccountService,
-    PaymentService
+    PaymentService,
+    MerchantService
   ],
   declarations: [
     OrderHistoryComponent,

@@ -7,6 +7,7 @@ import { EntityService } from '../entity.service';
 import { ILatLng, ILocation, IDistance } from '../location/location.model';
 import { LocationService } from '../location/location.service';
 import { DistanceService } from '../location/distance.service';
+import { IRange } from '../range/range.model';
 
 @Injectable({
   providedIn: 'root'
@@ -29,16 +30,17 @@ export class MallService extends EntityService {
     this.url = super.getBaseUrl() + 'Malls';
   }
 
-  inRange(center: ILatLng) {
-    const self = this;
-    // let inRange = false;
-    // this.malls.filter(x => x.type === 'virtual').map(mall => {
-    //   if (self.locationSvc.getDirectDistance(center, {lat: mall.lat, lng: mall.lng}) < mall.radius * 1000) {
-    //     inRange = true;
-    //   }
-    // });
-    // return inRange;
-    return false;
+  isInRange(mall: IMall, availableRanges: IRange[]) {
+    let bInRange = false;
+    if (mall.ranges) {
+      mall.ranges.map((rangeId: string) => {
+        const range = availableRanges.find(ar => ar.id === rangeId);
+        if (range) {
+          bInRange = true;
+        }
+      });
+    }
+    return bInRange;
   }
 }
 

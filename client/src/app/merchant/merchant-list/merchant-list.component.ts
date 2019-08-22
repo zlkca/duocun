@@ -156,32 +156,32 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
     return d ? d.element.distance.value : null;
   }
 
-  reload(availableRanges) {
-    const self = this;
-    const origin = this.address;
-    if (origin) {
-      // because distances cached inactive malls, so need all malls
-      this.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
-        // this.realMalls = malls;
-        // check if road distance in database
-        const q = { originPlaceId: origin.placeId }; // origin --- client origin
-        self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
-          if (ds && ds.length > 0) {
-            if (ds.length === malls.length) {
-              self.loadRestaurants(malls, availableRanges, ds);
-            } else {
-              self.updateDistancesAndLoadRestaurants(origin, malls, availableRanges);
-            }
-          } else {
-            self.updateDistancesAndLoadRestaurants(origin, malls, availableRanges);
-          }
-        });
-        // self.loadRestaurants(ms);
-      });
-    } else {
+  // reload(availableRanges) {
+  //   const self = this;
+  //   const origin = this.address;
+  //   if (origin) {
+  //     // because distances cached inactive malls, so need all malls
+  //     this.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+  //       // this.realMalls = malls;
+  //       // check if road distance in database
+  //       const q = { originPlaceId: origin.placeId }; // origin --- client origin
+  //       self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
+  //         if (ds && ds.length > 0) {
+  //           if (ds.length === malls.length) {
+  //             self.loadRestaurants(malls, availableRanges, ds);
+  //           } else {
+  //             self.updateDistancesAndLoadRestaurants(origin, malls, availableRanges);
+  //           }
+  //         } else {
+  //           self.updateDistancesAndLoadRestaurants(origin, malls, availableRanges);
+  //         }
+  //       });
+  //       // self.loadRestaurants(ms);
+  //     });
+  //   } else {
 
-    }
-  }
+  //   }
+  // }
 
   isNotOpening(restaurant: IRestaurant) {
     const m = moment(this.delivered.toDate());

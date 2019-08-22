@@ -21,6 +21,8 @@ import { BalanceService } from '../../payment/balance.service';
 import { IBalance, IClientPayment } from '../../payment/payment.model';
 import { ILocation } from '../../location/location.model';
 import { OrderSequenceService } from '../order-sequence.service';
+import * as moment from 'moment';
+import { MerchantService } from '../../merchant/merchant.service';
 
 @Component({
   selector: 'app-order-form-page',
@@ -47,6 +49,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   address: string;
   balance: IBalance;
   groupDiscount = 0;
+  merchant;
 
   constructor(
     private fb: FormBuilder,
@@ -54,6 +57,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private orderSvc: OrderService,
+    private merchantSvc: MerchantService,
     private sequenceSvc: OrderSequenceService,
     private locationSvc: LocationService,
     private balanceSvc: BalanceService,
@@ -85,8 +89,15 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
       this.order = order;
-      const deliveryTime = self.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
-      this.reloadGroupDiscount(deliveryTime, self.address);
+      if (order) {
+        const endTime = +self.merchant.endTime.split(':')[0];
+        if (endTime < 12) {
+          self.delivery.date = self.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+        } else {
+          self.delivery.date = self.delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
+        }
+        this.reloadGroupDiscount(self.delivery.date, self.address);
+      }
     });
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
@@ -108,6 +119,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.subtotal = this.subtotal + this.tax;
       this.total = this.subtotal - this.deliveryDiscount + this.tips;
       this.cart = cart;
+      this.merchantSvc.find({ id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe(ms => {
+        self.merchant = ms[0];
+      });
     });
 
     this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
@@ -219,11 +233,17 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
       const v = this.form.value;
-      const date = this.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+      const endTime = +self.merchant.endTime.split(':')[0];
+      if (endTime < 12) {
+        self.delivery.date = self.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+      } else {
+        self.delivery.date = self.delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
+      }
+
       const address = this.locationSvc.getAddrString(this.delivery.origin);
 
       if (this.order && this.order.id) {
-        const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
+        const query = { delivered: self.delivery.date, address: address, status: { $nin: ['del', 'bad'] } };
         this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
           self.groupDiscount = this.getGroupDiscount(orders, false);
           const order = this.createOrder(this.contact, v.note);
@@ -256,7 +276,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         // }
 
         this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
-          const query = { delivered: date, address: address, status: { $nin: ['del', 'bad'] } };
+          const query = { delivered: self.delivery.date, address: address, status: { $nin: ['del', 'bad'] } };
           this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
             self.groupDiscount = this.getGroupDiscount(orders, true);
             const order = this.createOrder(this.contact, v.note);
