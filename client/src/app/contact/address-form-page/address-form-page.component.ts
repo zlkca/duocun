@@ -24,6 +24,7 @@ import { IMall } from '../../mall/mall.model';
 import { MallService } from '../../mall/mall.service';
 import { DistanceService } from '../../location/distance.service';
 import { IDelivery } from '../../delivery/delivery.model';
+import { IRange } from '../../range/range.model';
 
 @Component({
   selector: 'app-address-form-page',
@@ -48,6 +49,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   suggestAddressList;
   historyAddressList;
   bUpdateLocationList = true;
+  malls: IMall[];
+  availableRanges: IRange[];
 
   constructor(
     private accountSvc: AccountService,
@@ -66,6 +69,10 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: 'address-form'
+    });
+
+    this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+      this.malls = malls;
     });
   }
 
@@ -241,23 +248,22 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   getDistance(ds: IDistance[], mall: IMall) {
     const d = ds.find(r => r.destinationPlaceId === mall.placeId);
-    return d ? d.element.distance.value : null;
+    return d ? d.element.distance.value : 0;
   }
 
-  updateDeliveryFee(restaurant, malls, mallId, ds) {
+  updateDeliveryFee(restaurant, malls, mallId, ds: IDistance[]) {
     const self = this;
     const mall = malls.find(m => m.id === mallId); // restaurant.malls[0]); // fix me, get physical distance
     const distance = ds ? self.getDistance(ds, mall) : 0;
     restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
-    restaurant.deliveryFee = self.distanceSvc.getDeliveryFee(distance / 1000, null); // self.deliveryTime);
+    restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(distance / 1000);
 
     this.rx.dispatch({
       type: CartActions.UPDATE_DELIVERY, payload: {
         merchantId: restaurant.id,
         merchantName: restaurant.name,
-        deliveryCost: restaurant.fullDeliveryFee,
-        deliveryFee: restaurant.deliveryFee,
-        deliveryDiscount: restaurant.fullDeliveryFee - restaurant.deliveryFee
+        deliveryCost: restaurant.deliveryCost,
+        deliveryDiscount: restaurant.deliveryCost
       }
     });
   }
@@ -336,32 +342,40 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         self.router.navigate(['main/home']);
         return;
       }
+
+      const mall = this.malls.find(m => m.id === this.restaurant.malls[0]);
+      if (!this.mallSvc.isInRange(mall, this.availableRanges)) {
+        alert('此餐馆不在配送范围内');
+        return;
+      }
+
       restaurant = this.restaurant;
-      this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
-        // this.realMalls = malls;
-        // check if road distance in database
-        const q = { originPlaceId: self.location.placeId }; // origin --- client origin
-        self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
-          if (ds && ds.length > 0) {
-            const mall = malls.find(m => m.id === restaurant.malls[0]); // fix me, get physical distance
-            self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], ds);
-            self.redirect(contact);
-          } else {
-            const destinations: ILocation[] = [];
-            malls.map(m => {
-              destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-            });
-            self.distanceSvc.reqRoadDistances(self.location, destinations).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IDistance[]) => {
-              if (rs) {
-                self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], rs);
-                self.redirect(contact);
-              }
-            }, err => {
-              console.log(err);
-            });
-          }
-        });
+      // this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+      // this.realMalls = malls;
+      // check if road distance in database
+      const malls = this.malls;
+      const q = { originPlaceId: self.location.placeId }; // origin --- client origin
+      self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
+        if (ds && ds.length > 0) {
+          // const mall = malls.find(m => m.id === restaurant.malls[0]); // fix me, get physical distance
+          self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], ds);
+          self.redirect(contact);
+        } else {
+          const destinations: ILocation[] = [];
+          malls.map(m => {
+            destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
+          });
+          self.distanceSvc.reqRoadDistances(self.location, destinations).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IDistance[]) => {
+            if (rs) {
+              self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], rs);
+              self.redirect(contact);
+            }
+          }, err => {
+            console.log(err);
+          });
+        }
       });
+      // });
     }
 
   }
@@ -370,7 +384,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
       const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
+      this.availableRanges = rs;
       self.inRange = (rs && rs.length > 0) ? true : false;
+
       // self.availableRanges = rs;
       if (self.inRange) {
         self.compareRanges = [];

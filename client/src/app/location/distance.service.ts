@@ -27,15 +27,6 @@ export class DistanceService extends EntityService {
     }
   }
 
-  getDeliveryFee(distance: number, deliverTime: IDeliveryTime) {
-      // if (distance <= 3) {
-      //   return 3;
-      // } else {
-      //   return 3 + 1.5 * Math.ceil(distance - 3);
-      // }
-      return 0;
-  }
-
   reqRoadDistances(origin: ILocation, destinations: ILocation[]): Observable<any> { // IDistance[]
     const url = this.url + '/Road';
 

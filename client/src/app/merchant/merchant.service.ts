@@ -18,13 +18,15 @@ export class MerchantService extends EntityService {
   }
 
 
-  isAfterOrderDeadline(restaurant) {
-    if (restaurant.orderDeadline) {
-      const a = restaurant.orderDeadline.split(':');
-      if (a && a.length > 1) {
+  isNotOpening(restaurant: IRestaurant) {
+    if (restaurant.endTime && restaurant.startTime) {
+      const start = restaurant.startTime.split(':');
+      const end = restaurant.endTime.split(':');
+      if (end && end.length > 1) {
         const now = moment();
-        const deadline = moment().set({ hours: +a[0], minutes: +a[1], seconds: 0 });
-        return now.isAfter(deadline);
+        const startTime = moment().set({ hours: +start[0], minutes: +start[1], seconds: 0 });
+        const endTime = moment().set({ hours: +end[0], minutes: +end[1], seconds: 0 });
+        return now.isAfter(endTime) || now.isBefore(startTime);
       } else {
         return true;
       }
@@ -36,7 +38,6 @@ export class MerchantService extends EntityService {
 
   // dateTime --- moment object
   isClosed(restaurant: IRestaurant, dateTime: any) {
-
     if (restaurant.closed) { // has special close day
       if (restaurant.closed.find(d => moment(d).isSame(dateTime, 'day'))) {
         return true;

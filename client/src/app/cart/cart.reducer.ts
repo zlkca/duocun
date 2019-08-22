@@ -34,7 +34,6 @@ export const DEFAULT_CART = {
   quantity: 0,
   productTotal: 0,
   deliveryCost: 0,
-  deliveryFee: 0,
   deliveryDiscount: 0,
   tax: 0,
   tips: 0,
@@ -63,7 +62,6 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
           merchantId: action.payload.merchantId,
           merchantName: action.payload.merchantName,
           deliveryCost: action.payload.deliveryCost,
-          deliveryFee: action.payload.deliveryFee,
           deliveryDiscount: action.payload.deliveryDiscount
         };
 
@@ -152,7 +150,6 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
           merchantId: action.payload.merchantId,
           merchantName: action.payload.merchantName,
           deliveryCost: action.payload.deliveryCost,
-          deliveryFee: action.payload.deliveryFee,
           deliveryDiscount: action.payload.deliveryDiscount,
           items: its
         };

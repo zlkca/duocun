@@ -19,7 +19,7 @@ export interface IRestaurant {
   dow?: string; // day of week opening, eg. '1,2,3,4,5'
   isClosed?: boolean;
   distance?: number; // km
-  deliveryFee?: number;
+  deliveryCost?: number;
   fullDeliveryFee?: number;
   deliveryDiscount?: number;
   products?: Product[];
@@ -27,7 +27,8 @@ export interface IRestaurant {
   pictures?: Picture[];
   address?: Address;
   order?: number;
-  orderDeadline?: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 // For database
@@ -46,7 +47,8 @@ export class Restaurant implements IRestaurant {
   pictures: Picture[];
   address: Address;
   order?: number;
-  orderDeadline?: string;
+  startTime?: string;
+  endTime?: string;
 
   constructor(data?: IRestaurant) {
     Object.assign(this, data);

@@ -14,6 +14,11 @@ import { CategoryService } from '../../category/category.service';
 import * as moment from 'moment';
 import { MerchantService } from '../../merchant/merchant.service';
 import { IDelivery } from '../../delivery/delivery.model';
+import { RangeService } from '../../range/range.service';
+import { MallService } from '../../mall/mall.service';
+import { IRestaurant } from '../../restaurant/restaurant.model';
+import { IRange } from '../../range/range.model';
+import { IMall } from '../../mall/mall.model';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -26,7 +31,7 @@ const ADD_IMAGE = 'add_photo.png';
 export class ProductListComponent implements OnInit, OnDestroy {
   MEDIA_URL: string = environment.MEDIA_URL;
 
-  @Input() restaurant;
+  @Input() restaurant: IRestaurant;
   @Input() items: any[]; // {product:x, quantity: y}
   @Input() mode: string;
   @Output() select = new EventEmitter();
@@ -36,7 +41,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject();
   categories;
   cart;
-  deliveryTime;
+  deliveryDate; // moment object
+  delivery: IDelivery;
+  ranges: IRange[];
+  malls: IMall[];
 
   ngOnInit() {
 
@@ -48,7 +56,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private productSvc: ProductService,
+    private mallSvc: MallService,
+    private rangeSvc: RangeService,
     private merchantSvc: MerchantService,
     private categorySvc: CategoryService,
     private router: Router,
@@ -75,31 +84,49 @@ export class ProductListComponent implements OnInit, OnDestroy {
     });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
-      this.deliveryTime = { from: x.fromTime, to: x.toTime };
+      this.delivery = x;
+      this.deliveryDate = x.date; // moment object
+    });
+
+    this.rangeSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(ranges => {
+      this.ranges = ranges;
+      const origin = this.delivery.origin;
+      const rs = this.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
+    });
+
+    this.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(malls => {
+      this.malls = malls;
     });
   }
 
-  isAfterOrderDeadline(restaurant) {
-    const m = moment(this.deliveryTime.from);
-    if (moment().isSame(m, 'day')) {
-      return this.merchantSvc.isAfterOrderDeadline(restaurant);
+  isNotOpening(restaurant) {
+    if (moment().isSame(this.deliveryDate, 'day')) {
+      return this.merchantSvc.isNotOpening(restaurant);
     } else {
       return false;
     }
   }
 
   addToCart(p: IProduct) {
-    if (this.merchantSvc.isClosed(this.restaurant, moment(this.deliveryTime.from))) {
+    if (this.merchantSvc.isClosed(this.restaurant, this.deliveryDate)) {
       alert('该商家休息，暂时无法配送');
       return;
     }
-    // if (!this.restaurant.inRange) {
-    //   alert('该商家不在配送范围内，暂时无法配送');
-    //   return;
-    // }
-    if (this.isAfterOrderDeadline(this.restaurant)) {
-      alert('已过下单时间，该商家下单截止到' + this.restaurant.orderDeadline + 'am' );
+
+    if (this.isNotOpening(this.restaurant)) {
+      alert('已过下单时间，该商家下单截止到' + this.restaurant.endTime + 'am');
       return;
+    }
+
+    const origin = this.delivery.origin;
+    if (origin) {
+      const rs = this.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, this.ranges);
+      const mall = this.malls.find(m => m.id === this.restaurant.malls[0]);
+
+      if (!this.mallSvc.isInRange(mall, rs)) {
+        alert('该商家不在配送范围内，暂时无法配送');
+        return;
+      }
     }
 
     this.rx.dispatch({

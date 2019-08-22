@@ -5,8 +5,7 @@ export const DEFAULT_DELIVERY = {
   origin: null,
   destination: null,
   distance: 0,
-  fromTime: null,
-  toTime: null
+  date: null
 };
 
 export interface IDeliveryAction {
@@ -20,18 +19,16 @@ export function deliveryReducer(state: IDelivery = DEFAULT_DELIVERY, action: IDe
       return null;
     case DeliveryActions.UPDATE:
       return action.payload;
-    case DeliveryActions.UPDATE_TIME:
+    case DeliveryActions.UPDATE_DATE:
       return {
         ...state,
-        fromTime: action.payload.fromTime,
-        toTime: action.payload.toTime
+        date: action.payload.date
       };
-    case DeliveryActions.UPDATE_TIME_AND_RANGES:
+    case DeliveryActions.UPDATE_DATE_AND_RANGES:
       return {
         ...state,
         availableRanges: action.payload.availableRanges,
-        fromTime: action.payload.fromTime,
-        toTime: action.payload.toTime
+        date: action.payload.date
       };
     case DeliveryActions.UPDATE_ORIGIN:
       return {
@@ -57,8 +54,7 @@ export function deliveryReducer(state: IDelivery = DEFAULT_DELIVERY, action: IDe
     case DeliveryActions.UPDATE_FROM_CHANGE_ORDER:
       return {
         ...state,
-        fromTime: action.payload.fromTime,
-        toTime: action.payload.toTime,
+        date: action.payload.date,
         origin: action.payload.origin,
         destination: action.payload.destination,
         distance: action.payload.distance

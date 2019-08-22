@@ -1,5 +1,7 @@
 
-<app-merchant-list class="merchant-list" *ngIf="account && !(places && places.length > 0) && inRange" [active]="inRange" [delivered]="date" [address]="address"></app-merchant-list>
+<app-merchant-list class="merchant-list" *ngIf="account && !(places && places.length > 0) && inRange" 
+  [active]="inRange" [delivered]="date" [address]="address">
+</app-merchant-list>
 
 
 <div class="map-block" [class.range]="rangeMap" *ngIf="!(places && places.length > 0) && !inRange">
@@ -19,6 +21,10 @@
     <app-address-input placeholder="InputDeliveryAddress" (addrChange)="onAddressInputChange($event)" (addrClear)="onAddressInputClear($event)"
       (inputFocus)="onAddressInputFocus($event)" (backHistory)="onBack()" [value]="deliveryAddress">
     </app-address-input>
+  </div>
+
+  <div class="ad-block" *ngIf="!(places && places.length > 0)">
+    <img src="assets/images/fengcha.jpeg" />
   </div>
 
   <div class="date-block" *ngIf="!(places && places.length > 0)">

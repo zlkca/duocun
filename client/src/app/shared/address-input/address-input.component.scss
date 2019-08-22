@@ -1,7 +1,7 @@
 $bg-color: white;
 $border-color: #b1b1b1;
-$input-height: 40px;
-$icon-height: 22px;
+$input-height: 34px;
+$icon-height: 24px;
 $btn-width: 34px;
 
 // Bootstrap's .modal z-index is by default 1050.
@@ -30,7 +30,7 @@ button:focus {
 .back-btn, .clear-btn{
   width: $btn-width;
   height: $input-height;
-  padding-top: 4px; // ($input-height - $icon-height)/2;
+  padding-top: 2px; // ($input-height - $icon-height)/2;
   border: 1px solid $border-color;
   background-color: $bg-color;
 }

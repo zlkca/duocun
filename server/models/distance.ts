@@ -38,7 +38,7 @@ export class Distance extends Model{
         if (data) {
           const s = JSON.parse(data);
           const rows = s.rows;
-          const distances = [];
+          const distances: any[] = [];
           if (rows && rows.length > 0 && rows[0].elements && rows[0].elements.length > 0) {
             // const elements = rows[0].elements;
             for (let i = 0; i < destinations.length; i++) {
@@ -56,10 +56,11 @@ export class Distance extends Model{
             }
             res.send(distances);
 
-            this.insertMany(distances).then(() => {
-              console.log('distances inserted');
+            this.deleteMany({originPlaceId: origin.placeId}).then(() => {
+              this.insertMany(distances).then(() => {
+                console.log('distances inserted');
+              });
             });
-
           } else {
             res.send('');
           }
