@@ -6,12 +6,18 @@ export function ClientPaymentRouter(db: DB){
   const router = express.Router();
   const controller = new ClientPayment(db);
 
+  router.get('/session', (req, res) => {controller.createStripeSession(req, res); });
+  // router.post('/checkout', (req, res) => {controller.checkout(req, res); });
+  router.post('/charge', (req, res) => {controller.charge(req, res); });
+  router.post('/refund', (req, res) => {controller.refund(req, res); });
+
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
   router.post('/', (req, res) => { controller.createAndUpdateBalance(req, res); });
   router.put('/', (req, res) => { controller.replace(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
+
 
   return router;
 };

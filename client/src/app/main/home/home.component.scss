@@ -10,10 +10,15 @@ $blue: #4285F3;
 
 $position-btn-width: 0px;
 $map-height: 360px;
-$address-search-height: 46px;
-$menu-height: 60px;
+$address-search-height: 56px;
+$bottom-bar-height: 60px;
 $ad-height: 120px;
 $date-btn-height: 50px;
+
+// app-home
+:host{
+  height: calc(100% - #{$bottom-bar-height});
+}
 
 .pac-container:after {
     background-image: none !important;

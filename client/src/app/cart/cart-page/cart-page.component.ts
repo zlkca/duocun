@@ -94,8 +94,6 @@ export class CartPageComponent implements OnInit, OnDestroy {
     return groupedCarts;
   }
 
-
-
   addToCart(item: ICartItem) {
     const product = this.products.find(x => x.id === item.productId);
     this.rx.dispatch({

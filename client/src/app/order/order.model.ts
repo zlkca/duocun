@@ -12,7 +12,6 @@ export interface IOrder {
   clientName?: string;
   clientPhoneNumber?: string;
   prepaidClient?: boolean;
-  clientBalance?: number;
   merchantId?: string;
   merchantName?: string;
   driverId?: string;
@@ -33,6 +32,9 @@ export interface IOrder {
   groupDiscount?: number;
   productTotal?: number;
   total?: number;
+  paymentMethod ?: string;
+  chargeId?: string; // stripe chargeId
+  transactionId?: string;
 }
 
 export class Order implements IOrder {
@@ -42,7 +44,6 @@ export class Order implements IOrder {
   clientName: string;
   clientPhoneNumber?: string;
   prepaidClient?: boolean;
-  clientBalance?: number;
   merchantId: string;
   merchantName: string;
   driverId?: string;
@@ -62,6 +63,9 @@ export class Order implements IOrder {
   total: number;
   tax?: number;
   tips?: number;
+  paymentMethod ?: string;
+  chargeId?: string; // stripe chargeId
+  transactionId?: string;
   constructor(data?: IOrder) {
     Object.assign(this, data);
   }
@@ -92,3 +96,12 @@ export class OrderItem implements IOrderItem {
   }
 }
 
+export interface ICharge {
+  productTotal: number;
+  deliveryCost: number;
+  deliveryDiscount: number;
+  groupDiscount: number;
+  total: number;
+  tax: number;
+  tips: number;
+}

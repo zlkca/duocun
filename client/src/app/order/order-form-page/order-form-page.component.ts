@@ -9,7 +9,7 @@ import { IContact } from '../../contact/contact.model';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { OrderService } from '../order.service';
-import { IOrder, IOrderItem } from '../order.model';
+import { IOrder, IOrderItem, ICharge } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
@@ -23,6 +23,15 @@ import { ILocation } from '../../location/location.model';
 import { OrderSequenceService } from '../order-sequence.service';
 import * as moment from 'moment';
 import { MerchantService } from '../../merchant/merchant.service';
+
+import { environment } from '../../../environments/environment';
+import { PaymentService } from '../../payment/payment.service';
+import { ITransaction } from '../../transaction/transaction.model';
+import { TransactionService } from '../../transaction/transaction.service';
+
+declare var Stripe;
+
+const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
 
 @Component({
   selector: 'app-order-form-page',
@@ -50,6 +59,15 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   balance: IBalance;
   groupDiscount = 0;
   merchant;
+  paymentMethod = 'cash';
+  card;
+  stripe;
+
+  charge: ICharge;
+  afterGroupDiscount: number;
+  absoluteBalance: number;
+
+  bSubmitted = false;
 
   constructor(
     private fb: FormBuilder,
@@ -61,9 +79,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private sequenceSvc: OrderSequenceService,
     private locationSvc: LocationService,
     private balanceSvc: BalanceService,
+    private paymentSvc: PaymentService,
+    private transactionSvc: TransactionService,
     private snackBar: MatSnackBar
   ) {
     const self = this;
+
     this.form = this.fb.group({
       note: ['']
     });
@@ -83,45 +104,28 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((bs: IBalance[]) => {
         if (bs && bs.length > 0) {
           this.balance = bs[0];
+          this.absoluteBalance = Math.abs(this.balance.amount);
         }
       });
     });
 
-    this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
-      this.order = order;
-      if (order) {
-        const endTime = +self.merchant.endTime.split(':')[0];
-        if (endTime < 12) {
-          self.delivery.date = self.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
-        } else {
-          self.delivery.date = self.delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
-        }
-        this.reloadGroupDiscount(self.delivery.date, self.address);
-      }
-    });
+    // // for modify order
+    // this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
+    //   this.order = order;
+    //   if (order) {
+    //     const endTime = +self.merchant.endTime.split(':')[0];
+    //     if (endTime < 12) {
+    //       self.delivery.date = self.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+    //     } else {
+    //       self.delivery.date = self.delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
+    //     }
+    //     const bNewOrder = (this.order && this.order.id) ? false : true;
+    //     this.reloadGroupDiscount(bNewOrder, self.delivery.date, self.address);
+    //   }
+    // });
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
-      this.deliveryCost = cart.deliveryCost;
-      this.deliveryDiscount = cart.deliveryDiscount;
-      this.productTotal = 0;
-      this.items = [];
-
-      const items: ICartItem[] = cart.items;
-      if (items && items.length > 0) {
-        items.map(x => {
-          this.productTotal += x.price * x.quantity;
-          this.items.push(x);
-        });
-      }
-      this.subtotal = this.productTotal + this.deliveryCost;
-      this.tips = 0; // this.subtotal * 0.05;
-      this.tax = Math.ceil(this.subtotal * 13) / 100;
-      this.subtotal = this.subtotal + this.tax;
-      this.total = this.subtotal - this.deliveryDiscount + this.tips;
       this.cart = cart;
-      this.merchantSvc.find({ id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe(ms => {
-        self.merchant = ms[0];
-      });
     });
 
     this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
@@ -134,7 +138,19 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    const cart = this.cart;
+    const bNewOrder = (this.order && this.order.id) ? false : true;
+    this.merchantSvc.find({ id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe(ms => {
+      const merchant = ms[0];
+      const date = this.delivery.date;
+      const address = this.locationSvc.getAddrString(this.delivery.origin);
+      const query = { delivered: date.toDate(), address: address, status: { $nin: ['del', 'bad'] } };
 
+      this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
+        this.charge = this.getCharge(bNewOrder, orders, cart, merchant, this.delivery);
+        this.afterGroupDiscount = (this.charge.groupDiscount ? this.charge.total : (this.charge.total - 2));
+      });
+    });
   }
 
   ngOnDestroy() {
@@ -142,15 +158,50 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
+  getCharge(bNewOrder, orders, cart, merchant, delivery) {
+    let productTotal = 0;
+    let deliveryDate;
+
+    const items: ICartItem[] = [];
+    if (cart.items && cart.items.length > 0) {
+      cart.items.map(x => {
+        productTotal += x.price * x.quantity;
+        items.push(x);
+      });
+    }
+
+    const subTotal = productTotal + cart.deliveryCost;
+    const tax = Math.ceil(subTotal * 13) / 100;
+    const tips = 0;
+    const groupDiscount = 0;
+    const endTime = +(merchant.endTime.split(':')[0]);
+
+    if (endTime < 12) {
+      deliveryDate = delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+    } else {
+      deliveryDate = delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
+    }
+
+    // const bNewOrder = (this.order && this.order.id) ? false : true;
+
+    return {
+      productTotal: productTotal,
+      deliveryCost: cart.deliveryCost,
+      deliveryDiscount: cart.deliveryCost,
+      groupDiscount: this.orderSvc.getGroupDiscount(orders, bNewOrder),
+      tips: tips,
+      tax: tax,
+      total: productTotal + tax + tips - groupDiscount
+    };
+  }
+
+
   // for display purpose, update price should be run on backend
-  reloadGroupDiscount(date: any, address: string) { // date --- moment object
+  reloadGroupDiscount(bNewOrder, date: any, address: string) { // date --- moment object
     const query = { delivered: date.toDate(), address: address, status: { $nin: ['del', 'bad'] } };
     this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
-      if (this.order && this.order.id) {
-        this.groupDiscount = this.getGroupDiscount(orders, false);
-      } else {
-        this.groupDiscount = this.getGroupDiscount(orders, true);
-      }
+      // fix me update group discount to order
+      this.groupDiscount = this.orderSvc.getGroupDiscount(orders, bNewOrder);
     });
   }
 
@@ -172,33 +223,33 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return regionName.charAt(0).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 1) + streetNum;
   }
 
-  createOrder(contact: IContact, note: string) {
+  createOrder(account: IAccount, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, code: string, note: string) {
     const self = this;
-    const cart = this.cart;
     if (cart && cart.items && cart.items.length > 0) {
       const items: IOrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId);
       const order: IOrder = {
+        code: code,
         clientId: contact.accountId,
         clientName: contact.username,
         clientPhoneNumber: contact.phone,
-        prepaidClient: self.isPrepaidClient(this.account),
-        clientBalance: this.balance ? this.balance.amount : 0,
+        prepaidClient: self.isPrepaidClient(account),
         merchantId: cart.merchantId,
         merchantName: cart.merchantName,
         items: items,
         created: new Date(),
-        delivered: this.delivery.date.toDate(),
-        address: this.locationSvc.getAddrString(this.delivery.origin),
-        location: this.delivery.origin,
+        delivered: delivery.date.toDate(),
+        address: this.locationSvc.getAddrString(delivery.origin),
+        location: delivery.origin,
         note: note,
-        deliveryCost: self.deliveryCost,
-        deliveryDiscount: self.deliveryDiscount,
-        groupDiscount: self.groupDiscount,
-        total: self.total - self.groupDiscount,
-        tax: self.tax,
-        tips: self.tips,
+        deliveryCost: Math.round(charge.deliveryCost * 100) / 100,
+        deliveryDiscount: Math.round(charge.deliveryDiscount * 100) / 100,
+        groupDiscount: Math.round(charge.groupDiscount * 100) / 100,
+        total: Math.round(charge.total * 100) / 100,
+        tax: Math.round(charge.tax * 100) / 100,
+        tips: Math.round(charge.tips * 100) / 100,
         status: 'new',
-        driverId: ''
+        driverId: '',
+        paymentMethod: self.paymentMethod
       };
       return order;
     } else {
@@ -206,97 +257,259 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  getGroupDiscount(orders, bNew) {
-    if (bNew) { // new order didn't insert yet
-      if (orders && orders.length > 0) {
-        return 2;
-      } else {
-        return 0;
-      }
-    } else {
-      if (orders && orders.length > 1) {
-        return 2;
-      } else {
-        return 0;
-      }
-    }
-  }
-
   pay() {
     const self = this;
 
-    // contact last
     if (!this.contact || !this.contact.phone) {
       this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
       return;
     }
 
-    if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
+    if (!this.bSubmitted) {
+      this.bSubmitted = true;
       const v = this.form.value;
-      const endTime = +self.merchant.endTime.split(':')[0];
-      if (endTime < 12) {
-        self.delivery.date = self.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
-      } else {
-        self.delivery.date = self.delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
-      }
 
-      const address = this.locationSvc.getAddrString(this.delivery.origin);
+      this.sequenceSvc.generate().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
+        //   order.id = this.order.id;
+        const code = this.getCode(this.delivery.origin, sq);
+        const order = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, v.note);
+
+        if (self.paymentMethod === 'card') {
+          this.handleWithCard(this.account.id, order, this.balance);
+        } else { // pay by cash
+          this.handleWithCash(code, this.address, v.note);
+          self.router.navigate(['order/history']);
+        }
+      });
+    } else {
+      this.snackBar.open('', '无法重复提交订单', { duration: 1000 });
+    }
+  }
+
+  handleWithCard(accountId, order, balance) {
+    const self = this;
+    if (balance.amount >= order.total) { // pay by balance, update balance table
+      order.status = 'paid';
+      order.chargeId = 'N/A';
+      order.transactionId = 'N/A';
+      self.saveOrder(order, (ret) => {
+        self.snackBar.open('', '订单已保存', { duration: 1800 });
+        self.router.navigate(['order/history']);
+      });
+      const b = Math.round((balance.amount - order.total) * 100) / 100;
+      self.balanceSvc.update({ accountId: accountId }, { amount: b }).pipe(takeUntil(this.onDestroy$)).subscribe((bs: IBalance[]) => {
+        self.snackBar.open('', '余额已更新', { duration: 1800 });
+      });
+    } else {
+      const payable = order.total - balance.amount;
+      self.payByCard(payable, order.merchantName, (ch) => {
+        if (ch.status === 'succeeded') {
+          self.snackBar.open('', '已成功付款', { duration: 1800 });
+          self.saveTransaction(order.clientId, order.clientName, payable, (tr) => {
+            order.status = 'paid';
+            order.chargeId = ch.chargeId;
+            order.transactionId = tr.id;
+
+            self.balanceSvc.update({ accountId: accountId }, {amount: 0}).pipe(takeUntil(this.onDestroy$)).subscribe((bs: IBalance[]) => {
+              self.snackBar.open('', '余额已更新', { duration: 1800 });
+            });
+
+            self.saveOrder(order, (ret) => {
+              self.snackBar.open('', '订单已保存', { duration: 1800 });
+              self.router.navigate(['order/history']);
+            });
+          });
+        } else {
+          self.snackBar.open('', '付款未成功', { duration: 1800 });
+          alert('invalid card');
+        }
+      });
+    }
+  }
+
+
+  handleWithCash(code: string, address: string, note: string) {
+    const self = this;
+
+    if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
 
       if (this.order && this.order.id) {
-        const query = { delivered: self.delivery.date, address: address, status: { $nin: ['del', 'bad'] } };
-        this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
-          self.groupDiscount = this.getGroupDiscount(orders, false);
-          const order = this.createOrder(this.contact, v.note);
-          this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
+          const order = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
             order.id = this.order.id;
-            order.code = this.getCode(order.location, sq);
             order.created = this.order.created;
-            if (order) { // modify
-              self.orderSvc.update({ id: this.order.id }, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
-                const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
-                self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-                self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-                self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
+            // if (this.order.paymentMethod === 'card') {
+            //   self.paymentSvc.refund(this.order.chargeId).pipe(takeUntil(this.onDestroy$)).subscribe((re) => {
+            //     if (re.status === 'succeeded') {
+            //       self.snackBar.open('', '已成功安排退款。', { duration: 1800 });
+            //     } else {
+            //       alert('退款失败，请联系客服');
+            //     }
+            //   });
+            //   this.rmTransaction(this.order.transactionId);
+            // }
+            if (order) { // modify, currently never run to here
+              self.updateOrder(order, (orderUpdated) => {
+                self.snackBar.open('', '订单已更新', { duration: 1800 });
                 self.router.navigate(['order/history']);
-              }, err => {
-                self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
-              });
-            } else {
-              this.snackBar.open('', '登录已过期，请重新从公众号进入', {
-                duration: 1800
-              });
-            }
-          });
-        });
-      } else { // create new
-
-        // if (!(this.contact && this.contact.phone)) {
-        //   self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
-        //   return;
-        // }
-
-        this.sequenceSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
-          const query = { delivered: self.delivery.date, address: address, status: { $nin: ['del', 'bad'] } };
-          this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
-            self.groupDiscount = this.getGroupDiscount(orders, true);
-            const order = this.createOrder(this.contact, v.note);
-            order.code = this.getCode(order.location, sq);
-            if (order) {
-              self.orderSvc.save(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
-                // self.afterSubmit.emit(order);
-                const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
-                self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-                self.snackBar.open('', '您的订单已经成功提交。', { duration: 2000 });
-                self.router.navigate(['order/history']);
-              }, err => {
-                self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
               });
             } else {
               self.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
             }
-          });
-        });
+      } else { // create new
+          const order: IOrder = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
+          if (order) {
+            self.saveOrder(order, (orderCreated) => {
+              self.snackBar.open('', '订单已成功保存', { duration: 1800 });
+              self.router.navigate(['order/history']);
+            });
+          } else {
+            self.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
+          }
       }
     }
   }
+
+  rmTransaction(transactionId, cb?: any) {
+    this.transactionSvc.removeById(transactionId).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
+      this.snackBar.open('', '已删除交易', { duration: 1000 });
+      if (cb) {
+        cb(t);
+      }
+    });
+  }
+
+  updateTransaction(transactionId, order: IOrder, cb?: any) {
+    const tr: ITransaction = {
+      fromId: order.clientId,
+      fromName: order.clientName,
+      toId: DEFAULT_ADMIN.ID,
+      toName: DEFAULT_ADMIN.NAME,
+      type: 'credit',
+      amount: order.total,
+      note: 'By Card',
+      created: order.delivered,
+      modified: new Date()
+    };
+    this.transactionSvc.update({ id: transactionId }, tr).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
+      this.snackBar.open('', '已保存交易', { duration: 1000 });
+      if (cb) {
+        cb(t);
+      }
+    });
+  }
+
+  saveTransaction(clientId: string, clientName: string, amount: number, cb?: any) {
+    const tr: ITransaction = {
+      fromId: clientId,
+      fromName: clientName,
+      toId: DEFAULT_ADMIN.ID,
+      toName: DEFAULT_ADMIN.NAME,
+      type: 'credit',
+      amount: amount,
+      note: 'By Card',
+      created: new Date(),
+      modified: new Date()
+    };
+    this.transactionSvc.save(tr).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
+      this.snackBar.open('', '已保存交易', { duration: 1200 });
+      if (cb) {
+        cb(t);
+      }
+    });
+  }
+
+  updateOrder(order: IOrder, updateCb?: any) {
+    const self = this;
+    self.orderSvc.update({ id: this.order.id }, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+      const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
+      self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+      self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
+      self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
+      if (updateCb) {
+        updateCb(r);
+      }
+    }, err => {
+      self.snackBar.open('', '您的订单未更改成功，请重新更改。', { duration: 1800 });
+    });
+  }
+
+  saveOrder(order: IOrder, saveCb?: any) {
+    const self = this;
+    this.orderSvc.save(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+      const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
+      self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+      self.snackBar.open('', '您的订单已经成功提交。', { duration: 2000 });
+      if (saveCb) {
+        saveCb(r);
+      }
+    }, err => {
+      self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
+    });
+  }
+
+  onSelectPaymentMethod(e) {
+    const self = this;
+    this.paymentMethod = e.value;
+    if (e.value === 'cash') {
+      // product
+    } else if (e.value === 'card') {
+      setTimeout(() => {
+        self.initStripe();
+      }, 500);
+    }
+  }
+
+  initStripe() {
+    this.stripe = Stripe(environment.STRIPE.API_KEY);
+    const elements = this.stripe.elements();
+
+    // Custom styling can be passed to options when creating an Element.
+    const style = {
+      base: {
+        color: '#32325d',
+        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+        fontSmoothing: 'antialiased',
+        fontSize: '16px',
+        '::placeholder': {
+          color: '#aab7c4'
+        }
+      },
+      invalid: {
+        color: '#fa755a',
+        iconColor: '#fa755a'
+      }
+    };
+
+    // Create an instance of the card Element.
+    this.card = elements.create('card', { hidePostalCode: true, style: style });
+
+    // Add an instance of the card Element into the `card-element` <div>.
+    this.card.mount('#card-element');
+
+    // Handle real-time validation errors from the card Element.
+    this.card.addEventListener('change', function (event) {
+      const displayError = document.getElementById('card-errors');
+      if (event.error) {
+        displayError.textContent = event.error.message;
+      } else {
+        displayError.textContent = '';
+      }
+    });
+  }
+
+  payByCard(amount, merchantName, cb) {
+    const self = this;
+    this.stripe.createToken(this.card).then(function (result) {
+      if (result.error) {
+        // Inform the user if there was an error.
+        const errorElement = document.getElementById('card-errors');
+        errorElement.textContent = result.error.message;
+      } else {
+        self.paymentSvc.charge(amount, merchantName, result.token).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
+          cb(ret);
+        });
+      }
+    });
+  }
+
 }

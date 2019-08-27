@@ -1500,6 +1500,14 @@
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="CurrentConsumed" datatype="html">
+        <source>Current Consumed</source>
+        <target>当前消费</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="Paid" datatype="html">
         <source>Paid</source>
         <target>已付</target>
@@ -1535,6 +1543,14 @@
       <trans-unit id="Payable" datatype="html">
         <source>Payable</source>
         <target>应付</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="TotalPayable" datatype="html">
+        <source>TotalPayable</source>
+        <target>总共应付</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/account/account-page.component.ts</context>
           <context context-type="linenumber">19</context>

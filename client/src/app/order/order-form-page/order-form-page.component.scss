@@ -1,9 +1,25 @@
+
+$toggle-btn-height: 40px;
+$blue: #4285F3;
+
 .page{
   padding: 0px 0px 60px 0px;
   
-  form{
+  #contact-form{
     padding: 0px 15px;
     margin-top: 60px; 
+  }
+
+  #payment-form{
+    margin-top: 13px;
+
+    .form-row{
+      margin: 0px;
+    }
+
+    label.label-sm{
+      margin-bottom: 0px;
+    }
   }
 }
 
@@ -108,7 +124,139 @@
 }
 
 .group-order-block{
+  padding-top: 12px;
   .row{
+    font-size: 12px;
+  }
+}
+
+mat-button-toggle-group{
+  width: 100%;
+  // height: $toggle-btn-height;
+  mat-button-toggle{
+    width: 50%;
+    // height: $toggle-btn-height;
+  }
+
+  // .mat-button-toggle-focus-overlay{
+  //   background-color: $blue;
+  // }
+
+  .mat-button-toggle-checked {
+    background-color: $blue;// mat-color($accent);
+    color: white; // mat-color($accent, default-contrast);
+
+    // .time-row{
+    //   color: white;
+    // }
+  }
+}
+/**
+ * The CSS shown here will not be introduced in the Quickstart guide, but shows
+ * how you can use CSS to style your Element's container.
+ */
+ .StripeElement {
+  box-sizing: border-box;
+
+  height: 40px;
+
+  padding: 10px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-color: white;
+
+  box-shadow: 0 1px 3px 0 #e6ebf1;
+  -webkit-transition: box-shadow 150ms ease;
+  transition: box-shadow 150ms ease;
+}
+
+.StripeElement--focus {
+  box-shadow: 0 1px 3px 0 #cfd7df;
+}
+
+.StripeElement--invalid {
+  border-color: #fa755a;
+}
+
+.StripeElement--webkit-autofill {
+  background-color: #fefde5 !important;
+}
+
+#card-element{
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+.order-detail{
+  padding-top: 8px;
+  .items-col{
+    padding-left: 0px;
+    padding-right: 0px;
+
+    .item-row{
+      padding-bottom: 3px;
+    }
+
+    .product-col, .quantity-col, .price-col {
+      padding-left: 0px;
+      padding-right: 0px;
+      font-size: 14px;
+      line-height: 14px;
+      padding: 0px;
+    }
+  }
+
+  .total-col{
+    display: flex;
+    align-items: flex-end;
+    padding-left: 8px;
+    padding-right: 0px;
+    padding-bottom: 8px;
+
+    .col-12{
+      padding-bottom: 3px;
+    }
+
+    .title-xs{
+      width: 60px;
+      float: left;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .text-xs{
+      float: left;
+      font-size: 14px;
+      margin-left: 8px;
+    }
+
+    .total-row{
+      margin-top: 3px;
+      padding-top: 5px;
+      border-top: solid 1px #eee;
+    }
+  }
+}
+
+.payment-detail{
+  margin-top:13px;
+
+  .col-12{
+    padding-bottom: 4px;
+    padding-left: 0px;
+  }
+
+  .title-xs{
+    width: 60px;
+    float: left;
     font-size: 14px;
+    font-weight: 500;
+  }
+
+  .text-xs{
+    float: left;
+    font-size: 14px;
+    margin-left: 8px;
   }
 }

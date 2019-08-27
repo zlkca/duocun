@@ -1,7 +1,6 @@
 
 export interface ITransaction {
   id?: string;
-  orderId?: string;
   fromId?: string;
   fromName?: string;
   toId?: string;

@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 import { SharedModule } from '../shared/shared.module';
 import { OrderService } from './order.service';
@@ -15,6 +16,7 @@ import { MatDialogModule } from '../../../node_modules/@angular/material';
 import { RemoveOrderDialogComponent } from './remove-order-dialog/remove-order-dialog.component';
 import { PaymentService } from '../payment/payment.service';
 import { MerchantService } from '../merchant/merchant.service';
+import { TransactionService } from '../transaction/transaction.service';
 
 @NgModule({
   imports: [
@@ -25,6 +27,7 @@ import { MerchantService } from '../merchant/merchant.service';
     MatTabsModule,
     MatSnackBarModule,
     MatDialogModule,
+    MatButtonToggleModule,
     // MatProgressSpinnerModule,
     OrderRoutingModule,
     SharedModule
@@ -35,7 +38,8 @@ import { MerchantService } from '../merchant/merchant.service';
     OrderService,
     AccountService,
     PaymentService,
-    MerchantService
+    MerchantService,
+    TransactionService
   ],
   declarations: [
     OrderHistoryComponent,

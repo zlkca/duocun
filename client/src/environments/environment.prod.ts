@@ -18,10 +18,14 @@ export const environment = {
       CLIENT_ID: 'UA-113187324-2'
   },
   STRIPE: {
-      CLIENT_KEY: 'pk_test_RzVW9LLaIZANExpYhNg2x4Zu'
+    API_KEY: 'pk_test_IQkfGbooEHrkJ90xj3fMjxwM'
   },
   WECHAT: {
     APP_ID: 'wx0591bdd165898739',
     REDIRECT_URL: 'https://duocun.com.cn'
+  },
+  DEFAULT_ADMIN: {
+    ID: '5d3a34afac8ce150f3bb70c2',
+    NAME: 'duocun'
   }
 };

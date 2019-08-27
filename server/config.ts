@@ -39,7 +39,9 @@ export interface ISNS {
   APP_ID: string;
   APP_SECRET: string;
 }
-
+export interface IStripe{
+  API_KEY: string;
+}
 export class Config {
   private cfg: any;
   public JWT: IJWT;
@@ -51,6 +53,7 @@ export class Config {
   public DATABASE: IDatabase;
   public TWILIO: ISmsProvider;
   public WECHAT: ISNS;
+  public STRIPE: IStripe;
   
   constructor() {
     this.cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
@@ -63,6 +66,7 @@ export class Config {
     this.DATABASE = this.cfg.DATABASE;
     this.TWILIO = this.cfg.TWILIO;
     this.WECHAT = this.cfg.WECHAT;
+    this.STRIPE = this.cfg.STRIPE;
   }
 
 }

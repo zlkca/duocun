@@ -26,6 +26,10 @@ const appRoutes: Routes = [
       loadChildren: './location/location.module#LocationModule'
     },
     {
+      path: 'payment',
+      loadChildren: './payment/payment.module#PaymentModule'
+    },
+    {
       path: 'restaurant',
       loadChildren: './restaurant/restaurant.module#RestaurantModule'
     },

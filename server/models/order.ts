@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
 import { DB } from "../db";
 import { Model } from "./model";
+import { Entity } from "../entity";
 
 export class Order extends Model {
+  private balanceEntity: any;
+  
   constructor(dbo: DB) {
     super(dbo, 'orders');
+
+    this.balanceEntity = new Entity(dbo, 'merchant_balances');
   }
 
   create(req: Request, res: Response) {
@@ -18,12 +23,41 @@ export class Order extends Model {
       const address = req.body.address;
       this.find({delivered: date, address: address}).then(orders => {
         let newGroupDiscount = req.body.groupDiscount;
-        orders.map((order: any) => {
-          const total = order.total + (order.groupDiscount? order.groupDiscount : 0);
-          this.updateOne({id: order.id}, {groupDiscount: newGroupDiscount, total: total - newGroupDiscount}).then(()=>{
+        const a = this.getDistinctArray(orders, 'clientId');
+        const os = a.find(x => x.clientId !== req.body.clientId && x.groupsDiscount === 0);
+        if(os && os.length > 0){
+          const order = os[0];
+          this.updateOne({id: order.id}, {groupDiscount: newGroupDiscount, total: order.total - newGroupDiscount}).then(()=>{
             console.log('update order:' + order.id);
           });
-        });
+
+          if(order.paymentMethod === 'card') {
+            this.balanceEntity.find({clientId: order.clientId}).then((bs: any[]) => {
+              if(bs && bs.length>0){
+                const b = bs[0];
+                this.balanceEntity.updateOne({clientId: order.clientId}, {amount: b.amount + req.body.groupDiscount}).then(() => {
+
+                });
+              }
+            });
+          }
+
+        }
+        // a.map((order: any) => {
+        //   if(order.clientId !== req.body.clientId){
+        //     if(order.groupDiscount === 0) {
+        //       const total = order.total + (order.groupDiscount? order.groupDiscount : 0);
+        //       this.updateOne({id: order.id}, {groupDiscount: newGroupDiscount, total: total - newGroupDiscount}).then(()=>{
+        //         console.log('update order:' + order.id);
+        //       });
+
+        //       if(order.paymentMethod === 'card'){
+        //         // update balance
+        //         // this.balanceEntity.updateOne({clientId: order.clientId}, )
+        //       }
+        //     }
+        //   }
+        // });
 
         this.insertOne(req.body).then((x: any) => {
           res.setHeader('Content-Type', 'application/json');
@@ -43,28 +77,60 @@ export class Order extends Model {
     });
   }
 
+  getDistinctArray(items: any, field: string) {
+    const a: any[] = [];
+    items.map((item: any) => {
+      const b = a.find(x => x[field] === item[field]);
+      if (!b) {
+        a.push(item);
+      }
+    });
+    return a;
+  }
 
   removeOne(req: Request, res: Response) {
     this.find({id: req.params.id}).then(docs => {
       if(docs && docs.length>0){
         const date = docs[0].delivered;
         const address = docs[0].address;
-  
-        // this.deleteById(req.params.id).then(x => {
+
         this.updateOne({id: req.params.id}, {status: 'del'}).then(x => {
           this.find({delivered: date, address: address, status: { $nin: ['del', 'bad']}}).then(orders => {
-            let groupDiscount = 0;
-            if (orders && orders.length > 1) {
-              groupDiscount = 2;
-            } else {
-              groupDiscount = 0;
+            const a = this.getDistinctArray(orders, 'clientId');
+            let groupDiscount = (a && a.length > 1) ? 2 : 0;
+
+            if(groupDiscount === 0){
+              const os = a.find(x => x.groupsDiscount !== 0);
+              if(os && os.length > 0){
+                const order = os[0];
+                this.updateOne({id: order.id}, {groupDiscount: 0, total: order.total + 2}).then(()=>{
+                  console.log('update order:' + order.id);
+                });
+      
+                if(order.paymentMethod === 'card') {
+                  this.balanceEntity.find({clientId: order.clientId}).then((bs: any[]) => {
+                    if(bs && bs.length>0){
+                      const b = bs[0];
+                      this.balanceEntity.updateOne({clientId: order.clientId}, {amount: b.amount - 2 }).then(() => {
+      
+                      });
+                    }
+                  });
+                }
+              }
             }
-            orders.map((order: any) => {
-              const total = order.total + (order.groupDiscount? order.groupDiscount : 0);
-              this.updateOne({id: order.id}, {groupDiscount: groupDiscount, total: total - groupDiscount}).then(()=>{
-                // console.log('update order:' + order.id);
-              });
-            });
+            // a.map((order: any) => {
+            //   if(order.groupDiscount !== 0){
+            //     const total = order.total + (order.groupDiscount? order.groupDiscount : 0);
+            //     this.updateOne({id: order.id}, {groupDiscount: groupDiscount, total: total - groupDiscount}).then(()=>{
+            //       // console.log('update order:' + order.id);
+            //     });
+
+            //     if(order.paymentMethod === 'card'){
+            //       // update balance
+            //     }
+            //   }
+            // });
           });
   
           res.setHeader('Content-Type', 'application/json');

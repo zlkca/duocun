@@ -154,13 +154,18 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   deleteOrder(order: IOrder) {
-    this.openDialog(order.id);
+    this.openDialog(order.id, order.paymentMethod, order.transactionId, order.chargeId);
   }
 
-  openDialog(orderId: string): void {
+  openDialog(orderId: string, paymentMethod: string, transactionId: string, chargeId: string): void {
     const dialogRef = this.dialog.open(RemoveOrderDialogComponent, {
       width: '300px',
-      data: { title: '提示', content: '确认要删除该订单吗？', buttonTextNo: '取消', buttonTextYes: '删除', orderId: orderId },
+      data: { title: '提示', content: '确认要删除该订单吗？', buttonTextNo: '取消', buttonTextYes: '删除',
+      orderId: orderId,
+      paymentMethod: paymentMethod,
+      transactionId: transactionId,
+      chargeId: chargeId
+     },
     });
 
     dialogRef.afterClosed().pipe(takeUntil(this.onDestroy$)).subscribe(result => {

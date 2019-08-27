@@ -3,7 +3,7 @@
     <span class="title-bg" i18n="@@ConfirmOrder">Confirm Order</span>
   </div>
 
-  <form [formGroup]="form">
+  <form [formGroup]="form" id="contact-form">
     <div class="contact-block" *ngIf="contact" (click)="changeContact()">
       <div class="title-md">
         <div class="label">
@@ -30,7 +30,8 @@
     </div>
 
     <div class="title-md restaurant" *ngIf="cart.merchantName">{{cart.merchantName}}</div>
-    <div class="bg-light product-list" *ngIf="cart.items && cart.items.length>0">
+
+    <!-- <div class="bg-light product-list" *ngIf="cart.items && cart.items.length>0">
       <div *ngFor="let item of items" class="text-sm row">
         <div class="col-6 product-col">{{item.productName}}</div>
         <div class="col-3 quantity-col">x{{item.quantity}}</div>
@@ -67,13 +68,6 @@
         </div>
         <div class="col-3">${{tax | number : '1.2-2'}}</div>
       </div>
-      <!-- <div class="row">
-        <div class="col-9">
-            <span i18n="@@Subtotal">Sub Total</span>
-            <span>:</span>
-        </div>
-        <div class="col-3">${{subtotal | number : '1.2-2'}}</div>
-      </div> -->
 
       <div class="row">
         <div class="col-9">
@@ -110,17 +104,104 @@
           <span>${{total - groupDiscount | number : '1.2-2'}}</span>
         </div>
       </div>
+    </div> -->
+
+    <div class="row order-detail" *ngIf="cart">
+      <div class="col-7 items-col">
+        <div *ngFor="let item of cart.items" class="text-sm row item-row">
+          <div class="col-8 product-col">{{item.productName}}</div>
+          <div class="col-2 quantity-col">x{{item.quantity}}</div>
+          <div class="col-2 price-col">${{item.price | number : '1.2-2'}}</div>
+        </div>
+      </div>
+      <div class="col-5 text-sm total-col" *ngIf="charge">
+        <div class="row">
+          <div class="col-12">
+            <div class="title-xs"><span i18n="@@ProductTotal">ProductTotal</span>:</div>
+            <div class="text-xs">&nbsp;${{charge.productTotal | number : '1.2-2'}}</div>
+          </div>
+          <div class="col-12">
+            <div class="title-xs"><span i18n="@@DeliveryFee">Delivery Fee</span>:</div>
+            <div class="text-xs">&nbsp;${{charge.deliveryCost | number : '1.2-2'}}</div>
+          </div>
+          <div class="col-12">
+            <div class="title-xs"><span i18n="@@Subtotal">Subtotal</span>:</div>
+            <div class="text-xs">&nbsp;${{charge.productTotal + charge.deliveryCost | number : '1.2-2'}}</div>
+          </div>
+          <div class="col-12">
+            <div class="title-xs"><span i18n="@@Tax">Tax</span>:</div>
+            <div class="text-xs">&nbsp;${{charge.tax | number : '1.2-2'}}</div>
+          </div>
+          <div class="col-12">
+            <div class="title-xs"><span i18n="@@Tips">Tips</span>:</div>
+            <div class="text-xs">&nbsp;${{charge.tips | number : '1.2-2'}}</div>
+          </div>
+          <div class="col-12">
+            <div class="title-xs"><span i18n="@@DeliveryDiscount">Delivery Discount</span>:</div>
+            <div class="text-xs">-${{charge.deliveryDiscount | number : '1.2-2'}}</div>
+          </div>
+          <div class="col-12" *ngIf="charge.groupDiscount>0" >
+            <div class="title-xs"><span i18n="@@GroupDiscount">GroupDiscount</span>:</div>
+            <div class="text-xs">-${{charge.groupDiscount | number : '1.2-2'}}</div>
+          </div>
+          <div class="col-12 total-row" >
+            <div class="title-xs"><span i18n="@@Total">Total</span>:</div>
+            <div class="text-xs">&nbsp;${{ charge.total | number : '1.2-2'}}</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="group-order-block" *ngIf="productTotal < 20">
-      <div class="row label-sm"><span>拼单优惠（同一地址另有一单或以上）</span>:</div>
-      <div class="row">拼单每单劲减$2！优惠价<span class="red-text">${{total-2 | number : '1.2-2'}}</span></div>
+
+    <div class="group-order-block" *ngIf="charge && productTotal < 20">
+      <div class="row label-sm"><span>拼单优惠（同一配送时段内，同一地址有不同账号下的订单)</span></div>
+      <div class="row">拼单每单劲减$2！优惠后只要<span class="red-text">${{ afterGroupDiscount | number : '1.2-2'}}</span></div>
     </div>
     <div class="payment-method-block">
       <div class="row label-sm">
         <span i18n="@@PaymentMethod">Payment Method</span>:
       </div>
-      <div class="row" i18n="@@CashWhenDelivered">Cash when Delivered</div>
+      <!-- <div class="row" i18n="@@CashWhenDelivered">Cash when Delivered</div> -->
       <!-- <input name="paymentMethod" readonly /> -->
+      <div *ngIf="balance && charge && balance.amount >= charge.total">用余额付款</div>
+
+      <mat-button-toggle-group #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)" *ngIf="balance.amount < charge.total">
+        <mat-button-toggle value="cash" aria-label="Cash">
+          <div class="title" i18n="@@CashWhenDelivered">Cash when Delivered</div>
+        </mat-button-toggle>
+        <mat-button-toggle value="card" aria-label="Card">
+          <div class="title">信用卡或银行卡</div>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <div class="row payment-detail" *ngIf="paymentMethod==='card' && balance && charge && balance.amount < charge.total && balance.amount!=0">
+        <div class="col-12">
+          <div class="title-xs" *ngIf="balance.amount<0"><span>过往欠款</span>:</div>
+          <div class="title-xs" *ngIf="balance.amount>0"><span i18n="@@CurrentBalance">Current Balance</span>:</div>
+          <div class="text-xs"><span *ngIf="balance.amount<0">-</span>${{absoluteBalance | number : '1.2-2'}}</div>
+        </div>
+        <div class="col-12">
+          <div class="title-xs"><span i18n="@@CurrentConsumed">Current Consumed</span>:</div>
+          <div class="text-xs">&nbsp;${{ charge.total | number : '1.2-2'}}</div>
+        </div>
+        <div class="col-12 total-row" >
+          <div class="title-xs"><span i18n="@@TotalPayable">Payable</span>:</div>
+          <div class="text-xs">&nbsp;${{ balance.amount >= charge.total ? 0 : charge.total - balance.amount  | number : '1.2-2'}}</div>
+        </div>
+      </div>
+
+      <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance.amount < charge.total">
+        <div class="form-row">
+          <label for="card-element" class="label-sm">信用卡或银行卡:</label>
+          <div id="card-element">
+            <!-- A Stripe Element will be inserted here. action="/charge" method="post" -->
+          </div>
+      
+          <!-- Used to display Element errors. -->
+          <div id="card-errors" role="alert"></div>
+        </div>
+      
+        <!-- <button (click)="onSubmit()">Submit Payment</button> -->
+      </form>
     </div>
     
     <div class="notes-block">

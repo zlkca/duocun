@@ -11,6 +11,8 @@ export function TransactionRouter(db: DB){
   router.post('/', (req, res) => { controller.create(req, res); });
   router.put('/', (req, res) => { controller.replace(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
+
+  router.delete('/:id', (req, res) => { controller.removeOne(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
 
   return router;

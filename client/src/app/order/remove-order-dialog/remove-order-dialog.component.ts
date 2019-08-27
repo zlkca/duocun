@@ -8,6 +8,10 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { CommandActions } from '../../shared/command.actions';
 import { PaymentService } from '../../payment/payment.service';
+import { TransactionService } from '../../transaction/transaction.service';
+import { environment } from '../../../environments/environment';
+
+declare var Stripe;
 
 export interface DialogData {
   title: string;
@@ -15,6 +19,9 @@ export interface DialogData {
   buttonTextNo: string;
   buttonTextYes: string;
   orderId: string;
+  paymentMethod: string;
+  chargeId: string;
+  transactionId: string;
 }
 
 @Component({
@@ -23,20 +30,21 @@ export interface DialogData {
   styleUrls: ['./remove-order-dialog.component.scss']
 })
 export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
-
+  stripe;
   onDestroy$ = new Subject();
   constructor(
     private rx: NgRedux<IAppState>,
     private router: Router,
     private orderSvc: OrderService,
     private paymentSvc: PaymentService,
+    private transactionSvc: TransactionService,
     private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<RemoveOrderDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) { }
 
   ngOnInit() {
-
+    this.stripe = Stripe(environment.STRIPE.API_KEY);
   }
 
   ngOnDestroy() {
@@ -49,19 +57,48 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
   }
 
   onClickRemove(): void {
+    const self = this;
     if (this.data && this.data.orderId) {
-      this.paymentSvc.remove({orderId: this.data.orderId }).pipe(takeUntil(this.onDestroy$)).subscribe(y => {
-        this.orderSvc.removeById(this.data.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-          this.dialogRef.close();
-          this.rx.dispatch({type: CommandActions.SEND, payload: { name: 'reload-orders', args: null }});
-          this.snackBar.open('', '订单已删除', {duration: 1000});
-          this.router.navigate(['order/history']);
-        });
+      this.paymentSvc.remove({ orderId: this.data.orderId }).pipe(takeUntil(this.onDestroy$)).subscribe(y => {
+        if (this.data.paymentMethod === 'card') {
+          this.rmTransaction(this.data.transactionId, () => {
+            self.paymentSvc.refund(this.data.chargeId).pipe(takeUntil(this.onDestroy$)).subscribe((re) => {
+              if (re.status === 'succeeded') {
+                self.snackBar.open('', '已成功安排退款。', { duration: 1800 });
+              } else {
+                alert('退款失败，请联系客服');
+              }
+
+              this.orderSvc.removeById(this.data.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
+                this.dialogRef.close();
+                this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
+                this.snackBar.open('', '订单已删除', { duration: 1000 });
+                this.router.navigate(['order/history']);
+              });
+            });
+          });
+        } else {
+          this.orderSvc.removeById(this.data.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
+            this.dialogRef.close();
+            this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
+            this.snackBar.open('', '订单已删除', { duration: 1000 });
+            this.router.navigate(['order/history']);
+          });
+        }
+
+
       });
     }
   }
 
-
+  rmTransaction(transactionId, cb?: any) {
+    this.transactionSvc.removeById(transactionId).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
+      this.snackBar.open('', '已删除交易', { duration: 1000 });
+      if (cb) {
+        cb(t);
+      }
+    });
+  }
 
   // updateBalance(order: IOrder) {
   //   const clientPayment: IPayment = {
