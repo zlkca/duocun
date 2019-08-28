@@ -196,12 +196,13 @@ mat-button-toggle-group{
 
     .item-row{
       padding-bottom: 3px;
+      padding-right: 4px;
     }
 
     .product-col, .quantity-col, .price-col {
       padding-left: 0px;
       padding-right: 0px;
-      font-size: 14px;
+      font-size: 13px;
       line-height: 14px;
       padding: 0px;
     }
@@ -216,6 +217,8 @@ mat-button-toggle-group{
 
     .col-12{
       padding-bottom: 3px;
+      padding-right: 0px;
+      padding-left: 0px;
     }
 
     .title-xs{

@@ -18,7 +18,7 @@ export const environment = {
       CLIENT_ID: 'UA-113187324-2'
   },
   STRIPE: {
-    API_KEY: 'pk_test_IQkfGbooEHrkJ90xj3fMjxwM'
+    API_KEY: 'pk_live_vV7H1l4X9k2r8uf6JDf9lGsb'
   },
   WECHAT: {
     APP_ID: 'wx0591bdd165898739',

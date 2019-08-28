@@ -24,7 +24,7 @@ export class Order extends Model {
       this.find({delivered: date, address: address}).then(orders => {
         let newGroupDiscount = req.body.groupDiscount;
         const a = this.getDistinctArray(orders, 'clientId');
-        const os = a.find(x => x.clientId !== req.body.clientId && x.groupsDiscount === 0);
+        const os = a.filter(x => x.clientId !== req.body.clientId && x.groupsDiscount === 0);
         if(os && os.length > 0){
           const order = os[0];
           this.updateOne({id: order.id}, {groupDiscount: newGroupDiscount, total: order.total - newGroupDiscount}).then(()=>{
@@ -100,7 +100,7 @@ export class Order extends Model {
             let groupDiscount = (a && a.length > 1) ? 2 : 0;
 
             if(groupDiscount === 0){
-              const os = a.find(x => x.groupsDiscount !== 0);
+              const os = a.filter(x => x.groupsDiscount !== 0);
               if(os && os.length > 0){
                 const order = os[0];
                 this.updateOne({id: order.id}, {groupDiscount: 0, total: order.total + 2}).then(()=>{

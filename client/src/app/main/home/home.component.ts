@@ -30,6 +30,8 @@ import * as moment from 'moment';
 import { RangeService } from '../../range/range.service';
 import { MerchantService } from '../../merchant/merchant.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
+import { BalanceService } from '../../payment/balance.service';
+import { IBalance } from '../../payment/payment.model';
 
 const APP = environment.APP;
 const WECHAT_APP_ID = environment.WECHAT.APP_ID;
@@ -85,6 +87,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService,
     private rangeSvc: RangeService,
     private merchantSvc: MerchantService,
+    private balanceSvc: BalanceService,
     // private socketSvc: SocketService,
     private router: Router,
     private route: ActivatedRoute,
@@ -121,10 +124,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
 
       if (d && d.date) { // moment
-        self.selectedDate =  moment().isSame(d.date, 'day') ? 'today' : 'tomorrow';
+        self.selectedDate = moment().isSame(d.date, 'day') ? 'today' : 'tomorrow';
         self.date = d.date;
       } else { // by default select today moment object
-        this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today }});
+        this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today } });
         this.date = today;
       }
     });
@@ -134,7 +137,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       const code = queryParams.get('code');
 
       self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
-        if (account) {
+        if (account) { // if already login
           self.bFirstTime = !account.visited ? true : false;
           self.account = account;
           self.init(account);
@@ -217,11 +220,28 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    this.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+      if (bs && bs.length > 0) {
+        // update balance
+      } else {
+        const data: IBalance = {
+          accountId: account.id,
+          accountName: account.username,
+          amount: 0,
+          created: new Date(),
+          modified: new Date()
+        };
+
+        self.balanceSvc.save(data).pipe(takeUntil(self.onDestroy$)).subscribe((b: IBalance) => {
+        });
+      }
+    });
   }
 
   ngOnInit() {
     this.places = []; // clear address list
-    this.rx.dispatch<IPageAction>({type: PageActions.UPDATE_URL, payload: 'home'});
+    this.rx.dispatch<IPageAction>({ type: PageActions.UPDATE_URL, payload: 'home' });
     this.rx.select('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'clear-location-list') {
         this.places = [];
@@ -364,10 +384,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   onSelectDate(e) {
     if (e.value === 'tomorrow') {
       const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
-      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow }});
+      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow } });
     } else {
       const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today }});
+      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today } });
     }
   }
 

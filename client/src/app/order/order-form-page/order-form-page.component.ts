@@ -100,11 +100,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
 
     this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-      this.account = account;
-      this.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((bs: IBalance[]) => {
+      self.account = account;
+      self.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
         if (bs && bs.length > 0) {
-          this.balance = bs[0];
-          this.absoluteBalance = Math.abs(this.balance.amount);
+          self.balance = bs[0];
+          self.absoluteBalance = Math.abs(self.balance.amount);
         }
       });
     });
@@ -269,16 +269,15 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.bSubmitted = true;
       const v = this.form.value;
 
-      this.sequenceSvc.generate().pipe(takeUntil(this.onDestroy$)).subscribe(sq => {
+      this.sequenceSvc.generate().pipe(takeUntil(self.onDestroy$)).subscribe(sq => {
         //   order.id = this.order.id;
-        const code = this.getCode(this.delivery.origin, sq);
-        const order = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, v.note);
+        const code = self.getCode(self.delivery.origin, sq);
+        const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, code, v.note);
 
         if (self.paymentMethod === 'card') {
-          this.handleWithCard(this.account.id, order, this.balance);
+          self.handleWithCard(self.account.id, order, self.balance);
         } else { // pay by cash
-          this.handleWithCash(code, this.address, v.note);
-          self.router.navigate(['order/history']);
+          self.handleWithCash(self.balance, code, v.note);
         }
       });
     } else {
@@ -297,7 +296,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         self.router.navigate(['order/history']);
       });
       const b = Math.round((balance.amount - order.total) * 100) / 100;
-      self.balanceSvc.update({ accountId: accountId }, { amount: b }).pipe(takeUntil(this.onDestroy$)).subscribe((bs: IBalance[]) => {
+      self.balanceSvc.update({ accountId: accountId }, { amount: b }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
         self.snackBar.open('', '余额已更新', { duration: 1800 });
       });
     } else {
@@ -310,7 +309,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             order.chargeId = ch.chargeId;
             order.transactionId = tr.id;
 
-            self.balanceSvc.update({ accountId: accountId }, {amount: 0}).pipe(takeUntil(this.onDestroy$)).subscribe((bs: IBalance[]) => {
+            self.balanceSvc.update({ accountId: accountId }, { amount: 0 }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
               self.snackBar.open('', '余额已更新', { duration: 1800 });
             });
 
@@ -328,43 +327,56 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
 
-  handleWithCash(code: string, address: string, note: string) {
+  handleWithCash(balance: IBalance, code: string, note: string) {
     const self = this;
 
     if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
 
       if (this.order && this.order.id) {
-          const order = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
-            order.id = this.order.id;
-            order.created = this.order.created;
-            // if (this.order.paymentMethod === 'card') {
-            //   self.paymentSvc.refund(this.order.chargeId).pipe(takeUntil(this.onDestroy$)).subscribe((re) => {
-            //     if (re.status === 'succeeded') {
-            //       self.snackBar.open('', '已成功安排退款。', { duration: 1800 });
-            //     } else {
-            //       alert('退款失败，请联系客服');
-            //     }
-            //   });
-            //   this.rmTransaction(this.order.transactionId);
-            // }
-            if (order) { // modify, currently never run to here
-              self.updateOrder(order, (orderUpdated) => {
-                self.snackBar.open('', '订单已更新', { duration: 1800 });
-                self.router.navigate(['order/history']);
-              });
-            } else {
-              self.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
-            }
-      } else { // create new
-          const order: IOrder = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
-          if (order) {
-            self.saveOrder(order, (orderCreated) => {
-              self.snackBar.open('', '订单已成功保存', { duration: 1800 });
+        const order = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
+        order.id = this.order.id;
+        order.created = this.order.created;
+        // if (this.order.paymentMethod === 'card') {
+        //   self.paymentSvc.refund(this.order.chargeId).pipe(takeUntil(this.onDestroy$)).subscribe((re) => {
+        //     if (re.status === 'succeeded') {
+        //       self.snackBar.open('', '已成功安排退款。', { duration: 1800 });
+        //     } else {
+        //       alert('退款失败，请联系客服');
+        //     }
+        //   });
+        //   this.rmTransaction(this.order.transactionId);
+        // }
+        if (order) { // modify, currently never run to here
+          self.updateOrder(order, (orderUpdated) => {
+            self.snackBar.open('', '订单已更新', { duration: 1800 });
+
+            // fix me
+            self.balanceSvc.update({ accountId: self.account.id }, { amount: 0 }).pipe(takeUntil(self.onDestroy$)).subscribe(bs => {
+              self.snackBar.open('', '余额已更新', { duration: 1800 });
               self.router.navigate(['order/history']);
             });
-          } else {
-            self.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
-          }
+          });
+
+
+        } else {
+          this.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
+        }
+      } else { // create new
+        const order: IOrder = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
+        if (order) {
+          this.saveOrder(order, (orderCreated) => {
+            self.snackBar.open('', '订单已成功保存', { duration: 1800 });
+
+            const payable = Math.round((balance.amount - order.total) * 100) / 100;
+            self.balanceSvc.update({ accountId: self.account.id }, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+              self.snackBar.open('', '余额已更新', { duration: 1800 });
+              self.router.navigate(['order/history']);
+            });
+          });
+
+        } else {
+          self.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
+        }
       }
     }
   }

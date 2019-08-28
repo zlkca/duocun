@@ -138,16 +138,31 @@
           </div>
           <div class="col-12">
             <div class="title-xs"><span i18n="@@DeliveryDiscount">Delivery Discount</span>:</div>
-            <div class="text-xs">-${{charge.deliveryDiscount | number : '1.2-2'}}</div>
+            <div class="text-xs">${{charge.deliveryDiscount | number : '1.2-2'}}</div>
           </div>
           <div class="col-12" *ngIf="charge.groupDiscount>0" >
             <div class="title-xs"><span i18n="@@GroupDiscount">GroupDiscount</span>:</div>
-            <div class="text-xs">-${{charge.groupDiscount | number : '1.2-2'}}</div>
+            <div class="text-xs">${{charge.groupDiscount | number : '1.2-2'}}</div>
           </div>
           <div class="col-12 total-row" >
             <div class="title-xs"><span i18n="@@Total">Total</span>:</div>
             <div class="text-xs">&nbsp;${{ charge.total | number : '1.2-2'}}</div>
           </div>
+
+          <div class="col-12" *ngIf="balance && charge && balance.amount!=0">
+            <div class="title-xs" *ngIf="balance.amount<0"><span>过往欠款</span>:</div>
+            <div class="title-xs" *ngIf="balance.amount>0"><span i18n="@@CurrentBalance">Current Balance</span>:</div>
+            <div class="text-xs">&nbsp;${{absoluteBalance | number : '1.2-2'}}</div>
+          </div>
+          <!-- <div class="col-12" *ngIf="paymentMethod==='card' && balance && charge && balance.amount < charge.total && balance.amount!=0">
+            <div class="title-xs"><span i18n="@@CurrentConsumed">Current Consumed</span>:</div>
+            <div class="text-xs">&nbsp;${{ charge.total | number : '1.2-2'}}</div>
+          </div> -->
+          <div class="col-12 total-row" *ngIf="balance && charge && balance.amount!=0" >
+            <div class="title-xs"><span i18n="@@TotalPayable">Payable</span>:</div>
+            <div class="text-xs">&nbsp;${{ balance.amount >= charge.total ? 0 : charge.total - balance.amount  | number : '1.2-2'}}</div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -160,7 +175,7 @@
       <div class="row label-sm">
         <span i18n="@@PaymentMethod">Payment Method</span>:
       </div>
-      <!-- <div class="row" i18n="@@CashWhenDelivered">Cash when Delivered</div> -->
+      <!-- <div class="row" i18n="@@CashWhenDelivered">Cash when Delivered</div> , 现有余额${{absoluteBalance | number : '1.2-2'}}-->
       <!-- <input name="paymentMethod" readonly /> -->
       <div *ngIf="balance && charge && balance.amount >= charge.total">用余额付款</div>
 
@@ -173,11 +188,11 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
 
-      <div class="row payment-detail" *ngIf="paymentMethod==='card' && balance && charge && balance.amount < charge.total && balance.amount!=0">
+      <!-- <div class="row payment-detail" *ngIf="paymentMethod==='card' && balance && charge && balance.amount < charge.total && balance.amount!=0">
         <div class="col-12">
           <div class="title-xs" *ngIf="balance.amount<0"><span>过往欠款</span>:</div>
           <div class="title-xs" *ngIf="balance.amount>0"><span i18n="@@CurrentBalance">Current Balance</span>:</div>
-          <div class="text-xs"><span *ngIf="balance.amount<0">-</span>${{absoluteBalance | number : '1.2-2'}}</div>
+          <div class="text-xs">${{absoluteBalance | number : '1.2-2'}}</div>
         </div>
         <div class="col-12">
           <div class="title-xs"><span i18n="@@CurrentConsumed">Current Consumed</span>:</div>
@@ -187,7 +202,7 @@
           <div class="title-xs"><span i18n="@@TotalPayable">Payable</span>:</div>
           <div class="text-xs">&nbsp;${{ balance.amount >= charge.total ? 0 : charge.total - balance.amount  | number : '1.2-2'}}</div>
         </div>
-      </div>
+      </div> -->
 
       <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance.amount < charge.total">
         <div class="form-row">
