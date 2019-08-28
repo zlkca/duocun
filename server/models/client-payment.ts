@@ -16,6 +16,7 @@ export class ClientPayment extends Model {
     this.cfg = new Config();
   }
 
+  // abandon fix me !!
   createAndUpdateBalance(req: Request, res: Response) {
     if(req.body instanceof Array){
       this.insertMany(req.body).then((x: any) => {
@@ -28,6 +29,7 @@ export class ClientPayment extends Model {
     }
   }
 
+  // abandon fix me !!
   updateBalance(req: Request, res: Response){
     const self = this;
     const date = new Date('2019-05-15T00:00:00').toISOString();

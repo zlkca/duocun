@@ -10,6 +10,9 @@ import { CommandActions } from '../../shared/command.actions';
 import { PaymentService } from '../../payment/payment.service';
 import { TransactionService } from '../../transaction/transaction.service';
 import { environment } from '../../../environments/environment';
+import { BalanceService } from '../../payment/balance.service';
+import { IBalance } from '../../payment/payment.model';
+import { ITransaction } from '../../transaction/transaction.model';
 
 declare var Stripe;
 
@@ -18,7 +21,9 @@ export interface DialogData {
   content: string;
   buttonTextNo: string;
   buttonTextYes: string;
+  accountId: string;
   orderId: string;
+  total: number;
   paymentMethod: string;
   chargeId: string;
   transactionId: string;
@@ -31,11 +36,13 @@ export interface DialogData {
 })
 export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
   stripe;
+  balance;
   onDestroy$ = new Subject();
   constructor(
     private rx: NgRedux<IAppState>,
     private router: Router,
     private orderSvc: OrderService,
+    private balanceSvc: BalanceService,
     private paymentSvc: PaymentService,
     private transactionSvc: TransactionService,
     private snackBar: MatSnackBar,
@@ -44,7 +51,17 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    const self = this;
     this.stripe = Stripe(environment.STRIPE.API_KEY);
+
+    if (this.data) {
+      const accountId = this.data.accountId;
+      self.balanceSvc.find({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+        if (bs && bs.length > 0) {
+          this.balance = bs[0];
+        }
+      });
+    }
   }
 
   ngOnDestroy() {
@@ -59,35 +76,42 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
   onClickRemove(): void {
     const self = this;
     if (this.data && this.data.orderId) {
-      this.paymentSvc.remove({ orderId: this.data.orderId }).pipe(takeUntil(this.onDestroy$)).subscribe(y => {
-        if (this.data.paymentMethod === 'card') {
-          this.rmTransaction(this.data.transactionId, () => {
-            self.paymentSvc.refund(this.data.chargeId).pipe(takeUntil(this.onDestroy$)).subscribe((re) => {
+        if (self.data.paymentMethod === 'card') {
+          self.rmTransaction(self.data.transactionId, (t: ITransaction) => {
+            self.paymentSvc.refund(self.data.chargeId).pipe(takeUntil(self.onDestroy$)).subscribe((re) => {
               if (re.status === 'succeeded') {
                 self.snackBar.open('', '已成功安排退款。', { duration: 1800 });
               } else {
                 alert('退款失败，请联系客服');
               }
 
-              this.orderSvc.removeById(this.data.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-                this.dialogRef.close();
-                this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
-                this.snackBar.open('', '订单已删除', { duration: 1000 });
-                this.router.navigate(['order/history']);
+              self.orderSvc.removeById(self.data.orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+                self.dialogRef.close();
+                self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
+                self.snackBar.open('', '订单已删除', { duration: 1000 });
+
+                const payable = Math.round((self.data.total - t.amount) * 100) / 100;
+                const q = { accountId: self.data.accountId };
+                self.balanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+                  self.snackBar.open('', '余额已更新', { duration: 1800 });
+                  self.router.navigate(['order/history']);
+                });
               });
             });
           });
         } else {
-          this.orderSvc.removeById(this.data.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-            this.dialogRef.close();
-            this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
-            this.snackBar.open('', '订单已删除', { duration: 1000 });
-            this.router.navigate(['order/history']);
+          self.orderSvc.removeById(self.data.orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+            self.dialogRef.close();
+            self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
+            self.snackBar.open('', '订单已删除', { duration: 1000 });
+            const payable = Math.round((self.balance.amount + self.data.total) * 100) / 100;
+            const q = { accountId: self.data.accountId };
+            self.balanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+              self.snackBar.open('', '余额已更新', { duration: 1800 });
+              self.router.navigate(['order/history']);
+            });
           });
         }
-
-
-      });
     }
   }
 
