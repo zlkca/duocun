@@ -138,12 +138,18 @@
           </div>
           <div class="col-12">
             <div class="title-xs"><span i18n="@@DeliveryDiscount">Delivery Discount</span>:</div>
-            <div class="text-xs">${{charge.deliveryDiscount | number : '1.2-2'}}</div>
+            <div class="text-xs">&nbsp;${{charge.deliveryDiscount | number : '1.2-2'}}</div>
           </div>
           <div class="col-12" *ngIf="charge.groupDiscount>0" >
             <div class="title-xs"><span i18n="@@GroupDiscount">GroupDiscount</span>:</div>
-            <div class="text-xs">${{charge.groupDiscount | number : '1.2-2'}}</div>
+            <div class="text-xs">&nbsp;${{charge.groupDiscount | number : '1.2-2'}}</div>
           </div>
+
+          <div class="col-12" *ngIf="charge.overRangeCharge>0" >
+            <div class="title-xs"><span i18n="@@OverRangeCharge">Over Range Charge</span>:</div>
+            <div class="text-xs">&nbsp;${{charge.overRangeCharge | number : '1.2-2'}}</div>
+          </div>
+
           <div class="col-12 total-row" >
             <div class="title-xs"><span i18n="@@Total">Total</span>:</div>
             <div class="text-xs">&nbsp;${{ charge.total | number : '1.2-2'}}</div>
@@ -162,7 +168,6 @@
             <div class="title-xs"><span i18n="@@TotalPayable">Payable</span>:</div>
             <div class="text-xs">&nbsp;${{ balance.amount >= charge.total ? 0 : charge.total - balance.amount  | number : '1.2-2'}}</div>
           </div>
-
         </div>
       </div>
     </div>
@@ -178,31 +183,17 @@
       <!-- <div class="row" i18n="@@CashWhenDelivered">Cash when Delivered</div> , 现有余额${{absoluteBalance | number : '1.2-2'}}-->
       <!-- <input name="paymentMethod" readonly /> -->
       <div *ngIf="balance && charge && balance.amount >= charge.total">用余额付款</div>
+      <div class="title" i18n="@@CashWhenDelivered" *ngIf="balance && charge && balance.amount < charge.total">Cash when Delivered</div>
 
-      <mat-button-toggle-group #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)" *ngIf="balance.amount < charge.total">
+      <!-- <mat-button-toggle-group #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)" *ngIf="balance.amount < charge.total">
         <mat-button-toggle value="cash" aria-label="Cash">
           <div class="title" i18n="@@CashWhenDelivered">Cash when Delivered</div>
         </mat-button-toggle>
         <mat-button-toggle value="card" aria-label="Card">
           <div class="title">信用卡或银行卡</div>
         </mat-button-toggle>
-      </mat-button-toggle-group>
+      </mat-button-toggle-group> -->
 
-      <!-- <div class="row payment-detail" *ngIf="paymentMethod==='card' && balance && charge && balance.amount < charge.total && balance.amount!=0">
-        <div class="col-12">
-          <div class="title-xs" *ngIf="balance.amount<0"><span>过往欠款</span>:</div>
-          <div class="title-xs" *ngIf="balance.amount>0"><span i18n="@@CurrentBalance">Current Balance</span>:</div>
-          <div class="text-xs">${{absoluteBalance | number : '1.2-2'}}</div>
-        </div>
-        <div class="col-12">
-          <div class="title-xs"><span i18n="@@CurrentConsumed">Current Consumed</span>:</div>
-          <div class="text-xs">&nbsp;${{ charge.total | number : '1.2-2'}}</div>
-        </div>
-        <div class="col-12 total-row" >
-          <div class="title-xs"><span i18n="@@TotalPayable">Payable</span>:</div>
-          <div class="text-xs">&nbsp;${{ balance.amount >= charge.total ? 0 : charge.total - balance.amount  | number : '1.2-2'}}</div>
-        </div>
-      </div> -->
 
       <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance.amount < charge.total">
         <div class="form-row">
@@ -231,7 +222,8 @@
 
   <div class="row checkout-row">
     <div class="col-9 title-md amount-col">
-      ${{total | number : '1.2-2'}}
+      &nbsp;
+      <!-- ${{total | number : '1.2-2'}} -->
     </div>
     <div class="col-3 title-md pay-col" (click)="pay()" i18n="@@Submit">Submit</div>
   </div>

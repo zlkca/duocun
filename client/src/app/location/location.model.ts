@@ -1,3 +1,8 @@
+export enum RangeRole {
+  DISTANCE_CENTER = 1,
+  FREE_CENTER = 2,
+}
+
 
 export interface GeoPoint  {
   lat?: number;
@@ -82,3 +87,4 @@ export interface IDistance {
       // origin: origin,
       // destination: req.body.destinations[i], // destination is mall
       // element: rows[0].elements ,
+

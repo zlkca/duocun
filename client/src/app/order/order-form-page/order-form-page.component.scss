@@ -192,7 +192,7 @@ mat-button-toggle-group{
   padding-top: 8px;
   .items-col{
     padding-left: 0px;
-    padding-right: 0px;
+    padding-right: 8px;
 
     .item-row{
       padding-bottom: 3px;
@@ -211,7 +211,7 @@ mat-button-toggle-group{
   .total-col{
     display: flex;
     align-items: flex-end;
-    padding-left: 8px;
+    padding-left: 0px;
     padding-right: 0px;
     padding-bottom: 8px;
 
@@ -222,15 +222,15 @@ mat-button-toggle-group{
     }
 
     .title-xs{
-      width: 60px;
+      width: 80px;
       float: left;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
     }
 
     .text-xs{
       float: left;
-      font-size: 14px;
+      font-size: 13px;
       margin-left: 8px;
     }
 

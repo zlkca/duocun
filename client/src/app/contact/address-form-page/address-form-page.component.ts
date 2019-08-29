@@ -382,7 +382,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   checkRange(origin) {
     const self = this;
-    self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
+    self.rangeSvc.find({status: 'active'}).pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
       const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
       this.availableRanges = rs;
       self.inRange = (rs && rs.length > 0) ? true : false;

@@ -29,6 +29,7 @@ export interface IOrder {
   deliveryAddress?: Address;
   deliveryCost?: number;
   deliveryDiscount?: number;
+  overRangeCharge?: number;
   groupDiscount?: number;
   productTotal?: number;
   total?: number;
@@ -57,8 +58,9 @@ export class Order implements IOrder {
   modified: Date;
   items: OrderItem[];
   deliveryAddress: Address;
-  deliveryCost: number;
-  deliveryDiscount: number;
+  deliveryCost?: number;
+  deliveryDiscount?: number;
+  overRangeCharge?: number;
   groupDiscount?: number;
   total: number;
   tax?: number;
@@ -100,6 +102,7 @@ export interface ICharge {
   productTotal: number;
   deliveryCost: number;
   deliveryDiscount: number;
+  overRangeCharge: number;
   groupDiscount: number;
   total: number;
   tax: number;

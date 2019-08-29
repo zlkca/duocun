@@ -4,6 +4,8 @@ export interface IEntityBase {
   id?: string;
 }
 
+
+
 export interface IUserBase {
   id: string;
   username: string;
@@ -27,8 +29,6 @@ export interface IMall {
   // openings?: IRegionOpening[];
   // radius?: number; // m
   ranges?: string[];
-  restaurants?: IEntityBase[];
-  workers?: IUserBase[];
   distance?: number; // Dynamic
   deliverFee?: number; // Dynamic
   fullDeliverFee?: number; // Dynamic
@@ -50,8 +50,6 @@ export class Mall implements IMall {
   // openings?: IRegionOpening[];
   // radius: number; // m
   ranges?: string[];
-  restaurants: IEntityBase[];
-  workers: IUserBase[];
   created?: Date;
   modified?: Date;
 

@@ -53,10 +53,11 @@ import { ClientBalance } from "./models/client-balance";
 
 process.env.TZ = 'America/Toronto';
 
-schedule('0 45 23 * * *', () => {
-  let cb = new ClientBalance(dbo);
-  cb.updateAll();
-});
+// schedule('0 45 23 * * *', () => {
+//   let cb = new ClientBalance(dbo);
+//   cb.updateAll();
+// });
+
 // console.log = function (msg: any) {
 //   fs.appendFile("/tmp/log-duocun.log", msg, function (err) { });
 // }

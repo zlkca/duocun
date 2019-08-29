@@ -17,6 +17,12 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import * as moment from 'moment';
 import { DeliveryActions } from '../../delivery/delivery.actions';
+import { ILocation, RangeRole, IDistance } from '../../location/location.model';
+import { IRange } from '../../range/range.model';
+import { IMall } from '../../mall/mall.model';
+import { MallService } from '../../mall/mall.service';
+import { RangeService } from '../../range/range.service';
+import { DistanceService } from '../../location/distance.service';
 
 @Component({
   selector: 'app-order-history',
@@ -187,6 +193,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   toDateString(s) {
     return s ? this.sharedSvc.toDateString(s) : '';
   }
+
   // takeOrder(order) {
   //   const self = this;
   //   order.workerStatus = 'process';

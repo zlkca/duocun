@@ -22,7 +22,8 @@ export class Distance extends Model{
     });
     let sDestinations = destinations.join('|');
 
-    let url = 'https://maps.googleapis.com/maps/api/distancematrix/json?&region=ca&origins=' + origin.address + '&destinations=' + sDestinations + '&key=' + key;
+    let url = 'https://maps.googleapis.com/maps/api/distancematrix/json?&region=ca&origins=' + origin.address 
+      + '&destinations=' + sDestinations + '&key=' + key;
     // let url = 'https://maps.googleapis.com/maps/api/directions/json?mode=driving&units=metric&region=ca&origin=' + sOrigin + '&destination=' + sDestination + '&key=' + key;
     
     https.get(url, (res1: IncomingMessage) => {

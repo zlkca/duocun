@@ -40,14 +40,14 @@
       </div>
 
       <div class="row order-detail">
-        <div class="col-8 items-col">
+        <div class="col-7 items-col">
           <div *ngFor="let item of order.items" class="text-sm row item-row">
             <div class="col-7 product-col">{{item.productName}}</div>
             <div class="col-2 quantity-col">x {{item.quantity}}</div>
             <div class="col-3 price-col">${{item.price | number : '1.2-2'}}</div>
           </div>
         </div>
-        <div class="col-4 text-sm total-col" *ngIf="order.total">
+        <div class="col-5 text-sm total-col" *ngIf="order.total">
           <div class="row">
             <div class="col-12">
               <div class="title-xs"><span i18n="@@ProductTotal">ProductTotal</span>:</div>
@@ -77,6 +77,10 @@
               <div class="title-xs"><span i18n="@@GroupDiscount">GroupDiscount</span>:</div>
               <div class="text-xs">-${{order.groupDiscount | number : '1.2-2'}}</div>
             </div>
+            <div class="col-12" *ngIf="order.overRangeCharge" >
+                <div class="title-xs"><span i18n="@@OverRangeCharge">Over Range Charge</span>:</div>
+                <div class="text-xs">${{order.overRangeCharge | number : '1.2-2'}}</div>
+              </div>
             <div class="col-12" >
               <div class="title-xs"><span i18n="@@Total">Total</span>:</div>
               <div class="text-xs">&nbsp;${{ order.total | number : '1.2-2'}}</div>

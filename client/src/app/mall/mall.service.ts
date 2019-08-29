@@ -13,13 +13,6 @@ import { IRange } from '../range/range.model';
   providedIn: 'root'
 })
 export class MallService extends EntityService {
-
-  // mall =   {
-  //     id: '1', name: 'Richmond Hill', type: 'real', lat: 43.8461479, lng: -79.37935279999999, radius: 8,
-  //     placeId: 'ChIJmYOyFEsrK4gRM55wYvQ7Gk0', workers: [{ id: '5c9966b7fb86d40a4414eb79', username: 'worker' }]
-  //   },
-
-
   constructor(
     public http: HttpClient,
     public authSvc: AuthService,

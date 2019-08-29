@@ -9,7 +9,7 @@
       </div>
     </div>
   
-    <div class="row balance-block" *ngIf="balance" (click)="toBalancePage()">
+    <div class="row balance-block" *ngIf="balance !== null" (click)="toBalancePage()">
         <div class="col-12 title-sm" i18n="@@CurrentBalance">Current Balance</div>
         <div class="col-12 title-bg">${{balance | number : '1.2-2'}}</div>
         <div class="col-12 title-sm">

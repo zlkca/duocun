@@ -18,6 +18,7 @@ import { OrderService } from '../../order/order.service';
 import { TransactionService } from '../../transaction/transaction.service';
 import { ITransaction } from '../../transaction/transaction.model';
 import * as moment from 'moment';
+import { BalanceService } from '../../payment/balance.service';
 
 declare var WeixinJSBridge;
 
@@ -44,10 +45,11 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     private locationSvc: LocationService,
     private contactSvc: ContactService,
     private transactionSvc: TransactionService,
-    private orderSvc: OrderService
+    private orderSvc: OrderService,
+    private balanceSvc: BalanceService
   ) {
     const self = this;
-    this.rx.dispatch({type: PageActions.UPDATE_URL, payload: 'account-setting'});
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'account-setting' });
 
     self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
       self.account = account;
@@ -69,40 +71,47 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
   reload(account) {
     const self = this;
-    let balance = 0;
-    let list = [];
-    const query = { clientId: account.id, status: { $nin: ['del', 'bad'] } };
-    this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
-      os.map(order => {
-        list.push({ date: order.delivered, type: 'debit', amount: order.total });
-      });
-      const q = { type: 'credit', fromId: account.id };
-      self.transactionSvc.find(q).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
-        ts.map(t => {
-          list.push({ date: t.created, type: 'credit', amount: t.amount });
-        });
-
-        list = list.sort((a, b) => {
-          const aMoment = moment(a.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-          const bMoment = moment(b.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-          if (aMoment.isAfter(bMoment)) {
-            return 1; // b at top
-          } else {
-            return -1;
-          }
-        });
-
-        list.map(t => {
-          if (t.type === 'debit') {
-            balance -= t.amount;
-          } else if (t.type === 'credit') {
-            balance += t.amount;
-          }
-        });
-
-        self.balance = balance;
-      });
+    this.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+      if (bs && bs.length > 0) {
+        this.balance = bs[0].amount;
+      } else {
+        this.balance = 0;
+      }
     });
+    // let balance = 0;
+    // let list = [];
+    // const query = { clientId: account.id, status: { $nin: ['del', 'bad'] } };
+    // this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
+    //   os.map(order => {
+    //     list.push({ date: order.delivered, type: 'debit', amount: order.total });
+    //   });
+    //   const q = { type: 'credit', fromId: account.id };
+    //   self.transactionSvc.find(q).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
+    //     ts.map(t => {
+    //       list.push({ date: t.created, type: 'credit', amount: t.amount });
+    //     });
+
+    //     list = list.sort((a, b) => {
+    //       const aMoment = moment(a.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    //       const bMoment = moment(b.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    //       if (aMoment.isAfter(bMoment)) {
+    //         return 1; // b at top
+    //       } else {
+    //         return -1;
+    //       }
+    //     });
+
+    //     list.map(t => {
+    //       if (t.type === 'debit') {
+    //         balance -= t.amount;
+    //       } else if (t.type === 'credit') {
+    //         balance += t.amount;
+    //       }
+    //     });
+
+    //     self.balance = balance;
+    //   });
+    // });
   }
 
   ngOnInit() {

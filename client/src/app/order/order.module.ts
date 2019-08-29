@@ -17,6 +17,7 @@ import { RemoveOrderDialogComponent } from './remove-order-dialog/remove-order-d
 import { PaymentService } from '../payment/payment.service';
 import { MerchantService } from '../merchant/merchant.service';
 import { TransactionService } from '../transaction/transaction.service';
+import { MallService } from '../mall/mall.service';
 
 @NgModule({
   imports: [
@@ -39,7 +40,8 @@ import { TransactionService } from '../transaction/transaction.service';
     AccountService,
     PaymentService,
     MerchantService,
-    TransactionService
+    TransactionService,
+    MallService
   ],
   declarations: [
     OrderHistoryComponent,

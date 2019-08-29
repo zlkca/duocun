@@ -19,7 +19,7 @@ import { IAccount, Role } from '../../account/account.model';
 import { LocationService } from '../../location/location.service';
 import { BalanceService } from '../../payment/balance.service';
 import { IBalance, IClientPayment } from '../../payment/payment.model';
-import { ILocation } from '../../location/location.model';
+import { ILocation, IDistance, RangeRole } from '../../location/location.model';
 import { OrderSequenceService } from '../order-sequence.service';
 import * as moment from 'moment';
 import { MerchantService } from '../../merchant/merchant.service';
@@ -28,6 +28,10 @@ import { environment } from '../../../environments/environment';
 import { PaymentService } from '../../payment/payment.service';
 import { ITransaction } from '../../transaction/transaction.model';
 import { TransactionService } from '../../transaction/transaction.service';
+import { DistanceService } from '../../location/distance.service';
+import { MallService } from '../../mall/mall.service';
+import { RangeService } from '../../range/range.service';
+import { IRange } from '../../range/range.model';
 
 declare var Stripe;
 
@@ -66,7 +70,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   charge: ICharge;
   afterGroupDiscount: number;
   absoluteBalance: number;
-
   bSubmitted = false;
 
   constructor(
@@ -74,12 +77,15 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private router: Router,
     private route: ActivatedRoute,
+    private mallSvc: MallService,
+    private rangeSvc: RangeService,
     private orderSvc: OrderService,
     private merchantSvc: MerchantService,
     private sequenceSvc: OrderSequenceService,
     private locationSvc: LocationService,
     private balanceSvc: BalanceService,
     private paymentSvc: PaymentService,
+    private distanceSvc: DistanceService,
     private transactionSvc: TransactionService,
     private snackBar: MatSnackBar
   ) {
@@ -138,6 +144,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    const self = this;
     const cart = this.cart;
     const bNewOrder = (this.order && this.order.id) ? false : true;
     this.merchantSvc.find({ id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe(ms => {
@@ -147,8 +154,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const query = { delivered: date.toDate(), address: address, status: { $nin: ['del', 'bad'] } };
 
       this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
-        this.charge = this.getCharge(bNewOrder, orders, cart, merchant, this.delivery);
-        this.afterGroupDiscount = (this.charge.groupDiscount ? this.charge.total : (this.charge.total - 2));
+        self.getOverRange(this.delivery.origin, (distance, rate) => {
+          this.charge = this.getCharge(bNewOrder, orders, cart, merchant, this.delivery, (distance * rate));
+          this.afterGroupDiscount = (this.charge.groupDiscount ? this.charge.total : (this.charge.total - 2));
+        });
       });
     });
   }
@@ -158,7 +167,36 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  getCharge(bNewOrder, orders, cart, merchant, delivery) {
+  getOverRange(origin: ILocation, cb?: any) {
+    const self = this;
+    const destinations: ILocation[] = [];
+    const qDist = { id: '5d671c2f6f69011d1bd42f6c'}; // TNT mall
+
+    this.rangeSvc.find({roles: [RangeRole.FREE_CENTER]}).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+
+      self.mallSvc.find(qDist).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMall[]) => {
+        ms.map(m => {
+          destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
+        });
+
+        self.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((ds: IDistance[]) => {
+          if (ds && ds.length > 0) {
+            // const ms = self.updateMallInfo(rs, malls);
+            // self.loadRestaurants(malls, ranges, ks);
+            const r = rs[0];
+            const distance = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000; // kilo meter
+            if (cb) {
+              cb(distance, r.overRangeRate);
+            }
+          }
+        }, err => {
+          console.log(err);
+        });
+      });
+    });
+  }
+
+  getCharge(bNewOrder, orders, cart, merchant, delivery, overRangeCharge) {
     let productTotal = 0;
     let deliveryDate;
 
@@ -183,15 +221,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     }
 
     // const bNewOrder = (this.order && this.order.id) ? false : true;
-
+    const overRangeTotal = Math.round(overRangeCharge * 100) / 100;
     return {
       productTotal: productTotal,
       deliveryCost: cart.deliveryCost,
       deliveryDiscount: cart.deliveryCost,
+      overRangeCharge: overRangeTotal,
       groupDiscount: this.orderSvc.getGroupDiscount(orders, bNewOrder),
       tips: tips,
       tax: tax,
-      total: productTotal + tax + tips - groupDiscount
+      total: productTotal + tax + tips - groupDiscount + overRangeTotal
     };
   }
 
@@ -244,6 +283,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         deliveryCost: Math.round(charge.deliveryCost * 100) / 100,
         deliveryDiscount: Math.round(charge.deliveryDiscount * 100) / 100,
         groupDiscount: Math.round(charge.groupDiscount * 100) / 100,
+        overRangeCharge: Math.round(charge.overRangeCharge * 100) / 100,
         total: Math.round(charge.total * 100) / 100,
         tax: Math.round(charge.tax * 100) / 100,
         tips: Math.round(charge.tips * 100) / 100,
@@ -293,12 +333,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       order.transactionId = 'N/A';
       self.saveOrder(order, (ret) => {
         self.snackBar.open('', '订单已保存', { duration: 1800 });
-        self.router.navigate(['order/history']);
+        const b = Math.round((balance.amount - order.total) * 100) / 100;
+        self.balanceSvc.update({ accountId: accountId }, { amount: b }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+          self.snackBar.open('', '余额已更新', { duration: 1800 });
+          self.bSubmitted = false;
+          self.router.navigate(['order/history']);
+        });
       });
-      const b = Math.round((balance.amount - order.total) * 100) / 100;
-      self.balanceSvc.update({ accountId: accountId }, { amount: b }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
-        self.snackBar.open('', '余额已更新', { duration: 1800 });
-      });
+
     } else {
       const payable = order.total - balance.amount;
       self.payByCard(payable, order.merchantName, (ch) => {
@@ -309,13 +351,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             order.chargeId = ch.chargeId;
             order.transactionId = tr.id;
 
-            self.balanceSvc.update({ accountId: accountId }, { amount: 0 }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
-              self.snackBar.open('', '余额已更新', { duration: 1800 });
-            });
-
             self.saveOrder(order, (ret) => {
               self.snackBar.open('', '订单已保存', { duration: 1800 });
-              self.router.navigate(['order/history']);
+              const q = { accountId: accountId };
+              self.balanceSvc.update(q, { amount: 0 }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+                self.snackBar.open('', '余额已更新', { duration: 1800 });
+                self.bSubmitted = false;
+                self.router.navigate(['order/history']);
+              });
             });
           });
         } else {
@@ -353,6 +396,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             // fix me
             self.balanceSvc.update({ accountId: self.account.id }, { amount: 0 }).pipe(takeUntil(self.onDestroy$)).subscribe(bs => {
               self.snackBar.open('', '余额已更新', { duration: 1800 });
+              self.bSubmitted = false;
               self.router.navigate(['order/history']);
             });
           });
@@ -370,11 +414,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             const payable = Math.round((balance.amount - order.total) * 100) / 100;
             self.balanceSvc.update({ accountId: self.account.id }, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
               self.snackBar.open('', '余额已更新', { duration: 1800 });
+              self.bSubmitted = false;
               self.router.navigate(['order/history']);
             });
           });
 
         } else {
+          self.bSubmitted = false;
           self.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
         }
       }
