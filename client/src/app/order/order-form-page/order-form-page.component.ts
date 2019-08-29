@@ -184,7 +184,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             // const ms = self.updateMallInfo(rs, malls);
             // self.loadRestaurants(malls, ranges, ks);
             const r = rs[0];
-            const distance = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000; // kilo meter
+            const d = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000;
+            const distance = d > 0 ? d : 0; // kilo meter
             if (cb) {
               cb(distance, r.overRangeRate);
             }
