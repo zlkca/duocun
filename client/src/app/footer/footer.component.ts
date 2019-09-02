@@ -19,9 +19,15 @@ import { ICart } from '../cart/cart.model';
 export class FooterComponent implements OnInit, OnDestroy {
   year = 2019;
   account: Account;
-  bHide = false;
+  bHideNavMenu = false;
   page;
   selected = 'home';
+  deliveryAddress;
+  inRange;
+  cart;
+  quantity;
+  productTotal;
+  fromPage;
   private onDestroy$ = new Subject<void>();
 
   constructor(
@@ -34,30 +40,41 @@ export class FooterComponent implements OnInit, OnDestroy {
       self.account = account;
     });
 
-    this.rx.select('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
-      if (self.page === 'cart') {
-        self.bHide = cart.items.length > 0;
+    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+      self.cart = cart;
+      if (self.page === 'cart-page') {
+        self.bHideNavMenu = cart.items.length !== 0;
       }
+      self.quantity = cart.quantity;
+      self.productTotal = cart.productTotal;
     });
 
-    this.rx.select<string>('page').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-      self.page = x;
-      self.selected = x;
-      if (x === 'contact-form' || x === 'phone-form' || x === 'address-form' || x === 'restaurant-detail' ||
-        x === 'cart' || x === 'order-confirm' || x === 'home') {
-        self.bHide = true;
+    this.rx.select<string>('page').pipe(takeUntil(this.onDestroy$)).subscribe((x: any) => {
+      self.page = x.name;
+      self.selected = x.name;
+      if (x.name === 'contact-form' || x.name === 'phone-form' || x.name === 'address-form' || x.name === 'restaurant-detail' ||
+        x.name === 'cart-page' || x.name === 'order-form') {
+        self.bHideNavMenu = true;
+        if (x.name === 'address-form') {
+          self.fromPage = x.fromPage;
+        }
       } else {
-        self.bHide = false;
+        self.bHideNavMenu = false;
       }
     });
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'loggedIn') {
-        self.bHide = false;
+        self.bHideNavMenu = false;
       } else if (x.name === 'firstTimeUse') {
-        self.bHide = x.args;
+        self.bHideNavMenu = x.args;
+      } else if (x.name === 'address-change') {
+        self.deliveryAddress = x.args.address;
+        self.inRange = x.args.inRange;
       }
     });
+
+
   }
 
   ngOnInit() {
@@ -78,8 +95,8 @@ export class FooterComponent implements OnInit, OnDestroy {
       // if (r && r.length > 0 && r[0].location) {
       //   this.router.navigate(['main/filter']);
       // } else {
-        this.selected = 'home';
-        this.router.navigate(['main/home']);
+      this.selected = 'home';
+      this.router.navigate(['main/home']);
       // }
     });
   }
@@ -93,9 +110,9 @@ export class FooterComponent implements OnInit, OnDestroy {
     }
   }
 
-  toCart() {
-    this.router.navigate(['cart']);
-  }
+  // toCart() {
+  //   this.router.navigate(['cart']);
+  // }
 
   toAccount() {
     if (this.account) {
@@ -134,4 +151,59 @@ export class FooterComponent implements OnInit, OnDestroy {
   //     payload: {name: 'cancel-contact', args: null}
   //   });
   // }
+
+  cancelAddress() {
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'cancel-address', args: null }
+    });
+  }
+
+  saveAddress() {
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'save-address', args: null }
+    });
+  }
+
+  pay() {
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'pay', args: null }
+    });
+  }
+
+  checkout() {
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'checkout', args: null }
+    });
+  }
+
+  cartBack() {
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'cart-back', args: null }
+    });
+  }
+
+  onAfterCheckout($event) {
+    // this.rx.dispatch({
+    //   type: CommandActions.SEND,
+    //   payload: { name: 'after-checkout', args: $event }
+    // });
+  }
+
+  toCart() {
+    if (this.quantity > 0) { // prevent missing bottom menus
+      this.router.navigate(['cart']);
+    }
+  }
+
+  checkoutFromRestaurant() {
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'checkout-from-restaurant', args: null }
+    });
+  }
 }

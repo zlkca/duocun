@@ -1,4 +1,8 @@
-<div class="page">
+<div class="loading-spinner" *ngIf="loading">
+  <app-progress-spinner></app-progress-spinner>
+</div>
+
+<div class="page" *ngIf="!loading">
   <div class="title-row">
     <span class="title-bg" i18n="@@ConfirmOrder">Confirm Order</span>
   </div>
@@ -30,81 +34,6 @@
     </div>
 
     <div class="title-md restaurant" *ngIf="cart.merchantName">{{cart.merchantName}}</div>
-
-    <!-- <div class="bg-light product-list" *ngIf="cart.items && cart.items.length>0">
-      <div *ngFor="let item of items" class="text-sm row">
-        <div class="col-6 product-col">{{item.productName}}</div>
-        <div class="col-3 quantity-col">x{{item.quantity}}</div>
-        <div class="col-3 price-col">${{item.price * item.quantity | number : '1.2-2'}}</div>
-      </div>
-    </div>
-
-    <div class="total-block title-sm" *ngIf="cart.items.length>0">
-      <div class="row">
-        <div class="col-9">
-            <span i18n="@@ProductTotal">Product Total</span>
-            <span>:</span>
-        </div>
-        <div class="col-3">${{productTotal | number : '1.2-2'}}</div>
-      </div>
-      <div class="row">
-        <div class="col-9">
-          <span i18n="@@DeliveryFee">Delivery Fee</span>
-          <span>:</span>
-        </div>
-        <div class="col-3">${{deliveryCost | number : '1.2-2'}}</div>
-      </div>
-      <div class="row">
-        <div class="col-9">
-          <span i18n="@@Subtotal">Subtotal</span>
-          <span>:</span>
-        </div>
-        <div class="col-3">${{productTotal + deliveryCost | number : '1.2-2'}}</div>
-      </div>
-      <div class="row">
-        <div class="col-9">
-          <span i18n="@@Tax">Tax</span>
-          <span>:</span>
-        </div>
-        <div class="col-3">${{tax | number : '1.2-2'}}</div>
-      </div>
-
-      <div class="row">
-        <div class="col-9">
-          <span i18n="@@Tips">Tips</span>
-          <span>:</span>
-        </div>
-        <div class="col-3">${{tips | number : '1.2-2'}}</div>
-      </div>
-
-      <div class="row">
-          <div class="col-9">
-            <span i18n="@@DeliveryDiscount">Delivery Discount</span>
-            <span>:</span>
-          </div>
-        <div class="col-3">-${{deliveryDiscount | number : '1.2-2'}}</div>
-      </div>
-
-      <div class="row" *ngIf="groupDiscount>0">
-          <div class="col-9">
-            <span i18n="@@GroupDiscount">Group Discount</span>
-            <span>:</span>
-          </div>
-        <div class="col-3">-${{groupDiscount | number : '1.2-2'}}</div>
-      </div>
-
-      <div class="row total-row">
-        <div class="col-9">
-          <span i18n="@@Total">Total</span>
-          <span>:</span>
-        </div>
-        <div class="col-3" *ngIf="groupDiscount===0"><span>${{total | number : '1.2-2'}}</span></div>
-        <div class="col-3" *ngIf="groupDiscount>0">
-          <span style="text-decoration:line-through">${{total | number : '1.2-2'}}</span>&nbsp;
-          <span>${{total - groupDiscount | number : '1.2-2'}}</span>
-        </div>
-      </div>
-    </div> -->
 
     <div class="row order-detail" *ngIf="cart">
       <div class="col-7 items-col">
@@ -183,17 +112,17 @@
       <!-- <div class="row" i18n="@@CashWhenDelivered">Cash when Delivered</div> , 现有余额${{absoluteBalance | number : '1.2-2'}}-->
       <!-- <input name="paymentMethod" readonly /> -->
       <div *ngIf="balance && charge && balance.amount >= charge.total">用余额付款</div>
-      <div class="title" i18n="@@CashWhenDelivered" *ngIf="balance && charge && balance.amount < charge.total">Cash when Delivered</div>
+      <!-- <div class="title" i18n="@@CashWhenDelivered" *ngIf="balance && charge && balance.amount < charge.total">Cash when Delivered</div> -->
 
-      <!-- <mat-button-toggle-group #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)" *ngIf="balance.amount < charge.total">
+      <mat-button-toggle-group #group="matButtonToggleGroup" [value]="paymentMethod" 
+        (change)="onSelectPaymentMethod($event)" *ngIf="charge && balance.amount < charge.total">
         <mat-button-toggle value="cash" aria-label="Cash">
           <div class="title" i18n="@@CashWhenDelivered">Cash when Delivered</div>
         </mat-button-toggle>
         <mat-button-toggle value="card" aria-label="Card">
           <div class="title">信用卡或银行卡</div>
         </mat-button-toggle>
-      </mat-button-toggle-group> -->
-
+      </mat-button-toggle-group>
 
       <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance.amount < charge.total">
         <div class="form-row">
@@ -220,11 +149,5 @@
     </div>
   </form>
 
-  <div class="row checkout-row">
-    <div class="col-9 title-md amount-col">
-      &nbsp;
-      <!-- ${{total | number : '1.2-2'}} -->
-    </div>
-    <div class="col-3 title-md pay-col" (click)="pay()" i18n="@@Submit">Submit</div>
-  </div>
+
 </div>

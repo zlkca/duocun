@@ -89,12 +89,13 @@ export class Order extends Model {
   }
 
   removeOne(req: Request, res: Response) {
-    this.find({id: req.params.id}).then(docs => {
+    const orderId = req.params.id;
+    this.find({id: orderId}).then(docs => {
       if(docs && docs.length>0){
         const date = docs[0].delivered;
         const address = docs[0].address;
 
-        this.updateOne({id: req.params.id}, {status: 'del'}).then(x => {
+        this.updateOne({id: orderId}, {status: 'del'}).then(x => {
           this.find({delivered: date, address: address, status: { $nin: ['del', 'bad']}}).then(orders => {
             const a = this.getDistinctArray(orders, 'clientId');
             let groupDiscount = (a && a.length > 1) ? 2 : 0;

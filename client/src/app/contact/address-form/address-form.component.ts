@@ -43,7 +43,7 @@ export class AddressFormComponent implements OnInit, OnDestroy {
 
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
-      payload: 'address-form'
+      payload: {name: 'address-form'}
     });
   }
 

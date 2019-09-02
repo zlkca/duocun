@@ -3,6 +3,8 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
+$blue: #4285F3;
+
 footer{
     height:100px;
     padding:75px 15px 0px 80px;
@@ -61,6 +63,184 @@ footer{
         }
       }
     }
+
+  .address-save-row{
+    background-color: white;
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    height: 60px;
+    margin: 0px;
+    padding: 0px;
+    border-top: solid 1px #eee;
+    
+    .cancel-col, .save-col {
+      padding: 15px 0px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .cancel-col{
+      border-right: solid 1px #eee;
+    }
+
+    .save-col{
+      background-color: $blue;
+      color: white;
+    }
+  }
+
+
+.order-btn-row{
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  height: 60px;
+  margin: 0px;
+  padding: 0px;
+  border-top: solid 1px #eee;
+  background-color: white;
+
+    .amount-col{
+      height: 60px;
+      float: left;
+      padding-left:15px;
+      padding-top: 15px;
+      border-right: solid 1px #ddd;
+      width: calc(100% - 175px);
+    }
+
+    .pay-col{
+      background:#4285F4;
+      color: white;
+      width: 175px;
+      padding-top: 15px;
+      text-align: center;
+    }
+  }
+
+
+  .cart-btn-row {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    height: 60px;
+    margin: 0px;
+    padding: 0px;
+    border-top: solid 1px #eee;
+    background-color: white;
+  
+    .back-col{
+      vertical-align: middle;
+      text-align: center;
+      padding-top: 15px;
+      border-right: 1px solid #eee;
+      font-size: 18px;
+    }
+  
+    .checkout-col{
+      vertical-align: middle;
+      text-align: center;
+      color: white;
+      background:#4285F4;
+      height: 60px;
+      float: left;
+      text-align: center;
+      padding-top: 15px;
+      font-size: 18px;
+    }
+  }
+
+  // .restaurant-btn-row {
+  //   position: fixed;
+  //   bottom: 0px;
+  //   width: 100%;
+  //   height: 60px;
+  //   margin: 0px;
+  //   padding: 0px;
+  //   border-top: solid 1px #eee;
+  //   background-color: white;
+
+  //   app-cart-navbar{
+  //     position: fixed;
+  //     bottom: 0px;
+  //     width: 100%;
+  //     height: 60px;
+  //     margin: 0px;
+  //     padding: 0px;
+  //     border-top: solid 1px #eee;
+  //     background-color: white;
+  //     z-index: 10;
+  //   }
+  // }
+
+// badge
+.restaurant-btn-row{
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  height: 60px;
+  margin: 0px;
+  padding: 0px;
+  border-top: solid 1px #eee;
+  background-color: white;
+  z-index: 10;
+  
+    .fa-stack[data-count]:after{
+      position:absolute;
+      left: 45px;
+      top: 5px;
+      content: attr(data-count);
+      font-size:10px;
+      padding:.6em;
+      border-radius:999px;
+      line-height:.75em;
+      color: white;
+      background:rgba(255,0,0,.85);
+      text-align:center;
+      min-width:2em;
+      font-weight:bold;
+    }
+
+    .fa-stack{
+      margin-left: 5px;
+    }
+    .img-shopping-cart{
+      margin-left: 0px;
+    }
+
+    .cart-col, .amount-col{
+      height: 60px;
+      float: left;
+      padding-left:15px;
+    }
+
+    .checkout-col{
+      color: white;
+      background:#4285F4;
+      height: 60px;
+      float: left;
+      text-align: center;
+    }
+
+    .cart-col{
+      width: 80px;
+      border-right: solid 1px #ddd;
+      padding-top: 10px;
+    }
+    .amount-col{
+      padding-top: 15px;
+      border-right: solid 1px #ddd;
+      width: calc(100% - 175px);
+    }
+    .checkout-col{
+      color: white;
+      background:#4285F4;
+      width: 95px;
+      padding-top: 15px;
+    }
+  }
+
 }
 
 @media #{$tablet}{

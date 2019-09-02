@@ -25,6 +25,8 @@ import { MallService } from '../../mall/mall.service';
 import { DistanceService } from '../../location/distance.service';
 import { IDelivery } from '../../delivery/delivery.model';
 import { IRange } from '../../range/range.model';
+import { CommandActions } from '../../shared/command.actions';
+import { ICommand } from '../../shared/command.reducers';
 
 @Component({
   selector: 'app-address-form-page',
@@ -68,11 +70,19 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     // if it is from account setting, try to load existing address, if it is from merchant detail page, load empty address.
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
-      payload: 'address-form'
+      payload: { name: 'address-form', fromPage: this.fromPage }
     });
 
     this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
       this.malls = malls;
+    });
+
+    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
+      if (x.name === 'cancel-address') {
+        this.cancel();
+      } else if (x.name === 'save-address') {
+        this.save();
+      }
     });
   }
 
@@ -109,6 +119,10 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
           // self.deliveryAddress = '';
           self.deliveryAddress = self.locationSvc.getAddrString(r.location);
         }
+        self.rx.dispatch({
+          type: CommandActions.SEND,
+          payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+        });
       }
     });
 
@@ -138,8 +152,10 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   }
 
   onAddressClear(e) {
+    const self = this;
     this.location = null;
     this.deliveryAddress = '';
+
     this.options = [];
     if (this.fromPage !== 'account-setting') {
       this.rx.dispatch({
@@ -147,6 +163,10 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         payload: { origin: null }
       });
     }
+    self.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+    });
     this.onAddressInputFocus({ input: '' });
   }
 
@@ -178,6 +198,11 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.location = r;
       // this.deliveryAddress = e.address; // set address text to input
       self.deliveryAddress = self.locationSvc.getAddrString(r);
+      // this.rx.dispatch({
+      //   type: CommandActions.SEND,
+      //   payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+      // });
+
       if (self.account) {
         const query = { userId: self.account.id, placeId: r.placeId };
         const lh = {
@@ -190,12 +215,22 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       }
 
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
-      this.checkRange(r);
+      this.checkRange(r, () => {
+        self.rx.dispatch({
+          type: CommandActions.SEND,
+          payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+        });
+      });
     }
   }
 
   onAddressBack(e) {
+    const self = this;
     this.options = [];
+    self.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+    });
   }
 
   getSuggestLocationList(input: string, bShowList: boolean) {
@@ -224,7 +259,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.contact.accountId = self.account.id;
     }
 
-    this.contact.location = location ? JSON.parse(location) : null;
+    this.contact.location = (location && location !== 'undefined') ? JSON.parse(location) : null;
 
     this.rx.dispatch<IContactAction>({
       type: ContactActions.UPDATE_LOCATION,
@@ -377,12 +412,11 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       });
       // });
     }
-
   }
 
-  checkRange(origin) {
+  checkRange(origin, cb) {
     const self = this;
-    self.rangeSvc.find({status: 'active'}).pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
+    self.rangeSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
       const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
       this.availableRanges = rs;
       self.inRange = (rs && rs.length > 0) ? true : false;
@@ -404,12 +438,20 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
           lng: (origin.lng + farNorth.lng) / 2
         };
       }
+      if (cb) {
+        cb();
+      }
     });
   }
 
   resetAddress() {
+    const self = this;
     this.deliveryAddress = '';
     this.inRange = true;
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+    });
   }
 
 }

@@ -16,9 +16,11 @@ $ad-height: 120px;
 $date-btn-height: 50px;
 
 // app-home
-:host{
-  height: calc(100% - #{$bottom-bar-height});
-}
+// :host{
+//   width: 100%;
+//   height: calc(100% - #{$bottom-bar-height});
+//   display: block;
+// }
 
 .pac-container:after {
     background-image: none !important;
@@ -113,6 +115,9 @@ $date-btn-height: 50px;
 .merchant-list{
   position: absolute;
   top: $address-search-height + $ad-height + $date-btn-height; // 110px;
+
+  height: calc(100% - #{$address-search-height + $ad-height + $date-btn-height});
+  overflow: scroll;
 }
 
 app-location-list{

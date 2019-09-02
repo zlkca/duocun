@@ -51,7 +51,7 @@ export class MerchantService extends EntityService {
 
   // dateTime --- moment object
   isClosePerWeek(restaurant: IRestaurant, dateTime: any) {
-    if (restaurant.dow) {
+    if (restaurant.dow && dateTime) {
       const days = restaurant.dow.split(',');
       if (days && days.length > 0) {
         const r = days.find(d => dateTime.day() === +d);

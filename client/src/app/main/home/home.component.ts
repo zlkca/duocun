@@ -77,6 +77,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   sOrderDeadline;
   today;
   tomorrow;
+  bAddressList = false;
 
   @ViewChild('tooltip', { static: true }) tooltip: MatTooltip;
 
@@ -107,7 +108,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       addr: ['']
     });
     this.loading = true;
-    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'home' });
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: {name: 'home'}
+    });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
       if (d && d.origin) {
@@ -115,6 +119,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         self.placeForm.get('addr').patchValue(self.deliveryAddress);
         if (self.deliveryAddress && self.bUpdateLocationList) {
           self.getSuggestLocationList(self.deliveryAddress, false);
+          self.bAddressList = false;
         }
         this.address = d.origin;
         this.checkRange(d.origin);
@@ -241,7 +246,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.places = []; // clear address list
-    this.rx.dispatch<IPageAction>({ type: PageActions.UPDATE_URL, payload: 'home' });
+    this.rx.dispatch<IPageAction>({
+      type: PageActions.UPDATE_URL,
+      payload: {name: 'home'}
+    });
     this.rx.select('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'clear-location-list') {
         this.places = [];
@@ -297,6 +305,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       } else {
         this.places = this.historyAddressList.map(x => Object.assign({}, x));
       }
+      self.bAddressList = true;
     }
   }
 
@@ -311,6 +320,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       // this.account.visited = true;
       // this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
       this.getSuggestLocationList(e.input, true);
+      this.bAddressList = true;
     }
   }
 
@@ -355,6 +365,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.places = [];
     this.bUpdateLocationList = false;
     this.location = r;
+    self.bAddressList = false;
     if (r) {
       this.deliveryAddress = e.address; // set address text to input
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });

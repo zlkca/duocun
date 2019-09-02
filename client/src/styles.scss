@@ -7,7 +7,6 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
-
 $border-color:#b0b0b0;
 $text-color:#585858;//#212529
 $text-inverse-color:#fff;
@@ -145,7 +144,23 @@ a[href^="https://maps.google.com/maps"]{display:none !important}
    font-weight:300;
 }
 
+* {
+  /* So 100% means 100% */
+  box-sizing: border-box;
+}
+
+html{
+  height: 100%;
+}
+
 body{
+  height: 100%;
+  
+  app-root{
+    display: block;
+    height: 100%;
+  }
+
   .btn{
     border-radius: 0;
     -webkit-border-radius: 0;
@@ -514,5 +529,5 @@ select:not([multiple]) {
     and (device-width : 414px) 
     and (device-height : 896px) 
     and (-webkit-device-pixel-ratio : 3) {
-      
+
     }

@@ -49,7 +49,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
-      payload: 'login'
+      payload: {name: 'login'}
     });
   }
 

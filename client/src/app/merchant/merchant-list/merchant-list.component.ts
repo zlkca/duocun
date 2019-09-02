@@ -29,12 +29,14 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   @Input() delivered; // moment date
   @Input() address; // ILocation
   @Input() active;
+  @Input() bAddressList;
 
   onDestroy$ = new Subject();
   markers;
   restaurants;
   defaultPicture = window.location.protocol + '//placehold.it/400x300';
   malls;
+  loading = true;
 
   constructor(
     private merchantSvc: MerchantService,
@@ -47,12 +49,16 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
-  ngOnChanges(d) {
+  ngOnChanges(d) { // this is run before ngOnInit
     const self = this;
     // if (d.active && d.active.currentValue) {
     if (d.address) {
       const origin = d.address.currentValue;
       if (!origin) {
+        return;
+      }
+
+      if (d.bAddressList && d.bAddressList.currentValue) {
         return;
       }
 
@@ -64,15 +70,18 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
 
         const q = { originPlaceId: origin.placeId }; // origin --- client origin
         self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
-          if (ds && ds.length > 0) {
-            if (ds.length === self.malls.length) {
-              self.loadRestaurants(this.malls, rs, ds);
+          self.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+            self.malls = malls;
+            if (ds && ds.length > 0) {
+              if (ds.length === self.malls.length) {
+                self.loadRestaurants(self.malls, rs, ds);
+              } else {
+                self.updateDistancesAndLoadRestaurants(origin, self.malls, rs);
+              }
             } else {
-              this.updateDistancesAndLoadRestaurants(origin, this.malls, rs);
+              self.updateDistancesAndLoadRestaurants(origin, self.malls, rs);
             }
-          } else {
-            this.updateDistancesAndLoadRestaurants(origin, this.malls, rs);
-          }
+          });
         });
       });
     }
@@ -132,8 +141,10 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       });
       self.markers = markers;
       self.restaurants = this.sort(rs);
+      self.loading = false;
     }, (err: any) => {
       self.restaurants = [];
+      self.loading = false;
     }
     );
   }
@@ -201,7 +212,10 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   toDetail(r: IRestaurant) {
-    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'restaurants' });
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: { name: 'restaurants' }
+    });
     this.rx.dispatch({ type: RestaurantActions.UPDATE, payload: r });
     this.rx.dispatch({
       type: DeliveryActions.UPDATE_DESTINATION,

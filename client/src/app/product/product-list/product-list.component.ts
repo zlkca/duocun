@@ -90,8 +90,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
     this.rangeSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(ranges => {
       this.ranges = ranges;
-      const origin = this.delivery.origin;
-      const rs = this.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
+      // const origin = this.delivery.origin;
+      // const rs = this.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
     });
 
     this.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(malls => {

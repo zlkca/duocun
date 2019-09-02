@@ -81,7 +81,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
             type: 'debit',
             amount: order.total,
             note: '',
-            created: order.delivered,
+            created: order.created, // order.delivered,
             modified: order.modified
           };
           list.push({ date: t.created, description: order.merchantName, type: t.type, paid: 0, consumed: t.amount, balance: 0 });
@@ -90,6 +90,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
         const groupedTransactions = this.groupBy(ts, 'created');
         const transactions = [];
 
+        // combine transactions of the same day
         Object.keys(groupedTransactions).map(date => {
           let total = 0;
           groupedTransactions[date].map(t => { total += t.amount; });
@@ -97,17 +98,17 @@ export class BalancePageComponent implements OnInit, OnDestroy {
         });
 
         transactions.map(t => {
-          const items = list.filter(l => moment(l.date).isSame(moment(t.created), 'day'));
-          if (items && items.length > 0) {
-            items[0].paid = t.amount;
-          } else {
-            list.push({ date: t.created, description: '', type: t.type, paid: t.amount, consumed: 0, balance: 0 });
-          }
+          // const items = list.filter(l => moment(l.date).isSame(moment(t.created), 'day'));
+          // if (items && items.length > 0) {
+          //   items[0].paid = t.amount;
+          // } else {
+            list.push({ date: t.created, description: '付款', type: t.type, paid: t.amount, consumed: 0, balance: 0 }); // pay tomorrow's
+          // }
         });
 
         list = list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
-          const aMoment = moment(a.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-          const bMoment = moment(b.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          const aMoment = moment(a.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          const bMoment = moment(b.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
           if (aMoment.isAfter(bMoment)) {
             return 1; // b at top
           } else {
@@ -122,8 +123,8 @@ export class BalancePageComponent implements OnInit, OnDestroy {
         });
 
         list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
-          const aMoment = moment(a.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-          const bMoment = moment(b.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          const aMoment = moment(a.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          const bMoment = moment(b.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
           if (aMoment.isAfter(bMoment)) {
             return -1; // b at top
           } else if (bMoment.isAfter(aMoment)) {

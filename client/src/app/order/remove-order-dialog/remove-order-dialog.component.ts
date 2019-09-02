@@ -98,7 +98,8 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
                   self.snackBar.open('', '余额已更新', { duration: 1800 });
 
                   self.rmTransaction(self.data.transactionId, () => {
-                    self.router.navigate(['order/history']);
+                    // self.router.navigate(['order/history']);
+                    self.snackBar.open('', '交易已更新', { duration: 1800 });
                   });
                 });
               });
@@ -106,14 +107,14 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
           });
         } else {
           self.orderSvc.removeById(self.data.orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-            self.dialogRef.close();
             self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
             self.snackBar.open('', '订单已删除', { duration: 1000 });
             const payable = Math.round((self.balance.amount + self.data.total) * 100) / 100;
             const q = { accountId: self.data.accountId };
             self.balanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
               self.snackBar.open('', '余额已更新', { duration: 1800 });
-              self.router.navigate(['order/history']);
+              self.dialogRef.close();
+              // self.router.navigate(['order/history']);
             });
           });
         }

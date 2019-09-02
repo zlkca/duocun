@@ -12,18 +12,18 @@ import { AccountService } from '../../account/account.service';
 })
 
 export class FeedbackComponent implements OnInit {
-    private _success = new Subject<string>();
-    private _fail = new Subject<string>();
+  private _success = new Subject<string>();
+  private _fail = new Subject<string>();
 
-    staticAlertClosed = false;
-    successMessage: string;
-    failMessage: string;
-    public username:string;
-    public email:string;
-    public phone:string;
-    public message:string;
+  staticAlertClosed = false;
+  successMessage: string;
+  failMessage: string;
+  public username: string;
+  public email: string;
+  public phone: string;
+  public message: string;
 
-  constructor(private userServ:AccountService) { }
+  constructor(private userServ: AccountService) { }
 
   ngOnInit() {
     setTimeout(() => this.staticAlertClosed = true, 10000);
@@ -42,28 +42,28 @@ export class FeedbackComponent implements OnInit {
     this._fail.next(`invalid Feedback field.`);
   }
 
-    onSubmitFeedback(){
-      let self = this;
+  onSubmitFeedback() {
+    　const self = this;
 
-      if(self.hasSpecialChar(this.message)||self.hasSpecialChar(this.username)||
-          self.hasSpecialChar(this.email)||self.hasSpecialChar(this.phone)){
-          self.changeFailMessage();
-          return;
-      }
-
-      self.changeSuccessMessage();
-
-      // this.userServ.postFeedback(this.username, this.email, this.phone, this.message).subscribe(
-      //     (data) => {
-      //       let k = data;
-      //     },
-      //     (err)=>{});
+    if (self.hasSpecialChar(this.message) || self.hasSpecialChar(this.username) ||
+      self.hasSpecialChar(this.email) || self.hasSpecialChar(this.phone)) {
+      self.changeFailMessage();
+      return;
     }
 
-    hasSpecialChar(v){
-        var format = /[!#$%^&*()+\=\[\]{};':"\\|,.<>\/?]/;
-        return format.test(v);
-    }
+    self.changeSuccessMessage();
+
+    // this.userServ.postFeedback(this.username, this.email, this.phone, this.message).subscribe(
+    //     (data) => {
+    //       let k = data;
+    //     },
+    //     (err)=>{});
+  }
+
+  hasSpecialChar(v) {
+    var format = /[!#$%^&*()+\=\[\]{};':"\\|,.<>\/?]/;
+    return format.test(v);
+  }
 }
 
 

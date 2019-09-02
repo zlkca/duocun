@@ -32,6 +32,8 @@ import { DistanceService } from '../../location/distance.service';
 import { MallService } from '../../mall/mall.service';
 import { RangeService } from '../../range/range.service';
 import { IRange } from '../../range/range.model';
+import { ICommand } from '../../shared/command.reducers';
+import { CommandActions } from '../../shared/command.actions';
 
 declare var Stripe;
 
@@ -66,6 +68,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   paymentMethod = 'cash';
   card;
   stripe;
+  loading = true;
 
   charge: ICharge;
   afterGroupDiscount: number;
@@ -97,7 +100,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
-      payload: 'order-confirm'
+      payload: { name: 'order-form' }
     });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
@@ -141,6 +144,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         this.pay();
       }
     });
+
+    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
+      if (x.name === 'pay') {
+        this.rx.dispatch({
+          type: CommandActions.SEND,
+          payload: { name: '' }
+        });
+        this.pay();
+      }
+    });
   }
 
   ngOnInit() {
@@ -157,6 +170,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         self.getOverRange(this.delivery.origin, (distance, rate) => {
           this.charge = this.getCharge(bNewOrder, orders, cart, merchant, this.delivery, (distance * rate));
           this.afterGroupDiscount = (this.charge.groupDiscount ? this.charge.total : (this.charge.total - 2));
+          self.loading = false;
         });
       });
     });
@@ -170,30 +184,38 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   getOverRange(origin: ILocation, cb?: any) {
     const self = this;
     const destinations: ILocation[] = [];
-    const qDist = { id: '5d671c2f6f69011d1bd42f6c'}; // TNT mall
+    const qDist = { id: '5d671c2f6f69011d1bd42f6c' }; // TNT mall
 
-    this.rangeSvc.find({roles: [RangeRole.FREE_CENTER]}).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+    this.rangeSvc.find({ roles: [RangeRole.FREE_CENTER] }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+      const ranges = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, rs);
+      if (ranges && ranges.length > 0) {
+        const r = rs[0];
+        if (cb) {
+          cb(0, r.overRangeRate);
+        }
+      } else {
+        self.mallSvc.find(qDist).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMall[]) => {
+          ms.map(m => {
+            destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
+          });
 
-      self.mallSvc.find(qDist).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMall[]) => {
-        ms.map(m => {
-          destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-        });
-
-        self.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((ds: IDistance[]) => {
-          if (ds && ds.length > 0) {
-            // const ms = self.updateMallInfo(rs, malls);
-            // self.loadRestaurants(malls, ranges, ks);
-            const r = rs[0];
-            const d = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000;
-            const distance = d > 0 ? d : 0; // kilo meter
-            if (cb) {
-              cb(distance, r.overRangeRate);
+          self.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((ds: IDistance[]) => {
+            if (ds && ds.length > 0) {
+              // const ms = self.updateMallInfo(rs, malls);
+              // self.loadRestaurants(malls, ranges, ks);
+              const r = rs[0];
+              const d = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000;
+              const distance = d > 0 ? d : 0; // kilo meter
+              if (cb) {
+                cb(distance, r.overRangeRate);
+              }
             }
-          }
-        }, err => {
-          console.log(err);
+          }, err => {
+            console.log(err);
+          });
         });
-      });
+      }
+
     });
   }
 
@@ -316,6 +338,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, code, v.note);
 
         if (self.paymentMethod === 'card') {
+          self.loading = true;
           self.handleWithCard(self.account.id, order, self.balance);
         } else { // pay by cash
           self.handleWithCash(self.balance, code, v.note);
@@ -338,12 +361,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         self.balanceSvc.update({ accountId: accountId }, { amount: b }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
           self.snackBar.open('', '余额已更新', { duration: 1800 });
           self.bSubmitted = false;
+          self.loading = false;
           self.router.navigate(['order/history']);
         });
       });
 
     } else {
-      const payable = order.total - balance.amount;
+      const payable = Math.round((order.total - balance.amount) * 100) / 100;
       self.payByCard(payable, order.merchantName, (ch) => {
         if (ch.status === 'succeeded') {
           self.snackBar.open('', '已成功付款', { duration: 1800 });
@@ -358,11 +382,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               self.balanceSvc.update(q, { amount: 0 }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
                 self.snackBar.open('', '余额已更新', { duration: 1800 });
                 self.bSubmitted = false;
+                self.loading = false;
                 self.router.navigate(['order/history']);
               });
             });
           });
         } else {
+          self.loading = false;
           self.snackBar.open('', '付款未成功', { duration: 1800 });
           alert('invalid card');
         }
@@ -558,6 +584,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   payByCard(amount, merchantName, cb) {
     const self = this;
+    self.loading = false;
     this.stripe.createToken(this.card).then(function (result) {
       if (result.error) {
         // Inform the user if there was an error.

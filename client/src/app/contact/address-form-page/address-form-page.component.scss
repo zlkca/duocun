@@ -43,32 +43,6 @@ app-location-list{
   width: 100%;
 }
 
-.address-save-row{
-  background-color: white;
-  position: fixed;
-  bottom: 0px;
-  width: 100%;
-  height: 60px;
-  margin: 0px;
-  padding: 0px;
-  border-top: solid 1px #eee;
-  
-  .cancel-col, .save-col {
-    padding: 15px 0px;
-    text-align: center;
-    font-size: 18px;
-  }
-
-  .cancel-col{
-    border-right: solid 1px #eee;
-  }
-
-  .save-col{
-    background-color: $blue;
-    color: white;
-
-  }
-}
 
 
 .map-block{

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
-import { ActivatedRoute } from '../../../../node_modules/@angular/router';
+import { ActivatedRoute, Router } from '../../../../node_modules/@angular/router';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 
@@ -14,6 +14,11 @@ import { ICart, ICartItem } from '../../cart/cart.model';
 import { PageActions } from '../../main/main.actions';
 import { MatDialog } from '../../../../node_modules/@angular/material';
 import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-restaurant-dialog.component';
+import { IContact } from '../../contact/contact.model';
+import { ContactActions } from '../../contact/contact.actions';
+import { ICommand } from '../../shared/command.reducers';
+import { CommandActions } from '../../shared/command.actions';
+import { IDelivery } from '../../delivery/delivery.model';
 
 
 @Component({
@@ -34,12 +39,15 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   // delivery: IDelivery;
   products;
   cart;
+  contact: IContact;
+  delivery: IDelivery;
 
   constructor(
     private productSvc: ProductService,
     private categorySvc: CategoryService,
     private merchantSvc: MerchantService,
     private route: ActivatedRoute,
+    private router: Router,
     private rx: NgRedux<ICart>,
     private location: Location,
     // private rangeSvc: RangeService,
@@ -48,7 +56,15 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     const self = this;
 
     // show cart on footer
-    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'restaurant-detail' });
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: { name: 'restaurant-detail' }
+    });
+
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
+      self.delivery = x;
+      // self.address = this.locationSvc.getAddrString(x.origin);
+    });
 
     this.categorySvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(categories => {
       self.categories = categories;
@@ -71,6 +87,19 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
+      this.contact = contact;
+    });
+
+    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
+      if (x.name === 'checkout-from-restaurant') {
+        this.rx.dispatch({
+          type: CommandActions.SEND,
+          payload: { name: '' }
+        });
+        this.checkout();
+      }
+    });
     this.locationSubscription = this.location.subscribe((x) => {
       if (window.location.pathname.endsWith('main/home') ||
         window.location.pathname.endsWith('/') ||
@@ -87,6 +116,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       }
     });
 
+
   }
 
   ngOnInit() {
@@ -95,18 +125,18 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       const merchantId = params['id'];
       self.merchantSvc.findById(merchantId).pipe(takeUntil(this.onDestroy$)).subscribe((restaurant: IRestaurant) => {
         self.restaurant = restaurant;
-      });
 
-      const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
-      self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
-        self.products = products;
-        self.groups = self.groupByCategory(products, self.categories);
+        const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
+        self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
+          self.products = products;
+          self.groups = self.groupByCategory(products, self.categories);
 
-        // update quantity of cart items
-        self.groups.map(group => {
-          group.items.map(groupItem => {
-            const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product.id);
-            groupItem.quantity = cartItem ? cartItem.quantity : 0;
+          // update quantity of cart items
+          self.groups.map(group => {
+            group.items.map(groupItem => {
+              const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product.id);
+              groupItem.quantity = cartItem ? cartItem.quantity : 0;
+            });
           });
         });
       });
@@ -178,4 +208,27 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  checkout() {
+    const self = this;
+    if (this.delivery.origin) {
+      if (this.contact && this.contact.phone) {
+        self.router.navigate(['order/form']);
+      } else {
+        this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+      }
+    } else {
+      if (this.contact.location) {
+        if (this.contact && this.contact.phone) {
+          self.router.navigate(['order/form']);
+        } else {
+          this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+        }
+      } else {
+        self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: { location: null } });
+        this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+      }
+    }
+  }
+
 }

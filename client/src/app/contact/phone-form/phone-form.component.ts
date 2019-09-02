@@ -52,7 +52,7 @@ export class PhoneFormComponent implements OnInit, OnDestroy {
 
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
-      payload: 'phone-form'
+      payload: {name: 'phone-form'}
     });
 
     this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');

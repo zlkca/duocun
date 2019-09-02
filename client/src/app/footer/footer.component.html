@@ -1,5 +1,5 @@
-<footer *ngIf="!bHide">
-  <div class="row bottom-nav-menus">
+<footer>
+  <div class="row bottom-nav-menus" *ngIf="!bHideNavMenu">
     <div class="menu" (click)="toHome()" [class.hightlighted]="selected==='home'">
       <div class="icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
@@ -43,6 +43,40 @@
       <!-- <a href="index-5.html">Privacy Policy</a> -->
       <span class="created">Created by <a rel="nofollow" href="http://www.yocompute.com">yocompute.com</a></span>
   </div>
-  
+  <div>{{deliveryAddress}}</div>
+  <div>{{inRange}}</div>
+  <div class="row address-save-row" *ngIf="page === 'address-form'">
+    <div *ngIf="fromPage !== 'account-setting'" class="col-6 title-md cancel-col" (click)="cancelAddress()" >返回</div>
+    <div *ngIf="fromPage === 'account-setting'" class="col-6 title-md cancel-col" (click)="cancelAddress()" i18n="@@Cancel">Cancel</div>
+    <div *ngIf="(fromPage === 'account-setting') || (deliveryAddress && inRange)" class="col-6 title-md save-col" (click)="saveAddress()" i18n="@@NextStep">Next Step</div>
+  </div>
 
+  <div class="row order-btn-row" *ngIf="page === 'order-form'">
+    <div class="col-9 title-md amount-col">
+      &nbsp;
+      <!-- ${{total | number : '1.2-2'}} -->
+    </div>
+    <div class="col-3 title-md pay-col" (click)="pay()" i18n="@@Submit">Submit</div>
+  </div>
+
+  <div class="row cart-btn-row" *ngIf="page === 'cart-page' && cart.items.length > 0">
+    <div class="back-col col-6" (click)="cartBack()" i18n="@@Back">Back</div>
+    <!-- <div class="price-col col-6"> <*ngIf="carts && carts.length>0"> -->
+      <!-- ${{carts[0].productTotal | number : '1.2-2'}} -->
+    <!-- </div> -->
+    <div class="checkout-col col-6" (click)="checkout()" i18n="@@NextStep">Next Step</div>
+  </div>
+
+  <div class="row restaurant-btn-row" *ngIf="page === 'restaurant-detail'">
+    <div class="cart-col" (click)="toCart()">
+      <span class="fa-stack fa-2x has-badge" [attr.data-count]="quantity">
+        <!-- <i class="fa fa-shopping-cart fa-3x"></i> -->
+        <img class="img-shopping-cart" src="assets/outline-shopping_cart-24px.svg" alt="cart" height="40px" width="40px" />
+      </span>
+    </div>
+    <div class="title-md amount-col">
+      ${{productTotal | number : '1.2-2'}}
+    </div>
+    <div *ngIf="quantity > 0" class="title-md checkout-col" (click)="checkoutFromRestaurant()" i18n="@@NextStep">Next Step</div>
+  </div>
 </footer>

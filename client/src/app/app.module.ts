@@ -30,12 +30,12 @@ const appRoutes: Routes = [
       loadChildren: './payment/payment.module#PaymentModule'
     },
     {
-      path: 'restaurant',
-      loadChildren: './restaurant/restaurant.module#RestaurantModule'
-    },
-    {
       path: 'cart',
       loadChildren: './cart/cart.module#CartModule'
+    },
+    {
+      path: 'restaurant',
+      loadChildren: './restaurant/restaurant.module#RestaurantModule'
     },
     {
       path: 'product',

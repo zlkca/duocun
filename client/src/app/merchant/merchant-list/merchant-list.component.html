@@ -1,5 +1,9 @@
 
-<div class="row">
+<div class="loading-spinner" *ngIf="loading && !bAddressList">
+  <app-progress-spinner></app-progress-spinner>
+</div>
+
+<div class="row" *ngIf="!loading">
   <div class="col-12 restaurant-grid" *ngIf="restaurants && restaurants.length>0">
     <div class="col-12 grid-item" *ngFor="let r of restaurants; let i = index;" (click)="toDetail(r)">
       <div class="row grid-item-body" *ngIf="r.distance!==null">

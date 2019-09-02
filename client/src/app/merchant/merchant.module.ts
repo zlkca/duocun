@@ -9,6 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule } from '../../../node_modules/@angular/material';
 import { CartModule } from '../cart/cart.module';
 import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-restaurant-dialog.component';
+import { SharedModule } from '../shared/shared.module';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-res
     MatDialogModule,
     MerchantRoutingModule,
     ProductModule,
-    CartModule
+    CartModule,
+    SharedModule
   ],
   exports: [MerchantListComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

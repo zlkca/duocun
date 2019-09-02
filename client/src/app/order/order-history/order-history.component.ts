@@ -45,7 +45,10 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     private router: Router,
     public dialog: MatDialog
   ) {
-    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: 'order-history'});
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: {name: 'order-history'}
+    });
   }
 
   ngOnInit() {

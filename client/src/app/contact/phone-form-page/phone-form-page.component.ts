@@ -51,7 +51,11 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
       verificationCode: ['']
     });
 
-    this.rx.dispatch({type: PageActions.UPDATE_URL, payload: 'phone-form'});
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: {name: 'phone-form'}
+    });
+
     this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
   }
 

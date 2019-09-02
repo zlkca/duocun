@@ -17,6 +17,8 @@ import { Contact, IContact } from '../../contact/contact.model';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { ProductService } from '../../product/product.service';
 import { IDelivery } from '../../delivery/delivery.model';
+import { ICommand } from '../../shared/command.reducers';
+import { CommandActions } from '../../shared/command.actions';
 
 @Component({
   selector: 'app-cart-page',
@@ -36,7 +38,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   contact;
   products: IProduct[];
 
-  @ViewChild('orderDetailModal', {static: true}) orderDetailModal;
+  @ViewChild('orderDetailModal', { static: true }) orderDetailModal;
 
   constructor(
     private rx: NgRedux<IAppState>,
@@ -45,7 +47,10 @@ export class CartPageComponent implements OnInit, OnDestroy {
     private sharedSvc: SharedService,
     private router: Router
   ) {
-    this.rx.dispatch({type: PageActions.UPDATE_URL, payload: 'cart'});
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: { name: 'cart-page' }
+    });
   }
 
   ngOnInit() {
@@ -65,13 +70,29 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IRestaurant) => {
       this.restaurant = r;
-      this.productSvc.find({merchantId: r.id}).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
+      this.productSvc.find({ merchantId: r.id }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
         this.products = ps;
       });
     });
 
     this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
       this.contact = contact;
+    });
+
+    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
+      if (x.name === 'checkout') {
+        this.rx.dispatch({
+          type: CommandActions.SEND,
+          payload: {name: ''}
+        });
+        this.checkout();
+      } else if (x.name === 'cart-back') {
+        this.rx.dispatch({
+          type: CommandActions.SEND,
+          payload: {name: ''}
+        });
+        this.back();
+      }
     });
   }
 
@@ -98,21 +119,25 @@ export class CartPageComponent implements OnInit, OnDestroy {
     const product = this.products.find(x => x.id === item.productId);
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
-      payload: {items: [{
-        productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
-        cost: product ? product.cost : 0,
-        merchantId: item.merchantId, merchantName: item.merchantName
-      }]}
+      payload: {
+        items: [{
+          productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
+          cost: product ? product.cost : 0,
+          merchantId: item.merchantId, merchantName: item.merchantName
+        }]
+      }
     });
   }
 
   removeFromCart(item: ICartItem) {
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
-      payload: {items: [{
-        productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
-        merchantId: item.merchantId, merchantName: item.merchantName
-      }]}
+      payload: {
+        items: [{
+          productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
+          merchantId: item.merchantId, merchantName: item.merchantName
+        }]
+      }
     });
   }
 
@@ -128,7 +153,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
         this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
       }
     } else {
-      self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: {location: null} });
+      self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: { location: null } });
       this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
     }
   }
@@ -184,7 +209,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
   back() {
     if (this.restaurant) {
-      this.router.navigate(['merchant/list/' +  this.restaurant.id]);
+      this.router.navigate(['merchant/list/' + this.restaurant.id]);
     }
   }
 }
