@@ -25,8 +25,8 @@ export class BalancePageComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['date', 'description', 'consumed', 'paid', 'balance'];
   list = [];
   dataSource: MatTableDataSource<IClientPaymentData>;
-  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
-  @ViewChild(MatSort, {static: true}) sort: MatSort;
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   constructor(
     private accountSvc: AccountService,
@@ -94,7 +94,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
         Object.keys(groupedTransactions).map(date => {
           let total = 0;
           groupedTransactions[date].map(t => { total += t.amount; });
-          transactions.push({created: date, type: 'credit', amount: total});
+          transactions.push({ created: date, type: 'credit', amount: total });
         });
 
         transactions.map(t => {
@@ -102,7 +102,9 @@ export class BalancePageComponent implements OnInit, OnDestroy {
           // if (items && items.length > 0) {
           //   items[0].paid = t.amount;
           // } else {
+          if (t.amount !== 0) {
             list.push({ date: t.created, description: '付款', type: t.type, paid: t.amount, consumed: 0, balance: 0 }); // pay tomorrow's
+          }
           // }
         });
 

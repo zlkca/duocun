@@ -66,8 +66,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'loggedIn') {
         self.bHideNavMenu = false;
-      } else if (x.name === 'firstTimeUse') {
-        self.bHideNavMenu = x.args;
       } else if (x.name === 'address-change') {
         self.deliveryAddress = x.args.address;
         self.inRange = x.args.inRange;

@@ -79,29 +79,27 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
         if (self.data.paymentMethod === 'card') {
           self.transactionSvc.find({id: self.data.transactionId}).pipe(takeUntil(self.onDestroy$)).subscribe((ts: any) => {
 
-            self.paymentSvc.refund(self.data.chargeId).pipe(takeUntil(self.onDestroy$)).subscribe((re) => {
-              if (re.status === 'succeeded' || re.status === 'charge_already_refunded') {
-                self.snackBar.open('', '已成功安排退款。', { duration: 1800 });
-              } else {
-                alert('退款失败，请联系客服');
-              }
+            // self.paymentSvc.refund(self.data.chargeId).pipe(takeUntil(self.onDestroy$)).subscribe((re) => {
+            //   if (re.status === 'succeeded' || re.status === 'charge_already_refunded') {
+            //     self.snackBar.open('', '已成功安排退款。', { duration: 1800 });
+            //   } else {
+            //     alert('退款失败，请联系客服');
+            //   }
 
-              self.orderSvc.removeById(self.data.orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-                self.dialogRef.close();
-                self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
-                self.snackBar.open('', '订单已删除', { duration: 1000 });
+            self.orderSvc.removeById(self.data.orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+              self.dialogRef.close();
+              self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
+              self.snackBar.open('', '订单已删除', { duration: 1000 });
 
-                const t = ts[0];
-                const payable = Math.round((self.data.total - t.amount) * 100) / 100;
-                const q = { accountId: self.data.accountId };
-                self.balanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
-                  self.snackBar.open('', '余额已更新', { duration: 1800 });
-
-                  self.rmTransaction(self.data.transactionId, () => {
-                    // self.router.navigate(['order/history']);
-                    self.snackBar.open('', '交易已更新', { duration: 1800 });
-                  });
-                });
+              // const t = ts[0];
+              const payable = Math.round(self.data.total * 100) / 100; // - t.amount
+              const q = { accountId: self.data.accountId };
+              self.balanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+                self.snackBar.open('', '余额已更新', { duration: 1800 });
+                // self.rmTransaction(self.data.transactionId, () => {
+                //   // self.router.navigate(['order/history']);
+                //   self.snackBar.open('', '交易已更新', { duration: 1800 });
+                // });
               });
             });
           });

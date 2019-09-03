@@ -193,6 +193,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   toDateTimeString(s) {
     return s ? this.sharedSvc.toDateTimeString(s) : '';
   }
+
   toDateString(s) {
     return s ? this.sharedSvc.toDateString(s) : '';
   }

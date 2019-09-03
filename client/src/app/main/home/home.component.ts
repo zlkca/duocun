@@ -204,7 +204,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-    this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
+    self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
 
     this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
       const a = this.locationSvc.toPlaces(lhs);
