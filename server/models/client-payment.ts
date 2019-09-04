@@ -173,11 +173,12 @@ export class ClientPayment extends Model {
       res1.on('data', (d) => {
         // process.stdout.write(d);
         ss += d;
-        // console.log('receiving: ' + d);
+        console.log('receiving1: ' + ss);
       });
 
       res1.on('end', (rr: any) => {
         if (ss) {
+          console.log('receiving2: ' + ss);
           const s = JSON.parse(ss);
           res.send(s);
         }else{

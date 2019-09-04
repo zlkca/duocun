@@ -36,6 +36,7 @@ import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 
 declare var Stripe;
+declare var window;
 
 const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
 
@@ -354,7 +355,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  afterPay(orderId, order, payable, chargeId) {
+  afterPay(orderId, order, payable, chargeId, url?: string) {
     const self = this;
     self.saveTransaction(order.clientId, order.clientName, payable, (tr) => {
       const data = { status: 'paid', chargeId: chargeId, transactionId: tr.id };
@@ -365,7 +366,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.snackBar.open('', '余额已更新', { duration: 1800 });
           self.bSubmitted = false;
           self.loading = false;
-          self.router.navigate(['order/history']);
+          if (self.paymentMethod === 'WECHATPAY' || self.paymentMethod === 'ALIPAY') {
+
+          } else {
+            self.router.navigate(['order/history']);
+          }
         });
       });
     });
@@ -405,10 +410,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             }
           });
         } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
-          self.payBySnappay(payable, order.merchantName, ret.id, paymentMethod, (ch) => {
-            if (ch.status === 'succeeded') {
+          self.payBySnappay(payable, order.merchantName, ret.id, paymentMethod, (r) => {
+            if (r.msg === 'success') {
+              window.location.href = r.data[0].h5pay_url;
               self.snackBar.open('', '已成功付款', { duration: 1800 });
-              self.afterPay(ret.id, order, payable, ch.chargeId);
+              // self.afterPay(ret.id, order, payable, ch.chargeId);
             } else {
               // del order ??
               self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
@@ -632,10 +638,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     self.loading = false;
     this.paymentSvc.snappayCharge(amount, merchantName, orderId, paymentMethod).pipe(takeUntil(self.onDestroy$)).subscribe((ret) => {
       if (ret.msg === 'success') {
-        // cb(ret);
-        window.location = ret.data[0].h5pay_url; // qrcode_url;
+        cb(ret);
+        // window.location = ret.data[0].h5pay_url; // qrcode_url;
       } else {
-        // cb(ret);
+        cb(ret);
       }
       // if (result.error) {
       //   // // Inform the user if there was an error.
