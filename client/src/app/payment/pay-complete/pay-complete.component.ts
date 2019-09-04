@@ -1,0 +1,104 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '../../../../node_modules/@angular/router';
+import { TransactionService } from '../../transaction/transaction.service';
+import { OrderService } from '../../order/order.service';
+import { ITransaction } from '../../transaction/transaction.model';
+import { MatSnackBar } from '../../../../node_modules/@angular/material';
+import { BalanceService } from '../balance.service';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
+import { IBalance } from '../payment.model';
+import { environment } from '../../../environments/environment';
+import { ICartItem } from '../../cart/cart.model';
+import { IOrder } from '../../order/order.model';
+
+const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
+
+@Component({
+  selector: 'app-pay-complete',
+  templateUrl: './pay-complete.component.html',
+  styleUrls: ['./pay-complete.component.scss']
+})
+export class PayCompleteComponent implements OnInit, OnDestroy {
+  private onDestroy$ = new Subject<any>();
+
+  constructor(private route: ActivatedRoute,
+    private transactionSvc: TransactionService,
+    private orderSvc: OrderService,
+    private balanceSvc: BalanceService,
+    private router: Router,
+    private snackBar: MatSnackBar
+  ) {
+    const self = this;
+    this.route.queryParams.subscribe(params => {
+      const p = params;
+      if (p && p.msg === 'success') {
+        if (p && p.orderId && p.clientId) {
+          this.afterSnappay(p.orderId, p.clientId, p.clientName, p.amount);
+        }
+      } else if (p && p.msg === 'fail') {
+        this.orderSvc.removeById(p.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
+          self.snackBar.open('', '付款未成功', { duration: 1800 });
+          self.router.navigate(['order/history']);
+          alert('付款未成功，请联系客服');
+        });
+      }
+    });
+  }
+
+  ngOnInit() {
+  }
+
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
+
+  afterSnappay(orderId, clientId, clientName, payable) {
+    const self = this;
+    self.saveTransaction(clientId, clientName, payable, (tr) => {
+      const data = { status: 'paid', chargeId: '', transactionId: tr.id };
+      self.updateOrder(orderId, data, (ret) => {
+        self.snackBar.open('', '订单已更新', { duration: 1800 });
+        const q = { accountId: clientId };
+        self.balanceSvc.update(q, { amount: 0 }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+          self.snackBar.open('', '余额已更新', { duration: 1800 });
+          self.router.navigate(['order/history']);
+        });
+      });
+    });
+  }
+
+  saveTransaction(clientId: string, clientName: string, amount: number, cb?: any) {
+    const tr: ITransaction = {
+      fromId: clientId,
+      fromName: clientName,
+      toId: DEFAULT_ADMIN.ID,
+      toName: DEFAULT_ADMIN.NAME,
+      type: 'credit',
+      amount: amount,
+      note: 'By Card',
+      created: new Date(),
+      modified: new Date()
+    };
+    this.transactionSvc.save(tr).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
+      this.snackBar.open('', '已保存交易', { duration: 1200 });
+      if (cb) {
+        cb(t);
+      }
+    });
+  }
+
+  updateOrder(orderId: string, updated: any, updateCb?: any) {
+    const self = this;
+    self.orderSvc.update({ id: orderId }, updated).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+
+      self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
+      if (updateCb) {
+        updateCb(r);
+      }
+    }, err => {
+      self.snackBar.open('', '您的订单未更改成功，请重新更改。', { duration: 1800 });
+    });
+  }
+}

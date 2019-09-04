@@ -34,7 +34,8 @@ export class PaymentService extends EntityService {
   // payment_method: b.paymentMethod, // ALIPAY, UNIONPAY
   // trans_amount: b.amount
 
-  snappayCharge( amount: number, merchantName: string, orderId: string, paymentMethod: string): Observable<any> {
+  snappayCharge( amount: number, merchantName: string, orderId: string, clientId: string, clientName: string,
+    paymentMethod: string): Observable<any> {
     const url = this.url + '/snappayCharge';
     return this.doPost(url, {orderId: orderId,
       amount: amount,

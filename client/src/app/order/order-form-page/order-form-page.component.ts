@@ -166,20 +166,22 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     const cart = this.cart;
     const bNewOrder = (this.order && this.order.id) ? false : true;
-    this.merchantSvc.find({ id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe(ms => {
-      const merchant = ms[0];
-      const date = this.delivery.date;
-      const address = this.locationSvc.getAddrString(this.delivery.origin);
-      const query = { delivered: date.toDate(), address: address, status: { $nin: ['del', 'bad'] } };
+    if (cart) {
+      this.merchantSvc.find({ id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe(ms => {
+        const merchant = ms[0];
+        const date = this.delivery.date;
+        const address = this.locationSvc.getAddrString(this.delivery.origin);
+        const query = { delivered: date.toDate(), address: address, status: { $nin: ['del', 'bad'] } };
 
-      this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
-        self.getOverRange(this.delivery.origin, (distance, rate) => {
-          this.charge = this.getCharge(bNewOrder, orders, cart, merchant, this.delivery, (distance * rate));
-          this.afterGroupDiscount = (this.charge.groupDiscount ? this.charge.total : (this.charge.total - 2));
-          self.loading = false;
+        this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
+          self.getOverRange(this.delivery.origin, (distance, rate) => {
+            this.charge = this.getCharge(bNewOrder, orders, cart, merchant, this.delivery, (distance * rate));
+            this.afterGroupDiscount = (this.charge.groupDiscount ? this.charge.total : (this.charge.total - 2));
+            self.loading = false;
+          });
         });
       });
-    });
+    }
   }
 
   ngOnDestroy() {
@@ -404,24 +406,27 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               // del order ???
               self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
               });
+              self.bSubmitted = false;
               self.loading = false;
               self.snackBar.open('', '付款未成功', { duration: 1800 });
               alert('invalid card');
             }
           });
         } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
-          self.payBySnappay(payable, order.merchantName, ret.id, paymentMethod, (r) => {
+          self.payBySnappay(payable, order.merchantName, ret.id, ret.clientId, ret.clientName, paymentMethod, (r) => {
+            const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
+            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+            self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
+            self.bSubmitted = false;
+            self.loading = false;
             if (r.msg === 'success') {
               window.location.href = r.data[0].h5pay_url;
               self.snackBar.open('', '已成功付款', { duration: 1800 });
-              // self.afterPay(ret.id, order, payable, ch.chargeId);
             } else {
-              // del order ??
               self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+                self.snackBar.open('', '付款未成功', { duration: 1800 });
+                alert('付款未成功，请联系客服');
               });
-              self.loading = false;
-              self.snackBar.open('', '付款未成功', { duration: 1800 });
-              alert('invalid card');
             }
           });
         } else {
@@ -633,10 +638,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  payBySnappay(amount, merchantName, orderId, paymentMethod, cb) {
+  payBySnappay(amount, merchantName, orderId, clientId, clientName, paymentMethod, cb) {
     const self = this;
     self.loading = false;
-    this.paymentSvc.snappayCharge(amount, merchantName, orderId, paymentMethod).pipe(takeUntil(self.onDestroy$)).subscribe((ret) => {
+    this.paymentSvc.snappayCharge(amount, merchantName, orderId, clientId, clientName, paymentMethod)
+      .pipe(takeUntil(self.onDestroy$)).subscribe((ret) => {
       if (ret.msg === 'success') {
         cb(ret);
         // window.location = ret.data[0].h5pay_url; // qrcode_url;
