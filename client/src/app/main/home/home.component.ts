@@ -110,7 +110,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
-      payload: {name: 'home'}
+      payload: { name: 'home' }
     });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
@@ -140,13 +140,21 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     self.route.queryParamMap.pipe(takeUntil(this.onDestroy$)).subscribe(queryParams => {
       const code = queryParams.get('code');
-
+      const orderId = queryParams.get('orderId');
+      const clientId = queryParams.get('clientId');
+      const amount = queryParams.get('amount');
+      if (orderId && clientId && amount) {
+        self.router.navigate(['/payment/complete'], {queryParams: {msg: 'success', orderId: orderId, clientId: clientId, amount: amount }});
+        return;
+      }
       self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
         if (account) { // if already login
+          this.loading = false;
+
           self.bFirstTime = !account.visited ? true : false;
           self.account = account;
           self.init(account);
-          this.loading = false;
+
         } else {
           if (code) {
             this.loading = true;
@@ -248,7 +256,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.places = []; // clear address list
     this.rx.dispatch<IPageAction>({
       type: PageActions.UPDATE_URL,
-      payload: {name: 'home'}
+      payload: { name: 'home' }
     });
     this.rx.select('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'clear-location-list') {
@@ -408,7 +416,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   checkRange(origin) {
     const self = this;
-    self.rangeSvc.find({status: 'active'}).pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
+    self.rangeSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
       const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
       self.inRange = (rs && rs.length > 0) ? true : false;
       self.availableRanges = rs;

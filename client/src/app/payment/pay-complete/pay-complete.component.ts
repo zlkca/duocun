@@ -11,6 +11,7 @@ import { IBalance } from '../payment.model';
 import { environment } from '../../../environments/environment';
 import { ICartItem } from '../../cart/cart.model';
 import { IOrder } from '../../order/order.model';
+import { AccountService } from '../../account/account.service';
 
 const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
 
@@ -23,6 +24,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<any>();
 
   constructor(private route: ActivatedRoute,
+    private accountSvc: AccountService,
     private transactionSvc: TransactionService,
     private orderSvc: OrderService,
     private balanceSvc: BalanceService,
@@ -35,7 +37,9 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
       if (p && p.msg === 'success') {
         self.snackBar.open('', '已成功付款', { duration: 1800 });
         if (p && p.orderId && p.clientId) {
-          this.afterSnappay(p.orderId, p.clientId, p.clientName, p.amount);
+          this.accountSvc.find({id: p.clientId}).pipe(takeUntil(self.onDestroy$)).subscribe(accounts => {
+            this.afterSnappay(p.orderId, p.clientId, accounts[0].username, +p.amount);
+          });
         }
       } else if (p && p.msg === 'fail') {
         this.orderSvc.removeById(p.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {

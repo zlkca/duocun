@@ -7,6 +7,7 @@ import { PayCompleteComponent } from './pay-complete/pay-complete.component';
 import { OrderService } from '../order/order.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { BalanceService } from './balance.service';
+import { AccountService } from '../account/account.service';
 
 @NgModule({
   imports: [
@@ -18,7 +19,8 @@ import { BalanceService } from './balance.service';
   providers: [
     OrderService,
     BalanceService,
-    TransactionService
+    TransactionService,
+    AccountService
   ]
 })
 export class PaymentModule { }
