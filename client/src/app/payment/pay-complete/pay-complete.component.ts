@@ -38,7 +38,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
         self.snackBar.open('', '已成功付款', { duration: 1800 });
         if (p && p.orderId && p.clientId) {
           this.accountSvc.find({id: p.clientId}).pipe(takeUntil(self.onDestroy$)).subscribe(accounts => {
-            this.afterSnappay(p.orderId, p.clientId, accounts[0].username, +p.amount);
+            this.afterSnappay(p.orderId, p.clientId, accounts[0].username, +p.amount, p.paymentMethod);
           });
         }
       } else if (p && p.msg === 'fail') {
@@ -59,9 +59,9 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  afterSnappay(orderId, clientId, clientName, payable) {
+  afterSnappay(orderId, clientId, clientName, payable, paymentMethod) {
     const self = this;
-    self.saveTransaction(clientId, clientName, payable, (tr) => {
+    self.saveTransaction(clientId, clientName, payable, paymentMethod, (tr) => {
       const data = { status: 'paid', chargeId: '', transactionId: tr.id };
       self.updateOrder(orderId, data, (ret) => {
         self.snackBar.open('', '订单已更新', { duration: 1800 });
@@ -74,7 +74,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
     });
   }
 
-  saveTransaction(clientId: string, clientName: string, amount: number, cb?: any) {
+  saveTransaction(clientId: string, clientName: string, amount: number, paymentMethod: string, cb?: any) {
     const tr: ITransaction = {
       fromId: clientId,
       fromName: clientName,
@@ -82,7 +82,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
       toName: DEFAULT_ADMIN.NAME,
       type: 'credit',
       amount: amount,
-      note: 'By Card',
+      note: paymentMethod,
       created: new Date(),
       modified: new Date()
     };
