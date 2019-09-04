@@ -33,6 +33,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
     this.route.queryParams.subscribe(params => {
       const p = params;
       if (p && p.msg === 'success') {
+        self.snackBar.open('', '已成功付款', { duration: 1800 });
         if (p && p.orderId && p.clientId) {
           this.afterSnappay(p.orderId, p.clientId, p.clientName, p.amount);
         }

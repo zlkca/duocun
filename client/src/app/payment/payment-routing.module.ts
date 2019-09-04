@@ -4,7 +4,7 @@ import { PaymentFormComponent } from './payment-form/payment-form.component';
 import { PayCompleteComponent } from './pay-complete/pay-complete.component';
 
 const routes: Routes = [
-  {path: 'form', component: PaymentFormComponent},
+  { path: 'form', component: PaymentFormComponent},
   { path: 'complete', component: PayCompleteComponent }
 ];
 

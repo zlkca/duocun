@@ -40,7 +40,10 @@ export class PaymentService extends EntityService {
     return this.doPost(url, {orderId: orderId,
       amount: amount,
       merchantName: merchantName,
-      paymentMethod: paymentMethod});
+      paymentMethod: paymentMethod,
+      clientId: clientId,
+      clientName: clientName
+    });
   }
 
   refund(chargeId: string): Observable<any> {

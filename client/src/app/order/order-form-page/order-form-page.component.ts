@@ -421,7 +421,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             self.loading = false;
             if (r.msg === 'success') {
               window.location.href = r.data[0].h5pay_url;
-              self.snackBar.open('', '已成功付款', { duration: 1800 });
             } else {
               self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
                 self.snackBar.open('', '付款未成功', { duration: 1800 });
