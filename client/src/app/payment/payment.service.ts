@@ -23,9 +23,23 @@ export class PaymentService extends EntityService {
     return this.doGet(url);
   }
 
-  charge( amount: number, merchantName: string, token: string): Observable<any> {
-    const url = this.url + '/charge';
+  stripeCharge( amount: number, merchantName: string, token: string): Observable<any> {
+    const url = this.url + '/stripeCharge';
     return this.doPost(url, {token: token, amount: amount, merchantName: merchantName});
+  }
+  // description: b.merchantName,
+  // method: 'pay.webpay',
+  // merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,
+  // out_order_no: b.orderId,
+  // payment_method: b.paymentMethod, // ALIPAY, UNIONPAY
+  // trans_amount: b.amount
+
+  snappayCharge( amount: number, merchantName: string, orderId: string, paymentMethod: string): Observable<any> {
+    const url = this.url + '/snappayCharge';
+    return this.doPost(url, {orderId: orderId,
+      amount: amount,
+      merchantName: merchantName,
+      paymentMethod: paymentMethod});
   }
 
   refund(chargeId: string): Observable<any> {

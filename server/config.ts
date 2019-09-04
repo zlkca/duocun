@@ -39,9 +39,19 @@ export interface ISNS {
   APP_ID: string;
   APP_SECRET: string;
 }
+
+export interface ISnappay {
+  APP_ID: string;
+  MERCHANT_ID: string;
+  PRIVATE_KEY: string;
+  PUBLIC_KEY: string;
+  MD5_KEY: string;
+}
+
 export interface IStripe{
   API_KEY: string;
 }
+
 export class Config {
   private cfg: any;
   public JWT: IJWT;
@@ -54,6 +64,7 @@ export class Config {
   public TWILIO: ISmsProvider;
   public WECHAT: ISNS;
   public STRIPE: IStripe;
+  public SNAPPAY: ISnappay;
   
   constructor() {
     this.cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
@@ -67,6 +78,7 @@ export class Config {
     this.TWILIO = this.cfg.TWILIO;
     this.WECHAT = this.cfg.WECHAT;
     this.STRIPE = this.cfg.STRIPE;
+    this.SNAPPAY = this.cfg.SNAPPAY;
   }
 
 }
