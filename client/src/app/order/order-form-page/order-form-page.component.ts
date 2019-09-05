@@ -34,6 +34,7 @@ import { RangeService } from '../../range/range.service';
 import { IRange } from '../../range/range.model';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
+import { AccountService } from '../../account/account.service';
 
 declare var Stripe;
 declare var window;
@@ -99,16 +100,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       note: ['']
     });
 
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: { name: 'order-form' }
-    });
-
-    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
-      self.delivery = x;
-      self.address = this.locationSvc.getAddrString(x.origin);
-    });
-
     this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       self.account = account;
       self.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
@@ -117,6 +108,17 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.absoluteBalance = Math.abs(self.balance.amount);
         }
       });
+    });
+
+
+    this.rx.dispatch({
+      type: PageActions.UPDATE_URL,
+      payload: { name: 'order-form' }
+    });
+
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
+      self.delivery = x;
+      self.address = this.locationSvc.getAddrString(x.origin);
     });
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
@@ -140,8 +142,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         this.reloadGroupDiscount(bNewOrder, self.delivery.date, self.address);
       });
     });
-
-
 
     this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
       self.contact = x;
@@ -345,11 +345,28 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const code = self.getCode(self.delivery.origin, sq);
         const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, code, v.note);
 
-        if (self.paymentMethod === 'cash') {
-          self.handleWithCash(self.balance, code, v.note);
+        if (self.balance.amount >= order.total) {
+          order.status = 'paid';
+          self.saveOrder(order, (ret) => {
+            self.snackBar.open('', '订单已保存', { duration: 1800 });
+            const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
+            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+            const b = Math.round((self.balance.amount - order.total) * 100) / 100;
+            const q = { accountId: self.account.id };
+            self.balanceSvc.update(q, { amount: b }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+              self.snackBar.open('', '余额已更新', { duration: 1800 });
+              self.bSubmitted = false;
+              self.loading = false;
+              self.router.navigate(['order/history']);
+            });
+          });
         } else {
-          self.loading = true;
-          self.handleWithPayment(self.account.id, order, self.balance, self.paymentMethod);
+          if (self.paymentMethod === 'cash') {
+            self.handleWithCash(self.balance, code, v.note);
+          } else {
+            self.loading = true;
+            self.handleWithPayment(self.account.id, order, self.balance, self.paymentMethod);
+          }
         }
       });
     } else {
@@ -368,80 +385,69 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.snackBar.open('', '余额已更新', { duration: 1800 });
           self.bSubmitted = false;
           self.loading = false;
-          if (self.paymentMethod === 'WECHATPAY' || self.paymentMethod === 'ALIPAY') {
 
-          } else {
-            self.router.navigate(['order/history']);
-          }
+          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
+          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+          self.router.navigate(['order/history']);
         });
       });
     });
   }
 
+  // only handle balance < total
   handleWithPayment(accountId, order, balance, paymentMethod) {
     const self = this;
-    if (balance.amount >= order.total) { // pay by balance, update balance table
-      order.status = 'paid';
-      order.chargeId = 'N/A';
-      order.transactionId = 'N/A';
-      self.saveOrder(order, (ret) => {
-        self.snackBar.open('', '订单已保存', { duration: 1800 });
-        const b = Math.round((balance.amount - order.total) * 100) / 100;
-        self.balanceSvc.update({ accountId: accountId }, { amount: b }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
-          self.snackBar.open('', '余额已更新', { duration: 1800 });
-          self.bSubmitted = false;
-          self.loading = false;
-          self.router.navigate(['order/history']);
-        });
-      });
-    } else {
-      const payable = Math.round((order.total - balance.amount) * 100) / 100;
-      self.saveOrder(order, (ret) => {
-        if (paymentMethod === 'card') {
-          self.payByCard(payable, order.merchantName, (ch) => {
-            if (ch.status === 'succeeded') {
-              self.snackBar.open('', '已成功付款', { duration: 1800 });
-              self.afterPay(ret.id, order, payable, ch.chargeId);
-            } else {
-              // del order ???
-              self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-              });
-              self.bSubmitted = false;
-              self.loading = false;
-              self.snackBar.open('', '付款未成功', { duration: 1800 });
-              alert('invalid card');
-            }
-          });
-        } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
-          self.payBySnappay(payable, order.merchantName, ret.id, ret.clientId, ret.clientName, paymentMethod, (r) => {
-            const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
-            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-            self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
+    const payable = Math.round((order.total - balance.amount) * 100) / 100;
+    order.status = 'del'; // create a temporary order
+
+    self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
+      if (paymentMethod === 'card') {
+        self.payByCard(payable, order.merchantName, (ch) => {
+          if (ch.status === 'succeeded') {
+            self.snackBar.open('', '已成功付款', { duration: 1800 });
+            self.afterPay(ret.id, order, payable, ch.chargeId);
+          } else {
+            // del order ???
+            self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+            });
             self.bSubmitted = false;
             self.loading = false;
-            if (r.msg === 'success') {
-              window.location.href = r.data[0].h5pay_url;
-            } else {
-              self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-                self.snackBar.open('', '付款未成功', { duration: 1800 });
-                alert('付款未成功，请联系客服');
-              });
-            }
-          });
-        } else {
-
-        }
-      });
-    }
+            self.snackBar.open('', '付款未成功', { duration: 1800 });
+            alert('invalid card');
+          }
+        });
+      } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
+        self.payBySnappay(payable, order.merchantName, ret.id, ret.clientId, ret.clientName, paymentMethod, (r) => {
+          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
+          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+          self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
+          self.bSubmitted = false;
+          self.loading = false;
+          if (r.msg === 'success') {
+            window.location.href = r.data[0].h5pay_url;
+          } else { // fix me
+            self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+              self.snackBar.open('', '付款未成功', { duration: 1800 });
+              alert('付款未成功，请联系客服');
+            });
+          }
+        });
+      } else {
+        // other payment method
+      }
+    }, err => {
+      self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
+    });
   }
 
 
+  // only happend on balance < order.total
   handleWithCash(balance: IBalance, code: string, note: string) {
     const self = this;
 
     if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
 
-      if (this.order && this.order.id) {
+      if (this.order && this.order.id) { // modify order
         const order = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
         order.id = this.order.id;
         order.created = this.order.created;
@@ -474,17 +480,19 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       } else { // create new
         const order: IOrder = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
         if (order) {
-          this.saveOrder(order, (orderCreated) => {
+          self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((orderCreated: IOrder) => {
             self.snackBar.open('', '订单已成功保存', { duration: 1800 });
-
-            const payable = Math.round((balance.amount - order.total) * 100) / 100;
-            self.balanceSvc.update({ accountId: self.account.id }, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+            const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
+            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+            const newAmount = Math.round((balance.amount - order.total) * 100) / 100;
+            self.balanceSvc.update({ accountId: self.account.id }, { amount: newAmount }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
               self.snackBar.open('', '余额已更新', { duration: 1800 });
               self.bSubmitted = false;
               self.router.navigate(['order/history']);
             });
+          }, err => {
+            self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
           });
-
         } else {
           self.bSubmitted = false;
           self.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
@@ -560,9 +568,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   saveOrder(order: IOrder, saveCb?: any) {
     const self = this;
     this.orderSvc.save(order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
-      const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
-      self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-      self.snackBar.open('', '您的订单已经成功提交。', { duration: 2000 });
+      // self.snackBar.open('', '您的订单已经成功提交。', { duration: 2000 });
       if (saveCb) {
         saveCb(r);
       }
@@ -642,22 +648,22 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     self.loading = false;
     this.paymentSvc.snappayCharge(amount, merchantName, orderId, clientId, clientName, paymentMethod)
       .pipe(takeUntil(self.onDestroy$)).subscribe((ret) => {
-      if (ret.msg === 'success') {
-        cb(ret);
-        // window.location = ret.data[0].h5pay_url; // qrcode_url;
-      } else {
-        cb(ret);
-      }
-      // if (result.error) {
-      //   // // Inform the user if there was an error.
-      //   // const errorElement = document.getElementById('card-errors');
-      //   // errorElement.textContent = result.error.message;
-      // } else {
-      //   self.paymentSvc.stripeCharge(amount, merchantName, result.token).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
-      //     cb(ret);
-      //   });
-      // }
-    });
+        if (ret.msg === 'success') {
+          cb(ret);
+          // window.location = ret.data[0].h5pay_url; // qrcode_url;
+        } else {
+          cb(ret);
+        }
+        // if (result.error) {
+        //   // // Inform the user if there was an error.
+        //   // const errorElement = document.getElementById('card-errors');
+        //   // errorElement.textContent = result.error.message;
+        // } else {
+        //   self.paymentSvc.stripeCharge(amount, merchantName, result.token).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
+        //     cb(ret);
+        //   });
+        // }
+      });
   }
 
 }

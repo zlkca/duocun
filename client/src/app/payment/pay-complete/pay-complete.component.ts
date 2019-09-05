@@ -9,9 +9,13 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { IBalance } from '../payment.model';
 import { environment } from '../../../environments/environment';
-import { ICartItem } from '../../cart/cart.model';
+import { ICartItem, ICart } from '../../cart/cart.model';
 import { IOrder } from '../../order/order.model';
 import { AccountService } from '../../account/account.service';
+import { NgRedux } from '../../../../node_modules/@angular-redux/store';
+import { IAppState } from '../../store';
+import { CartActions } from '../../cart/cart.actions';
+import { AccountActions } from '../../account/account.actions';
 
 const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
 
@@ -22,6 +26,7 @@ const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
 })
 export class PayCompleteComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<any>();
+  cart;
 
   constructor(private route: ActivatedRoute,
     private accountSvc: AccountService,
@@ -29,6 +34,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
     private orderSvc: OrderService,
     private balanceSvc: BalanceService,
     private router: Router,
+    private rx: NgRedux<IAppState>,
     private snackBar: MatSnackBar
   ) {
     const self = this;
@@ -38,16 +44,22 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
         self.snackBar.open('', '已成功付款', { duration: 1800 });
         if (p && p.orderId && p.clientId) {
           this.accountSvc.find({id: p.clientId}).pipe(takeUntil(self.onDestroy$)).subscribe(accounts => {
+            self.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
             this.afterSnappay(p.orderId, p.clientId, accounts[0].username, +p.amount, p.paymentMethod);
           });
         }
       } else if (p && p.msg === 'fail') {
-        this.orderSvc.removeById(p.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-          self.snackBar.open('', '付款未成功', { duration: 1800 });
-          self.router.navigate(['order/history']);
-          alert('付款未成功，请联系客服');
-        });
+        // this.orderSvc.removeById(p.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
+        //   self.snackBar.open('', '付款未成功', { duration: 1800 });
+        //   self.router.navigate(['order/history']);
+        //   alert('付款未成功，请联系客服');
+        // });
       }
+    });
+
+
+    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+      this.cart = cart;
     });
   }
 
@@ -61,12 +73,14 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
 
   afterSnappay(orderId, clientId, clientName, payable, paymentMethod) {
     const self = this;
-    self.saveTransaction(clientId, clientName, payable, paymentMethod, (tr) => {
+    self.saveTransaction(clientId, clientName, payable, paymentMethod, (tr: ITransaction) => {
       const data = { status: 'paid', chargeId: '', transactionId: tr.id };
       self.updateOrder(orderId, data, (ret) => {
         self.snackBar.open('', '订单已更新', { duration: 1800 });
         const q = { accountId: clientId };
         self.balanceSvc.update(q, { amount: 0 }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === ret.merchantId);
+          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
           self.snackBar.open('', '余额已更新', { duration: 1800 });
           self.router.navigate(['order/history']);
         });
