@@ -145,7 +145,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       const amount = queryParams.get('amount');
       const paymentMethod = queryParams.get('paymentMethod');
       if (orderId && clientId && amount) {
-        self.router.navigate(['/payment/complete'], {queryParams: {msg: 'success', orderId: orderId, 
+        self.router.navigate(['/payment/complete'], {queryParams: {msg: 'success', orderId: orderId,
           clientId: clientId, amount: amount, paymentMethod: paymentMethod }});
         return;
       }

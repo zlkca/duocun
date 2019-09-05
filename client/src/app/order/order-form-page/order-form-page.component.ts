@@ -364,7 +364,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           if (self.paymentMethod === 'cash') {
             self.handleWithCash(self.balance, code, v.note);
           } else {
-            self.loading = true;
+            self.loading = false;
             self.handleWithPayment(self.account.id, order, self.balance, self.paymentMethod);
           }
         }
@@ -629,7 +629,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   payByCard(amount, merchantName, cb) {
     const self = this;
-    self.loading = false;
     this.stripe.createToken(this.card).then(function (result) {
       if (result.error) {
         // Inform the user if there was an error.
@@ -637,6 +636,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         errorElement.textContent = result.error.message;
       } else {
         self.paymentSvc.stripeCharge(amount, merchantName, result.token).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
+          self.loading = true;
           cb(ret);
         });
       }

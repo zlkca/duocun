@@ -8,7 +8,7 @@ export function ClientPaymentRouter(db: DB){
 
   router.get('/session', (req, res) => {controller.createStripeSession(req, res); });
   // router.post('/checkout', (req, res) => {controller.checkout(req, res); });
-  router.post('/stripCharge', (req, res) => {controller.stripeCharge(req, res); });
+  router.post('/stripeCharge', (req, res) => {controller.stripeCharge(req, res); });
   // router.post('/stripRefund', (req, res) => {controller.stripeRefund(req, res); });
 
   router.post('/snappayCharge', (req, res) => {controller.snappayCharge(req, res); });
