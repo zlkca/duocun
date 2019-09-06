@@ -42,6 +42,7 @@ import { MallRouter } from "./routers/mall-route";
 import { LocationRouter } from "./routers/location-route";
 import { PickupRouter } from "./routers/pickup-route";
 import { DriverRouter } from "./routers/driver-route";
+import { DriverShiftRouter } from "./routers/driver-shift-route";
 
 import { Product } from "./models/product";
 
@@ -219,6 +220,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Transactions', TransactionRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/OrderSequences', OrderSequenceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/DriverHours', DriverHourRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/DriverShifts', DriverShiftRouter(dbo));
 
   app.use(express.static(path.join(__dirname, '/../uploads')));
   app.set('port', process.env.PORT || SERVER.PORT)

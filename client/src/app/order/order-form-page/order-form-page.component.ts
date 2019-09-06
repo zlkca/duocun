@@ -290,7 +290,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const streetName = location.streetName.toUpperCase();
     const streetNumber = Number(location.streetNumber);
     const streetNum = streetNumber ? (streetNumber > 9 ? ('' + streetNumber) : ('00' + streetNumber)) : '00';
-    return regionName.charAt(0).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 1) + streetNum;
+    return regionName.substring(0, 2).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 1) + streetNum;
   }
 
   createOrder(account: IAccount, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, code: string, note: string) {
