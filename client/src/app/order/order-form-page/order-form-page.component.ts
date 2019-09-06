@@ -242,7 +242,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const subTotal = productTotal + cart.deliveryCost;
     const tax = Math.ceil(subTotal * 13) / 100;
     const tips = 0;
-    const groupDiscount = 0;
+    const groupDiscount = this.orderSvc.getGroupDiscount(orders, bNewOrder);
     const endTime = +(merchant.endTime.split(':')[0]);
 
     if (endTime < 12) {
@@ -258,7 +258,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       deliveryCost: cart.deliveryCost,
       deliveryDiscount: cart.deliveryCost,
       overRangeCharge: overRangeTotal,
-      groupDiscount: this.orderSvc.getGroupDiscount(orders, bNewOrder),
+      groupDiscount: groupDiscount,
       tips: tips,
       tax: tax,
       total: productTotal + tax + tips - groupDiscount + overRangeTotal
