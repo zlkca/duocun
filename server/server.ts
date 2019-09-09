@@ -24,6 +24,9 @@ import { OrderRouter } from "./routers/order-route";
 import { AssignmentRouter } from "./routers/assignment-route";
 import { MerchantPaymentRouter } from "./routers/merchant-payment-route";
 import { MerchantBalanceRouter } from "./routers/merchant-balance-route";
+import { MerchantScheduleRouter } from "./routers/merchant-schedule-route";
+import { MallScheduleRouter } from "./routers/mall-schedule-route";
+
 import { ClientPaymentRouter } from "./routers/client-payment-route";
 import { ClientBalanceRouter } from "./routers/client-balance-route";
 import { DriverPaymentRouter } from "./routers/driver-payment-route";
@@ -213,6 +216,9 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Assignments', AssignmentRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/MerchantPayments', MerchantPaymentRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/MerchantBalances', MerchantBalanceRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/MerchantSchedules', MerchantScheduleRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/MallSchedules', MallScheduleRouter(dbo));
+
   app.use('/' + ROUTE_PREFIX + '/ClientPayments', ClientPaymentRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/ClientBalances', ClientBalanceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/DriverPayments', DriverPaymentRouter(dbo));
