@@ -302,8 +302,8 @@ export class ClientPayment extends Model {
   removeGroupDiscount(date: string, address: string): Promise<any> {
     return new Promise( (resolve, reject) => {
       this.orderEntity.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then((orders: any[]) => {
-        this.orderEntity.removeGroupDiscountForOrders(orders, (orderUpdates: any[]) => {
-          this.balanceEntity.removeGroupDiscountForBalances(orders, (balanceUpdates: any[]) => {
+        this.orderEntity.removeGroupDiscountForOrders(orders).then((orderUpdates: any[]) => {
+          this.balanceEntity.removeGroupDiscountForBalances(orders).then((balanceUpdates: any[]) => {
             resolve(orders);
           });
         });

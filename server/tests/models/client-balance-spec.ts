@@ -303,8 +303,7 @@ describe('addGroupDiscountForBalances with 2 different account orders', () => {
   });
 });
 
-//addGroupDiscountForBalances
-describe('addGroupDiscountForBalances', () => {
+describe('addGroupDiscountForBalances with one order', () => {
   const db: any = new DB();
   const cfg: any = new Config();
   let clientConnection: any = null;
@@ -393,6 +392,190 @@ describe('addGroupDiscountForBalances', () => {
       //   expect(order0.total).to.equal(11.5); // got groupDiscount from front end already
       //   done();
       // });
+    });
+  });
+});
+
+describe('removeGroupDiscountForBalances with 2 different account orders', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let clientConnection: any = null;
+  let oo: Order;
+  let ao: Account;
+  let cbo: ClientBalance;
+  let acs: any[];
+  let ors: any[];
+  let orders: any[];
+  const accounts: any[] = [
+    { username: 'li1', mode: 'test' },
+    { username: 'li2', mode: 'test' },
+    { username: 'li3', mode: 'test' }
+  ];
+
+  before(function(done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      clientConnection = dbClient;
+      oo = new Order(db);
+      ao = new Account(db);
+      cbo = new ClientBalance(db);
+
+      ao.insertMany(accounts).then((rs: any[]) => {
+        acs = rs;
+        for(let i=0; i< accounts.length; i++){
+          expect(rs[i].username).to.equal(accounts[i].username);
+        }
+
+        orders = [
+          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z',
+          groupDiscount: 0, total:8.5 },
+          { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z',
+          groupDiscount: 2, total:9.5 },
+        ];
+  
+        // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
+        oo.insertMany(orders).then((os: any[]) => {
+          ors = os;
+
+          const balances = [
+            { mode: 'test', accountId: rs[0].id.toString(), clientName: rs[0].username, amount:-2},
+            { mode: 'test', accountId: rs[1].id.toString(), clientName: rs[1].username, amount:0},
+            { mode: 'test', accountId: rs[2].id.toString(), clientName: rs[2].username, amount:2},
+          ];
+          cbo.insertMany(balances).then((bs: any[]) => {
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  after(function(done) {
+    const accountIds: any[] = [];
+    const orderIds: any[] = [
+      {id: ors[0].id.toString()},
+      {id: ors[1].id.toString()}
+    ];
+    const cIds: any[] = [];
+    acs.map(r => { 
+      accountIds.push({ id: r.id.toString() });
+      cIds.push({accountId: r.id.toString()});
+    });
+    ao.bulkDelete(accountIds).then((y: any) => {
+      expect(y.deletedCount).to.equal(3);
+      oo.bulkDelete(orderIds).then((y2: any) => {
+        expect(y2.deletedCount).to.equal(2);
+        cbo.bulkDelete(cIds).then((y3: any) => {
+          clientConnection.close();
+          done();
+        });
+      });
+    });
+  });
+
+  it('should the 1st order has group discount 2', (done) => {
+    cbo.removeGroupDiscountForBalances(ors).then((updates: any[]) => {
+      const cIds: string[] = [];
+      orders.map((o: any) => { cIds.push(o.clientId); });
+
+      cbo.find({accountId: {$in: cIds}}).then((cbs: any[]) => {
+        const cb0 = cbs.find((x:any) => x.accountId === orders[0].clientId);
+        const cb1 = cbs.find((x:any) => x.accountId === orders[1].clientId);
+        expect(cb0.amount).to.equal(0); // got groupDiscount from front end already
+        expect(cb1.amount).to.equal(0);
+        done();
+      });
+    });
+  });
+});
+
+
+describe('removeGroupDiscountForBalances with one order', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let clientConnection: any = null;
+  let oo: Order;
+  let ao: Account;
+  let cbo: ClientBalance;
+  let acs: any[];
+  let ors: any[];
+  let orders: any[];
+  const accounts: any[] = [
+    { username: 'li1', mode: 'test' },
+    { username: 'li2', mode: 'test' },
+    { username: 'li3', mode: 'test' }
+  ];
+
+  before(function(done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      oo = new Order(db);
+      ao = new Account(db);
+      cbo = new ClientBalance(db);
+      clientConnection = dbClient;
+
+      ao.insertMany(accounts).then((rs: any[]) => {
+        acs = rs;
+        for(let i=0; i< accounts.length; i++){
+          expect(rs[i].username).to.equal(accounts[i].username);
+        }
+
+        orders = [
+          { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', 
+          delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5 },
+        ];
+  
+        oo.insertMany(orders).then((os: any[]) => {
+          ors = os;
+          const balances = [
+            { mode: 'test', accountId: rs[0].id.toString(), clientName: rs[0].username, amount:-2},
+            { mode: 'test', accountId: rs[1].id.toString(), clientName: rs[1].username, amount:0},
+            { mode: 'test', accountId: rs[2].id.toString(), clientName: rs[2].username, amount:2},
+          ];
+          cbo.insertMany(balances).then((bs: any[]) => {
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  after(function(done) {
+    const accountIds: any[] = [];
+    const orderIds: any[] = [
+      {id: ors[0].id.toString()}
+    ];
+    const cIds: any[] = [];
+    acs.map(r => { 
+      accountIds.push({ id: r.id.toString() });
+      cIds.push({accountId: r.id.toString()});
+    });
+    ao.bulkDelete(accountIds).then((y: any) => {
+      expect(y.deletedCount).to.equal(3);
+      oo.bulkDelete(orderIds).then((y2: any) => {
+        expect(y2.deletedCount).to.equal(1);
+        cbo.bulkDelete(cIds).then((y3: any) => {
+          clientConnection.close();
+          done();
+        });
+      });
+    });
+  });
+
+  it('should update orders with group discount', (done) => {
+    cbo.removeGroupDiscountForBalances(ors).then((orderUpdates: any[]) => {
+      const cIds: string[] = [];
+      ors.map((o: any) => {
+        cIds.push(o.clientId);
+      });
+      oo.find({clientId: acs[1].id.toString()}).then( (o1s: any[]) => {
+        expect(o1s.length).to.equal(1);
+        expect(o1s[0].groupDiscount).to.equal(2); //unchange order
+        expect(o1s[0].total).to.equal(9.5);
+
+        cbo.find({accountId: acs[1].id.toString()}).then((cbs:any[]) => {
+          expect(cbs[0].amount).to.equal(-2);
+          done();
+        });
+      });
     });
   });
 });

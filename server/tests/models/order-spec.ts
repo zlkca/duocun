@@ -464,7 +464,6 @@ describe('addGroupDiscountForOrders with 2nd 1 groupDiscount', () => {
   });
 });
 
-//removeGroupDiscountForOrders
 describe('removeGroupDiscountForOrders', () => {
   const db: any = new DB();
   const cfg: any = new Config();
@@ -523,7 +522,7 @@ describe('removeGroupDiscountForOrders', () => {
   });
 
   it('should update orders with group discount', (done) => {
-    oo.removeGroupDiscountForOrders(ors, (orderUpdates: any[]) => {
+    oo.removeGroupDiscountForOrders(ors).then((orderUpdates: any[]) => {
       const cIds: string[] = [];
       orders.map((o: any) => {
         cIds.push(o.clientId);

@@ -194,18 +194,21 @@ export class ClientBalance extends Model{
   }
 
   // orders = [{data: {clientId: x}}];
-  removeGroupDiscountForBalances(orders: any[], cb?: any) {
+  removeGroupDiscountForBalances(orders: any[]): Promise<any> {
     const clientIds: string[] = [];
     orders.map(item => { clientIds.push(item.clientId) });
-    this.find({ accountId: { $in: clientIds } }).then((balances: any[]) => {
-      const balanceUpdates = this.getBalancesToRemoveGroupDiscount(orders, balances, 2);
-      if (balanceUpdates && balanceUpdates.length > 0) {
-        this.bulkUpdate(balanceUpdates, {}).then((r: BulkWriteOpResultObject) => {
-          cb(balanceUpdates);
-        });
-      } else {
-        cb(balanceUpdates);
-      }
+
+    return new Promise((resolve, reject) => {
+      this.find({ accountId: { $in: clientIds } }).then((balances: any[]) => {
+        const balanceUpdates = this.getBalancesToRemoveGroupDiscount(orders, balances, 2);
+        if (balanceUpdates && balanceUpdates.length > 0) {
+          this.bulkUpdate(balanceUpdates, {}).then((r: BulkWriteOpResultObject) => {
+            resolve(balanceUpdates);
+          });
+        } else {
+          resolve(balanceUpdates);
+        }
+      });
     });
   }
 

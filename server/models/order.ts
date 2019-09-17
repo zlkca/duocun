@@ -130,16 +130,17 @@ export class Order extends Model {
   }
 
   // date: string, address: string
-  removeGroupDiscountForOrders(orders: any[], cb?: any) {
+  removeGroupDiscountForOrders(orders: any[]): Promise<any> {
     const orderUpdates = this.getOrdersToRemoveGroupDiscount(orders, 2);
-
-    if (orderUpdates && orderUpdates.length > 0) {
-      this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
-        cb(orderUpdates);
-      });
-    } else {
-      cb(orderUpdates);
-    }
+    return new Promise( (resolve, reject) => {
+      if (orderUpdates && orderUpdates.length > 0) {
+        this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
+          resolve(orderUpdates);
+        });
+      } else {
+        resolve(orderUpdates);
+      }
+    });
   }
 
   replace(req: Request, res: Response) {
