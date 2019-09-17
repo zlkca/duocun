@@ -9,6 +9,7 @@ import { Entity } from "../entity";
 
 const saltRounds = 10;
 
+
 export class Account extends Model {
   balanceEntity: Entity;
   constructor(dbo: DB) {

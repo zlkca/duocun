@@ -1,10 +1,10 @@
 import express from "express";
 import { DB } from "../db";
-import { Order } from "../models/order";
+import { MallSchedule } from "../models/mall-schedule";
 
-export function OrderRouter(db: DB){
+export function MallScheduleRouter(db: DB){
   const router = express.Router();
-  const controller = new Order(db);
+  const controller = new MallSchedule(db);
 
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
@@ -12,9 +12,6 @@ export function OrderRouter(db: DB){
   router.put('/', (req, res) => { controller.replace(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
-  router.delete('/:id', (req, res) => { controller.removeOne(req, res); });
-
-  router.post('/checkGroupDiscount', (req, res) => { controller.checkGroupDiscount(req, res); });
 
   return router;
 };

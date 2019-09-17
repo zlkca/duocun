@@ -16,6 +16,7 @@ import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { CartActions } from '../../cart/cart.actions';
 import { AccountActions } from '../../account/account.actions';
+import { PaymentService } from '../payment.service';
 
 const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
 
@@ -32,7 +33,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService,
     private transactionSvc: TransactionService,
     private orderSvc: OrderService,
-    private balanceSvc: BalanceService,
+    private paymentSvc: PaymentService,
     private router: Router,
     private rx: NgRedux<IAppState>,
     private snackBar: MatSnackBar
@@ -77,11 +78,11 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
       const data = { status: 'paid', chargeId: '', transactionId: tr.id };
       self.updateOrder(orderId, data, (ret) => {
         self.snackBar.open('', '订单已更新', { duration: 1800 });
-        const q = { accountId: clientId };
-        self.balanceSvc.update(q, { amount: 0 }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+        self.paymentSvc.afterAddOrder(ret.id, payable).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+          self.snackBar.open('', '余额已更新', { duration: 1800 });
+
           const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === ret.merchantId);
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-          self.snackBar.open('', '余额已更新', { duration: 1800 });
           self.router.navigate(['order/history']);
         });
       });

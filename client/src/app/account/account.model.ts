@@ -28,6 +28,7 @@ export interface IAccount {
   address?: IAddress;
   roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'driver', 'user'
   visited?: boolean;
+  stripeCustomerId?: string;
 }
 
 export class Account implements IAccount {
@@ -47,6 +48,8 @@ export class Account implements IAccount {
   address?: Address;
   roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'driver', 'user'
   visited?: boolean;
+  stripeCustomerId?: string;
+
   constructor(data?: IAccount) {
     Object.assign(this, data);
   }

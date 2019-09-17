@@ -8,17 +8,20 @@ export function ClientPaymentRouter(db: DB){
 
   router.get('/session', (req, res) => {controller.createStripeSession(req, res); });
   // router.post('/checkout', (req, res) => {controller.checkout(req, res); });
+
+  router.post('/stripeCreateCustomer', (req, res) => {controller.stripeCreateCustomer(req, res); });
   router.post('/stripeCharge', (req, res) => {controller.stripeCharge(req, res); });
   // router.post('/stripRefund', (req, res) => {controller.stripeRefund(req, res); });
 
   router.post('/snappayCharge', (req, res) => {controller.snappayCharge(req, res); });
   // router.post('/snappayRefund', (req, res) => {controller.snappayRefund(req, res); });
 
-
+  router.post('/afterAddOrder', (req, res) => { controller.afterAddOrder(req, res); });
+  router.post('/afterRemoveOrder', (req, res) => { controller.afterRemoveOrder(req, res); });
 
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
-  router.post('/', (req, res) => { controller.createAndUpdateBalance(req, res); });
+  // router.post('/', (req, res) => { controller.createAndUpdateBalance(req, res); });
   router.put('/', (req, res) => { controller.replace(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });

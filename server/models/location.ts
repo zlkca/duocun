@@ -5,6 +5,43 @@ import https from 'https';
 import { Request, Response } from "express";
 import { Config } from "../config";
 
+// export interface GeoPoint  {
+//   lat?: number;
+//   lng?: number;
+//   type?: string;
+//   coordinates?: number[];
+// }
+
+// export interface IAddress {
+//   formattedAddress?: string;
+//   unit?: number;
+//   streetName?: string;
+//   streetNumber?: string;
+//   location?: GeoPoint;
+//   sublocality?: string;
+//   city?: string;
+//   province?: string;
+//   country?: string;
+//   postalCode?: string;
+//   created?: Date;
+//   modified?: Date;
+//   id?: number;
+// }
+
+export interface ILocation {
+  placeId: string;
+  lat: number;
+  lng: number;
+  unit?: string;
+  streetName?: string;
+  streetNumber?: string;
+  subLocality?: string;
+  city?: string;
+  province?: string;
+  country?: string;
+  postalCode?: string;
+}
+
 export class Location extends Model {
   cfg: Config;
   constructor(dbo: DB) {
@@ -14,7 +51,6 @@ export class Location extends Model {
 
   reqPlaces(req: Request, res: Response) {
     let key = this.cfg.GOOGLE_PLACE_KEY;
-    // let input = req.query.input;
     const input = req.params.input;
 
     let url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=' + input + '&key=' + key

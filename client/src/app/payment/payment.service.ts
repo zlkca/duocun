@@ -23,10 +23,17 @@ export class PaymentService extends EntityService {
     return this.doGet(url);
   }
 
-  stripeCharge( amount: number, merchantName: string, token: string): Observable<any> {
+  // customerId --- stripe customer id
+  stripeCharge( customerId: string, amount: number, merchantName: string, token: string): Observable<any> {
     const url = this.url + '/stripeCharge';
-    return this.doPost(url, {token: token, amount: amount, merchantName: merchantName});
+    return this.doPost(url, {token: token, customerId: customerId, amount: amount, merchantName: merchantName});
   }
+
+  stripeCreateCustomer( tokenId: string, clientId: string, clientName: string, clientPhoneNumber: string): Observable<any> {
+    const url = this.url + '/stripeCreateCustomer';
+    return this.doPost(url, {source: tokenId, clientId: clientId, clientName: clientName, clientPhoneNumber: clientPhoneNumber});
+  }
+
   // description: b.merchantName,
   // method: 'pay.webpay',
   // merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,
@@ -49,5 +56,15 @@ export class PaymentService extends EntityService {
   refund(chargeId: string): Observable<any> {
     const url = this.url + '/refund';
     return this.doPost(url, {chargeId: chargeId});
+  }
+
+  afterAddOrder( orderId: string, paid: number ): Observable<any> {
+    const url = this.url + '/afterAddOrder';
+    return this.doPost(url, { orderId: orderId, paid: paid });
+  }
+
+  afterRemoveOrder( orderId: string ): Observable<any> {
+    const url = this.url + '/afterRemoveOrder';
+    return this.doPost(url, { orderId: orderId });
   }
 }

@@ -3,6 +3,9 @@ import { Model } from "./model";
 import { Entity } from "../entity";
 import { Request, Response } from "express";
 import moment from "moment-timezone";
+import { BulkWriteOpResultObject } from "../../node_modules/@types/mongodb";
+import { createBrotliCompress } from "zlib";
+import { reject } from "../../node_modules/@types/q";
 
 export class ClientBalance extends Model{
   paymentEntity: Entity;
@@ -14,6 +17,196 @@ export class ClientBalance extends Model{
     this.orderEntity = new Entity(dbo, 'orders');
     this.transactionEntity = new Entity(dbo, 'transactions');
     this.paymentEntity = new Entity(dbo, 'client_payments');
+  }
+
+  getMyBalanceForAddOrder(balance: number, paymentMethod: string, bPaid: boolean, payable: number, paid: number) {
+    if(paymentMethod === 'prepaid'){
+      return Math.round((balance - payable) * 100) / 100;
+    }else if(paymentMethod === 'cash'){
+      if(bPaid){
+        return Math.round((balance + paid - payable) * 100) / 100;
+      }else{
+        return Math.round((balance - payable) * 100) / 100;
+      }
+    } else if(paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
+      if(bPaid){
+        return Math.round((balance + paid - payable) * 100) / 100;
+      }else{ // pass
+        return null; // no need to update balance
+      }
+    } else {
+      return null; // no need to update balance
+    }
+  }
+
+  getMyBalanceForRemoveOrder(balance: number, paymentMethod: string, payable: number) {
+    if(paymentMethod === 'prepaid' || paymentMethod === 'cash') {
+      return Math.round((balance + payable) * 100) / 100;
+    } else if(paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
+      return Math.round((balance + payable) * 100) / 100;
+    } else {
+      return null; // no need to update balance
+    }
+  }
+
+  updateMyBalanceForAddOrder(order: any, paid: number) : Promise<any> {
+    const clientId = order.clientId;
+    const self = this;
+    return new Promise( (resolve, reject) => {
+      this.find({accountId: clientId}).then((balances: any[]) => {
+        if(balances && balances.length>0){
+          const balance = balances[0];
+          const newAmount = this.getMyBalanceForAddOrder(balance.amount, order.paymentMethod, order.status === 'paid', order.total, paid);
+          if(newAmount === null){
+            resolve(null);
+          }else{
+            this.updateOne({'accountId': clientId}, {amount: newAmount}).then(x => {
+              resolve(x);
+            });
+          }
+        }else{
+          resolve(null);
+        }      
+      });
+    });
+    
+  }
+
+  updateMyBalanceForRemoveOrder(order: any): Promise<any> {
+    const clientId = order.clientId;
+    return new Promise( (resolve, reject) => {
+      this.find({accountId: clientId}).then((balances: any[]) => {
+        if(balances && balances.length>0){
+          const balance = balances[0];
+          const newAmount = this.getMyBalanceForRemoveOrder(balance.amount, order.paymentMethod, order.total);
+          if(newAmount === null){
+            resolve(null);
+          }else{
+            this.updateOne({clientId: clientId}, {amount: newAmount}).then(x => {
+              resolve(x);
+            });
+          }
+        }else{
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  //--------------------------------------------------------------------------------
+  // The client can only get one group discount, if he/she has multiple orders.
+  getBalancesToAddGroupDiscount(orders: any[], balances: any[], groupDiscount: number) {
+    const groups = this.groupBy(orders, 'clientId');
+    const a: any[] = [];
+    Object.keys(groups).map(clientId => {
+      const os = groups[clientId];
+      if ( os && os.length > 0) {
+        const order = os.find((x: any) => x.groupDiscount !== 0 );
+        if(order){
+          // pass
+        }else{
+          const b = balances.find(x => x.accountId === clientId);
+          if(b){
+            const balance = Math.round((b.amount + groupDiscount) * 100) / 100;
+            a.push({ query: { id: b.id.toString() }, data: { amount: balance } });
+          }
+        }
+      }
+    });
+    return a;
+  }
+
+  groupBy(items: any[], key: string) {
+    let groups = items.reduce((result, item) => ({
+      ...result,
+      [item[key]]: [
+        ...(result[item[key]] || []),
+        item,
+      ],
+    }), {});
+
+    Object.keys(groups).map(key => {
+      key === 'undefined' ? delete groups[key] : '';
+    });
+
+    return groups;
+  }
+  
+  getBalancesToRemoveGroupDiscount(orders: any[], balances: any[], groupDiscount: number) {
+    const groups = this.groupBy(orders, 'clientId');
+    const clientIds = Object.keys(groups);
+    
+    if(clientIds && clientIds.length > 1){
+      // only need to check update current client's 2nd order, this is by Front end
+      const a: any[] = [];
+      Object.keys(groups).map(clientId => {
+        const group = groups[clientId];
+        if ( group && group.length > 0) {
+          const order = group.find((x: any) => x.groupDiscount !== 0 );
+          if(order){
+            // pass this group
+          }else{
+            const b = balances.find(x => x.accountId === clientId);
+            const balance = Math.round((b.amount + groupDiscount) * 100) / 100;
+            a.push({ query: { id: b.id.toString() }, data: { amount: balance }});  
+          }
+        }
+      });
+      return a;
+    }else{ // <= 1
+      const a: any[] = [];
+      Object.keys(groups).map(clientId => {
+        const os = groups[clientId];
+        if ( os && os.length > 0) {
+          const order = os.find((x: any) => x.groupDiscount !== 0 );
+          if(order){
+            const b = balances.find(x => x.accountId === clientId);
+            const balance = Math.round((b.amount - groupDiscount) * 100) / 100;
+            a.push({ query: { id: b.id.toString() }, data: { amount: balance } });
+          }else{
+            // pass
+          }
+        }
+      });
+      return a;
+    }
+  }
+
+  addGroupDiscountForBalances(orders: any[]): Promise<any> {
+    const clientIds: string[] = [];
+    orders.map(item => { clientIds.push(item.clientId) });
+
+    return new Promise((resolve, reject) => {
+      this.find({ accountId: { $in: clientIds } }).then((balances: any[]) => {
+        const balanceUpdates = this.getBalancesToAddGroupDiscount(orders, balances, 2);
+        if (balanceUpdates && balanceUpdates.length > 0) {
+          this.bulkUpdate(balanceUpdates, {}).then((r: BulkWriteOpResultObject) => {
+            resolve(balanceUpdates);
+          });
+        } else {
+          resolve(null);
+        }
+      }, (err: any) => {
+        reject(null);
+      });
+    });
+
+  }
+
+  // orders = [{data: {clientId: x}}];
+  removeGroupDiscountForBalances(orders: any[], cb?: any) {
+    const clientIds: string[] = [];
+    orders.map(item => { clientIds.push(item.clientId) });
+    this.find({ accountId: { $in: clientIds } }).then((balances: any[]) => {
+      const balanceUpdates = this.getBalancesToRemoveGroupDiscount(orders, balances, 2);
+      if (balanceUpdates && balanceUpdates.length > 0) {
+        this.bulkUpdate(balanceUpdates, {}).then((r: BulkWriteOpResultObject) => {
+          cb(balanceUpdates);
+        });
+      } else {
+        cb(balanceUpdates);
+      }
+    });
   }
 
   updateAll(){

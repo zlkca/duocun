@@ -8,76 +8,80 @@ import https from 'https';
 // import NodeRSA from 'node-rsa';
 import { Md5 } from 'ts-md5';
 
+import { Order } from "../models/order";
+import { ClientBalance } from "./client-balance";
+import { resolve } from "../../node_modules/@types/q";
+
 export class ClientPayment extends Model {
   cfg: Config;
-  balanceEntity: Entity;
-  orderEntity: Entity;
+  balanceEntity: ClientBalance;
+  orderEntity: Order;
 
   constructor(dbo: DB) {
     super(dbo, 'client_payments');
-    this.orderEntity = new Entity(dbo, 'orders');
-    this.balanceEntity = new Entity(dbo, 'client_balances');
+    this.orderEntity = new Order(dbo);
+    this.balanceEntity = new ClientBalance(dbo);
     this.cfg = new Config();
   }
 
   // abandon fix me !!
-  createAndUpdateBalance(req: Request, res: Response) {
-    if (req.body instanceof Array) {
-      this.insertMany(req.body).then((x: any) => {
-        this.updateBalance(req, res);
-      });
-    } else {
-      this.insertOne(req.body).then((x: any) => {
-        this.updateBalance(req, res);
-      });
-    }
-  }
+  // createAndUpdateBalance(req: Request, res: Response) {
+  //   if (req.body instanceof Array) {
+  //     this.insertMany(req.body).then((x: any) => {
+  //       this.updateBalance(req, res);
+  //     });
+  //   } else {
+  //     this.insertOne(req.body).then((x: any) => {
+  //       this.updateBalance(req, res);
+  //     });
+  //   }
+  // }
 
   // abandon fix me !!
-  updateBalance(req: Request, res: Response) {
-    const self = this;
-    const date = new Date('2019-05-15T00:00:00').toISOString();
-    let balance = 0;
+  // updateBalance(req: Request, res: Response) {
+  //   const self = this;
+  //   const date = new Date('2019-05-15T00:00:00').toISOString();
+  //   let balance = 0;
 
-    const payment = req.body;
-    const clientId = payment.clientId;
+  //   const payment = req.body;
+  //   const clientId = payment.clientId;
 
-    self.orderEntity.find({ clientId: clientId, delivered: { $gt: date } }).then(os => {
-      os.map((order: any) => {
-        balance -= order.total;
-      });
+  //   self.orderEntity.find({ clientId: clientId, delivered: { $gt: date } }).then(os => {
+  //     os.map((order: any) => {
+  //       balance -= order.total;
+  //     });
 
-      self.find({ clientId: clientId, created: { $gt: date } }).then(ps => {
-        ps.map((p: any) => {
-          if (p.type === 'credit' && p.amount > 0) {
-            balance += p.amount;
-          }
-        });
+  //     self.find({ clientId: clientId, created: { $gt: date } }).then(ps => {
+  //       ps.map((p: any) => {
+  //         if (p.type === 'credit' && p.amount > 0) {
+  //           balance += p.amount;
+  //         }
+  //       });
 
-        self.balanceEntity.find({ accountId: clientId }).then((x: any) => {
-          if (x && x.length > 0) {
-            self.balanceEntity.updateOne({ accountId: clientId }, { amount: balance }).then(() => {
+  //       self.balanceEntity.find({ accountId: clientId }).then((x: any) => {
+  //         if (x && x.length > 0) {
+  //           self.balanceEntity.updateOne({ accountId: clientId }, { amount: balance }).then(() => {
 
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify(x, null, 3));
-            });
-          } else {
-            self.balanceEntity.insertOne({
-              accountId: payment.clientId,
-              accountName: payment.clientName,
-              amount: balance,
-              created: new Date(),
-              modified: new Date()
-            }).then(() => {
+  //             res.setHeader('Content-Type', 'application/json');
+  //             res.end(JSON.stringify(x, null, 3));
+  //           });
+  //         } else {
+  //           self.balanceEntity.insertOne({
+  //             accountId: payment.clientId,
+  //             accountName: payment.clientName,
+  //             amount: balance,
+  //             created: new Date(),
+  //             modified: new Date()
+  //           }).then(() => {
 
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify(x, null, 3));
-            });
-          }
-        });
-      });
-    });
-  }
+  //             res.setHeader('Content-Type', 'application/json');
+  //             res.end(JSON.stringify(x, null, 3));
+  //           });
+  //         }
+  //       });
+  //     });
+  //   });
+  // }
 
   createStripeSession(req: Request, res: Response) {
     // Set your secret key: remember to change this to your live secret key in production
@@ -101,10 +105,28 @@ export class ClientPayment extends Model {
     });
   }
 
+  stripeCreateCustomer(req: Request, res: Response) {
+    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+    stripe.customers.create({
+      source: req.body.source,
+      name: req.body.clientName,
+      phone: req.body.clientPhoneNumber,
+      metadata: { clientId: req.body.clientId },
+    }, function (err: any, ret: any) {
+      res.setHeader('Content-Type', 'application/json');
+      if (err) {
+        res.end(JSON.stringify({ customerId: ret.id }, null, 3));
+      } else {
+        res.end(JSON.stringify({ customerId: ret.id }, null, 3));
+      }
+    });
+  }
+
   stripeCharge(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
     const token = req.body.token;
     stripe.charges.create({
+      // customer: req.body.customerId,
       amount: Math.round((+req.body.amount) * 100),
       currency: 'cad',
       description: req.body.merchantName,
@@ -202,6 +224,90 @@ export class ClientPayment extends Model {
       } else {
         res.end(JSON.stringify({ status: re.status, refundId: re.id }, null, 3));
       }
+    });
+  }
+
+  afterAddOrder(req: Request, res: Response) {
+    const orderId = req.body.orderId;
+    const paid = req.body.paid;
+
+    this.processAfterAddOrder(orderId, paid).then( () => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ status: 'success' }, null, 3));
+    });
+  }
+
+  afterRemoveOrder(req: Request, res: Response) {
+    const orderId = req.body.orderId;
+
+    this.processAfterRemoveOrder(orderId).then(() => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ status: 'success' }, null, 3));
+    });
+  }
+
+  processAfterAddOrder(orderId: string, paid: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.orderEntity.find({id: orderId}).then((orders: any[]) => {
+        if(orders && orders.length>0){
+          const order = orders[0];
+          // step 1: calculate and update my balance
+          this.balanceEntity.updateMyBalanceForAddOrder(order, paid).then((ret: any) => {
+            // step 2: process group discount for others
+            this.addGroupDiscount(order.clientId, order.delivered, order.address).then( (xs: any) => {
+              resolve(ret);
+            });
+          });
+        }else{
+          resolve(null);
+        }
+      }, err => {
+        resolve(null);
+        console.log('Find order exception' + err);
+      });
+    });
+  }
+
+  processAfterRemoveOrder(orderId: string) : Promise<any> {
+    return new Promise( (resolve, reject) => {
+      this.orderEntity.find({id: orderId}).then((orders: any) => { // status: del
+        if(orders && orders.length>0){
+          const order = orders[0];
+          // step 1: calculate and update my balance
+          this.balanceEntity.updateMyBalanceForRemoveOrder(order).then((myBalance: any) => {
+            // step 2: process group discount for others
+            this.removeGroupDiscount(order.delivered, order.address).then( (x) => {
+              resolve(myBalance);
+            });
+          });
+        }else{
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  addGroupDiscount(clientId: string, date: string, address: string) : Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.orderEntity.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then((orders: any[]) => {
+        this.orderEntity.addGroupDiscountForOrders(clientId, orders).then((x: any) => {
+          this.balanceEntity.addGroupDiscountForBalances(orders).then((x1: any) => {
+            resolve(x);
+          });
+        });
+      });
+    });
+  }
+
+  removeGroupDiscount(date: string, address: string): Promise<any> {
+    return new Promise( (resolve, reject) => {
+      this.orderEntity.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then((orders: any[]) => {
+        this.orderEntity.removeGroupDiscountForOrders(orders, (orderUpdates: any[]) => {
+          this.balanceEntity.removeGroupDiscountForBalances(orders, (balanceUpdates: any[]) => {
+            resolve(orders);
+          });
+        });
+      });
     });
   }
 }

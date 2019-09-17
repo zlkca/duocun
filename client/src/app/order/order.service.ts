@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { EntityService } from '../entity.service';
 import { AuthService } from '../account/auth.service';
+import { Observable } from '../../../node_modules/rxjs';
 
 
 
@@ -19,12 +20,14 @@ export class OrderService extends EntityService {
     this.url = super.getBaseUrl() + 'Orders';
   }
 
-  getDistinctArray(items, field) {
-    const a = [];
-    items.map(item => {
-      const b = a.find(x => x[field] === item[field]);
-      if (!b) {
-        a.push(item);
+  getDistinctArray(items: any, field: string) {
+    const a: any[] = [];
+    items.map((item: any) => {
+      if (item.hasOwnProperty(field)) {
+        const b = a.find(x => x[field] === item[field]);
+        if (!b) {
+          a.push(item);
+        }
       }
     });
     return a;
@@ -45,5 +48,10 @@ export class OrderService extends EntityService {
         return 0;
       }
     }
+  }
+
+  checkGroupDiscount( clientId: string, delivered: string, address: string ): Observable<any> {
+    const url = this.url + '/checkGroupDiscount';
+    return this.doPost(url, { clientId: clientId, delivered: delivered, address: address });
   }
 }

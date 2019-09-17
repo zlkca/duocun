@@ -4,16 +4,16 @@ export class DB {
 
   private db: any; // connected db
 
-
   constructor() {
 
   }
 
-  init(cfg: any): Promise<Db>{
+  init(cfg: any): Promise<MongoClient>{
     const connectionStr = 'mongodb://'+ cfg.HOST + ':' + cfg.PORT + '/' + cfg.NAME;
     const options = {
       poolSize: cfg.POOL_SIZE,
-      useNewUrlParser: true
+      useNewUrlParser: true,
+      useUnifiedTopology: true
     };
 
     return new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ export class DB {
         const d: Db = connectClient.db(cfg.NAME);
         this.db = d;
         console.log('mongodb connected ...');
-        resolve(d);
+        resolve(connectClient);
       },(err)=>{
         console.log('mongodb connection exception ...');
         reject(err);

@@ -240,6 +240,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (bs && bs.length > 0) {
         // update balance
       } else {
+        // new balance entry
         const data: IBalance = {
           accountId: account.id,
           accountName: account.username,
