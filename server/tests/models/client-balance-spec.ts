@@ -139,6 +139,25 @@ describe('getBalancesToAddGroupDiscount with missing field', () => {
   });
 });  
 
+describe('getBalancesToAddGroupDiscount with single order', () => {
+  it('should return orders to be updated', () => {
+    const db = new DB();
+    const cbo = new ClientBalance(db);
+
+    const orders = [
+      { mode: 'test', clientId: 'a', clientName: 'a', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:1 },
+    ];
+
+    const bs: any[] = [
+      { id: 'a', accountId: 'a', amount: 1 },
+    ];
+
+    const a = cbo.getBalancesToAddGroupDiscount(orders, bs, 2);
+
+    expect(a.length).to.equal(0);
+  });
+});  
+
 
 describe('getBalancesToRemoveGroupDiscount with missing field', () => {
   it('should return orders to be updated', () => {
@@ -208,6 +227,45 @@ describe('getBalancesToRemoveGroupDiscount with missing field', () => {
 
     const a = cbo.getBalancesToRemoveGroupDiscount(orders, bs, 2);
     expect(a.length).to.equal(1);
+  });
+});
+
+
+describe('getBalancesToRemoveGroupDiscount with single order', () => {
+  it('should return orders to be updated', () => {
+    const db = new DB();
+    const cbo = new ClientBalance(db);
+
+    const orders = [
+      { mode: 'test', clientId: 'a', clientName: 'a', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:1 },
+    ];
+
+    const bs: any[] = [
+      { id: 'a', accountId: 'a', amount: 1 },
+    ];
+
+    const a = cbo.getBalancesToRemoveGroupDiscount(orders, bs, 2);
+
+    expect(a.length).to.equal(1);
+  });
+});
+
+describe('getBalancesToRemoveGroupDiscount with single order 0 discount', () => {
+  it('should return orders to be updated', () => {
+    const db = new DB();
+    const cbo = new ClientBalance(db);
+
+    const orders = [
+      { mode: 'test', clientId: 'a', clientName: 'a', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:1 },
+    ];
+
+    const bs: any[] = [
+      { id: 'a', accountId: 'a', amount: 1 },
+    ];
+
+    const a = cbo.getBalancesToRemoveGroupDiscount(orders, bs, 2);
+
+    expect(a.length).to.equal(0);
   });
 });
 
