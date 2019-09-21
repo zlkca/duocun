@@ -67,10 +67,13 @@ export class BalancePageComponent implements OnInit, OnDestroy {
     const self = this;
     const orderQuery = { clientId: clientId, status: { $nin: ['del', 'bad'] } };
     this.orderSvc.find(orderQuery).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
-      const transactionQuery = { type: 'credit', fromId: clientId };
+      const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }] };
       self.transactionSvc.find(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
         let list = [];
         let balance = 0;
+        const payments = ts.filter(t => t.type === 'credit' && t.fromId === clientId);
+        const tOuts = ts.filter(t => t.type === 'transfer' && t.fromId === clientId);
+        const tIns = ts.filter(t => t.type === 'transfer' && t.toId === clientId);
 
         os.map(order => {
           const t = {
@@ -87,25 +90,39 @@ export class BalancePageComponent implements OnInit, OnDestroy {
           list.push({ date: t.created, description: order.merchantName, type: t.type, paid: 0, consumed: t.amount, balance: 0 });
         });
 
-        const groupedTransactions = this.groupBy(ts, 'created');
-        const transactions = [];
+        // const groupedTransactions = this.groupBy(ts, 'created');
+        // const transactions = [];
 
-        // combine transactions of the same day
-        Object.keys(groupedTransactions).map(date => {
-          let total = 0;
-          groupedTransactions[date].map(t => { total += t.amount; });
-          transactions.push({ created: date, type: 'credit', amount: total });
+        // // combine transactions of the same day
+        // Object.keys(groupedTransactions).map(date => {
+        //   let total = 0;
+        //   groupedTransactions[date].map(t => { total += t.amount; });
+        //   transactions.push({ created: date, type: 'credit', amount: total });
+        // });
+
+        // transactions.map(t => {
+        //   // const items = list.filter(l => moment(l.date).isSame(moment(t.created), 'day'));
+        //   // if (items && items.length > 0) {
+        //   //   items[0].paid = t.amount;
+        //   // } else {
+        //   if (t.amount !== 0) {
+        //     list.push({ date: t.created, description: '付款', type: t.type, paid: t.amount, consumed: 0, balance: 0 }); // pay tomorrow's
+        //   }
+        //   // }
+        // });
+
+        payments.map(t => {
+          if (t.amount !== 0) {
+            list.push({ date: t.created, description: '付款', type: 'credit', paid: t.amount, consumed: 0, balance: 0 });
+          }
         });
 
-        transactions.map(t => {
-          // const items = list.filter(l => moment(l.date).isSame(moment(t.created), 'day'));
-          // if (items && items.length > 0) {
-          //   items[0].paid = t.amount;
-          // } else {
-          if (t.amount !== 0) {
-            list.push({ date: t.created, description: '付款', type: t.type, paid: t.amount, consumed: 0, balance: 0 }); // pay tomorrow's
-          }
-          // }
+        tIns.map(t => {
+          list.push({ date: t.created, description: '转自' + t.fromName, type: 'credit', paid: t.amount, consumed: 0, balance: 0 });
+        });
+
+        tOuts.map(t => {
+          list.push({ date: t.created, description: '转给' + t.toName, type: 'debit', paid: 0, consumed: t.amount, balance: 0 });
         });
 
         list = list.sort((a: IClientPaymentData, b: IClientPaymentData) => {

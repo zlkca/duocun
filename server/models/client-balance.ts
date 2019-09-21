@@ -98,17 +98,22 @@ export class ClientBalance extends Model{
   getBalancesToAddGroupDiscount(orders: any[], balances: any[], groupDiscount: number) {
     const groups = this.groupBy(orders, 'clientId');
     const a: any[] = [];
-    Object.keys(groups).map(clientId => {
+    const clientIds: string[] = Object.keys(groups);
+    clientIds.map(clientId => {
       const os = groups[clientId];
       if ( os && os.length > 0) {
         const order = os.find((x: any) => x.groupDiscount !== 0 );
         if(order){
           // pass
         }else{
-          const b = balances.find(x => x.accountId === clientId);
-          if(b){
-            const balance = Math.round((b.amount + groupDiscount) * 100) / 100;
-            a.push({ query: { id: b.id.toString() }, data: { amount: balance } });
+          if(clientIds.length > 1){
+            const b = balances.find(x => x.accountId === clientId);
+            if(b){
+              const balance = Math.round((b.amount + groupDiscount) * 100) / 100;
+              a.push({ query: { id: b.id.toString() }, data: { amount: balance } });
+            }
+          }else{
+            // pass
           }
         }
       }
