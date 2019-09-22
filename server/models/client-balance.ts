@@ -60,7 +60,7 @@ export class ClientBalance extends Model{
           if(newAmount === null){
             resolve(null);
           }else{
-            this.updateOne({'accountId': clientId}, {amount: newAmount}).then(x => {
+            this.updateOne({'accountId': clientId}, {amount: newAmount, ordered: true}).then(x => {
               resolve(x);
             });
           }
@@ -219,7 +219,7 @@ export class ClientBalance extends Model{
 
   updateAll(){
     const dt = moment().tz("America/Toronto").endOf('day').toDate().toISOString();
-    const orderQuery = {delivered: { $lt: dt }, status: {$nin: ['bad', 'del']}}; // , delivered: { $lt: moment().endOf('day').toDate() }};
+    const orderQuery = {delivered: { $lt: dt }, status: {$nin: ['bad', 'del', 'tmp']}}; // , delivered: { $lt: moment().endOf('day').toDate() }};
     this.orderEntity.find(orderQuery).then(os => {
       this.transactionEntity.find({type: 'credit'}).then(ts => {
         this.find({}).then(cbs => {

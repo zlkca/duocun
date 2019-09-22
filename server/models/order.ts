@@ -79,7 +79,7 @@ export class Order extends Model {
   createOne(body: any, cb: any) {
     const date = body.delivered;
     const address = body.address;
-    this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del'] } }).then(orders => {
+    this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
       let newGroupDiscount = body.groupDiscount;
       const others = orders.filter((x: any) => x.clientId && x.clientId !== body.clientId);
       const orderUpdates = this.getOrdersToAddGroupDiscount(others, newGroupDiscount);

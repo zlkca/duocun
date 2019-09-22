@@ -95,7 +95,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   reload(clientId) {
     const self = this;
-    const query = { clientId: clientId, status: { $nin: ['del', 'bad'] } };
+    const query = { clientId: clientId, status: { $nin: ['del', 'bad', 'tmp'] } };
     self.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((orders: IOrder[]) => {
       orders.map((order: IOrder) => {
         let productTotal = 0;

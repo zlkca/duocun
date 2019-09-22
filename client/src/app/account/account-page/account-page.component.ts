@@ -13,10 +13,8 @@ import * as Cookies from 'js-cookie';
 import { PageActions } from '../../main/main.actions';
 import { LocationService } from '../../location/location.service';
 import { AuthService } from '../auth.service';
-import { IOrder } from '../../order/order.model';
 import { OrderService } from '../../order/order.service';
 import { TransactionService } from '../../transaction/transaction.service';
-import { ITransaction } from '../../transaction/transaction.model';
 import * as moment from 'moment';
 import { BalanceService } from '../../payment/balance.service';
 
@@ -72,8 +70,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  reload(account) {
-    const self = this;
+  reload(account: Account) {
     this.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
       if (bs && bs.length > 0) {
         this.balance = bs[0].amount;
@@ -81,40 +78,6 @@ export class AccountPageComponent implements OnInit, OnDestroy {
         this.balance = 0;
       }
     });
-    // let balance = 0;
-    // let list = [];
-    // const query = { clientId: account.id, status: { $nin: ['del', 'bad'] } };
-    // this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
-    //   os.map(order => {
-    //     list.push({ date: order.delivered, type: 'debit', amount: order.total });
-    //   });
-    //   const q = { type: 'credit', fromId: account.id };
-    //   self.transactionSvc.find(q).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
-    //     ts.map(t => {
-    //       list.push({ date: t.created, type: 'credit', amount: t.amount });
-    //     });
-
-    //     list = list.sort((a, b) => {
-    //       const aMoment = moment(a.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-    //       const bMoment = moment(b.date).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-    //       if (aMoment.isAfter(bMoment)) {
-    //         return 1; // b at top
-    //       } else {
-    //         return -1;
-    //       }
-    //     });
-
-    //     list.map(t => {
-    //       if (t.type === 'debit') {
-    //         balance -= t.amount;
-    //       } else if (t.type === 'credit') {
-    //         balance += t.amount;
-    //       }
-    //     });
-
-    //     self.balance = balance;
-    //   });
-    // });
   }
 
   ngOnInit() {
