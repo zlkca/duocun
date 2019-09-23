@@ -4,6 +4,7 @@ $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
 $blue: #4285F3;
+$pay-btn-width: 180px;
 
 footer{
     height:100px;
@@ -107,13 +108,13 @@ footer{
       padding-left:15px;
       padding-top: 15px;
       border-right: solid 1px #ddd;
-      width: calc(100% - 175px);
+      width: calc(100% - #{$pay-btn-width});
     }
 
     .pay-col{
       background:#4285F4;
       color: white;
-      width: 175px;
+      width: $pay-btn-width;
       padding-top: 15px;
       text-align: center;
     }

@@ -51,11 +51,11 @@
   </div>
 
   <div class="row order-btn-row" *ngIf="page === 'order-form'">
-    <div class="col-9 title-md amount-col">
+    <div class="title-md amount-col">
       &nbsp;
       <!-- ${{total | number : '1.2-2'}} -->
     </div>
-    <div class="col-3 title-md pay-col" (click)="pay()" i18n="@@Submit">Submit</div>
+    <div class="title-md pay-col" (click)="pay()" >确认下单</div>
   </div>
 
   <div class="row cart-btn-row" *ngIf="page === 'cart-page' && cart.items.length > 0">

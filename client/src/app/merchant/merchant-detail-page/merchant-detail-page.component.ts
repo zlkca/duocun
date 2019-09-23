@@ -218,16 +218,16 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
       }
     } else {
-      if (this.contact && this.contact.location) {
-        if (this.contact && this.contact.phone) { // location + phone
-          self.router.navigate(['order/form']);
-        } else { // location only
-          this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-        }
-      } else { // no location
+      // if (this.contact && this.contact.location) {
+      //   if (this.contact && this.contact.phone) { // location + phone
+      //     self.router.navigate(['order/form']);
+      //   } else { // location only
+      //     this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+      //   }
+      // } else { // no location
         self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: { location: null } });
         this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-      }
+      // }
     }
   }
 
