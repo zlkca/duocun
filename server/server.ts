@@ -46,6 +46,7 @@ import { LocationRouter } from "./routers/location-route";
 import { PickupRouter } from "./routers/pickup-route";
 import { DriverRouter } from "./routers/driver-route";
 import { DriverShiftRouter } from "./routers/driver-shift-route";
+import { AreaRouter } from './routers/area-route';
 
 import { Product } from "./models/product";
 
@@ -228,8 +229,10 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/DriverHours', DriverHourRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/DriverShifts', DriverShiftRouter(dbo));
 
+  app.use('/' + ROUTE_PREFIX + '/Areas', AreaRouter(dbo));
+
   app.use(express.static(path.join(__dirname, '/../uploads')));
-  app.set('port', process.env.PORT || SERVER.PORT)
+  app.set('port', process.env.PORT || SERVER.PORT);
 
   const server = app.listen(app.get("port"), () => {
     console.log("API is running on :%d/n", app.get("port"));

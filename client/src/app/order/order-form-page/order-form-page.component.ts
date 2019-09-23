@@ -169,8 +169,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
         const date = this.delivery.date;
         const address = this.locationSvc.getAddrString(this.delivery.origin);
-        const query = { delivered: date.toDate(), address: address, status: { $nin: ['del', 'bad'] } };
-
         this.reloadGroupDiscount(this.account.id, date, address, (groupDiscount) => {
           self.getOverRange(this.delivery.origin, (distance, rate) => {
             this.charge = this.getCharge(cart, merchant, this.delivery, (distance * rate), groupDiscount);
