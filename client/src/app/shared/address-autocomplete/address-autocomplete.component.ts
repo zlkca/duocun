@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, OnChanges, ElementRef, Output, EventEmitter, Input, SimpleChange } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { ILocation } from '../../location/location.model';
+import { LocationService } from '../../location/location.service';
 declare var google;
 @Component({
   selector: 'app-address-autocomplete',
@@ -20,7 +21,8 @@ export class AddressAutocompleteComponent implements OnInit {
   private innerValue: any = '';
 
   constructor(
-    private elm: ElementRef
+    private elm: ElementRef,
+    private locationSvc: LocationService
   ) {
     const placeholder = elm.nativeElement.getAttribute('placeholder');
   }
@@ -54,7 +56,7 @@ export class AddressAutocompleteComponent implements OnInit {
           const geocodeResult = self.gAutocomplete.getPlace();
           const addr = self.getLocationFromGeocode(geocodeResult);
           if (addr) {
-            const sAddr = self.getAddrString(addr);
+            const sAddr = self.locationSvc.getAddrString(addr);
             self.addrChange.emit({ addr: addr, sAddr: sAddr });
           } else {
             self.addrChange.emit(null);
@@ -124,12 +126,6 @@ export class AddressAutocompleteComponent implements OnInit {
     } else {
       return null;
     }
-  }
-
-  getAddrString(location: any) {
-    const city = location.subLocality ? location.subLocality : location.city;
-    return location.streetNumber + ' ' + location.streetName + ', ' + city + ', ' + location.province;
-    // + ', ' + location.postalCode;
   }
 
   clearAddr() {

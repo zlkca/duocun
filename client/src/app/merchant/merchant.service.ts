@@ -4,6 +4,8 @@ import { HttpClient } from '../../../node_modules/@angular/common/http';
 import { EntityService } from '../entity.service';
 import * as moment from 'moment';
 import { IRestaurant } from '../restaurant/restaurant.model';
+import { ILocation } from '../location/location.model';
+import { Observable } from '../../../node_modules/rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -62,5 +64,11 @@ export class MerchantService extends EntityService {
     } else {
       return true;
     }
+  }
+
+
+  load(origin: ILocation, delivered: string): Observable<any> {
+    const url = this.url + '/load';
+    return this.doPost(url, { origin: origin, delivered: delivered });
   }
 }

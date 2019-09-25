@@ -20,6 +20,7 @@ import { WarningDialogComponent } from './warning-dialog/warning-dialog.componen
 import { DeliveryDateListComponent } from './delivery-date-list/delivery-date-list.component';
 import { AddressInputComponent } from './address-input/address-input.component';
 import { ProgressSpinnerComponent } from './progress-spinner/progress-spinner.component';
+import { LocationService } from '../location/location.service';
 
 @NgModule({
   imports: [
@@ -44,7 +45,8 @@ import { ProgressSpinnerComponent } from './progress-spinner/progress-spinner.co
   ],
   providers: [
     SharedService,
-    EntityService
+    EntityService,
+    LocationService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [

@@ -26,6 +26,10 @@ const appRoutes: Routes = [
       loadChildren: './location/location.module#LocationModule'
     },
     {
+      path: 'area',
+      loadChildren: './area/area.module#AreaModule'
+    },
+    {
       path: 'payment',
       loadChildren: './payment/payment.module#PaymentModule'
     },
@@ -104,7 +108,8 @@ const appRoutes: Routes = [
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     bootstrap: [AppComponent],
-    providers: [EntityService,
+    providers: [
+      EntityService,
       AuthService
     ]
 

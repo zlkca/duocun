@@ -10,6 +10,8 @@ import { MatDialogModule } from '../../../node_modules/@angular/material';
 import { CartModule } from '../cart/cart.module';
 import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-restaurant-dialog.component';
 import { SharedModule } from '../shared/shared.module';
+import { AreaModule } from '../area/area.module';
+import { AreaService } from '../area/area.service';
 
 
 @NgModule({
@@ -24,8 +26,10 @@ import { SharedModule } from '../shared/shared.module';
     MerchantRoutingModule,
     ProductModule,
     CartModule,
+    AreaModule,
     SharedModule
   ],
+  providers: [AreaService],
   exports: [MerchantListComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [QuitRestaurantDialogComponent]

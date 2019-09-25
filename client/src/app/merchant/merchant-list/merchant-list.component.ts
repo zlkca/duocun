@@ -18,6 +18,7 @@ import { PageActions } from '../../main/main.actions';
 import { RestaurantActions } from '../../restaurant/restaurant.actions';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { CartActions } from '../../cart/cart.actions';
+import { AreaService } from '../../area/area.service';
 
 @Component({
   selector: 'app-merchant-list',
@@ -37,12 +38,14 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   defaultPicture = window.location.protocol + '//placehold.it/400x300';
   malls;
   loading = true;
+  origin;
 
   constructor(
     private merchantSvc: MerchantService,
     private distanceSvc: DistanceService,
     private mallSvc: MallService,
     private rangeSvc: RangeService,
+    private areaSvc: AreaService,
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
@@ -53,8 +56,8 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
     const self = this;
     // if (d.active && d.active.currentValue) {
     if (d.address) {
-      const origin = d.address.currentValue;
-      if (!origin) {
+      this.origin = d.address.currentValue;
+      if (!this.origin) {
         return;
       }
 
@@ -62,46 +65,24 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         return;
       }
 
-      self.rangeSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
-        const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
-        // self.inRange = (rs && rs.length > 0) ? true : false;
-        // self.availableRanges = rs;
-        // this.loadRestaurants(this.malls, rs, null);
-
-        const q = { originPlaceId: origin.placeId }; // origin --- client origin
-        self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
-          self.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
-            self.malls = malls;
-            if (ds && ds.length > 0) {
-              if (ds.length === self.malls.length) {
-                self.loadRestaurants(self.malls, rs, ds);
-              } else {
-                self.updateDistancesAndLoadRestaurants(origin, self.malls, rs);
-              }
-            } else {
-              self.updateDistancesAndLoadRestaurants(origin, self.malls, rs);
-            }
-          });
-        });
-      });
+      this.loadRestaurants(this.origin);
     }
 
     if (d.delivered) {
-      const clonedRestaurants = [];
-      if (self.restaurants) {
-        self.restaurants.map(r => {
-          const item = Object.assign({}, r);
-          item.isClosed = self.merchantSvc.isClosed(item, d.delivered.currentValue);
-          clonedRestaurants.push(item);
-        });
+      this.delivered = d.delivered.currentValue;
+      if (this.origin) {
+        this.loadRestaurants(this.origin);
       }
-      self.restaurants = self.sort(clonedRestaurants);
+      // const clonedRestaurants = [];
+      // if (self.restaurants) {
+      //   self.restaurants.map(r => {
+      //     const item = Object.assign({}, r);
+      //     item.isClosed = self.merchantSvc.isClosed(item, d.delivered.currentValue);
+      //     clonedRestaurants.push(item);
+      //   });
+      // }
+      // self.restaurants = self.sort(clonedRestaurants);
     }
-
-    // } else {
-
-    // }
-
   }
 
   ngOnDestroy() {
@@ -110,43 +91,54 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    // because distances cached inactive malls, so need all malls
-    this.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
-      this.malls = malls;
-      this.loadRestaurants(malls, null, null);
-    });
+    this.loadRestaurants(this.address);
   }
 
-  loadRestaurants(malls, availableRanges, distances) { // load with distance
+  loadRestaurants(origin: ILocation) { // load with distance
     const self = this;
+    if (origin) {
+      this.merchantSvc.load(origin, this.delivered.toDate()).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
+        const markers = []; // markers on map
+        rs.map((restaurant: IRestaurant) => {
+          if (restaurant.location) {
+            markers.push({
+              lat: restaurant.location.lat,
+              lng: restaurant.location.lng,
+              name: restaurant.name
+            });
+          }
 
-    this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRestaurant[]) => {
-      const markers = []; // markers on map
-      rs.map((restaurant: IRestaurant) => {
-        if (restaurant.location) {
-          markers.push({
-            lat: restaurant.location.lat,
-            lng: restaurant.location.lng,
-            name: restaurant.name
-          });
-        }
-
-        const mall = malls.find(m => m.id === restaurant.malls[0]); // fix me, get physical distance
-        restaurant.inRange = availableRanges ? self.isInRange(mall, availableRanges) : true;
-        const distance = distances ? self.getDistance(distances, mall) : 0;
-        restaurant.distance = distance / 1000;
-        restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
-        restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(distance / 1000);
-        restaurant.isClosed = self.merchantSvc.isClosed(restaurant, self.delivered);
+          restaurant.distance = restaurant.distance / 1000;
+          restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
+          restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
+          restaurant.isClosed = self.merchantSvc.isClosed(restaurant, self.delivered);
+        });
+        self.markers = markers;
+        self.restaurants = this.sort(rs);
+        self.loading = false;
       });
-      self.markers = markers;
-      self.restaurants = this.sort(rs);
-      self.loading = false;
-    }, (err: any) => {
-      self.restaurants = [];
-      self.loading = false;
+    } else {
+      this.merchantSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
+        const markers = []; // markers on map
+        rs.map((restaurant: IRestaurant) => {
+          if (restaurant.location) {
+            markers.push({
+              lat: restaurant.location.lat,
+              lng: restaurant.location.lng,
+              name: restaurant.name
+            });
+          }
+
+          restaurant.distance = 0; // restaurant.distance / 1000;
+          restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
+          restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
+          restaurant.isClosed = self.merchantSvc.isClosed(restaurant, self.delivered);
+        });
+        self.markers = markers;
+        self.restaurants = this.sort(rs);
+        self.loading = false;
+      });
     }
-    );
   }
 
   isInRange(mall: IMall, availableRanges: IRange[]) {
@@ -245,22 +237,6 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
 
   getDistanceString(r: IRestaurant) {
     return r.distance.toFixed(2) + ' km';
-  }
-
-  updateDistancesAndLoadRestaurants(origin, malls, ranges) {
-    const self = this;
-    const destinations: ILocation[] = [];
-    malls.map(m => {
-      destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-    });
-    this.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((ks: IDistance[]) => {
-      if (ks) {
-        // const ms = self.updateMallInfo(rs, malls);
-        self.loadRestaurants(malls, ranges, ks);
-      }
-    }, err => {
-      console.log(err);
-    });
   }
 
   sort(restaurants) {

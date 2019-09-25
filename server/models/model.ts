@@ -77,8 +77,10 @@ export class Model extends Entity {
 
   update(req: Request, res: Response) {
     if (req.body.data instanceof Array) {
-      this.bulkUpdate(req.body.data, req.body.options);
-      res.end();
+      this.bulkUpdate(req.body.data, req.body.options).then(x => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(x.result, null, 3));
+      });
     } else {
       if (req.body && req.body.filter) {
         this.updateOne(req.body.filter, req.body.data, req.body.options).then((x: any) => {

@@ -104,14 +104,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.today = { type: 'lunch today', text: '今天午餐', date: today.format('YYYY-MM-DD'), startTime: '11:45', endTime: '13:15' };
     this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow.format('YYYY-MM-DD'), startTime: '11:45', endTime: '13:15' };
 
-    this.placeForm = this.fb.group({
-      addr: ['']
-    });
+    this.placeForm = this.fb.group({ addr: ['']});
     this.loading = true;
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: { name: 'home' }
-    });
+    this.rx.dispatch({type: PageActions.UPDATE_URL, payload: { name: 'home' }});
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
       if (d && d.origin) {
@@ -257,10 +252,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.places = []; // clear address list
-    this.rx.dispatch<IPageAction>({
-      type: PageActions.UPDATE_URL,
-      payload: { name: 'home' }
-    });
+    this.rx.dispatch<IPageAction>({ type: PageActions.UPDATE_URL, payload: { name: 'home' }});
     this.rx.select('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'clear-location-list') {
         this.places = [];

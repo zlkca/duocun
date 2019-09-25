@@ -4,8 +4,6 @@ export interface IEntityBase {
   id?: string;
 }
 
-
-
 export interface IUserBase {
   id: string;
   username: string;
