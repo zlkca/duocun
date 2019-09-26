@@ -39,6 +39,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   malls;
   loading = true;
   origin;
+  bHasAddress;
 
   constructor(
     private merchantSvc: MerchantService,
@@ -70,9 +71,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
 
     if (d.delivered) {
       this.delivered = d.delivered.currentValue;
-      if (this.origin) {
-        this.loadRestaurants(this.origin);
-      }
+      this.loadRestaurants(this.origin); // this.origin could be empty
       // const clonedRestaurants = [];
       // if (self.restaurants) {
       //   self.restaurants.map(r => {
@@ -97,6 +96,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   loadRestaurants(origin: ILocation) { // load with distance
     const self = this;
     if (origin) {
+      this.bHasAddress = true;
       this.merchantSvc.load(origin, this.delivered.toDate()).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
         const markers = []; // markers on map
         rs.map((restaurant: IRestaurant) => {
@@ -118,7 +118,8 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         self.loading = false;
       });
     } else {
-      this.merchantSvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
+      this.bHasAddress = false;
+      this.merchantSvc.find({status: 'active'}).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
         const markers = []; // markers on map
         rs.map((restaurant: IRestaurant) => {
           if (restaurant.location) {
@@ -223,7 +224,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         deliveryDiscount: r.fullDeliveryFee
       }
     });
-    this.router.navigate(['merchant/list/' + r.id]);
+    this.router.navigate(['merchant/list/' + r.id + '/' + r.onSchedule]);
   }
 
   getFilter(query?: any) {

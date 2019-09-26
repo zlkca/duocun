@@ -12,7 +12,7 @@
           <div *ngFor="let group of groups">
             <div *ngIf="group && group.items && group.items.length > 0">
               <div class="category-row text-sm">{{group.categoryName}}</div>
-              <app-product-list [restaurant]="restaurant" [items]="group.items"></app-product-list>
+              <app-product-list [restaurant]="restaurant" [items]="group.items" [hasAddress]="bHasAddress"></app-product-list>
             </div>
           </div>
         </mat-tab>

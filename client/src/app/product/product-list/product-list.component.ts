@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, OnChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductService } from '../product.service';
 import { environment } from '../../../environments/environment';
@@ -28,12 +28,13 @@ const ADD_IMAGE = 'add_photo.png';
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
-export class ProductListComponent implements OnInit, OnDestroy {
+export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   MEDIA_URL: string = environment.MEDIA_URL;
 
   @Input() restaurant: IRestaurant;
   @Input() items: any[]; // {product:x, quantity: y}
   @Input() mode: string;
+  @Input() hasAddress: boolean;
   @Output() select = new EventEmitter();
   @Output() afterDelete = new EventEmitter();
 
@@ -53,6 +54,27 @@ export class ProductListComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.onDestroy$.next();
     this.onDestroy$.complete();
+  }
+
+  ngOnChanges(d) { // this is run before ngOnInit
+
+    if (d.hasAddress && d.hasAddress.currentValue) {
+      // this.
+    }
+    // const self = this;
+    // if (d.active && d.active.currentValue) {
+    // if (d.address) {
+    //   this.origin = d.address.currentValue;
+    //   if (!this.origin) {
+    //     return;
+    //   }
+
+    //   if (d.bAddressList && d.bAddressList.currentValue) {
+    //     return;
+    //   }
+
+    //   this.loadRestaurants(this.origin);
+    // }
   }
 
   constructor(
@@ -108,7 +130,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   addToCart(p: IProduct) {
-    if (this.merchantSvc.isClosed(this.restaurant, this.deliveryDate)) {
+    const merchant = this.restaurant;
+    if (this.merchantSvc.isClosed(merchant, this.deliveryDate) || (this.hasAddress && !merchant.onSchedule)) {
       alert('该商家休息，暂时无法配送');
       return;
     }

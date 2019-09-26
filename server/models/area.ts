@@ -2,6 +2,7 @@ import { DB } from "../db";
 import { Model } from "./model";
 
 import { Request, Response } from "express";
+import { Distance } from "./distance";
 
 export interface ILatLng {
   lat: number;
@@ -17,25 +18,20 @@ export interface IArea {
 }
 
 export class Area extends Model{
+  distanceModel: Distance;
   constructor(dbo: DB) {
-		super(dbo, 'areas');
-  }
-
-  // ----------------------------------------------
-  getDirectDistance(d1: ILatLng, d2: ILatLng) {
-    const dLat = (d2.lat - d1.lat);
-    const dLng = (d2.lng - d1.lng);
-    return Math.sqrt(dLat * dLat + dLng * dLng);
+    super(dbo, 'areas');
+    this.distanceModel = new Distance(dbo);
   }
 
   getNearestArea(origin: ILatLng): Promise<IArea>{
     return new Promise( (resolve, reject) => {
       this.find({}).then((areas: IArea[]) => {
         let selected: IArea = areas[0];
-        let shortest = this.getDirectDistance(origin, selected);
+        let shortest = this.distanceModel.getDirectDistance(origin, selected);
         for (let i = 1; i < areas.length; i++) {
           const area = areas[i];
-          const distance = this.getDirectDistance(origin, area);
+          const distance = this.distanceModel.getDirectDistance(origin, area);
           if (shortest > distance) {
             selected = area;
             shortest = distance;

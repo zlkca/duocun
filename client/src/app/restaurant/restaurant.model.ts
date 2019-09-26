@@ -29,6 +29,7 @@ export interface IRestaurant {
   order?: number;
   startTime?: string;
   endTime?: string;
+  onSchedule?: boolean;
 }
 
 // For database

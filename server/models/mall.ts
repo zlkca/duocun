@@ -3,6 +3,7 @@ import { Model } from "./model";
 import { Request, Response } from "express";
 import { Entity } from "../entity";
 import moment from "moment-timezone";
+import { Area, IArea } from "./area";
 
 export interface IMall {
   id?: any;
@@ -30,10 +31,11 @@ export interface IMallSchedule{
 
 export class Mall extends Model {
   scheduleEntity: Entity;
-
+  areaModel: Area;
   constructor(dbo: DB) {
     super(dbo, 'malls');
     this.scheduleEntity = new Entity(dbo, 'mall_schedules');
+    this.areaModel = new Area(dbo);
   }
 
   getAvailableMallIds(areaId: string, delivered: string): Promise<string[]>{
@@ -55,17 +57,19 @@ export class Mall extends Model {
     });
   }
 
-  getAvailables(req: Request, res: Response) {
-    const areaId = req.body.areaId;
+  getAvailableIds(req: Request, res: Response) {
+    const origin = req.body.origin;
     const delivered = req.body.delivered;
 
-    this.getAvailableMallIds(areaId, delivered).then((mallIds: string[]) => {
-      res.setHeader('Content-Type', 'application/json');
-      if (!(mallIds && mallIds.length)) {
-        res.end(JSON.stringify({ status: 'fail', mallIds: [] }, null, 3));
-      } else {
-        res.end(JSON.stringify({ status: 'success', mallIds: mallIds }, null, 3));
-      }
+    this.areaModel.getNearestArea(origin).then((area: IArea) => {
+      this.getAvailableMallIds(area.id.toString(), delivered).then((mallIds: string[]) => {
+        res.setHeader('Content-Type', 'application/json');
+        if (!(mallIds && mallIds.length)) {
+          res.end(JSON.stringify({ status: 'fail', mallIds: [] }, null, 3));
+        } else {
+          res.end(JSON.stringify({ status: 'success', mallIds: mallIds }, null, 3));
+        }
+      });
     });
   }
 }

@@ -42,6 +42,9 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   contact: IContact;
   delivery: IDelivery;
 
+  onSchedule: boolean;
+  bHasAddress: boolean;
+
   constructor(
     private productSvc: ProductService,
     private categorySvc: CategoryService,
@@ -56,10 +59,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     const self = this;
 
     // show cart on footer
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: { name: 'restaurant-detail' }
-    });
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'restaurant-detail' } });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       self.delivery = x;
@@ -100,6 +100,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         this.checkout();
       }
     });
+
     this.locationSubscription = this.location.subscribe((x) => {
       if (window.location.pathname.endsWith('main/home') ||
         window.location.pathname.endsWith('/') ||
@@ -115,15 +116,22 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         }
       }
     });
-
-
   }
 
   ngOnInit() {
     const self = this;
     self.route.params.pipe(takeUntil(this.onDestroy$)).subscribe(params => {
       const merchantId = params['id'];
+      if (params['onSchedule'] === 'undefined') {
+        this.bHasAddress = false;
+        this.onSchedule = true;
+      } else {
+        this.bHasAddress = true;
+        this.onSchedule = params['onSchedule'] === 'true' ? true : false;
+      }
+
       self.merchantSvc.findById(merchantId).pipe(takeUntil(this.onDestroy$)).subscribe((restaurant: IRestaurant) => {
+        restaurant.onSchedule = self.onSchedule;
         self.restaurant = restaurant;
 
         const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
@@ -225,8 +233,8 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       //     this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
       //   }
       // } else { // no location
-        self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: { location: null } });
-        this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+      self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: { location: null } });
+      this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
       // }
     }
   }

@@ -49,6 +49,13 @@ export class Distance extends Model {
     this.cfg = new Config();
   }
 
+  // ----------------------------------------------
+  getDirectDistance(d1: ILatLng, d2: ILatLng) {
+    const dLat = (d2.lat - d1.lat);
+    const dLng = (d2.lng - d1.lng);
+    return Math.sqrt(dLat * dLat + dLng * dLng);
+  }
+
   doReqRoadDistances(origin: ILocation, destinations: ILocation[]): Promise<ILocation[]> {
     const key = this.cfg.GOOGLE_DISTANCE_KEY;
     const ds: string[] = [];

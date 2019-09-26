@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges } from '@angular/core';
 import { IPlace, ILocation, ILocationHistory, IDistance } from '../../location/location.model';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
@@ -53,6 +53,8 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   bUpdateLocationList = true;
   malls: IMall[];
   availableRanges: IRange[];
+  delivered; // moment object
+  onSchedule;
 
   constructor(
     private accountSvc: AccountService,
@@ -129,12 +131,17 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IRestaurant) => {
       self.restaurant = r;
     });
+
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((r: IDelivery) => {
+      this.delivered = r.date;
+    });
   }
 
   ngOnDestroy() {
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }
+
 
   onAddressChange(e) {
     // const self = this;
@@ -215,10 +222,14 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       }
 
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
-      this.checkRange(r, () => {
-        self.rx.dispatch({
-          type: CommandActions.SEND,
-          payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+
+      this.checkMallSchedule(r, this.delivered.toISOString()).then(bOnSchedule => {
+        this.onSchedule = bOnSchedule;
+        this.checkRange(r, () => {
+          self.rx.dispatch({
+            type: CommandActions.SEND,
+            payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+          });
         });
       });
     }
@@ -378,6 +389,13 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         return;
       }
 
+      if (!self.onSchedule) {
+        this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
+        self.router.navigate(['main/home']);
+        return;
+      }
+
+      // fix me!!!
       const mall = this.malls.find(m => m.id === this.restaurant.malls[0]);
       if (!this.mallSvc.isInRange(mall, this.availableRanges)) {
         alert('此餐馆不在配送范围内');
@@ -412,6 +430,20 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       });
       // });
     }
+  }
+
+  checkMallSchedule(origin: ILocation, delivered: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.mallSvc.getAvailables(origin, delivered).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
+        const mallIds = ret.mallIds;
+        if (mallIds && mallIds.length > 0) {
+          const id = mallIds.find(mId => mId === this.restaurant.mallId);
+          resolve(id ? true : false);
+        } else {
+          resolve(false);
+        }
+      });
+    });
   }
 
   checkRange(origin, cb) {

@@ -9,8 +9,8 @@
       <div class="row grid-item-body" *ngIf="r.distance!==null">
         <div class="col-6 image-body">
           <img [src]="getImageSrc(r)" [alt]="r.name">
-          <div class="shadow-layer" *ngIf="r.isClosed || !r.inRange || isNotOpening(r)"></div>
-          <div class="title-md rest-1" *ngIf="!r.inRange || r.isClosed">休息中</div>
+          <div class="shadow-layer" *ngIf="r.isClosed || (bHasAddress && !r.onSchedule) || isNotOpening(r)"></div>
+          <div class="title-md rest-1" *ngIf="(bHasAddress && !r.onSchedule) || r.isClosed">休息中</div>
           <!-- <div class="title-md not-in-range" *ngIf="!r.inRange">不在配送范围</div>
           <div class="title-sm rest-2" *ngIf="!r.inRange || r.isClosed">暂不提供配送</div> -->
           <div class="title-sm rest-3" *ngIf="r.inRange && !r.isClosed && isNotOpening(r)">{{r.endTime}}截止下单</div>

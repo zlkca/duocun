@@ -81,16 +81,10 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'checkout') {
-        this.rx.dispatch({
-          type: CommandActions.SEND,
-          payload: {name: ''}
-        });
+        this.rx.dispatch({ type: CommandActions.SEND, payload: {name: ''}});
         this.checkout();
       } else if (x.name === 'cart-back') {
-        this.rx.dispatch({
-          type: CommandActions.SEND,
-          payload: {name: ''}
-        });
+        this.rx.dispatch({ type: CommandActions.SEND, payload: {name: ''}});
         this.back();
       }
     });
@@ -148,12 +142,12 @@ export class CartPageComponent implements OnInit, OnDestroy {
     // if it doesn't have default address
     if (this.location) {
       if (this.contact) {
-        self.router.navigate(['order/form']);
+        this.router.navigate(['order/form']);
       } else {
         this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
       }
     } else {
-      self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: { location: null } });
+      this.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: { location: null } });
       this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
     }
   }

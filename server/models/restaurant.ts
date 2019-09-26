@@ -4,19 +4,43 @@ import { Entity } from "../entity";
 import { Mall, IMall } from "./mall";
 import { Distance, ILocation, IDistance } from "./distance";
 import { Area, ILatLng, IArea } from "./area";
+import { Range } from './range';
 
 import { Request, Response } from "express";
+
+// ------------- interface v2 ----------------
+export interface IRestaurant {
+  id: string;
+  name: string;
+  description: string;
+  location: ILatLng; // lat lng
+  ownerId: string;
+  malls: string[]; // mall id
+  created: Date;
+  modified: Date;
+  closed?: Date[];
+  dow?: string; // day of week opening, eg. '1,2,3,4,5'
+  pictures: string[];
+  address: string;
+  order?: number;
+  startTime?: string;
+  endTime?: string;
+  // inRange: boolean;
+  onSchedule: boolean;
+}
 
 export class Restaurant extends Model {
   mall: Mall;
   distance: Distance;
   area: Area;
+  range: Range;
 
   constructor(dbo: DB) {
     super(dbo, 'restaurants');
     this.mall = new Mall(dbo);
     this.distance = new Distance(dbo);
     this.area = new Area(dbo);
+    this.range = new Range(dbo);
   }
 
   load(origin: ILocation, delivered: string): Promise<any> {
@@ -43,26 +67,26 @@ export class Restaurant extends Model {
             const availableMalls = malls.filter(m => mallIds.find(id => id === m.id) ? true : false);
 
             this.distance.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
-              this.find({ status: 'active' }).then(rs => {
-                rs.map((r: any) => {
-                  const availableMall = availableMalls.find(m => m.id === r.mallId);
-                  if (availableMall) {
-                    const d = ds.find(x => x.destinationPlaceId === availableMall.placeId);
-                    r.inRange = true;
-                    r.distance = d ? d.element.distance.value : 0;
-                  } else {
-                    const mall = malls.find(m => m.id === r.mallId);
-                    r.inRange = false;
-                    if (mall) {
-                      const d = ds.find(x => x.destinationPlaceId === mall.placeId);
+                this.find({ status: 'active' }).then(rs => {
+                  rs.map((r: any) => {
+                    const availableMall = availableMalls.find(m => m.id === r.mallId);
+                    if (availableMall) {
+                      const d = ds.find(x => x.destinationPlaceId === availableMall.placeId);
+                      r.onSchedule = true;
                       r.distance = d ? d.element.distance.value : 0;
                     } else {
-                      r.distance = 0;
+                      const mall = malls.find(m => m.id === r.mallId);
+                      r.onSchedule = false;
+                      if (mall) {
+                        const d = ds.find(x => x.destinationPlaceId === mall.placeId);
+                        r.distance = d ? d.element.distance.value : 0;
+                      } else {
+                        r.distance = 0;
+                      }
                     }
-                  }
+                  });
+                  resolve(rs);
                 });
-                resolve(rs);
-              });
             }, err => {
               reject();
             });
