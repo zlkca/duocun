@@ -246,6 +246,10 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         return -1;
       } else if (a.isClosed && !b.isClosed) {
         return 1;
+      } else if (a.onSchedule && !b.onSchedule) {
+        return -1;
+      } else if (!a.onSchedule && b.onSchedule) {
+        return 1;
       } else if (!this.isNotOpening(a) && this.isNotOpening(b)) {
         return -1;
       } else if (this.isNotOpening(a) && !this.isNotOpening(b)) {
