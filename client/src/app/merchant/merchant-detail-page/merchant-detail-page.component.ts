@@ -181,17 +181,18 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     products.map(p => {
       const cat = cats.find(c => c.categoryId === p.categoryId);
       const category = categories.find(c => c.id === p.categoryId);
+
       if (cat) {
         cat.items.push({ product: p, quanlity: 0 });
       } else {
         if (category) {
           cats.push({
-            categoryId: p.categoryId, categoryName: p.category.name, order: category.order,
+            categoryId: p.categoryId, categoryName: category.name, order: category.order,
             items: [{ product: p, quanlity: 0 }]
           });
-        } else {
+        } else { // shouldn't happen
           cats.push({
-            categoryId: p.categoryId, categoryName: p.category.name, order: 0,
+            categoryId: p.categoryId, categoryName: '其他', order: 0,
             items: [{ product: p, quanlity: 0 }]
           });
         }
@@ -199,7 +200,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     });
 
     cats.map(c => {
-      c.items.sort((a, b) => {
+      c.items = c.items.sort((a, b) => {
         if (a.product.order < b.product.order) {
           return -1;
         } else {

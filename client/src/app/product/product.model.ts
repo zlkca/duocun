@@ -30,9 +30,6 @@ export class Product implements IProduct {
   categoryId: string;
   created: Date;
   modified: Date;
-  // owner: Restaurant;
-  // restaurant: Restaurant;
-  category: Category;
   pictures: Picture[];
   dow?: string[];
   order?: number;

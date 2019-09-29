@@ -391,6 +391,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
       if (!self.onSchedule) {
         this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
+        alert('该餐馆今天休息，请选择其他餐馆');
         self.router.navigate(['main/home']);
         return;
       }

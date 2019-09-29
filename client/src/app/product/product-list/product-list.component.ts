@@ -141,6 +141,11 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
+    if (!this.hasAddress) {
+      alert('请先输入送餐地址');
+      this.router.navigate(['main/home']);
+    }
+
     const origin = this.delivery.origin;
     if (origin) {
       const rs = this.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, this.ranges);
