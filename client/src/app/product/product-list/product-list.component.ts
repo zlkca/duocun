@@ -144,6 +144,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     if (!this.hasAddress) {
       alert('请先输入送餐地址');
       this.router.navigate(['main/home']);
+      return;
     }
 
     const origin = this.delivery.origin;

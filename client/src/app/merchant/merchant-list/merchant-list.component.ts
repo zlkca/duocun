@@ -129,7 +129,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
               name: restaurant.name
             });
           }
-
+          restaurant.inRange = true; // for display order deadline wording
           restaurant.distance = 0; // restaurant.distance / 1000;
           restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);

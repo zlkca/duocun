@@ -74,9 +74,11 @@ export class Restaurant extends Model {
                       const d = ds.find(x => x.destinationPlaceId === availableMall.placeId);
                       r.onSchedule = true;
                       r.distance = d ? d.element.distance.value : 0;
+                      r.inRange = true;
                     } else {
                       const mall = malls.find(m => m.id === r.mallId);
                       r.onSchedule = false;
+                      r.inRange = false;
                       if (mall) {
                         const d = ds.find(x => x.destinationPlaceId === mall.placeId);
                         r.distance = d ? d.element.distance.value : 0;

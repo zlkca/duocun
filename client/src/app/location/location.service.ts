@@ -271,10 +271,15 @@ export class LocationService extends EntityService {
     if (location) {
       const city = location.subLocality ? location.subLocality : location.city;
       const province = this.toProvinceAbbr(location.province);
-      return location.streetNumber + ' ' + location.streetName + ', ' + city + ', ' + province;
+      const streetName = this.toStreetAbbr(location.streetName);
+      return location.streetNumber + ' ' + streetName + ', ' + city + ', ' + province;
     } else {
       return '';
     }
+  }
+
+  toStreetAbbr(streetName: string) {
+    return streetName.replace(' Street,', ' St,').replace(' Avenue,', ' Ave,');
   }
 
   getAddrStringByPlace(place) {
