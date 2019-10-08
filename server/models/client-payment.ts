@@ -10,7 +10,6 @@ import { Md5 } from 'ts-md5';
 
 import { Order } from "../models/order";
 import { ClientBalance } from "./client-balance";
-import { resolve } from "../../node_modules/@types/q";
 
 export class ClientPayment extends Model {
   cfg: Config;

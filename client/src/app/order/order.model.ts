@@ -36,6 +36,7 @@ export interface IOrder {
   paymentMethod ?: string;
   chargeId?: string; // stripe chargeId
   transactionId?: string;
+  payable?: number; // total - balance
 }
 
 export class Order implements IOrder {

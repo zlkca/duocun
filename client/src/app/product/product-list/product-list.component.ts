@@ -40,7 +40,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
   selected = null;
   onDestroy$ = new Subject();
-  categories;
   cart;
   deliveryDate; // moment object
   delivery: IDelivery;
@@ -81,28 +80,14 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     private mallSvc: MallService,
     private rangeSvc: RangeService,
     private merchantSvc: MerchantService,
-    private categorySvc: CategoryService,
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
     const self = this;
-    this.categorySvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(categories => {
-      this.categories = categories;
-    });
+
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.cart = cart;
-      // if (this.products) {
-      //   self.categorySvc.find().pipe(takeUntil(self.onDestroy$)).subscribe(categories => {
-      //     self.groups = self.groupByCategory(this.products, categories);
-      //     self.groups.map(group => {
-      //       group.items.map(groupItem => {
-      //         const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product.id);
-      //         groupItem.quantity = cartItem ? cartItem.quantity : 0;
-      //       });
-      //     });
-      //   });
-      // }
     });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
@@ -162,7 +147,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
       type: CartActions.ADD_TO_CART,
       payload: {
         items: [{
-          productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures, cost: p.cost,
+          productId: p._id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures, cost: p.cost,
           merchantId: p.merchantId, merchantName: this.restaurant.name
         }]
       }
@@ -174,7 +159,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
       type: CartActions.REMOVE_FROM_CART,
       payload: {
         items: [{
-          productId: p.id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+          productId: p._id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
           merchantId: p.merchantId, merchantName: this.restaurant.name
         }]
       }
@@ -196,7 +181,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
       type: CartActions.UPDATE_QUANTITY,
       payload: {
         items: [{
-          productId: p.id, productName: p.name, price: p.price, quantity: quantity, pictures: p.pictures,
+          productId: p._id, productName: p.name, price: p.price, quantity: quantity, pictures: p.pictures,
           merchantId: p.merchantId, merchantName: this.restaurant.name
         }]
       }
@@ -216,21 +201,5 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     this.select.emit({ 'product': p });
   }
 
-  change(p: Product) {
-    this.router.navigate(['admin/products/' + p.id]);
-  }
-
-  add() {
-    // this.router.navigate(['admin/product']);
-    this.router.navigate(['admin/product'], { queryParams: { restaurant_id: this.restaurant.id } });
-  }
-
-  delete(p) {
-    const self = this;
-    // this.productSvc.deleteById(p.id).subscribe(x => {
-    //   self.selected = null;
-    //   self.afterDelete.emit({ product: p });
-    // });
-  }
 }
 

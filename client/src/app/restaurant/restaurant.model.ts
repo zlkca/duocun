@@ -4,8 +4,14 @@ import { Address } from '../account/account.model';
 import { GeoPoint } from '../location/location.model';
 import { Order } from '../order/order.model';
 
+export interface IMerchantTimeSlot {
+  orderStartTime: string; // hh:mm
+  orderEndTime: string; // hh:mm
+  pickupTime: string; // hh:mm
+}
 
 export interface IRestaurant {
+  _id?: string;
   id?: string;
   name: string;
   description?: string;
@@ -22,11 +28,15 @@ export interface IRestaurant {
   deliveryCost?: number;
   fullDeliveryFee?: number;
   deliveryDiscount?: number;
+
+  pictureId?: string;
+
+  order?: number;
+  slot?: IMerchantTimeSlot[];
   products?: Product[];
   orders?: Order[];
   pictures?: Picture[];
   address?: Address;
-  order?: number;
   startTime?: string;
   endTime?: string;
   onSchedule?: boolean;

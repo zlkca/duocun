@@ -53,6 +53,21 @@ export class Model extends Entity {
     }
   }
 
+  // join2(req: Request, res: Response) {
+  //   const from = req.body.fromCollection;
+  //   const localField = req.body.localField;
+  //   const foreignField = req.body.foreignField;
+  //   const as = req.body.as;
+  //   const query = req.body.query;
+  //   this.join(from, localField, foreignField, as, query).then((rs: any) => {
+  //     if (rs) {
+  //       res.send(JSON.stringify(rs, null, 3));
+  //     } else {
+  //       res.send(JSON.stringify(null, null, 3))
+  //     }
+  //   });
+  // }
+
   create(req: Request, res: Response) {
     if (req.body instanceof Array) {
       this.insertMany(req.body).then((x: any) => {

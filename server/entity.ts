@@ -2,6 +2,12 @@ import { Collection, ObjectId, ObjectID, InsertWriteOpResult, MongoError, BulkWr
 import { DB } from "./db";
 import { Db } from 'mongodb';
 
+export interface IJoinParam {
+  from: string,
+  localField: string,
+  foreignField: string,
+  as: string
+}
 
 export class Entity {
   private db: Db;
@@ -29,12 +35,35 @@ export class Entity {
     }
   }
 
+  join(params: IJoinParam[], query: any = {}): Promise<any> {
+    const q: any[] = [
+      { $match: query }
+    ];
+
+    params.map(p => {
+      q.push({ $lookup: p });
+      q.push({ $unwind: '$'+p.as});
+    });
+
+    const self = this;
+    return new Promise((resolve, reject) => {
+      self.getCollection().then((c: Collection) => {
+        c.aggregate(q, (err, ret) => {
+          ret.toArray().then(x => {
+            resolve(x);
+          });
+        });
+      });
+    });
+  }
+
+
   insertOne(doc: any): Promise<any> {
     const self = this;
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.insertOne(doc).then((result: any) => { // InsertOneWriteOpResult
-          const ret = (result.ops && result.ops.length>0) ? result.ops[0] : null;
+          const ret = (result.ops && result.ops.length > 0) ? result.ops[0] : null;
           if (ret && ret._id) {
             ret.id = ret._id;
             delete (ret._id);
@@ -69,7 +98,7 @@ export class Entity {
         c.findOne(query, options, (err, doc) => {
           if (doc && doc._id) {
             doc.id = doc._id;
-            delete (doc._id);
+            // delete (doc._id);
           }
           resolve(doc);
         });
@@ -103,7 +132,7 @@ export class Entity {
             docs.map((v, i) => {
               if (v && v._id) {
                 v.id = v._id;
-                delete (v._id);
+                // delete (v._id);
               }
               s.push(v);
             });
@@ -166,7 +195,7 @@ export class Entity {
     });
   }
 
-  bulkUpdate(items: any[], options?: any) : Promise<BulkWriteOpResultObject> {
+  bulkUpdate(items: any[], options?: any): Promise<BulkWriteOpResultObject> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         const clonedArray: any[] = JSON.parse(JSON.stringify(items));
@@ -180,7 +209,19 @@ export class Entity {
             delete query['id'];
           }
 
-          a.push({ updateOne: { filter: query, update: {$set: doc}, upsert: true } });
+          if (doc && doc.hasOwnProperty('categoryId')) {
+            const catId = doc['categoryId'];
+            if (typeof catId === 'string' && catId.length === 24) {
+              doc['categoryId'] = new ObjectID(catId);
+            }
+          }
+          if (doc && doc.hasOwnProperty('merchantId')) {
+            const merchantId = doc['merchantId'];
+            if (typeof merchantId === 'string' && merchantId.length === 24) {
+              doc['merchantId'] = new ObjectID(merchantId);
+            }
+          }
+          a.push({ updateOne: { filter: query, update: { $set: doc }, upsert: true } });
         });
 
         c.bulkWrite(a, (err, result: BulkWriteOpResultObject) => {
@@ -198,7 +239,7 @@ export class Entity {
     });
   }
 
-  bulkDelete(queries: any[], options?: any): Promise<BulkWriteOpResultObject>  {
+  bulkDelete(queries: any[], options?: any): Promise<BulkWriteOpResultObject> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         const clonedArray: any[] = JSON.parse(JSON.stringify(queries));
@@ -256,10 +297,10 @@ export class Entity {
   insertMany(items: any[]): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
-        c.insertMany(items, {}, (err: MongoError, r: InsertWriteOpResult) => {
+        c.insertMany(items, {}, (err: MongoError, r: any) => { //InsertWriteOpResult
           if (!err) {
             const rs: any[] = [];
-            r.ops.map(obj => {
+            r.ops.map((obj: any) => {
               if (obj && obj._id) {
                 obj.id = obj._id;
                 delete (obj._id);

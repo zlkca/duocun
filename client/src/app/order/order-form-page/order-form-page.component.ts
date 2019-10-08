@@ -150,7 +150,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       if (bs && bs.length > 0) {
         self.balance = bs[0];
       } else {
-        self.balance = null;
+        self.balance = null; // should never go here
       }
     });
 
@@ -344,6 +344,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, code, v.note);
 
         if (self.balance.amount >= order.total) {
+          order.payable = 0;
           order.status = 'paid';
           order.paymentMethod = 'prepaid';
 
@@ -358,6 +359,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             });
           });
         } else {
+          order.payable = order.total - self.balance.amount;
           if (self.paymentMethod === 'cash') {
             self.handleWithCash(self.balance, order, code, v.note);
           } else {
@@ -442,9 +444,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
 
     if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
-
       if (this.order && this.order.id) { // modify order
-        // const order = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
         order.id = this.order.id;
         order.created = this.order.created;
         // if (this.order.paymentMethod === 'card') {
@@ -460,7 +460,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         if (order) { // modify, currently never run to here
           self.updateOrder(order.id, order, (orderUpdated) => {
             self.snackBar.open('', '订单已更新', { duration: 1800 });
-
             const paid = (balance.amount > 0) ? balance.amount : 0;
             self.paymentSvc.afterAddOrder(orderUpdated.id, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;
@@ -472,13 +471,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           this.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
         }
       } else { // create new
-        // const order: IOrder = this.createOrder(this.account, this.contact, this.cart, this.delivery, this.charge, code, note);
         if (order) {
           self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((orderCreated: IOrder) => {
             self.snackBar.open('', '订单已成功保存', { duration: 1800 });
             const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-
             const paid = (balance.amount > 0) ? balance.amount : 0;
             self.paymentSvc.afterAddOrder(orderCreated.id, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;

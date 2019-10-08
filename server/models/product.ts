@@ -3,6 +3,7 @@ import { Model } from "./model";
 import { Request, Response } from "express";
 import { Entity } from "../entity";
 import { Category } from "./category";
+import { ObjectID } from "mongodb";
 
 export class Product extends Model {
   categoryModel: Category;
@@ -18,6 +19,43 @@ export class Product extends Model {
     }else{
       res.send(JSON.stringify(null, null, 3))
     }
+  }
+
+  list(req: Request, res: Response) {
+    let query = null;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    let q = query;
+    if (q) {
+      if (q.where) {
+        q = query.where;
+      }
+    } else {
+      q = {};
+    }
+
+    if(q && q.merchantId){
+      q.merchantId = new ObjectID(q.merchantId);
+    }
+
+    if(q && q.categoryId){
+      q.categoryId = new ObjectID(q.categoryId);
+    }
+
+    const params = [
+      {from: 'categories', localField: 'categoryId', foreignField: '_id', as: 'category'},
+      {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}
+    ];
+    this.join(params, q).then((rs: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      if (rs) {
+        res.send(JSON.stringify(rs, null, 3));
+      } else {
+        res.send(JSON.stringify(null, null, 3))
+      }
+    });
   }
 
   // load(req: Request, res: Response) {

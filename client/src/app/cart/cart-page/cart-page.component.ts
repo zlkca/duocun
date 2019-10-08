@@ -110,7 +110,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   addToCart(item: ICartItem) {
-    const product = this.products.find(x => x.id === item.productId);
+    const product = this.products.find(x => x._id === item.productId);
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
       payload: {
@@ -156,33 +156,6 @@ export class CartPageComponent implements OnInit, OnDestroy {
   clearCart() {
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
   }
-
-  // createOrders(cart: ICart) {
-  //   const ids = cart.items.map(x => x.merchantId);
-  //   const merchantIds = ids.filter((val, i, a) => a.indexOf(val) === i);
-  //   const orders = [];
-
-  //   for (const id of merchantIds) {
-  //     orders.push({ merchantId: id, items: [], accountId: this.account.id, clientName: this.account.username });
-  //   }
-
-  //   for (const item of cart.items) {
-  //     for (const order of orders) {
-  //       if (item.merchantId === order.merchantId) {
-  //         const product = this.products.find(x => x.id === item.productId);
-  //         order.items.push({
-  //           productName: item.productName,
-  //           price: item.price,
-  //           cost: product ? product.cost : 0,
-  //           quantity: item.quantity,
-  //           productId: item.productId,
-  //           merchantId: item.merchantId
-  //         });
-  //       }
-  //     }
-  //   }
-  //   return orders;
-  // }
 
   ngOnDestroy() {
     this.onDestroy$.next();

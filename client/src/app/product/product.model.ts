@@ -2,6 +2,7 @@ import { Picture } from '../picture.model';
 import { Restaurant, IRestaurant } from '../restaurant/restaurant.model';
 
 export interface IProduct {
+  _id?: string;
   id?: string;
   name: string;
   description?: string;
