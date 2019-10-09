@@ -9,6 +9,26 @@ import { Entity } from "../entity";
 
 const saltRounds = 10;
 
+export interface IAccount {
+  _id: string;
+  type: string; // wechat, google, fb
+  realm?: string;
+  username?: string;
+  email?: string;
+  emailVerified?: boolean;
+  phone?: string;
+  id?: string;
+  password: string;
+  sex?: string;
+  openid?: string; // wechat openid
+  imageurl?: string;
+  unionid?: string; // wechat unionid
+  accessTokens?: any[];
+  // address?: IAddress;
+  roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'driver', 'user'
+  visited?: boolean;
+  stripeCustomerId?: string;
+}
 
 export class Account extends Model {
   balanceEntity: Entity;
@@ -64,15 +84,15 @@ export class Account extends Model {
       const self = this;
       const credential = {username: req.body.username, password: req.body.password};
       
-      this.findOne({username: credential.username}).then((r: any) => {
+      this.findOne({username: credential.username}).then((r: IAccount) => {
         if(r != null){
           bcrypt.compare(credential.password, r.password, (err, matched) => {
             if(matched){
               res.setHeader('Content-Type', 'application/json');
               r.password = '';
               const cfg = new Config();
-              const tokenId = jwt.sign(r, cfg.JWT.SECRET); // SHA256
-              const token = {id: tokenId, ttl: 10000, userId: r.id};
+              const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
+              const token = {id: tokenId, ttl: 10000, userId: r._id.toString()};
               res.send(JSON.stringify(token, null, 3));
             }else{
               res.send(JSON.stringify(null, null, 3));
@@ -123,6 +143,7 @@ export class Account extends Model {
 
             this.replaceById(r.id, r).then(account => {
               const id = account.id.toString();
+
               this.balanceEntity.find({ accountId: id }).then((x:any) => {
                 if (!(x && x.length > 0)) {
                   this.balanceEntity.insertOne({
@@ -134,9 +155,10 @@ export class Account extends Model {
                   }).then(() => { });
                 }
               });
+
               account.password = '';
-              const tokenId = jwt.sign(account, cfg.JWT.SECRET); // SHA256
-              const token = {id: tokenId, ttl: 10000, userId: account.id};
+              const tokenId = jwt.sign(id, cfg.JWT.SECRET); // SHA256
+              const token = {id: tokenId, ttl: 10000, userId: id};
               res.send(JSON.stringify(token, null, 3));
             }, err => {
               console.log(err);
@@ -163,12 +185,16 @@ export class Account extends Model {
                     amount: 0,
                     created: new Date(),
                     modified: new Date()
-                  }).then(() => { });
+                  }).then(() => { 
+
+                  });
+                }else{
+
                 }
               });
               account.password = '';
-              const tokenId = jwt.sign(account, cfg.JWT.SECRET); // SHA256
-              const token = {id: tokenId, ttl: 10000, userId: account.id};
+              const tokenId = jwt.sign(id, cfg.JWT.SECRET); // SHA256
+              const token = {id: tokenId, ttl: 10000, userId: id};
               res.send(JSON.stringify(token, null, 3));
             }, err => {
               console.log(err);

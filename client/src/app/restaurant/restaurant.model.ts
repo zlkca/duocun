@@ -5,7 +5,6 @@ import { GeoPoint } from '../location/location.model';
 import { Order } from '../order/order.model';
 
 export interface IMerchantTimeSlot {
-  orderStartTime: string; // hh:mm
   orderEndTime: string; // hh:mm
   pickupTime: string; // hh:mm
 }

@@ -272,7 +272,7 @@ export class Entity {
             let obj = result.ops[0]
             if (obj && obj._id) {
               obj.id = obj._id;
-              delete (obj._id);
+              // delete (obj._id);
             }
             resolve(obj);
           } else {

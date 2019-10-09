@@ -10,20 +10,17 @@ export class ApiMiddleWare {
     auth(req: Request, res: Response, next: any) {
       const token = req.get('Authorization');
 
-      if(req.path === '/api/Accounts/wechatLogin' || req.path === '/api/Accounts/login' || req.path === '/api/Accounts/signup' || req.path === '/api/Accounts/logout'
+      if(req.path === '/api/Accounts/wechatLogin' || req.path === '/api/Accounts/login'
+        || req.path === '/api/Accounts/signup' || req.path === '/api/Accounts/logout'
         || req.path.includes('.jpeg') || req.path.includes('.jpg') || req.path.includes('.png')){
         next();
       }else{
         const cfg = new Config();
         if (token) {
           try {
-            const account = jwt.verify(token, cfg.JWT.SECRET);
-            // log.debug("payload={}", payload);
-            // lookup user id
-            // authenticate("duocun:auth:" + payload.username);
-    
+            const accountId = jwt.verify(token, cfg.JWT.SECRET);
             // TODO: compare redis token
-            if(account){
+            if(accountId){
               next();
             }else{
               return res.status(401).send("Authorization: bad token");

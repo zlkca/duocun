@@ -7,6 +7,7 @@ import { Area, ILatLng, IArea } from "./area";
 import { Range } from './range';
 
 import { Request, Response } from "express";
+import { ObjectID } from "mongodb";
 
 // ------------- interface v2 ----------------
 export interface IRestaurant {
@@ -43,6 +44,43 @@ export class Restaurant extends Model {
     this.range = new Range(dbo);
   }
 
+  list(req: Request, res: Response) {
+    let query = null;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    let q = query;
+    if (q) {
+      if (q.where) {
+        q = query.where;
+      }
+    } else {
+      q = {};
+    }
+
+    if(q && q.merchantId){
+      q.merchantId = new ObjectID(q.merchantId);
+    }
+
+    if(q && q.categoryId){
+      q.categoryId = new ObjectID(q.categoryId);
+    }
+
+    const params = [
+      {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'},
+      // {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}
+    ];
+    this.join(params, q).then((rs: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      if (rs) {
+        res.send(JSON.stringify(rs, null, 3));
+      } else {
+        res.send(JSON.stringify(null, null, 3))
+      }
+    });
+  }
+  
   load(origin: ILocation, delivered: string): Promise<any> {
 
     return new Promise((resolve, reject) => {

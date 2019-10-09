@@ -14,7 +14,6 @@ import { Config } from "./config";
 
 import { DB } from "./db";
 import { MerchantStuff } from "./merchant-stuff";
-import { Picture } from "./picture";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
@@ -47,6 +46,7 @@ import { PickupRouter } from "./routers/pickup-route";
 import { DriverRouter } from "./routers/driver-route";
 import { DriverShiftRouter } from "./routers/driver-shift-route";
 import { DriverScheduleRouter } from "./routers/driver-schedule-route";
+import { PictureRouter } from "./routers/picture-route";
 
 import { AreaRouter } from './routers/area-route';
 
@@ -87,8 +87,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 // const upload = multer({ dest: 'uploads/' });
-let product: Product;
-let picture: Picture;
 let mysocket: any;// Socket;
 let io: any;
 
@@ -125,9 +123,9 @@ function setupSocket(server: any) {
 
 // create db connection pool and return connection instance
 dbo.init(cfg.DATABASE).then(dbClient => {
-  product = new Product(dbo);
+  // product = new Product(dbo);
   // merchantStuff = new MerchantStuff(dbo);
-  picture = new Picture();
+  // picture = new Picture();
 
   // socket = new Socket(dbo, io);
 
@@ -187,12 +185,13 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   });
 
   app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res) => {
+    const product = new Product(dbo);
     product.uploadPicture(req, res);
   });
 
-  app.get('/' + ROUTE_PREFIX + '/Pictures', (req, res) => {
-    picture.get(req, res);
-  });
+  // app.get('/' + ROUTE_PREFIX + '/Pictures', (req, res) => {
+  //   picture.get(req, res);
+  // });
 
   app.post('/' + ROUTE_PREFIX + '/files/upload', upload.single('file'), (req, res, next) => {
     res.send('upload file success');
