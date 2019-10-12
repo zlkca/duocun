@@ -6,6 +6,7 @@ import { Picture } from '../picture.model';
 import { ILocation } from '../location/location.model';
 
 export interface IOrder {
+  _id?: string;
   id?: string;
   code?: string;
   clientId?: string;
@@ -77,7 +78,7 @@ export class Order implements IOrder {
 export interface IOrderItem {
   productId: string;
   productName?: string;
-  merchantId: string;
+  merchantId?: string;
   merchantName?: string;
   price?: number;
   cost?: number;
@@ -86,7 +87,7 @@ export interface IOrderItem {
 
 export class OrderItem implements IOrderItem {
   productId: string;
-  merchantId: string;
+  // merchantId: string;
   quantity: number;
   constructor(data?: IOrderItem) {
     Object.assign(this, data);

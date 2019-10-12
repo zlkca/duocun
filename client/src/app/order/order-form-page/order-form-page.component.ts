@@ -295,7 +295,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
         return {
           productId: it.productId,
-          merchantId: it.merchantId,
+          // merchantId: it.merchantId,
           quantity: it.quantity,
         };
       });
