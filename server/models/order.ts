@@ -59,57 +59,57 @@ export class Order extends Model {
     this.clientBalanceEntity = new Entity(dbo, 'client_balances');
   }
 
-  list(req: Request, res: Response) {
-    let query = null;
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
+  // list(req: Request, res: Response) {
+  //   let query = null;
+  //   if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+  //     query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+  //   }
 
-    let q = query;
-    if (q) {
-      if (q.where) {
-        q = query.where;
-      }
-    } else {
-      q = {};
-    }
+  //   let q = query;
+  //   if (q) {
+  //     if (q.where) {
+  //       q = query.where;
+  //     }
+  //   } else {
+  //     q = {};
+  //   }
 
-    if(q && q.merchantId){
-      q.merchantId = new ObjectID(q.merchantId);
-    }
+  //   if(q && q.merchantId){
+  //     q.merchantId = new ObjectID(q.merchantId);
+  //   }
 
-    if(q && q.clientId){
-      q.clientId = new ObjectID(q.clientId);
-    }
+  //   if(q && q.clientId){
+  //     q.clientId = new ObjectID(q.clientId);
+  //   }
 
-    const params = [
-      {$lookup: {from: 'contacts', localField: 'clientId', foreignField: 'accountId', as: 'contact'}},
-      {$unwind: '$contact'},
-      {$lookup: {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}},
-      {$unwind: '$merchant'},
-      {$lookup: {from: 'products', localField: 'items.productId', foreignField: '_id', as: 'products'}},
-    ];
-    this.join(params, q).then((rs: any) => {
-      rs.map((r: any) => {
-        const items: any[] = [];
-        r.items.map((it:any) => {
-          const product = r.products.find((p: any) => p._id.toString() === it.productId.toString());
-          if(product){
-            items.push({product: product, quantity: it.quantity});
-          }
-        });
-        delete r.products;
-        r.items = items;
-      });
+  //   const params = [
+  //     {$lookup: {from: 'contacts', localField: 'clientId', foreignField: 'accountId', as: 'contact'}},
+  //     {$unwind: '$contact'},
+  //     {$lookup: {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}},
+  //     {$unwind: '$merchant'},
+  //     {$lookup: {from: 'products', localField: 'items.productId', foreignField: '_id', as: 'products'}},
+  //   ];
+  //   this.join(params, q).then((rs: any) => {
+  //     rs.map((r: any) => {
+  //       const items: any[] = [];
+  //       r.items.map((it:any) => {
+  //         const product = r.products.find((p: any) => p._id.toString() === it.productId.toString());
+  //         if(product){
+  //           items.push({product: product, quantity: it.quantity});
+  //         }
+  //       });
+  //       delete r.products;
+  //       r.items = items;
+  //     });
 
-      res.setHeader('Content-Type', 'application/json');
-      if (rs) {
-        res.send(JSON.stringify(rs, null, 3));
-      } else {
-        res.send(JSON.stringify(null, null, 3));
-      }
-    });
-  }
+  //     res.setHeader('Content-Type', 'application/json');
+  //     if (rs) {
+  //       res.send(JSON.stringify(rs, null, 3));
+  //     } else {
+  //       res.send(JSON.stringify(null, null, 3));
+  //     }
+  //   });
+  // }
 
   create(req: Request, res: Response) {
     if (req.body instanceof Array) {

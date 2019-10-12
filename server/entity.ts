@@ -234,12 +234,12 @@ export class Entity {
             delete query['id'];
           }
 
-          // if (doc && doc.hasOwnProperty('categoryId')) {
-          //   const catId = doc['categoryId'];
-          //   if (typeof catId === 'string' && catId.length === 24) {
-          //     doc['categoryId'] = new ObjectID(catId);
-          //   }
-          // }
+          if (doc && doc.hasOwnProperty('categoryId')) {
+            const catId = doc['categoryId'];
+            if (typeof catId === 'string' && catId.length === 24) {
+              doc['categoryId'] = new ObjectID(catId);
+            }
+          }
 
           if (doc && doc.hasOwnProperty('merchantId')) {
             const merchantId = doc['merchantId'];
@@ -261,12 +261,14 @@ export class Entity {
               doc['mallId'] = new ObjectID(mallId);
             }
           }
-          // if (doc && doc.hasOwnProperty('accountId')) {
-          //   const accountId = doc['accountId'];
-          //   if (typeof accountId === 'string' && accountId.length === 24) {
-          //     doc['accountId'] = new ObjectID(accountId);
-          //   }
-          // }
+
+          if (doc && doc.hasOwnProperty('accountId')) {
+            const accountId = doc['accountId'];
+            if (typeof accountId === 'string' && accountId.length === 24) {
+              doc['accountId'] = new ObjectID(accountId);
+            }
+          }
+          
           if (doc && doc.hasOwnProperty('items')) {
             doc['items'].map((it: any) => {
               if (it && it.hasOwnProperty('productId')) {
