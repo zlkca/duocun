@@ -87,6 +87,53 @@ export class Entity {
     const self = this;
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
+
+        if (doc && doc.hasOwnProperty('categoryId')) {
+          const catId = doc['categoryId'];
+          if (typeof catId === 'string' && catId.length === 24) {
+            doc['categoryId'] = new ObjectID(catId);
+          }
+        }
+
+        if (doc && doc.hasOwnProperty('merchantId')) {
+          const merchantId = doc['merchantId'];
+          if (typeof merchantId === 'string' && merchantId.length === 24) {
+            doc['merchantId'] = new ObjectID(merchantId);
+          }
+        }
+
+        if (doc && doc.hasOwnProperty('clientId')) {
+          const clientId = doc['clientId'];
+          if (typeof clientId === 'string' && clientId.length === 24) {
+            doc['clientId'] = new ObjectID(clientId);
+          }
+        }
+
+        if (doc && doc.hasOwnProperty('mallId')) {
+          const mallId = doc['mallId'];
+          if (typeof mallId === 'string' && mallId.length === 24) {
+            doc['mallId'] = new ObjectID(mallId);
+          }
+        }
+
+        if (doc && doc.hasOwnProperty('accountId')) {
+          const accountId = doc['accountId'];
+          if (typeof accountId === 'string' && accountId.length === 24) {
+            doc['accountId'] = new ObjectID(accountId);
+          }
+        }
+        
+        if (doc && doc.hasOwnProperty('items')) {
+          doc['items'].map((it: any) => {
+            if (it && it.hasOwnProperty('productId')) {
+              const productId = it.productId;
+              if (typeof productId === 'string' && productId.length === 24) {
+                it.productId = new ObjectID(productId);
+              }
+            }
+          });
+        }
+
         c.insertOne(doc).then((result: any) => { // InsertOneWriteOpResult
           const ret = (result.ops && result.ops.length > 0) ? result.ops[0] : null;
           if (ret && ret._id) {
