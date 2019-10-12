@@ -10,6 +10,7 @@ export interface ILatLng {
 }
 
 export interface IArea {
+  _id: string;
   id: string;
   name: string;
   code: string;

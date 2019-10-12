@@ -4,6 +4,8 @@ import { Request, Response } from "express";
 import { Entity } from "../entity";
 import moment from "moment-timezone";
 import { Area, IArea } from "./area";
+import { MallSchedule } from "./mall-schedule";
+import { ObjectID, Collection } from "mongodb";
 
 export interface IMall {
   id?: any;
@@ -21,8 +23,8 @@ export interface IMall {
 }
 
 export interface IMallSchedule{
-  mallId: string;
-  mallName: string;
+  mallId?: string;
+  mall?: IMall;
   areas: (string[])[];
   status: string;
   created?: Date;
@@ -30,44 +32,84 @@ export interface IMallSchedule{
 }
 
 export class Mall extends Model {
-  scheduleEntity: Entity;
+  mallSchedule: MallSchedule;
   areaModel: Area;
   constructor(dbo: DB) {
     super(dbo, 'malls');
-    this.scheduleEntity = new Entity(dbo, 'mall_schedules');
+    this.mallSchedule = new MallSchedule(dbo);
     this.areaModel = new Area(dbo);
   }
 
-  getAvailableMallIds(areaId: string, delivered: string): Promise<string[]>{
+  // load(query: any, options?: any): Promise<any> {
+  //   const self = this;
+  //   if (query && query.hasOwnProperty('id')) {
+  //     let body = query.id;
+  //     if (body && body.hasOwnProperty('$in')) {
+  //       let a = body['$in'];
+  //       const arr: any[] = [];
+  //       a.map((id: string) => {
+  //         arr.push({ _id: new ObjectID(id) });
+  //       });
+
+  //       query = { $or: arr };
+  //     } else if (typeof body === "string") {
+  //       query['_id'] = new ObjectID(query.id);
+  //       delete query['id'];
+  //     }
+  //   }
+
+  //   return new Promise((resolve, reject) => {
+  //     self.getCollection().then((c: Collection) => {
+  //       c.find(query, options).toArray((err, docs) => {
+  //         let s: any[] = [];
+  //         if (docs && docs.length > 0) {
+  //           docs.map((v, i) => {
+  //             if (v && v._id) {
+  //               v.id = v._id;
+  //               // delete (v._id);
+  //             }
+  //             s.push(v);
+  //           });
+  //         }
+  //         resolve(s);
+  //       });
+  //     });
+  //   });
+  // }
+
+  getScheduledMalls(areaId: string, delivered: string): Promise<string[]>{
     return new Promise( (resolve, reject) => {
-      this.scheduleEntity.find({status: 'active'}).then((mss: any[]) => {
+      const params = [
+        {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}
+      ];
+      this.mallSchedule.load({status: 'active'}, params).then((mss: any[]) => {
         const dow = moment(delivered).day();
-        const mallIds: string[] = [];
+        const malls: any[] = [];
         mss.map((ms: IMallSchedule) => {
           const areaIds: string[] = ms.areas[dow];
           const id = areaIds.find(id => id === areaId);
           if(id){
-            mallIds.push(ms.mallId);
+            malls.push(ms.mall);
           }
         });
-        resolve(mallIds);
+        resolve(malls);
       }, err => {
         reject();
       });
     });
   }
 
-  getAvailableIds(req: Request, res: Response) {
+  getAvailableMalls(req: Request, res: Response) {
     const origin = req.body.origin;
     const delivered = req.body.delivered;
 
     this.areaModel.getNearestArea(origin).then((area: IArea) => {
-      this.getAvailableMallIds(area.id.toString(), delivered).then((mallIds: string[]) => {
+      this.getScheduledMalls(area.id.toString(), delivered).then((malls: any[]) => {
         res.setHeader('Content-Type', 'application/json');
-        if (!(mallIds && mallIds.length)) {
-          res.end(JSON.stringify({ status: 'fail', mallIds: [] }, null, 3));
+        if (!(malls && malls.length)) {
+          res.end(JSON.stringify({ status: 'fail', malls: [] }, null, 3));
         } else {
-          res.end(JSON.stringify({ status: 'success', mallIds: mallIds }, null, 3));
+          res.end(JSON.stringify({ status: 'success', malls: malls }, null, 3));
         }
       });
     });

@@ -53,7 +53,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   account: IAccount;
   bHideMap = false;
   bTimeOptions = false;
-  overdue;
+  // overdue;
   afternoon;
   contact;
   inRange = false;
@@ -199,13 +199,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   init(account: Account) {
     const self = this;
 
-    this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
-      this.sOrderDeadline = this.getOrderDeadline(rs);
-      const arr = this.sOrderDeadline.split(':');
-      const a = moment().set({ hour: +arr[0], minute: +arr[1], second: 0, millisecond: 0 });
-      const b = moment();
-      this.overdue = b.isAfter(a);
-    });
+    // this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
+      // this.sOrderDeadline = this.getOrderDeadline(rs);
+      // const arr = this.sOrderDeadline.split(':');
+      // const a = moment().set({ hour: +arr[0], minute: +arr[1], second: 0, millisecond: 0 });
+      // const b = moment();
+      // this.overdue = b.isAfter(a);
+    // });
 
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });

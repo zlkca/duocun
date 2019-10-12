@@ -102,8 +102,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         let subTotal = 0;
         const items = order.items;
         if (items && items.length > 0) {
-          items.map(x => {
-            productTotal += x.price * x.quantity;
+          items.map((it: any) => {
+            productTotal += it.product.price * it.quantity;
           });
         }
         subTotal = productTotal + order.deliveryCost;

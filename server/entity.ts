@@ -35,14 +35,13 @@ export class Entity {
     }
   }
 
-  join(params: IJoinParam[], query: any = {}): Promise<any> {
-    const q: any[] = [
+  join(params: any[], query: any = {}): Promise<any> {
+    const q: any[] = Object.keys(query).length === 0 && query.constructor === Object ? [] : [
       { $match: query }
     ];
 
     params.map(p => {
-      q.push({ $lookup: p });
-      q.push({ $unwind: '$'+p.as});
+      q.push(p);
     });
 
     const self = this;
@@ -57,7 +56,33 @@ export class Entity {
     });
   }
 
+  load(query: any, params?: any): Promise<any> {
+    const self = this;
+    if (query && query.hasOwnProperty('id')) {
+      let body = query.id;
+      if (body && body.hasOwnProperty('$in')) {
+        let a = body['$in'];
+        const arr: any[] = [];
+        a.map((id: string) => {
+          arr.push({ _id: new ObjectID(id) });
+        });
 
+        query = { $or: arr };
+      } else if (typeof body === "string") {
+        query['_id'] = new ObjectID(query.id);
+        delete query['id'];
+      }
+    }
+
+    return new Promise((resolve, reject) => {
+      self.getCollection().then((c: Collection) => {
+        this.join(params, query).then((rs: any) => {
+          resolve(rs);
+        });
+      });
+    });
+  }
+  
   insertOne(doc: any): Promise<any> {
     const self = this;
     return new Promise((resolve, reject) => {
@@ -209,18 +234,50 @@ export class Entity {
             delete query['id'];
           }
 
-          if (doc && doc.hasOwnProperty('categoryId')) {
-            const catId = doc['categoryId'];
-            if (typeof catId === 'string' && catId.length === 24) {
-              doc['categoryId'] = new ObjectID(catId);
-            }
-          }
+          // if (doc && doc.hasOwnProperty('categoryId')) {
+          //   const catId = doc['categoryId'];
+          //   if (typeof catId === 'string' && catId.length === 24) {
+          //     doc['categoryId'] = new ObjectID(catId);
+          //   }
+          // }
+
           if (doc && doc.hasOwnProperty('merchantId')) {
             const merchantId = doc['merchantId'];
             if (typeof merchantId === 'string' && merchantId.length === 24) {
               doc['merchantId'] = new ObjectID(merchantId);
             }
           }
+
+          if (doc && doc.hasOwnProperty('clientId')) {
+            const clientId = doc['clientId'];
+            if (typeof clientId === 'string' && clientId.length === 24) {
+              doc['clientId'] = new ObjectID(clientId);
+            }
+          }
+
+          if (doc && doc.hasOwnProperty('mallId')) {
+            const mallId = doc['mallId'];
+            if (typeof mallId === 'string' && mallId.length === 24) {
+              doc['mallId'] = new ObjectID(mallId);
+            }
+          }
+          // if (doc && doc.hasOwnProperty('accountId')) {
+          //   const accountId = doc['accountId'];
+          //   if (typeof accountId === 'string' && accountId.length === 24) {
+          //     doc['accountId'] = new ObjectID(accountId);
+          //   }
+          // }
+          if (doc && doc.hasOwnProperty('items')) {
+            doc['items'].map((it: any) => {
+              if (it && it.hasOwnProperty('productId')) {
+                const productId = it.productId;
+                if (typeof productId === 'string' && productId.length === 24) {
+                  it.productId = new ObjectID(productId);
+                }
+              }
+            });
+          }
+
           a.push({ updateOne: { filter: query, update: { $set: doc }, upsert: true } });
         });
 

@@ -59,18 +59,20 @@ export class Restaurant extends Model {
       q = {};
     }
 
-    if(q && q.merchantId){
-      q.merchantId = new ObjectID(q.merchantId);
+    if(q && q._id){
+      q._id = new ObjectID(q._id);
     }
 
-    if(q && q.categoryId){
-      q.categoryId = new ObjectID(q.categoryId);
+    if(q && q.mallId){
+      q.mallId = new ObjectID(q.mallId);
     }
 
     const params = [
-      {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'},
+      {$lookup: {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}},
+      {$unwind: '$mall'}
       // {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}
     ];
+
     this.join(params, q).then((rs: any) => {
       res.setHeader('Content-Type', 'application/json');
       if (rs) {
@@ -81,11 +83,11 @@ export class Restaurant extends Model {
     });
   }
   
-  load(origin: ILocation, delivered: string): Promise<any> {
+  loadByDeliveryInfo(origin: ILocation, delivered: string): Promise<any> {
 
     return new Promise((resolve, reject) => {
 
-      this.area.getNearestArea(origin).then((a: IArea) => {
+      this.area.getNearestArea(origin).then((area: IArea) => {
         this.mall.find({}).then((malls: IMall[]) => {
           const destinations: ILocation[] = [];
           malls.map((m:IMall) => {
@@ -101,29 +103,19 @@ export class Restaurant extends Model {
             };
             destinations.push(loc);
           });
-          this.mall.getAvailableMallIds(a.id.toString(), delivered).then((mallIds: string[]) => {
-            const availableMalls = malls.filter(m => mallIds.find(id => id === m.id) ? true : false);
-
+          this.mall.getScheduledMalls(area._id.toString(), delivered).then((scheduledMalls: any[]) => {
             this.distance.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
-                this.find({ status: 'active' }).then(rs => {
+              const params = [
+                {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'},
+                // {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}
+              ];
+                this.load({ status: 'active' }, params).then(rs => {
                   rs.map((r: any) => {
-                    const availableMall = availableMalls.find(m => m.id === r.mallId);
-                    if (availableMall) {
-                      const d = ds.find(x => x.destinationPlaceId === availableMall.placeId);
-                      r.onSchedule = true;
-                      r.distance = d ? d.element.distance.value : 0;
-                      r.inRange = true;
-                    } else {
-                      const mall = malls.find(m => m.id === r.mallId);
-                      r.onSchedule = false;
-                      r.inRange = false;
-                      if (mall) {
-                        const d = ds.find(x => x.destinationPlaceId === mall.placeId);
-                        r.distance = d ? d.element.distance.value : 0;
-                      } else {
-                        r.distance = 0;
-                      }
-                    }
+                    const d = ds.find(x => x.destinationPlaceId === r.mall.placeId);
+                    const mall = scheduledMalls.find((m: any) => m._id.toString() === r.mall._id.toString());
+                    r.onSchedule = mall? true: false;
+                    r.distance = d ? d.element.distance.value : 0;
+                    r.inRange = mall? true: false; // how? fix me
                   });
                   resolve(rs);
                 });
@@ -141,7 +133,7 @@ export class Restaurant extends Model {
     const origin = req.body.origin;
     const delivered = req.body.delivered;
 
-    this.load(origin, delivered).then((rs: any) => {
+    this.loadByDeliveryInfo(origin, delivered).then((rs: any) => {
       if (rs) {
         res.send(JSON.stringify(rs, null, 3));
       } else {

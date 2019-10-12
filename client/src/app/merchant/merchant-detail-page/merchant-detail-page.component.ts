@@ -121,7 +121,8 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         this.onSchedule = params['onSchedule'] === 'true' ? true : false;
       }
 
-      self.merchantSvc.findById(merchantId).pipe(takeUntil(this.onDestroy$)).subscribe((restaurant: IRestaurant) => {
+      self.merchantSvc.find({ _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant) => {
+        const restaurant = restaurants[0];
         restaurant.onSchedule = self.onSchedule;
         self.restaurant = restaurant;
 

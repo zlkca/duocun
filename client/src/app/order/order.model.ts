@@ -75,24 +75,18 @@ export class Order implements IOrder {
 }
 
 export interface IOrderItem {
-  id?: number;
   productId: string;
-  productName: string;
+  productName?: string;
   merchantId: string;
-  merchantName: string;
-  price: number;
+  merchantName?: string;
+  price?: number;
   cost?: number;
   quantity: number;
 }
 
 export class OrderItem implements IOrderItem {
-  id: number;
   productId: string;
-  productName: string;
   merchantId: string;
-  merchantName: string;
-  price: number;
-  cost?: number;
   quantity: number;
   constructor(data?: IOrderItem) {
     Object.assign(this, data);

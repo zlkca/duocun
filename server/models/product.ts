@@ -45,8 +45,10 @@ export class Product extends Model {
     }
 
     const params = [
-      {from: 'categories', localField: 'categoryId', foreignField: '_id', as: 'category'},
-      {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}
+      {$lookup:{from: 'categories', localField: 'categoryId', foreignField: '_id', as: 'category'}},
+      {$unwind:'$category'},
+      {$lookup:{from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}},
+      {$unwind:'$merchant'}
     ];
     this.join(params, q).then((rs: any) => {
       res.setHeader('Content-Type', 'application/json');

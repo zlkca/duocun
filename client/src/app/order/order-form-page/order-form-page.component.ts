@@ -9,7 +9,7 @@ import { IContact } from '../../contact/contact.model';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { OrderService } from '../order.service';
-import { IOrder, IOrderItem, ICharge } from '../order.model';
+import { IOrder, IOrderItem, ICharge, OrderItem } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
@@ -155,7 +155,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
 
     if (cart) {
-      this.merchantSvc.find({ id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe(ms => {
+      this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe(ms => {
         const merchant = ms[0];
         if (merchant) {
           const endTime = +merchant.endTime.split(':')[0];
@@ -205,8 +205,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
           self.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((ds: IDistance[]) => {
             if (ds && ds.length > 0) {
-              // const ms = self.updateMallInfo(rs, malls);
-              // self.loadRestaurants(malls, ranges, ks);
               const r = rs[0];
               const d = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000;
               const distance = d > 0 ? d : 0; // kilo meter
@@ -294,20 +292,24 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   createOrder(account: IAccount, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, code: string, note: string) {
     const self = this;
     if (cart && cart.items && cart.items.length > 0) {
-      const items: IOrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId);
+      const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
+        return {
+          productId: it.productId,
+          merchantId: it.merchantId,
+          quantity: it.quantity,
+        };
+      });
+
       const order: IOrder = {
         code: code,
         clientId: contact.accountId,
-        clientName: contact.username,
-        clientPhoneNumber: contact.phone,
         prepaidClient: self.isPrepaidClient(account),
         merchantId: cart.merchantId,
-        merchantName: cart.merchantName,
         items: items,
         created: new Date(),
         delivered: delivery.date.toDate(),
         address: this.locationSvc.getAddrString(delivery.origin),
-        location: delivery.origin,
+        location: delivery.origin, // fix me!!!
         note: note,
         deliveryCost: Math.round(charge.deliveryCost * 100) / 100,
         deliveryDiscount: Math.round(charge.deliveryDiscount * 100) / 100,
