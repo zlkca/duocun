@@ -70,7 +70,6 @@ export class Restaurant extends Model {
     const params = [
       {$lookup: {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}},
       {$unwind: '$mall'}
-      // {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}
     ];
 
     this.join(params, q).then((rs: any) => {
@@ -91,7 +90,6 @@ export class Restaurant extends Model {
         this.mall.find({}).then((malls: IMall[]) => {
           const destinations: ILocation[] = [];
           malls.map((m:IMall) => {
-            m.id = m.id.toString();
             const loc = {
               lat: m.lat,
               lng: m.lng,
@@ -106,19 +104,19 @@ export class Restaurant extends Model {
           this.mall.getScheduledMalls(area._id.toString(), delivered).then((scheduledMalls: any[]) => {
             this.distance.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
               const params = [
-                {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'},
-                // {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}
+                {$lookup: {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}},
+                {$unwind: '$mall'}
               ];
-                this.load({ status: 'active' }, params).then(rs => {
-                  rs.map((r: any) => {
-                    const d = ds.find(x => x.destinationPlaceId === r.mall.placeId);
-                    const mall = scheduledMalls.find((m: any) => m._id.toString() === r.mall._id.toString());
-                    r.onSchedule = mall? true: false;
-                    r.distance = d ? d.element.distance.value : 0;
-                    r.inRange = mall? true: false; // how? fix me
-                  });
-                  resolve(rs);
+              this.load({ status: 'active' }, params).then(rs => {
+                rs.map((r: any) => {
+                  const d = ds.find(x => x.destinationPlaceId === r.mall.placeId);
+                  const mall = scheduledMalls.find((m: any) => m._id.toString() === r.mall._id.toString());
+                  r.onSchedule = mall? true: false;
+                  r.distance = d ? d.element.distance.value : 0;
+                  r.inRange = mall? true: false; // how? fix me
                 });
+                resolve(rs);
+              });
             }, err => {
               reject();
             });

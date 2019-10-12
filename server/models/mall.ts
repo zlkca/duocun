@@ -79,13 +79,18 @@ export class Mall extends Model {
 
   getScheduledMalls(areaId: string, delivered: string): Promise<string[]>{
     return new Promise( (resolve, reject) => {
+
+      const q = {status: 'active'};
+  
       const params = [
-        {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}
+        {$lookup: {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}},
+        {$unwind: '$mall'}
       ];
-      this.mallSchedule.load({status: 'active'}, params).then((mss: any[]) => {
-        const dow = moment(delivered).day();
+  
+      this.mallSchedule.join(params, q).then((rs: any[]) => {
         const malls: any[] = [];
-        mss.map((ms: IMallSchedule) => {
+        const dow = moment(delivered).day();
+        rs.map((ms: IMallSchedule) => {
           const areaIds: string[] = ms.areas[dow];
           const id = areaIds.find(id => id === areaId);
           if(id){
@@ -93,8 +98,6 @@ export class Mall extends Model {
           }
         });
         resolve(malls);
-      }, err => {
-        reject();
       });
     });
   }

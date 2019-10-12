@@ -28,7 +28,7 @@ describe('lookup product with category', () => {
   it('should return product with category', (done) => {
     po.find({}).then(ps => {
       co.find({}).then(cs => {
-        const param = [{from: 'categories', localField: 'categoryId', foreignField: '_id', as: 'category'}];
+        const param = [{$lookup: {from: 'categories', localField: 'categoryId', foreignField: '_id', as: 'category'}}];
         po.join(param).then(xs => {
           expect(xs.length).to.equal(ps.length);
           const c = cs.find((c:any) => c._id.toString() === ps[0].categoryId.toString());
@@ -44,8 +44,8 @@ describe('lookup product with category', () => {
     po.find({}).then(ps => {
       co.find({}).then(cs => {
         const param = [
-          {from: 'categories', localField: 'categoryId', foreignField: '_id', as: 'category'},
-          {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}
+          {$lookup: {from: 'categories', localField: 'categoryId', foreignField: '_id', as: 'category'}},
+          {$lookup: {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}}
         ];
         po.join(param, {cost: 7}).then(xs => {
           // expect(xs.length).to.equal(ps.length); // fix me
