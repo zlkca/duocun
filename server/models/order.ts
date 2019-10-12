@@ -74,17 +74,17 @@ export class Order extends Model {
       q = {};
     }
 
-    if(q && q.merchantId){
+    if(q && q.merchantId && typeof q.merchantId === 'string' && q.merchantId.length === 24){
       q.merchantId = new ObjectID(q.merchantId);
     }
 
-    if(q && q.clientId){
+    if(q && q.clientId && typeof q.clientId === 'string' && q.clientId.length === 24){
       q.clientId = new ObjectID(q.clientId);
     }
 
     const params = [
-      {$lookup: {from: 'contacts', localField: 'clientId', foreignField: 'accountId', as: 'contact'}},
-      {$unwind: '$contact'},
+      {$lookup: {from: 'contacts', localField: 'clientId', foreignField: 'accountId', as: 'client'}},
+      {$unwind: '$client'},
       {$lookup: {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}},
       {$unwind: '$merchant'},
       {$lookup: {from: 'products', localField: 'items.productId', foreignField: '_id', as: 'products'}},
