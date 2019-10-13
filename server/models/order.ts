@@ -74,28 +74,36 @@ export class Order extends Model {
       q = {};
     }
 
-    if(q && q.merchantId && typeof q.merchantId === 'string' && q.merchantId.length === 24){
+    if (q && q.merchantId && typeof q.merchantId === 'string' && q.merchantId.length === 24) {
       q.merchantId = new ObjectID(q.merchantId);
+    } else if (q.merchantId && q.merchantId.hasOwnProperty('$in')) {
+      let a = q.merchantId['$in'];
+      const arr: any[] = [];
+      a.map((id: string) => {
+        arr.push(new ObjectID(id));
+      });
+
+      q.merchantId = { $in: arr };
     }
 
-    if(q && q.clientId && typeof q.clientId === 'string' && q.clientId.length === 24){
+    if (q && q.clientId && typeof q.clientId === 'string' && q.clientId.length === 24) {
       q.clientId = new ObjectID(q.clientId);
     }
 
     const params = [
-      {$lookup: {from: 'contacts', localField: 'clientId', foreignField: 'accountId', as: 'client'}},
-      {$unwind: '$client'},
-      {$lookup: {from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}},
-      {$unwind: '$merchant'},
-      {$lookup: {from: 'products', localField: 'items.productId', foreignField: '_id', as: 'products'}},
+      { $lookup: { from: 'contacts', localField: 'clientId', foreignField: 'accountId', as: 'client' } },
+      { $unwind: '$client' },
+      { $lookup: { from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant' } },
+      { $unwind: '$merchant' },
+      { $lookup: { from: 'products', localField: 'items.productId', foreignField: '_id', as: 'products' } },
     ];
     this.join(params, q).then((rs: any) => {
       rs.map((r: any) => {
         const items: any[] = [];
-        r.items.map((it:any) => {
+        r.items.map((it: any) => {
           const product = r.products.find((p: any) => p._id.toString() === it.productId.toString());
-          if(product){
-            items.push({product: product, quantity: it.quantity});
+          if (product) {
+            items.push({ product: product, quantity: it.quantity });
           }
         });
         delete r.products;
@@ -166,25 +174,25 @@ export class Order extends Model {
   // date: string, address: string
   addGroupDiscountForOrders(clientId: string, orders: any[]): Promise<any> {
     // this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
-      const others = orders.filter((x: any) => x.clientId && x.clientId !== clientId); // fix me!!!
-      // others > 0 then affect other orders and balances
-      const orderUpdates = this.getOrdersToAddGroupDiscount(others, 2);
+    const others = orders.filter((x: any) => x.clientId && x.clientId !== clientId); // fix me!!!
+    // others > 0 then affect other orders and balances
+    const orderUpdates = this.getOrdersToAddGroupDiscount(others, 2);
 
-      return new Promise((resolve, reject) => {
-        if (orderUpdates && orderUpdates.length > 0) {
-          this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
-            resolve(orderUpdates);
-          });
-        } else {
+    return new Promise((resolve, reject) => {
+      if (orderUpdates && orderUpdates.length > 0) {
+        this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
           resolve(orderUpdates);
-        }
-      });
+        });
+      } else {
+        resolve(orderUpdates);
+      }
+    });
   }
 
   // date: string, address: string
   removeGroupDiscountForOrders(orders: any[]): Promise<any> {
     const orderUpdates = this.getOrdersToRemoveGroupDiscount(orders, 2);
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       if (orderUpdates && orderUpdates.length > 0) {
         this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
           resolve(orderUpdates);
@@ -226,14 +234,14 @@ export class Order extends Model {
     const a: any[] = [];
     Object.keys(groups).map(key => {
       const os = groups[key];
-      if ( os && os.length > 0) {
-        const hasGroupDiscount = os.find((x: any) => x.groupDiscount !== 0 );
-        if(hasGroupDiscount){
+      if (os && os.length > 0) {
+        const hasGroupDiscount = os.find((x: any) => x.groupDiscount !== 0);
+        if (hasGroupDiscount) {
           // pass
-        }else{
+        } else {
           const order = os[0];
           const amount = Math.round(((order.total ? order.total : 0) - groupDiscount) * 100) / 100;
-          a.push({ query: { id: order.id.toString() }, data: { total: amount, groupDiscount: groupDiscount, clientId: order.clientId } });  
+          a.push({ query: { id: order.id.toString() }, data: { total: amount, groupDiscount: groupDiscount, clientId: order.clientId } });
         }
       }
     });
@@ -247,33 +255,33 @@ export class Order extends Model {
     });
   }
 
-  eligibleForGroupDiscount(clientId: string, date: string, address: string, cb?: any){
+  eligibleForGroupDiscount(clientId: string, date: string, address: string, cb?: any) {
     this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
       const groups = this.groupBy(orders, 'clientId');
       const clientIds = Object.keys(groups);
 
-      if(clientIds && clientIds.length > 0){
+      if (clientIds && clientIds.length > 0) {
         const found = clientIds.find(x => x === clientId);
-        if(found){
-          if(clientIds.length === 1){ // only me
+        if (found) {
+          if (clientIds.length === 1) { // only me
             cb(false);
-          }else { // > 1, has other clients
+          } else { // > 1, has other clients
             const os = groups[clientId];
-            if ( os && os.length > 0) {
-              const hasGroupDiscount = os.find((x: any) => x.groupDiscount !== 0 );
-              if(hasGroupDiscount){
+            if (os && os.length > 0) {
+              const hasGroupDiscount = os.find((x: any) => x.groupDiscount !== 0);
+              if (hasGroupDiscount) {
                 cb(false);
-              }else{
+              } else {
                 cb(true);
               }
-            }else{
+            } else {
               cb(true); // [] should not happen
             }
           }
-        }else{
+        } else {
           cb(true);
         }
-      }else{
+      } else {
         cb(false);
       }
     });
@@ -285,36 +293,36 @@ export class Order extends Model {
   getOrdersToRemoveGroupDiscount(orders: any[], groupDiscount: number) {
     const groups = this.groupBy(orders, 'clientId');
     const clientIds = Object.keys(groups);
-    
-    if(clientIds && clientIds.length > 1){ // only need to check update current client's 2nd order
+
+    if (clientIds && clientIds.length > 1) { // only need to check update current client's 2nd order
       const a: any[] = [];
       Object.keys(groups).map(key => {
         const group = groups[key];
-        if ( group && group.length > 0) {
-          const order = group.find((x: any) => x.groupDiscount !== 0 );
-          if(order){
+        if (group && group.length > 0) {
+          const order = group.find((x: any) => x.groupDiscount !== 0);
+          if (order) {
             // pass this group
-          }else{
+          } else {
             const newOrderWithGroupDiscount = group[0];
             const amount = Math.round((newOrderWithGroupDiscount.total - groupDiscount) * 100) / 100;
-            a.push({ 
+            a.push({
               query: { id: newOrderWithGroupDiscount.id.toString() },
               data: { total: amount, groupDiscount: groupDiscount, clientId: newOrderWithGroupDiscount.clientId }
-            });  
+            });
           }
         }
       });
       return a;
-    }else{ // <= 1
+    } else { // <= 1
       const a: any[] = [];
       Object.keys(groups).map(key => {
         const os = groups[key];
-        if ( os && os.length > 0) {
-          const order = os.find((x: any) => x.groupDiscount !== 0 );
-          if(order){
+        if (os && os.length > 0) {
+          const order = os.find((x: any) => x.groupDiscount !== 0);
+          if (order) {
             const amount = Math.round(((order.total ? order.total : 0) + groupDiscount) * 100) / 100;
-            a.push({ query: { id: order.id.toString() }, data: { total: amount, groupDiscount: 0, clientId: order.clientId } });  
-          }else{
+            a.push({ query: { id: order.id.toString() }, data: { total: amount, groupDiscount: 0, clientId: order.clientId } });
+          } else {
             // pass this group
           }
         }
@@ -323,7 +331,7 @@ export class Order extends Model {
     }
   }
 
-  
+
 
 
   getDistinctArray(items: any, field: string) {
@@ -351,7 +359,7 @@ export class Order extends Model {
 
   //           const orderUpdates = this.getOrdersToRemoveGroupDiscount(orders,  2);
   //           // const balanceUpdates = this.getBalancesToRemoveGroupDiscount(orders, balances, 2);
-          
+
   //           this.bulkUpdate(orderUpdates, {}).then((r) => {
   //             cb();
   //           //       this.clientBalanceEntity.find({ accountId: order.clientId }).then((bs: any[]) => {

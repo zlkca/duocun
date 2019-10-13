@@ -315,7 +315,21 @@ export class Entity {
               doc['accountId'] = new ObjectID(accountId);
             }
           }
+
+          if (doc && doc.hasOwnProperty('orderId')) {
+            const orderId = doc['orderId'];
+            if (typeof orderId === 'string' && orderId.length === 24) {
+              doc['orderId'] = new ObjectID(orderId);
+            }
+          }
           
+          if (doc && doc.hasOwnProperty('driverId')) {
+            const driverId = doc['driverId'];
+            if (typeof driverId === 'string' && driverId.length === 24) {
+              doc['driverId'] = new ObjectID(driverId);
+            }
+          }
+
           if (doc && doc.hasOwnProperty('items')) {
             doc['items'].map((it: any) => {
               if (it && it.hasOwnProperty('productId')) {
