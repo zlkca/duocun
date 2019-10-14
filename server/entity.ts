@@ -88,80 +88,7 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
 
-        if (doc && doc.hasOwnProperty('categoryId')) {
-          const catId = doc['categoryId'];
-          if (typeof catId === 'string' && catId.length === 24) {
-            doc['categoryId'] = new ObjectID(catId);
-          }
-        }
-
-        if (doc && doc.hasOwnProperty('merchantId')) {
-          const merchantId = doc['merchantId'];
-          if (typeof merchantId === 'string' && merchantId.length === 24) {
-            doc['merchantId'] = new ObjectID(merchantId);
-          }
-        }
-
-        if (doc && doc.hasOwnProperty('clientId')) {
-          const clientId = doc['clientId'];
-          if (typeof clientId === 'string' && clientId.length === 24) {
-            doc['clientId'] = new ObjectID(clientId);
-          }
-        }
-
-        if (doc && doc.hasOwnProperty('mallId')) {
-          const mallId = doc['mallId'];
-          if (typeof mallId === 'string' && mallId.length === 24) {
-            doc['mallId'] = new ObjectID(mallId);
-          }
-        }
-
-        if (doc && doc.hasOwnProperty('accountId')) {
-          const accountId = doc['accountId'];
-          if (typeof accountId === 'string' && accountId.length === 24) {
-            doc['accountId'] = new ObjectID(accountId);
-          }
-        }
-
-        if (doc && doc.hasOwnProperty('orderId')) {
-          const orderId = doc['orderId'];
-          if (typeof orderId === 'string' && orderId.length === 24) {
-            doc['orderId'] = new ObjectID(orderId);
-          }
-        }
-        
-        if (doc && doc.hasOwnProperty('driverId')) {
-          const driverId = doc['driverId'];
-          if (typeof driverId === 'string' && driverId.length === 24) {
-            doc['driverId'] = new ObjectID(driverId);
-          }
-        }
-
-        if (doc && doc.hasOwnProperty('fromId')) {
-          const fromId = doc['fromId'];
-          if (typeof fromId === 'string' && fromId.length === 24) {
-            doc['fromId'] = new ObjectID(fromId);
-          }
-        }
-    
-        if (doc && doc.hasOwnProperty('toId')) {
-          const toId = doc['toId'];
-          if (typeof toId === 'string' && toId.length === 24) {
-            doc['toId'] = new ObjectID(toId);
-          }
-        }
-        
-        if (doc && doc.hasOwnProperty('items')) {
-          doc['items'].map((it: any) => {
-            if (it && it.hasOwnProperty('productId')) {
-              const productId = it.productId;
-              if (typeof productId === 'string' && productId.length === 24) {
-                it.productId = new ObjectID(productId);
-              }
-            }
-          });
-        }
-
+        doc = this.convertIdFields(doc);
         c.insertOne(doc).then((result: any) => { // InsertOneWriteOpResult
           const ret = (result.ops && result.ops.length > 0) ? result.ops[0] : null;
           if (ret && ret._id) {
@@ -263,79 +190,7 @@ export class Entity {
       delete query['id'];
     }
 
-    if (doc && doc.hasOwnProperty('categoryId')) {
-      const catId = doc['categoryId'];
-      if (typeof catId === 'string' && catId.length === 24) {
-        doc['categoryId'] = new ObjectID(catId);
-      }
-    }
-
-    if (doc && doc.hasOwnProperty('merchantId')) {
-      const merchantId = doc['merchantId'];
-      if (typeof merchantId === 'string' && merchantId.length === 24) {
-        doc['merchantId'] = new ObjectID(merchantId);
-      }
-    }
-
-    if (doc && doc.hasOwnProperty('clientId')) {
-      const clientId = doc['clientId'];
-      if (typeof clientId === 'string' && clientId.length === 24) {
-        doc['clientId'] = new ObjectID(clientId);
-      }
-    }
-
-    if (doc && doc.hasOwnProperty('mallId')) {
-      const mallId = doc['mallId'];
-      if (typeof mallId === 'string' && mallId.length === 24) {
-        doc['mallId'] = new ObjectID(mallId);
-      }
-    }
-
-    if (doc && doc.hasOwnProperty('accountId')) {
-      const accountId = doc['accountId'];
-      if (typeof accountId === 'string' && accountId.length === 24) {
-        doc['accountId'] = new ObjectID(accountId);
-      }
-    }
-    
-    if (doc && doc.hasOwnProperty('orderId')) {
-      const orderId = doc['orderId'];
-      if (typeof orderId === 'string' && orderId.length === 24) {
-        doc['orderId'] = new ObjectID(orderId);
-      }
-    }
-    
-    if (doc && doc.hasOwnProperty('driverId')) {
-      const driverId = doc['driverId'];
-      if (typeof driverId === 'string' && driverId.length === 24) {
-        doc['driverId'] = new ObjectID(driverId);
-      }
-    }
-
-    if (doc && doc.hasOwnProperty('items')) {
-      doc['items'].map((it: any) => {
-        if (it && it.hasOwnProperty('productId')) {
-          const productId = it.productId;
-          if (typeof productId === 'string' && productId.length === 24) {
-            it.productId = new ObjectID(productId);
-          }
-        }
-      });
-    }
-
-    if (doc && doc.hasOwnProperty('fromId')) {
-      const fromId = doc['fromId'];
-      if (typeof fromId === 'string' && fromId.length === 24) {
-        doc['fromId'] = new ObjectID(fromId);
-      }
-    }
-
-    if (doc && doc.hasOwnProperty('toId')) {
-      const toId = doc['toId'];
-      if (typeof toId === 'string' && toId.length === 24) {
-        doc['toId'] = new ObjectID(toId);
-      }
-    }
+    doc = this.convertIdFields(doc);
 
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
@@ -370,6 +225,103 @@ export class Entity {
     });
   }
 
+  convertIdFields(doc: any){
+    if (doc && doc.hasOwnProperty('_id')) {
+      const id = doc['_id'];
+      if (typeof id === 'string' && id.length === 24) {
+        doc['_id'] = new ObjectID(id);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('categoryId')) {
+      const catId = doc['categoryId'];
+      if (typeof catId === 'string' && catId.length === 24) {
+        doc['categoryId'] = new ObjectID(catId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('merchantId')) {
+      const merchantId = doc['merchantId'];
+      if (typeof merchantId === 'string' && merchantId.length === 24) {
+        doc['merchantId'] = new ObjectID(merchantId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('clientId')) {
+      const clientId = doc['clientId'];
+      if (typeof clientId === 'string' && clientId.length === 24) {
+        doc['clientId'] = new ObjectID(clientId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('mallId')) {
+      const mallId = doc['mallId'];
+      if (typeof mallId === 'string' && mallId.length === 24) {
+        doc['mallId'] = new ObjectID(mallId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('accountId')) {
+      const accountId = doc['accountId'];
+      if (typeof accountId === 'string' && accountId.length === 24) {
+        doc['accountId'] = new ObjectID(accountId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('orderId')) {
+      const orderId = doc['orderId'];
+      if (typeof orderId === 'string' && orderId.length === 24) {
+        doc['orderId'] = new ObjectID(orderId);
+      }
+    }
+    
+    if (doc && doc.hasOwnProperty('driverId')) {
+      const driverId = doc['driverId'];
+      if (typeof driverId === 'string' && driverId.length === 24) {
+        doc['driverId'] = new ObjectID(driverId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('fromId')) {
+      const fromId = doc['fromId'];
+      if (typeof fromId === 'string' && fromId.length === 24) {
+        doc['fromId'] = new ObjectID(fromId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('toId')) {
+      const toId = doc['toId'];
+      if (typeof toId === 'string' && toId.length === 24) {
+        doc['toId'] = new ObjectID(toId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('items')) {
+      doc['items'].map((it: any) => {
+        if (it && it.hasOwnProperty('productId')) {
+          const productId = it.productId;
+          if (typeof productId === 'string' && productId.length === 24) {
+            it.productId = new ObjectID(productId);
+          }
+        }
+      });
+    }
+
+    if (doc && doc.hasOwnProperty('ownerIds')) {
+      const ids: ObjectID[] = [];
+      doc['ownerIds'].map((id: any) => {
+        if (id) {
+          if (typeof id === 'string' && id.length === 24) {
+            ids.push(new ObjectID(id));
+          }
+        }
+      });
+      doc['ownerIds'] = ids;
+    }
+
+    return doc;
+  }
+
   bulkUpdate(items: any[], options?: any): Promise<BulkWriteOpResultObject> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
@@ -384,79 +336,7 @@ export class Entity {
             delete query['id'];
           }
 
-          if (doc && doc.hasOwnProperty('categoryId')) {
-            const catId = doc['categoryId'];
-            if (typeof catId === 'string' && catId.length === 24) {
-              doc['categoryId'] = new ObjectID(catId);
-            }
-          }
-
-          if (doc && doc.hasOwnProperty('merchantId')) {
-            const merchantId = doc['merchantId'];
-            if (typeof merchantId === 'string' && merchantId.length === 24) {
-              doc['merchantId'] = new ObjectID(merchantId);
-            }
-          }
-
-          if (doc && doc.hasOwnProperty('clientId')) {
-            const clientId = doc['clientId'];
-            if (typeof clientId === 'string' && clientId.length === 24) {
-              doc['clientId'] = new ObjectID(clientId);
-            }
-          }
-
-          if (doc && doc.hasOwnProperty('mallId')) {
-            const mallId = doc['mallId'];
-            if (typeof mallId === 'string' && mallId.length === 24) {
-              doc['mallId'] = new ObjectID(mallId);
-            }
-          }
-
-          if (doc && doc.hasOwnProperty('accountId')) {
-            const accountId = doc['accountId'];
-            if (typeof accountId === 'string' && accountId.length === 24) {
-              doc['accountId'] = new ObjectID(accountId);
-            }
-          }
-
-          if (doc && doc.hasOwnProperty('orderId')) {
-            const orderId = doc['orderId'];
-            if (typeof orderId === 'string' && orderId.length === 24) {
-              doc['orderId'] = new ObjectID(orderId);
-            }
-          }
-          
-          if (doc && doc.hasOwnProperty('driverId')) {
-            const driverId = doc['driverId'];
-            if (typeof driverId === 'string' && driverId.length === 24) {
-              doc['driverId'] = new ObjectID(driverId);
-            }
-          }
-          if (doc && doc.hasOwnProperty('fromId')) {
-            const fromId = doc['fromId'];
-            if (typeof fromId === 'string' && fromId.length === 24) {
-              doc['fromId'] = new ObjectID(fromId);
-            }
-          }
-      
-          if (doc && doc.hasOwnProperty('toId')) {
-            const toId = doc['toId'];
-            if (typeof toId === 'string' && toId.length === 24) {
-              doc['toId'] = new ObjectID(toId);
-            }
-          }
-
-          if (doc && doc.hasOwnProperty('items')) {
-            doc['items'].map((it: any) => {
-              if (it && it.hasOwnProperty('productId')) {
-                const productId = it.productId;
-                if (typeof productId === 'string' && productId.length === 24) {
-                  it.productId = new ObjectID(productId);
-                }
-              }
-            });
-          }
-
+          doc = this.convertIdFields(doc);
           a.push({ updateOne: { filter: query, update: { $set: doc }, upsert: true } });
         });
 
@@ -533,13 +413,17 @@ export class Entity {
   insertMany(items: any[]): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
+        items.map(it => {
+          it = this.convertIdFields(it);
+        });
+        
         c.insertMany(items, {}, (err: MongoError, r: any) => { //InsertWriteOpResult
           if (!err) {
             const rs: any[] = [];
             r.ops.map((obj: any) => {
               if (obj && obj._id) {
                 obj.id = obj._id;
-                delete (obj._id);
+                // delete (obj._id);
                 rs.push(obj);
               }
             });
