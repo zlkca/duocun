@@ -36,7 +36,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService,
   ) {
     const self = this;
-    this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
+    this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => { // must be redux
       self.account = account;
     });
 

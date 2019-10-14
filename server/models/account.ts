@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { Config } from "../config";
 import { Utils } from "../utils";
 import { Entity } from "../entity";
+import { ObjectID } from "mongodb";
 
 const saltRounds = 10;
 
@@ -80,29 +81,50 @@ export class Account extends Model {
 	// 	}
 	// }
 
-  	login(req: Request, res: Response){
-      const self = this;
-      const credential = {username: req.body.username, password: req.body.password};
-      
-      this.findOne({username: credential.username}).then((r: IAccount) => {
-        if(r != null){
-          bcrypt.compare(credential.password, r.password, (err, matched) => {
-            if(matched){
-              res.setHeader('Content-Type', 'application/json');
-              r.password = '';
-              const cfg = new Config();
-              const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
-              const token = {id: tokenId, ttl: 10000, userId: r._id.toString()};
-              res.send(JSON.stringify(token, null, 3));
-            }else{
-              res.send(JSON.stringify(null, null, 3));
-            }
-          });
-        }else{
-          return res.json({'errors': [], 'token': 'token', 'decoded': 'user'});
-        }
-      });
-    }
+  // getById(req: Request, res: Response){
+  //   const id = req.body._id;
+  //   if(id){
+  //     const q = {_id: new ObjectID(id)};
+  //     this.findOne(q).then((r: IAccount) => {
+  //       if(r != null){
+  //         res.setHeader('Content-Type', 'application/json');
+  //         r.password = '';
+  //         const cfg = new Config();
+  //         const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
+  //         const token = {id: tokenId, ttl: 10000, userId: r._id.toString()};
+  //         res.send(JSON.stringify(token, null, 3));
+  //       }else{
+  //         return res.json({'errors': [], 'token': 'token', 'decoded': 'user'});
+  //       }
+  //     });
+  //   }else{
+  //     return res.json({'errors': [], 'token': 'token', 'decoded': 'user'});
+  //   }
+  // }
+
+  login(req: Request, res: Response){
+    const self = this;
+    const credential = {username: req.body.username, password: req.body.password};
+    
+    this.findOne({username: credential.username}).then((r: IAccount) => {
+      if(r != null){
+        bcrypt.compare(credential.password, r.password, (err, matched) => {
+          if(matched){
+            res.setHeader('Content-Type', 'application/json');
+            r.password = '';
+            const cfg = new Config();
+            const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
+            const token = {id: tokenId, ttl: 10000, userId: r._id.toString()};
+            res.send(JSON.stringify(token, null, 3));
+          }else{
+            res.send(JSON.stringify(null, null, 3));
+          }
+        });
+      }else{
+        return res.json({'errors': [], 'token': 'token', 'decoded': 'user'});
+      }
+    });
+  }
 	// 		validateLoginAccount(credential, function(accountErrors, doc){
 	// 			if(accountErrors && accountErrors.length > 0){
 	// 				return rsp.json({'errors':accountErrors, 'token':'', 'decoded':''});

@@ -69,6 +69,14 @@ export class AccountService extends EntityService {
     }
   }
 
+  // overide
+  // findById(id: string, filter?: any): Observable<any> {
+  //   let headers: HttpHeaders = new HttpHeaders();
+  //   headers = headers.append('Content-Type', 'application/json');
+  //   return this.http.post(this.url + '/getAccount', {_id: id}, {headers: headers});
+  // }
+
+
   getCurrent(forceGet: boolean = false): Observable<Account> {
     const self = this;
     const state: any = this.ngRedux.getState();
