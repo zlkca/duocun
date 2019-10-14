@@ -1,9 +1,10 @@
 import { DB } from "../db";
 import { Model } from "./model";
-import { Request, Response } from "express";
+
 import { Entity } from "../entity";
 import { Category } from "./category";
 import { ObjectID } from "mongodb";
+import { Request, Response } from "express";
 
 export class Product extends Model {
   categoryModel: Category;

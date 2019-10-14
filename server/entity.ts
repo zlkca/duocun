@@ -122,6 +122,34 @@ export class Entity {
             doc['accountId'] = new ObjectID(accountId);
           }
         }
+
+        if (doc && doc.hasOwnProperty('orderId')) {
+          const orderId = doc['orderId'];
+          if (typeof orderId === 'string' && orderId.length === 24) {
+            doc['orderId'] = new ObjectID(orderId);
+          }
+        }
+        
+        if (doc && doc.hasOwnProperty('driverId')) {
+          const driverId = doc['driverId'];
+          if (typeof driverId === 'string' && driverId.length === 24) {
+            doc['driverId'] = new ObjectID(driverId);
+          }
+        }
+
+        if (doc && doc.hasOwnProperty('fromId')) {
+          const fromId = doc['fromId'];
+          if (typeof fromId === 'string' && fromId.length === 24) {
+            doc['fromId'] = new ObjectID(fromId);
+          }
+        }
+    
+        if (doc && doc.hasOwnProperty('toId')) {
+          const toId = doc['toId'];
+          if (typeof toId === 'string' && toId.length === 24) {
+            doc['toId'] = new ObjectID(toId);
+          }
+        }
         
         if (doc && doc.hasOwnProperty('items')) {
           doc['items'].map((it: any) => {
@@ -234,6 +262,81 @@ export class Entity {
       query['_id'] = new ObjectID(query.id);
       delete query['id'];
     }
+
+    if (doc && doc.hasOwnProperty('categoryId')) {
+      const catId = doc['categoryId'];
+      if (typeof catId === 'string' && catId.length === 24) {
+        doc['categoryId'] = new ObjectID(catId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('merchantId')) {
+      const merchantId = doc['merchantId'];
+      if (typeof merchantId === 'string' && merchantId.length === 24) {
+        doc['merchantId'] = new ObjectID(merchantId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('clientId')) {
+      const clientId = doc['clientId'];
+      if (typeof clientId === 'string' && clientId.length === 24) {
+        doc['clientId'] = new ObjectID(clientId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('mallId')) {
+      const mallId = doc['mallId'];
+      if (typeof mallId === 'string' && mallId.length === 24) {
+        doc['mallId'] = new ObjectID(mallId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('accountId')) {
+      const accountId = doc['accountId'];
+      if (typeof accountId === 'string' && accountId.length === 24) {
+        doc['accountId'] = new ObjectID(accountId);
+      }
+    }
+    
+    if (doc && doc.hasOwnProperty('orderId')) {
+      const orderId = doc['orderId'];
+      if (typeof orderId === 'string' && orderId.length === 24) {
+        doc['orderId'] = new ObjectID(orderId);
+      }
+    }
+    
+    if (doc && doc.hasOwnProperty('driverId')) {
+      const driverId = doc['driverId'];
+      if (typeof driverId === 'string' && driverId.length === 24) {
+        doc['driverId'] = new ObjectID(driverId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('items')) {
+      doc['items'].map((it: any) => {
+        if (it && it.hasOwnProperty('productId')) {
+          const productId = it.productId;
+          if (typeof productId === 'string' && productId.length === 24) {
+            it.productId = new ObjectID(productId);
+          }
+        }
+      });
+    }
+
+    if (doc && doc.hasOwnProperty('fromId')) {
+      const fromId = doc['fromId'];
+      if (typeof fromId === 'string' && fromId.length === 24) {
+        doc['fromId'] = new ObjectID(fromId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('toId')) {
+      const toId = doc['toId'];
+      if (typeof toId === 'string' && toId.length === 24) {
+        doc['toId'] = new ObjectID(toId);
+      }
+    }
+
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         c.updateOne(query, { $set: doc }, options, (err, result: any) => {
@@ -327,6 +430,19 @@ export class Entity {
             const driverId = doc['driverId'];
             if (typeof driverId === 'string' && driverId.length === 24) {
               doc['driverId'] = new ObjectID(driverId);
+            }
+          }
+          if (doc && doc.hasOwnProperty('fromId')) {
+            const fromId = doc['fromId'];
+            if (typeof fromId === 'string' && fromId.length === 24) {
+              doc['fromId'] = new ObjectID(fromId);
+            }
+          }
+      
+          if (doc && doc.hasOwnProperty('toId')) {
+            const toId = doc['toId'];
+            if (typeof toId === 'string' && toId.length === 24) {
+              doc['toId'] = new ObjectID(toId);
             }
           }
 
