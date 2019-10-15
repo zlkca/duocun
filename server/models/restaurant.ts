@@ -85,7 +85,6 @@ export class Restaurant extends Model {
   loadByDeliveryInfo(origin: ILocation, delivered: string): Promise<any> {
 
     return new Promise((resolve, reject) => {
-
       this.area.getNearestArea(origin).then((area: IArea) => {
         this.mall.find({}).then((malls: IMall[]) => {
           const destinations: ILocation[] = [];
@@ -101,6 +100,7 @@ export class Restaurant extends Model {
             };
             destinations.push(loc);
           });
+
           this.mall.getScheduledMalls(area._id.toString(), delivered).then((scheduledMalls: any[]) => {
             this.distance.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
               const params = [
@@ -121,6 +121,7 @@ export class Restaurant extends Model {
               reject();
             });
           });
+
         });
       });
     });

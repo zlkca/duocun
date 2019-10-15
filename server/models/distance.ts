@@ -92,11 +92,11 @@ export class Distance extends Model {
                 });
               }
 
-              this.deleteMany({ originPlaceId: origin.placeId }).then(() => {
-                this.insertMany(distances).then(() => {
-                  resolve(distances);
-                });
-              });
+              // this.deleteMany({ originPlaceId: origin.placeId }).then(() => {
+              //   this.insertMany(distances).then(() => {
+              resolve(distances);
+              //   });
+              // });
             } else {
               resolve(); // no distance
             }
@@ -114,9 +114,11 @@ export class Distance extends Model {
 
     return new Promise((resolve, reject) => {
       this.find(q).then((ds: IDistance[]) => {
-        const d2 = ds.map(d => d.destinationPlaceId);
-        if (d1.sort().join(',') === d2.sort().join(',')) {
-          resolve(ds);
+        const d2: string[] = ds.map(d => d.destinationPlaceId);
+        const distinctIds: string[] = d2.filter((v, i, a) => a.indexOf(v) === i);
+        const d4: IDistance[] = ds.filter((v, i, a) => a.indexOf(v) === i);
+        if (d1.sort().join(',') === distinctIds.sort().join(',')) {
+          resolve(d4); // include _id fields
         } else {
           resolve([]);
         }
