@@ -386,6 +386,7 @@ export class Entity {
   replaceById(id: string, doc: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
+        doc = this.convertIdFields(doc);
         c.replaceOne({ _id: new ObjectId(id) }, doc, options, (err, result: any) => {
           if (result.ops) {
             let obj = result.ops[0]

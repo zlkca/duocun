@@ -36,6 +36,18 @@ export class Assignment extends Model{
       q.merchantId = { $in: arr };
     }
 
+    if(q && q.driverId && typeof q.driverId === 'string' && q.driverId.length === 24){
+      q.driverId = new ObjectID(q.driverId);
+    } else if (q.driverId && q.driverId.hasOwnProperty('$in')) {
+      let a = q.driverId['$in'];
+      const arr: any[] = [];
+      a.map((id: string) => {
+        arr.push(new ObjectID(id));
+      });
+
+      q.driverId = { $in: arr };
+    }
+
     const params = [
       {$lookup:{from: 'drivers', localField: 'driverId', foreignField: 'accountId', as: 'driver'}},
       {$unwind:'$driver'},
