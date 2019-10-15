@@ -23,16 +23,28 @@ export class Transaction extends Model{
       q = {};
     }
 
-    if(q && q.merchantId && typeof q.merchantId === 'string' && q.merchantId.length === 24){
-      q.merchantId = new ObjectID(q.merchantId);
-    } else if (q.merchantId && q.merchantId.hasOwnProperty('$in')) {
-      let a = q.merchantId['$in'];
+    if(q && q.fromId && typeof q.fromId === 'string' && q.fromId.length === 24){
+      q.fromId = new ObjectID(q.fromId);
+    } else if (q.fromId && q.fromId.hasOwnProperty('$in')) {
+      let a = q.fromId['$in'];
       const arr: any[] = [];
       a.map((id: string) => {
         arr.push(new ObjectID(id));
       });
 
-      q.merchantId = { $in: arr };
+      q.fromId = { $in: arr };
+    }
+
+    if(q && q.toId && typeof q.toId === 'string' && q.toId.length === 24){
+      q.toId = new ObjectID(q.toId);
+    } else if (q.toId && q.toId.hasOwnProperty('$in')) {
+      let a = q.toId['$in'];
+      const arr: any[] = [];
+      a.map((id: string) => {
+        arr.push(new ObjectID(id));
+      });
+
+      q.toId = { $in: arr };
     }
 
     const params = [
