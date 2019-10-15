@@ -170,6 +170,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const date = this.delivery.date;
         const address = this.locationSvc.getAddrString(this.delivery.origin);
         this.reloadGroupDiscount(this.account.id, date, address, (groupDiscount) => {
+          groupDiscount = 0; // fix me
           self.getOverRange(this.delivery.origin, (distance, rate) => {
             this.charge = this.getCharge(cart, merchant, this.delivery, (distance * rate), groupDiscount);
             this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
@@ -266,7 +267,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     //   this.groupDiscount = this.orderSvc.getGroupDiscount(orders, bNewOrder);
     // });
     this.orderSvc.checkGroupDiscount( clientId, date.toDate(), address ).pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
-      this.groupDiscount = bEligible ? 2 : 0;
+      this.groupDiscount = 0; // bEligible ? 2 : 0; fix me
       cb(this.groupDiscount);
     });
   }
@@ -313,7 +314,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         note: note,
         deliveryCost: Math.round(charge.deliveryCost * 100) / 100,
         deliveryDiscount: Math.round(charge.deliveryDiscount * 100) / 100,
-        groupDiscount: Math.round(charge.groupDiscount * 100) / 100,
+        groupDiscount: 0, // Math.round(charge.groupDiscount * 100) / 100, fix me
         overRangeCharge: Math.round(charge.overRangeCharge * 100) / 100,
         total: Math.round(charge.total * 100) / 100,
         tax: Math.round(charge.tax * 100) / 100,

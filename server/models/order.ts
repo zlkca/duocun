@@ -88,6 +88,14 @@ export class Order extends Model {
 
     if (q && q.clientId && typeof q.clientId === 'string' && q.clientId.length === 24) {
       q.clientId = new ObjectID(q.clientId);
+    } else if (q.clientId && q.clientId.hasOwnProperty('$in')) {
+      let a = q.clientId['$in'];
+      const arr: any[] = [];
+      a.map((id: string) => {
+        arr.push(new ObjectID(id));
+      });
+
+      q.clientId = { $in: arr };
     }
 
     const params = [
