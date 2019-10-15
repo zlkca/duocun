@@ -47,6 +47,17 @@ export class Transaction extends Model{
       q.toId = { $in: arr };
     }
 
+    if(q && q.hasOwnProperty('$or')){
+      q['$or'].map( (it: any) => {
+        if(it && it.hasOwnProperty('fromId') && typeof it.fromId === 'string' && it.fromId.length === 24){
+          it.fromId = new ObjectID(it.fromId);
+        }
+        if(it && it.hasOwnProperty('toId') && typeof it.toId === 'string' && it.toId.length === 24){
+          it.toId = new ObjectID(it.toId);
+        }
+      });
+    }
+
     const params = [
       {$lookup:{from: 'users', localField: 'fromId', foreignField: '_id', as: 'from'}},
       {$unwind:'$from'},
