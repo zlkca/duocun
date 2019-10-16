@@ -29,12 +29,14 @@ export class Phone extends Model {
     const code = d1+d2+d3+d4;
 
     this.findOne({accountId: accountId}).then(p => {
+      const dt = new Date();
       if(p){
         p.phone = phoneNum;
         p.verificationCode = code;
-        self.replaceById(p.id, p).then(doc => { });
+        p.modified = dt.toISOString();
+        self.updateOne({_id: p._id}, p).then(doc => { });
       }else{
-        const x = {accountId: accountId, phone: phoneNum, verificationCode: code};
+        const x = {accountId: accountId, phone: phoneNum, verificationCode: code, created: dt.toISOString(), modified: dt.toDateString()};
         self.insertOne(x).then(doc => {  });
       }
     });

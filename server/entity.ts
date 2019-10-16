@@ -145,10 +145,25 @@ export class Entity {
         a.map((id: string) => {
           arr.push({ _id: new ObjectID(id) });
         });
-
         query = { $or: arr };
       } else if (typeof body === "string") {
         query['_id'] = new ObjectID(query.id);
+        delete query['id'];
+      }
+    }
+    
+    if(query && query.hasOwnProperty('_id')) {
+      let body = query._id;
+      if (body && body.hasOwnProperty('$in')) {
+        let a = body['$in'];
+        const arr: any[] = [];
+        a.map((id: string) => {
+          arr.push({ _id: new ObjectID(id) });
+        });
+
+        query = { $or: arr };
+      } else if (typeof body === "string") {
+        query['_id'] = new ObjectID(query._id);
         delete query['id'];
       }
     }
@@ -388,6 +403,7 @@ export class Entity {
     });
   }
 
+  // deprecated
   replaceById(id: string, doc: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
