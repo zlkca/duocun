@@ -107,6 +107,7 @@ export class Entity {
     const self = this;
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
+        query = this.convertIdFields(query);
         c.distinct(key, query, options, (err, doc) => {
           if (doc && doc._id) {
             doc.id = doc._id;
@@ -122,6 +123,7 @@ export class Entity {
     const self = this;
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
+        query = this.convertIdFields(query);
         c.findOne(query, options, (err, doc) => {
           if (doc && doc._id) {
             doc.id = doc._id;
@@ -170,9 +172,12 @@ export class Entity {
     });
   }
 
+  // deprecated
   replaceOne(query: any, doc: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
+        query = this.convertIdFields(query);
+        doc = this.convertIdFields(doc);
         c.replaceOne(query, doc, options, (err, result: any) => {
           if (result && result._id) {
             result.id = result._id;
@@ -444,6 +449,7 @@ export class Entity {
   deleteMany(query: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
+        query = this.convertIdFields(query);
         c.deleteMany(query, options, (err, ret) => { // DeleteWriteOpResultObject
           resolve(ret); // ret.deletedCount
         });
