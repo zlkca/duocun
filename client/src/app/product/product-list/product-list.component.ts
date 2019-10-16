@@ -160,6 +160,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
       payload: {
         items: [{
           productId: p._id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+          cost: p ? p.cost : 0,
           merchantId: p.merchantId, merchantName: this.restaurant.name
         }]
       }
@@ -182,6 +183,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
       payload: {
         items: [{
           productId: p._id, productName: p.name, price: p.price, quantity: quantity, pictures: p.pictures,
+          cost: p ? p.cost : 0,
           merchantId: p.merchantId, merchantName: this.restaurant.name
         }]
       }

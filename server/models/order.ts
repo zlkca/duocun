@@ -111,7 +111,7 @@ export class Order extends Model {
         r.items.map((it: any) => {
           const product = r.products.find((p: any) => p._id.toString() === it.productId.toString());
           if (product) {
-            items.push({ product: product, quantity: it.quantity });
+            items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
           }
         });
         delete r.products;

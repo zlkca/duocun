@@ -7,6 +7,7 @@ export interface ICartItem {
   merchantId: string;
   merchantName: string;
   price: number;
+  cost: number;
   quantity: number;
 }
 

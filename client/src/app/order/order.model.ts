@@ -87,8 +87,9 @@ export interface IOrderItem {
 
 export class OrderItem implements IOrderItem {
   productId: string;
-  // merchantId: string;
   quantity: number;
+  price?: number;
+  cost?: number;
   constructor(data?: IOrderItem) {
     Object.assign(this, data);
   }
