@@ -33,7 +33,7 @@ export class ClientBalance extends Model{
       q = {};
     }
 
-    if(q && q.accountId){
+    if(q && q.accountId && typeof q.accountId === 'string' && q.accountId.length === 24){
       q.accountId = new ObjectID(q.accountId);
     }
 
