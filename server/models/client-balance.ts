@@ -33,8 +33,16 @@ export class ClientBalance extends Model{
       q = {};
     }
 
-    if(q && q.accountId && typeof q.accountId === 'string' && q.accountId.length === 24){
+    if (q && q.accountId && typeof q.accountId === 'string' && q.accountId.length === 24) {
       q.accountId = new ObjectID(q.accountId);
+    } else if (q.accountId && q.accountId.hasOwnProperty('$in')) {
+      let a = q.accountId['$in'];
+      const arr: any[] = [];
+      a.map((id: string) => {
+        arr.push(new ObjectID(id));
+      });
+
+      q.accountId = { $in: arr };
     }
 
     const params = [
