@@ -53,8 +53,8 @@ export class Location extends Model {
     let key = this.cfg.GOOGLE_PLACE_KEY;
     const input = req.params.input;
 
-    let url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=' + input + '&key=' + key
-      + '&location=43.761539,-79.411079&radius=100'; // only for GTA
+    let url = encodeURI('https://maps.googleapis.com/maps/api/place/autocomplete/json?input=' + input + '&key=' + key
+      + '&location=43.761539,-79.411079&radius=100'); // only for GTA
 
     https.get(url, (res1: IncomingMessage) => {
       let data = '';
@@ -92,7 +92,7 @@ export class Location extends Model {
     
     url += '&address=' + addr;
 
-    https.get(url, (res1: IncomingMessage) => {
+    https.get(encodeURI(url), (res1: IncomingMessage) => {
       let data = '';
       res1.on('data', (d) => {
         // process.stdout.write(d);

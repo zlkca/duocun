@@ -12,13 +12,14 @@ export enum Role {
 }
 
 export interface IAccount {
+  _id?: string;
+  id?: string;
   type: string; // wechat, google, fb
   realm?: string;
   username?: string;
   email?: string;
   emailVerified?: boolean;
   phone?: string;
-  id?: string;
   password?: string;
   sex?: string;
   openid?: string; // wechat openid
@@ -32,13 +33,14 @@ export interface IAccount {
 }
 
 export class Account implements IAccount {
+  _id?: string;
+  id: string;
   type: string;
   realm: string; // wechat, google, fb
   username: string;
   email?: string;
   emailVerified?: boolean;
   phone?: string;
-  id: string;
   password: string;
   sex?: string;
   openid?: string; // wechat openid

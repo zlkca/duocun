@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
-import { Account } from '../account/account.model';
+import { Account, IAccount } from '../account/account.model';
 import { IAppState } from '../store';
 import { CommandActions } from '../shared/command.actions';
 import { takeUntil } from '../../../node_modules/rxjs/operators';
@@ -18,7 +18,7 @@ import { ICart } from '../cart/cart.model';
 })
 export class FooterComponent implements OnInit, OnDestroy {
   year = 2019;
-  account: Account;
+  account: IAccount;
   bHideNavMenu = false;
   page;
   selected = 'home';
