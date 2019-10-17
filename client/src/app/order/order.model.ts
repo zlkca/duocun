@@ -38,6 +38,8 @@ export interface IOrder {
   chargeId?: string; // stripe chargeId
   transactionId?: string;
   payable?: number; // total - balance
+  price?: number;
+  cost?: number;
 }
 
 export class Order implements IOrder {
@@ -70,6 +72,8 @@ export class Order implements IOrder {
   paymentMethod ?: string;
   chargeId?: string; // stripe chargeId
   transactionId?: string;
+  price?: number;
+  cost?: number;
   constructor(data?: IOrder) {
     Object.assign(this, data);
   }

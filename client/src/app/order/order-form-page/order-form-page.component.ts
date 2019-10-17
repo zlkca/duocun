@@ -290,16 +290,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return regionName.substring(0, 2).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 1) + streetNum;
   }
 
-  getCost(items: any[]) {
-    let cost = 0;
-    let price = 0;
-    items.map(x => {
-      cost += (x.cost * x.quantity);
-      price += (x.price * x.quantity);
-    });
-    return {cost: cost, price: price};
-  }
-
   createOrder(account: IAccount, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, code: string, note: string) {
     const self = this;
     if (cart && cart.items && cart.items.length > 0) {

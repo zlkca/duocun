@@ -92,17 +92,10 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     const query = { clientId: clientId, status: { $nin: ['del', 'bad', 'tmp'] } };
     self.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((orders: IOrder[]) => {
       orders.map((order: IOrder) => {
-        let productTotal = 0;
         let subTotal = 0;
-        const items = order.items;
-        if (items && items.length > 0) {
-          items.map((it: any) => {
-            productTotal += it.product.price * it.quantity;
-          });
-        }
-        subTotal = productTotal + order.deliveryCost;
+        subTotal = order.price + order.deliveryCost;
         order.tax = Math.ceil(subTotal * 13) / 100;
-        order.productTotal = productTotal;
+        order.productTotal = order.price;
       });
 
       orders.sort((a: IOrder, b: IOrder) => {
