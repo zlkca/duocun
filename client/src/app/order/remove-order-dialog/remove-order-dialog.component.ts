@@ -90,10 +90,10 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
 
           self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
             self.dialogRef.close();
-            self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
             self.snackBar.open('', '订单已删除', { duration: 1000 });
 
             self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
+              self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
               self.snackBar.open('', '余额已处理', { duration: 1000 });
               self.router.navigate(['order/history']);
             });
@@ -112,7 +112,6 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
       } else if (self.data.paymentMethod === 'cash' || self.data.paymentMethod === 'prepaid') { // cash or prepaid
         self.orderSvc.removeById(self.data.orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
           self.dialogRef.close();
-          self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
           self.snackBar.open('', '订单已删除', { duration: 1000 });
           // const payable = Math.round((self.balance.amount + self.data.total) * 100) / 100;
           // const q = { accountId: self.data.accountId };
@@ -122,6 +121,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
           //   // self.router.navigate(['order/history']);
           // });
           self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
+            self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
             self.snackBar.open('', '余额已处理', { duration: 1000 });
             self.router.navigate(['order/history']);
           });
