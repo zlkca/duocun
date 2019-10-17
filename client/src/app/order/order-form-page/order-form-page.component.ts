@@ -170,7 +170,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const date = this.delivery.date;
         const address = this.locationSvc.getAddrString(this.delivery.origin);
         this.reloadGroupDiscount(this.account.id, date, address, (groupDiscount) => {
-          groupDiscount = 0; // fix me
           self.getOverRange(this.delivery.origin, (distance, rate) => {
             this.charge = this.getCharge(cart, merchant, this.delivery, (distance * rate), groupDiscount);
             this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
@@ -267,7 +266,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     //   this.groupDiscount = this.orderSvc.getGroupDiscount(orders, bNewOrder);
     // });
     this.orderSvc.checkGroupDiscount( clientId, date.toDate(), address ).pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
-      this.groupDiscount = 0; // bEligible ? 2 : 0; fix me
+      this.groupDiscount = bEligible ? 2 : 0;
       cb(this.groupDiscount);
     });
   }
@@ -290,6 +289,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return regionName.substring(0, 2).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 1) + streetNum;
   }
 
+  getCost(items: any[]) {
+    let cost = 0;
+    let price = 0;
+    items.map(x => {
+      cost += (x.cost * x.quantity);
+      price += (x.price * x.quantity);
+    });
+    return { cost: cost, price: price };
+  }
+
   createOrder(account: IAccount, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, code: string, note: string) {
     const self = this;
     if (cart && cart.items && cart.items.length > 0) {
@@ -302,12 +311,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         };
       });
 
+      const summary = this.getCost(items);
+
       const order: IOrder = {
         code: code,
         clientId: contact.accountId,
         prepaidClient: self.isPrepaidClient(account),
         merchantId: cart.merchantId,
         items: items,
+        price: Math.round(summary.price * 100) / 100,
+        cost: Math.round(summary.cost * 100) / 100,
         created: new Date(),
         delivered: delivery.date.toDate(),
         address: this.locationSvc.getAddrString(delivery.origin),
@@ -315,7 +328,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         note: note,
         deliveryCost: Math.round(charge.deliveryCost * 100) / 100,
         deliveryDiscount: Math.round(charge.deliveryDiscount * 100) / 100,
-        groupDiscount: 0, // Math.round(charge.groupDiscount * 100) / 100, fix me
+        groupDiscount: Math.round(charge.groupDiscount * 100) / 100,
         overRangeCharge: Math.round(charge.overRangeCharge * 100) / 100,
         total: Math.round(charge.total * 100) / 100,
         tax: Math.round(charge.tax * 100) / 100,

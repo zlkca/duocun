@@ -10,6 +10,7 @@ import { Md5 } from 'ts-md5';
 
 import { Order } from "../models/order";
 import { ClientBalance } from "./client-balance";
+import { ObjectID } from "../../node_modules/@types/bson";
 
 export class ClientPayment extends Model {
   cfg: Config;
@@ -286,7 +287,7 @@ export class ClientPayment extends Model {
     });
   }
 
-  addGroupDiscount(clientId: string, date: string, address: string) : Promise<any> {
+  addGroupDiscount(clientId: ObjectID, date: string, address: string) : Promise<any> {
     return new Promise((resolve, reject) => {
       this.orderEntity.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then((orders: any[]) => {
         this.orderEntity.addGroupDiscountForOrders(clientId, orders).then((x: any) => {

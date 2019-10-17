@@ -207,7 +207,7 @@ describe('groupBy', () => {
   });
 });
 
-// addGroupDiscountForOrders(clientId: string, date: string, address: string, cb?: any)
+// (clientId: ObjectID, date: string, address: string, cb?: any)
 describe('addGroupDiscountForOrders with 2nd groupDiscount 2', () => {
   const db: any = new DB();
   const clientConnection: any = null;

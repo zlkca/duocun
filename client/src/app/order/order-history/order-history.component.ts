@@ -118,7 +118,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       self.orders = orders;
       self.loading = false;
 
-      self.highlightedOrderId = self.orders[0].id;
+      self.highlightedOrderId = self.orders[0] ? self.orders[0]._id : null;
     });
   }
 
