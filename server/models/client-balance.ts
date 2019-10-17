@@ -143,7 +143,7 @@ export class ClientBalance extends Model{
           // pass
         }else{
           if(clientIds.length > 1){
-            const b = balances.find(x => x.accountId === clientId);
+            const b = balances.find(x => x.accountId.toString() === clientId);
             if(b){
               const balance = Math.round((b.amount + groupDiscount) * 100) / 100;
               a.push({ query: { id: b.id.toString() }, data: { amount: balance } });
@@ -187,7 +187,7 @@ export class ClientBalance extends Model{
           if(order){
             // pass this group
           }else{
-            const b = balances.find(x => x.accountId === clientId);
+            const b = balances.find(x => x.accountId.toString() === clientId);
             const balance = Math.round((b.amount + groupDiscount) * 100) / 100;
             a.push({ query: { id: b.id.toString() }, data: { amount: balance }});  
           }
@@ -201,7 +201,7 @@ export class ClientBalance extends Model{
         if ( os && os.length > 0) {
           const order = os.find((x: any) => x.groupDiscount !== 0 );
           if(order){
-            const b = balances.find(x => x.accountId === clientId);
+            const b = balances.find(x => x.accountId.toString() === clientId);
             const balance = Math.round((b.amount - groupDiscount) * 100) / 100;
             a.push({ query: { id: b.id.toString() }, data: { amount: balance } });
           }else{
