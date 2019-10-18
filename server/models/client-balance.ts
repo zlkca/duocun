@@ -50,13 +50,18 @@ export class ClientBalance extends Model{
       {$unwind: '$account'}
     ];
     this.join(params, q).then((rs: any) => {
+      const orders: any[] = [];
       rs.map((r: any) => {
         delete r.password;
         delete r.account.password;
+        const order = orders.find(x => x._id.toString() === r._id.toString());
+        if(!order){
+          orders.push(r);
+        }
       });
       res.setHeader('Content-Type', 'application/json');
-      if (rs) {
-        res.send(JSON.stringify(rs, null, 3));
+      if (orders) {
+        res.send(JSON.stringify(orders, null, 3));
       } else {
         res.send(JSON.stringify(null, null, 3))
       }

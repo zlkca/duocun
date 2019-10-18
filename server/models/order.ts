@@ -115,11 +115,14 @@ export class Order extends Model {
           }
         });
         delete r.products;
+
         r.items = items;
       });
 
+      const rets = rs.filter((r: any) => r === null);
+
       res.setHeader('Content-Type', 'application/json');
-      if (rs) {
+      if (rets) {
         res.send(JSON.stringify(rs, null, 3));
       } else {
         res.send(JSON.stringify(null, null, 3));
