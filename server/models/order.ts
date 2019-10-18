@@ -106,6 +106,7 @@ export class Order extends Model {
       { $lookup: { from: 'products', localField: 'items.productId', foreignField: '_id', as: 'products' } },
     ];
     this.join(params, q).then((rs: any) => {
+      const cbs: any[] = [];
       rs.map((r: any) => {
         const items: any[] = [];
         r.items.map((it: any) => {
@@ -117,13 +118,16 @@ export class Order extends Model {
         delete r.products;
 
         r.items = items;
+
+        const cb = cbs.find(x => x._id.toString() === r._id.toString());
+        if(!cb){
+          cbs.push(r);
+        }
       });
 
-      const rets = rs.filter((r: any) => r === null);
-
       res.setHeader('Content-Type', 'application/json');
-      if (rets) {
-        res.send(JSON.stringify(rs, null, 3));
+      if (cbs) {
+        res.send(JSON.stringify(cbs, null, 3));
       } else {
         res.send(JSON.stringify(null, null, 3));
       }

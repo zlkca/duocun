@@ -50,18 +50,17 @@ export class ClientBalance extends Model{
       {$unwind: '$account'}
     ];
     this.join(params, q).then((rs: any) => {
-      const orders: any[] = [];
+      const cbs: any[] = [];
       rs.map((r: any) => {
-        delete r.password;
         delete r.account.password;
-        const order = orders.find(x => x._id.toString() === r._id.toString());
-        if(!order){
-          orders.push(r);
+        const cb = cbs.find(x => x._id.toString() === r._id.toString());
+        if(!cb){
+          cbs.push(r);
         }
       });
       res.setHeader('Content-Type', 'application/json');
-      if (orders) {
-        res.send(JSON.stringify(orders, null, 3));
+      if (cbs) {
+        res.send(JSON.stringify(cbs, null, 3));
       } else {
         res.send(JSON.stringify(null, null, 3))
       }

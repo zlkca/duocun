@@ -209,7 +209,10 @@ export class Entity {
       query['_id'] = new ObjectID(query.id);
       delete query['id'];
     }
-
+    if (query && query.hasOwnProperty('_id')) {
+      query['_id'] = new ObjectID(query._id);
+      delete query['id'];
+    }
     doc = this.convertIdFields(doc);
 
     return new Promise((resolve, reject) => {
