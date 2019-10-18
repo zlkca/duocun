@@ -59,6 +59,7 @@ export class Order extends Model {
     this.clientBalanceEntity = new Entity(dbo, 'client_balances');
   }
 
+
   list(req: Request, res: Response) {
     let query = null;
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {

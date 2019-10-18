@@ -316,6 +316,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const order: IOrder = {
         code: code,
         clientId: contact.accountId,
+        clientName: contact.username,
         prepaidClient: self.isPrepaidClient(account),
         merchantId: cart.merchantId,
         items: items,

@@ -8,6 +8,18 @@ export class Model extends Entity {
     super(dbo, tableName);
   }
 
+  quickFind(req: Request, res: Response){
+    let query = {};
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    this.find(query).then((x: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(x, null, 3));
+    });
+  }
+
   list(req: Request, res: Response) {
     let query = null;
     let key = null;

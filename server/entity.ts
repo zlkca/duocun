@@ -137,36 +137,22 @@ export class Entity {
 
   find(query: any, options?: any): Promise<any> {
     const self = this;
-    if (query && query.hasOwnProperty('id')) {
-      let body = query.id;
-      if (body && body.hasOwnProperty('$in')) {
-        let a = body['$in'];
-        const arr: any[] = [];
-        a.map((id: string) => {
-          arr.push({ _id: new ObjectID(id) });
-        });
-        query = { $or: arr };
-      } else if (typeof body === "string") {
-        query['_id'] = new ObjectID(query.id);
-        delete query['id'];
-      }
-    }
+    // if (query && query.hasOwnProperty('id')) {
+    //   let body = query.id;
+    //   if (body && body.hasOwnProperty('$in')) {
+    //     let a = body['$in'];
+    //     const arr: any[] = [];
+    //     a.map((id: string) => {
+    //       arr.push({ _id: new ObjectID(id) });
+    //     });
+    //     query = { $or: arr };
+    //   } else if (typeof body === "string") {
+    //     query['_id'] = new ObjectID(query.id);
+    //     delete query['id'];
+    //   }
+    // }
     
-    if(query && query.hasOwnProperty('_id')) {
-      let body = query._id;
-      if (body && body.hasOwnProperty('$in')) {
-        let a = body['$in'];
-        const arr: any[] = [];
-        a.map((id: string) => {
-          arr.push({ _id: new ObjectID(id) });
-        });
-
-        query = { $or: arr };
-      } else if (typeof body === "string") {
-        query['_id'] = new ObjectID(query._id);
-        delete query['id'];
-      }
-    }
+    query = this.convertIdFields(query);
 
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
@@ -248,11 +234,20 @@ export class Entity {
     });
   }
 
+  // only support query _id, not id
   convertIdFields(doc: any){
-    if (doc && doc.hasOwnProperty('_id')) {
-      const id = doc['_id'];
-      if (typeof id === 'string' && id.length === 24) {
-        doc['_id'] = new ObjectID(id);
+    if(doc && doc.hasOwnProperty('_id')) {
+      let body = doc._id;
+      if (body && body.hasOwnProperty('$in')) {
+        let a = body['$in'];
+        const arr: any[] = [];
+        a.map((id: string) => {
+          arr.push({ _id: new ObjectID(id) });
+        });
+
+        doc = { $or: arr };
+      } else if (typeof body === "string") {
+        doc['_id'] = new ObjectID(doc._id);
       }
     }
 
