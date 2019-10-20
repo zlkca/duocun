@@ -56,7 +56,7 @@ export class Distance extends Model {
     return Math.sqrt(dLat * dLat + dLng * dLng);
   }
 
-  doReqRoadDistances(origin: ILocation, destinations: ILocation[]): Promise<ILocation[]> {
+  doReqRoadDistances(origin: ILocation, destinations: ILocation[]): Promise<IDistance[]> {
     const key = this.cfg.GOOGLE_DISTANCE_KEY;
     const ds: string[] = [];
     destinations.map((d: any) => {
@@ -78,7 +78,7 @@ export class Distance extends Model {
           if (data) {
             const s = JSON.parse(data);
             const rows = s.rows;
-            const distances: any[] = [];
+            const distances: IDistance[] = [];
             if (rows && rows.length > 0 && rows[0].elements && rows[0].elements.length > 0) {
               for (let i = 0; i < destinations.length; i++) {
                 const destination = destinations[i];
@@ -91,61 +91,45 @@ export class Distance extends Model {
                   element: rows[0].elements[i],
                 });
               }
-
-              // this.deleteMany({ originPlaceId: origin.placeId }).then(() => {
-              //   this.insertMany(distances).then(() => {
               resolve(distances);
-              //   });
-              // });
             } else {
-              resolve(); // no distance
+              resolve([]); // no distance
             }
           } else {
-            resolve(); // no data
+            resolve([]); // no data
           }
         });
       });
     });
   }
 
-  checkRoadDistances(originPlaceId: string, destinations: ILocation[]): Promise<IDistance[]> {
-    const q = { originPlaceId: originPlaceId }; // origin --- client origin
-    const d1 = destinations.map(d => d.placeId);
-
-    return new Promise((resolve, reject) => {
-      this.find(q).then((ds: IDistance[]) => {
-        const d2: string[] = ds.map(d => d.destinationPlaceId);
-        const distinctIds: string[] = d2.filter((v, i, a) => a.indexOf(v) === i);
-        const d4: IDistance[] = ds.filter((v, i, a) => a.indexOf(v) === i);
-        if (d1.sort().join(',') === distinctIds.sort().join(',')) {
-          resolve(d4); // include _id fields
-        } else {
-          resolve([]);
-        }
-      });
-    });
-  }
-
   loadRoadDistances(origin: ILocation, destinations: ILocation[]): Promise<IDistance[]> {
+    const ds1: string[] = destinations.map(d => d.placeId);
     return new Promise((resolve, reject) => {
-      this.checkRoadDistances(origin.placeId, destinations).then(ds => {
-        if (ds && ds.length > 0) {
+      this.find({ originPlaceId: origin.placeId }).then((ds: IDistance[]) => {
+        const ds2: string[] = ds.map(d => d.destinationPlaceId);
+
+        if (ds1.sort().join(',') === ds2.sort().join(',')) {
           resolve(ds);
         } else {
-          this.doReqRoadDistances(origin, destinations).then(ds2 => {
-            if (ds2) {
-              this.deleteMany([{ originPlaceId: origin.placeId }]).then((y: any) => {
-                this.insertMany(ds2).then(ds3 => {
+          this.doReqRoadDistances(origin, destinations).then((rds: IDistance[])=> {
+            const distances: IDistance[] = [];
+            rds.map((rd: IDistance) => {
+              if (ds2.indexOf(rd.destinationPlaceId) === -1){
+                distances.push(rd);
+              }
+            });
+
+            if (distances && distances.length > 0) {
+                this.insertMany(distances).then(ds3 => {
                   if(ds3 && ds3.length>0){
-                    resolve(ds3);
+                    resolve(ds.concat(ds3)); // ds + ds3
                   }else{
-                    resolve([]);
+                    resolve(ds); // ds
                   }
                 });
-              });
             } else {
-              // should not happen
-              resolve([]);
+              resolve(ds);
             }
           });
         }

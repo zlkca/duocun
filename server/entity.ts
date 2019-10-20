@@ -383,10 +383,8 @@ export class Entity {
         const a: any[] = [];
 
         clonedArray.map(query => {
-          if (query && query.hasOwnProperty('id')) {
-            query['_id'] = new ObjectID(query.id);
-            delete query['id'];
-          }
+          query = this.convertIdFields(query);
+          delete query['id'];
           a.push({ deleteOne: { filter: query } });
         });
 

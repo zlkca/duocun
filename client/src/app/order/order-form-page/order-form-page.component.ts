@@ -188,7 +188,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   getOverRange(origin: ILocation, cb?: any) {
     const self = this;
     const destinations: ILocation[] = [];
-    const qDist = { id: '5d671c2f6f69011d1bd42f6c' }; // TNT mall
+    const qDist = { _id: '5d671c2f6f69011d1bd42f6c' }; // TNT mall
 
     this.rangeSvc.find({ roles: [RangeRole.FREE_CENTER] }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
       const ranges = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, rs);
@@ -211,6 +211,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               if (cb) {
                 cb(distance, r.overRangeRate);
               }
+            } else {
+              cb(5, 0); // should never go here
             }
           }, err => {
             console.log(err);
@@ -265,7 +267,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     //   // fix me update group discount to order
     //   this.groupDiscount = this.orderSvc.getGroupDiscount(orders, bNewOrder);
     // });
-    this.orderSvc.checkGroupDiscount( clientId, date.toDate(), address ).pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
+    this.orderSvc.checkGroupDiscount(clientId, date.toDate(), address).pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
       this.groupDiscount = bEligible ? 2 : 0;
       cb(this.groupDiscount);
     });
@@ -319,6 +321,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         clientName: contact.username,
         prepaidClient: self.isPrepaidClient(account),
         merchantId: cart.merchantId,
+        merchantName: cart.merchantName,
         items: items,
         price: Math.round(summary.price * 100) / 100,
         cost: Math.round(summary.cost * 100) / 100,

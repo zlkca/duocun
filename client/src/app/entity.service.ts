@@ -23,6 +23,25 @@ export class EntityService {
     return environment.API_URL;
   }
 
+  // without database join
+  quickFind(filter?: any, distinct?: any): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json');
+    const accessTokenId = this.cookieSvc.getAccessToken();
+    if (accessTokenId) {
+      headers = headers.append('Authorization', this.authPrefix + accessTokenId);
+      // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
+    }
+    if (filter) {
+      headers = headers.append('filter', JSON.stringify(filter));
+    }
+    if (distinct) {
+      headers = headers.append('distinct', JSON.stringify(distinct));
+    }
+    return this.http.get(this.url + '/qFind', { headers: headers });
+  }
+
+  // with database join
   find(filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
