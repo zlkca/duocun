@@ -4,6 +4,7 @@ import { Model } from "./model";
 import { Entity } from "../entity";
 import { ILocation } from "./location";
 import { BulkWriteOpResultObject, ObjectID } from "mongodb";
+import { OrderSequence } from "./order-sequence";
 
 
 export interface IOrderItem {
@@ -52,11 +53,12 @@ export interface IOrder {
 
 export class Order extends Model {
   private clientBalanceEntity: Entity;
-
+  private sequenceModel: OrderSequence;
   constructor(dbo: DB) {
     super(dbo, 'orders');
 
     this.clientBalanceEntity = new Entity(dbo, 'client_balances');
+    this.sequenceModel = new OrderSequence(dbo);
   }
 
 
@@ -136,6 +138,18 @@ export class Order extends Model {
   }
 
   create(req: Request, res: Response) {
+    const order = req.body;
+    this.sequenceModel.reqSequence().then((sequence: number) => {
+      order.code = this.sequenceModel.getCode(order.location, sequence);
+      this.insertOne(req.body).then((ret: any) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(ret, null, 3));
+      });
+    });
+  }
+
+  // obsoleted
+  createV1(req: Request, res: Response) {
     if (req.body instanceof Array) {
       this.insertMany(req.body).then((x: any) => {
         res.setHeader('Content-Type', 'application/json');
@@ -412,47 +426,12 @@ export class Order extends Model {
 
   removeOne(req: Request, res: Response) {
     const orderId = req.params.id;
-    this.find({ id: orderId }).then(docs => {
+    this.find({ _id: orderId }).then(docs => {
       if (docs && docs.length > 0) {
 
-        this.updateOne({ id: orderId }, { status: 'del' }).then(x => {
+        this.updateOne({ _id: orderId }, { status: 'del' }).then(x => {
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(x, null, 3));
-
-          // const date = docs[0].delivered;
-          // const address = docs[0].address;  
-          // this.find({ delivered: date, address: address, status: { $nin: ['del', 'bad'] } }).then(orders => {
-          //   const a = this.getDistinctArray(orders, 'clientId');
-          //   let groupDiscount = (a && a.length > 1) ? 2 : 0;
-
-          //   if (groupDiscount === 0) {
-          //     const os = a.filter(x => x.groupDiscount !== 0);
-          //     if (os && os.length > 0) {
-          //       const order = os[0];
-          //       this.updateOne({ id: order.id }, { groupDiscount: 0, total: order.total + 2 }).then(() => {
-          //         console.log('update order:' + order.id);
-          //         this.clientBalanceEntity.find({ accountId: order.clientId }).then((bs: any[]) => {
-          //           if (bs && bs.length > 0) {
-          //             const b = bs[0];
-          //             this.clientBalanceEntity.updateOne({ accountId: order.clientId }, { amount: b.amount - 2 }).then(() => {
-          //               res.setHeader('Content-Type', 'application/json');
-          //               res.end(JSON.stringify(x, null, 3));
-          //             });
-          //           } else {
-          //             res.setHeader('Content-Type', 'application/json');
-          //             res.end(JSON.stringify(x, null, 3));
-          //           }
-          //         });
-          //       });
-          //     } else {
-          //       res.setHeader('Content-Type', 'application/json');
-          //       res.end(JSON.stringify(x, null, 3));
-          //     }
-          //   } else {
-          //     res.setHeader('Content-Type', 'application/json');
-          //     res.end(JSON.stringify(x, null, 3));
-          //   }
-          // });
         });
       } else {
         res.setHeader('Content-Type', 'application/json');

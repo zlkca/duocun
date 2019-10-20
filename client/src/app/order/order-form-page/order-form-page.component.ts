@@ -282,15 +282,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       && account.roles.indexOf(Role.PREPAID_CLIENT) !== -1;
   }
 
-  getCode(location: ILocation, n) {
-    const regionName = location.subLocality ? location.subLocality : location.city;
-    const index = n > 9 ? ('' + n) : ('0' + n);
-    const streetName = location.streetName.toUpperCase();
-    const streetNumber = Number(location.streetNumber);
-    const streetNum = streetNumber ? (streetNumber > 9 ? ('' + streetNumber) : ('00' + streetNumber)) : '00';
-    return regionName.substring(0, 2).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 1) + streetNum;
-  }
-
   getCost(items: any[]) {
     let cost = 0;
     let price = 0;
@@ -301,7 +292,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return { cost: cost, price: price };
   }
 
-  createOrder(account: IAccount, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, code: string, note: string) {
+  createOrder(account: IAccount, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string) {
     const self = this;
     if (cart && cart.items && cart.items.length > 0) {
       const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
@@ -316,7 +307,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const summary = this.getCost(items);
 
       const order: IOrder = {
-        code: code,
         clientId: contact.accountId,
         clientName: contact.username,
         prepaidClient: self.isPrepaidClient(account),
@@ -359,10 +349,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.bSubmitted = true;
       const v = this.form.value;
 
-      this.sequenceSvc.generate().pipe(takeUntil(self.onDestroy$)).subscribe(sq => {
-        //   order.id = this.order.id;
-        const code = self.getCode(self.delivery.origin, sq);
-        const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, code, v.note);
+
+        const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, v.note);
 
         if (self.balance.amount >= order.total) {
           order.payable = 0;
@@ -382,13 +370,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         } else {
           order.payable = order.total - self.balance.amount;
           if (self.paymentMethod === 'cash') {
-            self.handleWithCash(self.balance, order, code, v.note);
+            self.handleWithCash(self.balance, order, v.note);
           } else {
             self.loading = false;
             self.handleWithPayment(self.account, order, self.balance, self.paymentMethod);
           }
         }
-      });
     } else {
       this.snackBar.open('', '无法重复提交订单', { duration: 1000 });
     }
@@ -461,7 +448,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
 
   // only happend on balance < order.total
-  handleWithCash(balance: IBalance, order, code: string, note: string) {
+  handleWithCash(balance: IBalance, order, note: string) {
     const self = this;
 
     if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
