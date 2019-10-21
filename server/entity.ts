@@ -314,6 +314,18 @@ export class Entity {
       }
     }
 
+    if(doc && doc.hasOwnProperty('$or')) {
+      const items: any[] = [];
+      doc['$or'].map((it: any) => {
+        if (it && it.hasOwnProperty('toId')){
+          items.push({toId: new ObjectID(it.toId)});
+        }else if(it && it.hasOwnProperty('fromId')){
+          items.push({fromId: new ObjectID(it.fromId)});
+        }
+      });
+      doc['$or'] = items;
+    }
+
     if (doc && doc.hasOwnProperty('items')) {
       doc['items'].map((it: any) => {
         if (it && it.hasOwnProperty('productId')) {

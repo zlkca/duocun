@@ -348,34 +348,33 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     if (!this.bSubmitted) {
       this.bSubmitted = true;
       const v = this.form.value;
+      const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, v.note);
 
+      if (self.balance.amount >= order.total) {
+        order.payable = 0;
+        order.status = 'paid';
+        order.paymentMethod = 'prepaid';
 
-        const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, v.note);
-
-        if (self.balance.amount >= order.total) {
-          order.payable = 0;
-          order.status = 'paid';
-          order.paymentMethod = 'prepaid';
-
-          self.saveOrder(order, (ret) => {
-            self.snackBar.open('', '订单已保存', { duration: 1800 });
-            const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
-            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-            self.paymentSvc.afterAddOrder(ret.id, order.total).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
-              self.bSubmitted = false;
-              self.loading = false;
-              self.router.navigate(['order/history']);
-            });
-          });
-        } else {
-          order.payable = order.total - self.balance.amount;
-          if (self.paymentMethod === 'cash') {
-            self.handleWithCash(self.balance, order, v.note);
-          } else {
+        self.saveOrder(order, (ret) => {
+          self.snackBar.open('', '订单已保存', { duration: 1800 });
+          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
+          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+          // adjust group discount and balance
+          self.paymentSvc.afterAddOrder(ret.id, order.total).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+            self.bSubmitted = false;
             self.loading = false;
-            self.handleWithPayment(self.account, order, self.balance, self.paymentMethod);
-          }
+            self.router.navigate(['order/history']);
+          });
+        });
+      } else {
+        order.payable = order.total - self.balance.amount;
+        if (self.paymentMethod === 'cash') {
+          self.handleWithCash(self.balance, order, v.note);
+        } else {
+          self.loading = false;
+          self.handleWithPayment(self.account, order, self.balance, self.paymentMethod);
         }
+      }
     } else {
       this.snackBar.open('', '无法重复提交订单', { duration: 1000 });
     }
