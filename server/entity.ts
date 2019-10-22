@@ -135,23 +135,9 @@ export class Entity {
     });
   }
 
+  // quick find
   find(query: any, options?: any): Promise<any> {
-    const self = this;
-    // if (query && query.hasOwnProperty('id')) {
-    //   let body = query.id;
-    //   if (body && body.hasOwnProperty('$in')) {
-    //     let a = body['$in'];
-    //     const arr: any[] = [];
-    //     a.map((id: string) => {
-    //       arr.push({ _id: new ObjectID(id) });
-    //     });
-    //     query = { $or: arr };
-    //   } else if (typeof body === "string") {
-    //     query['_id'] = new ObjectID(query.id);
-    //     delete query['id'];
-    //   }
-    // }
-    
+    const self = this;    
     query = this.convertIdFields(query);
 
     return new Promise((resolve, reject) => {

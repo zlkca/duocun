@@ -5,6 +5,7 @@ import { Entity } from "../entity";
 import { ILocation } from "./location";
 import { BulkWriteOpResultObject, ObjectID } from "mongodb";
 import { OrderSequence } from "./order-sequence";
+import { ClientBalance, IClientBalance } from "./client-balance";
 
 
 export interface IOrderItem {
@@ -45,19 +46,19 @@ export interface IOrder {
   overRangeCharge?: number;
   groupDiscount?: number;
   productTotal?: number;
-  total?: number;
-  paymentMethod?: string;
+  total: number;
+  paymentMethod: string;
   chargeId?: string; // stripe chargeId
   transactionId?: string;
 }
 
 export class Order extends Model {
-  private clientBalanceEntity: Entity;
+  private clientBalanceModel: ClientBalance;
   private sequenceModel: OrderSequence;
   constructor(dbo: DB) {
     super(dbo, 'orders');
 
-    this.clientBalanceEntity = new Entity(dbo, 'client_balances');
+    this.clientBalanceModel = new ClientBalance(dbo);
     this.sequenceModel = new OrderSequence(dbo);
   }
 
@@ -123,7 +124,7 @@ export class Order extends Model {
         r.items = items;
 
         const cb = cbs.find(x => x._id.toString() === r._id.toString());
-        if(!cb){
+        if (!cb) {
           cbs.push(r);
         }
       });
@@ -141,9 +142,14 @@ export class Order extends Model {
     const order = req.body;
     this.sequenceModel.reqSequence().then((sequence: number) => {
       order.code = this.sequenceModel.getCode(order.location, sequence);
-      this.insertOne(req.body).then((ret: any) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(ret, null, 3));
+      this.insertOne(req.body).then((savedOrder: IOrder) => {
+        this.clientBalanceModel.find({ accountId: order.clientId }).then((cb: IClientBalance) => {
+          const newBalance = cb.amount - order.total;
+          this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((savedCb: IClientBalance) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(savedOrder, null, 3));
+          });
+        });
       });
     });
   }
@@ -163,43 +169,44 @@ export class Order extends Model {
     }
   }
 
+  // deprecated !!!
   //---------------------------------------------------------------------
   // The client has to have the balance entry {accountId: x, amount: y}
   // body --- {clientId:c, delivered:x, address:y, groupDiscount: z}
-  createOne(body: any, cb: any) {
-    const date = body.delivered;
-    const address = body.address;
-    this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
-      let newGroupDiscount = body.groupDiscount;
-      const others = orders.filter((x: any) => x.clientId && x.clientId !== body.clientId);
-      const orderUpdates = this.getOrdersToAddGroupDiscount(others, newGroupDiscount);
+  // createOne(body: any, cb: any) {
+  //   const date = body.delivered;
+  //   const address = body.address;
+  //   this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
+  //     let newGroupDiscount = body.groupDiscount;
+  //     const others = orders.filter((x: any) => x.clientId && x.clientId !== body.clientId);
+  //     const orderUpdates = this.getOrdersToAddGroupDiscount(others, newGroupDiscount);
 
-      if (orderUpdates && orderUpdates.length > 0) {
-        this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
-          const clientIds: string[] = [];
-          orderUpdates.map(item => { clientIds.push(item.data.clientId) });
-          this.clientBalanceEntity.find({ accountId: { $in: clientIds } }).then((bs: any[]) => {
-            if (bs && bs.length > 0) {
-              // const balanceUpdates = this.getBalancesToAddGroupDiscount(others, bs, newGroupDiscount);
-              // this.clientBalanceEntity.bulkUpdate(balanceUpdates, {}).then((r1: BulkWriteOpResultObject) => {
-              //   this.insertOne(body).then((x: any) => {
-              //     cb(x);
-              //   });
-              // });
-            } else {
-              this.insertOne(body).then((x: any) => {
-                cb(x);
-              });
-            }
-          });
-        });
-      } else {
-        this.insertOne(body).then((x: any) => {
-          cb(x);
-        });
-      }
-    });
-  }
+  //     if (orderUpdates && orderUpdates.length > 0) {
+  //       this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
+  //         const clientIds: string[] = [];
+  //         orderUpdates.map(item => { clientIds.push(item.data.clientId) });
+  //         this.clientBalanceModel.find({ accountId: { $in: clientIds } }).then((bs: any[]) => {
+  //           if (bs && bs.length > 0) {
+  //             // const balanceUpdates = this.getBalancesToAddGroupDiscount(others, bs, newGroupDiscount);
+  //             // this.clientBalanceEntity.bulkUpdate(balanceUpdates, {}).then((r1: BulkWriteOpResultObject) => {
+  //             //   this.insertOne(body).then((x: any) => {
+  //             //     cb(x);
+  //             //   });
+  //             // });
+  //           } else {
+  //             this.insertOne(body).then((x: any) => {
+  //               cb(x);
+  //             });
+  //           }
+  //         });
+  //       });
+  //     } else {
+  //       this.insertOne(body).then((x: any) => {
+  //         cb(x);
+  //       });
+  //     }
+  //   });
+  // }
 
   // date: string, address: string
   addGroupDiscountForOrders(clientId: ObjectID, orders: any[]): Promise<any> {

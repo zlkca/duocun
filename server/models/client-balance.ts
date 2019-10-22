@@ -5,6 +5,17 @@ import moment from "moment-timezone";
 import { BulkWriteOpResultObject } from "../../node_modules/@types/mongodb";
 import { ObjectID } from "mongodb";
 import { Request, Response } from "express";
+import { IOrder } from "../models/order";
+
+export interface IClientBalance {
+  _id?: string;
+  accountId: string;
+  accountName: string;
+  amount: number;
+  ordered?: boolean;
+  created?: Date;
+  modified?: Date;
+}
 
 export class ClientBalance extends Model{
   paymentEntity: Entity;
@@ -67,6 +78,7 @@ export class ClientBalance extends Model{
     });
   }
 
+
   getMyBalanceForAddOrder(balance: number, paymentMethod: string, bPaid: boolean, payable: number, paid: number) {
     if(paymentMethod === 'prepaid'){
       return Math.round((balance - payable) * 100) / 100;
@@ -97,7 +109,7 @@ export class ClientBalance extends Model{
     }
   }
 
-  updateMyBalanceForAddOrder(order: any, paid: number) : Promise<any> {
+  updateMyBalanceForAddOrder(order: IOrder, paid: number) : Promise<any> {
     const clientId = order.clientId;
     const self = this;
     return new Promise( (resolve, reject) => {
