@@ -251,13 +251,20 @@ export class ClientPayment extends Model {
       this.orderEntity.find({id: orderId}).then((orders: any[]) => {
         if(orders && orders.length>0){
           const order = orders[0];
-          // step 1: calculate and update my balance
-          this.balanceEntity.updateMyBalanceForAddOrder(order, paid).then((ret: any) => {
-            // step 2: process group discount for others
+
+          if(order.paymentMethod === 'cash' || order.paymentMethod === 'prepaid'){
             this.addGroupDiscount(order.clientId, order.delivered, order.address).then( (xs: any) => {
-              resolve(ret);
+              resolve(null); // fix me
             });
-          });
+          }else{
+            // step 1: calculate and update my balance
+            this.balanceEntity.updateMyBalanceForAddOrder(order, paid).then((ret: any) => {
+              // step 2: process group discount for others
+              this.addGroupDiscount(order.clientId, order.delivered, order.address).then( (xs: any) => {
+                resolve(ret);
+              });
+            });
+          }
         }else{
           resolve(null);
         }

@@ -143,7 +143,8 @@ export class Order extends Model {
     this.sequenceModel.reqSequence().then((sequence: number) => {
       order.code = this.sequenceModel.getCode(order.location, sequence);
       this.insertOne(req.body).then((savedOrder: IOrder) => {
-        this.clientBalanceModel.find({ accountId: order.clientId }).then((cb: IClientBalance) => {
+        this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
+          const cb = cbs[0];
           const newBalance = cb.amount - order.total;
           this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((savedCb: IClientBalance) => {
             res.setHeader('Content-Type', 'application/json');

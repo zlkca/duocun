@@ -350,30 +350,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const v = this.form.value;
       const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, v.note);
 
-      if (self.balance.amount >= order.total) {
-        order.payable = 0;
-        order.status = 'paid';
-        order.paymentMethod = 'prepaid';
-
-        self.saveOrder(order, (ret) => {
-          self.snackBar.open('', '订单已保存', { duration: 1800 });
-          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
-          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-          // adjust group discount and balance
-          self.paymentSvc.afterAddOrder(ret.id, order.total).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
-            self.bSubmitted = false;
-            self.loading = false;
-            self.router.navigate(['order/history']);
-          });
-        });
+      if (self.paymentMethod === 'cash') {
+        self.handleWithCash(self.balance, order, v.note);
       } else {
-        order.payable = order.total - self.balance.amount;
-        if (self.paymentMethod === 'cash') {
-          self.handleWithCash(self.balance, order, v.note);
-        } else {
-          self.loading = false;
-          self.handleWithPayment(self.account, order, self.balance, self.paymentMethod);
-        }
+        self.loading = false;
+        self.handleWithPayment(self.account, order, self.balance, self.paymentMethod);
       }
     } else {
       this.snackBar.open('', '无法重复提交订单', { duration: 1000 });
@@ -479,11 +460,22 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         }
       } else { // create new
         if (order) {
+          let paid = 0;
+          if (self.balance.amount >= order.total) {
+            order.payable = 0;
+            order.status = 'paid';
+            order.paymentMethod = 'prepaid';
+            paid = order.total;
+          } else {
+            order.payable = order.total - self.balance.amount;
+            paid = (balance.amount > 0) ? balance.amount : 0;
+          }
+
           self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((orderCreated: IOrder) => {
             self.snackBar.open('', '订单已成功保存', { duration: 1800 });
             const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-            const paid = (balance.amount > 0) ? balance.amount : 0;
+
             self.paymentSvc.afterAddOrder(orderCreated.id, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;
               self.loading = false;
