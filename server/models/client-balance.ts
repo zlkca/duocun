@@ -81,13 +81,15 @@ export class ClientBalance extends Model{
 
   getMyBalanceForAddOrder(balance: number, paymentMethod: string, bPaid: boolean, payable: number, paid: number) {
     if(paymentMethod === 'prepaid'){
-      return Math.round((balance - payable) * 100) / 100;
+      // return Math.round((balance - payable) * 100) / 100;
+      return balance;
     }else if(paymentMethod === 'cash'){
-      if(bPaid){
-        return Math.round((balance + paid - payable) * 100) / 100;
-      }else{
-        return Math.round((balance - payable) * 100) / 100;
-      }
+      // if(bPaid){
+      //   return Math.round((balance + paid - payable) * 100) / 100;
+      // }else{
+      //   return Math.round((balance - payable) * 100) / 100;
+      // }
+      return balance;
     } else if(paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
       if(bPaid){
         return Math.round((balance + paid - payable) * 100) / 100;
