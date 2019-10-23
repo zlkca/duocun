@@ -93,7 +93,7 @@ export class Entity {
           const ret = (result.ops && result.ops.length > 0) ? result.ops[0] : null;
           if (ret && ret._id) {
             ret.id = ret._id;
-            delete (ret._id);
+            // delete (ret._id);
           }
           resolve(ret);
         }, err => {
@@ -189,10 +189,10 @@ export class Entity {
 
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
-        c.updateOne(query, { $set: doc }, options, (err, result: any) => {
+        c.updateOne(query, { $set: doc }, options, (err, result: any) => { // {n: 1, nModified: 0, ok: 1}
           if (result && result._id) {
             result.id = result._id;
-            delete (result._id);
+            // delete (result._id);
           }
           resolve(result);
         });

@@ -19,6 +19,8 @@ export function ClientPaymentRouter(db: DB){
   router.post('/afterAddOrder', (req, res) => { controller.afterAddOrder(req, res); });
   router.post('/afterRemoveOrder', (req, res) => { controller.afterRemoveOrder(req, res); });
 
+  router.post('/pay', (req, res) => { controller.payOrder(req, res); });
+
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
   // router.post('/', (req, res) => { controller.createAndUpdateBalance(req, res); });

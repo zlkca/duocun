@@ -146,9 +146,9 @@ export class Order extends Model {
         this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
           const cb = cbs[0];
           const newBalance = cb.amount - order.total;
-          this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((savedCb: IClientBalance) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(savedOrder, null, 3));
+          this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((x) => { // result
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(savedOrder, null, 3));
           });
         });
       });
@@ -368,9 +368,6 @@ export class Order extends Model {
       return a;
     }
   }
-
-
-
 
   getDistinctArray(items: any, field: string) {
     const a: any[] = [];

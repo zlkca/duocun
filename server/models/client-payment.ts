@@ -7,20 +7,25 @@ import { IncomingMessage } from "http";
 import https from 'https';
 // import NodeRSA from 'node-rsa';
 import { Md5 } from 'ts-md5';
-
+import moment, { now } from 'moment';
 import { Order } from "../models/order";
 import { ClientBalance } from "./client-balance";
 import { ObjectID } from "../../node_modules/@types/bson";
+import { Transaction } from "./transaction";
+import { resolve } from "path";
 
 export class ClientPayment extends Model {
   cfg: Config;
   balanceEntity: ClientBalance;
   orderEntity: Order;
+  transactionModel: Transaction;
 
   constructor(dbo: DB) {
     super(dbo, 'client_payments');
+
     this.orderEntity = new Order(dbo);
     this.balanceEntity = new ClientBalance(dbo);
+    this.transactionModel = new Transaction(dbo);
     this.cfg = new Config();
   }
 
@@ -315,6 +320,53 @@ export class ClientPayment extends Model {
           });
         });
       });
+    });
+  }
+
+  pay(toId: string, toName: string, received: number, balance: number, orderId: string) {
+    const data = {
+      status: 'paid',
+      driverId: toId,
+      driverName: toName
+    };
+
+    return new Promise((resolve, reject) => {
+      this.orderEntity.updateOne({_id: orderId}, data).then(rt => {
+        this.orderEntity.findOne({_id: orderId}).then(order => {
+          const tr = {
+            orderId: order._id,
+            fromId: order.clientId,
+            fromName: order.clientName,
+            toId: toId,
+            toName: toName,
+            type: 'credit',
+            amount: received,
+            note: '',
+            created: order.delivered,
+            modified: moment().toISOString()
+          };
+          this.transactionModel.insertOne(tr).then(t => {
+            const remain = Math.round((received + balance) * 100) / 100;
+            const q = { accountId: order.clientId };
+            this.balanceEntity.updateOne(q, { amount: remain }).then(b => {
+              resolve(order);
+            });
+          });
+        });
+      });
+    });
+  }
+
+  payOrder(req: Request, res: Response) {
+    const toId = req.body.toId;
+    const toName = req.body.toName;
+    const received = +req.body.received;
+    const balance = +req.body.balance; 
+    const orderId = req.body.orderId;
+
+    this.pay(toId, toName, received, balance, orderId).then((order: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ status: 'success' }, null, 3));
     });
   }
 }
