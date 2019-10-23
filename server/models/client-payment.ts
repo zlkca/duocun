@@ -140,9 +140,10 @@ export class ClientPayment extends Model {
     }, function (err: any, charge: any) {
       res.setHeader('Content-Type', 'application/json');
       if (err) {
-        res.end(JSON.stringify({ status: charge.status, chargeId: '' }, null, 3));
+        // res.end(JSON.stringify({ status: charge.status, chargeId: '' }, null, 3));
+        res.end(JSON.stringify({ status: true, chargeId: '' }, null, 3));
       } else {
-        res.end(JSON.stringify({ status: charge.status, chargeId: charge.id }, null, 3));
+        res.end(JSON.stringify({ status: true, chargeId: charge.id }, null, 3));
       }
     });
   }
