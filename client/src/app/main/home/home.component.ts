@@ -231,7 +231,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+    this.balanceSvc.quickFind({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
       if (bs && bs.length > 0) {
         // update balance
       } else {
