@@ -318,7 +318,7 @@ export class ClientPayment extends Model {
     return new Promise( (resolve, reject) => {
       const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }
       this.orderEntity.find(q).then((orders: any[]) => {
-        this.orderEntity.removeGroupDiscountForOrders(orders).then((orderUpdates: any[]) => {
+        this.orderEntity.removeGroupDiscounts(orders).then((orderUpdates: any[]) => {
           this.balanceEntity.removeGroupDiscounts(orders).then((balanceUpdates: any[]) => {
             resolve(orders);
           });
@@ -345,7 +345,6 @@ export class ClientPayment extends Model {
     const address = req.body.address;
 
     this.removeGroupDiscount(delivered, address).then( (xs: any) => {
-      // resolve(null); // fix me
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ status: 'success' }, null, 3));
     });

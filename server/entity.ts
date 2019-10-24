@@ -177,23 +177,13 @@ export class Entity {
   }
 
   updateOne(query: any, doc: any, options?: any): Promise<any> {
-    if (query && query.hasOwnProperty('id')) {
-      query['_id'] = new ObjectID(query.id);
-      delete query['id'];
-    }
-    if (query && query.hasOwnProperty('_id')) {
-      query['_id'] = new ObjectID(query._id);
-      delete query['id'];
-    }
+    query = this.convertIdFields(query);
     doc = this.convertIdFields(doc);
 
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         c.updateOne(query, { $set: doc }, options, (err, result: any) => { // {n: 1, nModified: 0, ok: 1}
-          if (result && result._id) {
-            result.id = result._id;
-            // delete (result._id);
-          }
+
           resolve(result);
         });
       });

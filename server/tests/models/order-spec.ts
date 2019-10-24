@@ -82,99 +82,99 @@ describe('Order.getUpdatesForAddGroupDiscount with empty', () => {
 });
 
 
-// describe('getOrdersToRemoveGroupDiscount, still be eligible and removed an order without discount', () => {
-//   it('should return orders to be updated', () => {
-//     const db = new DB();
-//     const c = new Order(db);
+describe('getUpdatesForRemoveGroupDiscount, still be eligible and removed an order without discount', () => {
+  it('should return orders to be updated', () => {
+    const db = new DB();
+    const c = new Order(db);
 
-//     const orders: any[] = [
-//       // { _id: 'a', clientId: 'a', groupDiscount: 0, total: 1 },
-//       { _id: 'b', clientId: 'a', groupDiscount: 2, total: 1 },
-//       { _id: 'c', clientId: 'a', groupDiscount: 0, total: 1 },
-//       { _id: 'd', clientId: 'b', groupDiscount: 2, total: 1 }, // take
-//       { _id: 'e', clientId: 'b', groupDiscount: 0, total: 3 }, // take
-//       { _id: 'f', clientId: 'c', groupDiscount: 0, total: 2 }, // take
-//       { _id: 'g', groupDiscount: 0, total: 2 },
-//       { _id: 'h', clientId: 'c', groupDiscount: 2, total: 4 },
-//       { _id: 'i', clientId: 'd', groupDiscount: 0, total: 3 }, // take
-//       { _id: 'j', price: 5 },
-//       { _id: 'k', clientId: 'd', groupDiscount: 2 },
-//     ];
+    const orders: any[] = [
+      // { _id: 'a', clientId: 'a', groupDiscount: 0, total: 1 },
+      { _id: 'b', clientId: 'a', groupDiscount: 2, total: 1 },
+      { _id: 'c', clientId: 'a', groupDiscount: 0, total: 1 },
+      { _id: 'd', clientId: 'b', groupDiscount: 2, total: 1 }, // take
+      { _id: 'e', clientId: 'b', groupDiscount: 0, total: 3 }, // take
+      { _id: 'f', clientId: 'c', groupDiscount: 0, total: 2 }, // take
+      { _id: 'g', groupDiscount: 0, total: 2 },
+      { _id: 'h', clientId: 'c', groupDiscount: 2, total: 4 },
+      { _id: 'i', clientId: 'd', groupDiscount: 0, total: 3 }, // take
+      { _id: 'j', price: 5 },
+      { _id: 'k', clientId: 'd', groupDiscount: 2 },
+    ];
 
-//     const a = c.getOrdersToRemoveGroupDiscount(orders, 2);
+    const a = c.getUpdatesForRemoveGroupDiscount(orders, 2);
 
-//     expect(a.length).to.equal(0);
-//   });
-// });
+    expect(a.length).to.equal(0);
+  });
+});
 
-// describe('getOrdersToRemoveGroupDiscount, still be eligible and removed an order with discount', () => {
-//   it('should return orders to be updated', () => {
-//     const db = new DB();
-//     const c = new Order(db);
+describe('getUpdatesForRemoveGroupDiscount, still be eligible and removed an order with discount', () => {
+  it('should return orders to be updated', () => {
+    const db = new DB();
+    const c = new Order(db);
 
-//     const orders: any[] = [
-//       { _id: 'a', clientId: 'a', groupDiscount: 0, total: 1 },
-//       { _id: 'b', clientId: 'a', groupDiscount: 0, total: 2 },
-//       // { _id: 'c', clientId: 'a', groupDiscount: 2, total: 3 },
-//       { _id: 'c', clientId: 'b', groupDiscount: 0, total: 1 },
-//       { _id: 'c', clientId: 'b', groupDiscount: 2, total: 1 },
-//     ];
+    const orders: any[] = [
+      { _id: 'a', clientId: 'a', groupDiscount: 0, total: 1 },
+      { _id: 'b', clientId: 'a', groupDiscount: 0, total: 2 },
+      // { _id: 'c', clientId: 'a', groupDiscount: 2, total: 3 },
+      { _id: 'c', clientId: 'b', groupDiscount: 0, total: 1 },
+      { _id: 'c', clientId: 'b', groupDiscount: 2, total: 1 },
+    ];
 
-//     const a = c.getOrdersToRemoveGroupDiscount(orders, 2);
+    const a = c.getUpdatesForRemoveGroupDiscount(orders, 2);
 
-//     expect(a.length).to.equal(1);
-//     expect(a[0].data.groupDiscount).to.equal(2);
-//     expect(a[0].data.total).to.equal(-1);
-//   });
-// });
+    expect(a.length).to.equal(1);
+    expect(a[0].data.groupDiscount).to.equal(2);
+    expect(a[0].data.total).to.equal(-1);
+  });
+});
 
-// describe('getOrdersToRemoveGroupDiscount, not eligible and left 2 other orders', () => {
-//   it('should return orders to be updated', () => {
-//     const db = new DB();
-//     const c = new Order(db);
+describe('getUpdatesForRemoveGroupDiscount, not eligible and left 2 other orders', () => {
+  it('should return orders to be updated', () => {
+    const db = new DB();
+    const c = new Order(db);
 
-//     const orders: any[] = [
-//       // { _id: 'a', clientId: 'a', groupDiscount: 2, total: 1 },
-//       { _id: 'c', clientId: 'b', groupDiscount: 0, total: 1 },
-//       { _id: 'c', clientId: 'b', groupDiscount: 2, total: 1 },
-//     ];
+    const orders: any[] = [
+      // { _id: 'a', clientId: 'a', groupDiscount: 2, total: 1 },
+      { _id: 'c', clientId: 'b', groupDiscount: 0, total: 1 },
+      { _id: 'c', clientId: 'b', groupDiscount: 2, total: 1 },
+    ];
 
-//     const a = c.getOrdersToRemoveGroupDiscount(orders, 2);
+    const a = c.getUpdatesForRemoveGroupDiscount(orders, 2);
 
-//     expect(a.length).to.equal(1);
-//     expect(a[0].data.groupDiscount).to.equal(0);
-//     expect(a[0].data.total).to.equal(3);
-//   });
-// });
+    expect(a.length).to.equal(1);
+    expect(a[0].data.groupDiscount).to.equal(0);
+    expect(a[0].data.total).to.equal(3);
+  });
+});
 
-// describe('getOrdersToRemoveGroupDiscount, not eligible and left only one order', () => {
-//   it('should return orders to be updated', () => {
-//     const db = new DB();
-//     const c = new Order(db);
-//     const orders: any[] = [
-//       // { _id: 'a', clientId: 'a', groupDiscount: 2, total: 1 },
-//       { _id: 'c', clientId: 'b', groupDiscount: 2, total: 1 },
-//     ];
+describe('getUpdatesForRemoveGroupDiscount, not eligible and left only one order', () => {
+  it('should return orders to be updated', () => {
+    const db = new DB();
+    const c = new Order(db);
+    const orders: any[] = [
+      // { _id: 'a', clientId: 'a', groupDiscount: 2, total: 1 },
+      { _id: 'c', clientId: 'b', groupDiscount: 2, total: 1 },
+    ];
 
-//     const a = c.getOrdersToRemoveGroupDiscount(orders, 2);
+    const a = c.getUpdatesForRemoveGroupDiscount(orders, 2);
 
-//     expect(a.length).to.equal(1);
-//     expect(a[0].data.groupDiscount).to.equal(0);
-//     expect(a[0].data.total).to.equal(3);
-//   });
-// });
+    expect(a.length).to.equal(1);
+    expect(a[0].data.groupDiscount).to.equal(0);
+    expect(a[0].data.total).to.equal(3);
+  });
+});
 
-// describe('getOrdersToRemoveGroupDiscount with empty', () => {
-//   it('should return empty Array', () => {
-//     const db = new DB();
-//     const c = new Order(db);
+describe('getUpdatesForRemoveGroupDiscount with empty', () => {
+  it('should return empty Array', () => {
+    const db = new DB();
+    const c = new Order(db);
 
-//     const orders: any[] = [];
-//     const a = c.getOrdersToRemoveGroupDiscount(orders, 3);
+    const orders: any[] = [];
+    const a = c.getUpdatesForRemoveGroupDiscount(orders, 3);
 
-//     expect(a.length).to.equal(0);
-//   });
-// });
+    expect(a.length).to.equal(0);
+  });
+});
 
 
 
@@ -425,87 +425,84 @@ describe('Order.addGroupDiscounts with 2nd 1 groupDiscount', () => {
   });
 });
 
-// describe('removeGroupDiscountForOrders', () => {
-//   const db: any = new DB();
-//   const cfg: any = new Config();
-//   let clientConnection: any = null;
-//   let oo: Order;
-//   let ao: Account;
-//   let acs: any[];
-//   let ors: any[];
-//   let orders: any[];
-//   const accounts: any[] = [
-//     { username: 'li1', mode: 'test' },
-//     { username: 'li2', mode: 'test' },
-//     { username: 'li3', mode: 'test' }
-//   ];
+describe('Order.removeGroupDiscounts', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let clientConnection: any = null;
+  let oo: Order;
+  let ao: Account;
+  let acs: any[];
+  let ors: any[];
+  let orders: any[];
+  const accounts: any[] = [
+    { username: 'li1', mode: 'test' },
+    { username: 'li2', mode: 'test' },
+    { username: 'li3', mode: 'test' }
+  ];
 
-//   before(function(done) {
-//     db.init(cfg.DATABASE).then((dbClient: any) => {
-//       oo = new Order(db);
-//       ao = new Account(db);
-//       clientConnection = dbClient;
+  before(function(done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      oo = new Order(db);
+      ao = new Account(db);
+      clientConnection = dbClient;
 
-//       ao.insertMany(accounts).then((rs: any[]) => {
-//         acs = rs;
-//         for(let i=0; i< accounts.length; i++){
-//           expect(rs[i].username).to.equal(accounts[i].username);
-//         }
-
-//         orders = [
-//           // { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
-//           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5 },
-//         ];
+      ao.insertMany(accounts).then((rs: any[]) => {
+        acs = rs;
+        orders = [
+          // { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
+          { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5 },
+        ];
   
-//         // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
-//         oo.insertMany(orders).then((os: any[]) => {
-//           ors = os;
-//           done();
-//         });
-//       });
-//     });
-//   });
+        // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
+        oo.insertMany(orders).then((os: any[]) => {
+          ors = os;
+          done();
+        });
+      });
+    });
+  });
 
-//   after(function(done) {
-//     const accountIds: any[] = [];
-//     const orderIds: any[] = [
-//       {id: ors[0].id.toString()}
-//     ];
-//     acs.map(r => { accountIds.push({ id: r.id.toString() }) });
-//     ao.bulkDelete(accountIds).then((y: any) => {
-//       expect(y.deletedCount).to.equal(3);
-//       oo.bulkDelete(orderIds).then((y2: any) => {
-//         expect(y2.deletedCount).to.equal(1);
-//         clientConnection.close();
-//         done();
-//       });
-//     });
-//   });
+  after(function(done) {
+    const accountIds: any[] = [];
+    const orderIds: any[] = [
+      {_id: ors[0]._id.toString()}
+    ];
+    acs.map(r => { accountIds.push({ _id: r._id.toString() }) });
 
-//   it('should update orders with group discount', (done) => {
-//     oo.removeGroupDiscountForOrders(ors).then((orderUpdates: any[]) => {
-//       const cIds: string[] = [];
-//       orders.map((o: any) => {
-//         cIds.push(o.clientId);
-//       });
-//       if(orderUpdates && orderUpdates.length>0){
-//         oo.find({clientId: {$in: cIds}}).then((o1s: any[]) => {
-//           const order0 = o1s.find((x:any) => x.clientId === orders[0].clientId);
-//           expect(order0.groupDiscount).to.equal(0); // got groupDiscount from front end
-//           expect(order0.total).to.equal(11.5); // got groupDiscount from front end already
-//           done();
-//         });
-//       } else { // this test never goes here
-//         oo.find({clientId: {$in: cIds}}).then((o1s: any[]) => {
-//           const order0 = o1s.find((x:any) => x.clientId === orders[0].clientId);
-//           expect(order0.groupDiscount).to.equal(0); // got groupDiscount from front end
-//           expect(order0.total).to.equal(11.5); // got groupDiscount from front end already
-//           done();
-//         });
-//       }
-//     });
-//   });
-// });
+    ao.bulkDelete(accountIds).then((y: any) => {
+      expect(y.deletedCount).to.equal(3);
+      oo.bulkDelete(orderIds).then((y2: any) => {
+        expect(y2.deletedCount).to.equal(1);
+        clientConnection.close();
+        done();
+      });
+    });
+  });
+
+  it('should update orders with group discount', (done) => {
+    oo.removeGroupDiscounts(ors).then((orderUpdates: any[]) => {
+      const cIds: string[] = [];
+      orders.map((o: any) => {
+        cIds.push(o.clientId);
+      });
+      if(orderUpdates && orderUpdates.length>0){
+        oo.find({clientId: {$in: cIds}}).then((o1s: any[]) => {
+          const order0 = o1s.find((x:any) => x.clientId.toString() === orders[0].clientId.toString());
+          expect(order0.groupDiscount).to.equal(0); // got groupDiscount from front end
+          expect(order0.total).to.equal(11.5); // got groupDiscount from front end already
+          done();
+        });
+      } else { // this test never goes here
+        oo.find({clientId: {$in: cIds}}).then((o1s: any[]) => {
+          const order0 = o1s.find((x:any) => x.clientId.toString() === orders[0].clientId.toString());
+          expect(order0.groupDiscount).to.equal(0); // got groupDiscount from front end
+          expect(order0.total).to.equal(11.5); // got groupDiscount from front end already
+          done();
+        });
+      }
+    });
+  });
+});
 
 
 // // eligibleForGroupDiscount(clientId: string, date: string, address: string, cb?: any){
