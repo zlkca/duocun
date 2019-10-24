@@ -248,7 +248,7 @@ export class Order extends Model {
   // }
 
   // date: string, address: string
-  addGroupDiscounts(clientId: ObjectID, orders: any[]): Promise<any> {
+  addGroupDiscounts(clientId: string, orders: any[]): Promise<any> {
     // this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
     const others = orders.filter((x: any) => x.clientId && x.clientId.toString() !== clientId.toString()); // fix me!!!
     // others > 0 then affect other orders and balances

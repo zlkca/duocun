@@ -363,20 +363,31 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   afterCardPay(orderId, order, paid, chargeId, url?: string) {
     const self = this;
+    const clientId = order.clientId;
+    const delivered = this.delivery.date.toISOString();
+    const address = order.address;
     self.saveTransaction(order.clientId, order.clientName, paid, (tr) => {
       const data = { status: 'paid', chargeId: chargeId, transactionId: tr.id };
-      self.updateOrder(orderId, data, (ret) => {
-        self.snackBar.open('', '订单已保存', { duration: 1800 });
 
-        self.paymentSvc.afterAddOrder(orderId, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+      self.orderSvc.update({ _id: orderId }, data).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+        const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
+        self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+        self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
+        self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
+
+        self.paymentSvc.afterAddOrder(clientId, delivered, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r1 => {
           self.snackBar.open('', '余额已更新', { duration: 1800 });
           self.bSubmitted = false;
           self.loading = false;
-          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
-          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+          const its: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
+          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: its } });
           self.router.navigate(['order/history']);
         });
+
+      }, err => {
+        self.snackBar.open('', '您的订单未更改成功，请重新更改。', { duration: 1800 });
       });
+
     });
   }
 
@@ -451,7 +462,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.updateOrder(order.id, order, (orderUpdated) => {
             self.snackBar.open('', '订单已更新', { duration: 1800 });
             const paid = (balance.amount > 0) ? balance.amount : 0;
-            self.paymentSvc.afterAddOrder(orderUpdated.id, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+
+            const clientId = order.clientId;
+            const delivered = this.delivery.date.toISOString();
+            const address = order.address;
+            self.paymentSvc.afterAddOrder(clientId, delivered, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;
               self.loading = false;
               self.router.navigate(['order/history']);
@@ -551,7 +566,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   updateOrder(orderId: string, updated: any, updateCb?: any) {
     const self = this;
-    self.orderSvc.update({ id: orderId }, updated).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+    self.orderSvc.update({ _id: orderId }, updated).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
       const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
       self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
       self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });

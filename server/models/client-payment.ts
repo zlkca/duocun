@@ -233,11 +233,14 @@ export class ClientPayment extends Model {
     });
   }
 
+  // after pay order
   afterAddOrder(req: Request, res: Response) {
-    const orderId = req.body.orderId;
+    const clientId = req.body.clientId;
+    const delivered = req.body.delivered;
+    const address = req.body.address;
     const paid = req.body.paid;
 
-    this.processAfterAddOrder(orderId, paid).then( () => {
+    this.doAfterPayOrder(clientId, delivered, address, paid).then( () => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ status: 'success' }, null, 3));
     });
@@ -252,32 +255,13 @@ export class ClientPayment extends Model {
     });
   }
 
-  // deprecated
-  processAfterAddOrder(orderId: string, paid: number): Promise<any> {
+  // credit card, wechatpay only
+  doAfterPayOrder(clientId: string, delivered: string, address: string, paid: number): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.orderEntity.find({id: orderId}).then((orders: any[]) => {
-        if(orders && orders.length>0){
-          const order = orders[0];
-
-          if(order.paymentMethod === 'cash' || order.paymentMethod === 'prepaid'){
-            this.addGroupDiscount(order.clientId, order.delivered, order.address).then( (xs: any) => {
-              resolve(null); // fix me
-            });
-          }else{
-            // step 1: calculate and update my balance
-            this.balanceEntity.updateMyBalanceForAddOrder(order, paid).then((ret: any) => {
-              // step 2: process group discount for others
-              this.addGroupDiscount(order.clientId, order.delivered, order.address).then( (xs: any) => {
-                resolve(ret);
-              });
-            });
-          }
-        }else{
-          resolve(null);
-        }
-      }, err => {
-        resolve(null);
-        console.log('Find order exception' + err);
+      this.balanceEntity.updateMyBalanceForAddOrder(clientId, paid).then((ret: any) => {
+        this.addGroupDiscount(clientId, delivered, address).then( (xs: any) => {
+          resolve(ret);
+        });
       });
     });
   }
@@ -301,7 +285,7 @@ export class ClientPayment extends Model {
     });
   }
 
-  addGroupDiscount(clientId: ObjectID, date: string, address: string) : Promise<any> {
+  addGroupDiscount(clientId: string, date: string, address: string) : Promise<any> {
     return new Promise((resolve, reject) => {
       const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
       this.orderEntity.find(q).then((orders: any[]) => {

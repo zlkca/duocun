@@ -78,12 +78,18 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
       const data = { status: 'paid', chargeId: '', transactionId: tr.id };
       self.updateOrder(orderId, data, (ret) => {
         self.snackBar.open('', '订单已更新', { duration: 1800 });
-        self.paymentSvc.afterAddOrder(orderId, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
-          self.snackBar.open('', '余额已更新', { duration: 1800 });
 
-          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === ret.merchantId);
-          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-          self.router.navigate(['order/history']);
+        self.orderSvc.quickFind({_id: orderId}).pipe(takeUntil(self.onDestroy$)).subscribe(orders => {
+          const order = orders[0];
+          const delivered = order.delivered;
+          const address = order.address;
+          self.paymentSvc.afterAddOrder(clientId, delivered, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+            self.snackBar.open('', '余额已更新', { duration: 1800 });
+
+            const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === ret.merchantId);
+            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+            self.router.navigate(['order/history']);
+          });
         });
       });
     });

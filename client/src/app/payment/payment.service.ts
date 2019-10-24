@@ -58,9 +58,9 @@ export class PaymentService extends EntityService {
     return this.doPost(url, {chargeId: chargeId});
   }
 
-  afterAddOrder( orderId: string, paid: number ): Observable<any> {
+  afterAddOrder( clientId: string, delivered: string, address: string, paid: number ): Observable<any> {
     const url = this.url + '/afterAddOrder';
-    return this.doPost(url, { orderId: orderId, paid: paid });
+    return this.doPost(url, { clientId: clientId, delivered: delivered, address: address, paid: paid });
   }
 
   afterRemoveOrder( orderId: string ): Observable<any> {

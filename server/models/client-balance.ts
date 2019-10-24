@@ -111,18 +111,18 @@ export class ClientBalance extends Model {
     }
   }
 
-  updateMyBalanceForAddOrder(order: IOrder, paid: number): Promise<any> {
-    const clientId = order.clientId;
+  updateMyBalanceForAddOrder(clientId: string, paid: number): Promise<any> {
     const self = this;
     return new Promise((resolve, reject) => {
       this.find({ accountId: clientId }).then((balances: any[]) => {
         if (balances && balances.length > 0) {
           const balance = balances[0];
-          const newAmount = this.getMyBalanceForAddOrder(balance.amount, order.paymentMethod, order.status === 'paid', order.total, paid);
+          const newAmount = Math.round((balance.amount + paid) * 100) / 100;
+          // const newAmount = this.getMyBalanceForAddOrder(balance.amount, order.paymentMethod, order.status === 'paid', order.total, paid);
           if (newAmount === null) {
             resolve(null);
           } else {
-            this.updateOne({ 'accountId': clientId }, { amount: newAmount, ordered: true }).then(x => {
+            this.updateOne({ accountId: clientId }, { amount: newAmount, ordered: true }).then(x => {
               resolve(x);
             });
           }
