@@ -44,7 +44,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService,
     private transactionSvc: TransactionService,
     private orderSvc: OrderService,
-    private balanceSvc: BalanceService
+    private clientBalanceSvc: BalanceService
   ) {
     const self = this;
     this.rx.dispatch({
@@ -71,7 +71,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
   }
 
   reload(account: Account) {
-    this.balanceSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+    this.clientBalanceSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
       if (bs && bs.length > 0) {
         this.balance = bs[0].amount;
       } else {

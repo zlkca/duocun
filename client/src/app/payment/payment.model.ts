@@ -13,6 +13,7 @@ export interface IPayment {
 }
 
 export interface IBalance {
+  _id?: string;
   id?: string;
   accountId: string;
   accountName: string;

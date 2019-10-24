@@ -42,7 +42,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private router: Router,
     private orderSvc: OrderService,
-    private balanceSvc: BalanceService,
+    private clientBalanceSvc: BalanceService,
     private paymentSvc: PaymentService,
     private transactionSvc: TransactionService,
     private snackBar: MatSnackBar,
@@ -56,7 +56,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
 
     if (this.data) {
       const accountId = this.data.accountId;
-      self.balanceSvc.find({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+      self.clientBalanceSvc.find({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
         if (bs && bs.length > 0) {
           this.balance = bs[0];
         }
@@ -100,7 +100,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
             // const t = ts[0];
             // const payable = Math.round(self.data.total * 100) / 100; // - t.amount
             // const q = { accountId: self.data.accountId };
-            // self.balanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+            // self.clientBalanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
             //   self.snackBar.open('', '余额已更新', { duration: 1800 });
             //   // self.rmTransaction(self.data.transactionId, () => {
             //   //   // self.router.navigate(['order/history']);
@@ -115,7 +115,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
           self.snackBar.open('', '订单已删除', { duration: 1000 });
           // const payable = Math.round((self.balance.amount + self.data.total) * 100) / 100;
           // const q = { accountId: self.data.accountId };
-          // self.balanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+          // self.clientBalanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
           //   self.snackBar.open('', '余额已更新', { duration: 1800 });
           //   self.dialogRef.close();
           //   // self.router.navigate(['order/history']);

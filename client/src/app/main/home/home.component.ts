@@ -88,7 +88,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService,
     private rangeSvc: RangeService,
     private merchantSvc: MerchantService,
-    private balanceSvc: BalanceService,
+    private clientBalanceSvc: BalanceService,
     // private socketSvc: SocketService,
     private router: Router,
     private route: ActivatedRoute,
@@ -104,9 +104,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.today = { type: 'lunch today', text: '今天午餐', date: today.format('YYYY-MM-DD'), startTime: '11:45', endTime: '13:15' };
     this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow.format('YYYY-MM-DD'), startTime: '11:45', endTime: '13:15' };
 
-    this.placeForm = this.fb.group({ addr: ['']});
+    this.placeForm = this.fb.group({ addr: [''] });
     this.loading = true;
-    this.rx.dispatch({type: PageActions.UPDATE_URL, payload: { name: 'home' }});
+
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
       if (d && d.origin) {
@@ -135,15 +136,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     self.route.queryParamMap.pipe(takeUntil(this.onDestroy$)).subscribe(queryParams => {
       const code = queryParams.get('code');
-      const orderId = queryParams.get('orderId');
-      const clientId = queryParams.get('clientId');
-      const amount = queryParams.get('amount');
-      const paymentMethod = queryParams.get('paymentMethod');
-      if (orderId && clientId && amount) {
-        self.router.navigate(['/payment/complete'], {queryParams: {msg: 'success', orderId: orderId,
-          clientId: clientId, amount: amount, paymentMethod: paymentMethod }});
+
+      const bRedirectPayComplete = this.processPay(queryParams);
+      if (bRedirectPayComplete) {
         return;
       }
+
       self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
         if (account) { // if already login
           this.loading = false;
@@ -160,6 +158,8 @@ export class HomeComponent implements OnInit, OnDestroy {
                 self.wechatLoginHandler(data);
               } else { // failed from shared link login
                 this.loading = false;
+
+                // redirect to wechat authorize button page
                 window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + WECHAT_APP_ID
                   + '&redirect_uri=' + WECHAT_REDIRCT_URL
                   + '&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
@@ -176,6 +176,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
   }
+
+  processPay(queryParams: any) {
+    const orderId = queryParams.get('orderId'); // use for after card pay, could be null
+    const clientId = queryParams.get('clientId'); // use for after card pay, could be null
+    const amount = queryParams.get('amount'); // use for after card pay, could be null
+    const paymentMethod = queryParams.get('paymentMethod'); // use for after card pay, could be null
+    if (orderId && clientId && amount) {
+      this.router.navigate(['/payment/complete'], {
+        queryParams: {
+          msg: 'success', orderId: orderId, clientId: clientId, amount: amount, paymentMethod: paymentMethod
+        }
+      });
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 
   wechatLoginHandler(data: any) {
     const self = this;
@@ -198,27 +216,28 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   init(account: Account) {
     const self = this;
+    const accountId = account._id;
 
     // this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
-      // this.sOrderDeadline = this.getOrderDeadline(rs);
-      // const arr = this.sOrderDeadline.split(':');
-      // const a = moment().set({ hour: +arr[0], minute: +arr[1], second: 0, millisecond: 0 });
-      // const b = moment();
-      // this.overdue = b.isAfter(a);
+    // this.sOrderDeadline = this.getOrderDeadline(rs);
+    // const arr = this.sOrderDeadline.split(':');
+    // const a = moment().set({ hour: +arr[0], minute: +arr[1], second: 0, millisecond: 0 });
+    // const b = moment();
+    // this.overdue = b.isAfter(a);
     // });
 
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
 
-    this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+    this.locationSvc.find({ userId: accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
       const a = this.locationSvc.toPlaces(lhs);
       self.historyAddressList = a;
     });
     // self.socketSvc.init(this.authSvc.getAccessToken());
 
     // redirect to filter if contact have default address
-    self.contactSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe((r: IContact[]) => {
+    self.contactSvc.find({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((r: IContact[]) => {
       if (r && r.length > 0) {
         self.contact = new Contact(r[0]);
         self.rx.dispatch({ type: ContactActions.LOAD_FROM_DB, payload: self.contact });
@@ -231,20 +250,20 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.balanceSvc.quickFind({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+    this.clientBalanceSvc.quickFind({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
       if (bs && bs.length > 0) {
         // update balance
       } else {
         // new balance entry
         const data: IBalance = {
-          accountId: account.id,
+          accountId: accountId,
           accountName: account.username,
           amount: 0,
           created: new Date(),
           modified: new Date()
         };
 
-        self.balanceSvc.save(data).pipe(takeUntil(self.onDestroy$)).subscribe((b: IBalance) => {
+        self.clientBalanceSvc.save(data).pipe(takeUntil(self.onDestroy$)).subscribe((b: IBalance) => {
         });
       }
     });
@@ -252,7 +271,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.places = []; // clear address list
-    this.rx.dispatch<IPageAction>({ type: PageActions.UPDATE_URL, payload: { name: 'home' }});
+    this.rx.dispatch<IPageAction>({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
     this.rx.select('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'clear-location-list') {
         this.places = [];
@@ -288,6 +307,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onAddressInputFocus(e?: any) {
     const self = this;
+    const accountId = this.account._id;
     this.places = [];
     self.bUpdateLocationList = true;
     if (this.bFirstTime) {
@@ -295,7 +315,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (this.account) {
         this.account.visited = true;
         this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
-        this.accountSvc.update({ id: this.account.id }, { visited: true }).pipe(takeUntil(this.onDestroy$)).subscribe(r => {
+        this.accountSvc.update({ _id: accountId }, { visited: true }).pipe(takeUntil(this.onDestroy$)).subscribe(r => {
           console.log('update user account');
         });
       }
@@ -365,6 +385,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   onSelectPlace(e) {
     const self = this;
     const r: ILocation = e.location;
+    const accountId = self.account._id;
+    const accountName = self.account.username;
+
     this.places = [];
     this.bUpdateLocationList = false;
     this.location = r;
@@ -374,9 +397,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
 
       if (self.account) {
-        const query = { userId: self.account.id, placeId: r.placeId };
+        const query = { userId: accountId, placeId: r.placeId };
         const lh = {
-          userId: self.account.id, accountName: self.account.username, type: 'history',
+          userId: accountId, accountName: accountName, type: 'history',
           placeId: r.placeId, location: r, created: new Date()
         };
 
