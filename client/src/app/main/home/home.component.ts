@@ -194,7 +194,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-
+  // data : {id:'xxx', ttl: 10000, userId: 'xxxxx' }
   wechatLoginHandler(data: any) {
     const self = this;
     self.authSvc.setUserId(data.userId);
