@@ -385,6 +385,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     const payable = Math.round((order.total - balance.amount) * 100) / 100;
     order.status = 'tmp'; // create a temporary order
+
+    // save order and update balance
     self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
       if (paymentMethod === 'card') {
         self.payByCard(account, payable, order.merchantName, (ch) => {
@@ -471,12 +473,18 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             paid = (balance.amount > 0) ? balance.amount : 0;
           }
 
+          // save order and update balance
           self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((orderCreated: IOrder) => {
             self.snackBar.open('', '订单已成功保存', { duration: 1800 });
             const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
 
-            self.paymentSvc.afterAddOrder(orderCreated.id, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+            // adjust group discount
+            // self.paymentSvc.afterAddOrder(orderCreated.id, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+            const clientId = order.clientId;
+            const delivered = self.delivery.date.toISOString();
+            const address = order.address;
+            self.paymentSvc.addGroupDiscount(clientId, delivered, address).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;
               self.loading = false;
               self.router.navigate(['order/history']);

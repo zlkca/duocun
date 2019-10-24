@@ -255,6 +255,13 @@ export class Entity {
       const clientId = doc['clientId'];
       if (typeof clientId === 'string' && clientId.length === 24) {
         doc['clientId'] = new ObjectID(clientId);
+      } else if (clientId && clientId.hasOwnProperty('$in')) {
+        let a = clientId['$in'];
+        const arr: any[] = [];
+        a.map((id: string) => {
+          arr.push(new ObjectID(id));
+        });
+        doc.clientId = { $in: arr };
       }
     }
 
@@ -269,6 +276,13 @@ export class Entity {
       const accountId = doc['accountId'];
       if (typeof accountId === 'string' && accountId.length === 24) {
         doc['accountId'] = new ObjectID(accountId);
+      }else if (accountId && accountId.hasOwnProperty('$in')) {
+        let a = accountId['$in'];
+        const arr: any[] = [];
+        a.map((id: string) => {
+          arr.push(new ObjectID(id));
+        });
+        doc.accountId = { $in: arr };
       }
     }
 
@@ -347,14 +361,8 @@ export class Entity {
         clonedArray.map(item => {
           let query = item.query;
           let doc = item.data;
-          if (query && query.hasOwnProperty('id')) {
-            query['_id'] = new ObjectID(query.id);
-            delete query['id'];
-          }
-          if (query && query.hasOwnProperty('_id')) {
-            query['_id'] = new ObjectID(query._id);
-            delete query['id'];
-          }
+          
+          query = this.convertIdFields(query);
           doc = this.convertIdFields(doc);
           a.push({ updateOne: { filter: query, update: { $set: doc }, upsert: true } });
         });
@@ -374,6 +382,7 @@ export class Entity {
     });
   }
 
+  // use for test
   bulkDelete(queries: any[], options?: any): Promise<BulkWriteOpResultObject> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {

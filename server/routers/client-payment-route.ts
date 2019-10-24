@@ -18,6 +18,8 @@ export function ClientPaymentRouter(db: DB){
 
   router.post('/afterAddOrder', (req, res) => { controller.afterAddOrder(req, res); });
   router.post('/afterRemoveOrder', (req, res) => { controller.afterRemoveOrder(req, res); });
+  router.post('/addGroupDiscount', (req, res) => { controller.reqAddGroupDiscount(req, res); });
+  router.post('/removeGroupDiscount', (req, res) => { controller.reqRemoveGroupDiscount(req, res); });
 
   router.post('/pay', (req, res) => { controller.payOrder(req, res); });
 

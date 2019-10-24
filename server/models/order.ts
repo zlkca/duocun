@@ -34,9 +34,9 @@ export interface IOrder {
   note?: string;
   address?: string;
   location?: ILocation; // delivery address
-  delivered?: Date;
-  created?: Date;
-  modified?: Date;
+  delivered?: string;
+  created?: string;
+  modified?: string;
   items?: IOrderItem[];
   tax?: number;
   tips?: number;
@@ -50,6 +50,8 @@ export interface IOrder {
   paymentMethod: string;
   chargeId?: string; // stripe chargeId
   transactionId?: string;
+
+  mode? : string; // for unit test
 }
 
 export class Order extends Model {
@@ -180,7 +182,7 @@ export class Order extends Model {
   //   this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
   //     let newGroupDiscount = body.groupDiscount;
   //     const others = orders.filter((x: any) => x.clientId && x.clientId !== body.clientId);
-  //     const orderUpdates = this.getOrdersToAddGroupDiscount(others, newGroupDiscount);
+  //     const orderUpdates = this.getUpdatesForAddGroupDiscount(others, newGroupDiscount);
 
   //     if (orderUpdates && orderUpdates.length > 0) {
   //       this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
@@ -188,7 +190,7 @@ export class Order extends Model {
   //         orderUpdates.map(item => { clientIds.push(item.data.clientId) });
   //         this.clientBalanceModel.find({ accountId: { $in: clientIds } }).then((bs: any[]) => {
   //           if (bs && bs.length > 0) {
-  //             // const balanceUpdates = this.getBalancesToAddGroupDiscount(others, bs, newGroupDiscount);
+  //             // const balanceUpdates = this.getUpdatesForAddGroupDiscount(others, bs, newGroupDiscount);
   //             // this.clientBalanceEntity.bulkUpdate(balanceUpdates, {}).then((r1: BulkWriteOpResultObject) => {
   //             //   this.insertOne(body).then((x: any) => {
   //             //     cb(x);
@@ -210,11 +212,11 @@ export class Order extends Model {
   // }
 
   // date: string, address: string
-  addGroupDiscountForOrders(clientId: ObjectID, orders: any[]): Promise<any> {
+  addGroupDiscounts(clientId: ObjectID, orders: any[]): Promise<any> {
     // this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
     const others = orders.filter((x: any) => x.clientId && x.clientId.toString() !== clientId.toString()); // fix me!!!
     // others > 0 then affect other orders and balances
-    const orderUpdates = this.getOrdersToAddGroupDiscount(others, 2);
+    const orderUpdates = this.getUpdatesForAddGroupDiscount(others, 2);
 
     return new Promise((resolve, reject) => {
       if (orderUpdates && orderUpdates.length > 0) {
@@ -249,37 +251,24 @@ export class Order extends Model {
     });
   }
 
-  groupBy(items: any[], key: string) {
-    let groups = items.reduce((result, item) => ({
-      ...result,
-      [item[key]]: [
-        ...(result[item[key]] || []),
-        item,
-      ],
-    }), {});
-
-    Object.keys(groups).map(key => {
-      key === 'undefined' ? delete groups[key] : '';
-    });
-
-    return groups;
-  }
-
   //--------------------------------------------------------------------------------
   // The client can only get one group discount, if he/she has multiple orders.
-  getOrdersToAddGroupDiscount(orders: any[], groupDiscount: number) {
+  getUpdatesForAddGroupDiscount(orders: IOrder[], groupDiscount: number) {
     const groups = this.groupBy(orders, 'clientId');
     const a: any[] = [];
     Object.keys(groups).map(key => {
       const os = groups[key];
       if (os && os.length > 0) {
-        const hasGroupDiscount = os.find((x: any) => x.groupDiscount !== 0);
+        const hasGroupDiscount = os.find((x: IOrder) => x.groupDiscount !== 0);
         if (hasGroupDiscount) {
           // pass
         } else {
           const order = os[0];
           const amount = Math.round(((order.total ? order.total : 0) - groupDiscount) * 100) / 100;
-          a.push({ query: { id: order.id.toString() }, data: { total: amount, groupDiscount: groupDiscount, clientId: order.clientId } });
+          a.push({
+            query: { _id: order._id.toString() },
+            data: { total: amount, groupDiscount: groupDiscount } 
+          });
         }
       }
     });
@@ -393,7 +382,7 @@ export class Order extends Model {
   //         this.find({ delivered: date, address: address, status: { $nin: ['del', 'bad', 'tmp'] } }).then(orders => {
 
   //           const orderUpdates = this.getOrdersToRemoveGroupDiscount(orders,  2);
-  //           // const balanceUpdates = this.getBalancesToRemoveGroupDiscount(orders, balances, 2);
+  //           // const balanceUpdates = this.getUpdatesForRemoveGroupDiscount(orders, balances, 2);
 
   //           this.bulkUpdate(orderUpdates, {}).then((r) => {
   //             cb();

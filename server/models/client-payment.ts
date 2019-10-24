@@ -141,9 +141,9 @@ export class ClientPayment extends Model {
       res.setHeader('Content-Type', 'application/json');
       if (err) {
         // res.end(JSON.stringify({ status: charge.status, chargeId: '' }, null, 3));
-        res.end(JSON.stringify({ status: true, chargeId: '' }, null, 3));
+        res.end(JSON.stringify({ status: 'failed', chargeId: '' }, null, 3));
       } else {
-        res.end(JSON.stringify({ status: true, chargeId: charge.id }, null, 3));
+        res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id }, null, 3));
       }
     });
   }
@@ -252,6 +252,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // deprecated
   processAfterAddOrder(orderId: string, paid: number): Promise<any> {
     return new Promise((resolve, reject) => {
       this.orderEntity.find({id: orderId}).then((orders: any[]) => {
@@ -302,9 +303,10 @@ export class ClientPayment extends Model {
 
   addGroupDiscount(clientId: ObjectID, date: string, address: string) : Promise<any> {
     return new Promise((resolve, reject) => {
-      this.orderEntity.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then((orders: any[]) => {
-        this.orderEntity.addGroupDiscountForOrders(clientId, orders).then((x: any) => {
-          this.balanceEntity.addGroupDiscountForBalances(orders).then((x1: any) => {
+      const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
+      this.orderEntity.find(q).then((orders: any[]) => {
+        this.orderEntity.addGroupDiscounts(clientId, orders).then((x: any) => {
+          this.balanceEntity.addGroupDiscounts(orders).then((x1: any) => {
             resolve(x);
           });
         });
@@ -314,13 +316,38 @@ export class ClientPayment extends Model {
 
   removeGroupDiscount(date: string, address: string): Promise<any> {
     return new Promise( (resolve, reject) => {
-      this.orderEntity.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then((orders: any[]) => {
+      const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }
+      this.orderEntity.find(q).then((orders: any[]) => {
         this.orderEntity.removeGroupDiscountForOrders(orders).then((orderUpdates: any[]) => {
-          this.balanceEntity.removeGroupDiscountForBalances(orders).then((balanceUpdates: any[]) => {
+          this.balanceEntity.removeGroupDiscounts(orders).then((balanceUpdates: any[]) => {
             resolve(orders);
           });
         });
       });
+    });
+  }
+
+
+  // orderId, clientId, delivered, address
+  reqAddGroupDiscount(req: Request, res: Response) {
+    const clientId = req.body.clientId;
+    const delivered = req.body.delivered;
+    const address = req.body.address;
+
+    this.addGroupDiscount(clientId, delivered, address).then( (xs: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ status: 'success' }, null, 3));
+    });
+  }
+
+  reqRemoveGroupDiscount(req: Request, res: Response) {
+    const delivered = req.body.delivered;
+    const address = req.body.address;
+
+    this.removeGroupDiscount(delivered, address).then( (xs: any) => {
+      // resolve(null); // fix me
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ status: 'success' }, null, 3));
     });
   }
 

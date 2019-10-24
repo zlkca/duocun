@@ -120,7 +120,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
           //   self.dialogRef.close();
           //   // self.router.navigate(['order/history']);
           // });
-          self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
+          self.paymentSvc.removeGroupDiscount(orderId).subscribe(() => {
             self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
             self.snackBar.open('', '余额已处理', { duration: 1000 });
             self.router.navigate(['order/history']);

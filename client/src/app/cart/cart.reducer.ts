@@ -26,6 +26,8 @@ function updateCart(c: ICart, items: ICartItem[]) {
     cart.quantity = 0;
     cart.tax = 0;
     cart.total = 0;
+    cart.merchantId = '';
+    cart.merchantName = '';
   }
   return cart;
 }

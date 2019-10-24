@@ -19,6 +19,7 @@ import { RestaurantActions } from '../../restaurant/restaurant.actions';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { CartActions } from '../../cart/cart.actions';
 import { AreaService } from '../../area/area.service';
+import { ICart } from '../../cart/cart.model';
 
 @Component({
   selector: 'app-merchant-list',
@@ -40,6 +41,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   loading = true;
   origin;
   bHasAddress;
+  cart;
 
   constructor(
     private merchantSvc: MerchantService,
@@ -50,7 +52,9 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
-
+    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+      this.cart = cart;
+    });
   }
 
   ngOnChanges(d) { // this is run before ngOnInit
@@ -119,7 +123,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       });
     } else {
       this.bHasAddress = false;
-      this.merchantSvc.find({status: 'active'}).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
+      this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
         const markers = []; // markers on map
         rs.map((restaurant: IRestaurant) => {
           if (restaurant.location) {
@@ -177,27 +181,37 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  toDetail(r: IRestaurant) {
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: { name: 'restaurants' }
-    });
-    this.rx.dispatch({ type: RestaurantActions.UPDATE, payload: r });
-    this.rx.dispatch({
-      type: DeliveryActions.UPDATE_DESTINATION,
-      payload: { destination: r.location, distance: r.distance }
-    });
+  getMerchantIdFromCart() {
+    return this.cart ? this.cart.merchantId : null;
+  }
 
-    this.rx.dispatch({
-      type: CartActions.UPDATE_DELIVERY,
-      payload: {
-        merchantId: r._id,
-        merchantName: r.name,
-        deliveryCost: r.deliveryCost,
-        deliveryDiscount: r.fullDeliveryFee
-      }
-    });
-    this.router.navigate(['merchant/list/' + r._id + '/' + r.onSchedule]);
+  toDetail(r: IRestaurant) {
+    const cartMerchantId = this.getMerchantIdFromCart();
+    if (cartMerchantId && cartMerchantId !== r._id) {
+      alert('一个订单不能选不同餐馆，请完成订单后再下另一单选其他餐馆。');
+      this.router.navigate(['merchant/list/' + cartMerchantId + '/' + r.onSchedule]);
+    } else {
+      this.rx.dispatch({
+        type: PageActions.UPDATE_URL,
+        payload: { name: 'restaurants' }
+      });
+      this.rx.dispatch({ type: RestaurantActions.UPDATE, payload: r });
+      this.rx.dispatch({
+        type: DeliveryActions.UPDATE_DESTINATION,
+        payload: { destination: r.location, distance: r.distance }
+      });
+
+      this.rx.dispatch({
+        type: CartActions.UPDATE_DELIVERY,
+        payload: {
+          merchantId: r._id,
+          merchantName: r.name,
+          deliveryCost: r.deliveryCost,
+          deliveryDiscount: r.fullDeliveryFee
+        }
+      });
+      this.router.navigate(['merchant/list/' + r._id + '/' + r.onSchedule]);
+    }
   }
 
   getFilter(query?: any) {

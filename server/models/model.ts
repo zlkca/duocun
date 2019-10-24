@@ -144,4 +144,20 @@ export class Model extends Entity {
       res.end(JSON.stringify(x, null, 3));
     });
   }
+
+  groupBy(items: any[], key: string) {
+    let groups = items.reduce((result, item) => ({
+      ...result,
+      [item[key]]: [
+        ...(result[item[key]] || []),
+        item,
+      ],
+    }), {});
+
+    Object.keys(groups).map(key => {
+      key === 'undefined' ? delete groups[key] : '';
+    });
+
+    return groups;
+  }
 }

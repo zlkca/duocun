@@ -67,4 +67,14 @@ export class PaymentService extends EntityService {
     const url = this.url + '/afterRemoveOrder';
     return this.doPost(url, { orderId: orderId });
   }
+
+  addGroupDiscount( clientId: string, delivered: string, address: string ): Observable<any> {
+    const url = this.url + '/addGroupDiscount';
+    return this.doPost(url, { clientId: clientId, delivered: delivered, address: address });
+  }
+
+  removeGroupDiscount( orderId: string ): Observable<any> {
+    const url = this.url + '/removeGroupDiscount';
+    return this.doPost(url, { orderId: orderId });
+  }
 }
