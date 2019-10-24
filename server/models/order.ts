@@ -169,7 +169,7 @@ export class Order extends Model {
               if (balances && balances.length > 0) {
                 const balance = balances[0];
                 const amount = Math.round((balance.amount + order.total) * 100) / 100;
-                this.clientBalanceModel.updateOne({ clientId: order.clientId }, { amount: amount }).then(x => {
+                this.clientBalanceModel.updateOne({ accountId: order.clientId }, { amount: amount }).then(x => {
                   resolve(x);
                 });
               }else{

@@ -183,7 +183,6 @@ export class Entity {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         c.updateOne(query, { $set: doc }, options, (err, result: any) => { // {n: 1, nModified: 0, ok: 1}
-
           resolve(result);
         });
       });
