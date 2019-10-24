@@ -281,10 +281,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     // this.router.navigate(['contact/list']);
   }
 
-  isPrepaidClient(account: IAccount) {
-    return account && account.roles && account.roles.length > 0
-      && account.roles.indexOf(Role.PREPAID_CLIENT) !== -1;
-  }
+  // isPrepaidClient(account: IAccount) {
+  //   return account && account.roles && account.roles.length > 0
+  //     && account.roles.indexOf(Role.PREPAID_CLIENT) !== -1;
+  // }
 
   getCost(items: any[]) {
     let cost = 0;

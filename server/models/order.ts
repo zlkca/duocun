@@ -26,7 +26,7 @@ export interface IOrder {
   clientId?: string;
   clientName?: string;
   clientPhoneNumber?: string;
-  prepaidClient?: boolean;
+  // prepaidClient?: boolean;
   merchantId?: string;
   merchantName?: string;
   driverId?: string;
