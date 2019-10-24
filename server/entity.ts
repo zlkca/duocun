@@ -211,6 +211,21 @@ export class Entity {
 
   // only support query _id, not id
   convertIdFields(doc: any){
+    if(doc && doc.hasOwnProperty('id')) {
+      let body = doc.id;
+      if (body && body.hasOwnProperty('$in')) {
+        let a = body['$in'];
+        const arr: any[] = [];
+        a.map((id: string) => {
+          arr.push({ _id: new ObjectID(id) });
+        });
+
+        doc = { $or: arr };
+      } else if (typeof body === "string" && body.length === 24) {
+        doc['_id'] = new ObjectID(doc._id);
+        delete doc.id;
+      }
+    }
     if(doc && doc.hasOwnProperty('_id')) {
       let body = doc._id;
       if (body && body.hasOwnProperty('$in')) {
@@ -221,7 +236,7 @@ export class Entity {
         });
 
         doc = { $or: arr };
-      } else if (typeof body === "string") {
+      } else if (typeof body === "string" && body.length === 24) {
         doc['_id'] = new ObjectID(doc._id);
       }
     }
