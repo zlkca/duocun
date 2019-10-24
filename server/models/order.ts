@@ -184,7 +184,7 @@ export class Order extends Model {
     });
   }
 
-  removeOne(req: Request, res: Response) {
+  removeOrder(req: Request, res: Response) {
     const orderId = req.params.id;
 
     this.doRemoveOne(orderId).then(x => {

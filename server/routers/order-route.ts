@@ -15,7 +15,7 @@ export function OrderRouter(db: DB){
   router.put('/', (req, res) => { controller.replace(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
-  router.delete('/:id', (req, res) => { controller.removeOne(req, res); });
+  router.delete('/:id', (req, res) => { controller.removeOrder(req, res); });
 
   router.post('/checkGroupDiscount', (req, res) => { controller.checkGroupDiscount(req, res); });
 

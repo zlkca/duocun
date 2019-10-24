@@ -100,6 +100,8 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         // window.history.forward();
         if (self.restaurant && self.cart && self.cart.items && self.cart.items.length > 0) {
           this.openDialog(self.restaurant.id, 'restaurant-list');
+        } else {
+
         }
       } else if (window.location.pathname.endsWith('order/history')) {
         if (self.restaurant && self.cart && self.cart.items && self.cart.items.length > 0) {

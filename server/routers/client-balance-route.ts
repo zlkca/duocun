@@ -13,6 +13,6 @@ export function ClientBalanceRouter(db: DB){
   router.put('/', (req, res) => { controller.replace(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
-
+  
   return router;
 };

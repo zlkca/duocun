@@ -187,7 +187,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
 
   toDetail(r: IRestaurant) {
     const cartMerchantId = this.getMerchantIdFromCart();
-    if (cartMerchantId && cartMerchantId !== r._id) {
+    if (this.cart && this.cart.items.length > 0 && cartMerchantId && cartMerchantId !== r._id) {
       alert('一个订单不能选不同餐馆，请完成订单后再下另一单选其他餐馆。');
       this.router.navigate(['merchant/list/' + cartMerchantId + '/' + r.onSchedule]);
     } else {
