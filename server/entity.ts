@@ -252,6 +252,13 @@ export class Entity {
       const merchantId = doc['merchantId'];
       if (typeof merchantId === 'string' && merchantId.length === 24) {
         doc['merchantId'] = new ObjectID(merchantId);
+      } else if (merchantId && merchantId.hasOwnProperty('$in')) {
+        let a = merchantId['$in'];
+        const arr: any[] = [];
+        a.map((id: string) => {
+          arr.push(new ObjectID(id));
+        });
+        doc.merchantId = { $in: arr };
       }
     }
 

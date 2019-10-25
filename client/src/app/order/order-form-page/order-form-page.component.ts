@@ -434,7 +434,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               self.bSubmitted = false;
               self.loading = false;
               self.snackBar.open('', '付款未成功', { duration: 1800 });
-              alert('invalid card');
+              alert('Invalid payment: ' + ch.err.type + ' ' + ch.err.code);
             });
           }
         });
