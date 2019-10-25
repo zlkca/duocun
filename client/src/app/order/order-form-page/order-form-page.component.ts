@@ -36,6 +36,7 @@ import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { AccountService } from '../../account/account.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
+import { resolve } from '../../../../node_modules/@types/q';
 
 declare var Stripe;
 declare var window;
@@ -423,7 +424,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const clientId = ret.clientId;
       const clientName = ret.clientName;
       if (paymentMethod === 'card') {
-        self.payByCard(account, payable, order.merchantName, (ch) => {
+        self.payByCard(orderId, clientId, clientName, payable, order.merchantName).then((ch: any) => {
           if (ch.status === 'succeeded') {
             self.snackBar.open('', '已成功付款', { duration: 1800 });
             self.afterCardPay(orderId, order, payable, ch.chargeId);
@@ -639,35 +640,39 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  payByCard(account: IAccount, amount, merchantName, cb) {
+  payByCard(orderId: string, clientId: string, clientName: string, amount, merchantName) {
     const self = this;
-    this.stripe.createToken(this.card).then(function (result) {
-      if (result.error) {
-        // Inform the user if there was an error.
-        const errorElement = document.getElementById('card-errors');
-        errorElement.textContent = result.error.message;
-      } else {
-        // if (!account.stripeCustomerId) {
-        //   self.paymentSvc.stripeCreateCustomer(result.token.id, account.id, account.username, account.phone).
-        //     pipe(takeUntil(self.onDestroy$)).subscribe(ret1 => {
-        //     self.accountSvc.update({id: account.id}, {stripeCustomerId: ret1.customerId})
-        //       .pipe(takeUntil(self.onDestroy$)).subscribe(ret2 => {
-        //       self.paymentSvc.stripeCharge(ret1.customerId, amount, merchantName, result.token)
-        //         .pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
-        //         self.loading = true;
-        //         cb(ret);
-        //       });
-        //     });
-        //   });
-        // } else {
-        // account.stripeCustomerId
-        self.paymentSvc.stripeCharge('', amount, merchantName, result.token)
+
+    return new Promise((resolve: any, reject) => {
+      this.stripe.createToken(this.card).then(function (result) {
+        if (result.error) {
+          // Inform the user if there was an error.
+          const errorElement = document.getElementById('card-errors');
+          errorElement.textContent = result.error.message;
+          resolve({ status: 'failed', chargeId: '', msg: result.error.message });
+        } else {
+          // if (!account.stripeCustomerId) {
+          //   self.paymentSvc.stripeCreateCustomer(result.token.id, account.id, account.username, account.phone).
+          //     pipe(takeUntil(self.onDestroy$)).subscribe(ret1 => {
+          //     self.accountSvc.update({id: account.id}, {stripeCustomerId: ret1.customerId})
+          //       .pipe(takeUntil(self.onDestroy$)).subscribe(ret2 => {
+          //       self.paymentSvc.stripeCharge(ret1.customerId, amount, merchantName, result.token)
+          //         .pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
+          //         self.loading = true;
+          //         cb(ret);
+          //       });
+          //     });
+          //   });
+          // } else {
+          // account.stripeCustomerId
+          self.paymentSvc.stripeCharge(orderId, clientId, clientName, amount, merchantName, result.token)
           .pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
             self.loading = true;
-            cb(ret);
+            resolve(ret);
           });
-        // }
-      }
+          // }
+        }
+      });
     });
   }
 

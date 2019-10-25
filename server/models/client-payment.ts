@@ -136,14 +136,14 @@ export class ClientPayment extends Model {
       currency: 'cad',
       description: req.body.merchantName,
       source: token.id,
-      metadata: { orderId: req.body.orderId },
+      metadata: { orderId: req.body.orderId, customerId: req.body.clientId, customerName: req.body.clientName },
     }, function (err: any, charge: any) {
       res.setHeader('Content-Type', 'application/json');
       if (err) {
         // res.end(JSON.stringify({ status: charge.status, chargeId: '' }, null, 3));
-        res.end(JSON.stringify({ status: 'failed', chargeId: '' }, null, 3));
+        res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
       } else {
-        res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id }, null, 3));
+        res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
       }
     });
   }
