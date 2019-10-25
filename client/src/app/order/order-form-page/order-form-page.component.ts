@@ -296,7 +296,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return { cost: cost, price: price };
   }
 
-  createOrder(account: IAccount, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string) {
+  createOrder(balance: IBalance, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string) {
     const self = this;
     if (cart && cart.items && cart.items.length > 0) {
       const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
@@ -309,11 +309,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       });
 
       const summary = this.getCost(items);
+      const paymentMethod = (balance.amount >= charge.total) ? 'prepaid' : self.paymentMethod;
 
       const order: IOrder = {
         clientId: contact.accountId,
         clientName: contact.username,
-        // prepaidClient: self.isPrepaidClient(account),
         merchantId: cart.merchantId,
         merchantName: cart.merchantName,
         items: items,
@@ -333,8 +333,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         tips: Math.round(charge.tips * 100) / 100,
         status: 'new',
         driverId: '',
-        paymentMethod: self.paymentMethod
+        paymentMethod: paymentMethod
       };
+
       return order;
     } else {
       return null;
@@ -352,9 +353,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     if (!this.bSubmitted) {
       this.bSubmitted = true;
       const v = this.form.value;
-      const order = self.createOrder(self.account, self.contact, self.cart, self.delivery, self.charge, v.note);
+      const order = self.createOrder(balance, self.contact, self.cart, self.delivery, self.charge, v.note);
 
-      if (self.paymentMethod === 'cash') {
+      if (order.paymentMethod === 'cash' || order.paymentMethod === 'prepaid') {
         self.handleWithCash(balance, order, v.note);
       } else {
         self.loading = false;
@@ -368,30 +369,42 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   afterCardPay(orderId, order, paid, chargeId, url?: string) {
     const self = this;
     const clientId = order.clientId;
+    const clientName = order.clientName;
     const delivered = this.delivery.date.toISOString();
     const address = order.address;
-    self.saveTransaction(order.clientId, order.clientName, paid, (tr) => {
-      const data = { status: 'paid', chargeId: chargeId, transactionId: tr.id };
+
+    const tr: ITransaction = {
+      fromId: clientId,
+      fromName: clientName,
+      toId: DEFAULT_ADMIN.ID,
+      toName: DEFAULT_ADMIN.NAME,
+      type: 'credit',
+      amount: paid,
+      note: 'By Card',
+      created: new Date(),
+      modified: new Date()
+    };
+
+    this.transactionSvc.save(tr).pipe(takeUntil(this.onDestroy$)).subscribe((t: any) => {
+      this.snackBar.open('', '已保存交易', { duration: 1200 });
+      const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
 
       self.orderSvc.update({ _id: orderId }, data).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
-        const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
-        self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-        self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
         self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
 
+        // update my balance and group discount
         self.paymentSvc.afterAddOrder(clientId, delivered, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r1 => {
           self.snackBar.open('', '余额已更新', { duration: 1800 });
           self.bSubmitted = false;
           self.loading = false;
-          const its: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
+          const its: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: its } });
+          self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
           self.router.navigate(['order/history']);
         });
-
       }, err => {
         self.snackBar.open('', '您的订单未更改成功，请重新更改。', { duration: 1800 });
       });
-
     });
   }
 
@@ -403,14 +416,17 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     // save order and update balance
     self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
+      const orderId = ret._id;
+      const clientId = ret.clientId;
+      const clientName = ret.clientName;
       if (paymentMethod === 'card') {
         self.payByCard(account, payable, order.merchantName, (ch) => {
           if (ch.status === 'succeeded') {
             self.snackBar.open('', '已成功付款', { duration: 1800 });
-            self.afterCardPay(ret.id, order, payable, ch.chargeId);
+            self.afterCardPay(orderId, order, payable, ch.chargeId);
           } else {
             // del order ???
-            self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+            self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
               self.bSubmitted = false;
               self.loading = false;
               self.snackBar.open('', '付款未成功', { duration: 1800 });
@@ -419,8 +435,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           }
         });
       } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
-        self.payBySnappay(payable, order.merchantName, ret.id, ret.clientId, ret.clientName, paymentMethod, (r) => {
-          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
+        self.payBySnappay(payable, order.merchantName, orderId, clientId, clientName, paymentMethod, (r) => {
+          const merchantId = r.merchantId;
+          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === merchantId);
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
           self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
 
@@ -429,7 +446,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           if (r.msg === 'success') {
             window.location.href = r.data[0].h5pay_url;
           } else { // fix me
-            self.orderSvc.removeById(ret.id).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+            self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
               self.snackBar.open('', '付款未成功', { duration: 1800 });
               alert('付款未成功，请联系客服');
             });
@@ -447,7 +464,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   // only happend on balance < order.total
   handleWithCash(balance: IBalance, order, note: string) {
     const self = this;
-
     if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
       if (this.order && this.order.id) { // modify order
         order.id = this.order.id;
@@ -466,7 +482,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.updateOrder(order.id, order, (orderUpdated) => {
             self.snackBar.open('', '订单已更新', { duration: 1800 });
             const paid = (balance.amount > 0) ? balance.amount : 0;
-
             const clientId = order.clientId;
             const delivered = this.delivery.date.toISOString();
             const address = order.address;
@@ -481,15 +496,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         }
       } else { // create new
         if (order) {
-          let paid = 0;
           if (balance.amount >= order.total) {
-            order.payable = 0;
+            // order.payable = 0;
             order.status = 'paid';
-            order.paymentMethod = 'prepaid';
-            paid = order.total;
           } else {
-            order.payable = order.total - balance.amount;
-            paid = (balance.amount > 0) ? balance.amount : 0;
+            // order.payable = order.total - balance.amount;
           }
 
           // save order and update balance
@@ -499,7 +510,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
 
             // adjust group discount
-            // self.paymentSvc.afterAddOrder(orderCreated.id, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
             const clientId = order.clientId;
             const delivered = self.delivery.date.toISOString();
             const address = order.address;
@@ -548,25 +558,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  saveTransaction(clientId: string, clientName: string, amount: number, cb?: any) {
-    const tr: ITransaction = {
-      fromId: clientId,
-      fromName: clientName,
-      toId: DEFAULT_ADMIN.ID,
-      toName: DEFAULT_ADMIN.NAME,
-      type: 'credit',
-      amount: amount,
-      note: 'By Card',
-      created: new Date(),
-      modified: new Date()
-    };
-    this.transactionSvc.save(tr).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
-      this.snackBar.open('', '已保存交易', { duration: 1200 });
-      if (cb) {
-        cb(t);
-      }
-    });
-  }
 
   updateOrder(orderId: string, updated: any, updateCb?: any) {
     const self = this;

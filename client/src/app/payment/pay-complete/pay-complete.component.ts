@@ -15,6 +15,7 @@ import { IAppState } from '../../store';
 import { CartActions } from '../../cart/cart.actions';
 import { AccountActions } from '../../account/account.actions';
 import { PaymentService } from '../payment.service';
+import { OrderActions } from '../../order/order.actions';
 
 const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
 
@@ -39,22 +40,22 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
     const self = this;
     this.route.queryParams.subscribe(params => {
       const p = params;
-      // {msg: 'success', orderId: '5db1a1d3467deb1b72cb053f', clientId: '5cad44629687ac4a075e2f42', 
+      // {msg: 'success', orderId: '5db1a1d3467deb1b72cb053f', clientId: '5cad44629687ac4a075e2f42',
       // amount: 10, paymentMethod: 'WECHATPAY'};
       if (p && p.msg === 'success') {
         self.snackBar.open('', '已成功付款', { duration: 1800 });
         if (p && p.orderId && p.clientId) {
-          this.accountSvc.find({_id: p.clientId}).pipe(takeUntil(self.onDestroy$)).subscribe(accounts => {
+          this.accountSvc.find({ _id: p.clientId }).pipe(takeUntil(self.onDestroy$)).subscribe(accounts => {
             self.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
             this.afterSnappay(p.orderId, p.clientId, accounts[0].username, +p.amount, p.paymentMethod);
           });
         }
       } else if (p && p.msg === 'fail') {
-      //   // this.orderSvc.removeById(p.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-      //   //   self.snackBar.open('', '付款未成功', { duration: 1800 });
-      //   //   self.router.navigate(['order/history']);
-      //   //   alert('付款未成功，请联系客服');
-      //   // });
+        //   // this.orderSvc.removeById(p.orderId).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
+        //   //   self.snackBar.open('', '付款未成功', { duration: 1800 });
+        //   //   self.router.navigate(['order/history']);
+        //   //   alert('付款未成功，请联系客服');
+        //   // });
         alert('付款未成功，请联系客服');
       }
     });
@@ -80,14 +81,16 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
       self.orderSvc.update({ _id: orderId }, data).pipe(takeUntil(this.onDestroy$)).subscribe((r) => {
 
         self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
-        self.orderSvc.quickFind({_id: orderId}).pipe(takeUntil(self.onDestroy$)).subscribe(orders => {
+        self.orderSvc.quickFind({ _id: orderId }).pipe(takeUntil(self.onDestroy$)).subscribe(orders => {
           const order = orders[0];
           const delivered = order.delivered;
           const address = order.address;
-          self.paymentSvc.afterAddOrder(clientId, delivered, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+          // update my balance and group discount
+          self.paymentSvc.afterAddOrder(clientId, delivered, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe((r1: any) => {
             self.snackBar.open('', '余额已更新', { duration: 1800 });
             const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+            self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
             self.router.navigate(['order/history']);
           });
         });

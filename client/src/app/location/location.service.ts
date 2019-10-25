@@ -279,7 +279,7 @@ export class LocationService extends EntityService {
   }
 
   toStreetAbbr(streetName: string) {
-    return streetName.replace(' Street,', ' St,').replace(' Avenue,', ' Ave,');
+    return streetName.replace(' Street', ' St').replace(' Avenue', ' Ave');
   }
 
   getAddrStringByPlace(place) {
