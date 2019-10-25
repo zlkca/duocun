@@ -242,13 +242,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const subTotal = productTotal + cart.deliveryCost;
     const tax = Math.ceil(subTotal * 13) / 100;
     const tips = 0;
-    const endTime = +(merchant.endTime.split(':')[0]);
 
-    if (endTime < 12) {
-      deliveryDate = delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
-    } else {
-      deliveryDate = delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
-    }
+    // fix me !!!
+    // const endTime = +(merchant.endTime.split(':')[0]);
+
+    // if (endTime < 12) {
+    //   deliveryDate = delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+    // } else {
+    //   deliveryDate = delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
+    // }
+    deliveryDate = delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
 
     // const bNewOrder = (this.order && this.order.id) ? false : true;
     const overRangeTotal = Math.round(overRangeCharge * 100) / 100;
