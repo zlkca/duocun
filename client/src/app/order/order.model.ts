@@ -21,9 +21,7 @@ export interface IOrder {
   note?: string;
   address?: string;
   location?: ILocation;
-  delivered?: Date;
-  created?: Date;
-  modified?: Date;
+
   items?: IOrderItem[];
   tax?: number;
   tips?: number;
@@ -40,6 +38,10 @@ export interface IOrder {
   payable?: number; // total - balance
   price?: number;
   cost?: number;
+
+  delivered?: Date;
+  created?: string;
+  modified?: string;
 }
 
 export class Order implements IOrder {
@@ -57,9 +59,7 @@ export class Order implements IOrder {
   note: string;
   address: string;
   location?: ILocation;
-  delivered: Date;
-  created: Date;
-  modified: Date;
+
   items: OrderItem[];
   deliveryAddress: Address;
   deliveryCost?: number;
@@ -74,6 +74,11 @@ export class Order implements IOrder {
   transactionId?: string;
   price?: number;
   cost?: number;
+
+  delivered: Date;
+  created: string;
+  modified: string;
+
   constructor(data?: IOrder) {
     Object.assign(this, data);
   }

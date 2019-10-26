@@ -323,8 +323,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         items: items,
         price: Math.round(summary.price * 100) / 100,
         cost: Math.round(summary.cost * 100) / 100,
-        created: new Date(),
-        delivered: delivery.date.toDate(),
+
         address: this.locationSvc.getAddrString(delivery.origin),
         location: delivery.origin, // fix me!!!
         note: note,
@@ -337,7 +336,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         tips: Math.round(charge.tips * 100) / 100,
         status: 'new',
         driverId: '',
-        paymentMethod: paymentMethod
+        paymentMethod: paymentMethod,
+
+        created: moment().toISOString(),
+        delivered: delivery.date.toDate(),
       };
 
       return order;
