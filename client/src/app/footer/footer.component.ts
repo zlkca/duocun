@@ -84,12 +84,13 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   toHome() {
+    const accountId = this.account._id;
     this.rx.dispatch({
       type: CommandActions.SEND,
       payload: { name: 'clear-location-list', args: null }
     });
 
-    this.contactSvc.find({ accountId: this.account.id }).subscribe((r: IContact[]) => {
+    this.contactSvc.find({ accountId: accountId }).subscribe((r: IContact[]) => {
       // if (r && r.length > 0 && r[0].location) {
       //   this.router.navigate(['main/filter']);
       // } else {

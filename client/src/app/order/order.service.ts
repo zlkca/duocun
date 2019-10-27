@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { EntityService } from '../entity.service';
 import { AuthService } from '../account/auth.service';
 import { Observable } from '../../../node_modules/rxjs';
+import { IOrder } from './order.model';
 
 
 
@@ -53,5 +54,11 @@ export class OrderService extends EntityService {
   checkGroupDiscount( clientId: string, delivered: string, address: string ): Observable<any> {
     const url = this.url + '/checkGroupDiscount';
     return this.doPost(url, { clientId: clientId, delivered: delivered, address: address });
+  }
+
+  // pickup --- has to be '11:20' or '12:00' for now
+  updateDeliveryTime( orderId: string, pickup: string ): Observable<IOrder> {
+    const url = this.url + '/updateDelivered';
+    return this.doPatch(url, { orderId: orderId, pickup: pickup });
   }
 }

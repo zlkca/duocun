@@ -92,6 +92,16 @@ export class EntityService {
     return this.http.post(url, entity, {headers: headers});
   }
 
+  doPatch(url: string, data: any): Observable<any> {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/json');
+    const accessTokenId = this.cookieSvc.getAccessToken();
+    if (accessTokenId) {
+      headers = headers.append('Authorization', this.authPrefix + accessTokenId);
+    }
+    return this.http.patch(url, data, {headers: headers});
+  }
+
   save(entity: IEntity): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');

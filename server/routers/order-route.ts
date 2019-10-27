@@ -13,6 +13,8 @@ export function OrderRouter(db: DB){
   
   router.post('/', (req, res) => { controller.create(req, res); });
   router.put('/', (req, res) => { controller.replace(req, res); });
+
+  router.patch('/updateDelivered', (req, res) => { controller.updateDeliveryTime(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
   router.delete('/:id', (req, res) => { controller.removeOrder(req, res); });
