@@ -492,8 +492,8 @@ export class Order extends Model {
   updateDeliveryTime(req: Request, res: Response) {
     const pickupTime: string = req.body.pickupTime;
     const orderId: string = req.body.orderId;
-    const pickup1: string = moment().set({ hour: 11, minute: 20, second: 0, millisecond: 0 }).toISOString();
-    const pickup2: string = moment().set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).toISOString();
+    const pickup1: string = moment().set({ hour: 11, minute: 45, second: 0, millisecond: 0 }).toISOString();
+    const pickup2: string = moment().set({ hour: 12, minute: 25, second: 0, millisecond: 0 }).toISOString();
     const delivered: string = pickupTime === '11:20' ? pickup1 : pickup2;
 
     this.updateOne({_id: orderId}, {delivered: delivered}).then((result) => {
