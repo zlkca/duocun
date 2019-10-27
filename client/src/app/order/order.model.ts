@@ -39,9 +39,10 @@ export interface IOrder {
   price?: number;
   cost?: number;
 
-  delivered?: Date;
-  created?: string;
-  modified?: string;
+  deliveryDate?: string; // 'today', 'tomorrow'
+  delivered?: Date;  // obsoleted
+  created?: string;  // obsoleted
+  modified?: string; // obsoleted
 }
 
 export class Order implements IOrder {

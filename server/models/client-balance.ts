@@ -1,7 +1,7 @@
 import { DB } from "../db";
 import { Model } from "./model";
 import { Entity } from "../entity";
-import moment from "moment-timezone";
+import moment from "moment";
 import { BulkWriteOpResultObject } from "../../node_modules/@types/mongodb";
 import { ObjectID } from "mongodb";
 import { Request, Response } from "express";
@@ -271,7 +271,7 @@ export class ClientBalance extends Model {
   }
 
   updateAll() {
-    const dt = moment().tz("America/Toronto").endOf('day').toDate().toISOString();
+    const dt = moment().endOf('day').toISOString();
     const orderQuery = { delivered: { $lt: dt }, status: { $nin: ['bad', 'del', 'tmp'] } }; // , delivered: { $lt: moment().endOf('day').toDate() }};
     this.orderEntity.find(orderQuery).then(os => {
       this.transactionEntity.find({ type: 'credit' }).then(ts => {

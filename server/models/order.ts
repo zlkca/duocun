@@ -6,7 +6,7 @@ import { ILocation } from "./location";
 import { BulkWriteOpResultObject, ObjectID } from "mongodb";
 import { OrderSequence } from "./order-sequence";
 import { ClientBalance, IClientBalance } from "./client-balance";
-import { resolve } from "dns";
+import moment from 'moment';
 
 
 export interface IOrderItem {
@@ -144,8 +144,18 @@ export class Order extends Model {
   create(req: Request, res: Response) {
     const order = req.body;
     this.sequenceModel.reqSequence().then((sequence: number) => {
+      
       order.code = this.sequenceModel.getCode(order.location, sequence);
-      this.insertOne(req.body).then((savedOrder: IOrder) => {
+      const now = moment();
+      if(order.deliveryDate === 'today'){
+        order.delivered = now.set({ hour: 11, minute: 45, second: 0, millisecond: 0 }).toISOString();
+      }else{
+        order.delivered = now.add(1, 'day').set({ hour: 11, minute: 45, second: 0, millisecond: 0 }).toISOString();
+      }
+
+      delete order.deliveryDate;
+
+      this.insertOne(order).then((savedOrder: IOrder) => {
         this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
           const cb = cbs[0];
           const newBalance = cb.amount - order.total;

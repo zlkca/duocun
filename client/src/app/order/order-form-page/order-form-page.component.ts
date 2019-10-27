@@ -300,7 +300,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return { cost: cost, price: price };
   }
 
-  createOrder(balance: IBalance, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string) {
+  createOrder(balance: IBalance, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string): IOrder {
     const self = this;
     if (cart && cart.items && cart.items.length > 0) {
       const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
@@ -338,8 +338,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         driverId: '',
         paymentMethod: paymentMethod,
 
-        created: moment().toISOString(),
-        delivered: delivery.date.toDate(),
+        // created: moment().toISOString(),
+        deliveryDate: delivery.date.isSame(moment(), 'day') ? 'today' : 'tomorrow'
       };
 
       return order;
@@ -436,7 +436,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               self.bSubmitted = false;
               self.loading = false;
               self.snackBar.open('', '付款未成功', { duration: 1800 });
-              alert('Invalid payment: ' + ch.err.type + ' ' + ch.err.code);
+
+              self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
+                // self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
+                self.snackBar.open('', '余额已处理', { duration: 1000 });
+                // self.router.navigate(['order/history']);
+                alert('Invalid payment: ' + ch.err.type + ' ' + ch.err.code);
+              });
             });
           }
         });
@@ -454,7 +460,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           } else { // fix me
             self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
               self.snackBar.open('', '付款未成功', { duration: 1800 });
-              alert('付款未成功，请联系客服');
+
+              self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
+                // self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
+                self.snackBar.open('', '余额已处理', { duration: 1000 });
+                // self.router.navigate(['order/history']);
+                // alert('Invalid payment: ' + ch.err.type + ' ' + ch.err.code);
+                alert('付款未成功，请联系客服');
+              });
             });
           }
         });

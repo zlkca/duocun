@@ -2,7 +2,7 @@ import { DB } from "../db";
 import { Model } from "./model";
 import { Request, Response } from "express";
 import { Entity } from "../entity";
-import moment from "moment-timezone";
+import moment from "moment";
 import { Area, IArea } from "./area";
 import { MallSchedule } from "./mall-schedule";
 import { ObjectID, Collection } from "mongodb";

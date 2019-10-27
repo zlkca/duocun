@@ -1,6 +1,7 @@
 import { Collection, ObjectId, ObjectID, InsertWriteOpResult, MongoError, BulkWriteResult, BulkWriteOpResultObject, InsertOneWriteOpResult } from "mongodb";
 import { DB } from "./db";
 import { Db } from 'mongodb';
+import moment from 'moment';
 
 export interface IJoinParam {
   from: string,
@@ -83,12 +84,22 @@ export class Entity {
     });
   }
   
+  // m --- moment object
+  toLocalDateTimeString(m: any){
+    const dt = m.toISOString(true);
+    return dt.split('.')[0]; 
+  }
+
   insertOne(doc: any): Promise<any> {
     const self = this;
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
 
         doc = this.convertIdFields(doc);
+
+        doc.created = moment().toISOString();
+        doc.modified = moment().toISOString();
+
         c.insertOne(doc).then((result: any) => { // InsertOneWriteOpResult
           const ret = (result.ops && result.ops.length > 0) ? result.ops[0] : null;
           if (ret && ret._id) {
