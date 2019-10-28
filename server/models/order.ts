@@ -535,11 +535,9 @@ export class Order extends Model {
   //-------------------------------------------------------
   // pickupTime (string) --- eg. '11:20', '12:00'
   updateDeliveryTime(req: Request, res: Response) {
-    const pickupTime: string = req.body.pickupTime;
+    const pickupTime: string = req.body.pickup;
     const orderId: string = req.body.orderId;
-    const hour = +(pickupTime.split(':')[0]);
-    const minute = +(pickupTime.split(':')[1]);
-    const delivered: string = moment().set({ hour: hour, minute: minute, second: 0, millisecond: 0 }).toISOString();
+    const delivered: string = this.getTime(moment(), pickupTime).toISOString();
 
     this.updateOne({_id: orderId}, {delivered: delivered}).then((result) => {
       this.find({_id: orderId}).then((orders: IOrder[]) => {
