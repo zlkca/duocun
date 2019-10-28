@@ -302,6 +302,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   createOrder(balance: IBalance, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string): IOrder {
     const self = this;
+    const account = this.account;
     if (cart && cart.items && cart.items.length > 0) {
       const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
         return {
@@ -318,6 +319,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const order: IOrder = {
         clientId: contact.accountId,
         clientName: contact.username,
+        defaultPickupTime: account.pickupTime,
         merchantId: cart.merchantId,
         merchantName: cart.merchantName,
         items: items,

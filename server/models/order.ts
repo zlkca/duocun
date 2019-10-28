@@ -153,39 +153,49 @@ export class Order extends Model {
     return m.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });
   }
 
+  getDeliverDateTime(createdDateTime: string, phases: any[], deliveryDate: string){
+
+    if(deliveryDate === 'today'){
+      const created = moment(createdDateTime);
+
+      for(let i=0; i<phases.length; i++) {
+        const phase = phases[i];
+        const orderEndTime = this.getTime(moment(), phase.orderEnd);
+
+        if(i === 0){
+          if(created.isSameOrBefore(orderEndTime)){
+            return this.getTime(moment(), phase.pickup).toISOString();
+          }
+        }else{
+          const prePhase = phases[i-1];
+          const preEndTime = this.getTime(moment(), prePhase.orderEnd);
+
+          if(created.isAfter(preEndTime) && created.isSameOrBefore(orderEndTime)){
+            return this.getTime(moment(), phase.pickup).toISOString();
+          }
+        }
+      }
+    }else{
+      const phase = phases[0];
+      return this.getTime(moment().add(1, 'day'), phase.pickup).toISOString();
+    }
+  }
+
   create(req: Request, res: Response) {
     const order = req.body;
     this.sequenceModel.reqSequence().then((sequence: number) => {
-      
       order.code = this.sequenceModel.getCode(order.location, sequence);
 
-      this.merchantModel.find({_id: order.merchantId}).then((merchant: any) => {
+      this.merchantModel.findOne({_id: order.merchantId}).then((merchant: any) => {
 
-        if(order.deliveryDate === 'today'){
-          const created = moment(order.created);
-
-          for(let i=0; i<merchant.phases.length; i++) {
-            const phase = merchant.phases[i];
-            const orderEndTime = this.getTime(moment(), phase.orderEnd);
-  
-            if(i === 0){
-              if(created.isSameOrBefore(orderEndTime)){
-                order.delivered = this.getTime(moment(), phase.pickup).toISOString();
-              }
-            }else{
-              const prePhase = merchant.phases[i-1];
-              const preEndTime = this.getTime(moment(), prePhase.orderEnd);
-  
-              if(created.isAfter(preEndTime) && created.isSameOrBefore(orderEndTime)){
-                order.delivered = this.getTime(moment(), phase.pickup).toISOString();
-              }
-            }
-          }
+        if(order.defaultPickupTime){
+          const date = (order.deliveryDate === 'today') ? moment() : moment().add(1, 'day');
+          order.delivered = this.getTime(date, order.defaultPickupTime).toISOString();
         }else{
-          const phase = merchant.phases[0];
-          order.delivered = this.getTime(moment().add(1, 'day'), phase.pickup).toISOString();
+          order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.deliveryDate);
         }
-  
+        
+        delete order.defaultPickupTime;
         delete order.deliveryDate;
   
         this.insertOne(order).then((savedOrder: IOrder) => {
