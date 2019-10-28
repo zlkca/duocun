@@ -7,6 +7,7 @@ import { BulkWriteOpResultObject, ObjectID } from "mongodb";
 import { OrderSequence } from "./order-sequence";
 import { ClientBalance, IClientBalance } from "./client-balance";
 import moment from 'moment';
+import { Restaurant } from "./restaurant";
 
 
 export interface IOrderItem {
@@ -58,11 +59,13 @@ export interface IOrder {
 export class Order extends Model {
   private clientBalanceModel: ClientBalance;
   private sequenceModel: OrderSequence;
+  private merchantModel: Restaurant;
   constructor(dbo: DB) {
     super(dbo, 'orders');
 
     this.clientBalanceModel = new ClientBalance(dbo);
     this.sequenceModel = new OrderSequence(dbo);
+    this.merchantModel = new Restaurant(dbo);
   }
 
 
@@ -141,30 +144,62 @@ export class Order extends Model {
     });
   }
 
+  // m --- moment object for date
+  // t --- string, eg: '11:20'
+  // return moment object 
+  getTime(m: any, t: string){
+    const hour = +(t.split(':')[0]);
+    const minute = +(t.split(':')[1]);
+    return m.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });
+  }
+
   create(req: Request, res: Response) {
     const order = req.body;
     this.sequenceModel.reqSequence().then((sequence: number) => {
       
       order.code = this.sequenceModel.getCode(order.location, sequence);
-      const now = moment();
-      if(order.deliveryDate === 'today'){
-        order.delivered = now.set({ hour: 11, minute: 45, second: 0, millisecond: 0 }).toISOString();
-      }else{
-        order.delivered = now.add(1, 'day').set({ hour: 11, minute: 45, second: 0, millisecond: 0 }).toISOString();
-      }
 
-      delete order.deliveryDate;
+      this.merchantModel.find({_id: order.merchantId}).then((merchant: any) => {
 
-      this.insertOne(order).then((savedOrder: IOrder) => {
-        this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
-          const cb = cbs[0];
-          const newBalance = cb.amount - order.total;
-          this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((x) => { // result
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify(savedOrder, null, 3));
+        if(order.deliveryDate === 'today'){
+          const created = moment(order.created);
+
+          for(let i=0; i<merchant.phases.length; i++) {
+            const phase = merchant.phases[i];
+            const orderEndTime = this.getTime(moment(), phase.orderEnd);
+  
+            if(i === 0){
+              if(created.isSameOrBefore(orderEndTime)){
+                order.delivered = this.getTime(moment(), phase.pickup).toISOString();
+              }
+            }else{
+              const prePhase = merchant.phases[i-1];
+              const preEndTime = this.getTime(moment(), prePhase.orderEnd);
+  
+              if(created.isAfter(preEndTime) && created.isSameOrBefore(orderEndTime)){
+                order.delivered = this.getTime(moment(), phase.pickup).toISOString();
+              }
+            }
+          }
+        }else{
+          const phase = merchant.phases[0];
+          order.delivered = this.getTime(moment().add(1, 'day'), phase.pickup).toISOString();
+        }
+  
+        delete order.deliveryDate;
+  
+        this.insertOne(order).then((savedOrder: IOrder) => {
+          this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
+            const cb = cbs[0];
+            const newBalance = cb.amount - order.total;
+            this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((x) => { // result
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(savedOrder, null, 3));
+            });
           });
         });
       });
+      
     });
   }
 
