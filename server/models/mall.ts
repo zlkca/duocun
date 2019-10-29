@@ -77,42 +77,53 @@ export class Mall extends Model {
   //   });
   // }
 
-  getScheduledMalls(areaId: string, delivered: string): Promise<string[]>{
+  getScheduledMallIds(areaId: string, dow: number): Promise<any[]>{
     return new Promise( (resolve, reject) => {
-
-      const q = {status: 'active'};
-  
-      const params = [
-        {$lookup: {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}},
-        {$unwind: '$mall'}
-      ];
-  
-      this.mallSchedule.join(params, q).then((rs: any[]) => {
-        const malls: any[] = [];
-        const dow = moment(delivered).day();
-        rs.map((ms: IMallSchedule) => {
+      this.mallSchedule.find({status: 'active'}).then(mss => {
+        const mallIds: any[] = [];
+        // const dow = moment(delivered).day();
+        mss.map((ms: IMallSchedule) => {
           const areaIds: string[] = ms.areas[dow];
           const id = areaIds.find(id => id === areaId);
           if(id){
-            malls.push(ms.mall);
+            mallIds.push(ms.mallId);
           }
         });
-        resolve(malls);
+        resolve(mallIds);
       });
+
+      // const params = [
+      //   {$lookup: {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}},
+      //   {$unwind: '$mall'}
+      // ];
+  
+      // this.mallSchedule.join(params, q).then((rs: any[]) => {
+      //   const malls: any[] = [];
+      //   const dow = moment(delivered).day();
+      //   rs.map((ms: IMallSchedule) => {
+      //     const areaIds: string[] = ms.areas[dow];
+      //     const id = areaIds.find(id => id === areaId);
+      //     if(id){
+      //       malls.push(ms.mall);
+      //     }
+      //   });
+      //   resolve(malls);
+      // });
     });
   }
 
-  getAvailableMalls(req: Request, res: Response) {
+  getAvailableMallIds(req: Request, res: Response) {
     const origin = req.body.origin;
     const delivered = req.body.delivered;
 
     this.areaModel.getNearestArea(origin).then((area: IArea) => {
-      this.getScheduledMalls(area.id.toString(), delivered).then((malls: any[]) => {
+      const dow = moment(delivered).day();
+      this.getScheduledMallIds(area.id.toString(), dow).then((mallIds: any[]) => {
         res.setHeader('Content-Type', 'application/json');
-        if (!(malls && malls.length)) {
-          res.end(JSON.stringify({ status: 'fail', malls: [] }, null, 3));
+        if (!(mallIds && mallIds.length)) {
+          res.end(JSON.stringify({ status: 'fail', mallIds: [] }, null, 3));
         } else {
-          res.end(JSON.stringify({ status: 'success', malls: malls }, null, 3));
+          res.end(JSON.stringify({ status: 'success', mallIds: mallIds }, null, 3));
         }
       });
     });

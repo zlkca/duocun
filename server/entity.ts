@@ -57,32 +57,32 @@ export class Entity {
     });
   }
 
-  load(query: any, params?: any): Promise<any> {
-    const self = this;
-    if (query && query.hasOwnProperty('id')) {
-      let body = query.id;
-      if (body && body.hasOwnProperty('$in')) {
-        let a = body['$in'];
-        const arr: any[] = [];
-        a.map((id: string) => {
-          arr.push({ _id: new ObjectID(id) });
-        });
+  // load(query: any, params?: any): Promise<any> {
+  //   const self = this;
+  //   if (query && query.hasOwnProperty('id')) {
+  //     let body = query.id;
+  //     if (body && body.hasOwnProperty('$in')) {
+  //       let a = body['$in'];
+  //       const arr: any[] = [];
+  //       a.map((id: string) => {
+  //         arr.push({ _id: new ObjectID(id) });
+  //       });
 
-        query = { $or: arr };
-      } else if (typeof body === "string") {
-        query['_id'] = new ObjectID(query.id);
-        delete query['id'];
-      }
-    }
+  //       query = { $or: arr };
+  //     } else if (typeof body === "string") {
+  //       query['_id'] = new ObjectID(query.id);
+  //       delete query['id'];
+  //     }
+  //   }
 
-    return new Promise((resolve, reject) => {
-      self.getCollection().then((c: Collection) => {
-        this.join(params, query).then((rs: any) => {
-          resolve(rs);
-        });
-      });
-    });
-  }
+  //   return new Promise((resolve, reject) => {
+  //     self.getCollection().then((c: Collection) => {
+  //       this.join(params, query).then((rs: any) => {
+  //         resolve(rs);
+  //       });
+  //     });
+  //   });
+  // }
   
   // m --- moment object
   toLocalDateTimeString(m: any){

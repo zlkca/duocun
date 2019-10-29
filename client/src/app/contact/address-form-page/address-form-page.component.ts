@@ -436,10 +436,10 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   checkMallSchedule(origin: ILocation, delivered: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this.mallSvc.getAvailables(origin, delivered).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
-        const malls = ret.malls;
+        const malls = ret.mallIds;
         if (malls && malls.length > 0) {
-          const mall = malls.find(m => m._id === this.restaurant.mallId);
-          resolve(mall ? true : false);
+          const mallId = malls.find(m => m === this.restaurant.mallId);
+          resolve(mallId ? true : false);
         } else {
           resolve(false);
         }

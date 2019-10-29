@@ -1,7 +1,7 @@
 
 
 <app-merchant-list class="merchant-list" *ngIf="account && !(places && places.length > 0) && inRange" 
-  [active]="inRange" [delivered]="date" [address]="address" [bAddressList]="bAddressList">
+  [active]="inRange" [deliverDate]="deliverDate" [address]="address" [bAddressList]="bAddressList">
 </app-merchant-list>
 
 
@@ -24,9 +24,9 @@
     </app-address-input>
   </div>
 
-  <div class="ad-block" *ngIf="!(places && places.length > 0)">
+  <!-- <div class="ad-block" *ngIf="!(places && places.length > 0)">
     <img src="assets/images/fengcha.jpeg" />
-  </div>
+  </div> -->
 
   <div class="date-block" *ngIf="!(places && places.length > 0)">
     <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">

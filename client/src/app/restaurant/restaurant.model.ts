@@ -4,9 +4,9 @@ import { Address } from '../account/account.model';
 import { GeoPoint } from '../location/location.model';
 import { Order } from '../order/order.model';
 
-export interface IMerchantTimeSlot {
-  orderEndTime: string; // hh:mm
-  pickupTime: string; // hh:mm
+export interface IPhase {
+  orderEnd: string; // hh:mm
+  pickup: string; // hh:mm
 }
 
 export interface IRestaurant {
@@ -31,7 +31,6 @@ export interface IRestaurant {
   pictureId?: string;
 
   order?: number;
-  slot?: IMerchantTimeSlot[];
   products?: Product[];
   orders?: Order[];
   pictures?: Picture[];
@@ -39,6 +38,9 @@ export interface IRestaurant {
   startTime?: string;
   endTime?: string;
   onSchedule?: boolean;
+
+  phases: IPhase[];
+  orderEnded: boolean; // do not save to db
 }
 
 // For database
@@ -59,6 +61,9 @@ export class Restaurant implements IRestaurant {
   order?: number;
   startTime?: string;
   endTime?: string;
+
+  phases: IPhase[];
+  orderEnded: boolean; // do not save to db
 
   constructor(data?: IRestaurant) {
     Object.assign(this, data);

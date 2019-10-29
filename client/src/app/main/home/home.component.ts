@@ -79,6 +79,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   tomorrow;
   bAddressList = false;
 
+  deliverDate = 'today';
+
   @ViewChild('tooltip', { static: true }) tooltip: MatTooltip;
 
   constructor(
@@ -422,9 +424,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (e.value === 'tomorrow') {
       const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
       this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow } });
+      this.deliverDate = 'tomorrow';
     } else {
       const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
       this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today } });
+      this.deliverDate = 'today';
     }
   }
 

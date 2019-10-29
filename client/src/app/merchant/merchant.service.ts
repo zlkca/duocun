@@ -20,34 +20,16 @@ export class MerchantService extends EntityService {
   }
 
 
-  isNotOpening(restaurant: IRestaurant) {
-    if (restaurant.endTime && restaurant.startTime) {
-      const start = restaurant.startTime.split(':');
-      const end = restaurant.endTime.split(':');
-      if (end && end.length > 1) {
-        const now = moment();
-        const startTime = moment().set({ hours: +start[0], minutes: +start[1], seconds: 0 });
-        const endTime = moment().set({ hours: +end[0], minutes: +end[1], seconds: 0 });
-        return now.isAfter(endTime) || now.isBefore(startTime);
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
-  }
-
-
-  // dateTime --- moment object
-  isClosed(restaurant: IRestaurant, dateTime: any) {
+  isClosed(restaurant: IRestaurant, dateTime: string) {
+    const dt = dateTime === 'today' ? moment() : moment().add(1, 'days');
     if (restaurant.closed) { // has special close day
-      if (restaurant.closed.find(d => moment(d).isSame(dateTime, 'day'))) {
+      if (restaurant.closed.find(d => moment(d).isSame(dt, 'day'))) {
         return true;
       } else {
-        return this.isClosePerWeek(restaurant, dateTime);
+        return this.isClosePerWeek(restaurant, dt);
       }
     } else {
-      return this.isClosePerWeek(restaurant, dateTime);
+      return this.isClosePerWeek(restaurant, dt);
     }
   }
 
@@ -67,8 +49,8 @@ export class MerchantService extends EntityService {
   }
 
 
-  load(origin: ILocation, delivered: string): Observable<any> {
+  load(origin: ILocation, deliverDate: string): Observable<any> {
     const url = this.url + '/load';
-    return this.doPost(url, { origin: origin, delivered: delivered });
+    return this.doPost(url, { origin: origin, deliverDate: deliverDate });
   }
 }

@@ -4,14 +4,20 @@ import { Entity } from "../entity";
 import { Mall, IMall } from "./mall";
 import { Distance, ILocation, IDistance } from "./distance";
 import { Area, ILatLng, IArea } from "./area";
-import { Range } from './range';
+import { Range, IRange } from './range';
 
 import { Request, Response } from "express";
 import { ObjectID } from "mongodb";
+import moment from "moment";
 
 // ------------- interface v2 ----------------
+export interface IPhase {
+  orderEnd: string; // hh:mm
+  pickup: string; // hh:mm
+}
+
 export interface IRestaurant {
-  id: string;
+  _id: string;
   name: string;
   description: string;
   location: ILatLng; // lat lng
@@ -28,6 +34,7 @@ export interface IRestaurant {
   endTime?: string;
   // inRange: boolean;
   onSchedule: boolean;
+  phases: IPhase[];
 }
 
 export class Restaurant extends Model {
@@ -59,17 +66,17 @@ export class Restaurant extends Model {
       q = {};
     }
 
-    if(q && q._id){
+    if (q && q._id) {
       q._id = new ObjectID(q._id);
     }
 
-    if(q && q.mallId){
+    if (q && q.mallId) {
       q.mallId = new ObjectID(q.mallId);
     }
 
     const params = [
-      {$lookup: {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}},
-      {$unwind: '$mall'}
+      { $lookup: { from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall' } },
+      { $unwind: '$mall' }
     ];
 
     this.join(params, q).then((rs: any) => {
@@ -81,14 +88,33 @@ export class Restaurant extends Model {
       }
     });
   }
-  
-  loadByDeliveryInfo(origin: ILocation, delivered: string): Promise<any> {
+
+  isOrderEnded(origin: ILocation, r: IRestaurant, rs: IRange[]){
+    const last = r.phases[ r.phases.length - 1 ].orderEnd;
+    const first = r.phases[0].orderEnd;
+    if(moment().isAfter(this.getTime(moment(), last))){
+      return false;
+    } else { 
+      if(moment().isAfter(this.getTime(moment(), first))) {
+        if(this.range.inRange(origin, rs)){
+          return true;
+        }else{
+          return false;
+        }
+      }else{
+        return true;
+      }
+    }
+  }
+
+
+  loadByDeliveryInfo(origin: ILocation, dow: number): Promise<any> {
 
     return new Promise((resolve, reject) => {
       this.area.getNearestArea(origin).then((area: IArea) => {
         this.mall.find({}).then((malls: IMall[]) => {
           const destinations: ILocation[] = [];
-          malls.map((m:IMall) => {
+          malls.map((m: IMall) => {
             const loc = {
               lat: m.lat,
               lng: m.lng,
@@ -101,21 +127,21 @@ export class Restaurant extends Model {
             destinations.push(loc);
           });
 
-          this.mall.getScheduledMalls(area._id.toString(), delivered).then((scheduledMalls: any[]) => {
+          this.mall.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
             this.distance.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
-              const params = [
-                {$lookup: {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}},
-                {$unwind: '$mall'}
-              ];
-              this.load({ status: 'active' }, params).then(rs => {
-                rs.map((r: any) => {
-                  const d = ds.find(x => x.destinationPlaceId === r.mall.placeId);
-                  const mall = scheduledMalls.find((m: any) => m._id.toString() === r.mall._id.toString());
-                  r.onSchedule = mall? true: false;
-                  r.distance = d ? d.element.distance.value : 0;
-                  r.inRange = mall? true: false; // how? fix me
+              this.range.find({ type: 'free', status: 'active' }).then((rs: any[]) => {
+                this.find({ status: 'active' }).then(ms => {
+                  ms.map((r: any) => {
+                    const mall: any = malls.find((m: any) => m._id.toString() === r.mallId.toString())
+                    const d = ds.find(x => x.destinationPlaceId === mall.placeId);
+                    const scheduledMallId = scheduledMallIds.find((mId: any) => mId.toString() === mall._id.toString());
+                    r.onSchedule = scheduledMallId ? true : false;
+                    r.distance = d ? d.element.distance.value : 0;
+                    r.inRange = mall ? true : false; // how? fix me
+                    r.orderEnded = this.isOrderEnded(origin, r, rs);
+                  });
+                  resolve(ms);
                 });
-                resolve(rs);
               });
             }, err => {
               reject();
@@ -128,11 +154,15 @@ export class Restaurant extends Model {
   }
 
 
+  // load all restaurants
+  // origin --- ILocation object
+  // deliverDate --- string 'today', 'tomorrow'
   loadAll(req: Request, res: Response) {
     const origin = req.body.origin;
-    const delivered = req.body.delivered;
+    const deliverDate = req.body.deliverDate;
+    const dow = deliverDate === 'today' ? moment().day() : moment().add(1, 'days').day();
 
-    this.loadByDeliveryInfo(origin, delivered).then((rs: any) => {
+    this.loadByDeliveryInfo(origin, dow).then((rs: any) => {
       if (rs) {
         res.send(JSON.stringify(rs, null, 3));
       } else {

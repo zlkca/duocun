@@ -106,9 +106,9 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  isNotOpening(restaurant) {
-    if (moment().isSame(this.deliveryDate, 'day')) {
-      return this.merchantSvc.isNotOpening(restaurant);
+  isNotOpening(restaurant: IRestaurant) {
+    if (moment().isSame(this.deliveryDate, 'day')) { // fix me
+      return restaurant.orderEnded;
     } else {
       return false;
     }
@@ -116,7 +116,9 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
   addToCart(p: IProduct) {
     const merchant = this.restaurant;
-    if (this.merchantSvc.isClosed(merchant, this.deliveryDate) || (this.hasAddress && !merchant.onSchedule)) {
+    const type = this.deliveryDate.isSame(moment()) ? 'today' : 'tomorrow';
+    if (this.merchantSvc.isClosed(merchant, type) // fix me
+      || (this.hasAddress && !merchant.onSchedule)) {
       alert('该商家休息，暂时无法配送');
       return;
     }

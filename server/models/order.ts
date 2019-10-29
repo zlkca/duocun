@@ -143,14 +143,7 @@ export class Order extends Model {
     });
   }
 
-  // m --- moment object for date
-  // t --- string, eg: '11:20'
-  // return moment object 
-  getTime(m: any, t: string){
-    const hour = +(t.split(':')[0]);
-    const minute = +(t.split(':')[1]);
-    return m.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });
-  }
+
 
   getDeliverDateTime(createdDateTime: string, phases: any[], deliveryDate: string){
 
