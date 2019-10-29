@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { DB } from "../db";
 import { Model } from "./model";
-import { Entity } from "../entity";
 import { ILocation } from "./location";
 import { BulkWriteOpResultObject, ObjectID } from "mongodb";
 import { OrderSequence } from "./order-sequence";

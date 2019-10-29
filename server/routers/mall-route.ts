@@ -6,7 +6,7 @@ export function MallRouter(db: DB){
   const router = express.Router();
   const controller = new Mall(db);
 
-
+  router.get('/qFind', (req, res) => { controller.quickFind(req, res); });
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
 
