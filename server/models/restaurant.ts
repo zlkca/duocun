@@ -93,16 +93,16 @@ export class Restaurant extends Model {
     const last = r.phases[ r.phases.length - 1 ].orderEnd;
     const first = r.phases[0].orderEnd;
     if(moment().isAfter(this.getTime(moment(), last))){
-      return false;
+      return true;
     } else { 
       if(moment().isAfter(this.getTime(moment(), first))) {
         if(this.range.inRange(origin, rs)){
-          return true;
-        }else{
           return false;
+        }else{
+          return true;
         }
       }else{
-        return true;
+        return false;
       }
     }
   }
