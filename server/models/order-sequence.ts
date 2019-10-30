@@ -42,8 +42,8 @@ export class OrderSequence extends Model {
     }
 
     reqSequence(): Promise<number>{
-      const start = moment().startOf('day').toDate();
-      const end = moment().endOf('day').toDate();
+      const start = moment().startOf('day').toISOString();
+      const end = moment().endOf('day').toISOString();
       const range = { "created": { "$gte": start, "$lte": end }};
 
       return new Promise((resolve, reject) => {
