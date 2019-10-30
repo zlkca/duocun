@@ -41,6 +41,7 @@ export interface IRestaurant {
 
   phases: IPhase[];
   orderEnded: boolean; // do not save to db
+  orderEndTime: string; // do not save to db
 }
 
 // For database

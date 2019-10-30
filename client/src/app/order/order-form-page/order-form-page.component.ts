@@ -158,6 +158,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       }
     });
 
+    // fix me
     if (cart) {
       this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IRestaurant[]) => {
         const merchant: IRestaurant = ms[0];

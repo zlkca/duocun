@@ -49,8 +49,8 @@ export class MerchantService extends EntityService {
   }
 
 
-  load(origin: ILocation, deliverDate: string): Observable<any> {
+  load(origin: ILocation, deliverDate: string, filter: any): Observable<any> {
     const url = this.url + '/load';
-    return this.doPost(url, { origin: origin, deliverDate: deliverDate });
+    return this.doPost(url, { origin: origin, deliverDate: deliverDate }, filter);
   }
 }

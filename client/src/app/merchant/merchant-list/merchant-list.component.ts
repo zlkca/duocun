@@ -90,8 +90,9 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   loadRestaurants(origin: ILocation) { // load with distance
     const self = this;
     if (origin) {
+      const query = {status: 'active'};
       this.bHasAddress = true;
-      this.merchantSvc.load(origin, this.deliverDate).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
+      this.merchantSvc.load(origin, this.deliverDate, query).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
         const markers = []; // markers on map
         rs.map((restaurant: IRestaurant) => {
           if (restaurant.location) {

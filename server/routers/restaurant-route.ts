@@ -10,7 +10,7 @@ export function RestaurantRouter(db: DB){
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
 
-  router.post('/load', (req, res) => { controller.loadAll(req, res); });
+  router.post('/load', (req, res) => { controller.load(req, res); });
 
   router.post('/', (req, res) => { controller.create(req, res); });
   router.put('/', (req, res) => { controller.replace(req, res); });

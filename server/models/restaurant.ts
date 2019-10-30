@@ -107,9 +107,18 @@ export class Restaurant extends Model {
     }
   }
 
+  getOrderEndTime(origin: ILocation, r: IRestaurant, rs: IRange[]){
+    const last = r.phases[ r.phases.length - 1 ].orderEnd;
+    const first = r.phases[0].orderEnd;
+    if(this.range.inRange(origin, rs)){
+      return last;
+    }else{
+      return first;
+    }
+  }
 
-  loadByDeliveryInfo(origin: ILocation, dow: number): Promise<any> {
-
+  // query { status: 'active' }
+  loadByDeliveryInfo(origin: ILocation, dow: number, query: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.area.getNearestArea(origin).then((area: IArea) => {
         this.mall.find({}).then((malls: IMall[]) => {
@@ -130,7 +139,7 @@ export class Restaurant extends Model {
           this.mall.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
             this.distance.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
               this.range.find({ type: 'free', status: 'active' }).then((rs: any[]) => {
-                this.find({ status: 'active' }).then(ms => {
+                this.find(query).then(ms => {
                   ms.map((r: any) => {
                     const mall: any = malls.find((m: any) => m._id.toString() === r.mallId.toString())
                     const d = ds.find(x => x.destinationPlaceId === mall.placeId);
@@ -139,6 +148,7 @@ export class Restaurant extends Model {
                     r.distance = d ? d.element.distance.value : 0;
                     r.inRange = mall ? true : false; // how? fix me
                     r.orderEnded = this.isOrderEnded(origin, r, rs);
+                    r.orderEndTime = this.getOrderEndTime(origin, r, rs);
                   });
                   resolve(ms);
                 });
@@ -153,16 +163,19 @@ export class Restaurant extends Model {
     });
   }
 
-
-  // load all restaurants
+  // load restaurants
   // origin --- ILocation object
   // deliverDate --- string 'today', 'tomorrow'
-  loadAll(req: Request, res: Response) {
+  load(req: Request, res: Response) {
     const origin = req.body.origin;
     const deliverDate = req.body.deliverDate;
     const dow = deliverDate === 'today' ? moment().day() : moment().add(1, 'days').day();
+    let query = null;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
 
-    this.loadByDeliveryInfo(origin, dow).then((rs: any) => {
+    this.loadByDeliveryInfo(origin, dow, query).then((rs: any) => {
       if (rs) {
         res.send(JSON.stringify(rs, null, 3));
       } else {

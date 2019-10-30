@@ -19,7 +19,7 @@ import { ContactActions } from '../../contact/contact.actions';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { IDelivery } from '../../delivery/delivery.model';
-
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-merchant-detail-page',
@@ -123,7 +123,10 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         this.onSchedule = params['onSchedule'] === 'true' ? true : false;
       }
 
-      self.merchantSvc.find({ _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant) => {
+      const origin = this.delivery.origin;
+      const dt = this.delivery.date.isSame(moment(), 'day') ? 'today' : 'tomorrow';
+
+      self.merchantSvc.load(origin, dt, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant) => {
         const restaurant = restaurants[0];
         restaurant.onSchedule = self.onSchedule;
         self.restaurant = restaurant;

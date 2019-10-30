@@ -85,7 +85,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   ) {
     const self = this;
 
-
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.cart = cart;
     });
@@ -116,7 +115,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
   addToCart(p: IProduct) {
     const merchant = this.restaurant;
-    const type = this.deliveryDate.isSame(moment()) ? 'today' : 'tomorrow';
+    const type = this.deliveryDate.isSame(moment(), 'day') ? 'today' : 'tomorrow';
     if (this.merchantSvc.isClosed(merchant, type) // fix me
       || (this.hasAddress && !merchant.onSchedule)) {
       alert('该商家休息，暂时无法配送');
@@ -124,7 +123,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     if (this.isNotOpening(this.restaurant)) {
-      alert('已过下单时间，该商家下单截止到' + this.restaurant.endTime + 'am');
+      alert('已过下单时间，该商家下单截止到' + this.restaurant.orderEndTime + 'am');
       return;
     }
 

@@ -82,13 +82,18 @@ export class EntityService {
     return this.http.get(url, {headers: headers});
   }
 
-  doPost(url: string, entity: any): Observable<any> {
+  doPost(url: string, entity: any, filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
     const accessTokenId = this.cookieSvc.getAccessToken();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
     }
+
+    if (filter) {
+      headers = headers.append('filter', JSON.stringify(filter));
+    }
+
     return this.http.post(url, entity, {headers: headers});
   }
 
