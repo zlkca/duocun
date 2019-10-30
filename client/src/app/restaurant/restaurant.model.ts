@@ -65,6 +65,7 @@ export class Restaurant implements IRestaurant {
 
   phases: IPhase[];
   orderEnded: boolean; // do not save to db
+  orderEndTime: string; // do not save to db
 
   constructor(data?: IRestaurant) {
     Object.assign(this, data);
