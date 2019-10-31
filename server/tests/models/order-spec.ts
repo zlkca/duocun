@@ -5,6 +5,7 @@ import { ClientBalance } from '../../models/client-balance';
 import { DB } from '../../db';
 import { expect } from 'chai';
 import { Config } from '../../config';
+import moment from 'moment';
 
 // // describe('getDistinctArray with missing field', () => {
 // //   it('should return distinct Array', () => {
@@ -425,87 +426,86 @@ describe('Order.addGroupDiscounts with 2nd 1 groupDiscount', () => {
   });
 });
 
-describe('Order.removeGroupDiscounts', () => {
-  const db: any = new DB();
-  const cfg: any = new Config();
-  let clientConnection: any = null;
-  let oo: Order;
-  let ao: Account;
-  let acs: any[];
-  let ors: any[];
-  let orders: any[];
-  const accounts: any[] = [
-    { username: 'li1', mode: 'test' },
-    { username: 'li2', mode: 'test' },
-    { username: 'li3', mode: 'test' }
-  ];
+// describe('Order.removeGroupDiscounts', () => {
+//   const db: any = new DB();
+//   const cfg: any = new Config();
+//   let clientConnection: any = null;
+//   let oo: Order;
+//   let ao: Account;
+//   let acs: any[];
+//   let ors: any[];
+//   let orders: any[];
+//   const accounts: any[] = [
+//     { username: 'li1', mode: 'test' },
+//     { username: 'li2', mode: 'test' },
+//     { username: 'li3', mode: 'test' }
+//   ];
 
-  before(function(done) {
-    db.init(cfg.DATABASE).then((dbClient: any) => {
-      oo = new Order(db);
-      ao = new Account(db);
-      clientConnection = dbClient;
+//   before(function(done) {
+//     db.init(cfg.DATABASE).then((dbClient: any) => {
+//       oo = new Order(db);
+//       ao = new Account(db);
+//       clientConnection = dbClient;
 
-      ao.insertMany(accounts).then((rs: any[]) => {
-        acs = rs;
-        orders = [
-          // { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
-          { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5 },
-        ];
+//       ao.insertMany(accounts).then((rs: any[]) => {
+//         acs = rs;
+//         orders = [
+//           // { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
+//           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5 },
+//         ];
   
-        // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
-        oo.insertMany(orders).then((os: any[]) => {
-          ors = os;
-          done();
-        });
-      });
-    });
-  });
+//         // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
+//         oo.insertMany(orders).then((os: any[]) => {
+//           ors = os;
+//           done();
+//         });
+//       });
+//     });
+//   });
 
-  after(function(done) {
-    const accountIds: any[] = [];
-    const orderIds: any[] = [
-      {_id: ors[0]._id.toString()}
-    ];
-    acs.map(r => { accountIds.push({ _id: r._id.toString() }) });
+//   after(function(done) {
+//     const accountIds: any[] = [];
+//     const orderIds: any[] = [
+//       {_id: ors[0]._id.toString()}
+//     ];
+//     acs.map(r => { accountIds.push({ _id: r._id.toString() }) });
 
-    ao.bulkDelete(accountIds).then((y: any) => {
-      expect(y.deletedCount).to.equal(3);
-      oo.bulkDelete(orderIds).then((y2: any) => {
-        expect(y2.deletedCount).to.equal(1);
-        clientConnection.close();
-        done();
-      });
-    });
-  });
+//     ao.bulkDelete(accountIds).then((y: any) => {
+//       expect(y.deletedCount).to.equal(3);
+//       oo.bulkDelete(orderIds).then((y2: any) => {
+//         expect(y2.deletedCount).to.equal(1);
+//         clientConnection.close();
+//         done();
+//       });
+//     });
+//   });
 
-  it('should update orders with group discount', (done) => {
-    oo.removeGroupDiscounts(ors).then((orderUpdates: any[]) => {
-      const cIds: string[] = [];
-      orders.map((o: any) => {
-        cIds.push(o.clientId);
-      });
-      if(orderUpdates && orderUpdates.length>0){
-        oo.find({clientId: {$in: cIds}}).then((o1s: any[]) => {
-          const order0 = o1s.find((x:any) => x.clientId.toString() === orders[0].clientId.toString());
-          expect(order0.groupDiscount).to.equal(0); // got groupDiscount from front end
-          expect(order0.total).to.equal(11.5); // got groupDiscount from front end already
-          done();
-        });
-      } else { // this test never goes here
-        oo.find({clientId: {$in: cIds}}).then((o1s: any[]) => {
-          const order0 = o1s.find((x:any) => x.clientId.toString() === orders[0].clientId.toString());
-          expect(order0.groupDiscount).to.equal(0); // got groupDiscount from front end
-          expect(order0.total).to.equal(11.5); // got groupDiscount from front end already
-          done();
-        });
-      }
-    });
-  });
-});
+//   it('should update orders with group discount', (done) => {
+//     oo.removeGroupDiscounts(ors).then((orderUpdates: any[]) => {
+//       const cIds: string[] = [];
+//       orders.map((o: any) => {
+//         cIds.push(o.clientId);
+//       });
+//       if(orderUpdates && orderUpdates.length>0){
+//         oo.find({clientId: {$in: cIds}}).then((o1s: any[]) => {
+//           const order0 = o1s.find((x:any) => x.clientId.toString() === orders[0].clientId.toString());
+//           expect(order0.groupDiscount).to.equal(0); // got groupDiscount from front end
+//           expect(order0.total).to.equal(11.5); // got groupDiscount from front end already
+//           done();
+//         });
+//       } else { // this test never goes here
+//         oo.find({clientId: {$in: cIds}}).then((o1s: any[]) => {
+//           const order0 = o1s.find((x:any) => x.clientId.toString() === orders[0].clientId.toString());
+//           expect(order0.groupDiscount).to.equal(0); // got groupDiscount from front end
+//           expect(order0.total).to.equal(11.5); // got groupDiscount from front end already
+//           done();
+//         });
+//       }
+//     });
+//   });
+// });
 
 
-// eligibleForGroupDiscount(clientId: string, date: string, address: string, cb?: any){
 describe('eligibleForGroupDiscount with 2 orders different accounts', () => {
   const db: any = new DB();
   const cfg: any = new Config();
@@ -517,8 +517,7 @@ describe('eligibleForGroupDiscount with 2 orders different accounts', () => {
   let orders: any[];
   const accounts: any[] = [
     { username: 'li1', mode: 'test' },
-    { username: 'li2', mode: 'test' },
-    { username: 'li3', mode: 'test' }
+    { username: 'li2', mode: 'test' }
   ];
 
   before(function(done) {
@@ -529,12 +528,13 @@ describe('eligibleForGroupDiscount with 2 orders different accounts', () => {
 
       ao.insertMany(accounts).then((rs: any[]) => {
         acs = rs;
+        const cId0 = rs[0]._id.toString();
+        const cId1 = rs[1]._id.toString();
+        const dt = moment().set({ hour: 11, minute: 20, second: 0, millisecond: 0 }).toISOString();
 
         orders = [
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', 
-            delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
-          { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc',
-            delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 1, total:9.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:8.5 },
+          { mode: 'test', clientId: cId1, clientName: rs[1].username, address:'abc', delivered: dt, groupDiscount: 1, total:9.5 },
         ];
   
         oo.insertMany(orders).then((os: any[]) => {
@@ -546,17 +546,18 @@ describe('eligibleForGroupDiscount with 2 orders different accounts', () => {
   });
 
   after(function(done) {
-    const accountIds: any[] = [];
-    const orderIds: any[] = [
-      {id: ors[0].id.toString()},
-      {id: ors[1].id.toString()}
-    ];
-    acs.map(r => { accountIds.push({ id: r.id.toString() }) });
-    ao.bulkDelete(accountIds).then((y: any) => {
-      expect(y.deletedCount).to.equal(3);
+    const accountIds: any[] = acs.map(r => {
+      return { _id: r._id.toString()}
+    });
+    const orderIds: any[] = ors.map(r => {
+      return { _id: r._id.toString()}
+    });
 
+    ao.bulkDelete(accountIds).then((y: any) => {
+      expect(y.deletedCount).to.equal(2);
       oo.bulkDelete(orderIds).then((y2: any) => {
         expect(y2.deletedCount).to.equal(2);
+        clientConnection.close();
         done();
       });
     });
@@ -566,22 +567,24 @@ describe('eligibleForGroupDiscount with 2 orders different accounts', () => {
     const o1: any = ors[0];
     const o2: any = ors[1];
 
-    oo.eligibleForGroupDiscount(o1.clientId, o1.delivered, o1.address, (bEligible1: boolean) => {
+    oo.eligibleForGroupDiscount(o1.clientId.toString(), 'merchantId', 'today', o1.address).then((bEligible1: boolean) => {
       expect(bEligible1).to.equal(true);
       
-      oo.eligibleForGroupDiscount(o2.clientId, o2.delivered, o2.address, (bEligible1: boolean) => {
+      oo.eligibleForGroupDiscount(o2.clientId.toString(), 'merchantId', 'today', o2.address).then((bEligible1: boolean) => {
         expect(bEligible1).to.equal(false);
         done();
       });
     });
   });
+
 });
 
 
-// eligibleForGroupDiscount(clientId: string, date: string, address: string, cb?: any){
+
 describe('eligibleForGroupDiscount with 1 orders different accounts', () => {
   const db: any = new DB();
   const cfg: any = new Config();
+  let clientConnection: any = null;
   let oo: Order;
   let ao: Account;
   let acs: any[];
@@ -589,23 +592,22 @@ describe('eligibleForGroupDiscount with 1 orders different accounts', () => {
   let orders: any[];
   const accounts: any[] = [
     { username: 'li1', mode: 'test' },
-    { username: 'li2', mode: 'test' },
+    { username: 'li2', mode: 'test' }
   ];
 
   before(function(done) {
     db.init(cfg.DATABASE).then((dbClient: any) => {
+      clientConnection = dbClient;
       oo = new Order(db);
       ao = new Account(db);
 
       ao.insertMany(accounts).then((rs: any[]) => {
         acs = rs;
-        for(let i=0; i< accounts.length; i++){
-          expect(rs[i].username).to.equal(accounts[i].username);
-        }
+        const cId0 = rs[0]._id.toString();
+        const dt = moment().set({ hour: 11, minute: 20, second: 0, millisecond: 0 }).toISOString();
 
         orders = [
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc',
-          delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:8.5 },
         ];
   
         oo.insertMany(orders).then((os: any[]) => {
@@ -617,16 +619,19 @@ describe('eligibleForGroupDiscount with 1 orders different accounts', () => {
   });
 
   after(function(done) {
-    const accountIds: any[] = [];
-    const orderIds: any[] = [
-      {id: ors[0].id.toString()},
-    ];
-    acs.map(r => { accountIds.push({ id: r.id.toString() }) });
+    const accountIds: any[] = acs.map(r => {
+      return { _id: r._id.toString()}
+    });
+    const orderIds: any[] = ors.map(r => {
+      return { _id: r._id.toString()}
+    });
+
     ao.bulkDelete(accountIds).then((y: any) => {
       expect(y.deletedCount).to.equal(2);
 
       oo.bulkDelete(orderIds).then((y2: any) => {
         expect(y2.deletedCount).to.equal(1);
+        clientConnection.close();
         done();
       });
     });
@@ -634,13 +639,77 @@ describe('eligibleForGroupDiscount with 1 orders different accounts', () => {
 
   it('should be eligible for the group discount', (done) => {
     const o1: any = ors[0];
-    oo.eligibleForGroupDiscount(acs[1].id, o1.delivered, o1.address, (bEligible1: boolean) => {
+    oo.eligibleForGroupDiscount(acs[1]._id.toString(), 'merchantId', 'today', o1.address).then((bEligible1: boolean) => {
       expect(bEligible1).to.equal(true);
       done();
     });
   });
-
 });
+
+describe('eligibleForGroupDiscount with 1 orders same accounts', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let clientConnection: any = null;
+  let oo: Order;
+  let ao: Account;
+  let acs: any[];
+  let ors: any[];
+  let orders: any[];
+  const accounts: any[] = [
+    { username: 'li1', mode: 'test' }
+  ];
+
+  before(function(done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      clientConnection = dbClient;
+      oo = new Order(db);
+      ao = new Account(db);
+
+      ao.insertMany(accounts).then((rs: any[]) => {
+        acs = rs;
+        const cId0 = rs[0]._id.toString();
+        const dt = moment().set({ hour: 11, minute: 20, second: 0, millisecond: 0 }).toISOString();
+
+        orders = [
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:8.5 },
+        ];
+  
+        oo.insertMany(orders).then((os: any[]) => {
+          ors = os;
+          done();
+        });
+      });
+    });
+  });
+
+  after(function(done) {
+    const accountIds: any[] = acs.map(r => {
+      return { _id: r._id.toString()}
+    });
+    const orderIds: any[] = ors.map(r => {
+      return { _id: r._id.toString()}
+    });
+
+    ao.bulkDelete(accountIds).then((y: any) => {
+      expect(y.deletedCount).to.equal(1);
+
+      oo.bulkDelete(orderIds).then((y2: any) => {
+        expect(y2.deletedCount).to.equal(1);
+        clientConnection.close();
+        done();
+      });
+    });
+  });
+
+  it('should be eligible for the group discount', (done) => {
+    const o1: any = ors[0];
+    oo.eligibleForGroupDiscount(acs[0]._id.toString(), 'merchantId', 'today', o1.address).then((bEligible1: boolean) => {
+      expect(bEligible1).to.equal(false);
+      done();
+    });
+  });
+});
+
 
 describe('eligibleForGroupDiscount with multiple orders of the same accounts', () => {
   const db: any = new DB();
@@ -652,7 +721,7 @@ describe('eligibleForGroupDiscount with multiple orders of the same accounts', (
   let ors: any[];
   let orders: any[];
   const accounts: any[] = [
-    { username: 'li1', mode: 'test' },
+    { username: 'li1', mode: 'test' }
   ];
 
   before(function(done) {
@@ -663,41 +732,33 @@ describe('eligibleForGroupDiscount with multiple orders of the same accounts', (
 
       ao.insertMany(accounts).then((rs: any[]) => {
         acs = rs;
-        for(let i=0; i< accounts.length; i++){
-          expect(rs[i].username).to.equal(accounts[i].username);
-        }
+        const cId0 = rs[0]._id.toString();
+        const dt = moment().set({ hour: 11, minute: 20, second: 0, millisecond: 0 }).toISOString();
 
         orders = [
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', 
-            delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 }, // new insert
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc',
-          delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5 },
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc',
-          delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:7.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:8.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:9.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:7.5 },
         ];
-
-        oo.deleteMany({mode:'test'}).then(() => {
-          oo.insertMany(orders).then((os: any[]) => {
-            ors = os;
-            done();
-          });
+  
+        oo.insertMany(orders).then((os: any[]) => {
+          ors = os;
+          done();
         });
-
       });
     });
   });
 
   after(function(done) {
-    const accountIds: any[] = [];
-    const orderIds: any[] = [
-      {id: ors[0].id.toString()},
-      {id: ors[1].id.toString()},
-      {id: ors[2].id.toString()}
-    ];
-    acs.map(r => { accountIds.push({ id: r.id.toString() }) });
+    const accountIds: any[] = acs.map(r => {
+      return { _id: r._id.toString()}
+    });
+    const orderIds: any[] = ors.map(r => {
+      return { _id: r._id.toString()}
+    });
+
     ao.bulkDelete(accountIds).then((y: any) => {
       expect(y.deletedCount).to.equal(1);
-
       oo.bulkDelete(orderIds).then((y2: any) => {
         expect(y2.deletedCount).to.equal(3);
         clientConnection.close();
@@ -708,17 +769,17 @@ describe('eligibleForGroupDiscount with multiple orders of the same accounts', (
 
   it('should be eligible for the group discount', (done) => {
     const o1: any = ors[0];
-    oo.eligibleForGroupDiscount(o1.clientId, o1.delivered, o1.address, (bEligible1: boolean) => {
+    oo.eligibleForGroupDiscount(acs[0]._id.toString(), 'merchantId', 'today', o1.address).then((bEligible1: boolean) => {
       expect(bEligible1).to.equal(false);
       done();
     });
   });
 });
 
-// eligibleForGroupDiscount(clientId: string, date: string, address: string, cb?: any){
-describe('eligibleForGroupDiscount with 1 orders same accounts', () => {
+describe('eligibleForGroupDiscount with 2 orders of the different time in same day', () => {
   const db: any = new DB();
   const cfg: any = new Config();
+  let clientConnection: any = null;
   let oo: Order;
   let ao: Account;
   let acs: any[];
@@ -726,27 +787,28 @@ describe('eligibleForGroupDiscount with 1 orders same accounts', () => {
   let orders: any[];
   const accounts: any[] = [
     { username: 'li1', mode: 'test' },
-    // { username: 'li2', mode: 'test' },
-    // { username: 'li3', mode: 'test' }
+    { username: 'li2', mode: 'test' }
   ];
 
   before(function(done) {
     db.init(cfg.DATABASE).then((dbClient: any) => {
+      clientConnection = dbClient;
       oo = new Order(db);
       ao = new Account(db);
 
       ao.insertMany(accounts).then((rs: any[]) => {
         acs = rs;
-        for(let i=0; i< accounts.length; i++){
-          expect(rs[i].username).to.equal(accounts[i].username);
-        }
+        const cId0 = rs[0]._id.toString();
+        const cId1 = rs[1]._id.toString();
+        const dt0 = moment().set({ hour: 11, minute: 20, second: 0, millisecond: 0 }).toISOString();
+        const dt1 = moment().set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).toISOString();
 
         orders = [
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
-          // { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 1, total:9.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt0, groupDiscount: 0, total:8.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt0, groupDiscount: 0, total:9.5 },
+          { mode: 'test', clientId: cId1, clientName: rs[0].username, address:'abc', delivered: dt1, groupDiscount: 0, total:7.5 },
         ];
   
-        // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
         oo.insertMany(orders).then((os: any[]) => {
           ors = os;
           done();
@@ -756,87 +818,18 @@ describe('eligibleForGroupDiscount with 1 orders same accounts', () => {
   });
 
   after(function(done) {
-    // runs after all tests in this block
-    // recover
-    const accountIds: any[] = [];
-    const orderIds: any[] = [
-      {id: ors[0].id.toString()},
-      // {id: ors[1].id.toString()}
-    ];
-    acs.map(r => { accountIds.push({ id: r.id.toString() }) });
+    const accountIds: any[] = acs.map(r => {
+      return { _id: r._id.toString()}
+    });
+    const orderIds: any[] = ors.map(r => {
+      return { _id: r._id.toString()}
+    });
+
     ao.bulkDelete(accountIds).then((y: any) => {
-      expect(y.deletedCount).to.equal(1);
-
-      oo.bulkDelete(orderIds).then((y2: any) => {
-        expect(y2.deletedCount).to.equal(1);
-        done();
-      });
-    });
-  });
-
-  it('should be eligible for the group discount', (done) => {
-    const o1: any = ors[0];
-    oo.eligibleForGroupDiscount(o1.clientId, o1.delivered, o1.address, (bEligible1: boolean) => {
-      expect(bEligible1).to.equal(false);
-      done();
-    });
-  });
-
-});
-
-describe('eligibleForGroupDiscount with 2 orders of the same accounts', () => {
-  const db: any = new DB();
-  const cfg: any = new Config();
-  let oo: Order;
-  let ao: Account;
-  let acs: any[];
-  let ors: any[];
-  let orders: any[];
-  const accounts: any[] = [
-    { username: 'li1', mode: 'test' },
-    // { username: 'li2', mode: 'test' },
-    // { username: 'li3', mode: 'test' }
-  ];
-
-  before(function(done) {
-    db.init(cfg.DATABASE).then((dbClient: any) => {
-      oo = new Order(db);
-      ao = new Account(db);
-
-      ao.insertMany(accounts).then((rs: any[]) => {
-        acs = rs;
-        for(let i=0; i< accounts.length; i++){
-          expect(rs[i].username).to.equal(accounts[i].username);
-        }
-
-        orders = [
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5 },
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:7.5 },
-        ];
-  
-        // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
-        oo.insertMany(orders).then((os: any[]) => {
-          ors = os;
-          done();
-        });
-      });
-    });
-  });
-
-  after(function(done) {
-    const accountIds: any[] = [];
-    const orderIds: any[] = [
-      {id: ors[0].id.toString()},
-      {id: ors[1].id.toString()},
-      {id: ors[2].id.toString()}
-    ];
-    acs.map(r => { accountIds.push({ id: r.id.toString() }) });
-    ao.bulkDelete(accountIds).then((y: any) => {
-      expect(y.deletedCount).to.equal(1);
-
+      expect(y.deletedCount).to.equal(2);
       oo.bulkDelete(orderIds).then((y2: any) => {
         expect(y2.deletedCount).to.equal(3);
+        clientConnection.close();
         done();
       });
     });
@@ -844,18 +837,18 @@ describe('eligibleForGroupDiscount with 2 orders of the same accounts', () => {
 
   it('should be eligible for the group discount', (done) => {
     const o1: any = ors[0];
-    oo.eligibleForGroupDiscount(o1.clientId, o1.delivered, o1.address, (bEligible1: boolean) => {
-      expect(bEligible1).to.equal(false);
+    oo.eligibleForGroupDiscount(acs[0]._id.toString(), 'merchantId', 'today', o1.address).then((bEligible1: boolean) => {
+      expect(bEligible1).to.equal(true);
       done();
     });
   });
-
 });
   
 
 describe('eligibleForGroupDiscount with 2 orders of the same accounts - already discount', () => {
   const db: any = new DB();
   const cfg: any = new Config();
+  let clientConnection: any = null;
   let oo: Order;
   let ao: Account;
   let acs: any[];
@@ -863,28 +856,28 @@ describe('eligibleForGroupDiscount with 2 orders of the same accounts - already 
   let orders: any[];
   const accounts: any[] = [
     { username: 'li1', mode: 'test' },
-    { username: 'li2', mode: 'test' },
-    // { username: 'li3', mode: 'test' }
+    { username: 'li2', mode: 'test' }
   ];
 
   before(function(done) {
     db.init(cfg.DATABASE).then((dbClient: any) => {
+      clientConnection = dbClient;
       oo = new Order(db);
       ao = new Account(db);
 
       ao.insertMany(accounts).then((rs: any[]) => {
         acs = rs;
-        for(let i=0; i< accounts.length; i++){
-          expect(rs[i].username).to.equal(accounts[i].username);
-        }
+        const cId0 = rs[0]._id.toString();
+        const cId1 = rs[1]._id.toString();
+        const dt0 = moment().set({ hour: 11, minute: 20, second: 0, millisecond: 0 }).toISOString();
+        const dt1 = moment().set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).toISOString();
 
         orders = [
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5 },
-          { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:7.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt0, groupDiscount: 0, total:8.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt0, groupDiscount: 2, total:9.5 },
+          { mode: 'test', clientId: cId1, clientName: rs[0].username, address:'abc', delivered: dt1, groupDiscount: 2, total:7.5 },
         ];
   
-        // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
         oo.insertMany(orders).then((os: any[]) => {
           ors = os;
           done();
@@ -894,18 +887,18 @@ describe('eligibleForGroupDiscount with 2 orders of the same accounts - already 
   });
 
   after(function(done) {
-    const accountIds: any[] = [];
-    const orderIds: any[] = [
-      {id: ors[0].id.toString()},
-      {id: ors[1].id.toString()},
-      {id: ors[2].id.toString()}
-    ];
-    acs.map(r => { accountIds.push({ id: r.id.toString() }) });
+    const accountIds: any[] = acs.map(r => {
+      return { _id: r._id.toString()}
+    });
+    const orderIds: any[] = ors.map(r => {
+      return { _id: r._id.toString()}
+    });
+
     ao.bulkDelete(accountIds).then((y: any) => {
       expect(y.deletedCount).to.equal(2);
-
       oo.bulkDelete(orderIds).then((y2: any) => {
         expect(y2.deletedCount).to.equal(3);
+        clientConnection.close();
         done();
       });
     });
@@ -913,7 +906,7 @@ describe('eligibleForGroupDiscount with 2 orders of the same accounts - already 
 
   it('should be eligible for the group discount', (done) => {
     const o1: any = ors[0];
-    oo.eligibleForGroupDiscount(o1.clientId, o1.delivered, o1.address, (bEligible1: boolean) => {
+    oo.eligibleForGroupDiscount(acs[0]._id.toString(), 'merchantId', 'today', o1.address).then((bEligible1: boolean) => {
       expect(bEligible1).to.equal(false);
       done();
     });
@@ -925,6 +918,7 @@ describe('eligibleForGroupDiscount with 2 orders of the same accounts - already 
 describe('eligibleForGroupDiscount with 2 orders of the different accounts - no discount', () => {
   const db: any = new DB();
   const cfg: any = new Config();
+  let clientConnection: any = null;
   let oo: Order;
   let ao: Account;
   let acs: any[];
@@ -932,28 +926,28 @@ describe('eligibleForGroupDiscount with 2 orders of the different accounts - no 
   let orders: any[];
   const accounts: any[] = [
     { username: 'li1', mode: 'test' },
-    { username: 'li2', mode: 'test' },
-    // { username: 'li3', mode: 'test' }
+    { username: 'li2', mode: 'test' }
   ];
 
   before(function(done) {
     db.init(cfg.DATABASE).then((dbClient: any) => {
+      clientConnection = dbClient;
       oo = new Order(db);
       ao = new Account(db);
 
       ao.insertMany(accounts).then((rs: any[]) => {
         acs = rs;
-        for(let i=0; i< accounts.length; i++){
-          expect(rs[i].username).to.equal(accounts[i].username);
-        }
+        const cId0 = rs[0]._id.toString();
+        const cId1 = rs[1]._id.toString();
+        const dt0 = moment().set({ hour: 11, minute: 20, second: 0, millisecond: 0 }).toISOString();
+        const dt1 = moment().set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).toISOString();
 
         orders = [
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
-          { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5 },
-          { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:7.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt0, groupDiscount: 0, total:8.5 },
+          { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt0, groupDiscount: 0, total:9.5 },
+          { mode: 'test', clientId: cId1, clientName: rs[0].username, address:'abc', delivered: dt1, groupDiscount: 2, total:7.5 },
         ];
   
-        // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
         oo.insertMany(orders).then((os: any[]) => {
           ors = os;
           done();
@@ -963,18 +957,18 @@ describe('eligibleForGroupDiscount with 2 orders of the different accounts - no 
   });
 
   after(function(done) {
-    const accountIds: any[] = [];
-    const orderIds: any[] = [
-      {id: ors[0].id.toString()},
-      {id: ors[1].id.toString()},
-      {id: ors[2].id.toString()}
-    ];
-    acs.map(r => { accountIds.push({ id: r.id.toString() }) });
+    const accountIds: any[] = acs.map(r => {
+      return { _id: r._id.toString()}
+    });
+    const orderIds: any[] = ors.map(r => {
+      return { _id: r._id.toString()}
+    });
+
     ao.bulkDelete(accountIds).then((y: any) => {
       expect(y.deletedCount).to.equal(2);
-
       oo.bulkDelete(orderIds).then((y2: any) => {
         expect(y2.deletedCount).to.equal(3);
+        clientConnection.close();
         done();
       });
     });
@@ -982,7 +976,7 @@ describe('eligibleForGroupDiscount with 2 orders of the different accounts - no 
 
   it('should be eligible for the group discount', (done) => {
     const o1: any = ors[0];
-    oo.eligibleForGroupDiscount(o1.clientId, o1.delivered, o1.address, (bEligible1: boolean) => {
+    oo.eligibleForGroupDiscount(acs[0]._id.toString(), 'merchantId', 'today', o1.address).then((bEligible1: boolean) => {
       expect(bEligible1).to.equal(true);
       done();
     });
@@ -1187,4 +1181,4 @@ describe('eligibleForGroupDiscount with 2 orders of the different accounts - no 
 // //       expect(rs.length).to.equal(0);
 // //     });
 // //   });
-// // });
+// });

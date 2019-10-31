@@ -7,6 +7,7 @@ import { OrderSequence } from "./order-sequence";
 import { ClientBalance, IClientBalance } from "./client-balance";
 import moment from 'moment';
 import { Restaurant } from "./restaurant";
+import { resolve } from "path";
 
 
 export interface IOrderItem {
@@ -365,46 +366,47 @@ export class Order extends Model {
     const dateType: string = req.body.dateType;
     const address: string = req.body.address;
     
-    this.eligibleForGroupDiscount(clientId, merchantId, dateType, address, (bEligible: boolean) => {
+    this.eligibleForGroupDiscount(clientId, merchantId, dateType, address).then((bEligible: boolean) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(bEligible, null, 3));
     });
   }
 
-  eligibleForGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string, cb?: any) {
+  eligibleForGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string):Promise<boolean> {
     const date = dateType === 'today' ? moment() : moment().add(1, 'day');
     const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
     const query = { delivered: range, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
-    
 
-    this.find(query).then(orders => {
-      const groups = this.groupBy(orders, 'clientId');
-      const clientIds = Object.keys(groups);
-
-      if (clientIds && clientIds.length > 0) {
-        const found = clientIds.find(x => x === clientId);
-        if (found) {
-          if (clientIds.length === 1) { // only me
-            cb(false);
-          } else { // > 1, has other clients
-            const os = groups[clientId];
-            if (os && os.length > 0) {
-              const hasGroupDiscount = os.find((x: any) => x.groupDiscount !== 0);
-              if (hasGroupDiscount) {
-                cb(false);
+    return new Promise((resolve, reject) => {
+      this.find(query).then(orders => {
+        const groups = this.groupBy(orders, 'clientId');
+        const clientIds = Object.keys(groups);
+  
+        if (clientIds && clientIds.length > 0) {
+          const found = clientIds.find(x => x === clientId);
+          if (found) {
+            if (clientIds.length === 1) { // only me
+              resolve(false);
+            } else { // > 1, has other clients
+              const os = groups[clientId];
+              if (os && os.length > 0) {
+                const hasGroupDiscount = os.find((x: any) => x.groupDiscount !== 0);
+                if (hasGroupDiscount) {
+                  resolve(false);
+                } else {
+                  resolve(true);
+                }
               } else {
-                cb(true);
+                resolve(true); // [] should not happen
               }
-            } else {
-              cb(true); // [] should not happen
             }
+          } else {
+            resolve(true);
           }
         } else {
-          cb(true);
+          resolve(false);
         }
-      } else {
-        cb(false);
-      }
+      });
     });
   }
 
