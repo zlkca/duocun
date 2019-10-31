@@ -16,6 +16,7 @@ import { CartActions } from '../../cart/cart.actions';
 import { AccountActions } from '../../account/account.actions';
 import { PaymentService } from '../payment.service';
 import { OrderActions } from '../../order/order.actions';
+import { SharedService } from '../../shared/shared.service';
 
 const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
 
@@ -28,11 +29,13 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<any>();
   cart;
 
-  constructor(private route: ActivatedRoute,
+  constructor(
+    private route: ActivatedRoute,
     private accountSvc: AccountService,
     private transactionSvc: TransactionService,
     private orderSvc: OrderService,
     private paymentSvc: PaymentService,
+    private sharedSvc: SharedService,
     private router: Router,
     private rx: NgRedux<IAppState>,
     private snackBar: MatSnackBar
@@ -83,10 +86,12 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
         self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
         self.orderSvc.quickFind({ _id: orderId }).pipe(takeUntil(self.onDestroy$)).subscribe(orders => {
           const order = orders[0];
-          const delivered = order.delivered;
+          const merchantId = order.merchantId;
+          const dateType = this.sharedSvc.getDateType(order.delivered);
           const address = order.address;
           // update my balance and group discount
-          self.paymentSvc.afterAddOrder(clientId, delivered, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe((r1: any) => {
+          self.paymentSvc.afterAddOrder(clientId, merchantId, dateType, address, paid)
+          .pipe(takeUntil(self.onDestroy$)).subscribe((r1: any) => {
             self.snackBar.open('', '余额已更新', { duration: 1800 });
             const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });

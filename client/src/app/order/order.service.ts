@@ -51,9 +51,11 @@ export class OrderService extends EntityService {
     }
   }
 
-  checkGroupDiscount( clientId: string, delivered: string, address: string ): Observable<any> {
+  // for display purpose, update price should be run on backend
+  // dateType --- string 'today', 'tomorrow'
+  checkGroupDiscount( clientId: string, merchantId: string, dateType: string,  address: string ): Observable<any> {
     const url = this.url + '/checkGroupDiscount';
-    return this.doPost(url, { clientId: clientId, delivered: delivered, address: address });
+    return this.doPost(url, { clientId: clientId, merchantId: merchantId, dateType: dateType, address: address });
   }
 
   // pickup --- has to be '11:20' or '12:00' for now

@@ -18,6 +18,11 @@ export class SharedService {
     return this.subject.asObservable();
   }
 
+  // date --- moment object
+  getDateType(date) {
+    return date.isSame(moment(), 'day') ? 'today' : 'tomorrow';
+  }
+
   // scale image inside frame
   resizeImage(frame_w: number, frame_h: number, w: number, h: number) {
     let rw = 0;
@@ -67,14 +72,6 @@ export class SharedService {
 
   formatDateTime(date) {
     return date.format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
-  }
-
-  getDate(date: Date) {
-    return moment(date);
-  }
-
-  getNow() {
-    return moment();
   }
 
   getTodayString() {

@@ -20,7 +20,6 @@ import { LocationService } from '../../location/location.service';
 import { BalanceService } from '../../payment/balance.service';
 import { IBalance, IClientPayment } from '../../payment/payment.model';
 import { ILocation, IDistance, RangeRole } from '../../location/location.model';
-import { OrderSequenceService } from '../order-sequence.service';
 import * as moment from 'moment';
 import { MerchantService } from '../../merchant/merchant.service';
 
@@ -34,9 +33,8 @@ import { RangeService } from '../../range/range.service';
 import { IRange } from '../../range/range.model';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
-import { AccountService } from '../../account/account.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
-import { resolve } from '../../../../node_modules/@types/q';
+import { SharedService } from '../../shared/shared.service';
 
 declare var Stripe;
 declare var window;
@@ -83,12 +81,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private router: Router,
     private route: ActivatedRoute,
-    private accountSvc: AccountService,
     private mallSvc: MallService,
     private rangeSvc: RangeService,
     private orderSvc: OrderService,
     private merchantSvc: MerchantService,
-    private sequenceSvc: OrderSequenceService,
+    private sharedSvc: SharedService,
     private locationSvc: LocationService,
     private clientBalanceSvc: BalanceService,
     private paymentSvc: PaymentService,
@@ -146,6 +143,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const self = this;
     const account: IAccount = this.account;
+    const accountId = this.account._id;
     const cart: ICart = this.cart;
     const order: IOrder = this.order;
     // const bNewOrder = (order && order._id) ? false : true;
@@ -162,24 +160,18 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     if (cart) {
       this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IRestaurant[]) => {
         const merchant: IRestaurant = ms[0];
-        if (merchant) {
-          const endTime = +merchant.endTime.split(':')[0];
-          if (endTime < 12) {
-            self.delivery.date = self.delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
-          } else {
-            self.delivery.date = self.delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
-          }
-        }
-        // this.reloadGroupDiscount(bNewOrder, self.delivery.date, self.address);
-
-        const date = self.delivery.date;
+        const merchantId = merchant._id;
+        const dateType = this.sharedSvc.getDateType(self.delivery.date);
         const origin = self.delivery.origin;
         const address = this.locationSvc.getAddrString(origin);
-        this.reloadGroupDiscount(account.id, date, address, (groupDiscount) => {
+
+        this.orderSvc.checkGroupDiscount(accountId, merchantId, dateType, address).pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
+          const groupDiscount = bEligible ? 2 : 0;
           self.getOverRange(origin, (distance, rate) => {
             this.charge = this.getCharge(cart, merchant, self.delivery, (distance * rate), groupDiscount);
             this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
             self.loading = false;
+            self.groupDiscount = groupDiscount;
           });
         });
       });
@@ -269,19 +261,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     };
   }
 
-  // for display purpose, update price should be run on backend
-  reloadGroupDiscount(clientId: string, date: any, address: string, cb?: any) { // date --- moment object
-    // const query = { delivered: date.toDate(), address: address, status: { $nin: ['del', 'bad', 'tmp'] } };
-    // this.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe(orders => {
-    //   // fix me update group discount to order
-    //   this.groupDiscount = this.orderSvc.getGroupDiscount(orders, bNewOrder);
-    // });
-    this.orderSvc.checkGroupDiscount(clientId, date.toDate(), address).pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
-      this.groupDiscount = bEligible ? 2 : 0;
-      cb(this.groupDiscount);
-    });
-  }
-
   changeContact() {
     // this.router.navigate(['contact/list']);
   }
@@ -342,7 +321,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         paymentMethod: paymentMethod,
 
         // created: moment().toISOString(),
-        deliveryDate: delivery.date.isSame(moment(), 'day') ? 'today' : 'tomorrow'
+        deliveryDate: this.sharedSvc.getDateType(delivery.date)
       };
 
       return order;
@@ -401,8 +380,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       self.orderSvc.update({ _id: orderId }, data).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
         self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
 
+        const merchantId = order.merchantId;
+        const dateType = this.sharedSvc.getDateType(this.delivery.date);
         // update my balance and group discount
-        self.paymentSvc.afterAddOrder(clientId, delivered, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r1 => {
+        self.paymentSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r1 => {
           self.snackBar.open('', '余额已更新', { duration: 1800 });
           self.bSubmitted = false;
           self.loading = false;
@@ -505,9 +486,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             self.snackBar.open('', '订单已更新', { duration: 1800 });
             const paid = (balance.amount > 0) ? balance.amount : 0;
             const clientId = order.clientId;
-            const delivered = this.delivery.date.toISOString();
+            const merchantId = order.merchantId;
+            const dateType = this.sharedSvc.getDateType(this.delivery.date);
             const address = order.address;
-            self.paymentSvc.afterAddOrder(clientId, delivered, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+            self.paymentSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;
               self.loading = false;
               self.router.navigate(['order/history']);
@@ -533,9 +515,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
             // adjust group discount
             const clientId = order.clientId;
-            const delivered = self.delivery.date.toISOString();
+            const dateType = self.sharedSvc.getDateType(self.delivery.date); // .toISOString();
             const address = order.address;
-            self.paymentSvc.addGroupDiscount(clientId, delivered, address).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+            const merchantId = order.merchantId;
+
+            self.paymentSvc.addGroupDiscount(clientId, merchantId, dateType, address).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;
               self.loading = false;
               self.router.navigate(['order/history']);
@@ -661,7 +645,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   payByCard(orderId: string, clientId: string, clientName: string, amount, merchantName) {
     const self = this;
 
-    return new Promise((resolve: any, reject) => {
+    return new Promise((resolve, reject) => {
       this.stripe.createToken(this.card).then(function (result) {
         if (result.error) {
           // Inform the user if there was an error.

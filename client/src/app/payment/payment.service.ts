@@ -60,9 +60,9 @@ export class PaymentService extends EntityService {
     return this.doPost(url, {chargeId: chargeId});
   }
 
-  afterAddOrder( clientId: string, delivered: string, address: string, paid: number ): Observable<any> {
+  afterAddOrder( clientId: string,  merchantId: string, dateType: string,  address: string, paid: number ): Observable<any> {
     const url = this.url + '/afterAddOrder';
-    return this.doPost(url, { clientId: clientId, delivered: delivered, address: address, paid: paid });
+    return this.doPost(url, { clientId: clientId, merchantId: merchantId, dateType: dateType, address: address, paid: paid });
   }
 
   afterRemoveOrder( orderId: string ): Observable<any> {
@@ -70,9 +70,9 @@ export class PaymentService extends EntityService {
     return this.doPost(url, { orderId: orderId });
   }
 
-  addGroupDiscount( clientId: string, delivered: string, address: string ): Observable<any> {
+  addGroupDiscount( clientId: string, merchantId: string, dateType: string, address: string ): Observable<any> {
     const url = this.url + '/addGroupDiscount';
-    return this.doPost(url, { clientId: clientId, delivered: delivered, address: address });
+    return this.doPost(url, { clientId: clientId, merchantId: merchantId, dateType: dateType, address: address });
   }
 
   removeGroupDiscount( orderId: string ): Observable<any> {

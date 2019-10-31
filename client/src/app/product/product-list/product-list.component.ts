@@ -19,6 +19,7 @@ import { MallService } from '../../mall/mall.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { IRange } from '../../range/range.model';
 import { IMall } from '../../mall/mall.model';
+import { SharedService } from '../../shared/shared.service';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -80,11 +81,10 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     private mallSvc: MallService,
     private rangeSvc: RangeService,
     private merchantSvc: MerchantService,
+    private sharedSvc: SharedService,
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
-    const self = this;
-
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.cart = cart;
     });
@@ -115,7 +115,8 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
   addToCart(p: IProduct) {
     const merchant = this.restaurant;
-    const type = this.deliveryDate.isSame(moment(), 'day') ? 'today' : 'tomorrow';
+    const type = this.sharedSvc.getDateType(this.deliveryDate);
+
     if (this.merchantSvc.isClosed(merchant, type) // fix me
       || (this.hasAddress && !merchant.onSchedule)) {
       alert('该商家休息，暂时无法配送');

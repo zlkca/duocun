@@ -236,11 +236,12 @@ export class ClientPayment extends Model {
   // after pay order
   afterAddOrder(req: Request, res: Response) {
     const clientId = req.body.clientId;
-    const delivered = req.body.delivered;
+    const merchantId = req.body.merchantId;
+    const dateType = req.body.dateType;
     const address = req.body.address;
     const paid = req.body.paid;
 
-    this.doAfterPayOrder(clientId, delivered, address, paid).then( () => {
+    this.doAfterPayOrder(clientId, merchantId, dateType, address, paid).then( () => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ status: 'success' }, null, 3));
     });
@@ -256,10 +257,10 @@ export class ClientPayment extends Model {
   }
 
   // credit card, wechatpay only
-  doAfterPayOrder(clientId: string, delivered: string, address: string, paid: number): Promise<any> {
+  doAfterPayOrder(clientId: string, merchantId: string, dateType: string, address: string, paid: number): Promise<any> {
     return new Promise((resolve, reject) => {
       this.balanceEntity.updateMyBalanceForAddOrder(clientId, paid).then((ret: any) => {
-        this.addGroupDiscount(clientId, delivered, address).then( (xs: any) => {
+        this.addGroupDiscount(clientId, merchantId, dateType, address).then( (xs: any) => {
           resolve(ret);
         });
       });
@@ -285,9 +286,11 @@ export class ClientPayment extends Model {
     });
   }
 
-  addGroupDiscount(clientId: string, date: string, address: string) : Promise<any> {
+  addGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string) : Promise<any> {
     return new Promise((resolve, reject) => {
-      const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
+      const date = dateType === 'today' ? moment() : moment().add(1, 'day');
+      const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
+      const q = { delivered: range, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
       this.orderEntity.find(q).then((orders: any[]) => {
         this.orderEntity.addGroupDiscounts(clientId, orders).then((x: any) => {
           this.balanceEntity.addGroupDiscounts(orders).then((x1: any) => {
@@ -312,13 +315,13 @@ export class ClientPayment extends Model {
   }
 
 
-  // orderId, clientId, delivered, address
   reqAddGroupDiscount(req: Request, res: Response) {
     const clientId = req.body.clientId;
-    const delivered = req.body.delivered;
+    const merchantId = req.body.merchantId;
+    const dateType = req.body.dateType;
     const address = req.body.address;
 
-    this.addGroupDiscount(clientId, delivered, address).then( (xs: any) => {
+    this.addGroupDiscount(clientId, merchantId, dateType, address).then( (xs: any) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ status: 'success' }, null, 3));
     });

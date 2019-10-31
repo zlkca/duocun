@@ -20,6 +20,7 @@ import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { IDelivery } from '../../delivery/delivery.model';
 import * as moment from 'moment';
+import { SharedService } from '../../shared/shared.service';
 
 @Component({
   selector: 'app-merchant-detail-page',
@@ -50,7 +51,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private rx: NgRedux<ICart>,
     private location: Location,
-    // private rangeSvc: RangeService,
+    private sharedSvc: SharedService,
     public dialog: MatDialog
   ) {
     const self = this;
@@ -124,7 +125,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       }
 
       const origin = this.delivery.origin;
-      const dt = this.delivery.date.isSame(moment(), 'day') ? 'today' : 'tomorrow';
+      const dt = this.sharedSvc.getDateType(this.delivery.date);
 
       self.merchantSvc.load(origin, dt, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant) => {
         const restaurant = restaurants[0];

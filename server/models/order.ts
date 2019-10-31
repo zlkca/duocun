@@ -177,6 +177,7 @@ export class Order extends Model {
     const order = req.body;
     this.sequenceModel.reqSequence().then((sequence: number) => {
       order.code = this.sequenceModel.getCode(order.location, sequence);
+      order.created = moment().toISOString();
 
       this.merchantModel.findOne({_id: order.merchantId}).then((merchant: any) => {
 
@@ -359,14 +360,24 @@ export class Order extends Model {
   }
 
   checkGroupDiscount(req: Request, res: Response) {
-    this.eligibleForGroupDiscount(req.body.clientId, req.body.delivered, req.body.address, (bEligible: boolean) => {
+    const clientId: string = req.body.clientId;
+    const merchantId: string = req.body.merchantId;
+    const dateType: string = req.body.dateType;
+    const address: string = req.body.address;
+    
+    this.eligibleForGroupDiscount(clientId, merchantId, dateType, address, (bEligible: boolean) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(bEligible, null, 3));
     });
   }
 
-  eligibleForGroupDiscount(clientId: string, date: string, address: string, cb?: any) {
-    this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
+  eligibleForGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string, cb?: any) {
+    const date = dateType === 'today' ? moment() : moment().add(1, 'day');
+    const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
+    const query = { delivered: range, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
+    
+
+    this.find(query).then(orders => {
       const groups = this.groupBy(orders, 'clientId');
       const clientIds = Object.keys(groups);
 
