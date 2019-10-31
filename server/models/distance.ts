@@ -50,10 +50,21 @@ export class Distance extends Model {
   }
 
   // ----------------------------------------------
+  // return km
   getDirectDistance(d1: ILatLng, d2: ILatLng) {
-    const dLat = (d2.lat - d1.lat);
-    const dLng = (d2.lng - d1.lng);
-    return Math.sqrt(dLat * dLat + dLng * dLng);
+    if (d2) {
+      const dLat = (d2.lat - d1.lat) * (Math.PI / 180);
+      const dLng = (d2.lng - d1.lng) * (Math.PI / 180);
+
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+        + Math.cos(d1.lat * (Math.PI / 180)) * Math.cos((d2.lat) * (Math.PI / 180))
+        * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      const d = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      return Math.round(d / 10) / 100;
+    } else {
+      return 0;
+    }
   }
 
   doReqRoadDistances(origin: ILocation, destinations: ILocation[]): Promise<IDistance[]> {
