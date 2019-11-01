@@ -29,11 +29,9 @@ import { ContactActions } from '../../contact/contact.actions';
 import * as moment from 'moment';
 import { RangeService } from '../../range/range.service';
 import { MerchantService } from '../../merchant/merchant.service';
-import { IRestaurant } from '../../restaurant/restaurant.model';
 import { BalanceService } from '../../payment/balance.service';
 import { IBalance } from '../../payment/payment.model';
 
-const APP = environment.APP;
 const WECHAT_APP_ID = environment.WECHAT.APP_ID;
 const WECHAT_REDIRCT_URL = environment.WECHAT.REDIRECT_URL;
 
@@ -79,7 +77,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   tomorrow;
   bAddressList = false;
 
-  deliverDate = 'today';
+  phase = 'today:lunch';
 
   @ViewChild('tooltip', { static: true }) tooltip: MatTooltip;
 
@@ -130,7 +128,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         self.selectedDate = moment().isSame(d.date, 'day') ? 'today' : 'tomorrow';
         self.date = d.date;
       } else { // by default select today moment object
-        this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today } });
+        this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
         this.date = today;
       }
     });
@@ -220,14 +218,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     const self = this;
     const accountId = account._id;
 
-    // this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe(rs => {
-    // this.sOrderDeadline = this.getOrderDeadline(rs);
-    // const arr = this.sOrderDeadline.split(':');
-    // const a = moment().set({ hour: +arr[0], minute: +arr[1], second: 0, millisecond: 0 });
-    // const b = moment();
-    // this.overdue = b.isAfter(a);
-    // });
-
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
@@ -284,23 +274,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.onDestroy$.next();
     this.onDestroy$.complete();
-  }
-
-  getOrderDeadline(rs: IRestaurant[]) {
-    let deadline = rs[0].endTime;
-    const arr1 = deadline.split(':');
-    let a = moment().set({ hour: +arr1[0], minute: +arr1[1], second: 0, millisecond: 0 });
-
-    rs.map(r => {
-      const arr2 = r.endTime.split(':');
-      const b = moment().set({ hour: +arr2[0], minute: +arr2[1], second: 0, millisecond: 0 });
-
-      if (b.isAfter(a)) {
-        a = b;
-        deadline = r.endTime;
-      }
-    });
-    return deadline;
   }
 
   showLocationList() {
@@ -423,19 +396,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   onSelectDate(e) {
     if (e.value === 'tomorrow') {
       const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
-      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow } });
-      this.deliverDate = 'tomorrow';
+      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow, dateType: 'tomorrow' } });
+      this.phase = 'tomorrow:lunch';
     } else {
       const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today } });
-      this.deliverDate = 'today';
+      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
+      this.phase = 'today:lunch';
     }
   }
 
-  loadDistances(origin) {
-
-  }
-
+  // ----------------------------------------
+  // use for center the range map
   checkRange(origin) {
     const self = this;
     self.rangeSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {

@@ -14,6 +14,7 @@ export interface IDelivery {
   availableRanges?: IRange[];
   distance?: number; // m
   date?: any; // moment object
+  dateType?: string;
 }
 
 export class Delivery implements IDelivery {

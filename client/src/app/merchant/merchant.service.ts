@@ -20,8 +20,8 @@ export class MerchantService extends EntityService {
   }
 
 
-  isClosed(restaurant: IRestaurant, dateTime: string) {
-    const dt = dateTime === 'today' ? moment() : moment().add(1, 'days');
+  isClosed(restaurant: IRestaurant, dateType: string) {
+    const dt = dateType === 'today' ? moment() : moment().add(1, 'days');
     if (restaurant.closed) { // has special close day
       if (restaurant.closed.find(d => moment(d).isSame(dt, 'day'))) {
         return true;
@@ -49,8 +49,9 @@ export class MerchantService extends EntityService {
   }
 
 
-  load(origin: ILocation, deliverDate: string, filter: any): Observable<any> {
+  // dateType ---  'today', 'tomorrow'
+  load(origin: ILocation, dateType: string, filter: any): Observable<any> {
     const url = this.url + '/load';
-    return this.doPost(url, { origin: origin, deliverDate: deliverDate }, filter);
+    return this.doPost(url, { origin: origin, dateType: dateType }, filter);
   }
 }

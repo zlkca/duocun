@@ -22,13 +22,15 @@ export function deliveryReducer(state: IDelivery = DEFAULT_DELIVERY, action: IDe
     case DeliveryActions.UPDATE_DATE:
       return {
         ...state,
-        date: action.payload.date
+        date: action.payload.date,
+        dateType: action.payload.dateType
       };
     case DeliveryActions.UPDATE_DATE_AND_RANGES:
       return {
         ...state,
         availableRanges: action.payload.availableRanges,
-        date: action.payload.date
+        date: action.payload.date,
+        dateType: action.payload.dateType
       };
     case DeliveryActions.UPDATE_ORIGIN:
       return {
@@ -55,6 +57,7 @@ export function deliveryReducer(state: IDelivery = DEFAULT_DELIVERY, action: IDe
       return {
         ...state,
         date: action.payload.date,
+        dateType: action.payload.dateType,
         origin: action.payload.origin,
         destination: action.payload.destination,
         distance: action.payload.distance

@@ -165,11 +165,11 @@ export class Restaurant extends Model {
 
   // load restaurants
   // origin --- ILocation object
-  // deliverDate --- string 'today', 'tomorrow'
+  // dateType --- string 'today', 'tomorrow'
   load(req: Request, res: Response) {
     const origin = req.body.origin;
-    const deliverDate = req.body.deliverDate;
-    const dow = deliverDate === 'today' ? moment().day() : moment().add(1, 'days').day();
+    const dateType = req.body.dateType;
+    const dow = dateType === 'today' ? moment().day() : moment().add(1, 'days').day();
     let query = null;
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;

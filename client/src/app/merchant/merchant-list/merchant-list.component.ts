@@ -28,7 +28,7 @@ import { ICart } from '../../cart/cart.model';
 })
 export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
 
-  @Input() deliverDate; // 'today', 'tomorrow' moment date
+  @Input() phase; // string 'today:lunch', 'tomorrow:lunch'
   @Input() address; // ILocation
   @Input() active;
   @Input() bAddressList;
@@ -58,8 +58,6 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(d) { // this is run before ngOnInit
-    const self = this;
-    // if (d.active && d.active.currentValue) {
     if (d.address) {
       this.origin = d.address.currentValue;
       if (!this.origin) {
@@ -69,12 +67,13 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       if (d.bAddressList && d.bAddressList.currentValue) {
         return;
       }
-
-      this.loadRestaurants(this.origin);
     }
 
-    if (d.deliverDate) {
-      this.loadRestaurants(this.origin); // this.origin could be empty
+    if (this.phase) {
+      if (this.address) {
+        this.origin = this.address;
+      }
+      this.loadRestaurants(this.origin, this.phase); // this.origin could be empty
     }
   }
 
@@ -84,15 +83,16 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    this.loadRestaurants(this.address);
+    this.loadRestaurants(this.address, this.phase);
   }
 
-  loadRestaurants(origin: ILocation) { // load with distance
+  loadRestaurants(origin: ILocation, phase: string) { // load with distance
     const self = this;
+    const dateType = phase.split(':')[0];
     if (origin) {
-      const query = {status: 'active'};
+      const query = { status: 'active' };
       this.bHasAddress = true;
-      this.merchantSvc.load(origin, this.deliverDate, query).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
+      this.merchantSvc.load(origin, dateType, query).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
         const markers = []; // markers on map
         rs.map((restaurant: IRestaurant) => {
           if (restaurant.location) {
@@ -106,7 +106,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
           restaurant.distance = restaurant.distance / 1000;
           restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
-          restaurant.isClosed = self.merchantSvc.isClosed(restaurant, self.deliverDate);
+          restaurant.isClosed = self.merchantSvc.isClosed(restaurant, dateType);
         });
         self.markers = markers;
         self.restaurants = this.sort(rs);
@@ -128,7 +128,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
           restaurant.distance = 0; // restaurant.distance / 1000;
           restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
-          restaurant.isClosed = self.merchantSvc.isClosed(restaurant, self.deliverDate);
+          restaurant.isClosed = self.merchantSvc.isClosed(restaurant, dateType);
         });
         self.markers = markers;
         self.restaurants = this.sort(rs);
@@ -156,7 +156,8 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   isNotOpening(restaurant: IRestaurant) {
-    const m = this.deliverDate === 'today' ? moment() : moment().add(1, 'days'); // fix me
+    const dateType = this.phase.split(':')[0];
+    const m = dateType === 'today' ? moment() : moment().add(1, 'days'); // fix me
     if (moment().isSame(m, 'day')) {
       return restaurant.orderEnded;
     } else {
