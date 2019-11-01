@@ -8,6 +8,7 @@ import { OrderService } from '../order/order.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { BalanceService } from './balance.service';
 import { AccountService } from '../account/account.service';
+import { SharedService } from '../shared/shared.service';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { AccountService } from '../account/account.service';
     OrderService,
     BalanceService,
     TransactionService,
-    AccountService
+    AccountService,
+    SharedService
   ]
 })
 export class PaymentModule { }

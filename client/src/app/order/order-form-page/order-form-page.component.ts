@@ -432,7 +432,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         });
       } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
         self.payBySnappay(payable, order.merchantName, orderId, clientId, clientName, paymentMethod, (r) => {
-          const merchantId = r.merchantId;
+          const merchantId = order.merchantId;
           const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === merchantId);
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
           self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });

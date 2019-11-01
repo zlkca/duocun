@@ -1,5 +1,6 @@
 
 export interface ITransaction {
+  _id?: string;
   id?: string;
   fromId?: string;
   fromName?: string;
@@ -13,6 +14,7 @@ export interface ITransaction {
 }
 
 export interface ITransactionData {
+  _id?: string;
   date: Date;
   received: number;
   paid: number;
