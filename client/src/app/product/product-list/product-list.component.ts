@@ -115,6 +115,13 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
   addToCart(p: IProduct) {
     const merchant = this.restaurant;
+
+    if (!this.hasAddress) {
+      alert('请先输入送餐地址');
+      this.router.navigate(['main/home']);
+      return;
+    }
+
     const type = this.sharedSvc.getDateType(this.deliveryDate);
 
     if (this.merchantSvc.isClosed(merchant, type) // fix me
@@ -125,12 +132,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
     if (this.isNotOpening(this.restaurant)) {
       alert('已过下单时间，该商家下单截止到' + this.restaurant.orderEndTime + 'am');
-      return;
-    }
-
-    if (!this.hasAddress) {
-      alert('请先输入送餐地址');
-      this.router.navigate(['main/home']);
       return;
     }
 

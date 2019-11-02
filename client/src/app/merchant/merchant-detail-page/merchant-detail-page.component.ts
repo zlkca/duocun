@@ -124,28 +124,50 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         this.onSchedule = params['onSchedule'] === 'true' ? true : false;
       }
 
-      const origin = this.delivery.origin;
-      const dt = this.sharedSvc.getDateType(this.delivery.date);
+      if (this.bHasAddress) {
+        const origin = this.delivery.origin;
+        const dt = this.sharedSvc.getDateType(this.delivery.date);
 
-      self.merchantSvc.load(origin, dt, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant) => {
-        const restaurant = restaurants[0];
-        restaurant.onSchedule = self.onSchedule;
-        self.restaurant = restaurant;
+        self.merchantSvc.load(origin, dt, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant[]) => {
+          const restaurant = restaurants[0];
+          restaurant.onSchedule = self.onSchedule;
+          self.restaurant = restaurant;
 
-        const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
-        self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
-          self.products = products;
-          self.groups = self.groupByCategory(products);
+          const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
+          self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
+            self.products = products;
+            self.groups = self.groupByCategory(products);
 
-          // update quantity of cart items
-          self.groups.map(group => {
-            group.items.map(groupItem => {
-              const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product._id);
-              groupItem.quantity = cartItem ? cartItem.quantity : 0;
+            // update quantity of cart items
+            self.groups.map(group => {
+              group.items.map(groupItem => {
+                const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product._id);
+                groupItem.quantity = cartItem ? cartItem.quantity : 0;
+              });
             });
           });
         });
-      });
+      } else {
+        self.merchantSvc.quickFind({ _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant[]) => {
+          const restaurant = restaurants[0];
+          restaurant.onSchedule = self.onSchedule;
+          self.restaurant = restaurant;
+
+          const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
+          self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
+            self.products = products;
+            self.groups = self.groupByCategory(products);
+
+            // update quantity of cart items
+            self.groups.map(group => {
+              group.items.map(groupItem => {
+                const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product._id);
+                groupItem.quantity = cartItem ? cartItem.quantity : 0;
+              });
+            });
+          });
+        });
+      }
     });
   }
 
