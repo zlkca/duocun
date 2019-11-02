@@ -4,7 +4,6 @@ import { Request, Response } from "express";
 import { DB } from "../db";
 import { Model } from "./model";
 import { Config } from "../config";
-import { resolve } from "dns";
 
 export interface ILatLng {
   lat: number;
@@ -53,11 +52,15 @@ export class Distance extends Model {
   // return km
   getDirectDistance(d1: ILatLng, d2: ILatLng) {
     if (d2) {
-      const dLat = (d2.lat - d1.lat) * (Math.PI / 180);
-      const dLng = (d2.lng - d1.lng) * (Math.PI / 180);
+      const lat1 = +d1.lat;
+      const lng1 = +d1.lng;
+      const lat2 = +d2.lat;
+      const lng2 = +d2.lng;
+      const dLat = (lat2 - lat1) * (Math.PI / 180);
+      const dLng = (lng2 - lng1) * (Math.PI / 180);
 
       const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-        + Math.cos(d1.lat * (Math.PI / 180)) * Math.cos((d2.lat) * (Math.PI / 180))
+        + Math.cos(lat1 * (Math.PI / 180)) * Math.cos((lat2) * (Math.PI / 180))
         * Math.sin(dLng / 2) * Math.sin(dLng / 2);
       const d = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 

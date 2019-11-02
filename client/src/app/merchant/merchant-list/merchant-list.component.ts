@@ -59,10 +59,10 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnChanges(d) { // this is run before ngOnInit
     if (d.address) {
-      this.origin = d.address.currentValue;
-      if (!this.origin) {
-        return;
-      }
+      // this.origin = d.address.currentValue;
+      // if (!this.origin) {
+      //   return;
+      // }
 
       if (d.bAddressList && d.bAddressList.currentValue) {
         return;

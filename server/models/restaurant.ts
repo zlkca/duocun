@@ -117,6 +117,23 @@ export class Restaurant extends Model {
     }
   }
 
+  // dow ---- string '0,1,2,3,4,5,6'
+  // dateTime --- moment object
+  isCloseDayOfWeek(dow: string, dateTime: string) {
+    if (dow && dateTime) {
+      const days = dow.split(',');
+      if (days && days.length > 0) {
+        const t = moment(dateTime);
+        const r = days.find(d => t.day() === +d);
+        return r ? false : true;
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+  }
+
   // query { status: 'active' }
   loadByDeliveryInfo(origin: ILocation, dow: number, query: any): Promise<any> {
     return new Promise((resolve, reject) => {
