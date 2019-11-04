@@ -182,7 +182,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       width: '300px',
       data: {
         title: '提示', content: '离开后将清空购物车。', buttonTextNo: '离开', buttonTextYes: '留下',
-        merchantId: merchantId, fromPage: fromPage
+        merchantId: merchantId, fromPage: fromPage, onSchedule: this.onSchedule
       },
     });
 

@@ -20,7 +20,7 @@ export interface IRestaurant {
   inRange?: boolean;
   created?: Date;
   modified?: Date;
-  closed?: Date[];
+
   dow?: string; // day of week opening, eg. '1,2,3,4,5'
   isClosed?: boolean;
   distance?: number; // km
@@ -54,7 +54,7 @@ export class Restaurant implements IRestaurant {
   malls: string[]; // mall id
   created: Date;
   modified: Date;
-  closed?: Date[];
+  isClosed?: boolean; // do not save to database
   dow?: string; // day of week opening, eg. '1,2,3,4,5'
   products: Product[];
   pictures: Picture[];

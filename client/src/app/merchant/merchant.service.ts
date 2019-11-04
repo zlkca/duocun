@@ -20,35 +20,6 @@ export class MerchantService extends EntityService {
   }
 
 
-  isClosed(restaurant: IRestaurant, dateType: string) {
-    const dt = dateType === 'today' ? moment() : moment().add(1, 'days');
-    if (restaurant.closed) { // has special close day
-      if (restaurant.closed.find(d => moment(d).isSame(dt, 'day'))) {
-        return true;
-      } else {
-        return this.isClosePerWeek(restaurant, dt);
-      }
-    } else {
-      return this.isClosePerWeek(restaurant, dt);
-    }
-  }
-
-  // dateTime --- moment object
-  isClosePerWeek(restaurant: IRestaurant, dateTime: any) {
-    if (restaurant.dow && dateTime) {
-      const days = restaurant.dow.split(',');
-      if (days && days.length > 0) {
-        const r = days.find(d => dateTime.day() === +d);
-        return r ? false : true;
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
-  }
-
-
   // dateType ---  'today', 'tomorrow'
   load(origin: ILocation, dateType: string, filter: any): Observable<any> {
     const url = this.url + '/load';

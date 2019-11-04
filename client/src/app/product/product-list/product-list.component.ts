@@ -4,22 +4,19 @@ import { ProductService } from '../product.service';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { Product, IProduct, Category } from '../../product/product.model';
+import { Product, IProduct } from '../../product/product.model';
 
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICart } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
 import { Subject } from '../../../../node_modules/rxjs';
-import { CategoryService } from '../../category/category.service';
 import * as moment from 'moment';
-import { MerchantService } from '../../merchant/merchant.service';
 import { IDelivery } from '../../delivery/delivery.model';
 import { RangeService } from '../../range/range.service';
 import { MallService } from '../../mall/mall.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { IRange } from '../../range/range.model';
 import { IMall } from '../../mall/mall.model';
-import { SharedService } from '../../shared/shared.service';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -58,30 +55,11 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnChanges(d) { // this is run before ngOnInit
 
-    if (d.hasAddress && d.hasAddress.currentValue) {
-      // this.
-    }
-    // const self = this;
-    // if (d.active && d.active.currentValue) {
-    // if (d.address) {
-    //   this.origin = d.address.currentValue;
-    //   if (!this.origin) {
-    //     return;
-    //   }
-
-    //   if (d.bAddressList && d.bAddressList.currentValue) {
-    //     return;
-    //   }
-
-    //   this.loadRestaurants(this.origin);
-    // }
   }
 
   constructor(
     private mallSvc: MallService,
     private rangeSvc: RangeService,
-    private merchantSvc: MerchantService,
-    private sharedSvc: SharedService,
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
@@ -105,14 +83,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  isNotOpening(restaurant: IRestaurant) {
-    if (moment().isSame(this.deliveryDate, 'day')) { // fix me
-      return restaurant.orderEnded;
-    } else {
-      return false;
-    }
-  }
-
   addToCart(p: IProduct) {
     const merchant = this.restaurant;
 
@@ -122,15 +92,12 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
-    const type = this.sharedSvc.getDateType(this.deliveryDate);
-
-    if (this.merchantSvc.isClosed(merchant, type) // fix me
-      || (this.hasAddress && !merchant.onSchedule)) {
+    if (merchant.isClosed || (this.hasAddress && !merchant.onSchedule)) {
       alert('该商家休息，暂时无法配送');
       return;
     }
 
-    if (this.isNotOpening(this.restaurant)) {
+    if (merchant.orderEnded) {
       alert('已过下单时间，该商家下单截止到' + this.restaurant.orderEndTime + 'am');
       return;
     }

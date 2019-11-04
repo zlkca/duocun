@@ -12,6 +12,7 @@ export interface DialogData {
   buttonTextYes: string;
   merchantId: string;
   fromPage: string;
+  onSchedule: string;
 }
 
 @Component({
@@ -44,7 +45,7 @@ export class QuitRestaurantDialogComponent implements OnInit {
 
   onClickStay(): void {
     this.dialogRef.close();
-    this.router.navigate(['merchant/list/' + this.data.merchantId]);
+    this.router.navigate(['merchant/list/' + this.data.merchantId + '/' + this.data.onSchedule]);
   }
 
 }

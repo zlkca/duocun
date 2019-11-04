@@ -89,13 +89,13 @@ export class Restaurant extends Model {
     });
   }
 
-  isOrderEnded(origin: ILocation, r: IRestaurant, rs: IRange[]){
+  isOrderEnded(dt: moment.Moment, origin: ILocation, r: IRestaurant, rs: IRange[]){
     const last = r.phases[ r.phases.length - 1 ].orderEnd;
     const first = r.phases[0].orderEnd;
-    if(moment().isAfter(this.getTime(moment(), last))){
+    if(moment().isAfter(this.getTime(dt, last))){
       return true;
-    } else { 
-      if(moment().isAfter(this.getTime(moment(), first))) {
+    } else {
+      if(moment().isAfter(this.getTime(dt, first))) {
         if(this.range.inRange(origin, rs)){
           return false;
         }else{
@@ -117,25 +117,42 @@ export class Restaurant extends Model {
     }
   }
 
+  // ----------------------------------------------------------------------------
   // dow ---- string '0,1,2,3,4,5,6'
-  // dateTime --- moment object
-  isCloseDayOfWeek(dow: string, dateTime: string) {
-    if (dow && dateTime) {
+  // dt --- moment object
+  isOpeningDayOfWeek(dt: moment.Moment, dow: string) {
+    if (dow && dt) {
       const days = dow.split(',');
       if (days && days.length > 0) {
-        const t = moment(dateTime);
-        const r = days.find(d => t.day() === +d);
-        return r ? false : true;
+        const r = days.find(d => +d === dt.day());
+        return r ? true : false;
       } else {
-        return true;
+        return false;
       }
     } else {
-      return true;
+      return false;
+    }
+  }
+
+  // ------------------------------------------------------------------------------
+  // specialClosingDates --- array of string, eg. ['2019-10-22T15:47:56.480Z', ...]
+  // dow ---- string '0,1,2,3,4,5,6'
+  // dt --- moment object
+  isClosed(dt: moment.Moment, specialClosingDates: string[], dow: string) {
+    if (specialClosingDates) { // has special close day
+      if (specialClosingDates.find(d => moment(d).isSame(dt, 'day'))) {
+        return true;
+      } else {
+        return !this.isOpeningDayOfWeek(dt, dow);
+      }
+    } else {
+      return !this.isOpeningDayOfWeek(dt, dow);
     }
   }
 
   // query { status: 'active' }
-  loadByDeliveryInfo(origin: ILocation, dow: number, query: any): Promise<any> {
+  loadByDeliveryInfo(origin: ILocation, dt: moment.Moment, query: any): Promise<any> {
+    const dow: number = dt.day();
     return new Promise((resolve, reject) => {
       this.area.getNearestArea(origin).then((area: IArea) => {
         this.mall.find({}).then((malls: IMall[]) => {
@@ -164,8 +181,9 @@ export class Restaurant extends Model {
                     r.onSchedule = scheduledMallId ? true : false;
                     r.distance = d ? d.element.distance.value : 0;
                     r.inRange = mall ? true : false; // how? fix me
-                    r.orderEnded = this.isOrderEnded(origin, r, rs);
+                    r.orderEnded = this.isOrderEnded(dt, origin, r, rs);
                     r.orderEndTime = this.getOrderEndTime(origin, r, rs);
+                    r.isClosed = this.isClosed(dt, r.closed, r.dow);
                   });
                   resolve(ms);
                 });
@@ -186,13 +204,13 @@ export class Restaurant extends Model {
   load(req: Request, res: Response) {
     const origin = req.body.origin;
     const dateType = req.body.dateType;
-    const dow = dateType === 'today' ? moment().day() : moment().add(1, 'days').day();
+    const dt = dateType === 'today' ? moment() : moment().add(1, 'days');
     let query = null;
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
-    this.loadByDeliveryInfo(origin, dow, query).then((rs: any) => {
+    this.loadByDeliveryInfo(origin, dt, query).then((rs: any) => {
       if (rs) {
         res.send(JSON.stringify(rs, null, 3));
       } else {

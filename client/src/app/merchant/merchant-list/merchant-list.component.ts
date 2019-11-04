@@ -106,7 +106,6 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
           restaurant.distance = restaurant.distance / 1000;
           restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
-          restaurant.isClosed = self.merchantSvc.isClosed(restaurant, dateType);
         });
         self.markers = markers;
         self.restaurants = this.sort(rs);
@@ -114,7 +113,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       });
     } else {
       this.bHasAddress = false;
-      this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
+      this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IRestaurant[]) => {
         const markers = []; // markers on map
         rs.map((restaurant: IRestaurant) => {
           if (restaurant.location) {
@@ -128,7 +127,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
           restaurant.distance = 0; // restaurant.distance / 1000;
           restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
-          restaurant.isClosed = self.merchantSvc.isClosed(restaurant, dateType);
+          restaurant.isClosed = false;
         });
         self.markers = markers;
         self.restaurants = this.sort(rs);
@@ -153,16 +152,6 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   getDistance(ds: IDistance[], mall: IMall) {
     const d = ds.find(r => r.destinationPlaceId === mall.placeId);
     return d ? d.element.distance.value : null;
-  }
-
-  isNotOpening(restaurant: IRestaurant) {
-    const dateType = this.phase.split(':')[0];
-    const m = dateType === 'today' ? moment() : moment().add(1, 'days'); // fix me
-    if (moment().isSame(m, 'day')) {
-      return restaurant.orderEnded;
-    } else {
-      return false;
-    }
   }
 
   getImageSrc(restaurant: any) {
@@ -229,9 +218,9 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         return -1;
       } else if (!a.onSchedule && b.onSchedule) {
         return 1;
-      } else if (!this.isNotOpening(a) && this.isNotOpening(b)) {
+      } else if (!a.orderEnded && b.orderEnded) {
         return -1;
-      } else if (this.isNotOpening(a) && !this.isNotOpening(b)) {
+      } else if (a.orderEnded && !b.orderEnded) {
         return 1;
       } else if (a.inRange && !b.inRange) {
         return -1;
