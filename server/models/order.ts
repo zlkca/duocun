@@ -8,6 +8,8 @@ import { ClientBalance, IClientBalance } from "./client-balance";
 import moment from 'moment';
 import { Restaurant } from "./restaurant";
 import { resolve } from "path";
+import { Account, IAccount } from "./account";
+import { Transaction, ITransaction } from "./transaction";
 
 
 export interface IOrderItem {
@@ -35,9 +37,9 @@ export interface IOrder {
   status?: string;
   note?: string;
   address?: string;
-  location?: ILocation; // delivery address
+  location: ILocation; // delivery address
   delivered?: string;
-  created?: string;
+  created: string;
   modified?: string;
   items?: IOrderItem[];
   tax?: number;
@@ -54,18 +56,24 @@ export interface IOrder {
   transactionId?: string;
 
   mode? : string; // for unit test
+  dateType: string; // 'today', 'tomorrow'
 }
 
 export class Order extends Model {
   private clientBalanceModel: ClientBalance;
   private sequenceModel: OrderSequence;
   private merchantModel: Restaurant;
+  private accountModel: Account;
+  private transactionModel: Transaction;
+
   constructor(dbo: DB) {
     super(dbo, 'orders');
 
     this.clientBalanceModel = new ClientBalance(dbo);
     this.sequenceModel = new OrderSequence(dbo);
     this.merchantModel = new Restaurant(dbo);
+    this.accountModel = new Account(dbo);
+    this.transactionModel = new Transaction(dbo);
   }
 
 
@@ -206,6 +214,54 @@ export class Order extends Model {
       
     });
   }
+
+  // doInsertOne(order: IOrder){
+  //   const location: ILocation = order.location;
+  //   this.sequenceModel.reqSequence().then((sequence: number) => {
+      
+  //     order.code = this.sequenceModel.getCode(location, sequence);
+  //     order.created = moment().toISOString();
+
+  //     this.accountModel.findOne({_id: order.clientId}).then((client: IAccount) => {
+  //       this.merchantModel.findOne({_id: order.merchantId}).then((merchant: any) => {
+
+  //         if(client.pickup){
+  //           const date = (order.dateType === 'today') ? moment() : moment().add(1, 'day');
+  //           order.delivered = this.getTime(date, client.pickup).toISOString();
+  //         }else{
+  //           order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.dateType);
+  //         }
+          
+  //         delete order.dateType;
+    
+  //         // this.insertOne(order).then((savedOrder: IOrder) => {
+  //         //   const tr: ITransaction = {
+  //         //     fromId: order.merchantId,
+  //         //     fromName: order.merchantName,
+  //         //     toId: order.clientId,
+  //         //     toName: order.clientName,
+  //         //     type: 'order',
+  //         //     amount: paid,
+  //         //     note: 'By Card',
+  //         //     created: new Date(),
+  //         //     modified: new Date()
+  //         //   };
+
+  //         //   this.transactionModel.insertOne(tr).then((x) => {
+  //             this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
+  //               const cb = cbs[0];
+  //               const newBalance = cb.amount - order.total;
+  //               this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((x) => { // result
+  //                   res.setHeader('Content-Type', 'application/json');
+  //                   res.end(JSON.stringify(savedOrder, null, 3));
+  //               });
+  //             });
+  //           // });
+  //         });
+  //       });
+  //     });
+  //   });
+  // }
 
   doRemoveOne(orderId: string) {
     return new Promise((resolve, reject) => {

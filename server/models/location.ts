@@ -33,13 +33,13 @@ export interface ILocation {
   lat: number;
   lng: number;
   unit?: string;
-  streetName?: string;
-  streetNumber?: string;
-  subLocality?: string;
-  city?: string;
-  province?: string;
-  country?: string;
-  postalCode?: string;
+  streetName: string;
+  streetNumber: string;
+  subLocality: string;
+  city: string;
+  province: string;
+  country: string;
+  postalCode: string;
 }
 
 export class Location extends Model {

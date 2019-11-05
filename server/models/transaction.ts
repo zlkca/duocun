@@ -3,6 +3,21 @@ import { Model } from "./model";
 import { ObjectID } from "mongodb";
 import { Request, Response } from "express";
 
+export interface ITransaction {
+  _id: string;
+  fromId: string;
+  fromName: string;
+  toId: string;
+  toName: string;
+  type: string;
+  amount: number;
+  note: string;
+  fromBalance: number;
+  toBalance: number;
+  created: Date;
+  modified?: Date;
+}
+
 export class Transaction extends Model{
   constructor(dbo: DB) {
 		super(dbo, 'transactions');

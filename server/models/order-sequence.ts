@@ -3,18 +3,8 @@ import { Model } from "./model";
 import { Request, Response } from "express";
 import moment, { now } from 'moment';
 import { resolve } from "dns";
+import { ILocation } from "./location";
 
-export interface ILocation {
-  placeId: string;
-  city: string;
-  lat: number;
-  lng: number;
-  postalCode?: string;
-  province: string;
-  streetName: string;
-  streetNumber: string;
-  subLocality: string;
-}
 
 export class OrderSequence extends Model {
     constructor(dbo: DB) {
