@@ -10,6 +10,7 @@ export function AccountRouter(db: DB){
 
   router.get('/wechatLogin', (req, res) => { controller.wechatLogin(req, res); });
 
+  router.get('/qFind', (req, res) => { controller.quickFind(req, res); });
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
 
