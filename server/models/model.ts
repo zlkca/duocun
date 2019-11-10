@@ -135,9 +135,9 @@ export class Model extends Entity {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
-    this.find(query ? query: { id: "-1" }).then((rs: any) => {
+    this.find(query ? query: { _id: "-1" }).then((rs: any) => {
       if (rs && rs.length > 0) {
-        this.deleteMany(query ? query : {id: "-1" }).then((x: any) => {
+        this.deleteMany(query ? query : {_id: "-1" }).then((x: any) => {
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(x, null, 3));
         });
@@ -148,10 +148,15 @@ export class Model extends Entity {
   }
 
   removeOne(req: Request, res: Response) {
-    this.deleteById(req.params.id).then(x => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
-    });
+    const id: string = req.params.id;
+    if(id){
+      this.deleteById(id).then(x => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(x, null, 3));
+      });
+    }else{
+      res.end(JSON.stringify('failed', null, 3));
+    }
   }
 
   groupBy(items: any[], key: string) {

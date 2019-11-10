@@ -30,6 +30,7 @@ export interface IAccount {
   visited?: boolean;
   stripeCustomerId?: string;
   pickup: string;
+  balance: number;
 }
 
 export class Account extends Model {

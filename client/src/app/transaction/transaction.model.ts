@@ -9,8 +9,10 @@ export interface ITransaction {
   type: string;
   amount: number;
   note?: string;
-  created?: Date;
-  modified?: Date;
+  fromBalance?: number;
+  toBalance?: number;
+  created?: string;
+  modified?: string;
 }
 
 export interface ITransactionData {

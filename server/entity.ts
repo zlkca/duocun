@@ -94,10 +94,14 @@ export class Entity {
     const self = this;
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
-
         doc = this.convertIdFields(doc);
 
-        doc.created = moment().toISOString();
+        if(doc.created){
+          doc.created = moment(doc.created).toISOString();
+        }else{
+          doc.created = moment().toISOString();
+        }
+        
         doc.modified = moment().toISOString();
 
         c.insertOne(doc).then((result: any) => { // InsertOneWriteOpResult
@@ -237,16 +241,21 @@ export class Entity {
         delete doc.id;
       }
     }
+
     if(doc && doc.hasOwnProperty('_id')) {
       let body = doc._id;
       if (body && body.hasOwnProperty('$in')) {
         let a = body['$in'];
         const arr: any[] = [];
-        a.map((id: string) => {
-          arr.push({ _id: new ObjectID(id) });
+        a.map((id: any) => {
+          if(typeof id === "string" && id.length === 24){
+            arr.push(new ObjectID(id));
+          }else{
+            arr.push(id);
+          }
         });
 
-        doc = { $or: arr };
+        doc['_id'] = { $in: arr };
       } else if (typeof body === "string" && body.length === 24) {
         doc['_id'] = new ObjectID(doc._id);
       }
@@ -339,9 +348,9 @@ export class Entity {
     if(doc && doc.hasOwnProperty('$or')) {
       const items: any[] = [];
       doc['$or'].map((it: any) => {
-        if (it && it.hasOwnProperty('toId')){
+        if (it && it.hasOwnProperty('toId') && typeof it.toId === 'string' && it.toId.length === 24){
           items.push({toId: new ObjectID(it.toId)});
-        }else if(it && it.hasOwnProperty('fromId')){
+        }else if(it && it.hasOwnProperty('fromId') && typeof it.fromId === 'string' && it.fromId.length === 24){
           items.push({fromId: new ObjectID(it.fromId)});
         }
       });
@@ -469,15 +478,15 @@ export class Entity {
         
         c.insertMany(items, {}, (err: MongoError, r: any) => { //InsertWriteOpResult
           if (!err) {
-            const rs: any[] = [];
-            r.ops.map((obj: any) => {
-              if (obj && obj._id) {
-                obj.id = obj._id;
-                // delete (obj._id);
-                rs.push(obj);
-              }
-            });
-            resolve(rs);
+            // const rs: any[] = [];
+            // r.ops.map((obj: any) => {
+            //   if (obj && obj._id) {
+            //     obj.id = obj._id;
+            //     // delete (obj._id);
+            //     rs.push(obj);
+            //   }
+            // });
+            resolve(r.ops);
           } else {
             reject(err);
           }

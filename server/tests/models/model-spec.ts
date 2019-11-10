@@ -1,6 +1,8 @@
 import { Order } from "../../models/order";
 import { DB } from "../../db";
 import { expect } from 'chai';
+import { Config } from '../../config';
+import { ObjectID } from "mongodb";
 
 describe('groupBy', () => {
   it('should return grouped orders', () => {
@@ -27,5 +29,88 @@ describe('groupBy', () => {
     expect(a['b'].length).to.equal(2);
     expect(a['c'].length).to.equal(2);
     expect(a['d'].length).to.equal(2);
+  });
+});
+
+describe('find $in with strings', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let clientConnection: any = null;
+  let orderModel: Order;
+
+  before(function(done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      orderModel = new Order(db);
+      clientConnection = dbClient;
+      done();
+    });
+  });
+
+  after(function() {
+    clientConnection.close();
+  });
+
+  it('should return orders', (done) => {
+    const a = orderModel.find({_id: { $in: ['5cc06430a5270f48536c0376', '5cc090b1a5270f48536c037c']}}).then(os => {
+      expect(os.length).to.equal(2);
+      done();
+    });
+  });
+});
+
+
+describe('find $in with objectId', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let clientConnection: any = null;
+  let orderModel: Order;
+
+  before(function(done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      orderModel = new Order(db);
+      clientConnection = dbClient;
+      done();
+    });
+  });
+
+  after(function() {
+    clientConnection.close();
+  });
+
+  it('should return orders', (done) => {
+    const orderIds = [
+      new ObjectID('5cc06430a5270f48536c0376'),
+      new ObjectID('5cc090b1a5270f48536c037c'),
+    ]
+    const a = orderModel.find({_id: { $in: orderIds}}).then(os => {
+      expect(os.length).to.equal(2);
+      done();
+    });
+  });
+});
+
+describe('find $ne', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let clientConnection: any = null;
+  let orderModel: Order;
+
+  before(function(done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      orderModel = new Order(db);
+      clientConnection = dbClient;
+      done();
+    });
+  });
+
+  after(function() {
+    clientConnection.close();
+  });
+
+  it('should return orders', (done) => {
+    const a = orderModel.find({status: { $ne: 'paid'}}).then(os => {
+      expect(os.length).to.equal(401);
+      done();
+    });
   });
 });

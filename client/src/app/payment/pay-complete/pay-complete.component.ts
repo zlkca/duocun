@@ -132,9 +132,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
       toName: DEFAULT_ADMIN.NAME,
       type: 'credit',
       amount: amount,
-      note: paymentMethod,
-      created: new Date(),
-      modified: new Date()
+      note: paymentMethod
     };
     this.transactionSvc.save(tr).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
       this.snackBar.open('', '已保存交易', { duration: 1200 });

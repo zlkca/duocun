@@ -24,14 +24,14 @@ export interface IOrderItem {
 }
 
 export interface IOrder {
-  id?: string;
+  _id?: string;
   code?: string;
-  clientId?: string;
-  clientName?: string;
+  clientId: string;
+  clientName: string;
   clientPhoneNumber?: string;
   // prepaidClient?: boolean;
-  merchantId?: string;
-  merchantName?: string;
+  merchantId: string;
+  merchantName: string;
   driverId?: string;
   driverName?: string;
   status?: string;
@@ -50,12 +50,15 @@ export interface IOrder {
   overRangeCharge?: number;
   groupDiscount?: number;
   productTotal?: number;
+
+  cost: number;
+  price: number;
   total: number;
   paymentMethod: string;
   chargeId?: string; // stripe chargeId
   transactionId?: string;
 
-  mode? : string; // for unit test
+  mode?: string; // for unit test
   dateType: string; // 'today', 'tomorrow'
 }
 
@@ -154,114 +157,131 @@ export class Order extends Model {
 
 
 
-  getDeliverDateTime(createdDateTime: string, phases: any[], deliveryDate: string){
+  getDeliverDateTime(createdDateTime: string, phases: any[], deliveryDate: string) {
 
-    if(deliveryDate === 'today'){
+    if (deliveryDate === 'today') {
       const created = moment(createdDateTime);
 
-      for(let i=0; i<phases.length; i++) {
+      for (let i = 0; i < phases.length; i++) {
         const phase = phases[i];
         const orderEndTime = this.getTime(moment(), phase.orderEnd);
 
-        if(i === 0){
-          if(created.isSameOrBefore(orderEndTime)){
+        if (i === 0) {
+          if (created.isSameOrBefore(orderEndTime)) {
             return this.getTime(moment(), phase.pickup).toISOString();
           }
-        }else{
-          const prePhase = phases[i-1];
+        } else {
+          const prePhase = phases[i - 1];
           const preEndTime = this.getTime(moment(), prePhase.orderEnd);
 
-          if(created.isAfter(preEndTime) && created.isSameOrBefore(orderEndTime)){
+          if (created.isAfter(preEndTime) && created.isSameOrBefore(orderEndTime)) {
             return this.getTime(moment(), phase.pickup).toISOString();
           }
         }
       }
-    }else{
+    } else {
       const phase = phases[0];
       return this.getTime(moment().add(1, 'day'), phase.pickup).toISOString();
     }
   }
 
-  create(req: Request, res: Response) {
+  createV2(req: Request, res: Response) {
     const order = req.body;
     this.sequenceModel.reqSequence().then((sequence: number) => {
       order.code = this.sequenceModel.getCode(order.location, sequence);
       order.created = moment().toISOString();
 
-      this.merchantModel.findOne({_id: order.merchantId}).then((merchant: any) => {
+      this.merchantModel.findOne({ _id: order.merchantId }).then((merchant: any) => {
 
-        if(order.defaultPickupTime){
+        if (order.defaultPickupTime) {
           const date = (order.deliveryDate === 'today') ? moment() : moment().add(1, 'day');
           order.delivered = this.getTime(date, order.defaultPickupTime).toISOString();
-        }else{
+        } else {
           order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.deliveryDate);
         }
-        
+
         delete order.defaultPickupTime;
         delete order.deliveryDate;
-  
+
         this.insertOne(order).then((savedOrder: IOrder) => {
           this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
             const cb = cbs[0];
             const newBalance = cb.amount - order.total;
             this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((x) => { // result
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(savedOrder, null, 3));
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(savedOrder, null, 3));
             });
           });
         });
       });
-      
+
     });
   }
 
-  // doInsertOne(order: IOrder){
-  //   const location: ILocation = order.location;
-  //   this.sequenceModel.reqSequence().then((sequence: number) => {
+  create(req: Request, res: Response) {
+    const order = req.body;
+    this.doInsertOne(order).then(savedOrder => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(savedOrder, null, 3));
+    });
+  }
+
+  doInsertOne(order: IOrder) {
+    const location: ILocation = order.location;
+    const clientId: string = order.clientId;
+    const merchantId: string = order.merchantId;
+
+    return new Promise((resolve, reject) => {
+      this.sequenceModel.reqSequence().then((sequence: number) => {
+
+        order.code = this.sequenceModel.getCode(location, sequence);
+        order.created = moment().toISOString();
+        
+        this.accountModel.findOne({_id: clientId}).then((account: IAccount) => {
+          this.merchantModel.findOne({ _id: merchantId }).then((merchant: any) => {
+            if (account.pickup) {
+              const date = (order.dateType === 'today') ? moment() : moment().add(1, 'day');
+              order.delivered = this.getTime(date, account.pickup).toISOString();
+            } else {
+              order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.dateType);
+            }
+
+            delete order.dateType;
+
+            this.insertOne(order).then((savedOrder: IOrder) => {
+              const t1: ITransaction = {
+                fromId: merchantId,
+                fromName: order.merchantName,
+                toId: '5c9504f00851a5096e044d0d',
+                toName: order.clientName,
+                action: 'duocun order from merchant',
+                amount: Math.round(order.cost * 100) / 100,
+              };
       
-  //     order.code = this.sequenceModel.getCode(location, sequence);
-  //     order.created = moment().toISOString();
-
-  //     this.accountModel.findOne({_id: order.clientId}).then((client: IAccount) => {
-  //       this.merchantModel.findOne({_id: order.merchantId}).then((merchant: any) => {
-
-  //         if(client.pickup){
-  //           const date = (order.dateType === 'today') ? moment() : moment().add(1, 'day');
-  //           order.delivered = this.getTime(date, client.pickup).toISOString();
-  //         }else{
-  //           order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.dateType);
-  //         }
-          
-  //         delete order.dateType;
-    
-  //         // this.insertOne(order).then((savedOrder: IOrder) => {
-  //         //   const tr: ITransaction = {
-  //         //     fromId: order.merchantId,
-  //         //     fromName: order.merchantName,
-  //         //     toId: order.clientId,
-  //         //     toName: order.clientName,
-  //         //     type: 'order',
-  //         //     amount: paid,
-  //         //     note: 'By Card',
-  //         //     created: new Date(),
-  //         //     modified: new Date()
-  //         //   };
-
-  //         //   this.transactionModel.insertOne(tr).then((x) => {
-  //             this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
-  //               const cb = cbs[0];
-  //               const newBalance = cb.amount - order.total;
-  //               this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((x) => { // result
-  //                   res.setHeader('Content-Type', 'application/json');
-  //                   res.end(JSON.stringify(savedOrder, null, 3));
-  //               });
-  //             });
-  //           // });
-  //         });
-  //       });
-  //     });
-  //   });
-  // }
+              const t2: ITransaction = {
+                fromId: '5c9504f00851a5096e044d0d', // duocun Cash
+                fromName: order.merchantName,
+                toId: order.clientId,
+                toName: order.clientName,
+                amount: Math.round(order.total * 100) / 100,
+                action: 'client order from duocun'
+              };
+              // temporary order didn't update transaction until paid
+              if(order.status === 'tmp'){
+                resolve(savedOrder);
+              }else{
+                this.transactionModel.doInsertOne(t1).then((x) => {
+                  this.transactionModel.doInsertOne(t2).then((y) => {
+                    resolve(savedOrder);
+                  });
+                });
+              }
+            });
+          });
+        });
+      });
+    });
+  }
 
   doRemoveOne(orderId: string) {
     return new Promise((resolve, reject) => {
@@ -269,7 +289,7 @@ export class Order extends Model {
         if (docs && docs.length > 0) {
           const order = docs[0];
           this.updateOne({ _id: orderId }, { status: 'del' }).then(x => {
-  
+
             this.clientBalanceModel.find({ accountId: order.clientId }).then((balances: any[]) => {
               if (balances && balances.length > 0) {
                 const balance = balances[0];
@@ -277,7 +297,7 @@ export class Order extends Model {
                 this.clientBalanceModel.updateOne({ accountId: order.clientId }, { amount: amount }).then(x => {
                   resolve(x);
                 });
-              }else{
+              } else {
                 resolve();
               }
             });
@@ -408,7 +428,7 @@ export class Order extends Model {
           const amount = Math.round(((order.total ? order.total : 0) - groupDiscount) * 100) / 100;
           a.push({
             query: { _id: order._id.toString() },
-            data: { total: amount, groupDiscount: groupDiscount } 
+            data: { total: amount, groupDiscount: groupDiscount }
           });
         }
       }
@@ -421,14 +441,14 @@ export class Order extends Model {
     const merchantId: string = req.body.merchantId;
     const dateType: string = req.body.dateType;
     const address: string = req.body.address;
-    
+
     this.eligibleForGroupDiscount(clientId, merchantId, dateType, address).then((bEligible: boolean) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(bEligible, null, 3));
     });
   }
 
-  eligibleForGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string):Promise<boolean> {
+  eligibleForGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string): Promise<boolean> {
     const date = dateType === 'today' ? moment() : moment().add(1, 'day');
     const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
     const query = { delivered: range, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
@@ -437,7 +457,7 @@ export class Order extends Model {
       this.find(query).then(orders => {
         const groups = this.groupBy(orders, 'clientId');
         const clientIds = Object.keys(groups);
-  
+
         if (clientIds && clientIds.length > 0) {
           const found = clientIds.find(x => x === clientId);
           if (found) {
@@ -600,8 +620,8 @@ export class Order extends Model {
     const orderId: string = req.body.orderId;
     const delivered: string = this.getTime(moment(), pickupTime).toISOString();
 
-    this.updateOne({_id: orderId}, {delivered: delivered}).then((result) => {
-      this.find({_id: orderId}).then((orders: IOrder[]) => {
+    this.updateOne({ _id: orderId }, { delivered: delivered }).then((result) => {
+      this.find({ _id: orderId }).then((orders: IOrder[]) => {
         const order = orders[0];
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(order, null, 3));

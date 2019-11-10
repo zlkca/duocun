@@ -358,7 +358,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     const clientId = order.clientId;
     const clientName = order.clientName;
-    const delivered = this.delivery.date.toISOString();
     const address = order.address;
 
     const tr: ITransaction = {
@@ -368,9 +367,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       toName: DEFAULT_ADMIN.NAME,
       type: 'credit',
       amount: paid,
-      note: 'By Card',
-      created: new Date(),
-      modified: new Date()
+      note: 'By Card'
     };
 
     this.transactionSvc.save(tr).pipe(takeUntil(this.onDestroy$)).subscribe((t: any) => {
@@ -544,25 +541,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  updateTransaction(transactionId, order: IOrder, cb?: any) {
-    const tr: ITransaction = {
-      fromId: order.clientId,
-      fromName: order.clientName,
-      toId: DEFAULT_ADMIN.ID,
-      toName: DEFAULT_ADMIN.NAME,
-      type: 'credit',
-      amount: order.total,
-      note: 'By Card',
-      created: order.delivered,
-      modified: new Date()
-    };
-    this.transactionSvc.update({ id: transactionId }, tr).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
-      this.snackBar.open('', '已保存交易', { duration: 1000 });
-      if (cb) {
-        cb(t);
-      }
-    });
-  }
 
 
   updateOrder(orderId: string, updated: any, updateCb?: any) {
