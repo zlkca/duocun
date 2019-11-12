@@ -28,9 +28,6 @@ import { IDelivery } from '../../delivery/delivery.model';
 import { ContactActions } from '../../contact/contact.actions';
 import * as moment from 'moment';
 import { RangeService } from '../../range/range.service';
-import { MerchantService } from '../../merchant/merchant.service';
-import { BalanceService } from '../../payment/balance.service';
-import { IBalance } from '../../payment/payment.model';
 
 const WECHAT_APP_ID = environment.WECHAT.APP_ID;
 const WECHAT_REDIRCT_URL = environment.WECHAT.REDIRECT_URL;
@@ -87,8 +84,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private authSvc: AuthService,
     private contactSvc: ContactService,
     private rangeSvc: RangeService,
-    private merchantSvc: MerchantService,
-    private clientBalanceSvc: BalanceService,
     // private socketSvc: SocketService,
     private router: Router,
     private route: ActivatedRoute,

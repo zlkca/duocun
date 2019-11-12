@@ -63,4 +63,14 @@ export class OrderService extends EntityService {
     const url = this.url + '/updateDelivered';
     return this.doPatch(url, { orderId: orderId, pickup: pickup });
   }
+
+  afterRemoveOrder( orderId: string ): Observable<any> {
+    const url = this.url + '/afterRemoveOrder';
+    return this.doPost(url, { orderId: orderId });
+  }
+
+  afterAddOrder( clientId: string,  merchantId: string, dateType: string,  address: string, paid: number ): Observable<any> {
+    const url = this.url + '/afterAddOrder';
+    return this.doPost(url, { clientId: clientId, merchantId: merchantId, dateType: dateType, address: address, paid: paid });
+  }
 }

@@ -98,10 +98,7 @@
               <span i18n="@@CurrentBalance">Current Balance</span>:</div>
             <div class="text-xs">&nbsp;${{ balance | number : '1.2-2'}}</div>
           </div>
-          <!-- <div class="col-12" *ngIf="paymentMethod==='card' && balance && charge && balance.amount < charge.total && balance.amount!=0">
-            <div class="title-xs"><span i18n="@@CurrentConsumed">Current Consumed</span>:</div>
-            <div class="text-xs">&nbsp;${{ charge.total | number : '1.2-2'}}</div>
-          </div> -->
+
           <div class="col-12 total-row" *ngIf="charge && balance!=0">
             <div class="title-xs">
               <span i18n="@@TotalPayable">Payable</span>:</div>
@@ -111,14 +108,14 @@
       </div>
     </div>
 
-    <div class="group-order-block" *ngIf="charge && productTotal < 20">
+    <!-- <div class="group-order-block" *ngIf="charge && productTotal < 20">
       <div class="row label-sm">
         <span>拼单优惠（同一配送时段内，同一地址有不同账号下的订单)</span>
       </div>
       <div class="row">拼单每单劲减$2！优惠后只要
         <span class="red-text">${{ afterGroupDiscount | number : '1.2-2'}}</span>
       </div>
-    </div>
+    </div> -->
     <div class="payment-method-block">
       <div class="row label-sm">
         <span i18n="@@PaymentMethod">Payment Method</span>:

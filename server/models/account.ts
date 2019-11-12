@@ -204,4 +204,58 @@ export class Account extends Model {
       res.send();
     });
   }
+
+
+  getMyBalanceForRemoveOrder(balance: number, paymentMethod: string, payable: number) {
+    if (paymentMethod === 'prepaid' || paymentMethod === 'cash') {
+      return Math.round((balance + payable) * 100) / 100;
+    } else if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
+      return Math.round((balance + payable) * 100) / 100;
+    } else {
+      return null; // no need to update balance
+    }
+  }
+
+  updateMyBalanceForRemoveOrder(order: any): Promise<any> {
+    const clientId = order.clientId;
+    return new Promise((resolve, reject) => {
+      this.find({ _id: clientId }).then((accounts: any[]) => {
+        if (accounts && accounts.length > 0) {
+          const balance = accounts[0].balance;
+          const newAmount = this.getMyBalanceForRemoveOrder(balance, order.paymentMethod, order.total);
+          if (newAmount === null) {
+            resolve(null);
+          } else {
+            this.updateOne({ _id: clientId }, { amount: newAmount }).then(x => { // fix me
+              resolve(x);
+            });
+          }
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  updateMyBalanceForAddOrder(clientId: string, paid: number): Promise<any> {
+    const self = this;
+    return new Promise((resolve, reject) => {
+      this.find({ _id: clientId }).then((accounts: any[]) => {
+        if (accounts && accounts.length > 0) {
+          const balance = accounts[0].balance;
+          const newAmount = Math.round((balance + paid) * 100) / 100;
+          // const newAmount = this.getMyBalanceForAddOrder(balance.amount, order.paymentMethod, order.status === 'paid', order.total, paid);
+          if (newAmount === null) {
+            resolve(null);
+          } else {
+            this.updateOne({ _id: clientId }, { amount: newAmount, ordered: true }).then(x => {
+              resolve(x);
+            });
+          }
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
 }

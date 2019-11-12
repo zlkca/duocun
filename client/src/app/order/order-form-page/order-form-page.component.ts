@@ -367,7 +367,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
         const dateType = this.sharedSvc.getDateType(this.delivery.date);
         // update my balance and group discount
-        self.paymentSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r1 => {
+        self.orderSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r1 => {
           self.snackBar.open('', '余额已更新', { duration: 1800 });
           self.bSubmitted = false;
           self.loading = false;
@@ -405,7 +405,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               self.loading = false;
               self.snackBar.open('', '付款未成功', { duration: 1800 });
 
-              self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
+              self.orderSvc.afterRemoveOrder(orderId).subscribe(() => {
                 // self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
                 self.snackBar.open('', '余额已处理', { duration: 1000 });
                 // self.router.navigate(['order/history']);
@@ -430,7 +430,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
               self.snackBar.open('', '付款未成功', { duration: 1800 });
 
-              self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
+              self.orderSvc.afterRemoveOrder(orderId).subscribe(() => {
                 // self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
                 self.snackBar.open('', '余额已处理', { duration: 1000 });
                 // self.router.navigate(['order/history']);
@@ -474,7 +474,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             const merchantId = order.merchantId;
             const dateType = this.sharedSvc.getDateType(this.delivery.date);
             const address = order.address;
-            self.paymentSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
+            self.orderSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;
               self.loading = false;
               self.router.navigate(['order/history']);

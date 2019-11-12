@@ -91,7 +91,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
             self.dialogRef.close();
             self.snackBar.open('', '订单已删除', { duration: 1000 });
 
-            self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
+            self.orderSvc.afterRemoveOrder(orderId).subscribe(() => {
               self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
               self.snackBar.open('', '余额已处理', { duration: 1000 });
               self.router.navigate(['order/history']);

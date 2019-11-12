@@ -76,7 +76,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
         // fix me
         // self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
           self.snackBar.open('', '付款未成功', { duration: 1800 });
-          self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
+          self.orderSvc.afterRemoveOrder(orderId).subscribe(() => {
             self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
             self.snackBar.open('', '余额已处理', { duration: 1000 });
             alert('付款未成功，请联系客服');
@@ -118,7 +118,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
             const dateType = this.sharedSvc.getDateType(dt);
             const address = order.address;
             // update my balance and group discount
-            self.paymentSvc.afterAddOrder(clientId, merchantId, dateType, address, paid)
+            self.orderSvc.afterAddOrder(clientId, merchantId, dateType, address, paid)
               .pipe(takeUntil(self.onDestroy$)).subscribe((r1: any) => {
                 self.snackBar.open('', '余额已更新', { duration: 1800 });
                 const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === merchantId);

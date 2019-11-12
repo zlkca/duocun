@@ -635,6 +635,61 @@ export class Order extends Model {
     });
   }
 
+  afterRemoveOrder(req: Request, res: Response) {
+    const orderId = req.body.orderId;
+
+    this.processAfterRemoveOrder(orderId).then(() => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ status: 'success' }, null, 3));
+    });
+  }
+
+  processAfterRemoveOrder(orderId: string) : Promise<any> {
+    return new Promise( (resolve, reject) => {
+      this.find({id: orderId}).then((orders: any) => { // status: del
+        if(orders && orders.length>0){
+          const order = orders[0];
+          // step 1: calculate and update my balance
+          this.accountModel.updateMyBalanceForRemoveOrder(order).then((myBalance: any) => {
+            // step 2: process group discount for others
+            // this.removeGroupDiscount(order.delivered, order.address).then( (x) => {
+              resolve(myBalance);
+            // });
+          });
+        }else{
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  // credit card, wechatpay only
+  doAfterPayOrder(clientId: string, merchantId: string, dateType: string, address: string, paid: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.accountModel.updateMyBalanceForAddOrder(clientId, paid).then((ret: any) => {
+        // this.addGroupDiscount(clientId, merchantId, dateType, address).then( (xs: any) => {
+          resolve(ret);
+        // });
+      });
+    });
+  }
+
+  // after pay order
+  afterAddOrder(req: Request, res: Response) {
+    const clientId = req.body.clientId;
+    const merchantId = req.body.merchantId;
+    const dateType = req.body.dateType;
+    const address = req.body.address;
+    const paid = req.body.paid;
+
+    this.doAfterPayOrder(clientId, merchantId, dateType, address, paid).then( () => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ status: 'success' }, null, 3));
+    });
+  }
+
+
+
   // tools
   updatePurchaseTag(req: Request, res: Response) {
     this.distinct('clientId', { status: { $nin: ['del', 'tmp'] } }).then((clientIds: any[]) => {

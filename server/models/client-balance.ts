@@ -101,59 +101,9 @@ export class ClientBalance extends Model {
     }
   }
 
-  getMyBalanceForRemoveOrder(balance: number, paymentMethod: string, payable: number) {
-    if (paymentMethod === 'prepaid' || paymentMethod === 'cash') {
-      return Math.round((balance + payable) * 100) / 100;
-    } else if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
-      return Math.round((balance + payable) * 100) / 100;
-    } else {
-      return null; // no need to update balance
-    }
-  }
 
-  updateMyBalanceForAddOrder(clientId: string, paid: number): Promise<any> {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      this.find({ accountId: clientId }).then((balances: any[]) => {
-        if (balances && balances.length > 0) {
-          const balance = balances[0];
-          const newAmount = Math.round((balance.amount + paid) * 100) / 100;
-          // const newAmount = this.getMyBalanceForAddOrder(balance.amount, order.paymentMethod, order.status === 'paid', order.total, paid);
-          if (newAmount === null) {
-            resolve(null);
-          } else {
-            this.updateOne({ accountId: clientId }, { amount: newAmount, ordered: true }).then(x => {
-              resolve(x);
-            });
-          }
-        } else {
-          resolve(null);
-        }
-      });
-    });
 
-  }
 
-  updateMyBalanceForRemoveOrder(order: any): Promise<any> {
-    const clientId = order.clientId;
-    return new Promise((resolve, reject) => {
-      this.find({ accountId: clientId }).then((balances: any[]) => {
-        if (balances && balances.length > 0) {
-          const balance = balances[0];
-          const newAmount = this.getMyBalanceForRemoveOrder(balance.amount, order.paymentMethod, order.total);
-          if (newAmount === null) {
-            resolve(null);
-          } else {
-            this.updateOne({ clientId: clientId }, { amount: newAmount }).then(x => {
-              resolve(x);
-            });
-          }
-        } else {
-          resolve(null);
-        }
-      });
-    });
-  }
 
   //--------------------------------------------------------------------------------
   // The client can only get one group discount, if he/she has multiple orders.

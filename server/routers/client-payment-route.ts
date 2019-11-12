@@ -16,8 +16,7 @@ export function ClientPaymentRouter(db: DB){
   router.post('/snappayCharge', (req, res) => {controller.snappayCharge(req, res); });
   // router.post('/snappayRefund', (req, res) => {controller.snappayRefund(req, res); });
 
-  router.post('/afterAddOrder', (req, res) => { controller.afterAddOrder(req, res); });
-  router.post('/afterRemoveOrder', (req, res) => { controller.afterRemoveOrder(req, res); });
+
   router.post('/addGroupDiscount', (req, res) => { controller.reqAddGroupDiscount(req, res); });
   router.post('/removeGroupDiscount', (req, res) => { controller.reqRemoveGroupDiscount(req, res); });
 
