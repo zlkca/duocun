@@ -706,15 +706,34 @@ export class Order extends Model {
 
   // tools
   updatePurchaseTag(req: Request, res: Response) {
-    this.distinct('clientId', { status: { $nin: ['del', 'tmp'] } }).then((clientIds: any[]) => {
+    // this.accountModel.find({type: {$nin:['system', 'merchant', 'driver']}}).then(accounts => {
+    //   this.distinct('clientId', { status: { $nin: ['del', 'tmp'] } }).then((clientIds: any[]) => {
+    //     const datas: any[] = [];
+    //     clientIds.map(clientId => {
+    //       const account = accounts.find((a: any) => a._id.toString === clientId.toString());
+    //       if(account){
+    //         datas.push({
+    //           query: { _id: clientId },
+    //           data: { type: 'client' }
+    //         });
+    //       }
+    //     });
+  
+    //     this.accountModel.bulkUpdate(datas).then(() => {
+    //       res.setHeader('Content-Type', 'application/json');
+    //       res.end(JSON.stringify('success', null, 3));
+    //     });
+    //   });
+    // });
+    this.accountModel.find({roles: 5}).then(accounts => {
       const datas: any[] = [];
-      clientIds.map(clientId => {
+      accounts.map((account: any) => {
         datas.push({
-          query: { _id: clientId },
-          data: { purchased: true }
-        })
+          query: { _id: account._id },
+          data: { type: 'driver' }
+        });
       });
-
+  
       this.accountModel.bulkUpdate(datas).then(() => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify('success', null, 3));
