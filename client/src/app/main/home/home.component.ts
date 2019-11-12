@@ -244,23 +244,23 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.clientBalanceSvc.quickFind({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
-      if (bs && bs.length > 0) {
-        // update balance
-      } else {
-        // new balance entry
-        const data: IBalance = {
-          accountId: accountId,
-          accountName: account.username,
-          amount: 0,
-          created: new Date(),
-          modified: new Date()
-        };
+    // this.clientBalanceSvc.quickFind({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
+    //   if (bs && bs.length > 0) {
+    //     // update balance
+    //   } else {
+    //     // new balance entry
+    //     const data: IBalance = {
+    //       accountId: accountId,
+    //       accountName: account.username,
+    //       amount: 0,
+    //       created: new Date(),
+    //       modified: new Date()
+    //     };
 
-        self.clientBalanceSvc.save(data).pipe(takeUntil(self.onDestroy$)).subscribe((b: IBalance) => {
-        });
-      }
-    });
+    //     self.clientBalanceSvc.save(data).pipe(takeUntil(self.onDestroy$)).subscribe((b: IBalance) => {
+    //     });
+    //   }
+    // });
   }
 
   ngOnInit() {

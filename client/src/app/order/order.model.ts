@@ -40,7 +40,7 @@ export interface IOrder {
   cost?: number;
 
   defaultPickupTime?: string;
-  deliveryDate?: string; // 'today', 'tomorrow'
+  dateType?: string; // 'today', 'tomorrow'
   delivered?: Date;  // obsoleted
   created?: string;  // obsoleted
   modified?: string; // obsoleted

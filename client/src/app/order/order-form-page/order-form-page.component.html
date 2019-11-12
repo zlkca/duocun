@@ -93,19 +93,19 @@
             <div class="text-xs">&nbsp;${{ charge.total | number : '1.2-2'}}</div>
           </div>
 
-          <div class="col-12" *ngIf="balance && charge && balance.amount!=0">
+          <div class="col-12" *ngIf="charge && balance!=0">
             <div class="title-xs">
               <span i18n="@@CurrentBalance">Current Balance</span>:</div>
-            <div class="text-xs">&nbsp;${{balance.amount | number : '1.2-2'}}</div>
+            <div class="text-xs">&nbsp;${{ balance | number : '1.2-2'}}</div>
           </div>
           <!-- <div class="col-12" *ngIf="paymentMethod==='card' && balance && charge && balance.amount < charge.total && balance.amount!=0">
             <div class="title-xs"><span i18n="@@CurrentConsumed">Current Consumed</span>:</div>
             <div class="text-xs">&nbsp;${{ charge.total | number : '1.2-2'}}</div>
           </div> -->
-          <div class="col-12 total-row" *ngIf="balance && charge && balance.amount!=0">
+          <div class="col-12 total-row" *ngIf="charge && balance!=0">
             <div class="title-xs">
               <span i18n="@@TotalPayable">Payable</span>:</div>
-            <div class="text-xs">&nbsp;${{ balance.amount >= charge.total ? 0 : charge.total - balance.amount | number : '1.2-2'}}</div>
+            <div class="text-xs">&nbsp;${{ balance >= charge.total ? 0 : charge.total - balance | number : '1.2-2'}}</div>
           </div>
         </div>
       </div>

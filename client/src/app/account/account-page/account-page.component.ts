@@ -13,10 +13,7 @@ import * as Cookies from 'js-cookie';
 import { PageActions } from '../../main/main.actions';
 import { LocationService } from '../../location/location.service';
 import { AuthService } from '../auth.service';
-import { OrderService } from '../../order/order.service';
-import { TransactionService } from '../../transaction/transaction.service';
-import * as moment from 'moment';
-import { BalanceService } from '../../payment/balance.service';
+import { IAccount } from '../account.model';
 
 declare var WeixinJSBridge;
 
@@ -26,7 +23,7 @@ declare var WeixinJSBridge;
   styleUrls: ['./account-page.component.scss']
 })
 export class AccountPageComponent implements OnInit, OnDestroy {
-  account: Account;
+  account: IAccount;
   phone;
   address;
   onDestroy$ = new Subject();
@@ -41,10 +38,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private router: Router,
     private locationSvc: LocationService,
-    private contactSvc: ContactService,
-    private transactionSvc: TransactionService,
-    private orderSvc: OrderService,
-    private clientBalanceSvc: BalanceService
+    private contactSvc: ContactService
   ) {
     const self = this;
     this.rx.dispatch({
@@ -52,7 +46,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
       payload: {name: 'account-setting'}
     });
 
-    self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
+    self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       self.account = account;
       self.contactSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
@@ -70,14 +64,15 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  reload(account: Account) {
-    this.clientBalanceSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
-      if (bs && bs.length > 0) {
-        this.balance = bs[0].amount;
-      } else {
-        this.balance = 0;
-      }
-    });
+  reload(account: IAccount) {
+    // this.accountSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
+    //   if (bs && bs.length > 0) {
+    //     this.balance = bs[0].amount;
+    //   } else {
+    //     this.balance = 0;
+    //   }
+    // });
+    this.balance = account.balance;
   }
 
   ngOnInit() {

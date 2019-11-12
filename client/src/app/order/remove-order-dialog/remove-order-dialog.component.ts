@@ -10,9 +10,8 @@ import { CommandActions } from '../../shared/command.actions';
 import { PaymentService } from '../../payment/payment.service';
 import { TransactionService } from '../../transaction/transaction.service';
 import { environment } from '../../../environments/environment';
-import { BalanceService } from '../../payment/balance.service';
-import { IBalance } from '../../payment/payment.model';
-import { ITransaction } from '../../transaction/transaction.model';
+import { AccountService } from '../../account/account.service';
+import { IAccount } from '../../account/account.model';
 
 declare var Stripe;
 
@@ -42,7 +41,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private router: Router,
     private orderSvc: OrderService,
-    private clientBalanceSvc: BalanceService,
+    private accountSvc: AccountService,
     private paymentSvc: PaymentService,
     private transactionSvc: TransactionService,
     private snackBar: MatSnackBar,
@@ -56,9 +55,9 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
 
     if (this.data) {
       const accountId = this.data.accountId;
-      self.clientBalanceSvc.find({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
-        if (bs && bs.length > 0) {
-          this.balance = bs[0];
+      self.accountSvc.find({ _id: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((accounts: IAccount[]) => {
+        if (accounts && accounts.length > 0) {
+          this.balance = accounts[0].balance;
         }
       });
     }

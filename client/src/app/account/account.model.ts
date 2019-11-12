@@ -31,6 +31,7 @@ export interface IAccount {
   visited?: boolean;
   stripeCustomerId?: string;
   pickupTime?: string;
+  balance?: number;
 }
 
 export class Account implements IAccount {
@@ -52,6 +53,7 @@ export class Account implements IAccount {
   roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'driver', 'user'
   visited?: boolean;
   stripeCustomerId?: string;
+  balance?: number;
 
   constructor(data?: IAccount) {
     Object.assign(this, data);

@@ -34,10 +34,8 @@ export interface IAccount {
 }
 
 export class Account extends Model {
-  balanceEntity: Entity;
   constructor(dbo: DB) {
     super(dbo, 'users');
-    this.balanceEntity = new Entity(dbo, 'client_balances');
   }
 
 	signup(req: Request, rsp: Response){
@@ -167,19 +165,6 @@ export class Account extends Model {
 
             this.replaceById(r.id, r).then(account => {
               const id = account.id.toString();
-
-              this.balanceEntity.find({ accountId: id }).then((x:any) => {
-                if (!(x && x.length > 0)) {
-                  this.balanceEntity.insertOne({
-                    accountId: id,
-                    accountName: account.username,
-                    amount: 0,
-                    created: new Date(),
-                    modified: new Date()
-                  }).then(() => { });
-                }
-              });
-
               account.password = '';
               const tokenId = jwt.sign(id, cfg.JWT.SECRET); // SHA256
               const token = {id: tokenId, ttl: 10000, userId: id};
@@ -196,26 +181,10 @@ export class Account extends Model {
               realm: 'wechat',
               openId: x.openid,
               unionId: x.unionid,
-              created: new Date(),
-              modified: new Date()
+              balance: 0
             };
             this.insertOne(user).then(account => {
               const id = account.id.toString();
-              this.balanceEntity.find({ accountId: id }).then((x:any) => {
-                if (!(x && x.length > 0)) {
-                  this.balanceEntity.insertOne({
-                    accountId: id,
-                    accountName: account.username,
-                    amount: 0,
-                    created: new Date(),
-                    modified: new Date()
-                  }).then(() => { 
-
-                  });
-                }else{
-
-                }
-              });
               account.password = '';
               const tokenId = jwt.sign(id, cfg.JWT.SECRET); // SHA256
               const token = {id: tokenId, ttl: 10000, userId: id};

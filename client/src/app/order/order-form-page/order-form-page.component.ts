@@ -17,7 +17,6 @@ import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { OrderActions } from '../order.actions';
 import { IAccount, Role } from '../../account/account.model';
 import { LocationService } from '../../location/location.service';
-import { BalanceService } from '../../payment/balance.service';
 import { IBalance, IClientPayment } from '../../payment/payment.model';
 import { ILocation, IDistance, RangeRole } from '../../location/location.model';
 import * as moment from 'moment';
@@ -35,6 +34,7 @@ import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { SharedService } from '../../shared/shared.service';
+import { AccountService } from '../../account/account.service';
 
 declare var Stripe;
 declare var window;
@@ -59,12 +59,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   tax = 0;
   contact: IContact;
   form;
-  account;
+  account: IAccount;
   items: ICartItem[];
   order: IOrder;
   delivery: IDelivery;
   address: string;
-  balance: IBalance;
+  balance: number;
   groupDiscount = 0;
   merchant;
   paymentMethod = 'cash';
@@ -87,7 +87,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private merchantSvc: MerchantService,
     private sharedSvc: SharedService,
     private locationSvc: LocationService,
-    private clientBalanceSvc: BalanceService,
+    private accountSvc: AccountService,
     private paymentSvc: PaymentService,
     private distanceSvc: DistanceService,
     private transactionSvc: TransactionService,
@@ -148,13 +148,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const order: IOrder = this.order;
     // const bNewOrder = (order && order._id) ? false : true;
 
-    this.clientBalanceSvc.quickFind({ accountId: account._id }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
-      if (bs && bs.length > 0) {
-        self.balance = bs[0];
-      } else {
-        self.balance = null; // should never go here
-      }
-    });
+    this.balance = -account.balance;
 
     // fix me
     if (cart) {
@@ -279,7 +273,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return { cost: cost, price: price };
   }
 
-  createOrder(balance: IBalance, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string): IOrder {
+  createOrder(balance: number, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string): IOrder {
     const self = this;
     const account = this.account;
     if (cart && cart.items && cart.items.length > 0) {
@@ -293,7 +287,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       });
 
       const summary = this.getCost(items);
-      const paymentMethod = (balance.amount >= charge.total) ? 'prepaid' : self.paymentMethod;
+      const paymentMethod = (balance >= charge.total) ? 'prepaid' : self.paymentMethod;
 
       const order: IOrder = {
         clientId: contact.accountId,
@@ -320,7 +314,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         paymentMethod: paymentMethod,
 
         // created: moment().toISOString(),
-        deliveryDate: this.sharedSvc.getDateType(delivery.date)
+        dateType: this.sharedSvc.getDateType(delivery.date)
       };
 
       return order;
@@ -331,7 +325,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   pay() {
     const self = this;
-    const balance: IBalance = self.balance;
     if (!this.contact || !this.contact.phone) {
       this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
       return;
@@ -340,13 +333,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     if (!this.bSubmitted) {
       this.bSubmitted = true;
       const v = this.form.value;
-      const order = self.createOrder(balance, self.contact, self.cart, self.delivery, self.charge, v.note);
+      const order = self.createOrder(this.balance, self.contact, self.cart, self.delivery, self.charge, v.note);
 
       if (order.paymentMethod === 'cash' || order.paymentMethod === 'prepaid') {
-        self.handleWithCash(balance, order, v.note);
+        self.handleWithCash(this.balance, order, v.note);
       } else {
         self.loading = false;
-        self.handleWithPayment(self.account, order, balance, self.paymentMethod);
+        self.handleWithPayment(self.account, order, this.balance, self.paymentMethod);
       }
     } else {
       this.snackBar.open('', '无法重复提交订单', { duration: 1000 });
@@ -390,9 +383,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
   // only handle balance < total
-  handleWithPayment(account: IAccount, order, balance, paymentMethod) {
+  handleWithPayment(account: IAccount, order, balance: number, paymentMethod) {
     const self = this;
-    const payable = Math.round((order.total - balance.amount) * 100) / 100;
+    const payable = Math.round((order.total - balance) * 100) / 100;
     order.status = 'tmp'; // create a temporary order
 
     // save order and update balance
@@ -457,7 +450,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
 
   // only happend on balance < order.total
-  handleWithCash(balance: IBalance, order, note: string) {
+  handleWithCash(balance: number, order, note: string) {
     const self = this;
     if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
       if (this.order && this.order.id) { // modify order, now do not support
@@ -476,7 +469,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         if (order) { // modify, currently never run to here
           self.updateOrder(order.id, order, (orderUpdated) => {
             self.snackBar.open('', '订单已更新', { duration: 1800 });
-            const paid = (balance.amount > 0) ? balance.amount : 0;
+            const paid = (balance > 0) ? balance : 0;
             const clientId = order.clientId;
             const merchantId = order.merchantId;
             const dateType = this.sharedSvc.getDateType(this.delivery.date);
@@ -492,7 +485,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         }
       } else { // create new
         if (order) {
-          if (balance.amount >= order.total) {
+          if (balance >= order.total) {
             order.status = 'paid';
           }
           // save order and update balance only if pay cash or prepaid

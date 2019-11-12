@@ -176,9 +176,8 @@ export class Order extends Model {
     });
   }
 
-  getDeliverDateTime(createdDateTime: string, phases: any[], deliveryDate: string) {
-
-    if (deliveryDate === 'today') {
+  getDeliverDateTime(createdDateTime: string, phases: any[], dateType: string) {
+    if (dateType === 'today') {
       const created = moment(createdDateTime);
 
       for (let i = 0; i < phases.length; i++) {
@@ -204,38 +203,38 @@ export class Order extends Model {
     }
   }
 
-  createV2(req: Request, res: Response) {
-    const order = req.body;
-    this.sequenceModel.reqSequence().then((sequence: number) => {
-      order.code = this.sequenceModel.getCode(order.location, sequence);
-      order.created = moment().toISOString();
+  // createV2(req: Request, res: Response) {
+  //   const order = req.body;
+  //   this.sequenceModel.reqSequence().then((sequence: number) => {
+  //     order.code = this.sequenceModel.getCode(order.location, sequence);
+  //     order.created = moment().toISOString();
 
-      this.merchantModel.findOne({ _id: order.merchantId }).then((merchant: any) => {
+  //     this.merchantModel.findOne({ _id: order.merchantId }).then((merchant: any) => {
 
-        if (order.defaultPickupTime) {
-          const date = (order.deliveryDate === 'today') ? moment() : moment().add(1, 'day');
-          order.delivered = this.getTime(date, order.defaultPickupTime).toISOString();
-        } else {
-          order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.deliveryDate);
-        }
+  //       if (order.defaultPickupTime) {
+  //         const date = (order.deliveryDate === 'today') ? moment() : moment().add(1, 'day');
+  //         order.delivered = this.getTime(date, order.defaultPickupTime).toISOString();
+  //       } else {
+  //         order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.deliveryDate);
+  //       }
 
-        delete order.defaultPickupTime;
-        delete order.deliveryDate;
+  //       delete order.defaultPickupTime;
+  //       delete order.deliveryDate;
 
-        this.insertOne(order).then((savedOrder: IOrder) => {
-          this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
-            const cb = cbs[0];
-            const newBalance = cb.amount - order.total;
-            this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((x) => { // result
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify(savedOrder, null, 3));
-            });
-          });
-        });
-      });
+  //       this.insertOne(order).then((savedOrder: IOrder) => {
+  //         this.clientBalanceModel.find({ accountId: order.clientId }).then((cbs: IClientBalance[]) => {
+  //           const cb = cbs[0];
+  //           const newBalance = cb.amount - order.total;
+  //           this.clientBalanceModel.updateOne({ _id: cb._id }, { amount: newBalance }).then((x) => { // result
+  //             res.setHeader('Content-Type', 'application/json');
+  //             res.end(JSON.stringify(savedOrder, null, 3));
+  //           });
+  //         });
+  //       });
+  //     });
 
-    });
-  }
+  //   });
+  // }
 
   create(req: Request, res: Response) {
     const order = req.body;
