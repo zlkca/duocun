@@ -85,7 +85,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
         const description = this.getDescription(t, clientId);
         const consumed = t.toId === clientId ? t.amount : 0;
         const paid = t.fromId === clientId ? t.amount : 0;
-        list.push({ date: t.created, description: description, consumed: consumed, paid: paid, balance: b });
+        list.push({ date: t.created, description: description, consumed: consumed, paid: paid, balance: -b });
       });
 
       list = list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
