@@ -121,10 +121,10 @@
         <span i18n="@@PaymentMethod">Payment Method</span>:
       </div>
       <!-- <input name="paymentMethod" readonly /> -->
-      <div *ngIf="balance && charge && balance.amount >= charge.total">用余额付款</div>
+      <div *ngIf="charge && balance >= charge.total">用余额付款</div>
       <!-- <div class="title" i18n="@@CashWhenDelivered" *ngIf="balance && charge && balance.amount < charge.total">Cash when Delivered</div> -->
 
-      <mat-button-toggle-group #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)" *ngIf="charge && balance.amount < charge.total">
+      <mat-button-toggle-group *ngIf="charge && balance < charge.total" #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)">
         <mat-button-toggle value="cash" aria-label="Cash">
           <div class="title">现金支付</div>
         </mat-button-toggle>
@@ -139,7 +139,7 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
 
-      <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance.amount < charge.total">
+      <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance < charge.total">
         <div class="form-row">
           <label for="card-element" class="label-sm">信用卡或银行卡:</label>
           <div id="card-element">

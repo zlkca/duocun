@@ -167,7 +167,7 @@ export class ClientPayment extends Model {
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
       out_order_no: b.orderId,
       payment_method: b.paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
-      return_url: 'https://duocun.com.cn?orderId='+b.orderId+'&clientId='+b.clientId+'&amount='+b.amount+'&paymentMethod='+b.paymentMethod,
+      return_url: 'https://duocun.com.cn?orderId='+b.orderId+'&paid='+b.amount+'&paymentMethod='+b.paymentMethod,
       timestamp: new Date().toISOString().split('.')[0].replace('T',' '),
       trans_amount: b.amount,
       version: '1.0'

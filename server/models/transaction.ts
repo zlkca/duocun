@@ -100,7 +100,7 @@ export class Transaction extends Model {
     });
   }
 
-  doInsertOne(tr: ITransaction) {
+  doInsertOne(tr: ITransaction): Promise<ITransaction> {
     const fromId: string = tr.fromId;
     const toId: string = tr.toId;
     const amount: number = tr.amount;
@@ -126,13 +126,13 @@ export class Transaction extends Model {
             });
           });
         } else {
-          if (accounts[0]) {
-            console.log("From:" + accounts[0]._id.toString());
-          }
+          // if (accounts[0]) {
+          //   console.log("From:" + accounts[0]._id.toString());
+          // }
 
-          if (accounts[1]) {
-            console.log("To:" + accounts[1]._id.toString());
-          }
+          // if (accounts[1]) {
+          //   console.log("To:" + accounts[1]._id.toString());
+          // }
           resolve();
         }
       });
@@ -363,6 +363,35 @@ export class Transaction extends Model {
       toName: clientName,
       amount: Math.round(total * 100) / 100,
       action: 'client order from duocun'
+    };
+
+    return new Promise((resolve, reject) => {
+      this.doInsertOne(t1).then((x) => {
+        this.doInsertOne(t2).then((y) => {
+          resolve();
+        });
+      });
+    });
+  }
+
+  saveTransactionsForRemoveOrder(merchantId: string, merchantName: string, clientId: string, clientName: string,
+    cost: number, total: number){
+    const t1: ITransaction = {
+      fromId: CASH_ID,
+      fromName: clientName,
+      toId: merchantId,
+      toName: merchantName,
+      action: 'duocun cancel order from merchant',
+      amount: Math.round(cost * 100) / 100,
+    };
+
+    const t2: ITransaction = {
+      fromId: clientId,
+      fromName: clientName,
+      toId: CASH_ID,
+      toName: merchantName,
+      amount: Math.round(total * 100) / 100,
+      action: 'client cancel order from duocun'
     };
 
     return new Promise((resolve, reject) => {

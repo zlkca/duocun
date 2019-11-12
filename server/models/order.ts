@@ -13,6 +13,21 @@ import { Transaction, ITransaction } from "./transaction";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
+const BANK_ID = '5c95019e0851a5096e044d0c';
+const BANK_NAME = 'TD Bank';
+
+export interface IPayment{
+  orderId: string,
+  clientId: string,
+  clientName: string,
+  merchantId: string,
+  merchantName: string,
+  action: string,
+  cost: number,
+  total: number,
+  paid: number,
+  chargeId: string
+}
 
 export interface IOrderItem {
   id?: number;
@@ -295,18 +310,20 @@ export class Order extends Model {
         if (docs && docs.length > 0) {
           const order = docs[0];
           this.updateOne({ _id: orderId }, { status: 'del' }).then(x => {
-
-            this.clientBalanceModel.find({ accountId: order.clientId }).then((balances: any[]) => {
-              if (balances && balances.length > 0) {
-                const balance = balances[0];
-                const amount = Math.round((balance.amount + order.total) * 100) / 100;
-                this.clientBalanceModel.updateOne({ accountId: order.clientId }, { amount: amount }).then(x => {
-                  resolve(x);
-                });
-              } else {
-                resolve();
-              }
-            });
+            // temporary order didn't update transaction until paid
+            if (order.status === 'tmp') {
+              resolve(order);
+            } else {
+              const merchantId: string = order.merchantId.toString();
+              const merchantName = order.merchantName;
+              const clientId: string = order.clientId.toString();
+              const clientName = order.clientName;
+              const cost = order.cost;
+              const total = order.total;
+              this.transactionModel.saveTransactionsForRemoveOrder(merchantId, merchantName, clientId, clientName, cost, total).then(() => {
+                resolve(order);
+              });
+            }
           });
         } else { // should never be here
           resolve();
@@ -317,7 +334,6 @@ export class Order extends Model {
 
   removeOrder(req: Request, res: Response) {
     const orderId = req.params.id;
-
     this.doRemoveOne(orderId).then(x => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(x, null, 3));
@@ -688,7 +704,39 @@ export class Order extends Model {
     });
   }
 
+  // action --- 'pay by card'
+  processPayment(req: Request, res: Response) {
+    const payment: IPayment = req.body;
+    const orderId = payment.orderId;
+    const clientId = payment.clientId;
+    const clientName = payment.clientName;
+    const merchantId = payment.merchantId;
+    const merchantName = payment.merchantName;
+    const action = payment.action;
+    const cost = payment.cost;
+    const total = payment.total;
+    const paid = payment.paid;
+    const chargeId = payment.chargeId;
 
+    const tr: ITransaction = {
+      fromId: clientId,
+      fromName: clientName,
+      toId: BANK_ID,
+      toName: BANK_NAME,
+      action: action,
+      amount: Math.round(paid * 100) / 100,
+    };
+
+    this.transactionModel.saveTransactionsForPlaceOrder(merchantId, merchantName, clientId, clientName, cost, total).then(()  => {
+      this.transactionModel.doInsertOne(tr).then(t => {
+        const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
+        this.updateOne({ _id: orderId }, data).then((r: any) => { // result
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(r, null, 3));
+        });
+      });
+    });
+  }
 
   // tools
   updatePurchaseTag(req: Request, res: Response) {

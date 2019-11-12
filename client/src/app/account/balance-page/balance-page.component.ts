@@ -63,6 +63,18 @@ export class BalancePageComponent implements OnInit, OnDestroy {
     }), {});
   }
 
+  getDescription(t, clientId) {
+    if (t.action === 'client cancel order from duocun') {
+      return '取消' + t.toName;
+    } else if (t.action === 'pay by card') {
+      return '银行卡付款';
+    } else if (t.action === 'pay by wechat') {
+      return '微信付款';
+    } else {
+      return t.fromId === clientId ? t.toName : t.fromName;
+    }
+  }
+
   reload(clientId: string) {
     const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }] };
     this.transactionSvc.quickFind(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
@@ -70,7 +82,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
 
       ts.map(t => {
         const b = t.fromId === clientId ? t.fromBalance : t.toBalance;
-        const description = t.fromId === clientId ? t.toName : t.fromName;
+        const description = this.getDescription(t, clientId);
         const consumed = t.toId === clientId ? t.amount : 0;
         const paid = t.fromId === clientId ? t.amount : 0;
         list.push({ date: t.created, description: description, consumed: consumed, paid: paid, balance: b });
