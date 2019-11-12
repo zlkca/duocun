@@ -10,9 +10,10 @@ export function OrderRouter(db: DB){
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
 
-  
-  router.post('/', (req, res) => { controller.create(req, res); });
+  router.put('/updatePurchaseTag', (req, res) => { controller.updatePurchaseTag(req, res)});
   router.put('/', (req, res) => { controller.replace(req, res); });
+
+  router.post('/', (req, res) => { controller.create(req, res); });
 
   router.patch('/updateDelivered', (req, res) => { controller.updateDeliveryTime(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });

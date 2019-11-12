@@ -157,13 +157,13 @@ export class Order extends Model {
     });
   }
 
-  quickFind(req: Request, res: Response){
+  quickFind(req: Request, res: Response) {
     let query: any = {};
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
-    if(query.hasOwnProperty('pickup')){
+    if (query.hasOwnProperty('pickup')) {
       const h = +(query['pickup'].split(':')[0]);
       const m = +(query['pickup'].split(':')[1]);
       query.delivered = moment().set({ hour: h, minute: m, second: 0, millisecond: 0 }).toISOString();
@@ -255,8 +255,8 @@ export class Order extends Model {
 
         order.code = this.sequenceModel.getCode(location, sequence);
         order.created = moment().toISOString();
-        
-        this.accountModel.findOne({_id: clientId}).then((account: IAccount) => {
+
+        this.accountModel.findOne({ _id: clientId }).then((account: IAccount) => {
           this.merchantModel.findOne({ _id: merchantId }).then((merchant: any) => {
             if (account.pickup) {
               const date = (order.dateType === 'today') ? moment() : moment().add(1, 'day');
@@ -276,10 +276,10 @@ export class Order extends Model {
               const total = order.total;
 
               // temporary order didn't update transaction until paid
-              if(order.status === 'tmp'){
+              if (order.status === 'tmp') {
                 resolve(savedOrder);
-              }else{
-                this.transactionModel.saveTransactionsForPlaceOrder(merchantId, merchantName, clientId, clientName, cost, total).then( ()  => {
+              } else {
+                this.transactionModel.saveTransactionsForPlaceOrder(merchantId, merchantName, clientId, clientName, cost, total).then(() => {
                   resolve(savedOrder);
                 });
               }
@@ -632,6 +632,24 @@ export class Order extends Model {
         const order = orders[0];
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(order, null, 3));
+      });
+    });
+  }
+
+  // tools
+  updatePurchaseTag(req: Request, res: Response) {
+    this.distinct('clientId', { status: { $nin: ['del', 'tmp'] } }).then((clientIds: any[]) => {
+      const datas: any[] = [];
+      clientIds.map(clientId => {
+        datas.push({
+          query: { _id: clientId },
+          data: { purchased: true }
+        })
+      });
+
+      this.accountModel.bulkUpdate(datas).then(() => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify('success', null, 3));
       });
     });
   }

@@ -109,7 +109,35 @@ describe('find $ne', () => {
 
   it('should return orders', (done) => {
     const a = orderModel.find({status: { $ne: 'paid'}}).then(os => {
-      expect(os.length).to.equal(401);
+      expect(os.length).to.equal(431);
+      done();
+    });
+  });
+});
+
+
+
+describe('distinct', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let clientConnection: any = null;
+  let orderModel: Order;
+
+  before(function(done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      orderModel = new Order(db);
+      clientConnection = dbClient;
+      done();
+    });
+  });
+
+  after(function() {
+    clientConnection.close();
+  });
+
+  it('should return orders', (done) => {
+    const a = orderModel.distinct('clientId', {status: { $nin: ['del', 'tmp']}}).then(os => {
+      expect(os.length).to.equal(266);
       done();
     });
   });

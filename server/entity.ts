@@ -124,10 +124,6 @@ export class Entity {
       self.getCollection().then((c: Collection) => {
         query = this.convertIdFields(query);
         c.distinct(key, query, options, (err, doc) => {
-          if (doc && doc._id) {
-            doc.id = doc._id;
-            delete (doc._id);
-          }
           resolve(doc);
         });
       });
