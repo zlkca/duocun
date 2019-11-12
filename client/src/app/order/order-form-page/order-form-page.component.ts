@@ -357,6 +357,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const action = 'pay by card';
     const address = order.address;
 
+    // save 3 transactions
     this.transactionSvc.saveTransactionsForOrder(merchantId, merchantName, clientId, clientName, cost, total, paid, action)
       .pipe(takeUntil(self.onDestroy$)).subscribe((t: ITransaction) => {
 

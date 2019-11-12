@@ -666,11 +666,11 @@ export class Order extends Model {
   // credit card, wechatpay only
   doAfterPayOrder(clientId: string, merchantId: string, dateType: string, address: string, paid: number): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.accountModel.updateMyBalanceForAddOrder(clientId, paid).then((ret: any) => {
+      // this.accountModel.updateMyBalanceForAddOrder(clientId, paid).then((ret: any) => {
         // this.addGroupDiscount(clientId, merchantId, dateType, address).then( (xs: any) => {
-          resolve(ret);
+          resolve();
         // });
-      });
+      // });
     });
   }
 
