@@ -4,6 +4,12 @@ import { ObjectID } from "mongodb";
 import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 
+
+const CASH_ID = '5c9511bb0851a5096e044d10';
+const CASH_NAME = 'Cash';
+const BANK_ID = '5c95019e0851a5096e044d0c';
+const BANK_NAME = 'TD Bank';
+
 export interface ITransaction {
   _id?: string;
   fromId: string;
@@ -310,4 +316,61 @@ export class Transaction extends Model {
     });
   }
   
+
+  // This request will insert 3 transactions, client -> TD (paid), Merchant -> Cash (cost), Cash -> Client (total)
+  saveTransactionForOrder(req: Request, res: Response){
+      const merchantId = req.body.merchantId;
+      const merchantName = req.body.merchantName;
+      const clientId = req.body.clientId;
+      const clientName = req.body.clientName;
+      const cost = req.body.cost;
+      const total = req.body.total;
+      const action = req.body.action;
+      const paid = req.body.paid;
+
+      const tr: ITransaction = {
+        fromId: clientId,
+        fromName: clientName,
+        toId: BANK_ID,
+        toName: BANK_NAME,
+        action: action,
+        amount: Math.round(paid * 100) / 100,
+      };
+
+      this.insertOne(tr).then(t => {
+        this.saveTransactionsForPlaceOrder(merchantId, merchantName, clientId, clientName, cost, total).then(()  => {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(t, null, 3));
+        });
+      });
+  }
+
+  saveTransactionsForPlaceOrder(merchantId: string, merchantName: string, clientId: string, clientName: string,
+    cost: number, total: number){
+    const t1: ITransaction = {
+      fromId: merchantId,
+      fromName: merchantName,
+      toId: CASH_ID,
+      toName: clientName,
+      action: 'duocun order from merchant',
+      amount: Math.round(cost * 100) / 100,
+    };
+
+    const t2: ITransaction = {
+      fromId: CASH_ID,
+      fromName: merchantName,
+      toId: clientId,
+      toName: clientName,
+      amount: Math.round(total * 100) / 100,
+      action: 'client order from duocun'
+    };
+
+    return new Promise((resolve, reject) => {
+      this.doInsertOne(t1).then((x) => {
+        this.doInsertOne(t2).then((y) => {
+          resolve();
+        });
+      });
+    });
+  }
 }

@@ -63,86 +63,6 @@ export class BalancePageComponent implements OnInit, OnDestroy {
     }), {});
   }
 
-  // reloadV1(clientId: string) {
-  //   const self = this;
-  //   const orderQuery = { clientId: clientId, status: { $nin: ['del', 'bad', 'tmp'] } };
-  //   this.orderSvc.quickFind(orderQuery).pipe(takeUntil(this.onDestroy$)).subscribe((os: IOrder[]) => {
-  //     const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }] };
-  //     self.transactionSvc.find(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
-  //       let list = [];
-  //       let balance = 0;
-  //       const payments = ts.filter(t => t.type === 'credit' && t.fromId === clientId);
-  //       const tOuts = ts.filter(t => t.type === 'transfer' && t.fromId === clientId);
-  //       const tIns = ts.filter(t => t.type === 'transfer' && t.toId === clientId);
-
-  //       os.map(order => {
-  //         const t = {
-  //           fromId: order.clientId,
-  //           fromName: order.clientName,
-  //           toId: order.driverId,
-  //           toName: order.driverName,
-  //           type: 'debit',
-  //           amount: order.total,
-  //           note: '',
-  //           created: order.created, // order.delivered,
-  //           modified: order.modified
-  //         };
-  //         list.push({ date: t.created, description: order.merchantName, type: t.type, paid: 0, consumed: t.amount, balance: 0 });
-  //       });
-
-  //       payments.map(t => {
-  //         if (t.amount !== 0) {
-  //           list.push({ date: t.created, description: '付款', type: 'credit', paid: t.amount, consumed: 0, balance: 0 });
-  //         }
-  //       });
-
-  //       tIns.map(t => {
-  //         list.push({ date: t.created, description: '转自' + t.fromName, type: 'credit', paid: t.amount, consumed: 0, balance: 0 });
-  //       });
-
-  //       tOuts.map(t => {
-  //         list.push({ date: t.created, description: '转给' + t.toName, type: 'debit', paid: 0, consumed: t.amount, balance: 0 });
-  //       });
-
-  //       list = list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
-  //         const aMoment = moment(a.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-  //         const bMoment = moment(b.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-  //         if (aMoment.isAfter(bMoment)) {
-  //           return 1; // b at top
-  //         } else {
-  //           return -1;
-  //         }
-  //       });
-
-  //       list.map(item => {
-  //         balance += item.consumed;
-  //         balance -= item.paid;
-  //         item.balance = balance;
-  //       });
-
-  //       list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
-  //         const aMoment = moment(a.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-  //         const bMoment = moment(b.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-  //         if (aMoment.isAfter(bMoment)) {
-  //           return -1; // b at top
-  //         } else if (bMoment.isAfter(aMoment)) {
-  //           return 1;
-  //         } else {
-  //           if (a.type === 'debit' && b.type === 'credit') {
-  //             return 1;
-  //           } else {
-  //             return -1;
-  //           }
-  //         }
-  //       });
-
-  //       this.dataSource = new MatTableDataSource(list);
-  //       this.dataSource.paginator = this.paginator;
-  //       this.dataSource.sort = this.sort;
-  //     });
-  //   });
-  // }
-
   reload(clientId: string) {
     const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }] };
     this.transactionSvc.quickFind(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
@@ -157,7 +77,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
       });
 
       list = list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
-        const aMoment = moment(a.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        const aMoment = moment(a.date);
         const bMoment = moment(b.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
         if (aMoment.isAfter(bMoment)) {
           return -1; // b at top

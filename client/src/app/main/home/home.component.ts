@@ -177,15 +177,17 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   }
 
+  // url from snappayCharge in backend
   processPay(queryParams: any) {
     const orderId = queryParams.get('orderId'); // use for after card pay, could be null
-    const clientId = queryParams.get('clientId'); // use for after card pay, could be null
-    const amount = queryParams.get('amount'); // use for after card pay, could be null
-    const paymentMethod = queryParams.get('paymentMethod'); // use for after card pay, could be null
-    if (orderId && clientId && amount) {
+    const paid = queryParams.get('amount'); // use for after card pay, could be null
+
+    if (orderId && paid) {
       this.router.navigate(['/payment/complete'], {
         queryParams: {
-          msg: 'success', orderId: orderId, clientId: clientId, amount: amount, paymentMethod: paymentMethod
+          msg: 'success',
+          orderId: orderId,
+          paid: paid,
         }
       });
       return true;

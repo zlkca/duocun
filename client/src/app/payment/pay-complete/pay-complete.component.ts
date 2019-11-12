@@ -49,27 +49,39 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
       // amount: 10, paymentMethod: 'WECHATPAY'};
       if (p && p.msg === 'success') {
         const orderId = p.orderId.trim();
-        const clientId = p.clientId.trim();
-        const paymentMethod = p.paymentMethod.trim();
+        const paid = +p.paid;
+
         self.snackBar.open('', '已成功付款', { duration: 1800 });
 
-        if (orderId && clientId) {
-          this.accountSvc.find({ _id: clientId }).pipe(takeUntil(self.onDestroy$)).subscribe(accounts => {
-            self.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
-            this.afterSnappay(orderId, clientId, accounts[0].username, +p.amount, paymentMethod);
+        if (orderId) {
+          this.orderSvc.quickFind({_id: orderId}).pipe(takeUntil(self.onDestroy$)).subscribe(orders => {
+            const order = orders[0];
+          // require access token! what if bank response is too long ? fix me
+          // this.accountSvc.find({ _id: clientId }).pipe(takeUntil(self.onDestroy$)).subscribe(accounts => {
+            // self.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
+            this.afterSnappay(orderId,
+              order.merchantId,
+              order.merchantName,
+              order.clientId,
+              order.clientName,
+              order.cost,
+              order.total,
+              paid,
+              'pay by wechat'
+            );
           });
         }
-      } else if (p && p.msg === 'fail') {
+      } else if (p && p.msg !== 'success') {
         const orderId = p.orderId.trim();
-
-        self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+        // fix me
+        // self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
           self.snackBar.open('', '付款未成功', { duration: 1800 });
           self.paymentSvc.afterRemoveOrder(orderId).subscribe(() => {
             self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
             self.snackBar.open('', '余额已处理', { duration: 1000 });
             alert('付款未成功，请联系客服');
           });
-        });
+        // });
       }
     });
 
@@ -87,18 +99,21 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  afterSnappay(orderId, clientId, clientName, paid, paymentMethod) {
+  afterSnappay(orderId, merchantId: string, merchantName: string, clientId: string, clientName: string,
+    cost: number, total: number, paid: number, action: string) {
+
     const self = this;
-    self.saveTransaction(clientId, clientName, paid, paymentMethod, (tr: ITransaction) => {
+    // self.saveTransaction(clientId, clientName, paid, paymentMethod, (tr: ITransaction) => {
+    self.transactionSvc.saveTransactionsForOrder(merchantId, merchantName, clientId, clientName, cost, total, paid, action)
+      .pipe(takeUntil(self.onDestroy$)).subscribe((tr: ITransaction) => {
+
       const data = { status: 'paid', chargeId: '', transactionId: tr._id };
       self.orderSvc.update({ _id: orderId }, data).pipe(takeUntil(this.onDestroy$)).subscribe((r) => {
 
         self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
         self.orderSvc.quickFind({ _id: orderId }).pipe(takeUntil(self.onDestroy$)).subscribe(orders => {
-
           if (orders && orders.length > 0) {
             const order = orders[0];
-            const merchantId = order.merchantId;
             const dt = moment(order.delivered);
             const dateType = this.sharedSvc.getDateType(dt);
             const address = order.address;
@@ -106,7 +121,7 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
             self.paymentSvc.afterAddOrder(clientId, merchantId, dateType, address, paid)
               .pipe(takeUntil(self.onDestroy$)).subscribe((r1: any) => {
                 self.snackBar.open('', '余额已更新', { duration: 1800 });
-                const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);
+                const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === merchantId);
                 self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
                 self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
                 self.router.navigate(['order/history']);
@@ -124,23 +139,23 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
     });
   }
 
-  saveTransaction(clientId: string, clientName: string, amount: number, paymentMethod: string, cb?: any) {
-    const tr: ITransaction = {
-      fromId: clientId,
-      fromName: clientName,
-      toId: DEFAULT_ADMIN.ID,
-      toName: DEFAULT_ADMIN.NAME,
-      type: 'credit',
-      amount: amount,
-      note: paymentMethod
-    };
-    this.transactionSvc.save(tr).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
-      this.snackBar.open('', '已保存交易', { duration: 1200 });
-      if (cb) {
-        cb(t);
-      }
-    });
-  }
+  // saveTransaction(clientId: string, clientName: string, amount: number, paymentMethod: string, cb?: any) {
+  //   const tr: ITransaction = {
+  //     fromId: clientId,
+  //     fromName: clientName,
+  //     toId: DEFAULT_ADMIN.ID,
+  //     toName: DEFAULT_ADMIN.NAME,
+  //     type: 'credit',
+  //     amount: amount,
+  //     note: paymentMethod
+  //   };
+  //   this.transactionSvc.save(tr).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
+  //     this.snackBar.open('', '已保存交易', { duration: 1200 });
+  //     if (cb) {
+  //       cb(t);
+  //     }
+  //   });
+  // }
 
   updateOrder(orderId: string, updated: any, updateCb?: any) {
     const self = this;

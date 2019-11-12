@@ -11,6 +11,8 @@ import { resolve } from "path";
 import { Account, IAccount } from "./account";
 import { Transaction, ITransaction } from "./transaction";
 
+const CASH_ID = '5c9511bb0851a5096e044d10';
+const CASH_NAME = 'Cash';
 
 export interface IOrderItem {
   id?: number;
@@ -155,7 +157,24 @@ export class Order extends Model {
     });
   }
 
+  quickFind(req: Request, res: Response){
+    let query: any = {};
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
 
+    if(query.hasOwnProperty('pickup')){
+      const h = +(query['pickup'].split(':')[0]);
+      const m = +(query['pickup'].split(':')[1]);
+      query.delivered = moment().set({ hour: h, minute: m, second: 0, millisecond: 0 }).toISOString();
+      delete query.pickup;
+    }
+
+    this.find(query).then((x: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(x, null, 3));
+    });
+  }
 
   getDeliverDateTime(createdDateTime: string, phases: any[], deliveryDate: string) {
 
@@ -249,31 +268,19 @@ export class Order extends Model {
             delete order.dateType;
 
             this.insertOne(order).then((savedOrder: IOrder) => {
-              const t1: ITransaction = {
-                fromId: merchantId,
-                fromName: order.merchantName,
-                toId: '5c9504f00851a5096e044d0d',
-                toName: order.clientName,
-                action: 'duocun order from merchant',
-                amount: Math.round(order.cost * 100) / 100,
-              };
-      
-              const t2: ITransaction = {
-                fromId: '5c9504f00851a5096e044d0d', // duocun Cash
-                fromName: order.merchantName,
-                toId: order.clientId,
-                toName: order.clientName,
-                amount: Math.round(order.total * 100) / 100,
-                action: 'client order from duocun'
-              };
+              const merchantId = order.merchantId;
+              const merchantName = order.merchantName;
+              const clientId = order.clientId;
+              const clientName = order.clientName;
+              const cost = order.cost;
+              const total = order.total;
+
               // temporary order didn't update transaction until paid
               if(order.status === 'tmp'){
                 resolve(savedOrder);
               }else{
-                this.transactionModel.doInsertOne(t1).then((x) => {
-                  this.transactionModel.doInsertOne(t2).then((y) => {
-                    resolve(savedOrder);
-                  });
+                this.transactionModel.saveTransactionsForPlaceOrder(merchantId, merchantName, clientId, clientName, cost, total).then( ()  => {
+                  resolve(savedOrder);
                 });
               }
             });

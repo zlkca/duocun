@@ -217,7 +217,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           });
         });
       }
-
     });
   }
 
@@ -356,28 +355,23 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   afterCardPay(orderId, order, paid, chargeId, url?: string) {
     const self = this;
+    const merchantId = order.merchantId;
+    const merchantName = order.merchantName;
     const clientId = order.clientId;
     const clientName = order.clientName;
+    const cost = order.cost;
+    const total = order.total;
+    const action = 'pay by card';
     const address = order.address;
 
-    const tr: ITransaction = {
-      fromId: clientId,
-      fromName: clientName,
-      toId: DEFAULT_ADMIN.ID,
-      toName: DEFAULT_ADMIN.NAME,
-      type: 'credit',
-      amount: paid,
-      note: 'By Card'
-    };
+    this.transactionSvc.saveTransactionsForOrder(merchantId, merchantName, clientId, clientName, cost, total, paid, action)
+      .pipe(takeUntil(self.onDestroy$)).subscribe((t: ITransaction) => {
 
-    this.transactionSvc.save(tr).pipe(takeUntil(this.onDestroy$)).subscribe((t: any) => {
       this.snackBar.open('', '已保存交易', { duration: 1200 });
       const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
 
       self.orderSvc.update({ _id: orderId }, data).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
         self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
-
-        const merchantId = order.merchantId;
         const dateType = this.sharedSvc.getDateType(this.delivery.date);
         // update my balance and group discount
         self.paymentSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r1 => {
@@ -413,7 +407,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             self.afterCardPay(orderId, order, payable, ch.chargeId);
           } else {
             // del order ???
-            self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+            // self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
               self.bSubmitted = false;
               self.loading = false;
               self.snackBar.open('', '付款未成功', { duration: 1800 });
@@ -422,9 +416,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 // self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
                 self.snackBar.open('', '余额已处理', { duration: 1000 });
                 // self.router.navigate(['order/history']);
-                alert('Invalid payment: ' + ch.err.type + ' ' + ch.err.code);
+                alert('付款未成功，请联系客服');
+                // alert('Invalid payment: ' + ch.err.type + ' ' + ch.err.code);
               });
-            });
+            // });
           }
         });
       } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
@@ -465,7 +460,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   handleWithCash(balance: IBalance, order, note: string) {
     const self = this;
     if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
-      if (this.order && this.order.id) { // modify order
+      if (this.order && this.order.id) { // modify order, now do not support
         order.id = this.order.id;
         order.created = this.order.created;
         // if (this.order.paymentMethod === 'card') {
@@ -498,13 +493,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       } else { // create new
         if (order) {
           if (balance.amount >= order.total) {
-            // order.payable = 0;
             order.status = 'paid';
-          } else {
-            // order.payable = order.total - balance.amount;
           }
-
-          // save order and update balance
+          // save order and update balance only if pay cash or prepaid
           self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((orderCreated: IOrder) => {
             self.snackBar.open('', '订单已成功保存', { duration: 1800 });
             const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === order.merchantId);

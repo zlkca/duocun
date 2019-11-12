@@ -2,6 +2,7 @@ import { DB } from "../db";
 import { Model } from "./model";
 import { ObjectID } from "mongodb";
 import { Request, Response } from "express";
+import moment from 'moment';
 
 export class Assignment extends Model{
   constructor(dbo: DB) {
@@ -61,6 +62,26 @@ export class Assignment extends Model{
       } else {
         res.send(JSON.stringify(null, null, 3))
       }
+    });
+  }
+
+
+  quickFind(req: Request, res: Response){
+    let query: any = {};
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    if(query.hasOwnProperty('pickup')){
+      const h = +(query['pickup'].split(':')[0]);
+      const m = +(query['pickup'].split(':')[1]);
+      query.delivered = moment().set({ hour: h, minute: m, second: 0, millisecond: 0 }).toISOString();
+      delete query.pickup;
+    }
+
+    this.find(query).then((x: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(x, null, 3));
     });
   }
 }
