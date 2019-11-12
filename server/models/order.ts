@@ -267,9 +267,9 @@ export class Order extends Model {
             delete order.dateType;
 
             this.insertOne(order).then((savedOrder: IOrder) => {
-              const merchantId = order.merchantId;
+              const merchantId: string = order.merchantId.toString();
               const merchantName = order.merchantName;
-              const clientId = order.clientId;
+              const clientId: string = order.clientId.toString();
               const clientName = order.clientName;
               const cost = order.cost;
               const total = order.total;
