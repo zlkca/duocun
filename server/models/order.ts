@@ -10,6 +10,7 @@ import { Restaurant } from "./restaurant";
 import { resolve } from "path";
 import { Account, IAccount } from "./account";
 import { Transaction, ITransaction } from "./transaction";
+import { Product } from "./product";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -80,7 +81,7 @@ export interface IOrder {
 }
 
 export class Order extends Model {
-  private clientBalanceModel: ClientBalance;
+  private productModel: Product;
   private sequenceModel: OrderSequence;
   private merchantModel: Restaurant;
   private accountModel: Account;
@@ -89,13 +90,12 @@ export class Order extends Model {
   constructor(dbo: DB) {
     super(dbo, 'orders');
 
-    this.clientBalanceModel = new ClientBalance(dbo);
+    this.productModel = new Product(dbo);
     this.sequenceModel = new OrderSequence(dbo);
     this.merchantModel = new Restaurant(dbo);
     this.accountModel = new Account(dbo);
     this.transactionModel = new Transaction(dbo);
   }
-
 
   list(req: Request, res: Response) {
     let query = null;
@@ -103,73 +103,41 @@ export class Order extends Model {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
-    let q = query;
-    if (q) {
-      if (q.where) {
-        q = query.where;
-      }
-    } else {
-      q = {};
+    if (query.hasOwnProperty('pickup')) {
+      query.delivered = this.getPickupDateTime(query['pickup']);
+      delete query.pickup;
     }
+    let q = query? query: {};
 
-    if (q && q.merchantId && typeof q.merchantId === 'string' && q.merchantId.length === 24) {
-      q.merchantId = new ObjectID(q.merchantId);
-    } else if (q.merchantId && q.merchantId.hasOwnProperty('$in')) {
-      let a = q.merchantId['$in'];
-      const arr: any[] = [];
-      a.map((id: string) => {
-        arr.push(new ObjectID(id));
-      });
-
-      q.merchantId = { $in: arr };
-    }
-
-    if (q && q.clientId && typeof q.clientId === 'string' && q.clientId.length === 24) {
-      q.clientId = new ObjectID(q.clientId);
-    } else if (q.clientId && q.clientId.hasOwnProperty('$in')) {
-      let a = q.clientId['$in'];
-      const arr: any[] = [];
-      a.map((id: string) => {
-        arr.push(new ObjectID(id));
-      });
-
-      q.clientId = { $in: arr };
-    }
-
-    const params = [
-      { $lookup: { from: 'contacts', localField: 'clientId', foreignField: 'accountId', as: 'client' } },
-      { $unwind: '$client' },
-      { $lookup: { from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant' } },
-      { $unwind: '$merchant' },
-      { $lookup: { from: 'products', localField: 'items.productId', foreignField: '_id', as: 'products' } },
-    ];
-    this.join(params, q).then((rs: any) => {
-      const cbs: any[] = [];
-      rs.map((r: any) => {
-        const items: any[] = [];
-        r.items.map((it: any) => {
-          const product = r.products.find((p: any) => p._id.toString() === it.productId.toString());
-          if (product) {
-            items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
-          }
+    this.productModel.find({}).then(ps => {
+      this.find(q).then((rs: any) => {
+        rs.map((order: any) => {
+          const items: any[] = [];
+          order.items.map((it: any) => {
+            const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+            if (product) {
+              items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+            }
+          });
+          order.items = items;
         });
-        delete r.products;
-
-        r.items = items;
-
-        const cb = cbs.find(x => x._id.toString() === r._id.toString());
-        if (!cb) {
-          cbs.push(r);
+  
+        res.setHeader('Content-Type', 'application/json');
+        if (rs) {
+          res.send(JSON.stringify(rs, null, 3));
+        } else {
+          res.send(JSON.stringify(null, null, 3));
         }
       });
-
-      res.setHeader('Content-Type', 'application/json');
-      if (cbs) {
-        res.send(JSON.stringify(cbs, null, 3));
-      } else {
-        res.send(JSON.stringify(null, null, 3));
-      }
     });
+    
+  }
+
+  // pickup --- string '11:20'
+  getPickupDateTime(pickup: string){
+    const h = +(pickup.split(':')[0]);
+    const m = +(pickup.split(':')[1]);
+    return moment().set({ hour: h, minute: m, second: 0, millisecond: 0 }).toISOString();
   }
 
   quickFind(req: Request, res: Response) {
@@ -179,9 +147,7 @@ export class Order extends Model {
     }
 
     if (query.hasOwnProperty('pickup')) {
-      const h = +(query['pickup'].split(':')[0]);
-      const m = +(query['pickup'].split(':')[1]);
-      query.delivered = moment().set({ hour: h, minute: m, second: 0, millisecond: 0 }).toISOString();
+      query.delivered = this.getPickupDateTime(query['pickup']);
       delete query.pickup;
     }
 
