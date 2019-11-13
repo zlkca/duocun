@@ -11,6 +11,7 @@ import { resolve } from "path";
 import { Account, IAccount } from "./account";
 import { Transaction, ITransaction } from "./transaction";
 import { Product } from "./product";
+import { Contact } from "./contact";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -86,6 +87,7 @@ export class Order extends Model {
   private merchantModel: Restaurant;
   private accountModel: Account;
   private transactionModel: Transaction;
+  private contactModel: Contact;
 
   constructor(dbo: DB) {
     super(dbo, 'orders');
@@ -95,6 +97,7 @@ export class Order extends Model {
     this.merchantModel = new Restaurant(dbo);
     this.accountModel = new Account(dbo);
     this.transactionModel = new Transaction(dbo);
+    this.contactModel = new Contact(dbo);
   }
 
   list(req: Request, res: Response) {
@@ -109,31 +112,33 @@ export class Order extends Model {
     }
     let q = query? query: {};
 
-    this.merchantModel.find({}).then(ms => {
-      this.productModel.find({}).then(ps => {
-        this.find(q).then((rs: any) => {
-          rs.map((order: any) => {
-            const items: any[] = [];
-            order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
-            order.items.map((it: any) => {
-              const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
-              if (product) {
-                items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
-              }
+    this.contactModel.find({}).then(contacts => {
+      this.merchantModel.find({}).then(ms => {
+        this.productModel.find({}).then(ps => {
+          this.find(q).then((rs: any) => {
+            rs.map((order: any) => {
+              const items: any[] = [];
+              order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
+              order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
+              order.items.map((it: any) => {
+                const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+                if (product) {
+                  items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                }
+              });
+              order.items = items;
             });
-            order.items = items;
+      
+            res.setHeader('Content-Type', 'application/json');
+            if (rs) {
+              res.send(JSON.stringify(rs, null, 3));
+            } else {
+              res.send(JSON.stringify(null, null, 3));
+            }
           });
-    
-          res.setHeader('Content-Type', 'application/json');
-          if (rs) {
-            res.send(JSON.stringify(rs, null, 3));
-          } else {
-            res.send(JSON.stringify(null, null, 3));
-          }
         });
       });
     });
-    
   }
 
   // pickup --- string '11:20'
