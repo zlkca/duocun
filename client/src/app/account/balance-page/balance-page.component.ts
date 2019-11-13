@@ -76,7 +76,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
   }
 
   reload(clientId: string) {
-    const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }] };
+    const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }], amount: {$ne: 0} };
     this.transactionSvc.quickFind(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
       let list = [];
 
