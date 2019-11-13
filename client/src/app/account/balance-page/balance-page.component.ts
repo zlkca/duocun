@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input, ViewChild } from '@angular/core';
 import { AccountService } from '../../account/account.service';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
-import { Role } from '../../account/account.model';
+import { Role, IAccount } from '../../account/account.model';
 import { MatPaginator, MatSort } from '../../../../node_modules/@angular/material';
 import * as moment from 'moment';
 
@@ -38,10 +38,10 @@ export class BalancePageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
+    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       this.account = account;
       if (account) {
-        self.reload(account.id);
+        self.reload(account._id);
       } else {
 
       }
