@@ -109,25 +109,28 @@ export class Order extends Model {
     }
     let q = query? query: {};
 
-    this.productModel.find({}).then(ps => {
-      this.find(q).then((rs: any) => {
-        rs.map((order: any) => {
-          const items: any[] = [];
-          order.items.map((it: any) => {
-            const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
-            if (product) {
-              items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
-            }
+    this.merchantModel.find({}).then(ms => {
+      this.productModel.find({}).then(ps => {
+        this.find(q).then((rs: any) => {
+          rs.map((order: any) => {
+            const items: any[] = [];
+            order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
+            order.items.map((it: any) => {
+              const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+              if (product) {
+                items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+              }
+            });
+            order.items = items;
           });
-          order.items = items;
+    
+          res.setHeader('Content-Type', 'application/json');
+          if (rs) {
+            res.send(JSON.stringify(rs, null, 3));
+          } else {
+            res.send(JSON.stringify(null, null, 3));
+          }
         });
-  
-        res.setHeader('Content-Type', 'application/json');
-        if (rs) {
-          res.send(JSON.stringify(rs, null, 3));
-        } else {
-          res.send(JSON.stringify(null, null, 3));
-        }
       });
     });
     

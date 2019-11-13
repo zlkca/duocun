@@ -91,23 +91,27 @@ export class PayCompleteComponent implements OnInit, OnDestroy {
     const merchantId = order.merchantId;
     const action = 'pay by wechat';
 
-    this.orderSvc.processPayment(order, action, paid, chargeId).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
-      self.snackBar.open('', '您已经成功下单。', { duration: 2000 });
+    this.accountSvc.find({_id: clientId}).pipe(takeUntil(this.onDestroy$)).subscribe((accounts) => {
+      this.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
 
-      const dt = moment(order.delivered); // fix me
-      const dateType = this.sharedSvc.getDateType(dt);
-      const address = order.address;
+      this.orderSvc.processPayment(order, action, paid, chargeId).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
+        self.snackBar.open('', '您已经成功下单。', { duration: 2000 });
 
-      // update and group discount
-      self.orderSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe((r1: any) => {
-        self.snackBar.open('', '余额已更新', { duration: 1800 });
-        const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === merchantId);
-        self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-        self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-        self.router.navigate(['order/history']);
+        const dt = moment(order.delivered); // fix me
+        const dateType = this.sharedSvc.getDateType(dt);
+        const address = order.address;
+
+        // update and group discount
+        self.orderSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe((r1: any) => {
+          self.snackBar.open('', '余额已更新', { duration: 1800 });
+          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === merchantId);
+          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+          self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
+          self.router.navigate(['order/history']);
+        });
+      }, err => {
+        self.snackBar.open('', '您的订单未更改成功，请重新更改。', { duration: 1800 });
       });
-    }, err => {
-      self.snackBar.open('', '您的订单未更改成功，请重新更改。', { duration: 1800 });
     });
   }
 }
