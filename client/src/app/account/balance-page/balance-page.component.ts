@@ -88,11 +88,11 @@ export class BalancePageComponent implements OnInit, OnDestroy {
         list.push({ date: t.created, description: description, consumed: consumed, paid: paid, balance: -b });
       });
 
-      list = list.sort((a: IClientPaymentData, b: IClientPaymentData) => {
+      list = list.sort((a: any, b: any) => {
         const aMoment = moment(a.date);
         const bMoment = moment(b.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
         if (aMoment.isAfter(bMoment)) {
-          return -1; // b at top
+          return -1;
         } else {
           return 1;
         }
