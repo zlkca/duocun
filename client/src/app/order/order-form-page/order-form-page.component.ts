@@ -160,7 +160,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const address = this.locationSvc.getAddrString(origin);
 
         this.orderSvc.checkGroupDiscount(accountId, merchantId, dateType, address).pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
-          const groupDiscount = bEligible ? 2 : 0;
+          const groupDiscount = 0; // bEligible ? 2 : 0;
           self.getOverRange(origin, (distance, rate) => {
             this.charge = this.getCharge(cart, merchant, self.delivery, (distance * rate), groupDiscount);
             this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
