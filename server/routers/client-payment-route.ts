@@ -20,7 +20,6 @@ export function ClientPaymentRouter(db: DB){
   router.post('/addGroupDiscount', (req, res) => { controller.reqAddGroupDiscount(req, res); });
   router.post('/removeGroupDiscount', (req, res) => { controller.reqRemoveGroupDiscount(req, res); });
 
-  router.post('/pay', (req, res) => { controller.payOrder(req, res); });
 
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });

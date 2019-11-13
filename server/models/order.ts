@@ -748,4 +748,46 @@ export class Order extends Model {
     //   });
     // });
   }
+
+  pay(toId: string, toName: string, received: number, orderId: string, note?: string) {
+    const data = {
+      status: 'paid',
+      driverId: toId,
+      driverName: toName
+    };
+
+    return new Promise((resolve, reject) => {
+      this.updateOne({_id: orderId}, data).then(rt => {
+        this.findOne({_id: orderId}).then(order => {
+          const tr = {
+            orderId: order._id.toString(),
+            fromId: order.clientId.toString(),
+            fromName: order.clientName,
+            toId: toId,
+            toName: toName,
+            type: 'credit',
+            action: 'client pay cash',
+            amount: received,
+            note: note
+          };
+          this.transactionModel.doInsertOne(tr).then(t => {
+            resolve(order);
+          });
+        });
+      });
+    });
+  }
+
+  payOrder(req: Request, res: Response) {
+    const toId = req.body.toId;
+    const toName = req.body.toName;
+    const received = +req.body.received;
+    const orderId = req.body.orderId;
+    const note = req.body.note;
+
+    this.pay(toId, toName, received, orderId, note).then((order: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ status: 'success' }, null, 3));
+    });
+  }
 }

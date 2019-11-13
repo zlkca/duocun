@@ -13,7 +13,7 @@ export function OrderRouter(db: DB){
   router.put('/updatePurchaseTag', (req, res) => { controller.updatePurchaseTag(req, res)});
   router.put('/', (req, res) => { controller.replace(req, res); });
 
-  
+  router.post('/pay', (req, res) => { controller.payOrder(req, res); });
   router.post('/processPayment', (req, res) => { controller.processPayment(req, res); });
   router.post('/afterAddOrder', (req, res) => { controller.afterAddOrder(req, res); });
   router.post('/afterRemoveOrder', (req, res) => { controller.afterRemoveOrder(req, res); });
