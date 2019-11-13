@@ -72,7 +72,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     //     this.balance = 0;
     //   }
     // });
-    this.balance = -account.balance;
+    this.balance = account.balance;
   }
 
   ngOnInit() {

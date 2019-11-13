@@ -148,7 +148,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const order: IOrder = this.order;
     // const bNewOrder = (order && order._id) ? false : true;
 
-    this.balance = -account.balance;
+    this.balance = account.balance;
 
     // fix me
     if (cart) {
