@@ -388,8 +388,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             self.snackBar.open('', '已成功付款', { duration: 1800 });
             self.afterCardPay(ret, payable, ch.chargeId);
           } else {
-            // del order ???
-            // self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
             self.bSubmitted = false;
             self.loading = false;
             self.snackBar.open('', '付款未成功', { duration: 1800 });
@@ -401,7 +399,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               alert('付款未成功，请联系客服');
               // alert('Invalid payment: ' + ch.err.type + ' ' + ch.err.code);
             });
-            // });
           }
         });
       } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
@@ -415,10 +412,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.loading = false;
           if (r.msg === 'success') {
             window.location.href = r.data[0].h5pay_url;
-          } else { // fix me
-            self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-              self.snackBar.open('', '付款未成功', { duration: 1800 });
-
+          } else {
               self.orderSvc.afterRemoveOrder(orderId).subscribe(() => {
                 // self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
                 self.snackBar.open('', '余额已处理', { duration: 1000 });
@@ -426,7 +420,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 // alert('Invalid payment: ' + ch.err.type + ' ' + ch.err.code);
                 alert('付款未成功，请联系客服');
               });
-            });
           }
         });
       } else {

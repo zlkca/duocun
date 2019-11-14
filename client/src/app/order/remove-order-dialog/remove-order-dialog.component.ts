@@ -91,11 +91,9 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
             self.dialogRef.close();
             self.snackBar.open('', '订单已删除', { duration: 1000 });
 
-            self.orderSvc.afterRemoveOrder(orderId).subscribe(() => {
-              self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
-              self.snackBar.open('', '余额已处理', { duration: 1000 });
-              self.router.navigate(['order/history']);
-            });
+            self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
+            self.snackBar.open('', '余额已处理', { duration: 1000 });
+            self.router.navigate(['order/history']);
             // const t = ts[0];
             // const payable = Math.round(self.data.total * 100) / 100; // - t.amount
             // const q = { accountId: self.data.accountId };
@@ -119,11 +117,11 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
           //   self.dialogRef.close();
           //   // self.router.navigate(['order/history']);
           // });
-          self.paymentSvc.removeGroupDiscount(orderId).subscribe(() => {
+          // self.paymentSvc.removeGroupDiscount(orderId).subscribe(() => {
             self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
             self.snackBar.open('', '余额已处理', { duration: 1000 });
             self.router.navigate(['order/history']);
-          });
+          // });
         });
       }
     }
