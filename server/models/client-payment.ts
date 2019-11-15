@@ -167,27 +167,25 @@ export class ClientPayment extends Model {
     const paid = req.body.paid;
     const order = req.body.order;
 
-    const data: any = { // the order matters
-      app_id: this.cfg.SNAPPAY.APP_ID,
-      charset: 'UTF-8',
-      description: order.merchantName,
-      format: 'JSON',
-      merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,
-      method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
-      out_order_no: order._id,
-      payment_method: order.paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
-      return_url: 'https://duocun.com.cn?clientId=' + order.clientId + '&paymentMethod=' + order.paymentMethod,
-      timestamp: new Date().toISOString().split('.')[0].replace('T', ' '),
-      trans_amount: paid,
-      version: '1.0'
-    };
+    // const data: any = { // the order matters
+    //   app_id: this.cfg.SNAPPAY.APP_ID,
+    //   charset: 'UTF-8',
+    //   description: order.merchantName,
+    //   format: 'JSON',
+    //   merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,
+    //   method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
+    //   out_order_no: order._id,
+    //   payment_method: order.paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
+    //   return_url: 'https://duocun.com.cn?clientId=' + order.clientId + '&paymentMethod=' + order.paymentMethod,
+    //   timestamp: new Date().toISOString().split('.')[0].replace('T', ' '),
+    //   trans_amount: paid,
+    //   version: '1.0'
+    // };
 
-    const sParams = this.createLinkstring(data);
-    const encrypted = Md5.hashStr(sParams + this.cfg.SNAPPAY.MD5_KEY);
-    data['sign'] = encrypted;
-    data['sign_type'] = 'MD5';
-
-
+    // const sParams = this.createLinkstring(data);
+    // const encrypted = Md5.hashStr(sParams + this.cfg.SNAPPAY.MD5_KEY);
+    // data['sign'] = encrypted;
+    // data['sign_type'] = 'MD5';
     // const key = new NodeRSA('-----BEGIN RSA PRIVATE KEY-----\n'+
     //   this.cfg.SNAPPAY.PRIVATE_KEY
     //   +'\n-----END RSA PRIVATE KEY-----');
@@ -241,16 +239,25 @@ export class ClientPayment extends Model {
         if (ss) { // code, data, msg, total, psn, sign
           const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
           if (ret.msg === 'success') {
-            this.snappayQueryOrderReq(order._id).then(r => {
-            //   if(r.msg === 'success'){
-            //     const d = r.data[0];
-            //     this.snappayNotifyReq(res, order._id, d.pay_user_account_id, paid, order.paymentMethod, d.trans_no, d.trans_status);  
-            //   }else{
-            //     res.send(ret);
-            //   }
-              res.send(r);
+            const data = ret.data[0];
+            // this.snappayQueryOrderReq(data.out_order_no, data.merchant_no).then(r => {
+            // //   if(r.msg === 'success'){
+            // //     const d = r.data[0];
+            // //     this.snappayNotifyReq(res, order._id, d.pay_user_account_id, paid, order.paymentMethod, d.trans_no, d.trans_status);  
+            // //   }else{
+            // //     res.send(ret);
+            // //   }
+            //   res.send(r);
+            // });
+            // --------------------------------------------------------------------------------------
+            // 1.update order status to 'paid'
+            // 2.add two transactions for place order and add another transaction for deposit to bank
+            // 3.update account balance
+            this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
+              res.send(ret);
+            }, err => {
+              res.send(ret);
             });
-            // res.send(ret);
           } else {
             res.send(ret);
           }
@@ -264,14 +271,14 @@ export class ClientPayment extends Model {
     post_req.end();
   }
 
-  snappayQueryOrderReq(orderId: string) {
+  snappayQueryOrderReq(out_order_no: string, merchant_no: string) {
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,  // Mandatory
       charset: 'UTF-8',                 // Mandatory
       format: 'JSON',                   // Mandatory
-      merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,  // Service Mandatory
-      method: 'pay.orderquery',                   // Service Mandatory
-      out_order_no: orderId,                      // Service Optional
+      merchant_no: merchant_no,         // Service Mandatory
+      method: 'pay.orderquery',         // Service Mandatory
+      out_order_no: out_order_no,       // Service Optional
       version: '1.0'                    // Mandatory
     };
 
