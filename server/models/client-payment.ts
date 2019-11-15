@@ -241,14 +241,15 @@ export class ClientPayment extends Model {
         if (ss) { // code, data, msg, total, psn, sign
           const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
           if (ret.msg === 'success') {
-            this.snappayQueryOrderReq(order._id); // .then(r => {
+            this.snappayQueryOrderReq(order._id).then(r => {
             //   if(r.msg === 'success'){
             //     const d = r.data[0];
             //     this.snappayNotifyReq(res, order._id, d.pay_user_account_id, paid, order.paymentMethod, d.trans_no, d.trans_status);  
             //   }else{
             //     res.send(ret);
             //   }
-            // });
+              res.send(r);
+            });
             // res.send(ret);
           } else {
             res.send(ret);
@@ -286,28 +287,29 @@ export class ClientPayment extends Model {
       }
     };
 
-    // return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const post_req = https.request(options, (res1: IncomingMessage) => {
         let ss = '';
         res1.on('data', (d) => { ss += d; });
         res1.on('end', (r: any) => {
           if (ss) { // code, data, msg, total, psn, sign
             const ret = JSON.parse(ss); // s.data = {trans_no:x, out_order_no:x, merchant_no:x, trans_status:x }
-            if (ret.msg === 'success') {
-              // resolve(ret);
-              console.log(ss);
-            } else {
-              // resolve(ret);
-            }
+            // if (ret.msg === 'success') {
+            //   // resolve(ret);
+            //   console.log(ss);
+            // } else {
+            //   // resolve(ret);
+            // }
+            resolve(ret);
           } else {
-            // resolve({ msg: 'failed' });
+            resolve({ msg: 'failed' });
           }
         });
       });
   
       post_req.write(JSON.stringify(params));
       post_req.end();
-    // });
+    });
   }
 
   // This request could response multiple times !!!

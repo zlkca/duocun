@@ -76,6 +76,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   afterGroupDiscount: number;
   bSubmitted = false;
 
+  msg = '';
+  log = '';
+
   constructor(
     private fb: FormBuilder,
     private rx: NgRedux<IAppState>,
@@ -397,6 +400,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
         self.loading = false;
         this.paymentSvc.snappayCharge(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((r) => {
+
+          this.msg = r.msg;
+          this.log = r.data[0].trans_no;
+
           self.bSubmitted = false;
           self.loading = false;
           if (r.msg === 'success') {

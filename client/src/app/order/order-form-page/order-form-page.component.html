@@ -104,6 +104,9 @@
               <span i18n="@@TotalPayable">Payable</span>:</div>
             <div class="text-xs">&nbsp;${{ balance >= charge.total ? 0 : charge.total - balance | number : '1.2-2'}}</div>
           </div>
+
+          <div class="col-12">{{msg}}</div>
+          <div class="col-12">{{log}}</div>
         </div>
       </div>
     </div>
