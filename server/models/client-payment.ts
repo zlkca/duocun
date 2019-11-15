@@ -8,7 +8,7 @@ import https from 'https';
 // import NodeRSA from 'node-rsa';
 import { Md5 } from 'ts-md5';
 import moment, { now } from 'moment';
-import { Order } from "../models/order";
+import { Order, IOrder } from "../models/order";
 import { ClientBalance } from "./client-balance";
 import { ObjectID } from "../../node_modules/@types/bson";
 import { Transaction } from "./transaction";
@@ -130,20 +130,27 @@ export class ClientPayment extends Model {
   stripeCharge(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
     const token = req.body.token;
+    const order = req.body.order;
+    const paid = +req.body.paid;
+    const self = this;
+
     stripe.charges.create({
       // customer: req.body.customerId,
-      amount: Math.round((+req.body.amount) * 100),
+      amount: Math.round((paid) * 100),
       currency: 'cad',
-      description: req.body.merchantName,
+      description: order.merchantName,
       source: token.id,
-      metadata: { orderId: req.body.orderId, customerId: req.body.clientId, customerName: req.body.clientName },
+      metadata: { orderId: order._id, customerId: order.clientId, customerName: order.clientName, merchantName: order.merchantName },
     }, function (err: any, charge: any) {
       res.setHeader('Content-Type', 'application/json');
-      if (err) {
-        // res.end(JSON.stringify({ status: charge.status, chargeId: '' }, null, 3));
+      if(!err){
+        self.orderEntity.doProcessPayment(order, 'pay by card', paid, charge.id).then(() => {
+          res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
+        }, err => {
+          res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+        });
+      }else{
         res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
-      } else {
-        res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
       }
     });
   }
@@ -157,21 +164,24 @@ export class ClientPayment extends Model {
   }
 
   snappayCharge(req: Request, res: Response) {
-    const b = req.body;
+    const paid = req.body.paid;
+    const order = req.body.order;
+
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,
       charset: 'UTF-8',
-      description: b.merchantName,
+      description: order.merchantName,
       format: 'JSON',
       merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
-      out_order_no: b.orderId,
-      payment_method: b.paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
-      return_url: 'https://duocun.com.cn?orderId='+b.orderId+'&amount='+b.amount+'&paymentMethod='+b.paymentMethod,
+      out_order_no: order._id,
+      payment_method: order.paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
+      return_url: 'https://duocun.com.cn?clientId=' + order.clientId + '&paymentMethod=' + order.paymentMethod,
       timestamp: new Date().toISOString().split('.')[0].replace('T',' '),
-      trans_amount: b.amount,
+      trans_amount: paid,
       version: '1.0'
     };
+  
     const sParams = this.createLinkstring(data);
     const encrypted = Md5.hashStr(sParams + this.cfg.SNAPPAY.MD5_KEY);
     data['sign'] = encrypted;
@@ -205,13 +215,25 @@ export class ClientPayment extends Model {
         // console.log('receiving1: ' + ss);
       });
 
-      res1.on('end', (rr: any) => {
-        if (ss) {
+      res1.on('end', (r: any) => {
+        if (ss) { // code, data, msg, total, psn, sign
           // console.log('receiving2: ' + ss);
-          const s = JSON.parse(ss);
-          res.send(s);
+          const ret = JSON.parse(ss);
+          if (ret.msg === 'success') {
+            // --------------------------------------------------------------------------------------
+            // 1.update order status to 'paid'
+            // 2.add two transactions for place order and add another transaction for deposit to bank
+            // 3.update account balance
+            this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
+              res.send(ret);
+            }, err => {
+              res.send(ret);
+            });
+          }else{
+            res.send(ret);
+          }
         }else{
-          res.send('');
+          res.send({msg: 'failed'});
         }
       });
     });
@@ -232,12 +254,6 @@ export class ClientPayment extends Model {
       }
     });
   }
-
-
-
-
-
-
 
   addGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string) : Promise<any> {
     return new Promise((resolve, reject) => {

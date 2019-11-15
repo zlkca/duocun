@@ -24,11 +24,9 @@ export class PaymentService extends EntityService {
   }
 
   // customerId --- stripe customer id
-  stripeCharge(orderId: string, clientId: string, clientName: string, amount: number,
-    merchantName: string, token: string): Observable<any> {
+  stripeCharge(order: IOrder, paid: number, token: any): Observable<any> {
     const url = this.url + '/stripeCharge';
-    return this.doPost(url, {
-      token: token, orderId: orderId, clientId: clientId, clientName: clientName, amount: amount, merchantName: merchantName});
+    return this.doPost(url, { token: token, order: order, paid: paid });
   }
 
   stripeCreateCustomer( tokenId: string, clientId: string, clientName: string, clientPhoneNumber: string): Observable<any> {
@@ -43,16 +41,9 @@ export class PaymentService extends EntityService {
   // payment_method: b.paymentMethod, // ALIPAY, UNIONPAY
   // trans_amount: b.amount
 
-  snappayCharge( amount: number, merchantName: string, orderId: string, clientId: string, clientName: string,
-    paymentMethod: string): Observable<any> {
+  snappayCharge( order: IOrder, paid: number): Observable<any> {
     const url = this.url + '/snappayCharge';
-    return this.doPost(url, {orderId: orderId,
-      amount: amount,
-      merchantName: merchantName,
-      paymentMethod: paymentMethod,
-      clientId: clientId,
-      clientName: clientName
-    });
+    return this.doPost(url, { order: order, paid: paid });
   }
 
   refund(chargeId: string): Observable<any> {

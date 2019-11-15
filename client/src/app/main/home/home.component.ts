@@ -132,8 +132,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.route.queryParamMap.pipe(takeUntil(this.onDestroy$)).subscribe(queryParams => {
       const code = queryParams.get('code');
 
-      const bRedirectPayComplete = this.processPay(queryParams);
-      if (bRedirectPayComplete) {
+      // process payment route ?clientId=x&paymentMethod=y
+      const clientId = queryParams.get('clientId'); // use for after card pay, could be null
+      if (clientId) {
+        this.accountSvc.find({_id: clientId}).pipe(takeUntil(this.onDestroy$)).subscribe((accounts) => {
+          this.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
+          self.router.navigate(['order/history']);
+        });
         return;
       }
 
@@ -170,25 +175,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
     });
 
-  }
-
-  // url from snappayCharge in backend
-  processPay(queryParams: any) {
-    const orderId = queryParams.get('orderId'); // use for after card pay, could be null
-    const paid = queryParams.get('amount'); // use for after card pay, could be null
-
-    if (orderId && paid) {
-      this.router.navigate(['/payment/complete'], {
-        queryParams: {
-          msg: 'success',
-          orderId: orderId,
-          paid: paid,
-        }
-      });
-      return true;
-    } else {
-      return false;
-    }
   }
 
   // data : {id:'xxx', ttl: 10000, userId: 'xxxxx' }

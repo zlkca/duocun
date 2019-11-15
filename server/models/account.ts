@@ -216,6 +216,7 @@ export class Account extends Model {
     }
   }
 
+  // deprecated
   updateMyBalanceForRemoveOrder(order: any): Promise<any> {
     const clientId = order.clientId;
     return new Promise((resolve, reject) => {

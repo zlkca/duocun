@@ -625,72 +625,19 @@ export class Order extends Model {
     });
   }
 
-  afterRemoveOrder(req: Request, res: Response) {
-    const orderId = req.body.orderId;
 
-    this.processAfterRemoveOrder(orderId).then(() => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ status: 'success' }, null, 3));
-    });
-  }
-
-  processAfterRemoveOrder(orderId: string) : Promise<any> {
-    return new Promise( (resolve, reject) => {
-      this.find({id: orderId}).then((orders: any) => { // status: del
-        if(orders && orders.length>0){
-          const order = orders[0];
-          // step 1: calculate and update my balance
-          this.accountModel.updateMyBalanceForRemoveOrder(order).then((myBalance: any) => {
-            // step 2: process group discount for others
-            // this.removeGroupDiscount(order.delivered, order.address).then( (x) => {
-              resolve(myBalance);
-            // });
-          });
-        }else{
-          resolve(null);
-        }
-      });
-    });
-  }
-
-  // credit card, wechatpay only
-  doAfterPayOrder(clientId: string, merchantId: string, dateType: string, address: string, paid: number): Promise<any> {
-    return new Promise((resolve, reject) => {
-      // this.accountModel.updateMyBalanceForAddOrder(clientId, paid).then((ret: any) => {
-        // this.addGroupDiscount(clientId, merchantId, dateType, address).then( (xs: any) => {
-          resolve();
-        // });
-      // });
-    });
-  }
-
-  // after pay order
-  afterAddOrder(req: Request, res: Response) {
-    const clientId = req.body.clientId;
-    const merchantId = req.body.merchantId;
-    const dateType = req.body.dateType;
-    const address = req.body.address;
-    const paid = req.body.paid;
-
-    this.doAfterPayOrder(clientId, merchantId, dateType, address, paid).then( () => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ status: 'success' }, null, 3));
-    });
-  }
-
-  // action --- 'pay by card'
-  processPayment(req: Request, res: Response) {
-    const payment: IPayment = req.body;
-    const orderId = payment.orderId;
-    const clientId = payment.clientId;
-    const clientName = payment.clientName;
-    const merchantId = payment.merchantId;
-    const merchantName = payment.merchantName;
-    const action = payment.action;
-    const cost = payment.cost;
-    const total = payment.total;
-    const paid = payment.paid;
-    const chargeId = payment.chargeId;
+  // --------------------------------------------------------------------------------------
+  // 1.update order status to 'paid'
+  // 2.add two transactions for place order and add another transaction for deposit to bank
+  // 3.update account balance
+  doProcessPayment(order: IOrder, action: string, paid: number, chargeId: string){
+    const orderId = order._id;
+    const merchantId: string = order.merchantId.toString();
+    const merchantName = order.merchantName;
+    const clientId: string = order.clientId.toString();
+    const clientName = order.clientName;
+    const cost = order.cost;
+    const total = order.total;
 
     const tr: ITransaction = {
       fromId: clientId,
@@ -701,16 +648,20 @@ export class Order extends Model {
       amount: Math.round(paid * 100) / 100,
     };
 
-    this.transactionModel.saveTransactionsForPlaceOrder(merchantId, merchantName, clientId, clientName, cost, total).then(()  => {
-      this.transactionModel.doInsertOne(tr).then(t => {
-        const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
-        this.updateOne({ _id: orderId }, data).then((r: any) => { // result
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(r, null, 3));
+    return new Promise((resolve, reject) => {
+      this.transactionModel.saveTransactionsForPlaceOrder(merchantId, merchantName, clientId, clientName, cost, total).then(()  => {
+        this.transactionModel.doInsertOne(tr).then(t => {
+          const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
+          this.updateOne({ _id: orderId }, data).then((r: any) => { // result
+            // res.setHeader('Content-Type', 'application/json');
+            // res.end(JSON.stringify(r, null, 3));
+            resolve(r);
+          });
         });
       });
     });
   }
+
 
   // tools
   updatePurchaseTag(req: Request, res: Response) {

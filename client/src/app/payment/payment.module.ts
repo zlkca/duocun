@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PaymentRoutingModule } from './payment-routing.module';
 import { PaymentFormComponent } from './payment-form/payment-form.component';
-import { PayCompleteComponent } from './pay-complete/pay-complete.component';
 import { OrderService } from '../order/order.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { BalanceService } from './balance.service';
@@ -16,7 +15,9 @@ import { SharedService } from '../shared/shared.service';
     MatSnackBarModule,
     PaymentRoutingModule
   ],
-  declarations: [PaymentFormComponent, PayCompleteComponent],
+  declarations: [
+    PaymentFormComponent
+  ],
   providers: [
     OrderService,
     BalanceService,

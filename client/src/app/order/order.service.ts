@@ -76,18 +76,4 @@ export class OrderService extends EntityService {
   }
 
 
-  processPayment( order: IOrder, action: string, paid: number, chargeId: string ): Observable<any> {
-    const url = this.url + '/processPayment';
-    return this.doPost(url, {
-      orderId: order._id,
-      clientId: order.clientId,
-      clientName: order.clientName,
-      merchantId: order.merchantId,
-      merchantName: order.merchantName,
-      cost: order.cost,
-      total: order.total,
-      action: action,
-      paid: paid,
-      chargeId: chargeId });
-  }
 }

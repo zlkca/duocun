@@ -14,9 +14,9 @@ export function OrderRouter(db: DB){
   router.put('/', (req, res) => { controller.replace(req, res); });
 
   router.post('/pay', (req, res) => { controller.payOrder(req, res); });
-  router.post('/processPayment', (req, res) => { controller.processPayment(req, res); });
-  router.post('/afterAddOrder', (req, res) => { controller.afterAddOrder(req, res); });
-  router.post('/afterRemoveOrder', (req, res) => { controller.afterRemoveOrder(req, res); });
+
+  // deprecated
+  // router.post('/afterRemoveOrder', (req, res) => { controller.afterRemoveOrder(req, res); });
   router.post('/', (req, res) => { controller.create(req, res); });
 
   router.patch('/updateDelivered', (req, res) => { controller.updateDeliveryTime(req, res); });
