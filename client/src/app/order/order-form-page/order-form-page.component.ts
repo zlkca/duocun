@@ -396,7 +396,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         });
       } else if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
         self.loading = false;
-        this.paymentSvc.snappayCharge(order, payable).pipe(takeUntil(self.onDestroy$)).subscribe((r) => {
+        this.paymentSvc.snappayCharge(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((r) => {
           self.bSubmitted = false;
           self.loading = false;
           if (r.msg === 'success') {
@@ -616,28 +616,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           // }
         }
       });
-    });
-  }
-
-  payBySnappay(paid, order, cb) {
-    const self = this;
-    self.loading = false;
-    this.paymentSvc.snappayCharge(paid, order).pipe(takeUntil(self.onDestroy$)).subscribe((ret) => {
-      if (ret.msg === 'success') {
-        cb(ret);
-        // window.location = ret.data[0].h5pay_url; // qrcode_url;
-      } else {
-        cb(ret);
-      }
-      // if (result.error) {
-      //   // // Inform the user if there was an error.
-      //   // const errorElement = document.getElementById('card-errors');
-      //   // errorElement.textContent = result.error.message;
-      // } else {
-      //   self.paymentSvc.stripeCharge(amount, merchantName, result.token).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
-      //     cb(ret);
-      //   });
-      // }
     });
   }
 

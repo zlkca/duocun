@@ -143,13 +143,13 @@ export class ClientPayment extends Model {
       metadata: { orderId: order._id, customerId: order.clientId, customerName: order.clientName, merchantName: order.merchantName },
     }, function (err: any, charge: any) {
       res.setHeader('Content-Type', 'application/json');
-      if(!err){
+      if (!err) {
         self.orderEntity.doProcessPayment(order, 'pay by card', paid, charge.id).then(() => {
           res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
         }, err => {
           res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
         });
-      }else{
+      } else {
         res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
       }
     });
@@ -177,34 +177,167 @@ export class ClientPayment extends Model {
       out_order_no: order._id,
       payment_method: order.paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
       return_url: 'https://duocun.com.cn?clientId=' + order.clientId + '&paymentMethod=' + order.paymentMethod,
-      timestamp: new Date().toISOString().split('.')[0].replace('T',' '),
+      timestamp: new Date().toISOString().split('.')[0].replace('T', ' '),
       trans_amount: paid,
       version: '1.0'
     };
-  
+
     const sParams = this.createLinkstring(data);
     const encrypted = Md5.hashStr(sParams + this.cfg.SNAPPAY.MD5_KEY);
     data['sign'] = encrypted;
     data['sign_type'] = 'MD5';
-    
+
 
     // const key = new NodeRSA('-----BEGIN RSA PRIVATE KEY-----\n'+
     //   this.cfg.SNAPPAY.PRIVATE_KEY
     //   +'\n-----END RSA PRIVATE KEY-----');
-    
+
     // const encrypted = key.encrypt(sParams, 'base64');
     // sParams + this.cfg.SNAPPAY.PUBLIC_KEY + encrypted; 
 
     // let url = 'https://open.snappay.ca/api/gateway' + sParams + this.cfg.SNAPPAY.PUBLIC_KEY + encrypted;
-    var options = {
+
+    this.snappayPayReq(res, order, paid);
+  }
+
+  snappaySignParams(data: any){
+    const sParams = this.createLinkstring(data);
+    const encrypted = Md5.hashStr(sParams + this.cfg.SNAPPAY.MD5_KEY);
+    data['sign'] = encrypted;
+    data['sign_type'] = 'MD5';
+    return data;
+  }
+
+  snappayPayReq(res: Response, order: any, paid: number) {
+    const data: any = { // the order matters
+      app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
+      charset: 'UTF-8',                          // Madatory
+      description: order.merchantName,           // Service Mandatory
+      format: 'JSON',                            // Madatory
+      merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
+      method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
+      out_order_no: order._id,                   // Service Mandatory
+      payment_method: order.paymentMethod,       // WECHATPAY, ALIPAY, UNIONPAY
+      return_url: 'https://duocun.com.cn?clientId=' + order.clientId + '&paymentMethod=' + order.paymentMethod,
+      trans_amount: paid,                        // Service Mandatory
+      version: '1.0'                             // Madatory
+    };
+
+    const params = this.snappaySignParams(data);
+    const options = {
       hostname: 'open.snappay.ca',
       port: 443,
       path: '/api/gateway',
       method: 'POST',
       headers: {
-           'Content-Type': 'application/json',
-           // 'Content-Length': Buffer.byteLength(data)
-         }
+        'Content-Type': 'application/json',
+        // 'Content-Length': Buffer.byteLength(data)
+      }
+    };
+    const post_req = https.request(options, (res1: IncomingMessage) => {
+      let ss = '';
+      res1.on('data', (d) => { ss += d; });
+      res1.on('end', (r: any) => {
+        if (ss) { // code, data, msg, total, psn, sign
+          const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
+          if (ret.msg === 'success') {
+            this.snappayQueryOrderReq(order._id); // .then(r => {
+            //   if(r.msg === 'success'){
+            //     const d = r.data[0];
+            //     this.snappayNotifyReq(res, order._id, d.pay_user_account_id, paid, order.paymentMethod, d.trans_no, d.trans_status);  
+            //   }else{
+            //     res.send(ret);
+            //   }
+            // });
+            // res.send(ret);
+          } else {
+            res.send(ret);
+          }
+        } else {
+          res.send({ msg: 'failed' });
+        }
+      });
+    });
+
+    post_req.write(JSON.stringify(params));
+    post_req.end();
+  }
+
+  snappayQueryOrderReq(orderId: string) {
+    const data: any = { // the order matters
+      app_id: this.cfg.SNAPPAY.APP_ID,  // Mandatory
+      charset: 'UTF-8',                 // Mandatory
+      format: 'JSON',                   // Mandatory
+      merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,  // Service Mandatory
+      method: 'pay.orderquery',                   // Service Mandatory
+      out_order_no: orderId,                      // Service Optional
+      version: '1.0'                    // Mandatory
+    };
+
+    const params = this.snappaySignParams(data);
+    const options = {
+      hostname: 'open.snappay.ca',
+      port: 443,
+      path: '/api/gateway',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Content-Length': Buffer.byteLength(data)
+      }
+    };
+
+    // return new Promise((resolve, reject) => {
+      const post_req = https.request(options, (res1: IncomingMessage) => {
+        let ss = '';
+        res1.on('data', (d) => { ss += d; });
+        res1.on('end', (r: any) => {
+          if (ss) { // code, data, msg, total, psn, sign
+            const ret = JSON.parse(ss); // s.data = {trans_no:x, out_order_no:x, merchant_no:x, trans_status:x }
+            if (ret.msg === 'success') {
+              // resolve(ret);
+              console.log(ss);
+            } else {
+              // resolve(ret);
+            }
+          } else {
+            // resolve({ msg: 'failed' });
+          }
+        });
+      });
+  
+      post_req.write(JSON.stringify(params));
+      post_req.end();
+    // });
+  }
+
+  // This request could response multiple times !!!
+  snappayNotifyReq(res: Response, orderId: string, pay_user_account_id: string, paid: number, paymentMethod:string, trans_no:string, trans_status: number) {
+    const data: any = { // the order matters
+      app_id: this.cfg.SNAPPAY.APP_ID,            // Mandatory
+      charset: 'UTF-8',                           // Mandatory
+      customer_paid_amount: paid,                 // Service Mandatory
+      format: 'JSON',                             // Mandatory
+      merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,  // Service Mandatory
+      method: 'pay.notify',                       // Service Mandatory
+      out_order_no: orderId,                      // Service Mandatory
+      payment_method: paymentMethod,              // Service Mandatory   WECHATPAY, ALIPAY, UNIONPAY
+      pay_user_account_id: pay_user_account_id,   // Service Mandatory
+      trans_amount: paid,               // Service Mandatory
+      trans_end_time: new Date(),       // Service Mandatory
+      trans_no: trans_no,               // Service Mandatory
+      trans_status: trans_status,       // Service Mandatory
+      version: '1.0'                    // Mandatory
+    };
+
+    const params = this.snappaySignParams(data);
+    const options = {
+      hostname: 'open.snappay.ca',
+      port: 443,
+      path: '/api/gateway',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
     };
     const post_req = https.request(options, (res1: IncomingMessage) => {
       let ss = '';
@@ -217,30 +350,31 @@ export class ClientPayment extends Model {
 
       res1.on('end', (r: any) => {
         if (ss) { // code, data, msg, total, psn, sign
-          // console.log('receiving2: ' + ss);
           const ret = JSON.parse(ss);
           if (ret.msg === 'success') {
             // --------------------------------------------------------------------------------------
             // 1.update order status to 'paid'
             // 2.add two transactions for place order and add another transaction for deposit to bank
             // 3.update account balance
-            this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
-              res.send(ret);
-            }, err => {
-              res.send(ret);
-            });
-          }else{
+            // this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
+            //   res.send(ret);
+            // }, err => {
+            //   res.send(ret);
+            // });
+            res.send(ret);
+          } else {
             res.send(ret);
           }
-        }else{
-          res.send({msg: 'failed'});
+        } else {
+          res.send({ msg: 'failed' });
         }
       });
     });
 
-    post_req.write(JSON.stringify(data));
+    post_req.write(JSON.stringify(params));
     post_req.end();
   }
+
 
   stripeRefund(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
@@ -255,7 +389,7 @@ export class ClientPayment extends Model {
     });
   }
 
-  addGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string) : Promise<any> {
+  addGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const date = dateType === 'today' ? moment() : moment().add(1, 'day');
       const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
@@ -271,7 +405,7 @@ export class ClientPayment extends Model {
   }
 
   removeGroupDiscount(date: string, address: string): Promise<any> {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }
       this.orderEntity.find(q).then((orders: any[]) => {
         this.orderEntity.removeGroupDiscounts(orders).then((orderUpdates: any[]) => {
@@ -289,7 +423,7 @@ export class ClientPayment extends Model {
     const dateType = req.body.dateType;
     const address = req.body.address;
 
-    this.addGroupDiscount(clientId, merchantId, dateType, address).then( (xs: any) => {
+    this.addGroupDiscount(clientId, merchantId, dateType, address).then((xs: any) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ status: 'success' }, null, 3));
     });
@@ -299,7 +433,7 @@ export class ClientPayment extends Model {
     const delivered = req.body.delivered;
     const address = req.body.address;
 
-    this.removeGroupDiscount(delivered, address).then( (xs: any) => {
+    this.removeGroupDiscount(delivered, address).then((xs: any) => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ status: 'success' }, null, 3));
     });
