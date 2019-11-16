@@ -14,6 +14,17 @@ import { ObjectID } from "../../node_modules/@types/bson";
 import { Transaction } from "./transaction";
 import { resolve } from "path";
 
+
+var fs = require('fs');
+var util = require('util');
+var log_file = fs.createWriteStream('~/duocun-debug.log', {flags : 'w'}); // __dirname + 
+var log_stdout = process.stdout;
+
+console.log = function(d:any) { //
+  log_file.write(util.format(d) + '\n');
+  log_stdout.write(util.format(d) + '\n');
+};
+
 export class ClientPayment extends Model {
   cfg: Config;
   balanceEntity: ClientBalance;
@@ -163,6 +174,12 @@ export class ClientPayment extends Model {
     return s.substring(0, s.length - 1);
   }
 
+  snappayNotify(req: Request, res: Response) {
+    const b = req.body;
+    console.log('snappayNotify trans_status' + b.trans_status);
+    console.log('snappayNotify trans_no' + b.trans_status);
+  }
+
   snappayCharge(req: Request, res: Response) {
     const paid = req.body.paid;
     const order = req.body.order;
@@ -195,6 +212,7 @@ export class ClientPayment extends Model {
 
     // let url = 'https://open.snappay.ca/api/gateway' + sParams + this.cfg.SNAPPAY.PUBLIC_KEY + encrypted;
 
+    // this.snappayQueryOrderReq('5d711e68e5730f23e4d9cb4f');
     this.snappayPayReq(res, order, paid);
   }
 
@@ -214,6 +232,7 @@ export class ClientPayment extends Model {
       format: 'JSON',                            // Madatory
       merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
+      notify_url:'https://duocun.com.cn/api/ClientPayments/snappayNotify',
       out_order_no: order._id,                   // Service Mandatory
       payment_method: order.paymentMethod,       // WECHATPAY, ALIPAY, UNIONPAY
       return_url: 'https://duocun.com.cn?clientId=' + order.clientId + '&paymentMethod=' + order.paymentMethod,
@@ -240,6 +259,7 @@ export class ClientPayment extends Model {
           const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
           if (ret.msg === 'success') {
             const data = ret.data[0];
+            console.log('snappayPayReq' + data.out_order_no);
             // this.snappayQueryOrderReq(data.out_order_no, data.merchant_no).then(r => {
             // //   if(r.msg === 'success'){
             // //     const d = r.data[0];
@@ -258,6 +278,7 @@ export class ClientPayment extends Model {
             }, err => {
               res.send(ret);
             });
+            // res.send(ret);
           } else {
             res.send(ret);
           }
@@ -271,7 +292,8 @@ export class ClientPayment extends Model {
     post_req.end();
   }
 
-  snappayQueryOrderReq(out_order_no: string, merchant_no: string) {
+  snappayQueryOrderReq(out_order_no: string) {
+    const merchant_no = this.cfg.SNAPPAY.MERCHANT_ID;
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,  // Mandatory
       charset: 'UTF-8',                 // Mandatory

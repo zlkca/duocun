@@ -401,8 +401,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         self.loading = false;
         this.paymentSvc.snappayCharge(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((r) => {
 
-          this.msg = r.msg;
-          this.log = r.data[0].trans_no;
+          // this.msg = r.msg;
+          // this.log = r.data[0].trans_no;
 
           self.bSubmitted = false;
           self.loading = false;

@@ -13,6 +13,7 @@ export function ClientPaymentRouter(db: DB){
   router.post('/stripeCharge', (req, res) => {controller.stripeCharge(req, res); });
   // router.post('/stripRefund', (req, res) => {controller.stripeRefund(req, res); });
 
+  router.post('/snappayNotify', (req, res) => {controller.snappayNotify(req, res); });
   router.post('/snappayCharge', (req, res) => {controller.snappayCharge(req, res); });
   // router.post('/snappayRefund', (req, res) => {controller.snappayRefund(req, res); });
 
