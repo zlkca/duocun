@@ -12,7 +12,7 @@ export class ApiMiddleWare {
 
       if(req.path === '/api/Accounts/wechatLogin' || req.path === '/api/Accounts/login'
         || req.path === '/api/Accounts/signup' || req.path === '/api/Accounts/logout'
-        || req.path === '/api/ClientPayments/snappyNotify'
+        || req.path === '/api/ClientPayments/snappayNotify'
         || req.path.includes('.jpeg') || req.path.includes('.jpg') || req.path.includes('.png')){
         next();
       }else{
