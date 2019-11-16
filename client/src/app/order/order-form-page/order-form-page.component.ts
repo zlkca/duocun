@@ -407,8 +407,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.bSubmitted = false;
           self.loading = false;
           if (r.msg === 'success') {
-            self.snackBar.open('', '已成功付款', { duration: 1800 });
-            self.snackBar.open('', '已成功下单', { duration: 2000 });
+            // self.snackBar.open('', '已成功付款', { duration: 1800 });
+            // self.snackBar.open('', '已成功下单', { duration: 2000 });
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
             self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
 
