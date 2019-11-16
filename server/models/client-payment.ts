@@ -177,11 +177,11 @@ export class ClientPayment extends Model {
   // This request could response multiple times !!!
   snappayNotify(req: Request, res: Response) {
     const b = req.body;
-    console.log('snappayNotify trans_status:' + b.trans_status);
-    console.log('snappayNotify trans_no:' + b.trans_no);
-    console.log('snappayNotify out_order_no' + b.out_order_no);
-    console.log('snappayNotify customer_paid_amount' + b.customer_paid_amount);
-    console.log('snappayNotify trans_amount' + b.trans_amount);
+    // console.log('snappayNotify trans_status:' + b.trans_status);
+    // console.log('snappayNotify trans_no:' + b.trans_no);
+    // console.log('snappayNotify out_order_no' + b.out_order_no);
+    // console.log('snappayNotify customer_paid_amount' + b.customer_paid_amount);
+    // console.log('snappayNotify trans_amount' + b.trans_amount);
 
     this.orderEntity.find({_id: b.out_order_no}).then(orders => {
       if(orders && orders.length >0){
