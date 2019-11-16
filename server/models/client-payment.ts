@@ -180,19 +180,23 @@ export class ClientPayment extends Model {
     console.log('snappayNotify trans_no:' + b.trans_no);
     console.log('snappayNotify out_order_no' + b.out_order_no);
     console.log('snappayNotify customer_paid_amount' + b.customer_paid_amount);
+    console.log('snappayNotify trans_amount' + b.trans_amount);
 
-    this.orderEntity.find({_id: b.out_order_no}).then(order => {
-      if(order.status !== 'paid'){
-        const paid = +b.customer_paid_amount;
-        // --------------------------------------------------------------------------------------
-        // 1.update order status to 'paid'
-        // 2.add two transactions for place order and add another transaction for deposit to bank
-        // 3.update account balance
-        this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
-          // res.send(ret);
-        }, err => {
-          // res.send(ret);
-        });
+    this.orderEntity.find({_id: b.out_order_no}).then(orders => {
+      if(orders && orders.length >0){
+        const order = orders[0];
+        if(order.status !== 'paid'){
+          const paid = +b.trans_amount;
+          // --------------------------------------------------------------------------------------
+          // 1.update order status to 'paid'
+          // 2.add two transactions for place order and add another transaction for deposit to bank
+          // 3.update account balance
+          this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
+            // res.send(ret);
+          }, err => {
+            // res.send(ret);
+          });
+        }
       }
     });
   }
