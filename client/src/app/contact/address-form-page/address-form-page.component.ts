@@ -205,7 +205,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.location = origin;
       self.deliveryAddress = self.locationSvc.getAddrString(origin);
       if (self.account) {
-        const query = { userId: self.account.id, placeId: r.placeId };
+        const query = { userId: self.account.id, placeId: origin.placeId };
         const lh = {
           userId: self.account.id, accountName: self.account.username, type: 'history',
           placeId: origin.placeId, location: origin, created: new Date()
