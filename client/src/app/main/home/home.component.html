@@ -5,8 +5,8 @@
 </app-merchant-list>
 
 
-<div class="map-block" [class.range]="rangeMap" *ngIf="!(places && places.length > 0) && !inRange">
-  <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="places" [ranges]="compareRanges"></app-map>
+<div class="map-block" [class.range]="!inRange" *ngIf="!(places && places.length > 0) && !inRange">
+  <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="places" [ranges]="mapRanges"></app-map>
 
   <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
     <div class="col-12">

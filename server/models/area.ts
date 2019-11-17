@@ -29,13 +29,9 @@ export class Area extends Model{
     return new Promise( (resolve, reject) => {
       this.find({}).then((areas: IArea[]) => {
         let selected: IArea = areas[0];
-
-        // console.log('getNearestArea origin:'+origin.lat);
-        // console.log('getNearestArea selected:'+selected.lat);
         let shortest = this.distanceModel.getDirectDistance(origin, selected);
         for (let i = 1; i < areas.length; i++) {
           const area = areas[i];
-          // console.log('getNearestArea area:'+area.lat);
           const distance = this.distanceModel.getDirectDistance(origin, area);
           if (shortest > distance) {
             selected = area;

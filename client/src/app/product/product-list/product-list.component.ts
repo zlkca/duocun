@@ -13,10 +13,10 @@ import { Subject } from '../../../../node_modules/rxjs';
 import * as moment from 'moment';
 import { IDelivery } from '../../delivery/delivery.model';
 import { RangeService } from '../../range/range.service';
-import { MallService } from '../../mall/mall.service';
+// import { MallService } from '../../mall/mall.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { IRange } from '../../range/range.model';
-import { IMall } from '../../mall/mall.model';
+// import { IMall } from '../../mall/mall.model';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -42,7 +42,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   deliveryDate; // moment object
   delivery: IDelivery;
   ranges: IRange[];
-  malls: IMall[];
 
   ngOnInit() {
 
@@ -58,7 +57,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   constructor(
-    private mallSvc: MallService,
     private rangeSvc: RangeService,
     private router: Router,
     private rx: NgRedux<IAppState>
@@ -70,16 +68,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       this.delivery = x;
       this.deliveryDate = x.date; // moment object
-    });
-
-    this.rangeSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(ranges => {
-      this.ranges = ranges;
-      // const origin = this.delivery.origin;
-      // const rs = this.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
-    });
-
-    this.mallSvc.find().pipe(takeUntil(this.onDestroy$)).subscribe(malls => {
-      this.malls = malls;
     });
   }
 
@@ -104,24 +92,24 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
     const origin = this.delivery.origin;
     if (origin) {
-      const rs = this.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, this.ranges);
-      const mall = this.malls.find(m => m.id === this.restaurant.malls[0]);
+      this.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((inRange: boolean) => {
+        if (!inRange) {
+          alert('该商家不在配送范围内，暂时无法配送'); // should never go here!
+          return;
+        } else {
+          this.rx.dispatch({
+            type: CartActions.ADD_TO_CART,
+            payload: {
+              items: [{
+                productId: p._id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures, cost: p.cost,
+                merchantId: p.merchantId, merchantName: this.restaurant.name
+              }]
+            }
+          });
+        }
+      });
 
-      if (!this.mallSvc.isInRange(mall, rs)) {
-        alert('该商家不在配送范围内，暂时无法配送');
-        return;
-      }
     }
-
-    this.rx.dispatch({
-      type: CartActions.ADD_TO_CART,
-      payload: {
-        items: [{
-          productId: p._id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures, cost: p.cost,
-          merchantId: p.merchantId, merchantName: this.restaurant.name
-        }]
-      }
-    });
   }
 
   removeFromCart(p: IProduct) {

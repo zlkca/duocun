@@ -12,7 +12,7 @@
   <app-location-list *ngIf="options && options.length > 0" [account]="account" [places]="options" (placeSeleted)="onSelectPlace($event)"></app-location-list>
 
   <div class="map-block" [class.range]="rangeMap" *ngIf="location && !(options && options.length > 0) && !inRange">
-    <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="options" [ranges]="compareRanges"></app-map>
+    <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="options" [ranges]="mapRanges"></app-map>
   
     <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
         <div class="col-12">

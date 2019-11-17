@@ -28,6 +28,7 @@ import { IDelivery } from '../../delivery/delivery.model';
 import { ContactActions } from '../../contact/contact.actions';
 import * as moment from 'moment';
 import { RangeService } from '../../range/range.service';
+import { IRange } from '../../range/range.model';
 
 const WECHAT_APP_ID = environment.WECHAT.APP_ID;
 const WECHAT_REDIRCT_URL = environment.WECHAT.REDIRECT_URL;
@@ -64,10 +65,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   selectedDate = 'today';
   date; // moment object
   address: ILocation;
-  compareRanges;
+
+  mapRanges;
   mapZoom;
-  rangeMap;
   mapCenter;
+
   availableRanges;
   sOrderDeadline;
   today;
@@ -105,15 +107,31 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
-      if (d && d.origin) {
+      const origin = d.origin;
+      if (d && origin) {
         self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
         self.placeForm.get('addr').patchValue(self.deliveryAddress);
         if (self.deliveryAddress && self.bUpdateLocationList) {
           self.getSuggestLocationList(self.deliveryAddress, false);
           self.bAddressList = false;
         }
-        this.address = d.origin;
-        this.checkRange(d.origin);
+
+        this.rangeSvc.findAvailables(d.origin).pipe(takeUntil(this.onDestroy$)).subscribe((ranges: IRange[]) => {
+          this.inRange = (ranges && ranges.length > 0) ? true : false;
+          this.mapRanges = ranges;
+          if (this.inRange) {
+            self.mapZoom = 14;
+            self.mapCenter = origin;
+          } else {
+            self.mapZoom = 9;
+            const farNorth = { lat: 44.2653618, lng: -79.4191007 };
+            self.mapCenter = {
+              lat: (origin.lat + farNorth.lat) / 2,
+              lng: (origin.lng + farNorth.lng) / 2
+            };
+          }
+          this.address = origin; // order matters
+        });
       } else {
         this.address = null;
         this.inRange = true;
@@ -386,35 +404,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
       this.phase = 'today:lunch';
     }
-  }
-
-  // ----------------------------------------
-  // use for center the range map
-  checkRange(origin) {
-    const self = this;
-    self.rangeSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
-      const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
-      self.inRange = (rs && rs.length > 0) ? true : false;
-      self.availableRanges = rs;
-      if (self.inRange) {
-        self.compareRanges = [];
-        self.mapZoom = 14;
-        self.rangeMap = false;
-        self.mapCenter = origin;
-      } else {
-        self.compareRanges = ranges;
-        self.mapZoom = 9;
-        self.rangeMap = true;
-
-        const farNorth = { lat: 44.2653618, lng: -79.4191007 };
-        self.mapCenter = {
-          lat: (origin.lat + farNorth.lat) / 2,
-          lng: (origin.lng + farNorth.lng) / 2
-        };
-      }
-
-      this.address = origin; // order matters
-    });
   }
 
   resetAddress() {

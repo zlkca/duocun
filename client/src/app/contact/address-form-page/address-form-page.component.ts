@@ -43,7 +43,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   form;
   onDestroy$ = new Subject<any>();
   inRange;
-  compareRanges = [];
+  mapRanges = [];
   mapZoom = 14;
   rangeMap = false;
   mapCenter;
@@ -199,36 +199,46 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   onSelectPlace(e) {
     const self = this;
-    const r: ILocation = e.location;
+    const origin: ILocation = e.location;
     this.options = [];
-    if (r) {
-      this.location = r;
-      // this.deliveryAddress = e.address; // set address text to input
-      self.deliveryAddress = self.locationSvc.getAddrString(r);
-      // this.rx.dispatch({
-      //   type: CommandActions.SEND,
-      //   payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
-      // });
-
+    if (origin) {
+      this.location = origin;
+      self.deliveryAddress = self.locationSvc.getAddrString(origin);
       if (self.account) {
         const query = { userId: self.account.id, placeId: r.placeId };
         const lh = {
           userId: self.account.id, accountName: self.account.username, type: 'history',
-          placeId: r.placeId, location: r, created: new Date()
+          placeId: origin.placeId, location: origin, created: new Date()
         };
         self.locationSvc.saveIfNot(query, lh).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
 
         });
       }
 
-      this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
+      this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: origin } });
 
-      this.checkMallSchedule(r, this.delivered.toISOString()).then(bOnSchedule => {
+      this.checkMallSchedule(origin, this.delivered.toISOString()).then(bOnSchedule => {
         this.onSchedule = bOnSchedule;
-        this.checkRange(r, () => {
+
+        this.rangeSvc.findAvailables(origin).pipe(takeUntil(this.onDestroy$)).subscribe((ranges: IRange[]) => {
+          this.inRange = (ranges && ranges.length > 0) ? true : false;
+          this.mapRanges = ranges;
+          if (this.inRange) {
+            self.mapZoom = 14;
+            self.mapCenter = origin;
+          } else {
+            self.mapZoom = 9;
+            const farNorth = { lat: 44.2653618, lng: -79.4191007 };
+            self.mapCenter = {
+              lat: (origin.lat + farNorth.lat) / 2,
+              lng: (origin.lng + farNorth.lng) / 2
+            };
+          }
+          // this.address = origin; // order matters
+
           self.rx.dispatch({
             type: CommandActions.SEND,
-            payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+            payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: this.inRange } }
           });
         });
       });
@@ -444,36 +454,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
           resolve(false);
         }
       });
-    });
-  }
-
-  checkRange(origin, cb) {
-    const self = this;
-    self.rangeSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe(ranges => {
-      const rs = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, ranges);
-      this.availableRanges = rs;
-      self.inRange = (rs && rs.length > 0) ? true : false;
-
-      // self.availableRanges = rs;
-      if (self.inRange) {
-        self.compareRanges = [];
-        self.mapZoom = 14;
-        self.rangeMap = false;
-        self.mapCenter = origin;
-      } else {
-        self.compareRanges = ranges;
-        self.mapZoom = 9;
-        self.rangeMap = true;
-
-        const farNorth = { lat: 44.2653618, lng: -79.4191007 };
-        self.mapCenter = {
-          lat: (origin.lat + farNorth.lat) / 2,
-          lng: (origin.lng + farNorth.lng) / 2
-        };
-      }
-      if (cb) {
-        cb();
-      }
     });
   }
 

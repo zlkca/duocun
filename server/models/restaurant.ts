@@ -7,8 +7,9 @@ import { Area, ILatLng, IArea } from "./area";
 import { Range, IRange } from './range';
 
 import { Request, Response } from "express";
-import { ObjectID } from "mongodb";
+import { ObjectID, Collection } from "mongodb";
 import moment from "moment";
+import { resolve } from "path";
 
 // ------------- interface v2 ----------------
 export interface IPhase {
@@ -35,6 +36,8 @@ export interface IRestaurant {
   // inRange: boolean;
   onSchedule: boolean;
   phases: IPhase[];
+
+  mall: IMall;
 }
 
 export class Restaurant extends Model {
@@ -89,30 +92,30 @@ export class Restaurant extends Model {
     });
   }
 
-  isOrderEnded(dt: moment.Moment, origin: ILocation, r: IRestaurant, rs: IRange[]){
-    const last = r.phases[ r.phases.length - 1 ].orderEnd;
+  isOrderEnded(dt: moment.Moment, origin: ILocation, r: IRestaurant, rs: IRange[]) {
+    const last = r.phases[r.phases.length - 1].orderEnd;
     const first = r.phases[0].orderEnd;
-    if(moment().isAfter(this.getTime(dt, last))){
+    if (moment().isAfter(this.getTime(dt, last))) {
       return true;
     } else {
-      if(moment().isAfter(this.getTime(dt, first))) {
-        if(this.range.inRange(origin, rs)){
+      if (moment().isAfter(this.getTime(dt, first))) {
+        if (this.range.inRange(origin, rs)) {
           return false;
-        }else{
+        } else {
           return true;
         }
-      }else{
+      } else {
         return false;
       }
     }
   }
 
-  getOrderEndTime(origin: ILocation, r: IRestaurant, rs: IRange[]){
-    const last = r.phases[ r.phases.length - 1 ].orderEnd;
+  getOrderEndTime(origin: ILocation, r: IRestaurant, rs: IRange[]) {
+    const last = r.phases[r.phases.length - 1].orderEnd;
     const first = r.phases[0].orderEnd;
-    if(this.range.inRange(origin, rs)){
+    if (this.range.inRange(origin, rs)) {
       return last;
-    }else{
+    } else {
       return first;
     }
   }
@@ -150,49 +153,72 @@ export class Restaurant extends Model {
     }
   }
 
+  getRoadDistanceToMalls(origin: ILocation): Promise<IDistance[]> {
+    return new Promise((resolve, reject) => {
+      this.mall.find({}).then((malls: IMall[]) => {
+        const destinations: ILocation[] = [];
+        malls.map((m: IMall) => {
+          const loc = {
+            lat: m.lat,
+            lng: m.lng,
+            placeId: m.placeId,
+            city: '',
+            province: '',
+            streetName: '',
+            streetNumber: ''
+          };
+          destinations.push(loc);
+        });
+
+        this.distance.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
+          resolve(ds);
+        });
+      });
+    });
+  }
+
+
+  // find with join
+  jFind(query: any, options?: any): Promise<IRestaurant[]> {
+    const self = this;
+    return new Promise((resolve, reject) => {
+      this.mall.find({}).then((malls: IMall[]) => {
+        this.find(query, options).then(rs => {
+          rs.map((r: any) => {
+            r.mall = malls.find((m: IMall) => m._id.toString() === r.mallId.toString());
+          });
+
+          resolve(rs);
+        });
+      });
+    });
+  }
+
   // query { status: 'active' }
   loadByDeliveryInfo(origin: ILocation, dt: moment.Moment, query: any): Promise<any> {
     const dow: number = dt.day();
     return new Promise((resolve, reject) => {
       this.area.getNearestArea(origin).then((area: IArea) => {
-        this.mall.find({}).then((malls: IMall[]) => {
-          const destinations: ILocation[] = [];
-          malls.map((m: IMall) => {
-            const loc = {
-              lat: m.lat,
-              lng: m.lng,
-              placeId: m.placeId,
-              city: '',
-              province: '',
-              streetName: '',
-              streetNumber: ''
-            };
-            destinations.push(loc);
-          });
-
-          this.mall.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
-            this.distance.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
-              this.range.find({ type: 'free', status: 'active' }).then((rs: any[]) => {
-                this.find(query).then(ms => {
-                  ms.map((r: any) => {
-                    const mall: any = malls.find((m: any) => m._id.toString() === r.mallId.toString())
-                    const d = ds.find(x => x.destinationPlaceId === mall.placeId);
-                    const scheduledMallId = scheduledMallIds.find((mId: any) => mId.toString() === mall._id.toString());
-                    r.onSchedule = scheduledMallId ? true : false;
-                    r.distance = d ? d.element.distance.value : 0;
-                    r.inRange = mall ? true : false; // how? fix me
-                    r.orderEnded = this.isOrderEnded(dt, origin, r, rs);
-                    r.orderEndTime = this.getOrderEndTime(origin, r, rs);
-                    r.isClosed = this.isClosed(dt, r.closed, r.dow);
-                  });
-                  resolve(ms);
+        this.mall.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
+          this.getRoadDistanceToMalls(origin).then((ds: IDistance[]) => {
+            this.range.find({ type: 'free', status: 'active' }).then((rs: any[]) => {
+              this.jFind(query).then(ms => {
+                ms.map((r: any) => {
+                  const d = ds.find(x => x.destinationPlaceId === r.mall.placeId);
+                  const scheduledMallId = scheduledMallIds.find((mId: any) => mId.toString() === r.mall._id.toString());
+                  r.onSchedule = scheduledMallId ? true : false;
+                  r.distance = d ? d.element.distance.value : 0;
+                  r.inRange = r.mall ? true : false; // is it in orange circle ? fix me
+                  r.orderEnded = this.isOrderEnded(dt, origin, r, rs);  // for free range
+                  r.orderEndTime = this.getOrderEndTime(origin, r, rs); // for free range
+                  r.isClosed = this.isClosed(dt, r.closed, r.dow);
                 });
+                resolve(ms);
               });
-            }, err => {
-              reject();
             });
+          }, err => {
+            reject();
           });
-
         });
       });
     });

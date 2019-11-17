@@ -8,7 +8,7 @@ import { MallSchedule } from "./mall-schedule";
 import { ObjectID, Collection } from "mongodb";
 
 export interface IMall {
-  id?: any;
+  _id?: any;
   name?: string;
   description?: string;
   placeId: string;
