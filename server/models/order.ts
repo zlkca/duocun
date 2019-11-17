@@ -43,7 +43,7 @@ export interface IOrderItem {
 }
 
 export interface IOrder {
-  _id?: string;
+  _id: string;
   code?: string;
   clientId: string;
   clientName: string;
@@ -267,7 +267,9 @@ export class Order extends Model {
               if (order.status === 'tmp') {
                 resolve(savedOrder);
               } else {
-                this.transactionModel.saveTransactionsForPlaceOrder(merchantId, merchantName, clientId, clientName, cost, total).then(() => {
+                this.transactionModel.saveTransactionsForPlaceOrder(
+                  savedOrder._id.toString(), 
+                  merchantId, merchantName, clientId, clientName, cost, total).then(() => {
                   resolve(savedOrder);
                 });
               }
@@ -294,8 +296,12 @@ export class Order extends Model {
               const clientName = order.clientName;
               const cost = order.cost;
               const total = order.total;
-              this.transactionModel.saveTransactionsForRemoveOrder(merchantId, merchantName, clientId, clientName, cost, total).then(() => {
-                resolve(order);
+
+
+              this.transactionModel.updateMany({orderId: orderId}, {status: 'del'}).then( () => {
+                this.transactionModel.saveTransactionsForRemoveOrder(merchantId, merchantName, clientId, clientName, cost, total).then(() => {
+                  resolve(order);
+                });
               });
             }
           });
@@ -649,7 +655,9 @@ export class Order extends Model {
     };
 
     return new Promise((resolve, reject) => {
-      this.transactionModel.saveTransactionsForPlaceOrder(merchantId, merchantName, clientId, clientName, cost, total).then(()  => {
+      this.transactionModel.saveTransactionsForPlaceOrder(
+        order._id.toString(), 
+        merchantId, merchantName, clientId, clientName, cost, total).then(()  => {
         this.transactionModel.doInsertOne(tr).then(t => {
           const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
           this.updateOne({ _id: orderId }, data).then((r: any) => { // result
