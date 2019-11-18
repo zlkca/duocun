@@ -30,7 +30,7 @@ export interface IAccount {
   roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'driver', 'user'
   visited?: boolean;
   stripeCustomerId?: string;
-  pickupTime?: string;
+  pickup?: string;
   balance?: number;
 }
 

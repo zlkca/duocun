@@ -297,7 +297,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const order: IOrder = {
         clientId: contact.accountId,
         clientName: contact.username,
-        defaultPickupTime: account.pickupTime,
+        defaultPickupTime: account.pickup,
         merchantId: cart.merchantId,
         merchantName: cart.merchantName,
         items: items,
@@ -618,7 +618,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           //   });
           // } else {
           // account.stripeCustomerId
-          const pickup = this.account.pickup;
+          const pickup = self.account.pickup;
           self.paymentSvc.stripeCharge(order, paid, result.token, pickup).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
             self.loading = true;
             resolve(ret);
