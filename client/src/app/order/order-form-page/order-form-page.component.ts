@@ -342,6 +342,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const v = this.form.value;
       const order = self.createOrder(this.balance, self.contact, self.cart, self.delivery, self.charge, v.note);
 
+      this.accountSvc.update({_id: this.account._id}, {type: 'client'}).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
+
+      });
+
       if (order.paymentMethod === 'cash' || order.paymentMethod === 'prepaid') {
         self.handleWithCash(this.balance, order, v.note);
       } else {

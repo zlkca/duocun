@@ -153,14 +153,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       // process payment route ?clientId=x&paymentMethod=y
       const clientId = queryParams.get('clientId'); // use for after card pay, could be null
       if (clientId) {
-        this.accountSvc.find({_id: clientId}).pipe(takeUntil(this.onDestroy$)).subscribe((accounts) => {
+        this.accountSvc.quickFind({_id: clientId}).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
           this.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
           self.router.navigate(['order/history']);
         });
         return;
       }
 
-      self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
+      self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
         if (account) { // if already login
           this.loading = false;
 
@@ -215,7 +215,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  init(account: Account) {
+  init(account: IAccount) {
     const self = this;
     const accountId = account._id;
 
