@@ -186,7 +186,7 @@ export class ClientPayment extends Model {
     this.orderEntity.find({_id: b.out_order_no}).then(orders => {
       if(orders && orders.length >0){
         const order = orders[0];
-        if(order.status !== 'paid'){
+        if(order.status === 'tmp'){
           const paid = +b.trans_amount;
           // --------------------------------------------------------------------------------------
           // 1.update order status to 'paid'
