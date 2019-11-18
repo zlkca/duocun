@@ -23,6 +23,8 @@ export interface ITransaction {
   note?: string;
   fromBalance?: number;
   toBalance?: number;
+
+  delivered?: string;
   created?: string;
   modified?: string;
 }
@@ -319,7 +321,7 @@ export class Transaction extends Model {
 
 
   saveTransactionsForPlaceOrder(orderId: string, merchantId: string, merchantName: string, clientId: string, clientName: string,
-    cost: number, total: number){
+    cost: number, total: number, delivered?: string){
     const t1: ITransaction = {
       fromId: merchantId,
       fromName: merchantName,
@@ -328,6 +330,7 @@ export class Transaction extends Model {
       action: 'duocun order from merchant',
       amount: Math.round(cost * 100) / 100,
       orderId: orderId,
+      delivered: delivered,
     };
 
     const t2: ITransaction = {
@@ -338,6 +341,7 @@ export class Transaction extends Model {
       amount: Math.round(total * 100) / 100,
       action: 'client order from duocun',
       orderId: orderId,
+      delivered: delivered,
     };
 
     return new Promise((resolve, reject) => {
@@ -350,7 +354,7 @@ export class Transaction extends Model {
   }
 
   saveTransactionsForRemoveOrder(merchantId: string, merchantName: string, clientId: string, clientName: string,
-    cost: number, total: number){
+    cost: number, total: number, delivered: string){
     const t1: ITransaction = {
       fromId: CASH_ID,
       fromName: clientName,
@@ -358,6 +362,7 @@ export class Transaction extends Model {
       toName: merchantName,
       action: 'duocun cancel order from merchant',
       amount: Math.round(cost * 100) / 100,
+      delivered: delivered
     };
 
     const t2: ITransaction = {
@@ -366,7 +371,8 @@ export class Transaction extends Model {
       toId: CASH_ID,
       toName: merchantName,
       amount: Math.round(total * 100) / 100,
-      action: 'client cancel order from duocun'
+      action: 'client cancel order from duocun',
+      delivered: delivered
     };
 
     return new Promise((resolve, reject) => {

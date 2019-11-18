@@ -17,7 +17,6 @@ import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
 import { OrderActions } from '../order.actions';
 import { IAccount, Role } from '../../account/account.model';
 import { LocationService } from '../../location/location.service';
-import { IBalance, IClientPayment } from '../../payment/payment.model';
 import { ILocation, IDistance, RangeRole } from '../../location/location.model';
 import * as moment from 'moment';
 import { MerchantService } from '../../merchant/merchant.service';
@@ -66,7 +65,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   address: string;
   balance: number;
   groupDiscount = 0;
-  merchant;
   paymentMethod = 'cash';
   card;
   stripe;
@@ -159,10 +157,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       if (cart) {
         this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IRestaurant[]) => {
           const merchant: IRestaurant = ms[0];
-          const merchantId = merchant._id;
-          const dateType = this.sharedSvc.getDateType(self.delivery.date);
+          // const merchantId = merchant._id;
+          // const dateType = this.sharedSvc.getDateType(self.delivery.date);
           const origin = self.delivery.origin;
-          const address = this.locationSvc.getAddrString(origin);
+          // const address = this.locationSvc.getAddrString(origin);
 
           // this.orderSvc.checkGroupDiscount(accountId, merchantId, dateType, address)
           // .pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
@@ -620,7 +618,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           //   });
           // } else {
           // account.stripeCustomerId
-          self.paymentSvc.stripeCharge(order, paid, result.token).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
+          const pickup = this.account.pickup;
+          self.paymentSvc.stripeCharge(order, paid, result.token, pickup).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
             self.loading = true;
             resolve(ret);
           });

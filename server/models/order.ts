@@ -262,6 +262,7 @@ export class Order extends Model {
               const clientName = order.clientName;
               const cost = order.cost;
               const total = order.total;
+              const deliverd = order.delivered;
 
               // temporary order didn't update transaction until paid
               if (order.status === 'tmp') {
@@ -269,7 +270,7 @@ export class Order extends Model {
               } else {
                 this.transactionModel.saveTransactionsForPlaceOrder(
                   savedOrder._id.toString(), 
-                  merchantId, merchantName, clientId, clientName, cost, total).then(() => {
+                  merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
                   resolve(savedOrder);
                 });
               }
@@ -296,10 +297,10 @@ export class Order extends Model {
               const clientName = order.clientName;
               const cost = order.cost;
               const total = order.total;
-
+              const delivered = order.deliverd;
 
               this.transactionModel.updateMany({orderId: orderId}, {status: 'del'}).then( () => {
-                this.transactionModel.saveTransactionsForRemoveOrder(merchantId, merchantName, clientId, clientName, cost, total).then(() => {
+                this.transactionModel.saveTransactionsForRemoveOrder(merchantId, merchantName, clientId, clientName, cost, total, delivered).then(() => {
                   resolve(order);
                 });
               });
@@ -644,6 +645,7 @@ export class Order extends Model {
     const clientName = order.clientName;
     const cost = order.cost;
     const total = order.total;
+    const deliverd = order.delivered;
 
     const tr: ITransaction = {
       fromId: clientId,
@@ -652,12 +654,13 @@ export class Order extends Model {
       toName: BANK_NAME,
       action: action,
       amount: Math.round(paid * 100) / 100,
+      delivered: deliverd
     };
 
     return new Promise((resolve, reject) => {
       this.transactionModel.saveTransactionsForPlaceOrder(
         order._id.toString(), 
-        merchantId, merchantName, clientId, clientName, cost, total).then(()  => {
+        merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(()  => {
         this.transactionModel.doInsertOne(tr).then(t => {
           const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
           this.updateOne({ _id: orderId }, data).then((r: any) => { // result

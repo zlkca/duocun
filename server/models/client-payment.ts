@@ -13,6 +13,7 @@ import { ClientBalance } from "./client-balance";
 import { ObjectID } from "../../node_modules/@types/bson";
 import { Transaction } from "./transaction";
 import { resolve } from "path";
+import { Restaurant } from "./restaurant";
 
 
 var fs = require('fs');
@@ -30,12 +31,14 @@ export class ClientPayment extends Model {
   balanceEntity: ClientBalance;
   orderEntity: Order;
   transactionModel: Transaction;
+  merchantModel: Restaurant;
 
   constructor(dbo: DB) {
     super(dbo, 'client_payments');
 
     this.orderEntity = new Order(dbo);
     this.balanceEntity = new ClientBalance(dbo);
+    this.merchantModel = new Restaurant(dbo);
     this.transactionModel = new Transaction(dbo);
     this.cfg = new Config();
   }
@@ -143,6 +146,11 @@ export class ClientPayment extends Model {
     const token = req.body.token;
     const order = req.body.order;
     const paid = +req.body.paid;
+    const pickup = req.body.pickup;
+    const dateType = req.body.dateType; // 'today', 'tomorrow'
+    const now = moment().toISOString();
+    const merchantId = order.merchantId;
+
     const self = this;
 
     stripe.charges.create({
@@ -155,10 +163,18 @@ export class ClientPayment extends Model {
     }, function (err: any, charge: any) {
       res.setHeader('Content-Type', 'application/json');
       if (!err) {
-        self.orderEntity.doProcessPayment(order, 'pay by card', paid, charge.id).then(() => {
-          res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
-        }, err => {
-          res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+        self.merchantModel.findOne({_id: merchantId}).then(merchant => {
+          if (pickup) { // have special pickup time ?
+            const date = (dateType === 'today') ? moment() : moment().add(1, 'day');
+            order.delivered = self.getTime(date, pickup).toISOString();
+          } else {
+            order.delivered = self.orderEntity.getDeliverDateTime(now, merchant.phases, dateType);
+          }
+          self.orderEntity.doProcessPayment(order, 'pay by card', paid, charge.id).then(() => {
+            res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
+          }, err => {
+            res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+          });
         });
       } else {
         res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));

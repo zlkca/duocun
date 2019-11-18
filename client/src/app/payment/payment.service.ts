@@ -23,10 +23,10 @@ export class PaymentService extends EntityService {
     return this.doGet(url);
   }
 
-  // customerId --- stripe customer id
-  stripeCharge(order: IOrder, paid: number, token: any): Observable<any> {
+  // pickup --- time
+  stripeCharge(order: IOrder, paid: number, token: any, pickup: string): Observable<any> {
     const url = this.url + '/stripeCharge';
-    return this.doPost(url, { token: token, order: order, paid: paid });
+    return this.doPost(url, { token: token, order: order, paid: paid, pickup: pickup });
   }
 
   stripeCreateCustomer( tokenId: string, clientId: string, clientName: string, clientPhoneNumber: string): Observable<any> {
