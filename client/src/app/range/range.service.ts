@@ -26,7 +26,7 @@ export class RangeService extends EntityService {
     const self = this;
     for (let i = 0; i < ranges.length; i++) {
       const r = ranges[i];
-      if (self.locationSvc.getDirectDistance(origin, { lat: r.lat, lng: r.lng }) < r.radius * 1000) {
+      if (self.locationSvc.getDirectDistance(origin, { lat: r.lat, lng: r.lng }) < r.radius) {
         return r;
       }
     }
