@@ -116,9 +116,17 @@ export class HomeComponent implements OnInit, OnDestroy {
           self.bAddressList = false;
         }
 
-        this.rangeSvc.findAvailables(d.origin).pipe(takeUntil(this.onDestroy$)).subscribe((ranges: IRange[]) => {
+        this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+          const ranges: IRange[] = [];
+          rs.map((r: IRange) => {
+            if (this.locationSvc.getDirectDistance(origin, {lat: r.lat, lng: r.lng}) < r.radius) {
+              ranges.push(r);
+            }
+          });
+
           this.inRange = (ranges && ranges.length > 0) ? true : false;
-          this.mapRanges = ranges;
+          this.mapRanges = rs;
+
           if (this.inRange) {
             self.mapZoom = 14;
             self.mapCenter = origin;

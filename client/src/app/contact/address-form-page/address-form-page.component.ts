@@ -220,9 +220,18 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       this.checkMallSchedule(origin, this.delivered.toISOString()).then(bOnSchedule => {
         this.onSchedule = bOnSchedule;
 
-        this.rangeSvc.findAvailables(origin).pipe(takeUntil(this.onDestroy$)).subscribe((ranges: IRange[]) => {
+        this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+          const ranges: IRange[] = [];
+          rs.map((r: IRange) => {
+            if (this.locationSvc.getDirectDistance(origin, {lat: r.lat, lng: r.lng}) < r.radius) {
+              ranges.push(r);
+            }
+          });
+
+          // this.rangeSvc.findAvailables(origin).pipe(takeUntil(this.onDestroy$)).subscribe((ranges: IRange[]) => {
+
           this.inRange = (ranges && ranges.length > 0) ? true : false;
-          this.mapRanges = ranges;
+          this.mapRanges = rs;
           if (this.inRange) {
             self.mapZoom = 14;
             self.mapCenter = origin;
