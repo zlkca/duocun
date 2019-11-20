@@ -12,6 +12,7 @@ import { Account, IAccount } from "./account";
 import { Transaction, ITransaction } from "./transaction";
 import { Product } from "./product";
 import { Contact } from "./contact";
+import { Assignment } from "./assignment";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -88,6 +89,7 @@ export class Order extends Model {
   private accountModel: Account;
   private transactionModel: Transaction;
   private contactModel: Contact;
+  private assignmentModel: Assignment;
 
   constructor(dbo: DB) {
     super(dbo, 'orders');
@@ -98,6 +100,7 @@ export class Order extends Model {
     this.accountModel = new Account(dbo);
     this.transactionModel = new Transaction(dbo);
     this.contactModel = new Contact(dbo);
+    this.assignmentModel = new Assignment(dbo);
   }
 
   list(req: Request, res: Response) {
@@ -711,6 +714,8 @@ export class Order extends Model {
     // });
   }
 
+  //---------------------------------------------------------------
+  // change order status to 'paid' and insert a new transaction
   pay(toId: string, toName: string, received: number, orderId: string, note?: string) {
     const data = {
       status: 'paid',
@@ -740,6 +745,8 @@ export class Order extends Model {
     });
   }
 
+
+  // pay order and update assignment to status 'done'
   payOrder(req: Request, res: Response) {
     const toId = req.body.toId;
     const toName = req.body.toName;
@@ -748,8 +755,10 @@ export class Order extends Model {
     const note = req.body.note;
 
     this.pay(toId, toName, received, orderId, note).then((order: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ status: 'success' }, null, 3));
+      this.assignmentModel.updateOne({orderId: orderId}, {status: 'done'}).then( () => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ status: 'success' }, null, 3));
+      });
     });
   }
 
