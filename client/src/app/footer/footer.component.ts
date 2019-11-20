@@ -104,8 +104,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     if (this.account) {
       this.selected = 'order';
       this.router.navigate(['order/history']);
-    } else {
-      // this.router.navigate(['account/login']);
     }
   }
 
@@ -117,16 +115,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     if (this.account) {
       this.selected = 'account';
       this.router.navigate(['account/setting']);
-    } else {
-      this.router.navigate(['account/login']);
-    }
-  }
-
-  toAdmin() {
-    if (this.account) {
-      this.router.navigate(['admin']);
-    } else {
-      this.router.navigate(['account/login']);
     }
   }
 
