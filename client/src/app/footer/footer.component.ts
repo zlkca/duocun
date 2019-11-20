@@ -105,7 +105,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       this.selected = 'order';
       this.router.navigate(['order/history']);
     } else {
-      this.router.navigate(['account/login']);
+      // this.router.navigate(['account/login']);
     }
   }
 

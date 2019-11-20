@@ -63,7 +63,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   historyAddressList = [];
   suggestAddressList = [];
   selectedDate = 'today';
-  date; // moment object
   address: ILocation;
 
   mapRanges;
@@ -94,12 +93,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     private fb: FormBuilder
   ) {
     const self = this;
-    const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-    const tomorrow = moment().add(1, 'days').set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    const today = moment().format('YYYY-MM-DD');
+    const tomorrow = moment().add(1, 'days').format('YYYY-MM-DD');
 
     // For display purpose only
-    this.today = { type: 'lunch today', text: '今天午餐', date: today.format('YYYY-MM-DD'), startTime: '11:45', endTime: '13:15' };
-    this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow.format('YYYY-MM-DD'), startTime: '11:45', endTime: '13:15' };
+    this.today = { type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:15' };
+    this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow, startTime: '11:45', endTime: '13:15' };
 
     this.placeForm = this.fb.group({ addr: [''] });
     this.loading = true;
@@ -146,11 +145,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
 
       if (d && d.date) { // moment
-        self.selectedDate = moment().isSame(d.date, 'day') ? 'today' : 'tomorrow';
-        self.date = d.date;
-      } else { // by default select today moment object
-        this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
-        this.date = today;
+        self.selectedDate = d.dateType;
+        self.phase = (d.dateType === 'today') ? 'today:lunch' : 'tomorrow:lunch';
+      } else {
+        self.selectedDate = 'today';
+        self.phase = 'today:lunch';
+        // this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
       }
     });
 
