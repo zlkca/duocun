@@ -752,4 +752,44 @@ export class Order extends Model {
       res.end(JSON.stringify({ status: 'success' }, null, 3));
     });
   }
+
+  groupBySameDay(items: any[], key: string) {
+    const groups: any = {};
+    items.map(it => {
+      const date = moment(it[key]).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+      const dt = Object.keys(groups).find(x => moment(x).isSame(date, 'day'));
+
+      if (dt) {
+        groups[dt].push(it);
+      } else {
+        groups[date.toISOString()] = [it];
+      }
+    });
+
+    return groups;
+  }
+
+  getOrderTrends(req: Request, res: Response){
+    const query = {
+      // delivered: { $gt: moment('2019-06-01').toDate() },
+      status: { $nin: ['bad', 'del', 'tmp'] }
+    };
+
+    this.find(query).then(orders => {
+      const group = this.groupBySameDay(orders, 'delivered');
+      const keys = Object.keys(group);
+      const vals: any[] = [];
+      keys.map(key => {
+        vals.push(group[key] ? group[key].length : 0);
+      });
+
+      // this.barChartLabels = keys;
+      // this.barChartData = [{ data: vals, label: '订单数' }];
+
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ keys: keys, vals: vals }, null, 3));
+    });
+  }
+
+
 }
