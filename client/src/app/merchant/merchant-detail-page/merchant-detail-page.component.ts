@@ -126,7 +126,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
       if (this.bHasAddress) {
         const origin = this.delivery.origin;
-        const dt = this.sharedSvc.getDateType(this.delivery.date);
+        const dt = this.delivery.dateType; // this.sharedSvc.getDateType(this.delivery.date);
 
         self.merchantSvc.load(origin, dt, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant[]) => {
           const restaurant = restaurants[0];

@@ -92,8 +92,9 @@ export class Restaurant extends Model {
     });
   }
 
-  isOrderEnded(dt: moment.Moment, origin: ILocation, r: IRestaurant, rs: IRange[]) {
-    const last = r.phases[r.phases.length - 1].orderEnd;
+  // only central area have phase 2 delivery
+  isOrderEnded(dt: moment.Moment, origin: ILocation, area: IArea, r: IRestaurant, rs: IRange[]) {
+    const last = area.code === 'C'? r.phases[r.phases.length - 1].orderEnd : r.phases[0].orderEnd;
     const first = r.phases[0].orderEnd;
     if (moment().isAfter(this.getTime(dt, last))) {
       return true;
@@ -110,8 +111,8 @@ export class Restaurant extends Model {
     }
   }
 
-  getOrderEndTime(origin: ILocation, r: IRestaurant, rs: IRange[]) {
-    const last = r.phases[r.phases.length - 1].orderEnd;
+  getOrderEndTime(origin: ILocation, area: IArea, r: IRestaurant, rs: IRange[]) {
+    const last = area.code === 'C'? r.phases[r.phases.length - 1].orderEnd : r.phases[0].orderEnd;
     const first = r.phases[0].orderEnd;
     if (this.range.inRange(origin, rs)) {
       return last;
@@ -209,8 +210,8 @@ export class Restaurant extends Model {
                   r.onSchedule = scheduledMallId ? true : false;
                   r.distance = d ? d.element.distance.value : 0;
                   r.inRange = r.mall ? true : false; // is it in orange circle ? fix me
-                  r.orderEnded = this.isOrderEnded(dt, origin, r, rs);  // for free range
-                  r.orderEndTime = this.getOrderEndTime(origin, r, rs); // for free range
+                  r.orderEnded = this.isOrderEnded(dt, origin, area, r, rs);  // for free range
+                  r.orderEndTime = this.getOrderEndTime(origin, area, r, rs); // for free range
                   r.isClosed = this.isClosed(dt, r.closed, r.dow);
                 });
                 resolve(ms);

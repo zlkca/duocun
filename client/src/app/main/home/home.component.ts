@@ -74,7 +74,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   today;
   tomorrow;
   bAddressList = false;
-
+  date;
   phase = 'today:lunch';
 
   @ViewChild('tooltip', { static: true }) tooltip: MatTooltip;
@@ -147,10 +147,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (d && d.date) { // moment
         self.selectedDate = d.dateType;
         self.phase = (d.dateType === 'today') ? 'today:lunch' : 'tomorrow:lunch';
+        self.date = d.date;
       } else {
         self.selectedDate = 'today';
         self.phase = 'today:lunch';
-        // this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
+        self.date = moment();
+        this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: self.selectedDate } });
       }
     });
 

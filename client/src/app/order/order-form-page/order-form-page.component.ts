@@ -221,7 +221,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   getCharge(cart, merchant, delivery, overRangeCharge, groupDiscount) {
     let productTotal = 0;
-    let deliveryDate;
+    // let deliveryDate;
 
     const items: ICartItem[] = [];
     if (cart.items && cart.items.length > 0) {
@@ -243,7 +243,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     // } else {
     //   deliveryDate = delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
     // }
-    deliveryDate = delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
+    // deliveryDate = delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
 
     // const bNewOrder = (this.order && this.order.id) ? false : true;
     const overRangeTotal = Math.round(overRangeCharge * 100) / 100;
@@ -319,7 +319,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         paymentMethod: paymentMethod,
 
         // created: moment().toISOString(),
-        dateType: this.sharedSvc.getDateType(delivery.date)
+        dateType: delivery.dateType // this.sharedSvc.getDateType(delivery.date)
       };
 
       return order;
@@ -460,7 +460,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             const paid = (balance > 0) ? balance : 0;
             const clientId = order.clientId;
             const merchantId = order.merchantId;
-            const dateType = this.sharedSvc.getDateType(this.delivery.date);
+            const dateType = this.delivery.dateType; // this.sharedSvc.getDateType(this.delivery.date);
             const address = order.address;
             self.orderSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;
@@ -484,7 +484,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
             // adjust group discount
             const clientId = order.clientId;
-            const dateType = self.sharedSvc.getDateType(self.delivery.date); // .toISOString();
+            const dateType = self.delivery.dateType; // self.sharedSvc.getDateType(self.delivery.date); // .toISOString();
             const address = order.address;
             const merchantId = order.merchantId;
 
