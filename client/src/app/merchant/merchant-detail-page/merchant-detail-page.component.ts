@@ -7,8 +7,7 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { MerchantService } from '../merchant.service';
 import { IRestaurant } from '../../restaurant/restaurant.model';
 import { ProductService } from '../../product/product.service';
-import { IProduct, ICategory } from '../../product/product.model';
-import { CategoryService } from '../../category/category.service';
+import { IProduct } from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { PageActions } from '../../main/main.actions';
@@ -126,10 +125,10 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
       if (this.bHasAddress) {
         const origin = this.delivery.origin;
-        const dt = this.delivery.dateType; // this.sharedSvc.getDateType(this.delivery.date);
+        const dateType = this.delivery.dateType;
 
-        self.merchantSvc.load(origin, dt, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant[]) => {
-          const restaurant = restaurants[0];
+        self.merchantSvc.load(origin, dateType, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRestaurant[]) => {
+          const restaurant = rs[0];
           restaurant.onSchedule = self.onSchedule;
           self.restaurant = restaurant;
 
@@ -148,8 +147,8 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           });
         });
       } else {
-        self.merchantSvc.quickFind({ _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((restaurants: IRestaurant[]) => {
-          const restaurant = restaurants[0];
+        self.merchantSvc.quickFind({ _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRestaurant[]) => {
+          const restaurant = rs[0];
           restaurant.onSchedule = self.onSchedule;
           self.restaurant = restaurant;
 

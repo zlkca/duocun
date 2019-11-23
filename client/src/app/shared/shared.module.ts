@@ -17,7 +17,6 @@ import { SharedService } from './shared.service';
 import { AddressAutocompleteComponent } from './address-autocomplete/address-autocomplete.component';
 import { EntityService } from '../entity.service';
 import { WarningDialogComponent } from './warning-dialog/warning-dialog.component';
-import { DeliveryDateListComponent } from './delivery-date-list/delivery-date-list.component';
 import { AddressInputComponent } from './address-input/address-input.component';
 import { ProgressSpinnerComponent } from './progress-spinner/progress-spinner.component';
 import { LocationService } from '../location/location.service';
@@ -39,7 +38,6 @@ import { LocationService } from '../location/location.service';
     MapComponent,
     AddressAutocompleteComponent,
     WarningDialogComponent,
-    DeliveryDateListComponent,
     AddressInputComponent,
     ProgressSpinnerComponent
   ],
@@ -56,7 +54,6 @@ import { LocationService } from '../location/location.service';
     MapComponent,
     AddressAutocompleteComponent,
     WarningDialogComponent,
-    DeliveryDateListComponent,
     AddressInputComponent,
     ProgressSpinnerComponent
   ]

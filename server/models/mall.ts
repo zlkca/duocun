@@ -81,7 +81,6 @@ export class Mall extends Model {
     return new Promise( (resolve, reject) => {
       this.mallSchedule.find({status: 'active'}).then(mss => {
         const mallIds: any[] = [];
-        // const dow = moment(delivered).day();
         mss.map((ms: IMallSchedule) => {
           const areaIds: string[] = ms.areas[dow];
           const id = areaIds.find(id => id === areaId);
@@ -91,24 +90,6 @@ export class Mall extends Model {
         });
         resolve(mallIds);
       });
-
-      // const params = [
-      //   {$lookup: {from: 'malls', localField: 'mallId', foreignField: '_id', as: 'mall'}},
-      //   {$unwind: '$mall'}
-      // ];
-  
-      // this.mallSchedule.join(params, q).then((rs: any[]) => {
-      //   const malls: any[] = [];
-      //   const dow = moment(delivered).day();
-      //   rs.map((ms: IMallSchedule) => {
-      //     const areaIds: string[] = ms.areas[dow];
-      //     const id = areaIds.find(id => id === areaId);
-      //     if(id){
-      //       malls.push(ms.mall);
-      //     }
-      //   });
-      //   resolve(malls);
-      // });
     });
   }
 

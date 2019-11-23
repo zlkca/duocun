@@ -158,7 +158,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IRestaurant[]) => {
           const merchant: IRestaurant = ms[0];
           // const merchantId = merchant._id;
-          // const dateType = this.sharedSvc.getDateType(self.delivery.date);
           const origin = self.delivery.origin;
           // const address = this.locationSvc.getAddrString(origin);
 
@@ -166,7 +165,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           // .pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
             const groupDiscount = 0; // bEligible ? 2 : 0;
             self.getOverRange(origin, (distance, rate) => {
-              this.charge = this.getCharge(cart, merchant, self.delivery, (distance * rate), groupDiscount);
+              this.charge = this.getCharge(cart, (distance * rate), groupDiscount);
               this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
               self.loading = false;
               self.groupDiscount = groupDiscount;
@@ -219,9 +218,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  getCharge(cart, merchant, delivery, overRangeCharge, groupDiscount) {
+  getCharge(cart, overRangeCharge, groupDiscount) {
     let productTotal = 0;
-    // let deliveryDate;
 
     const items: ICartItem[] = [];
     if (cart.items && cart.items.length > 0) {
@@ -234,16 +232,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const subTotal = productTotal + cart.deliveryCost;
     const tax = Math.ceil(subTotal * 13) / 100;
     const tips = 0;
-
-    // fix me !!!
-    // const endTime = +(merchant.endTime.split(':')[0]);
-
-    // if (endTime < 12) {
-    //   deliveryDate = delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
-    // } else {
-    //   deliveryDate = delivery.date.set({ hour: 14, minute: 0, second: 0, millisecond: 0 });
-    // }
-    // deliveryDate = delivery.date.set({ hour: 11, minute: 45, second: 0, millisecond: 0 });
 
     // const bNewOrder = (this.order && this.order.id) ? false : true;
     const overRangeTotal = Math.round(overRangeCharge * 100) / 100;
@@ -278,6 +266,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return { cost: cost, price: price };
   }
 
+  // delivery --- only need 'origin' and 'dateType' fields
   createOrder(balance: number, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string): IOrder {
     const self = this;
     const account = this.account;
@@ -317,8 +306,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         status: 'new',
         driverId: '',
         paymentMethod: paymentMethod,
-
-        // created: moment().toISOString(),
         dateType: delivery.dateType // this.sharedSvc.getDateType(delivery.date)
       };
 
@@ -360,7 +347,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const merchantId = order.merchantId;
 
     self.snackBar.open('', '您已经成功下单。', { duration: 2000 });
-    // const dateType = this.sharedSvc.getDateType(this.delivery.date);
     // update my balance and group discount
     // self.orderSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r1 => {
     self.snackBar.open('', '余额已更新', { duration: 1800 });
@@ -440,6 +426,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   // only happend on balance < order.total
   handleWithCash(balance: number, order, note: string) {
     const self = this;
+    const dateType = this.delivery.dateType;
     if (this.account && this.delivery && this.delivery.date && this.delivery.origin) {
       if (this.order && this.order.id) { // modify order, now do not support
         order.id = this.order.id;
@@ -460,7 +447,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             const paid = (balance > 0) ? balance : 0;
             const clientId = order.clientId;
             const merchantId = order.merchantId;
-            const dateType = this.delivery.dateType; // this.sharedSvc.getDateType(this.delivery.date);
             const address = order.address;
             self.orderSvc.afterAddOrder(clientId, merchantId, dateType, address, paid).pipe(takeUntil(self.onDestroy$)).subscribe(r => {
               self.bSubmitted = false;
@@ -484,7 +470,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
             // adjust group discount
             const clientId = order.clientId;
-            const dateType = self.delivery.dateType; // self.sharedSvc.getDateType(self.delivery.date); // .toISOString();
             const address = order.address;
             const merchantId = order.merchantId;
 

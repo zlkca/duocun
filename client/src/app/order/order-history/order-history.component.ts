@@ -122,11 +122,13 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
+  // deprecated
   canChange(order: IOrder) {
     const allowDateTime = moment(order.delivered).set({ hour: 9, minute: 30, second: 0, millisecond: 0 });
     return allowDateTime.isAfter(moment());
   }
 
+  // deprecated
   changeOrder(order: IOrder) {
     this.rx.dispatch({ type: OrderActions.UPDATE, payload: order });
     this.rx.dispatch({

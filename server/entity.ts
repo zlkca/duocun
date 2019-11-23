@@ -95,18 +95,7 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         doc = this.convertIdFields(doc);
-
-        // if(doc.created){
-        //   const now = moment();
-        //   const h = now.hour();
-        //   const m = now.minute();
-        //   const s = now.second();
-        //   const mm = now.millisecond();
-        //   doc.created = moment(doc.created).set({ hour: h, minute: m, second: s, millisecond: mm }).toISOString();
-        // }else{
-        doc.created = moment().toISOString();
-        //}
-        
+        doc.created = moment().toISOString(); 
         doc.modified = moment().toISOString();
 
         c.insertOne(doc).then((result: any) => { // InsertOneWriteOpResult

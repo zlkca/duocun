@@ -39,7 +39,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   selected = null;
   onDestroy$ = new Subject();
   cart;
-  deliveryDate; // moment object
   delivery: IDelivery;
   ranges: IRange[];
 
@@ -67,7 +66,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       this.delivery = x;
-      this.deliveryDate = x.date; // moment object
     });
   }
 
