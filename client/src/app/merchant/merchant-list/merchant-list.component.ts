@@ -5,10 +5,8 @@ import { IRestaurant } from '../../restaurant/restaurant.model';
 import { environment } from '../../../environments/environment';
 import { Router } from '../../../../node_modules/@angular/router';
 import { Subject } from '../../../../node_modules/rxjs';
-import { IMall } from '../../mall/mall.model';
-import { IDistance, ILocation } from '../../location/location.model';
+import { ILocation } from '../../location/location.model';
 import { DistanceService } from '../../location/distance.service';
-import { IRange } from '../../range/range.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
@@ -42,9 +40,6 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   constructor(
     private merchantSvc: MerchantService,
     private distanceSvc: DistanceService,
-    // private mallSvc: MallService,
-    // private rangeSvc: RangeService,
-    // private areaSvc: AreaService,
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
@@ -69,6 +64,8 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       if (this.address) {
         this.origin = this.address;
       }
+
+      this.loading = true;
       this.loadRestaurants(this.origin, this.phase); // this.origin could be empty
     }
   }
@@ -79,6 +76,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
+    this.loading = true;
     this.loadRestaurants(this.address, this.phase);
   }
 
@@ -91,21 +89,11 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       const query = { status: 'active' };
       this.bHasAddress = true;
       this.merchantSvc.load(origin, dateType, query).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
-        // const markers = []; // markers on map
         rs.map((restaurant: IRestaurant) => {
-          // if (restaurant.location) {
-          //   markers.push({
-          //     lat: restaurant.location.lat,
-          //     lng: restaurant.location.lng,
-          //     name: restaurant.name
-          //   });
-          // }
-
           restaurant.distance = restaurant.distance / 1000;
           restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
         });
-        // self.markers = markers;
         self.restaurants = this.sort(rs);
         self.loading = false;
       });
