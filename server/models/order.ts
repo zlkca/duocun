@@ -722,7 +722,7 @@ export class Order extends Model {
     const note = req.body.note;
 
     this.pay(toId, toName, received, orderId, note).then((order: any) => {
-      this.assignmentModel.updateOne({orderId: orderId}, {status: 'done'}).then( () => {
+      this.assignmentModel.updateOne({'orderId': orderId}, {status: 'done'}).then( () => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ status: 'success' }, null, 3));
       });

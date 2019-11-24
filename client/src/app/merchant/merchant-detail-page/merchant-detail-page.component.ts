@@ -132,7 +132,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           restaurant.onSchedule = self.onSchedule;
           self.restaurant = restaurant;
 
-          const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
+          const q = { merchantId: merchantId };
           self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
             self.products = products;
             self.groups = self.groupByCategory(products);
@@ -152,7 +152,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           restaurant.onSchedule = self.onSchedule;
           self.restaurant = restaurant;
 
-          const q = { merchantId: merchantId }; // , dow: { $in: [self.dow.toString(), 'all'] } };
+          const q = { merchantId: merchantId };
           self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
             self.products = products;
             self.groups = self.groupByCategory(products);

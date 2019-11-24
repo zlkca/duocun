@@ -319,9 +319,22 @@ export class Entity {
     }
 
     if (doc && doc.hasOwnProperty('orderId')) {
-      const orderId = doc['orderId'];
-      if (typeof orderId === 'string' && orderId.length === 24) {
-        doc['orderId'] = new ObjectID(orderId);
+      const body = doc['orderId'];
+
+      if (body && body.hasOwnProperty('$in')) {
+        let a = body['$in'];
+        const arr: any[] = [];
+        a.map((id: any) => {
+          if(typeof id === "string" && id.length === 24){
+            arr.push(new ObjectID(id));
+          }else{
+            arr.push(id);
+          }
+        });
+
+        doc['orderId'] = { $in: arr };
+      } else if (typeof body === "string" && body.length === 24) {
+        doc['orderId'] = new ObjectID(body);
       }
     }
     
