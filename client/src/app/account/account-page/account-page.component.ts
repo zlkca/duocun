@@ -24,13 +24,11 @@ declare var WeixinJSBridge;
 })
 export class AccountPageComponent implements OnInit, OnDestroy {
   account: IAccount;
-  phone;
-  address;
   onDestroy$ = new Subject();
-  contact;
-  phoneVerified;
+  contact: IContact;
+  phoneVerified: string;
   form;
-  balance;
+  balance: number;
 
   constructor(
     private accountSvc: AccountService,
@@ -41,54 +39,36 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     private contactSvc: ContactService
   ) {
     const self = this;
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: {name: 'account-setting'}
-    });
 
-    self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: {name: 'account-setting'} });
+
+    this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      const accountId = account._id;
+
       self.account = account;
-      self.contactSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact[]) => {
+      self.contactSvc.find({ accountId: accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact[]) => {
         if (r && r.length > 0) {
-          self.contact = new Contact(r[0]);
-          self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: self.contact });
-
-          Cookies.set('duocun-old-phone', self.contact.phone);
-          Cookies.set('duocun-old-location', self.contact.location);
+          const contact = new Contact(r[0]);
+          if (contact.location) {
+            contact.address = this.locationSvc.getAddrString(contact.location);
+          }
+          self.contact = contact;
+          self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: contact });
+          Cookies.set('duocun-old-phone', contact.phone);
+          Cookies.set('duocun-old-location', contact.location);
         } else {
+          self.contact = { phone: '', address: '' };
           self.rx.dispatch<IContactAction>({ type: ContactActions.CLEAR, payload: null });
         }
       });
 
-      self.reload(account);
+      self.balance = account.balance;
     });
   }
 
-  reload(account: IAccount) {
-    // this.accountSvc.find({ accountId: account.id }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
-    //   if (bs && bs.length > 0) {
-    //     this.balance = bs[0].amount;
-    //   } else {
-    //     this.balance = 0;
-    //   }
-    // });
-    this.balance = account.balance;
-  }
 
   ngOnInit() {
-    this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
-      if (contact) {
-        this.contact = contact;
-        this.phone = contact.phone; // render
-        if (contact.location) {
-          this.address = this.locationSvc.getAddrString(contact.location);
-        }
-      } else {
-        this.contact = { phone: '', address: '' };
-        this.phone = '';
-        this.address = '';
-      }
-    });
+
   }
 
   ngOnDestroy() {

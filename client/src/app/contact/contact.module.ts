@@ -14,9 +14,6 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { DistanceService } from '../location/distance.service';
 import { AddressFormPageComponent } from './address-form-page/address-form-page.component';
 import { PhoneService } from './phone.service';
-import { ContactPageComponent } from './contact-page/contact-page.component';
-import { PhoneFormComponent } from './phone-form/phone-form.component';
-import { AddressFormComponent } from './address-form/address-form.component';
 import { MallService } from '../mall/mall.service';
 
 @NgModule({
@@ -34,9 +31,6 @@ import { MallService } from '../mall/mall.service';
   declarations: [
     PhoneFormPageComponent,
     AddressFormPageComponent,
-    ContactPageComponent,
-    PhoneFormComponent,
-    AddressFormComponent
   ],
   providers: [
     LocationService,

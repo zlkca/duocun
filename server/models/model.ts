@@ -11,13 +11,13 @@ export class Model extends Entity {
   // m --- moment object for date
   // t --- string, eg: '11:20'
   // return moment object 
-  getTime(m: any, t: string){
+  getTime(m: any, t: string) {
     const hour = +(t.split(':')[0]);
     const minute = +(t.split(':')[1]);
     return m.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });
   }
 
-  quickFind(req: Request, res: Response){
+  quickFind(req: Request, res: Response) {
     let query = {};
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
@@ -135,9 +135,9 @@ export class Model extends Entity {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
-    this.find(query ? query: { _id: "-1" }).then((rs: any) => {
+    this.find(query ? query : { _id: "-1" }).then((rs: any) => {
       if (rs && rs.length > 0) {
-        this.deleteMany(query ? query : {_id: "-1" }).then((x: any) => {
+        this.deleteMany(query ? query : { _id: "-1" }).then((x: any) => {
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(x, null, 3));
         });
@@ -149,12 +149,12 @@ export class Model extends Entity {
 
   removeOne(req: Request, res: Response) {
     const id: string = req.params.id;
-    if(id){
+    if (id) {
       this.deleteById(id).then(x => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
       });
-    }else{
+    } else {
       res.end(JSON.stringify('failed', null, 3));
     }
   }
@@ -173,5 +173,15 @@ export class Model extends Entity {
     });
 
     return groups;
+  }
+
+  upsertOne(req: Request, res: Response) {
+    const query = req.body.query;
+    const data = req.body.data;
+
+    this.updateOne(query, data, {upsert: true}).then((result) => { // {n: 1, nModified: 0, ok: 1}
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(result, null, 3));
+    });
   }
 }

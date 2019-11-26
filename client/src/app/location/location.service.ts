@@ -31,23 +31,6 @@ export class LocationService extends EntityService {
     }
   }
 
-  // query -- { where: { userId: self.account.id, placeId: r.placeId }}
-  // lh --- {
-  //   userId: self.account.id, type: 'history',
-  //   placeId: r.placeId, location: r, created: new Date()
-  // }
-  saveIfNot(query, lh: ILocationHistory): Observable<any> {
-    return this.find(query).pipe(
-      mergeMap((x: ILocationHistory[]) => {
-        if (x && x.length > 0) {
-          return of(null);
-        } else {
-          return this.save(lh);
-        }
-      })
-    );
-  }
-
   // find(filter: any): Observable<any> {
   //   let headers: HttpHeaders = new HttpHeaders();
   //   headers = headers.append('Content-Type', 'application/json');
@@ -327,7 +310,6 @@ export class LocationService extends EntityService {
       const lh = lhs[i];
       const loc = lh.location;
       const p: IPlace = {
-        type: 'history',
         structured_formatting: {
           main_text: loc.streetNumber + ' ' + loc.streetName,
           secondary_text: (loc.subLocality ? loc.subLocality : loc.city) + ',' + loc.province

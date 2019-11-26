@@ -100,10 +100,6 @@ export class Entity {
 
         c.insertOne(doc).then((result: any) => { // InsertOneWriteOpResult
           const ret = (result.ops && result.ops.length > 0) ? result.ops[0] : null;
-          if (ret && ret._id) {
-            ret.id = ret._id;
-            // delete (ret._id);
-          }
           resolve(ret);
         });
       });

@@ -89,7 +89,7 @@ export class Location extends Model {
     // } else if (addr) {
     //   url += '&address=' + addr;
     // }
-    
+
     url += '&address=' + addr;
 
     https.get(encodeURI(url), (res1: IncomingMessage) => {
@@ -112,6 +112,25 @@ export class Location extends Model {
         } else {
           res.send([]);
         }
+      });
+    });
+  }
+
+
+  // tools
+  updateLocations(req: Request, res: Response) {
+    this.find({}).then(locations => {
+      const datas: any[] = [];
+      locations.map((loc: any) => {
+        datas.push({
+          query: { _id: loc._id },
+          data: { accountId: loc.userId }
+        });
+      });
+
+      this.bulkUpdate(datas).then(() => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify('success', null, 3));
       });
     });
   }

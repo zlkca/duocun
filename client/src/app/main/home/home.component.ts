@@ -233,7 +233,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
     self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
 
-    this.locationSvc.find({ userId: accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+    this.locationSvc.find({ accountId: accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
       const a = this.locationSvc.toPlaces(lhs);
       self.historyAddressList = a;
     });
@@ -383,13 +383,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
 
       if (self.account) {
-        const query = { userId: accountId, placeId: r.placeId };
-        const lh = {
-          userId: accountId, accountName: accountName, type: 'history',
-          placeId: r.placeId, location: r, created: new Date()
-        };
+        const query = { accountId: accountId, placeId: r.placeId };
+        const lh = { accountId: accountId, accountName: accountName, placeId: r.placeId, location: r};
 
-        self.locationSvc.saveIfNot(query, lh).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
+        self.locationSvc.upsertOne(query, lh).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
 
         });
       }

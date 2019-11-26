@@ -38,7 +38,7 @@ export interface IStructuredAddress {
   secondary_text: string;
 }
 export interface IPlace {
-  id?: string;
+  _id?: string;
   type?: string;
   description?: string;
   placeId?: string;
@@ -48,20 +48,20 @@ export interface IPlace {
 }
 
 export interface ILocationHistory {
-  id?: string;
-  userId: string;
+  _id?: string;
+  accountId: string;
   accountName?: string;
   placeId: string;
   location: ILocation;
-  created: Date;
+  created?: string;
   type: string;
 }
 export class LocationHistory {
-  id?: string;
-  userId: string;
+  _id?: string;
+  accountId: string;
   placeId: string;
   location: Location;
-  created: Date;
+  created?: string;
   type: string;
 }
 

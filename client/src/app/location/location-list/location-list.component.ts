@@ -27,12 +27,12 @@ export class LocationListComponent implements OnInit {
   onSelectPlace(place: IPlace) {
     const self = this;
     const address = place.structured_formatting.main_text + ', ' + place.structured_formatting.secondary_text;
-    if (place.type === 'suggest') {
+    if (place.type === 'suggest') { // 'suggest'
       this.locationSvc.reqLocationByAddress(address).pipe(takeUntil(this.onDestroy$)).subscribe(xs => {
         const r = this.locationSvc.getLocationFromGeocode(xs[0]);
         self.placeSeleted.emit({address: address, location: r});
       });
-    } else if (place.type === 'history') {
+    } else { // history
       const r = place.location;
       self.placeSeleted.emit({address: address, location: r});
     }

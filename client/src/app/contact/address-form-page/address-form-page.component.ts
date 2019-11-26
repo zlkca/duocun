@@ -27,6 +27,7 @@ import { IDelivery } from '../../delivery/delivery.model';
 import { IRange } from '../../range/range.model';
 import { CommandActions } from '../../shared/command.actions';
 import { ICommand } from '../../shared/command.reducers';
+import { IAccount } from '../../account/account.model';
 
 @Component({
   selector: 'app-address-form-page',
@@ -37,12 +38,12 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   options;
   location; // onSelect from list
   deliveryAddress;
-  account;
+  account: IAccount;
   contact: Contact;
   fromPage;
   form;
   onDestroy$ = new Subject<any>();
-  inRange;
+  inRange = true;
   mapRanges = [];
   mapZoom = 14;
   rangeMap = false;
@@ -53,14 +54,14 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   bUpdateLocationList = true;
   malls: IMall[];
   availableRanges: IRange[];
-  delivered; // moment object
+  // delivered; // moment object
   onSchedule;
 
   constructor(
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     private contactSvc: ContactService,
-    private rangeSvc: RangeService,
+    // private rangeSvc: RangeService,
     private mallSvc: MallService,
     private distanceSvc: DistanceService,
     private rx: NgRedux<IAppState>,
@@ -90,20 +91,13 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
-      self.account = account;
-      // if (this.account && this.account.id) {
-      //   // load location option list
-      //   this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
-      //     const a = this.locationSvc.toPlaces(lhs);
-      //     self.options = a;
-      //   });
-      // } else {
-      //   self.options = [];
-      // }
+    const accountId: string = this.account._id;
 
-      this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
-        const a = this.locationSvc.toPlaces(lhs);
+    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      self.account = account;
+
+      self.locationSvc.find({ accountId: accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+        const a = self.locationSvc.toPlaces(lhs);
         self.historyAddressList = a;
       });
     });
@@ -132,9 +126,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       self.restaurant = r;
     });
 
-    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((r: IDelivery) => {
-      this.delivered = r.date;
-    });
+    // this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((r: IDelivery) => {
+    //   this.delivered = r.date;
+    // });
   }
 
   ngOnDestroy() {
@@ -144,17 +138,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
 
   onAddressChange(e) {
-    // const self = this;
-    // this.options = [];
-    // this.locationSvc.reqPlaces(e.input).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IPlace[]) => {
-    //   if (ps && ps.length > 0) {
-    //     for (const p of ps) {
-    //       p.type = 'suggest';
-    //       self.options.push(p); // without lat lng
-    //     }
-    //   }
-    // });
-
     this.getSuggestLocationList(e.input, true);
   }
 
@@ -178,19 +161,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   }
 
   onAddressInputFocus(e?: any) {
-    const self = this;
-    // this.options = [];
-    // if (this.account && this.account.id) {
-    //   this.locationSvc.find({ userId: this.account.id }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
-    //     const a = this.locationSvc.toPlaces(lhs);
-    //     self.options = a;
-    //   });
-    // }
-
     if (this.account) {
       if (e.input) {
         this.options = this.suggestAddressList;
-        // this.getSuggestLocationList(e.input);
       } else {
         this.options = this.historyAddressList.map(x => Object.assign({}, x));
       }
@@ -198,59 +171,59 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   }
 
   onSelectPlace(e) {
-    const self = this;
     const origin: ILocation = e.location;
+    const accountId = this.account._id;
+    const accountName = this.account.username;
+
     this.options = [];
     if (origin) {
       this.location = origin;
-      self.deliveryAddress = self.locationSvc.getAddrString(origin);
-      if (self.account) {
-        const query = { userId: self.account.id, placeId: origin.placeId };
-        const lh = {
-          userId: self.account.id, accountName: self.account.username, type: 'history',
-          placeId: origin.placeId, location: origin, created: new Date()
-        };
-        self.locationSvc.saveIfNot(query, lh).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
+      this.deliveryAddress = this.locationSvc.getAddrString(origin);
+      if (this.account) {
+        const query = { accountId: accountId, placeId: origin.placeId };
+        const lh = { accountId: accountId, accountName: accountName, placeId: origin.placeId, location: origin };
+
+        this.locationSvc.upsertOne(query, lh).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
 
         });
       }
 
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: origin } });
 
-      this.checkMallSchedule(origin, this.delivered.toISOString()).then(bOnSchedule => {
-        this.onSchedule = bOnSchedule;
+      // this.checkMallSchedule(origin, this.delivered.toISOString()).then(bOnSchedule => {
+      //   this.onSchedule = bOnSchedule;
 
-        this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
-          const ranges: IRange[] = [];
-          rs.map((r: IRange) => {
-            if (this.locationSvc.getDirectDistance(origin, {lat: r.lat, lng: r.lng}) < r.radius) {
-              ranges.push(r);
-            }
-          });
+      //   this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+      //     const ranges: IRange[] = [];
+      //     rs.map((r: IRange) => {
+      //       if (this.locationSvc.getDirectDistance(origin, {lat: r.lat, lng: r.lng}) < r.radius) {
+      //         ranges.push(r);
+      //       }
+      //     });
 
-          // this.rangeSvc.findAvailables(origin).pipe(takeUntil(this.onDestroy$)).subscribe((ranges: IRange[]) => {
+      //     // this.rangeSvc.findAvailables(origin).pipe(takeUntil(this.onDestroy$)).subscribe((ranges: IRange[]) => {
 
-          this.inRange = (ranges && ranges.length > 0) ? true : false;
-          this.mapRanges = rs;
-          if (this.inRange) {
-            self.mapZoom = 14;
-            self.mapCenter = origin;
-          } else {
-            self.mapZoom = 9;
-            const farNorth = { lat: 44.2653618, lng: -79.4191007 };
-            self.mapCenter = {
-              lat: (origin.lat + farNorth.lat) / 2,
-              lng: (origin.lng + farNorth.lng) / 2
-            };
-          }
-          // this.address = origin; // order matters
+      //     this.inRange = (ranges && ranges.length > 0) ? true : false;
+      //     this.mapRanges = rs;
+      //     if (this.inRange) {
+      //       self.mapZoom = 14;
+      //       self.mapCenter = origin;
+      //     } else {
+      //       self.mapZoom = 9;
+      //       const farNorth = { lat: 44.2653618, lng: -79.4191007 };
+      //       self.mapCenter = {
+      //         lat: (origin.lat + farNorth.lat) / 2,
+      //         lng: (origin.lng + farNorth.lng) / 2
+      //       };
+      //     }
+      //     // this.address = origin; // order matters
 
-          self.rx.dispatch({
-            type: CommandActions.SEND,
-            payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: this.inRange } }
-          });
-        });
-      });
+      //     self.rx.dispatch({
+      //       type: CommandActions.SEND,
+      //       payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: this.inRange } }
+      //     });
+      //   });
+      // });
     }
   }
 
@@ -338,9 +311,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     if (self.fromPage === 'account-setting') {
       this.contactSvc.find({ accountId: contact.accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((cs: IContact[]) => {
         if (cs && cs.length > 0) {
-          const c = cs[0];
+          const contactId = cs[0]._id;
           const data = { address: contact.address, location: contact.location };
-          this.contactSvc.update({ id: c.id }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
+          this.contactSvc.update({ _id: contactId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
             self.router.navigate(['account/setting']);
             self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
           });
@@ -351,7 +324,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
           });
         }
       });
-    } else if (self.fromPage === 'restaurant-detail') {
+    } else if (self.fromPage === 'restaurant-detail') { // will no longer go here any more
       // update delivery fee and distances
       if (self.contact && self.contact.phone) {
         self.router.navigate(['order/form']);
@@ -362,12 +335,12 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
       self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
-    } else if (self.fromPage === 'contact/address') {
-      self.router.navigate(['contact/main'], { queryParams: { fromPage: 'address-form' } });
-      self.snackBar.open('', '已成功保存。', { duration: 1500 });
-    } else if (self.fromPage === 'contact/phone') {
-      self.router.navigate(['contact/main'], { queryParams: { fromPage: 'phone-form' } });
-      self.snackBar.open('', '已成功保存。', { duration: 1500 });
+    // } else if (self.fromPage === 'contact/address') {
+    //   self.router.navigate(['contact/main'], { queryParams: { fromPage: 'address-form' } });
+    //   self.snackBar.open('', '已成功保存。', { duration: 1500 });
+    // } else if (self.fromPage === 'contact/phone') {
+    //   self.router.navigate(['contact/main'], { queryParams: { fromPage: 'phone-form' } });
+    //   self.snackBar.open('', '已成功保存。', { duration: 1500 });
     } else {
       // self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
     }
@@ -375,32 +348,43 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   save() {
     const self = this;
-    let restaurant;
-    if (!this.contact) {
-      this.contact = new Contact();
-    }
-    const contact = this.contact;
-    contact.accountId = self.account.id;
-    contact.username = self.account.username;
-    contact.phone = self.contact ? self.contact.phone : '';
-    contact.modified = new Date();
-    contact.location = this.location;
-    contact.address = this.deliveryAddress;
+    const accountId = this.account._id;
+    const accountName = this.account.username;
+    const address = this.deliveryAddress;
+    const location = this.location;
 
+    const contact: any = {
+      accountId: accountId,
+      username: accountName,
+      phone: this.contact ? this.contact.phone : '',
+      location: location,
+      address: address
+    };
+
+    if (this.contact) {
+      contact._id = this.contact._id;
+    }
     // Cookies.remove('duocun-old-delivery-time');
 
-    this.rx.dispatch<IContactAction>({
-      type: ContactActions.UPDATE_LOCATION,
-      payload: { location: this.location }
-    });
-
-    this.rx.dispatch<IDeliveryAction>({
-      type: DeliveryActions.UPDATE_ORIGIN,
-      payload: { origin: this.location }
-    });
+    this.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_LOCATION, payload: { location: location } });
+    this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: location }});
 
     if (this.fromPage === 'account-setting') {
-      this.redirect(contact);
+      this.contactSvc.find({ accountId: contact.accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((cs: IContact[]) => {
+        if (cs && cs.length > 0) {
+          const contactId = cs[0]._id;
+          const data = { address: address, location: location };
+          this.contactSvc.update({ _id: contactId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
+            self.router.navigate(['account/setting']);
+            self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
+          });
+        } else {
+          this.contactSvc.save(contact).subscribe(x => {
+            self.router.navigate(['account/setting']);
+            self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
+          });
+        }
+      });
     } else {
       // The order matters
       if (!self.inRange) {
@@ -422,49 +406,51 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         return;
       }
 
-      restaurant = this.restaurant;
+      self.redirect(contact);
       // this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
       // this.realMalls = malls;
       // check if road distance in database
-      const malls = this.malls;
-      const q = { originPlaceId: self.location.placeId }; // origin --- client origin
-      self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
-        if (ds && ds.length > 0) {
-          // const mall = malls.find(m => m.id === restaurant.malls[0]); // fix me, get physical distance
-          self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], ds);
-          self.redirect(contact);
-        } else {
-          const destinations: ILocation[] = [];
-          malls.map(m => {
-            destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-          });
-          self.distanceSvc.reqRoadDistances(self.location, destinations).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IDistance[]) => {
-            if (rs) {
-              self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], rs);
-              self.redirect(contact);
-            }
-          }, err => {
-            console.log(err);
-          });
-        }
-      });
+      // const malls = this.malls;
+      // const q = { originPlaceId: self.location.placeId }; // origin --- client origin
+
+      // self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
+      //   if (ds && ds.length > 0) {
+      //     // const mall = malls.find(m => m.id === restaurant.malls[0]); // fix me, get physical distance
+      //     // self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], ds);
+      //     self.redirect(contact);
+      //   } else {
+      //     const destinations: ILocation[] = [];
+      //     malls.map(m => {
+      //       destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
+      //     });
+      //     self.distanceSvc.reqRoadDistances(self.location, destinations)
+      //        .pipe(takeUntil(self.onDestroy$)).subscribe((rs: IDistance[]) => {
+      //       if (rs) {
+      //         // self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], rs);
+      //         self.redirect(contact);
+      //       }
+      //     }, err => {
+      //       console.log(err);
+      //     });
+      //   }
+      // });
       // });
     }
   }
 
-  checkMallSchedule(origin: ILocation, delivered: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      this.mallSvc.getAvailables(origin, delivered).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
-        const malls = ret.mallIds;
-        if (malls && malls.length > 0) {
-          const mallId = malls.find(m => m === this.restaurant.mallId);
-          resolve(mallId ? true : false);
-        } else {
-          resolve(false);
-        }
-      });
-    });
-  }
+  // checkMallSchedule(origin: ILocation, delivered: string): Promise<boolean> {
+  //   return new Promise((resolve, reject) => {
+  //     this.mallSvc.getAvailables(origin, delivered).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
+  //       const malls = ret.mallIds;
+  //       if (malls && malls.length > 0) {
+  //         const mallId = malls.find(m => m === this.restaurant.mallId);
+  //         resolve(mallId ? true : false);
+  //       } else {
+  //         resolve(false);
+  //       }
+  //     });
+  //   });
+  // }
 
   resetAddress() {
     const self = this;

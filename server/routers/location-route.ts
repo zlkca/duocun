@@ -10,7 +10,11 @@ export function LocationRouter(db: DB){
   router.get('/:id', (req, res) => { controller.get(req, res); });
   router.get('/Places/:input', (req, res) => { controller.reqPlaces(req, res); });
   router.get('/Geocodes/:address', (req, res) => { controller.reqGeocodes(req, res); });
+  router.post('/upsertOne', (req, res) => { controller.upsertOne(req, res); });
   router.post('/', (req, res) => { controller.create(req, res); });
+
+
+  router.put('/updateLocations', (req, res) => { controller.updateLocations(req, res)});
   router.put('/', (req, res) => { controller.replace(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });

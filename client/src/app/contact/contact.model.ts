@@ -2,35 +2,35 @@ import { IAccount } from '../account/account.model';
 import { ILocation } from '../location/location.model';
 
 export interface IContact {
-  id?: string;
+  _id?: string;
   accountId?: string;
   username?: string;
   phone?: string;
   // account: IAccount;
-  placeId?: string;
-  location?: ILocation;
-  address?: string;
+  placeId?: string; // doesn't exist
+  location?: ILocation; // in db
+  address?: string;     // in db
   unit?: string;
   buzzCode?: string;
-  verificationCode?: string;
-  created?: Date;
-  modified?: Date;
+  verificationCode?: string; // in db
+  created?: string;
+  modified?: string;
 }
 
 export class Contact implements IContact {
-  id: string;
+  _id?: string;
   accountId: string;
   username: string;
   phone: string;
   // account: IAccount;
   unit: string;
-  placeId: string;
+  placeId: string; // doesn't exist
   location: ILocation;
   address: string;
   buzzCode: string;
   verificationCode: string;
-  created?: Date;
-  modified?: Date;
+  created?: string;
+  modified?: string;
 
   constructor(data?: IContact) {
     Object.assign(this, data);

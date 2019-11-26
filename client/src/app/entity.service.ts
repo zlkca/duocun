@@ -160,4 +160,10 @@ export class EntityService {
     }
     return this.http.delete(this.url + '/' + id, {headers: headers});
   }
+
+
+  upsertOne( query: any, doc: any ): Observable<any> {
+    const url = this.url + '/upsertOne';
+    return this.doPost(url, { query: query, data: doc });
+  }
 }
