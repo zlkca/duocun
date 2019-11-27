@@ -85,6 +85,8 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
 
   onPhoneChange(e) {
     this.contact.verified = false;
+    this.contact.verificationCode = '';
+    this.verificationCode.patchValue('');
   }
 
   onVerificationCodeInput(e) {
