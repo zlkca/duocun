@@ -38,7 +38,6 @@ import { CategoryRouter } from "./routers/category-route";
 import { RestaurantRouter } from "./routers/restaurant-route";
 import { ProductRouter } from "./routers/product-route";
 import { ContactRouter } from "./routers/contact-route";
-import { PhoneRouter } from "./routers/phone-route";
 import { RangeRouter } from "./routers/range-route";
 import { MallRouter } from "./routers/mall-route";
 import { LocationRouter } from "./routers/location-route";
@@ -204,7 +203,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Restaurants', RestaurantRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Products', ProductRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Contacts', ContactRouter(dbo));
-  app.use('/' + ROUTE_PREFIX + '/Phones', PhoneRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Ranges', RangeRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Malls', MallRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Locations', LocationRouter(dbo));
