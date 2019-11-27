@@ -14,9 +14,7 @@ import { IAppState } from '../../store';
 import { AccountService } from '../../account/account.service';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import * as Cookies from 'js-cookie';
-import { ILocation } from '../../location/location.model';
 import { IDelivery } from '../../delivery/delivery.model';
-import { PhoneService } from '../phone.service';
 
 @Component({
   selector: 'app-phone-form-page',
@@ -27,7 +25,6 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
   account;
   form;
   contact: Contact;
-  phoneVerified = true;
   onDestroy$ = new Subject<any>();
   bGettingCode = false;
   counter = 60;
@@ -35,11 +32,12 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
   fromPage;
   location;
 
+  get verificationCode() { return this.form.get('verificationCode'); }
+
   constructor(
     private fb: FormBuilder,
     private accountSvc: AccountService,
     private contactSvc: ContactService,
-    private phoneSvc: PhoneService,
     private rx: NgRedux<IAppState>,
     private router: Router,
     private route: ActivatedRoute,
@@ -53,7 +51,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
 
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
-      payload: {name: 'phone-form'}
+      payload: { name: 'phone-form' }
     });
 
     this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
@@ -68,8 +66,8 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
       if (contact) {
         this.contact = new Contact(contact);
-        if (!contact.phone) {
-          this.phoneVerified = false;
+        if (!contact.verified) {
+          contact.verificationCode = '';
         }
         this.form.patchValue(contact);
       }
@@ -86,21 +84,29 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
   }
 
   onPhoneChange(e) {
-    this.phoneVerified = false;
+    this.contact.verified = false;
   }
 
   onVerificationCodeInput(e) {
     const self = this;
+    const accountId = this.account._id;
     if (e.target.value && e.target.value.length === 4) {
       const code = e.target.value;
-      this.phoneSvc.verifyCode(code, this.account.id).pipe(takeUntil(this.onDestroy$)).subscribe(verified => {
-        this.phoneVerified = verified;
+      this.contactSvc.verifyCode(code, accountId).pipe(takeUntil(this.onDestroy$)).subscribe(verified => {
+        this.contact.verified = verified;
         if (verified) {
           if (self.countDown) {
             clearInterval(self.countDown);
           }
           setTimeout(() => {
-            self.save();
+            // self.save();
+            if (self.contact.verified) {
+              self.contactSvc.find({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe(contacts => {
+                if (contacts && contacts.length > 0) {
+                  self.redirect(contacts[0]);
+                }
+              });
+            }
           }, 1200);
         }
       });
@@ -146,49 +152,54 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  save() {
-    const self = this;
-    const v = this.form.value;
-    const account = this.account;
+  // save() {
+  //   const self = this;
+  //   const v = this.form.value;
+  //   const account = this.account;
 
-    if (!this.phoneVerified) {
-      return;
-    }
+  //   if (!this.contact.verified) {
+  //     return;
+  //   }
 
-    this.contactSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe(oldContacts => {
-      if (oldContacts && oldContacts.length > 0) {
-        const oldContact = oldContacts[0];
-        oldContact.phone = v.phone;
-        oldContact.verificationCode = v.verificationCode;
+  //   // Fix me
+  //   this.contactSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe(oldContacts => {
+  //     if (oldContacts && oldContacts.length > 0) {
+  //       const oldContact = oldContacts[0];
+  //       oldContact.phone = v.phone;
+  //       oldContact.verificationCode = v.verificationCode;
 
-        // replace phone number only
-        const data = { phone: v.phone, verificationCode: v.verificationCode };
-        self.contactSvc.update({ accountId: account.id }, data).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-          if (x.ok === 1) {
-            this.redirect(oldContact);
-          }
-        });
-      } else {
-        const contact = new Contact();
-        contact.accountId = self.account.id;
-        contact.username = self.account.username;
-        contact.phone = v.phone;
-        contact.verificationCode = v.verificationCode;
-
-        self.contactSvc.save(contact).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-          this.redirect(contact);
-        });
-      }
-    });
-  }
+  //       // replace phone number only
+  //       const data = { phone: v.phone, verificationCode: v.verificationCode };
+  //       self.contactSvc.update({ accountId: account.id }, data).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+  //         if (x.ok === 1) {
+  //           this.redirect(oldContact);
+  //         }
+  //       });
+  //     } else {
+  //       const accountId = this.account._id;
+  //       const accountName = this.account.username;
+  //       const contact: any = {
+  //         accountId: accountId,
+  //         username: accountName,
+  //         phone: v.phone,
+  //         verificationCode: v.verificationCode
+  //       };
+  //       self.contactSvc.save(contact).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
+  //         this.redirect(contact);
+  //       });
+  //     }
+  //   });
+  // }
 
   sendVerify() {
     const self = this;
+    const accountId: string = self.account._id;
+    const username: string = self.account.username;
     let phone: string = this.form.value.phone;
 
     if (phone) {
       phone = phone.match(/\d+/g).join('');
-      const contact = { phone: phone, accountId: self.account.id };
+      const contact = { phone: phone, accountId: accountId, username: username };
       this.bGettingCode = true;
       this.counter = 60;
       this.countDown = setInterval(function () {
@@ -198,10 +209,12 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
           self.bGettingCode = false;
         }
       }, 1000);
-      this.phoneSvc.sendVerifyMessage(contact).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-        this.snackBar.open('', '短信验证码已发送', {
-          duration: 1000
-        });
+
+      this.contact.verified = false;
+      this.contact.verificationCode = '';
+      this.verificationCode.patchValue('');
+      this.contactSvc.sendVerifyMsg(contact).pipe(takeUntil(this.onDestroy$)).subscribe(x => {
+        this.snackBar.open('', '短信验证码已发送', { duration: 1000 });
       });
     }
   }

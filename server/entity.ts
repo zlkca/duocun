@@ -124,10 +124,6 @@ export class Entity {
       self.getCollection().then((c: Collection) => {
         query = this.convertIdFields(query);
         c.findOne(query, options, (err, doc) => {
-          if (doc && doc._id) {
-            doc.id = doc._id;
-            // delete (doc._id);
-          }
           resolve(doc);
         });
       });
@@ -142,17 +138,7 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.find(query, options).toArray((err, docs) => {
-          let s: any[] = [];
-          if (docs && docs.length > 0) {
-            docs.map((v, i) => {
-              if (v && v._id) {
-                v.id = v._id;
-                // delete (v._id);
-              }
-              s.push(v);
-            });
-          }
-          resolve(s);
+          resolve(docs);
         });
       });
     });

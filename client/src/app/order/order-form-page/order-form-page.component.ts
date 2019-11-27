@@ -127,17 +127,23 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       self.contact = x;
       const fromPage = this.route.snapshot.queryParamMap.get('fromPage');
       if (fromPage === 'order-form') {
-        this.pay();
+        this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+          self.account = account;
+          const origin = self.delivery.origin;
+          const groupDiscount = 0; // bEligible ? 2 : 0;
+          self.getOverRange(origin, (distance, rate) => {
+            this.charge = this.getCharge(this.cart, (distance * rate), groupDiscount);
+            this.pay();
+          });
+        });
       }
     });
 
+    // command from footer
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'pay') {
-        this.rx.dispatch({
-          type: CommandActions.SEND,
-          payload: { name: '' }
-        });
-        this.pay();
+        this.rx.dispatch({ type: CommandActions.SEND, payload: { name: '' } });
+        self.pay();
       }
     });
   }
@@ -163,13 +169,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
           // this.orderSvc.checkGroupDiscount(accountId, merchantId, dateType, address)
           // .pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
-            const groupDiscount = 0; // bEligible ? 2 : 0;
-            self.getOverRange(origin, (distance, rate) => {
-              this.charge = this.getCharge(cart, (distance * rate), groupDiscount);
-              this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
-              self.loading = false;
-              self.groupDiscount = groupDiscount;
-            });
+          const groupDiscount = 0; // bEligible ? 2 : 0;
+          self.getOverRange(origin, (distance, rate) => {
+            this.charge = this.getCharge(cart, (distance * rate), groupDiscount);
+            this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
+            self.loading = false;
+            self.groupDiscount = groupDiscount;
+          });
           // });
         });
       }
@@ -317,7 +323,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   pay() {
     const self = this;
-    if (!this.contact || !this.contact.phone) {
+    if (!this.contact || !this.contact.phone || !this.contact.verified) {
       this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
       return;
     }
@@ -327,7 +333,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const v = this.form.value;
       const order = self.createOrder(this.balance, self.contact, self.cart, self.delivery, self.charge, v.note);
 
-      this.accountSvc.update({_id: this.account._id}, {type: 'client'}).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
+      this.accountSvc.update({ _id: this.account._id }, { type: 'client' }).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
 
       });
 

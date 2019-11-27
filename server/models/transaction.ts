@@ -290,13 +290,13 @@ export class Transaction extends Model {
   }
 
   doGetMerchantPay() {
-    const q = {action: 'duocun order from merchant'};
+    const q = { action: 'duocun order from merchant' };
 
     return new Promise((resolve, reject) => {
       this.find(q).then((trs: ITransaction[]) => {
         let amount = 0;
         trs.map((tr: ITransaction) => {
-            amount += tr.amount;
+          amount += tr.amount;
         });
 
         resolve(amount);
@@ -305,13 +305,13 @@ export class Transaction extends Model {
   }
 
   doGetSalary() {
-    const q = {action: 'pay salary'};
+    const q = { action: 'pay salary' };
 
     return new Promise((resolve, reject) => {
       this.find(q).then((trs: ITransaction[]) => {
         let amount = 0;
         trs.map((tr: ITransaction) => {
-            amount += tr.amount;
+          amount += tr.amount;
         });
 
         resolve(amount);
@@ -321,7 +321,7 @@ export class Transaction extends Model {
 
 
   saveTransactionsForPlaceOrder(orderId: string, merchantId: string, merchantName: string, clientId: string, clientName: string,
-    cost: number, total: number, delivered?: string){
+    cost: number, total: number, delivered?: string) {
     const t1: ITransaction = {
       fromId: merchantId,
       fromName: merchantName,
@@ -354,7 +354,7 @@ export class Transaction extends Model {
   }
 
   saveTransactionsForRemoveOrder(merchantId: string, merchantName: string, clientId: string, clientName: string,
-    cost: number, total: number, delivered: string){
+    cost: number, total: number, delivered: string) {
     const t1: ITransaction = {
       fromId: CASH_ID,
       fromName: clientName,
@@ -380,6 +380,38 @@ export class Transaction extends Model {
         this.doInsertOne(t2).then((y) => {
           resolve();
         });
+      });
+    });
+  }
+
+  // tools
+  changeAccount(req: Request, res: Response) {
+    this.find({ fromId: '5cf67ed1d47c19056aaa1091' }).then(trs1 => {
+      const datas: any[] = [];
+      trs1.map((t: any) => {
+        datas.push({
+          query: { _id: t._id },
+          data: { fromId: '5ddda5edc792cdca1a13c1e2', fromName: 'bonnie2' }
+        });
+      });
+
+      this.find({ toId: '5cf67ed1d47c19056aaa1091' }).then(trs2 => {
+        trs2.map((t: any) => {
+          datas.push({
+            query: { _id: t._id },
+            data: { toId: '5ddda5edc792cdca1a13c1e2', toName: 'bonnie2' }
+          });
+        });
+
+        res.setHeader('Content-Type', 'application/json');
+        if (datas && datas.length > 0) {
+          this.bulkUpdate(datas).then(() => {
+            res.end(JSON.stringify('success', null, 3));
+          });
+        } else {
+          res.end(JSON.stringify(null, null, 3));
+        }
+
       });
     });
   }

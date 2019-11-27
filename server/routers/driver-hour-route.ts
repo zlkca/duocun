@@ -11,6 +11,9 @@ export function DriverHourRouter(db: DB){
   router.get('/:id', (req, res) => { controller.get(req, res); });
   router.post('/', (req, res) => { controller.create(req, res); });
   router.put('/', (req, res) => { controller.replace(req, res); });
+
+  // tools
+  router.patch('/changeAccount', (req, res) => { controller.changeAccount(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
 

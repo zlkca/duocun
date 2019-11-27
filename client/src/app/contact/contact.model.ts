@@ -15,6 +15,7 @@ export interface IContact {
   verificationCode?: string; // in db
   created?: string;
   modified?: string;
+  verified?: boolean;
 }
 
 export class Contact implements IContact {
@@ -31,6 +32,7 @@ export class Contact implements IContact {
   verificationCode: string;
   created?: string;
   modified?: string;
+  verified?: boolean;
 
   constructor(data?: IContact) {
     Object.assign(this, data);

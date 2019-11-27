@@ -13,7 +13,6 @@ import { MatStepperModule } from '@angular/material/stepper';
 
 import { DistanceService } from '../location/distance.service';
 import { AddressFormPageComponent } from './address-form-page/address-form-page.component';
-import { PhoneService } from './phone.service';
 import { MallService } from '../mall/mall.service';
 
 @NgModule({
@@ -36,7 +35,6 @@ import { MallService } from '../mall/mall.service';
     LocationService,
     AccountService,
     DistanceService,
-    PhoneService,
     MallService,
     DistanceService
   ]

@@ -91,9 +91,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    const accountId: string = this.account._id;
 
     this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      const accountId: string = account._id;
       self.account = account;
 
       self.locationSvc.find({ accountId: accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {

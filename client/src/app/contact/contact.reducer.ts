@@ -7,6 +7,7 @@ export interface IContactAction {
 }
 
 export function contactReducer(state: IContact, action: IContactAction) {
+  const payload = action.payload;
   switch (action.type) {
     case ContactActions.CLEAR:
       return null;
@@ -16,10 +17,11 @@ export function contactReducer(state: IContact, action: IContactAction) {
     case ContactActions.UPDATE_WITHOUT_LOCATION:
       return {
         ...state,
-        accountId: action.payload.accountId,
-        username: action.payload.username,
-        phone: action.payload.phone,
-        verificationCode: action.payload.verificationCode
+        accountId: payload.accountId,
+        username: payload.username,
+        phone: payload.phone,
+        verificationCode: payload.verificationCode,
+        verified: payload.verified
       };
     case ContactActions.UPDATE_LOCATION_WITH_ACCOUNT:
       return {
