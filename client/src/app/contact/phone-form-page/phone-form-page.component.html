@@ -5,14 +5,14 @@
         <div class="row label-sm">
           <span i18n="@@PhoneNumber">Phone Number</span><span>*</span>
         </div>
-        <input name="phone" formControlName="phone" (keyup)="onPhoneChange($event)"/>
+        <input name="phone" type="tel" pattern="[0-9]*" formControlName="phone" (keyup)="onPhoneChange($event)"/>
       </div>
       
       <div class="row form-group">
         <div class="row label-sm" [class.warning]="!contact.verified">
           <span i18n="@@VerificationCode">Verification Code</span><span>*</span>
         </div>
-        <input class="verification-code" name="verificationCode" formControlName="verificationCode" 
+        <input class="verification-code" type="number" pattern="[\d]*" name="verificationCode" formControlName="verificationCode" 
         (keyup)="onVerificationCodeInput($event)"/>
         
         <div class="verification-result">

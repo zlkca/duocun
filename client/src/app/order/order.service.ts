@@ -70,10 +70,10 @@ export class OrderService extends EntityService {
     return this.doPost(url, { orderId: orderId });
   }
 
-  afterAddOrder( clientId: string,  merchantId: string, dateType: string,  address: string, paid: number ): Observable<any> {
-    const url = this.url + '/afterAddOrder';
-    return this.doPost(url, { clientId: clientId, merchantId: merchantId, dateType: dateType, address: address, paid: paid });
-  }
+  // afterAddOrder( clientId: string,  merchantId: string, dateType: string,  address: string, paid: number ): Observable<any> {
+  //   const url = this.url + '/afterAddOrder';
+  //   return this.doPost(url, { clientId: clientId, merchantId: merchantId, dateType: dateType, address: address, paid: paid });
+  // }
 
 
 }

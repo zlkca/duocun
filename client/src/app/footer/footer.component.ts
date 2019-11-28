@@ -10,6 +10,9 @@ import { ContactService } from '../contact/contact.service';
 import { IContact } from '../contact/contact.model';
 import { ICommand } from '../shared/command.reducers';
 import { ICart } from '../cart/cart.model';
+import { IDelivery } from '../delivery/delivery.model';
+import { AccountService } from '../account/account.service';
+import { IOrder } from '../order/order.model';
 
 @Component({
   selector: 'app-footer',
@@ -28,16 +31,26 @@ export class FooterComponent implements OnInit, OnDestroy {
   quantity;
   productTotal;
   fromPage;
+  delivery;
+  order;
+
   private onDestroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
     private rx: NgRedux<IAppState>,
     private contactSvc: ContactService,
+    private accountSvc: AccountService
   ) {
     const self = this;
     this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => { // must be redux
-      self.account = account;
+      if (!account) {
+        this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
+          self.account = account1;
+        });
+      } else {
+        self.account = account;
+      }
     });
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
@@ -47,6 +60,15 @@ export class FooterComponent implements OnInit, OnDestroy {
       }
       self.quantity = cart.quantity;
       self.productTotal = cart.productTotal;
+    });
+
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
+      self.delivery = x;
+    });
+
+    // for update paymentMethod for order-form-page
+    this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
+      this.order = order;
     });
 
     this.rx.select<string>('page').pipe(takeUntil(this.onDestroy$)).subscribe((x: any) => {
@@ -154,9 +176,20 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   pay() {
-    this.rx.dispatch({
-      type: CommandActions.SEND,
-      payload: { name: 'pay', args: null }
+    this.contactSvc.find({ accountId: this.account._id }).pipe(takeUntil(this.onDestroy$)).subscribe((contacts: IContact[]) => {
+      this.rx.dispatch({
+        type: CommandActions.SEND,
+        payload: {
+          name: 'pay',
+          args: {
+            account: this.account,
+            cart: this.cart,
+            delivery: this.delivery,
+            contact: contacts[0],
+            paymentMethod: this.order.paymentMethod
+          }
+        }
+      });
     });
   }
 

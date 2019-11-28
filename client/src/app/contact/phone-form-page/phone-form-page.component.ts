@@ -66,9 +66,8 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
       if (contact) {
         this.contact = new Contact(contact);
-        if (!contact.verified) {
-          contact.verificationCode = '';
-        }
+        this.contact.verified = false;
+        contact.verificationCode = '';
         this.form.patchValue(contact);
       }
     });

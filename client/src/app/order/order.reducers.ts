@@ -9,6 +9,11 @@ export interface IOrderAction {
 export function orderReducer(state: IOrder = { }, action: any) {
   if (action.payload) {
     switch (action.type) {
+      case OrderActions.UPDATE_PAYMENT_METHOD:
+      return {
+        ...state,
+        paymentMethod: action.payload.paymentMethod
+      };
       case OrderActions.UPDATE:
         return action.payload;
 
