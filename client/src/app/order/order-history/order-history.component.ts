@@ -49,8 +49,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     const self = this;
     this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
-      if (account && account.id) {
-        self.reload(account.id);
+      if (account && account._id) {
+        self.reload(account._id);
       } else {
         self.orders = []; // should never be here.
       }
@@ -152,7 +152,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   deleteOrder(order: IOrder) {
-    this.openDialog(this.account.id, order._id, order.total, order.paymentMethod, order.transactionId, order.chargeId);
+    const accountId = this.account._id;
+    this.openDialog(accountId, order._id, order.total, order.paymentMethod, order.transactionId, order.chargeId);
   }
 
   openDialog(accountId: string, orderId: string, total: number, paymentMethod: string,

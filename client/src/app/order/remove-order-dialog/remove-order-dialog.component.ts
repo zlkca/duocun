@@ -99,10 +99,8 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
             // const q = { accountId: self.data.accountId };
             // self.clientBalanceSvc.update(q, { amount: payable }).pipe(takeUntil(this.onDestroy$)).subscribe(bs => {
             //   self.snackBar.open('', '余额已更新', { duration: 1800 });
-            //   // self.rmTransaction(self.data.transactionId, () => {
             //   //   // self.router.navigate(['order/history']);
             //   //   self.snackBar.open('', '交易已更新', { duration: 1800 });
-            //   // });
             // });
           });
         // });
@@ -125,15 +123,6 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
         });
       }
     }
-  }
-
-  rmTransaction(transactionId, cb?: any) {
-    this.transactionSvc.removeById(transactionId).pipe(takeUntil(this.onDestroy$)).subscribe(t => {
-      this.snackBar.open('', '已删除交易', { duration: 1000 });
-      if (cb) {
-        cb(t);
-      }
-    });
   }
 
   // updateBalance(order: IOrder) {
