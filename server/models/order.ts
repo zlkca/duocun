@@ -19,7 +19,7 @@ const CASH_NAME = 'Cash';
 const BANK_ID = '5c95019e0851a5096e044d0c';
 const BANK_NAME = 'TD Bank';
 
-export interface IPayment{
+export interface IPayment {
   orderId: string,
   clientId: string,
   clientName: string,
@@ -113,7 +113,7 @@ export class Order extends Model {
       query.delivered = this.getPickupDateTime(query['pickup']);
       delete query.pickup;
     }
-    let q = query? query: {};
+    let q = query ? query : {};
 
     this.contactModel.find({}).then(contacts => {
       this.merchantModel.find({}).then(ms => {
@@ -131,7 +131,7 @@ export class Order extends Model {
               });
               order.items = items;
             });
-      
+
             res.setHeader('Content-Type', 'application/json');
             if (rs) {
               res.send(JSON.stringify(rs, null, 3));
@@ -145,7 +145,7 @@ export class Order extends Model {
   }
 
   // pickup --- string '11:20'
-  getPickupDateTime(pickup: string){
+  getPickupDateTime(pickup: string) {
     const h = +(pickup.split(':')[0]);
     const m = +(pickup.split(':')[1]);
     return moment().set({ hour: h, minute: m, second: 0, millisecond: 0 }).toISOString();
@@ -239,10 +239,10 @@ export class Order extends Model {
                 resolve(savedOrder);
               } else {
                 this.transactionModel.saveTransactionsForPlaceOrder(
-                  savedOrder._id.toString(), 
+                  savedOrder._id.toString(),
                   merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
-                  resolve(savedOrder);
-                });
+                    resolve(savedOrder);
+                  });
               }
             });
           });
@@ -269,7 +269,7 @@ export class Order extends Model {
               const total = order.total;
               const delivered = order.deliverd;
 
-              this.transactionModel.updateMany({orderId: orderId}, {status: 'del'}).then( () => {
+              this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' }).then(() => {
                 this.transactionModel.saveTransactionsForRemoveOrder(merchantId, merchantName, clientId, clientName, cost, total, delivered).then(() => {
                   resolve(order);
                 });
@@ -607,7 +607,7 @@ export class Order extends Model {
   // 1.update order status to 'paid'
   // 2.add two transactions for place order and add another transaction for deposit to bank
   // 3.update account balance
-  doProcessPayment(order: IOrder, action: string, paid: number, chargeId: string){
+  doProcessPayment(order: IOrder, action: string, paid: number, chargeId: string) {
     const orderId = order._id;
     const merchantId: string = order.merchantId.toString();
     const merchantName = order.merchantName;
@@ -629,36 +629,36 @@ export class Order extends Model {
 
     return new Promise((resolve, reject) => {
       this.transactionModel.saveTransactionsForPlaceOrder(
-        order._id.toString(), 
-        merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(()  => {
-        this.transactionModel.doInsertOne(tr).then(t => {
-          const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
-          this.updateOne({ _id: orderId }, data).then((r: any) => { // result
-            // res.setHeader('Content-Type', 'application/json');
-            // res.end(JSON.stringify(r, null, 3));
-            resolve(r);
+        order._id.toString(),
+        merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
+          this.transactionModel.doInsertOne(tr).then(t => {
+            const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
+            this.updateOne({ _id: orderId }, data).then((r: any) => { // result
+              // res.setHeader('Content-Type', 'application/json');
+              // res.end(JSON.stringify(r, null, 3));
+              resolve(r);
+            });
           });
         });
-      });
     });
   }
 
 
   // tools
   updatePurchaseTag(req: Request, res: Response) {
-    this.accountModel.find({type: {$nin:['system', 'merchant', 'driver']}}).then(accounts => {
+    this.accountModel.find({ type: { $nin: ['system', 'merchant', 'driver'] } }).then(accounts => {
       this.distinct('clientId', { status: { $nin: ['del', 'tmp'] } }).then((clientIds: any[]) => {
         const datas: any[] = [];
         clientIds.map(clientId => {
           const account = accounts.find((a: any) => a._id.toString() === clientId.toString());
-          if(account){
+          if (account) {
             datas.push({
               query: { _id: clientId },
               data: { type: 'client' }
             });
           }
         });
-  
+
         this.accountModel.bulkUpdate(datas).then(() => {
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify('success', null, 3));
@@ -673,7 +673,7 @@ export class Order extends Model {
     //       data: { type: 'driver' }
     //     });
     //   });
-  
+
     //   this.accountModel.bulkUpdate(datas).then(() => {
     //     res.setHeader('Content-Type', 'application/json');
     //     res.end(JSON.stringify('success', null, 3));
@@ -691,8 +691,8 @@ export class Order extends Model {
     };
 
     return new Promise((resolve, reject) => {
-      this.updateOne({_id: orderId}, data).then(rt => {
-        this.findOne({_id: orderId}).then(order => {
+      this.updateOne({ _id: orderId }, data).then(rt => {
+        this.findOne({ _id: orderId }).then(order => {
           const tr = {
             orderId: order._id.toString(),
             fromId: order.clientId.toString(),
@@ -722,7 +722,7 @@ export class Order extends Model {
     const note = req.body.note;
 
     this.pay(toId, toName, received, orderId, note).then((order: any) => {
-      this.assignmentModel.updateOne({'orderId': orderId}, {status: 'done'}).then( () => {
+      this.assignmentModel.updateOne({ 'orderId': orderId }, { status: 'done' }).then(() => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ status: 'success' }, null, 3));
       });
@@ -745,7 +745,7 @@ export class Order extends Model {
     return groups;
   }
 
-  getOrderTrends(req: Request, res: Response){
+  getOrderTrends(req: Request, res: Response) {
     const query = {
       // delivered: { $gt: moment('2019-06-01').toDate() },
       status: { $nin: ['bad', 'del', 'tmp'] }
@@ -768,4 +768,74 @@ export class Order extends Model {
   }
 
 
+  loadPage(req: Request, res: Response) {
+    const itemsPerPage = +req.params.itemsPerPage;
+    const currentPageNumber = +req.params.currentPageNumber;
+
+    let query = null;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    if (query.hasOwnProperty('pickup')) {
+      query.delivered = this.getPickupDateTime(query['pickup']);
+      delete query.pickup;
+    }
+    let q = query ? query : {};
+
+    this.contactModel.find({}).then(contacts => {
+      this.merchantModel.find({}).then(ms => {
+        this.productModel.find({}).then(ps => {
+          this.find(q).then((rs: any) => {
+
+            const start = (currentPageNumber - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const len = rs.length;
+            const arr = rs.slice(start, end);
+
+            arr.map((order: any) => {
+              const items: any[] = [];
+              order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
+              order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
+
+              order.items.map((it: any) => {
+                const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+                if (product) {
+                  items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                }
+              });
+              order.items = items;
+            });
+
+            const arrSorted = arr.sort((a: IOrder, b: IOrder) => {
+              const ma = moment(a.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+              const mb = moment(b.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+              if (ma.isAfter(mb)) {
+                return -1;
+              } else if (mb.isAfter(ma)) {
+                return 1;
+              } else {
+                const ca = moment(a.created);
+                const cb = moment(b.created);
+                if (ca.isAfter(cb)) {
+                  return -1;
+                } else {
+                  return 1;
+                }
+              }
+            });
+
+
+            res.setHeader('Content-Type', 'application/json');
+            if (arrSorted && arrSorted.length > 0) {
+              res.send(JSON.stringify({ total: len, orders: arrSorted }, null, 3));
+            } else {
+              res.send(JSON.stringify({ total: len, orders: [] }, null, 3));
+            }
+            
+          });
+        });
+      });
+    });
+  }
 }

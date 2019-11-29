@@ -18,6 +18,7 @@ import { PaymentService } from '../payment/payment.service';
 import { MerchantService } from '../merchant/merchant.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { MallService } from '../mall/mall.service';
+import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
 
 @NgModule({
   imports: [
@@ -25,6 +26,7 @@ import { MallService } from '../mall/mall.service';
     // NgbModule,
     FormsModule,
     ReactiveFormsModule,
+    NgxPaginationModule,
     MatTabsModule,
     MatSnackBarModule,
     MatDialogModule,
@@ -41,7 +43,8 @@ import { MallService } from '../mall/mall.service';
     PaymentService,
     MerchantService,
     TransactionService,
-    MallService
+    MallService,
+    PaginatePipe
   ],
   declarations: [
     OrderHistoryComponent,

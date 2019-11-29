@@ -30,6 +30,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   orders = [];
   loading = true;
   highlightedOrderId = 0;
+  currentPageNumber = 1;
+  itemsPerPage = 10;
+  nOrders = 0;
 
   constructor(
     private accountSvc: AccountService,
@@ -41,7 +44,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   ) {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
-      payload: {name: 'order-history'}
+      payload: { name: 'order-history' }
     });
   }
 
@@ -50,7 +53,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
       if (account && account._id) {
-        self.reload(account._id);
+        // self.reload(account._id);
+        self.OnPageChange(this.currentPageNumber);
       } else {
         self.orders = []; // should never be here.
       }
@@ -77,7 +81,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'reload-orders') {
-        self.reload(this.account.id);
+        // self.reload(this.account._id);
+        self.OnPageChange(this.currentPageNumber);
       }
     });
   }
@@ -88,38 +93,38 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   reload(clientId) {
-    const self = this;
-    const query = { clientId: clientId, status: { $nin: ['del', 'bad', 'tmp'] } };
-    self.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((orders: IOrder[]) => {
-      orders.map((order: IOrder) => {
-        let subTotal = 0;
-        subTotal = order.price + order.deliveryCost;
-        order.tax = Math.ceil(subTotal * 13) / 100;
-        order.productTotal = order.price;
-      });
+    // const self = this;
+    // const query = { clientId: clientId, status: { $nin: ['del', 'bad', 'tmp'] } };
+    // self.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((orders: IOrder[]) => {
+    //   orders.map((order: IOrder) => {
+    //     let subTotal = 0;
+    //     subTotal = order.price + order.deliveryCost;
+    //     order.tax = Math.ceil(subTotal * 13) / 100;
+    //     order.productTotal = order.price;
+    //   });
 
-      orders.sort((a: IOrder, b: IOrder) => {
-        const ma = moment(a.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-        const mb = moment(b.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-        if (ma.isAfter(mb)) {
-          return -1;
-        } else if (mb.isAfter(ma)) {
-          return 1;
-        } else {
-          const ca = moment(a.created);
-          const cb = moment(b.created);
-          if (ca.isAfter(cb)) {
-            return -1;
-          } else {
-            return 1;
-          }
-        }
-      });
-      self.orders = orders;
-      self.loading = false;
+    //   orders.sort((a: IOrder, b: IOrder) => {
+    //     const ma = moment(a.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    //     const mb = moment(b.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+    //     if (ma.isAfter(mb)) {
+    //       return -1;
+    //     } else if (mb.isAfter(ma)) {
+    //       return 1;
+    //     } else {
+    //       const ca = moment(a.created);
+    //       const cb = moment(b.created);
+    //       if (ca.isAfter(cb)) {
+    //         return -1;
+    //       } else {
+    //         return 1;
+    //       }
+    //     }
+    //   });
+    //   self.orders = orders;
+    //   self.loading = false;
 
-      self.highlightedOrderId = self.orders[0] ? self.orders[0]._id : null;
-    });
+    //   self.highlightedOrderId = self.orders[0] ? self.orders[0]._id : null;
+    // });
   }
 
   // deprecated
@@ -160,14 +165,15 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     transactionId: string, chargeId: string): void {
     const dialogRef = this.dialog.open(RemoveOrderDialogComponent, {
       width: '300px',
-      data: { title: '提示', content: '确认要删除该订单吗？', buttonTextNo: '取消', buttonTextYes: '删除',
-      accountId: accountId,
-      orderId: orderId,
-      total: total,
-      paymentMethod: paymentMethod,
-      transactionId: transactionId,
-      chargeId: chargeId
-     },
+      data: {
+        title: '提示', content: '确认要删除该订单吗？', buttonTextNo: '取消', buttonTextYes: '删除',
+        accountId: accountId,
+        orderId: orderId,
+        total: total,
+        paymentMethod: paymentMethod,
+        transactionId: transactionId,
+        chargeId: chargeId
+      },
     });
 
     dialogRef.afterClosed().pipe(takeUntil(this.onDestroy$)).subscribe(result => {
@@ -188,6 +194,17 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     return s ? this.sharedSvc.toDateString(s) : '';
   }
 
+  OnPageChange(pageNumber) {
+    const accountId = this.account._id;
+    const itemsPerPage = this.itemsPerPage;
+    this.currentPageNumber = pageNumber;
+    const query = { clientId: accountId, status: { $nin: ['del', 'bad', 'tmp'] } };
+    this.orderSvc.loadPage(query, pageNumber, itemsPerPage).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
+      this.orders = ret.orders;
+      this.nOrders = ret.total;
+      this.loading = false;
+    });
+  }
   // takeOrder(order) {
   //   const self = this;
   //   order.workerStatus = 'process';

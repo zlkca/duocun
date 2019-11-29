@@ -161,20 +161,15 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const groupDiscount = 0; // bEligible ? 2 : 0;
         self.getOverRange(origin, (distance, rate) => {
           this.charge = this.getCharge(cart, (distance * rate), groupDiscount);
-          // setTimeout(() => {
-          if (self.paymentMethod === 'card') {
-            self.initStripe();
-          }
           self.doPay(contact, account, self.charge, cart, delivery, paymentMethod);
-          // }, 1200);
         });
-        // });
       }
     });
   }
 
   ngOnInit() {
     const self = this;
+    this.loading = false;
     this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
 
     // trigger payment from the page of phone number verification
@@ -201,7 +196,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           });
         });
       });
-    } else {
+    } else { // normal procedure
       this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
         self.account = account;
 
@@ -242,14 +237,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       });
     }
   }
-
-  // ngAfterViewInit() {
-  //   if (this.fromPage === 'order-form') {
-  //     if (this.paymentMethod === 'card') {
-  //       this.initStripe();
-  //     }
-  //   }
-  // }
 
   ngOnDestroy() {
     this.onDestroy$.next();
@@ -598,9 +585,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     if (e.value === 'cash') {
       // product
     } else if (e.value === 'card') {
-      setTimeout(() => {
-        self.initStripe();
-      }, 500);
+      const contact = this.contact;
+      if (contact || contact.phone || contact.verified) {
+        setTimeout(() => {
+          self.initStripe();
+        }, 500);
+      }
+    } else {
+      // pass
     }
   }
 

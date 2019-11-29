@@ -15,7 +15,10 @@
   </div>
 
   <div class="order-list" *ngIf="!loading">
-    <div class="list-item" *ngFor="let order of orders;" (click)="onSelect(order)" [class.highlight]="order.id === highlightedOrderId">
+    <!-- *ngFor="let order of orders;"  -->
+    <div class="list-item"
+      *ngFor="let order of orders | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPageNumber, totalItems: nOrders }"
+      (click)="onSelect(order)" [class.highlight]="order.id === highlightedOrderId">
       <div class="row first-row">
         <div class="col-12 text-col">
           <div class="col-12">
@@ -51,7 +54,7 @@
           <div class="row">
             <div class="col-12">
               <div class="title-xs"><span i18n="@@ProductTotal">ProductTotal</span>:</div>
-              <div class="text-xs">&nbsp;${{order.productTotal | number : '1.2-2'}}</div>
+              <div class="text-xs">&nbsp;${{order.price | number : '1.2-2'}}</div>
             </div>
             <div class="col-12">
               <div class="title-xs"><span i18n="@@DeliveryFee">Delivery Fee</span>:</div>
@@ -59,11 +62,11 @@
             </div>
             <div class="col-12">
               <div class="title-xs"><span i18n="@@Subtotal">Subtotal</span>:</div>
-              <div class="text-xs">&nbsp;${{order.productTotal + order.deliveryCost | number : '1.2-2'}}</div>
+              <div class="text-xs">&nbsp;${{order.price + order.deliveryCost | number : '1.2-2'}}</div>
             </div>
             <div class="col-12">
               <div class="title-xs"><span i18n="@@Tax">Tax</span>:</div>
-              <div class="text-xs">&nbsp;${{order.tax | number : '1.2-2'}}</div>
+              <div class="text-xs">&nbsp;${{(order.price + order.deliveryCost)*0.13 | number : '1.2-2'}}</div>
             </div>
             <div class="col-12">
               <div class="title-xs"><span i18n="@@Tips">Tips</span>:</div>
@@ -94,5 +97,6 @@
       </div>
 
     </div>
-  </div>
+    <pagination-controls (pageChange)="OnPageChange($event)"></pagination-controls>
+  </div><!-- class="order-list" -->
 </div>

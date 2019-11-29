@@ -76,6 +76,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   bAddressList = false;
   date;
   phase = 'today:lunch';
+  bPayment = false;
 
   @ViewChild('tooltip', { static: true }) tooltip: MatTooltip;
 
@@ -163,6 +164,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       // process payment route ?clientId=x&paymentMethod=y
       const clientId = queryParams.get('clientId'); // use for after card pay, could be null
       if (clientId) {
+        this.bPayment = true;
         this.accountSvc.quickFind({_id: clientId}).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
           this.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
           self.router.navigate(['order/history']);

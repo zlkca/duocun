@@ -75,5 +75,8 @@ export class OrderService extends EntityService {
   //   return this.doPost(url, { clientId: clientId, merchantId: merchantId, dateType: dateType, address: address, paid: paid });
   // }
 
-
+  loadPage(filter: any, currentPageNumber: number, itemsPerPage: number ): Observable<any> {
+    const url = this.url + '/loadPage/' + currentPageNumber + '/' + itemsPerPage;
+    return this.doGet(url, filter);
+  }
 }
