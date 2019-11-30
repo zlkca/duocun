@@ -180,7 +180,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.account = account;
           self.balance = account.balance;
           self.loading = false;
-
+          self.bSubmitted = false;
           const origin = self.delivery.origin;
           const groupDiscount = 0; // bEligible ? 2 : 0;
           self.getOverRange(origin, (distance, rate) => {
@@ -586,10 +586,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       // product
     } else if (e.value === 'card') {
       const contact = this.contact;
-      if (contact || contact.phone || contact.verified) {
+      if (contact && contact.phone && contact.verified) {
         setTimeout(() => {
           self.initStripe();
         }, 500);
+      } else {
+        this.bSubmitted = true;
+        this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
       }
     } else {
       // pass
@@ -636,16 +639,22 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   vaildateCardPay(card: any) {
     return new Promise((resolve, reject) => {
-      this.stripe.createToken(card).then(function (result) {
-        if (result.error) {
-          // Inform the user if there was an error.
-          const errorElement = document.getElementById('card-errors');
-          errorElement.textContent = result.error.message;
-          resolve({ status: 'failed', chargeId: '', msg: result.error.message });
-        } else {
-          resolve(result); // {status:x, chargeId:'', msg: '', token:x}
-        }
-      });
+      if (card._empty) {
+        resolve({ status: 'failed', chargeId: '', msg: 'empty card info' });
+      } else {
+        this.stripe.createToken(card).then(function (result) {
+          if (result.error) {
+            // Inform the user if there was an error.
+            const errorElement = document.getElementById('card-errors');
+            errorElement.textContent = result.error.message;
+            resolve({ status: 'failed', chargeId: '', msg: result.error.message });
+          } else {
+            resolve(result); // {status:x, chargeId:'', msg: '', token:x}
+          }
+        }, err => {
+          resolve({ status: 'failed', chargeId: '', msg: 'empty card info' });
+        });
+      }
     });
   }
 

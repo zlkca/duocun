@@ -788,26 +788,7 @@ export class Order extends Model {
         this.productModel.find({}).then(ps => {
           this.find(q).then((rs: any) => {
 
-            const start = (currentPageNumber - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const len = rs.length;
-            const arr = rs.slice(start, end);
-
-            arr.map((order: any) => {
-              const items: any[] = [];
-              order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
-              order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
-
-              order.items.map((it: any) => {
-                const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
-                if (product) {
-                  items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
-                }
-              });
-              order.items = items;
-            });
-
-            const arrSorted = arr.sort((a: IOrder, b: IOrder) => {
+            const arrSorted = rs.sort((a: IOrder, b: IOrder) => {
               const ma = moment(a.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
               const mb = moment(b.delivered).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
               if (ma.isAfter(mb)) {
@@ -826,13 +807,33 @@ export class Order extends Model {
             });
 
 
+            const start = (currentPageNumber - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const len = arrSorted.length;
+            const arr = arrSorted.slice(start, end);
+
+            arr.map((order: any) => {
+              const items: any[] = [];
+              order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
+              order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
+
+              order.items.map((it: any) => {
+                const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+                if (product) {
+                  items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                }
+              });
+              order.items = items;
+            });
+
+
             res.setHeader('Content-Type', 'application/json');
-            if (arrSorted && arrSorted.length > 0) {
-              res.send(JSON.stringify({ total: len, orders: arrSorted }, null, 3));
+            if (arr && arr.length > 0) {
+              res.send(JSON.stringify({ total: len, orders: arr }, null, 3));
             } else {
               res.send(JSON.stringify({ total: len, orders: [] }, null, 3));
             }
-            
+
           });
         });
       });
