@@ -399,14 +399,14 @@ export class Transaction extends Model {
   // }
 
   doAddCredit(clientId: string, clientName: string, total: number, paymentMethod: string, note: string) {
-    if(paymentMethod === 'card' || paymentMethod === 'WECHATPAY'){
+    if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
       const t1: ITransaction = {
         fromId: clientId,
         fromName: clientName,
         toId: BANK_ID,
         toName: BANK_NAME,
         amount: Math.round(total * 100) / 100,
-        action: 'client add credit',
+        action: 'client add credit by ' + paymentMethod,
         note: note
       };
       return new Promise((resolve, reject) => {
@@ -414,14 +414,14 @@ export class Transaction extends Model {
           resolve(x);
         });
       });
-    }else{
+    } else {
       const t2: ITransaction = {
         fromId: clientId,
         fromName: clientName,
         toId: CASH_ID,
         toName: CASH_NAME,
         amount: Math.round(total * 100) / 100,
-        action: 'client add credit',
+        action: 'client add credit by cash',
         note: note
       };
 

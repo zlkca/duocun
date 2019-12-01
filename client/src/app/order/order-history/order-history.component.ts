@@ -50,6 +50,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
+    this.loading = true;
     this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
       if (account && account._id) {
@@ -57,6 +58,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         self.OnPageChange(this.currentPageNumber);
       } else {
         self.orders = []; // should never be here.
+        this.loading = false;
       }
     });
 
@@ -81,7 +83,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'reload-orders') {
-        // self.reload(this.account._id);
         self.OnPageChange(this.currentPageNumber);
       }
     });
@@ -197,6 +198,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   OnPageChange(pageNumber) {
     const accountId = this.account._id;
     const itemsPerPage = this.itemsPerPage;
+
+    this.loading = true;
     this.currentPageNumber = pageNumber;
     const query = { clientId: accountId, status: { $nin: ['del', 'bad', 'tmp'] } };
     this.orderSvc.loadPage(query, pageNumber, itemsPerPage).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {

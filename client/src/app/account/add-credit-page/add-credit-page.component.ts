@@ -43,6 +43,7 @@ export class AddCreditPageComponent implements OnInit {
   ngOnInit() {
     this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       this.account = account;
+      this.paymentMethod = 'WECHATPAY';
     });
   }
 

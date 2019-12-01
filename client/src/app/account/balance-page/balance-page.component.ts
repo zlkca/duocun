@@ -70,13 +70,19 @@ export class BalancePageComponent implements OnInit, OnDestroy {
       return '银行卡付款';
     } else if (t.action === 'pay by wechat') {
       return '微信付款';
+    } else if (t.action === 'client add credit by cash') {
+      return '现金充值';
+    } else if (t.action === 'client add credit by card') {
+      return '信用卡充值';
+    } else if (t.action === 'client add credit by WECHATPAY') {
+      return '微信充值';
     } else {
       return t.fromId === clientId ? t.toName : t.fromName;
     }
   }
 
   reload(clientId: string) {
-    const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }], amount: {$ne: 0} };
+    const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }], amount: { $ne: 0 } };
     this.transactionSvc.quickFind(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
       let list = [];
 
