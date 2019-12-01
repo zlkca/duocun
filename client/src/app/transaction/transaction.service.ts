@@ -23,4 +23,9 @@ export class TransactionService extends EntityService {
     const url = this.url + '/checkGroupDiscount';
     return this.doPost(url, { clientId: clientId, merchantId: merchantId, dateType: dateType, address: address });
   }
+
+  loadPage(filter: any, currentPageNumber: number, itemsPerPage: number ): Observable<any> {
+    const url = this.url + '/loadPage/' + currentPageNumber + '/' + itemsPerPage;
+    return this.doGet(url, filter);
+  }
 }

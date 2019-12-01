@@ -4,14 +4,10 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Role, IAccount } from '../../account/account.model';
 import { MatPaginator, MatSort } from '../../../../node_modules/@angular/material';
-import * as moment from 'moment';
 
 import { MatTableDataSource } from '@angular/material/table';
-import { OrderService } from '../../order/order.service';
 import { TransactionService } from '../../transaction/transaction.service';
 import { IClientPaymentData } from '../../payment/payment.model';
-import { IOrder } from '../../order/order.model';
-import { ITransaction } from '../../transaction/transaction.model';
 
 @Component({
   selector: 'app-balance-page',
@@ -24,13 +20,18 @@ export class BalancePageComponent implements OnInit, OnDestroy {
   alexcredits;
   displayedColumns: string[] = ['date', 'description', 'consumed', 'paid', 'balance'];
   list = [];
+  currentPageNumber = 1;
+  itemsPerPage = 18;
+  transactions = [];
+  nTransactions = 0;
+  loading = true;
+  highlightedId = 0;
   dataSource: MatTableDataSource<IClientPaymentData>;
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   constructor(
     private accountSvc: AccountService,
-    private orderSvc: OrderService,
     private transactionSvc: TransactionService
   ) {
 
@@ -41,7 +42,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
     this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       this.account = account;
       if (account) {
-        self.reload(account._id);
+        this.OnPageChange(this.currentPageNumber);
       } else {
 
       }
@@ -81,12 +82,18 @@ export class BalancePageComponent implements OnInit, OnDestroy {
     }
   }
 
-  reload(clientId: string) {
-    const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }], amount: { $ne: 0 } };
-    this.transactionSvc.quickFind(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
-      let list = [];
+  OnPageChange(pageNumber) {
+    const accountId = this.account._id;
+    const itemsPerPage = this.itemsPerPage;
+    const clientId = this.account._id;
 
-      ts.map(t => {
+    this.loading = true;
+    this.currentPageNumber = pageNumber;
+    const query = { $or: [{ fromId: clientId }, { toId: clientId }], amount: { $ne: 0 } };
+    this.transactionSvc.loadPage(query, pageNumber, itemsPerPage).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
+      this.nTransactions = ret.total;
+      const list = [];
+      ret.transactions.map(t => {
         const b = t.fromId === clientId ? t.fromBalance : t.toBalance;
         const description = this.getDescription(t, clientId);
         const consumed = t.toId === clientId ? t.amount : 0;
@@ -94,20 +101,39 @@ export class BalancePageComponent implements OnInit, OnDestroy {
         list.push({ date: t.created, description: description, consumed: consumed, paid: paid, balance: -b });
       });
 
-      list = list.sort((a: any, b: any) => {
-        const aMoment = moment(a.date);
-        const bMoment = moment(b.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-        if (aMoment.isAfter(bMoment)) {
-          return -1;
-        } else {
-          return 1;
-        }
-      });
-
-      this.dataSource = new MatTableDataSource(list);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+      this.transactions = list;
+      // this.dataSource = new MatTableDataSource(list);
+      this.loading = false;
     });
   }
+
+  // reload(clientId: string) {
+  //   const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }], amount: { $ne: 0 } };
+  //   this.transactionSvc.quickFind(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
+  //     let list = [];
+
+  //     ts.map(t => {
+  //       const b = t.fromId === clientId ? t.fromBalance : t.toBalance;
+  //       const description = this.getDescription(t, clientId);
+  //       const consumed = t.toId === clientId ? t.amount : 0;
+  //       const paid = t.fromId === clientId ? t.amount : 0;
+  //       list.push({ date: t.created, description: description, consumed: consumed, paid: paid, balance: -b });
+  //     });
+
+  //     list = list.sort((a: any, b: any) => {
+  //       const aMoment = moment(a.date);
+  //       const bMoment = moment(b.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+  //       if (aMoment.isAfter(bMoment)) {
+  //         return -1;
+  //       } else {
+  //         return 1;
+  //       }
+  //     });
+
+  //     this.dataSource = new MatTableDataSource(list);
+  //     this.dataSource.paginator = this.paginator;
+  //     this.dataSource.sort = this.sort;
+  //   });
+  // }
 }
 

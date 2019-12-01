@@ -23,6 +23,7 @@ import { BalancePageComponent } from './balance-page/balance-page.component';
 import { OrderService } from '../order/order.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { AddCreditPageComponent } from './add-credit-page/add-credit-page.component';
+import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
 
 @NgModule({
     imports: [
@@ -35,6 +36,7 @@ import { AddCreditPageComponent } from './add-credit-page/add-credit-page.compon
         MatSortModule,
         MatSnackBarModule,
         MatButtonToggleModule,
+        NgxPaginationModule,
         AccountRoutingModule,
         SharedModule
     ],
@@ -57,7 +59,8 @@ import { AddCreditPageComponent } from './add-credit-page/add-credit-page.compon
       BalanceService,
       PaymentService,
       OrderService,
-      TransactionService
+      TransactionService,
+      PaginatePipe
     ]
 })
 export class AccountModule { }

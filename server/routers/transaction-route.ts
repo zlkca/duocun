@@ -6,6 +6,7 @@ export function TransactionRouter(db: DB){
   const router = express.Router();
   const controller = new Transaction(db);
 
+  router.get('/loadPage/:currentPageNumber/:itemsPerPage', (req, res) => { controller.loadPage(req, res); });
   router.get('/sales', (req, res) => { controller.getSales(req, res); });
   router.get('/cost', (req, res) => { controller.getCost(req, res); });
   router.get('/merchantPay', (req, res) => { controller.getMerchantPay(req, res); });

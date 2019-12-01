@@ -1,9 +1,49 @@
+<div class="loading-spinner" *ngIf="loading">
+  <app-progress-spinner></app-progress-spinner>
+</div>
+
 <div class="page">
   <div class="row title-row">
     <div class="col-12 title-bg" i18n="@@BalanceDetail">BalanceDetail</div>
   </div>
 
-  <div class="payment-table-container mat-elevation-z8" *ngIf="dataSource">
+  <div class="balance-list">
+    <div class="row list-head">
+      <div class="col-3 title-xs" i18n="@@Date">Date</div>
+      <div class="col-3 title-xs" i18n="@@Description">Description</div>
+      <div class="col-2 title-xs" i18n="@@PayableIncrease">Payable Increase</div>
+      <div class="col-2 title-xs" i18n="@@PayableDecrease">Payable Decrease</div>
+      <div class="col-2 title-xs" i18n="@@Payable"> Payable</div>
+    </div>
+
+
+    <div class="list-item" *ngFor="let tr of transactions | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPageNumber, totalItems: nTransactions }"
+      (click)="onSelect(tr)" [class.highlight]="tr.id === highlightedId">
+      <div class="row">
+        <div class="col-3">
+          <span class="text-xs">{{tr.date | date: 'MMMdE'}}</span>
+        </div>
+        <div class="col-3">
+          <span class="text-xs">{{tr.description}}</span>
+        </div>
+        <div class="col-2">
+          <span class="text-xs">{{tr.consumed | number : '1.2-2'}}</span>
+        </div>
+        <div class="col-2">
+          <span class="text-xs">{{tr.paid | number : '1.2-2'}}</span>
+        </div>
+        <div class="col-2">
+          <span class="text-xs">{{tr.balance | number : '1.2-2'}}</span>
+        </div>
+      </div>
+    </div>
+    <!-- end of list-item -->
+    <pagination-controls class="balance-pagination" maxSize="5" (pageChange)="OnPageChange($event)"></pagination-controls>
+  </div>
+</div>
+
+
+  <!-- <div class="payment-table-container mat-elevation-z8" *ngIf="dataSource">
     <table mat-table [dataSource]="dataSource" matSort>
   
       <ng-container matColumnDef="date">
@@ -34,9 +74,7 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-  
-    <!-- <mat-paginator [pageSizeOptions]="[8]"></mat-paginator> -->
-  </div>
+  </div> -->
   <!-- <div class="detail-list">
     <div *ngFor="let p of payments" class="row">
       <div class="col-4 text-sm date-col">{{p.delivered | date: 'MMMd E' }}</div>
@@ -56,4 +94,3 @@
     <span i18n="@@CurrentBalance">Current Balance</span>:&nbsp;
     <span>${{balance | number : '1.2-2'}}</span>
   </div> -->
-</div>

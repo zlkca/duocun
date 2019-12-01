@@ -3,7 +3,7 @@ import { Model } from "./model";
 import { ObjectID } from "mongodb";
 import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
-
+import moment from 'moment';
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -431,6 +431,53 @@ export class Transaction extends Model {
         });
       });
     }
+  }
+
+
+
+  loadPage(req: Request, res: Response) {
+    const itemsPerPage = +req.params.itemsPerPage;
+    const currentPageNumber = +req.params.currentPageNumber;
+
+    let query = {};
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    this.find(query).then((rs: any) => {
+
+      const arrSorted = rs.sort((a: any, b: any) => {
+        const ma = moment(a.delivered);
+        const mb = moment(b.delivered);
+        if (ma.isAfter(mb)) {
+          return -1;
+        } else if (mb.isAfter(ma)) {
+          return 1;
+        } else {
+          const ca = moment(a.created);
+          const cb = moment(b.created);
+          if (ca.isAfter(cb)) {
+            return -1;
+          } else {
+            return 1;
+          }
+        }
+      });
+
+
+      const start = (currentPageNumber - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const len = arrSorted.length;
+      const arr = arrSorted.slice(start, end);
+
+      res.setHeader('Content-Type', 'application/json');
+      if (arr && arr.length > 0) {
+        res.send(JSON.stringify({ total: len, transactions: arr }, null, 3));
+      } else {
+        res.send(JSON.stringify({ total: len, transactions: [] }, null, 3));
+      }
+
+    });
   }
 
   // tools
