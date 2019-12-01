@@ -189,7 +189,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             this.loading = false;
             setTimeout(() => {
               if (self.paymentMethod === 'card') {
-                const rt = self.paymentSvc.initStripe();
+                const rt = self.paymentSvc.initStripe('card-element', 'card-errors');
                 this.stripe = rt.stripe;
                 this.card = rt.card;
               }
@@ -414,7 +414,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const order = self.createOrder(account, contact, cart, delivery, charge, v.note, paymentMethod);
 
     if (paymentMethod === 'card') {
-      this.paymentSvc.vaildateCardPay(this.stripe, this.card).then((ret: any) => {
+      this.paymentSvc.vaildateCardPay(this.stripe, this.card, 'card-errors').then((ret: any) => {
         self.loading = false;
         if (ret.status === 'failed') {
           self.bSubmitted = false;
@@ -501,15 +501,15 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         // this.log = r.data[0].trans_no;
 
         self.bSubmitted = false;
-        self.loading = false;
         if (r.msg === 'success') {
           // self.snackBar.open('', '已成功付款', { duration: 1800 });
           // self.snackBar.open('', '已成功下单', { duration: 2000 });
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
           self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-
+          this.loading = true;
           window.location.href = r.data[0].h5pay_url;
         } else {
+          self.loading = false;
           self.snackBar.open('', '付款未成功', { duration: 1800 });
           alert('付款未成功，请联系客服');
         }
@@ -590,7 +590,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const contact = this.contact;
       if (contact && contact.phone && contact.verified) {
         setTimeout(() => {
-          const rt = self.paymentSvc.initStripe();
+          const rt = self.paymentSvc.initStripe('card-element', 'card-errors');
           self.stripe = rt.stripe;
           self.card = rt.card;
         }, 500);

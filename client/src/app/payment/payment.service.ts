@@ -79,9 +79,10 @@ export class PaymentService extends EntityService {
 
 
 
-  initStripe() {
+  initStripe(htmlCardId, htmlErrorId) {
     const stripe = Stripe(environment.STRIPE.API_KEY);
     const elements = stripe.elements();
+    const type = 'card';
 
     // Custom styling can be passed to options when creating an Element.
     const style = {
@@ -101,14 +102,14 @@ export class PaymentService extends EntityService {
     };
 
     // Create an instance of the card Element.
-    const card = elements.create('card', { hidePostalCode: true, style: style });
+    const card = elements.create(type, { hidePostalCode: true, style: style });
 
     // Add an instance of the card Element into the `card-element` <div>.
-    card.mount('#card-element');
+    card.mount('#' + htmlCardId);
 
     // Handle real-time validation errors from the card Element.
     card.addEventListener('change', function (event) {
-      const displayError = document.getElementById('card-errors');
+      const displayError = document.getElementById(htmlErrorId);
       if (event.error) {
         displayError.textContent = event.error.message;
       } else {
@@ -119,7 +120,7 @@ export class PaymentService extends EntityService {
     return {stripe: stripe, card: card};
   }
 
-  vaildateCardPay(stripe: any, card: any) {
+  vaildateCardPay(stripe: any, card: any, htmlErrorId: string) {
     return new Promise((resolve, reject) => {
       if (card._empty) {
         resolve({ status: 'failed', chargeId: '', msg: 'empty card info' });
@@ -127,7 +128,7 @@ export class PaymentService extends EntityService {
         stripe.createToken(card).then(function (result) {
           if (result.error) {
             // Inform the user if there was an error.
-            const errorElement = document.getElementById('card-errors');
+            const errorElement = document.getElementById(htmlErrorId);
             errorElement.textContent = result.error.message;
             resolve({ status: 'failed', chargeId: '', msg: result.error.message });
           } else {

@@ -252,7 +252,7 @@ export class ClientPayment extends Model {
             const cc = ccs[0];
             if(cc.status === 'new'){
               this.clientCreditModel.updateOne({_id: cc._id}, {status: 'added'}).then(() => {
-                this.transactionModel.doAddCredit(cc.accountId, cc.accountName, cc.total, cc.paymentMethod, cc.note).then(() => {
+                this.transactionModel.doAddCredit(cc.accountId.toString(), cc.accountName, cc.total, cc.paymentMethod, cc.note).then(() => {
 
                 });
               });

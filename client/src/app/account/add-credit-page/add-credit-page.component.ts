@@ -46,7 +46,6 @@ export class AddCreditPageComponent implements OnInit {
     });
   }
 
-
   onCancel(): void {
     this.router.navigate(['account/settings']);
   }
@@ -62,25 +61,30 @@ export class AddCreditPageComponent implements OnInit {
       return;
     } else {
       if (paymentMethod === 'card') {
-        this.paymentSvc.vaildateCardPay(this.stripe, this.card).then((ret: any) => {
-          // self.loading = false;
+        this.loading = true;
+        this.paymentSvc.vaildateCardPay(this.stripe, this.card, 'card-errors1').then((ret: any) => {
           if (ret.status === 'failed') {
+            self.loading = false;
             self.bSubmitted = false;
+            alert('输入信息有错误，请核对');
           } else {
-            this.paymentSvc.stripeAddCredit(ret.token, account, +received, note).pipe(takeUntil(this.onDestroy$)).subscribe((x) => {
-              this.snackBar.open('', '已成功充值 $' + Math.round(+received * 100) / 100, { duration: 1000 });
-              this.router.navigate(['account/balance']);
+            self.paymentSvc.stripeAddCredit(ret.token, account, +received, note).pipe(takeUntil(this.onDestroy$)).subscribe((x) => {
+              self.loading = false;
+              self.snackBar.open('', '已成功充值 $' + Math.round(+received * 100) / 100, { duration: 1000 });
+              self.router.navigate(['account/balance']);
             });
             // self.handleCardPayment(account, ret.token, order, cart);
           }
         });
       } else if (paymentMethod === 'WECHATPAY') {
         const paid = Math.round(+received * 100) / 100;
+        this.loading = true;
         this.paymentSvc.snappayAddCredit(account, paid, paymentMethod, note).pipe(takeUntil(this.onDestroy$)).subscribe((r) => {
           // this.snackBar.open('', '已成功充值 $' + Math.round(+received * 100) / 100, { duration: 1000 });
           self.bSubmitted = false;
           self.loading = false;
           if (r.msg === 'success') {
+            this.loading = true;
             window.location.href = r.data[0].h5pay_url;
           } else {
             self.snackBar.open('', '付款未成功', { duration: 1800 });
@@ -97,7 +101,7 @@ export class AddCreditPageComponent implements OnInit {
 
     if (e.value === 'card') {
       setTimeout(() => {
-        const rt = self.paymentSvc.initStripe();
+        const rt = self.paymentSvc.initStripe('card-element1', 'card-errors1');
         self.stripe = rt.stripe;
         self.card = rt.card;
       }, 500);

@@ -4,13 +4,17 @@ $blue: #4285F3;
 
 .form-block, .payment-method-block{
   margin: 0px;
-  padding: 20px;
+  padding: 15px;
 
   .row{
     margin: -1px;
   }
 
-  .user-row, .balance-row, .received-row, .note-row, .card-row{
+  .user-row, .balance-row{
+    padding-top: 10px;
+  }
+
+  .received-row, .note-row, .card-row{
     padding-top: 12px;
     padding-bottom: 10px;
   }
@@ -90,7 +94,7 @@ mat-button-toggle-group{
   background-color: #fefde5 !important;
 }
 
-#card-element{
+#card-element1{
   width: 100%;
   border: 1px solid #ddd;
 }
