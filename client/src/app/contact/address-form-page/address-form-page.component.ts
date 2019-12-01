@@ -276,7 +276,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
     Cookies.remove('duocun-old-location');
     if (self.fromPage === 'account-setting') {
-      self.router.navigate(['account/setting']);
+      self.router.navigate(['account/settings']);
     } else if (self.fromPage === 'restaurant-detail') {
       self.router.navigate(['merchant/list/' + this.restaurant.id]);
     } else if (self.fromPage === 'contact-form') {
@@ -314,12 +314,12 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
           const contactId = cs[0]._id;
           const data = { address: contact.address, location: contact.location };
           this.contactSvc.update({ _id: contactId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
-            self.router.navigate(['account/setting']);
+            self.router.navigate(['account/settings']);
             self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
           });
         } else {
           this.contactSvc.save(contact).subscribe(x => {
-            self.router.navigate(['account/setting']);
+            self.router.navigate(['account/settings']);
             self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
           });
         }
@@ -375,12 +375,12 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
           const contactId = cs[0]._id;
           const data = { address: address, location: location };
           this.contactSvc.update({ _id: contactId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
-            self.router.navigate(['account/setting']);
+            self.router.navigate(['account/settings']);
             self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
           });
         } else {
           this.contactSvc.save(contact).subscribe(x => {
-            self.router.navigate(['account/setting']);
+            self.router.navigate(['account/settings']);
             self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
           });
         }

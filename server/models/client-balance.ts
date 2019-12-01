@@ -101,10 +101,6 @@ export class ClientBalance extends Model {
     }
   }
 
-
-
-
-
   //--------------------------------------------------------------------------------
   // The client can only get one group discount, if he/she has multiple orders.
   getUpdatesForAddGroupDiscount(orders: IOrder[], balances: IClientBalance[], groupDiscount: number) {

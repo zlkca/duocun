@@ -127,7 +127,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     Cookies.remove('duocun-old-phone');
 
     if (self.fromPage === 'account-setting') {
-      self.router.navigate(['account/setting']);
+      self.router.navigate(['account/settings']);
     } else if (self.fromPage === 'restaurant-detail' || self.fromPage === 'order-form') {
       self.router.navigate(['order/form']);
     }
@@ -137,7 +137,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     if (self.fromPage === 'account-setting') {
       self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: contact });
-      self.router.navigate(['account/setting']);
+      self.router.navigate(['account/settings']);
       self.snackBar.open('', '默认手机号已成功修改。', { duration: 1500 });
     } else if (self.fromPage === 'restaurant-detail') {
       // x.location = self.contact.location; // update address for the order

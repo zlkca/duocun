@@ -1,0 +1,88 @@
+<div class="page">
+  <div class="row title-row">
+    <div class="col-12 title-bg" i18n="@@AddCredit">AddCredit</div>
+  </div>
+
+  <div class="form-block" *ngIf="account">
+
+    <div class="row user-row">
+      <div class="col-12">
+        <span i18n="@@Name">Name</span>:&nbsp;
+        <span>${{account.username}}</span>
+      </div>
+
+    </div>
+
+    <div class="row balance-row">
+      <div class="col-12">
+        <span i18n="@@CurrentBalance">Balance</span>:&nbsp;
+        <span>${{account.balance | number : '1.2-2'}}</span>
+      </div>
+    </div>
+
+    <div class="row">
+      <form [formGroup]="form" class="add-credit-form">
+        <div class="row received-row">
+          <div class="col-12 label-sm">
+            <span i18n="@@Amount">Amount</span>:&nbsp;
+          </div>
+          <div class="col-12">
+            <input class="received-input" type="number" pattern="[\d\.]*" step="0.01" name="received" formControlName="received" />
+          </div>
+        </div>
+
+        <div class="row note-row">
+          <div class="col-12 label-sm">
+            <span i18n="@@Note">Note</span>:&nbsp;
+          </div>
+          <div class="col-12">
+            <textarea class="note-input" name="note" formControlName="note"></textarea>
+            <!-- <input class="note-input" name="note" formControlName="note" /> -->
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+
+  <div class="payment-method-block">
+    <div class="row">
+      <div class="col-12 label-sm">
+        <span i18n="@@PaymentMethod">Payment Method</span>:
+      </div>
+      <div class="col-12">
+        <mat-button-toggle-group #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)">
+          <mat-button-toggle value="WECHATPAY" aria-label="Wechat">
+            <div class="title">微信支付</div>
+          </mat-button-toggle>
+          <!-- <mat-button-toggle value="ALIPAY" aria-label="Ali" *ngIf="account.username==='li'">
+        <div class="title">阿里支付</div>
+      </mat-button-toggle> -->
+          <mat-button-toggle value="card" aria-label="Card">
+            <div class="title">银行卡</div>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </div>
+    <div class="row card-row">
+      <div class="col-12 card-wrapper">
+        <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card'">
+          <div class="form-row">
+            <label for="card-element" class="label-sm">信用卡或银行卡:</label>
+            <div id="card-element">
+              <!-- A Stripe Element will be inserted here. action="/charge" method="post" -->
+            </div>
+
+            <!-- Used to display Element errors. -->
+            <div id="card-errors" role="alert"></div>
+          </div>
+        </form>
+      </div>
+      <div class="col-12 actions-row">
+        <div class="btn btn-secondary btn-cancel" (click)="onCancel()">返回</div>
+        <div class="btn btn-primary btn-pay" (click)="onPay()">确认</div>
+      </div>
+    </div>
+  </div>
+</div>

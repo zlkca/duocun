@@ -136,7 +136,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   toAccount() {
     if (this.account) {
       this.selected = 'account';
-      this.router.navigate(['account/setting']);
+      this.router.navigate(['account/settings']);
     }
   }
 

@@ -14,7 +14,7 @@ import { ObjectID } from "../../node_modules/@types/bson";
 import { Transaction } from "./transaction";
 import { resolve } from "path";
 import { Restaurant } from "./restaurant";
-
+import { ClientCredit } from "./client-credit";
 
 var fs = require('fs');
 var util = require('util');
@@ -32,6 +32,7 @@ export class ClientPayment extends Model {
   orderEntity: Order;
   transactionModel: Transaction;
   merchantModel: Restaurant;
+  clientCreditModel: ClientCredit;
 
   constructor(dbo: DB) {
     super(dbo, 'client_payments');
@@ -40,6 +41,7 @@ export class ClientPayment extends Model {
     this.balanceEntity = new ClientBalance(dbo);
     this.merchantModel = new Restaurant(dbo);
     this.transactionModel = new Transaction(dbo);
+    this.clientCreditModel = new ClientCredit(dbo);
     this.cfg = new Config();
   }
 
@@ -141,7 +143,37 @@ export class ClientPayment extends Model {
     });
   }
 
-  stripeCharge(req: Request, res: Response) {
+  stripeAddCredit(req: Request, res: Response) {
+    const self = this;
+    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+    const token = req.body.token;
+    const accountId = req.body.accountId;
+    const accountName = req.body.accountName;
+    const paid = +req.body.paid;
+    const note = req.body.note;
+
+    stripe.charges.create({
+      // customer: req.body.customerId,
+      amount: Math.round((paid) * 100),
+      currency: 'cad',
+      description: 'client add credit by card',
+      source: token.id,
+      metadata: { customerId: accountId, customerName: accountName },
+    }, function (err: any, charge: any) {
+      res.setHeader('Content-Type', 'application/json');
+      if (!err) {
+        self.transactionModel.doAddCredit(accountId, accountName, paid, 'card', note).then(x => {
+          res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
+        }, err => {
+          res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+        });
+      } else {
+        res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+      }
+    });
+  }
+
+  stripePayOrder(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
     const token = req.body.token;
     const order = req.body.order;
@@ -214,15 +246,52 @@ export class ClientPayment extends Model {
             // res.send(ret);
           });
         }
+      } else { // not a order means this is adding credit
+        this.clientCreditModel.find({_id: b.out_order_no}).then(ccs => {
+          if(ccs && ccs.length>0){
+            const cc = ccs[0];
+            if(cc.status === 'new'){
+              this.clientCreditModel.updateOne({_id: cc._id}, {status: 'added'}).then(() => {
+                this.transactionModel.doAddCredit(cc.accountId, cc.accountName, cc.total, cc.paymentMethod, cc.note).then(() => {
+
+                });
+              });
+            }
+          }
+        });
       }
     });
   }
 
-  snappayCharge(req: Request, res: Response) {
+  snappayAddCredit(req: Request, res: Response) {
+    const paid = +req.body.paid;
+    const account = req.body.account;
+    const paymentMethod = req.body.paymentMethod;
+    const note = req.body.note;
+
+    const cc = {
+      accountId: account._id,
+      accountName: account.username,
+      total: Math.round(paid*100)/100,
+      paymentMethod: paymentMethod,
+      note: note,
+      status: 'new'
+    }
+
+    this.clientCreditModel.insertOne(cc).then((c) => {
+      const returnUrl = 'https://duocun.com.cn?clientId=' + account._id.toString() + '&paymentMethod=' + paymentMethod + '&page=account_settings';
+      this.snappayPayReq(res, returnUrl, c._id.toString(), paymentMethod, paid, 'add credit');
+    });
+  }
+
+  snappayPayOrder(req: Request, res: Response) {
     const paid = req.body.paid;
     const order = req.body.order;
+    const clientId = order.clientId;
+    const paymentMethod = order.paymentMethod;
 
-    this.snappayPayReq(res, order, paid);
+    const returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
+    this.snappayPayReq(res, returnUrl, order._id, paymentMethod, paid, order.merchantName);
   }
 
   snappaySignParams(data: any){
@@ -233,18 +302,18 @@ export class ClientPayment extends Model {
     return data;
   }
 
-  snappayPayReq(res: Response, order: any, paid: number) {
+  snappayPayReq(res: Response, returnUrl: string, orderId: string, paymentMethod:string, paid: number, description: string) {
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
       charset: 'UTF-8',                          // Madatory
-      description: order.merchantName,           // Service Mandatory
+      description: description,           // Service Mandatory
       format: 'JSON',                            // Madatory
       merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
       notify_url:'https://duocun.com.cn/api/ClientPayments/snappayNotify',
-      out_order_no: order._id,                   // Service Mandatory
-      payment_method: order.paymentMethod,       // WECHATPAY, ALIPAY, UNIONPAY
-      return_url: 'https://duocun.com.cn?clientId=' + order.clientId + '&paymentMethod=' + order.paymentMethod,
+      out_order_no: orderId,                   // Service Mandatory
+      payment_method: paymentMethod,       // WECHATPAY, ALIPAY, UNIONPAY
+      return_url: returnUrl,
       trans_amount: paid,                        // Service Mandatory
       version: '1.0'                             // Madatory
     };
@@ -281,6 +350,7 @@ export class ClientPayment extends Model {
     post_req.end();
   }
 
+  // deprecated
   snappayQueryOrderReq(out_order_no: string) {
     const merchant_no = this.cfg.SNAPPAY.MERCHANT_ID;
     const data: any = { // the order matters
@@ -329,6 +399,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // deprecated
   stripeRefund(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
     const chargeId = req.body.chargeId;
@@ -342,6 +413,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // deprecated
   addGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const date = dateType === 'today' ? moment() : moment().add(1, 'day');
@@ -357,6 +429,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // deprecated
   removeGroupDiscount(date: string, address: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }
@@ -370,6 +443,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // deprecated
   reqAddGroupDiscount(req: Request, res: Response) {
     const clientId = req.body.clientId;
     const merchantId = req.body.merchantId;
@@ -382,6 +456,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // deprecated
   reqRemoveGroupDiscount(req: Request, res: Response) {
     const delivered = req.body.delivered;
     const address = req.body.address;

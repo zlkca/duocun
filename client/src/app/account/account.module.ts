@@ -1,10 +1,12 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { LoginFormComponent } from './login-form/login-form.component';
 import { SignupComponent } from './signup/signup.component';
@@ -20,14 +22,19 @@ import { PaymentService } from '../payment/payment.service';
 import { BalancePageComponent } from './balance-page/balance-page.component';
 import { OrderService } from '../order/order.service';
 import { TransactionService } from '../transaction/transaction.service';
+import { AddCreditPageComponent } from './add-credit-page/add-credit-page.component';
 
 @NgModule({
     imports: [
         CommonModule,
         ReactiveFormsModule,
         RouterModule,
+        FormsModule,
+        ReactiveFormsModule,
         MatTableModule,
         MatSortModule,
+        MatSnackBarModule,
+        MatButtonToggleModule,
         AccountRoutingModule,
         SharedModule
     ],
@@ -41,7 +48,8 @@ import { TransactionService } from '../transaction/transaction.service';
       ForgetPasswordComponent,
       ProfileFormComponent,
       AccountPageComponent,
-      BalancePageComponent
+      BalancePageComponent,
+      AddCreditPageComponent
     ],
     providers: [
       AccountService,

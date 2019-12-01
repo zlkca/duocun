@@ -10,11 +10,14 @@ export function ClientPaymentRouter(db: DB){
   // router.post('/checkout', (req, res) => {controller.checkout(req, res); });
 
   router.post('/stripeCreateCustomer', (req, res) => {controller.stripeCreateCustomer(req, res); });
-  router.post('/stripeCharge', (req, res) => {controller.stripeCharge(req, res); });
+  router.post('/stripePayOrder', (req, res) => {controller.stripePayOrder(req, res); });
+  router.post('/stripeAddCredit', (req, res) => {controller.stripeAddCredit(req, res); });
   // router.post('/stripRefund', (req, res) => {controller.stripeRefund(req, res); });
 
+
+  router.post('/snappayAddCredit', (req, res) => { controller.snappayAddCredit(req, res); });
   router.post('/snappayNotify', (req, res) => {controller.snappayNotify(req, res); });
-  router.post('/snappayCharge', (req, res) => {controller.snappayCharge(req, res); });
+  router.post('/snappayPayOrder', (req, res) => {controller.snappayPayOrder(req, res); });
   // router.post('/snappayRefund', (req, res) => {controller.snappayRefund(req, res); });
 
 

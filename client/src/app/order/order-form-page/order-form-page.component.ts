@@ -189,7 +189,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             this.loading = false;
             setTimeout(() => {
               if (self.paymentMethod === 'card') {
-                self.initStripe();
+                const rt = self.paymentSvc.initStripe();
+                this.stripe = rt.stripe;
+                this.card = rt.card;
               }
               self.doPay(self.contact, account, this.charge, this.cart, this.delivery, this.paymentMethod);
             }, 800);
@@ -412,7 +414,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const order = self.createOrder(account, contact, cart, delivery, charge, v.note, paymentMethod);
 
     if (paymentMethod === 'card') {
-      this.vaildateCardPay(this.card).then((ret: any) => {
+      this.paymentSvc.vaildateCardPay(this.stripe, this.card).then((ret: any) => {
         self.loading = false;
         if (ret.status === 'failed') {
           self.bSubmitted = false;
@@ -493,7 +495,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
       // if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
       self.loading = false;
-      this.paymentSvc.snappayCharge(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((r) => {
+      this.paymentSvc.snappayPayOrder(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((r) => {
 
         // this.msg = r.msg;
         // this.log = r.data[0].trans_no;
@@ -588,7 +590,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       const contact = this.contact;
       if (contact && contact.phone && contact.verified) {
         setTimeout(() => {
-          self.initStripe();
+          const rt = self.paymentSvc.initStripe();
+          self.stripe = rt.stripe;
+          self.card = rt.card;
         }, 500);
       } else {
         this.bSubmitted = true;
@@ -599,71 +603,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  initStripe() {
-    this.stripe = Stripe(environment.STRIPE.API_KEY);
-    const elements = this.stripe.elements();
-
-    // Custom styling can be passed to options when creating an Element.
-    const style = {
-      base: {
-        color: '#32325d',
-        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-        fontSmoothing: 'antialiased',
-        fontSize: '16px',
-        '::placeholder': {
-          color: '#aab7c4'
-        }
-      },
-      invalid: {
-        color: '#fa755a',
-        iconColor: '#fa755a'
-      }
-    };
-
-    // Create an instance of the card Element.
-    this.card = elements.create('card', { hidePostalCode: true, style: style });
-
-    // Add an instance of the card Element into the `card-element` <div>.
-    this.card.mount('#card-element');
-
-    // Handle real-time validation errors from the card Element.
-    this.card.addEventListener('change', function (event) {
-      const displayError = document.getElementById('card-errors');
-      if (event.error) {
-        displayError.textContent = event.error.message;
-      } else {
-        displayError.textContent = '';
-      }
-    });
-  }
-
-  vaildateCardPay(card: any) {
-    return new Promise((resolve, reject) => {
-      if (card._empty) {
-        resolve({ status: 'failed', chargeId: '', msg: 'empty card info' });
-      } else {
-        this.stripe.createToken(card).then(function (result) {
-          if (result.error) {
-            // Inform the user if there was an error.
-            const errorElement = document.getElementById('card-errors');
-            errorElement.textContent = result.error.message;
-            resolve({ status: 'failed', chargeId: '', msg: result.error.message });
-          } else {
-            resolve(result); // {status:x, chargeId:'', msg: '', token:x}
-          }
-        }, err => {
-          resolve({ status: 'failed', chargeId: '', msg: 'empty card info' });
-        });
-      }
-    });
-  }
 
   payByCardV2(account: IAccount, token: any, order: IOrder, paid: number) {
     const self = this;
 
     return new Promise((resolve, reject) => {
       const pickup = account.pickup;
-      self.paymentSvc.stripeCharge(order, paid, token, pickup).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
+      self.paymentSvc.stripePayOrder(order, paid, token, pickup).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
         self.loading = true;
         resolve(ret);
       });

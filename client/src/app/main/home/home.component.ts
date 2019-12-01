@@ -119,7 +119,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
           const ranges: IRange[] = [];
           rs.map((r: IRange) => {
-            if (this.locationSvc.getDirectDistance(origin, {lat: r.lat, lng: r.lng}) < r.radius) {
+            if (this.locationSvc.getDirectDistance(origin, { lat: r.lat, lng: r.lng }) < r.radius) {
               ranges.push(r);
             }
           });
@@ -163,13 +163,22 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       // process payment route ?clientId=x&paymentMethod=y
       const clientId = queryParams.get('clientId'); // use for after card pay, could be null
-      if (clientId) {
-        this.bPayment = true;
-        this.accountSvc.quickFind({_id: clientId}).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
+      const page = queryParams.get('page');
+      if (page === 'account_settings') {
+        this.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
           this.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
-          self.router.navigate(['order/history']);
+          self.router.navigate(['account/balance']);
         });
         return;
+      } else if (page === 'order_history') {
+        if (clientId) {
+          this.bPayment = true;
+          this.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
+            this.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
+            self.router.navigate(['order/history']);
+          });
+          return;
+        }
       }
 
       self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
@@ -386,7 +395,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       if (self.account) {
         const query = { accountId: accountId, placeId: r.placeId };
-        const lh = { accountId: accountId, accountName: accountName, placeId: r.placeId, location: r};
+        const lh = { accountId: accountId, accountName: accountName, placeId: r.placeId, location: r };
 
         self.locationSvc.upsertOne(query, lh).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
 

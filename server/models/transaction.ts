@@ -384,6 +384,55 @@ export class Transaction extends Model {
     });
   }
 
+
+  // snappayAddCredit(req: Request, res: Response) {
+  //   const clientId = req.body.clientId;
+  //   const clientName = req.body.clientName;
+  //   const total = +req.body.total;
+  //   const paymentMethod = req.body.paymentMethod;
+  //   const note = req.body.note;
+
+  //   this.doAddCredit(clientId, clientName, total, paymentMethod, note).then(x => {
+  //     res.setHeader('Content-Type', 'application/json');
+  //     res.end(JSON.stringify(x, null, 3));
+  //   });
+  // }
+
+  doAddCredit(clientId: string, clientName: string, total: number, paymentMethod: string, note: string) {
+    if(paymentMethod === 'card' || paymentMethod === 'WECHATPAY'){
+      const t1: ITransaction = {
+        fromId: clientId,
+        fromName: clientName,
+        toId: BANK_ID,
+        toName: BANK_NAME,
+        amount: Math.round(total * 100) / 100,
+        action: 'client add credit',
+        note: note
+      };
+      return new Promise((resolve, reject) => {
+        this.doInsertOne(t1).then((x) => {
+          resolve(x);
+        });
+      });
+    }else{
+      const t2: ITransaction = {
+        fromId: clientId,
+        fromName: clientName,
+        toId: CASH_ID,
+        toName: CASH_NAME,
+        amount: Math.round(total * 100) / 100,
+        action: 'client add credit',
+        note: note
+      };
+
+      return new Promise((resolve, reject) => {
+        this.doInsertOne(t2).then((x) => {
+          resolve(x);
+        });
+      });
+    }
+  }
+
   // tools
   changeAccount(req: Request, res: Response) {
     this.find({ fromId: '5cf67ed1d47c19056aaa1091' }).then(trs1 => {
