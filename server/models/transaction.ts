@@ -445,25 +445,15 @@ export class Transaction extends Model {
     }
 
     this.find(query).then((rs: any) => {
-
       const arrSorted = rs.sort((a: any, b: any) => {
-        const ma = moment(a.delivered);
-        const mb = moment(b.delivered);
-        if (ma.isAfter(mb)) {
+        const aMoment = moment(a.created);
+        const bMoment = moment(b.created); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+        if (aMoment.isAfter(bMoment)) {
           return -1;
-        } else if (mb.isAfter(ma)) {
-          return 1;
         } else {
-          const ca = moment(a.created);
-          const cb = moment(b.created);
-          if (ca.isAfter(cb)) {
-            return -1;
-          } else {
-            return 1;
-          }
+          return 1;
         }
       });
-
 
       const start = (currentPageNumber - 1) * itemsPerPage;
       const end = start + itemsPerPage;

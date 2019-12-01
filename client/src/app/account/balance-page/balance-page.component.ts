@@ -21,7 +21,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['date', 'description', 'consumed', 'paid', 'balance'];
   list = [];
   currentPageNumber = 1;
-  itemsPerPage = 18;
+  itemsPerPage = 15;
   transactions = [];
   nTransactions = 0;
   loading = true;
