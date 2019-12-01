@@ -65,3 +65,20 @@ $blue: #4285F3;
     font-weight: 600;
   }
 }
+
+.actions-row{
+  margin-top: 25px;
+
+  .btn-add-credit, .btn-logout{
+    width: 100%;
+    height: 52px;
+    text-align: center;
+    padding-top: 15px;
+    float: left;
+    margin-top: 15px;
+    margin-right: 10px;
+  }
+  .btn-logout{
+    float: right;
+  }
+}
