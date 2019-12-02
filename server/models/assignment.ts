@@ -88,12 +88,12 @@ export class Assignment extends Model {
 
   // tools
   changeAccount(req: Request, res: Response) {
-    this.find({ driverId: '5cf67ed1d47c19056aaa1091' }).then(trs1 => {
+    this.find({ driverId: '5cad44629687ac4a075e2f42' }).then(trs1 => {
       const datas: any[] = [];
       trs1.map((t: any) => {
         datas.push({
           query: { _id: t._id },
-          data: { driverId: '5ddda5edc792cdca1a13c1e2', driverName: 'bonnie2' }
+          data: { driverId: '5de520d9dfb6771fe8ea0f60', driverName: 'li2' }
         });
       });
 

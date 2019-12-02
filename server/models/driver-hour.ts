@@ -9,12 +9,12 @@ export class DriverHour extends Model {
 
   // tools
   changeAccount(req: Request, res: Response) {
-    this.find({ accountId: '5cf67ed1d47c19056aaa1091' }).then(trs1 => {
+    this.find({ accountId: '5cad44629687ac4a075e2f42' }).then(trs1 => {
       const datas: any[] = [];
       trs1.map((t: any) => {
         datas.push({
           query: { _id: t._id },
-          data: { accountId: '5ddda5edc792cdca1a13c1e2', accountName: 'bonnie2' }
+          data: { accountId: '5de520d9dfb6771fe8ea0f60', accountName: 'li2' }
         });
       });
 

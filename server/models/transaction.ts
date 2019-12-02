@@ -472,20 +472,41 @@ export class Transaction extends Model {
 
   // tools
   changeAccount(req: Request, res: Response) {
-    this.find({ fromId: '5cf67ed1d47c19056aaa1091' }).then(trs1 => {
+
+    const actions = [
+      // 'client order from duocun',
+      'duocun order from merchant',
+      'client pay cash',
+      'pay merchant',
+      // 'client pay by card',
+      // 'client pay by wechat',
+      'transfer',
+      'pay salary',
+      'indemnity to expense',
+      'refund client',
+      'refund expense',
+      'pay office rent',
+      'buy drinks',
+      'buy eqquipment',
+      'advertisement',
+      'other expense'
+    ];
+
+    this.find({ fromId: '5cad44629687ac4a075e2f42', action: {$in: actions} }).then(trs1 => {
       const datas: any[] = [];
       trs1.map((t: any) => {
         datas.push({
           query: { _id: t._id },
-          data: { fromId: '5ddda5edc792cdca1a13c1e2', fromName: 'bonnie2' }
+          data: { fromId: '5de520d9dfb6771fe8ea0f60', fromName: 'li2' }
         });
       });
 
-      this.find({ toId: '5cf67ed1d47c19056aaa1091' }).then(trs2 => {
+
+      this.find({ toId: '5cad44629687ac4a075e2f42', action: {$in: actions} }).then(trs2 => {
         trs2.map((t: any) => {
           datas.push({
             query: { _id: t._id },
-            data: { toId: '5ddda5edc792cdca1a13c1e2', toName: 'bonnie2' }
+            data: { toId: '5de520d9dfb6771fe8ea0f60', toName: 'li2' }
           });
         });
 
