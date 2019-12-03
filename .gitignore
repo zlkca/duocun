@@ -21,8 +21,6 @@ npm-debug.log
 /dist
 /uploads
 client/dist
-/package.json
 /package-lock.json
-client/package.json
 client/package-lock.json
 client/src/environments
