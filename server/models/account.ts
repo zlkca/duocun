@@ -162,9 +162,9 @@ export class Account extends Model {
             r.address.city = x.city;
             r.address.province = x.province;
             r.address.country = x.country;
-
-            this.replaceById(r.id, r).then(account => {
-              const id = account.id.toString();
+            const accountId = r._id;
+            this.replaceById(accountId, r).then(account => {
+              const id = account._id.toString();
               account.password = '';
               const tokenId = jwt.sign(id, cfg.JWT.SECRET); // SHA256
               const token = {id: tokenId, ttl: 10000, userId: id};
@@ -184,7 +184,7 @@ export class Account extends Model {
               balance: 0
             };
             this.insertOne(user).then(account => {
-              const id = account.id.toString();
+              const id = account._id.toString();
               account.password = '';
               const tokenId = jwt.sign(id, cfg.JWT.SECRET); // SHA256
               const token = {id: tokenId, ttl: 10000, userId: id};
