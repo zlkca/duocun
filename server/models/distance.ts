@@ -117,19 +117,31 @@ export class Distance extends Model {
     });
   }
 
+  dbHasAllPlaceIds(destIds: string[], dbDestIds: string[]){
+    let bFound = true;
+    destIds.map(d => {
+      const _id = dbDestIds.find(id => id === d);
+      if(!_id){
+        bFound = false;
+        return false;
+      }
+    });
+    return bFound;
+  }
+
   loadRoadDistances(origin: ILocation, destinations: ILocation[]): Promise<IDistance[]> {
-    const ds1: string[] = destinations.map(d => d.placeId);
+    const destIds: string[] = destinations.map(d => d.placeId);
     return new Promise((resolve, reject) => {
       this.find({ originPlaceId: origin.placeId }).then((ds: IDistance[]) => {
-        const ds2: string[] = ds.map(d => d.destinationPlaceId);
+        const dbDestIds: string[] = ds.map(d => d.destinationPlaceId);
 
-        if (ds1.sort().join(',') === ds2.sort().join(',')) {
+        if (this.dbHasAllPlaceIds(destIds, dbDestIds)) {
           resolve(ds);
         } else {
           this.doReqRoadDistances(origin, destinations).then((rds: IDistance[])=> {
             const distances: IDistance[] = [];
             rds.map((rd: IDistance) => {
-              if (ds2.indexOf(rd.destinationPlaceId) === -1){
+              if (dbDestIds.indexOf(rd.destinationPlaceId) === -1){
                 distances.push(rd);
               }
             });

@@ -289,22 +289,22 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     return d ? d.element.distance.value : 0;
   }
 
-  updateDeliveryFee(restaurant, malls, mallId, ds: IDistance[]) {
-    const self = this;
-    const mall = malls.find(m => m.id === mallId); // restaurant.malls[0]); // fix me, get physical distance
-    const distance = ds ? self.getDistance(ds, mall) : 0;
-    restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
-    restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(distance / 1000);
+  // updateDeliveryFee(restaurant, malls, mallId, ds: IDistance[]) {
+  //   const self = this;
+  //   const mall = malls.find(m => m.id === mallId); // restaurant.malls[0]); // fix me, get physical distance
+  //   const distance = ds ? self.getDistance(ds, mall) : 0;
+  //   restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
+  //   restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(distance / 1000);
 
-    this.rx.dispatch({
-      type: CartActions.UPDATE_DELIVERY, payload: {
-        merchantId: restaurant.id,
-        merchantName: restaurant.name,
-        deliveryCost: restaurant.deliveryCost,
-        deliveryDiscount: restaurant.deliveryCost
-      }
-    });
-  }
+  //   this.rx.dispatch({
+  //     type: CartActions.UPDATE_DELIVERY, payload: {
+  //       merchantId: restaurant.id,
+  //       merchantName: restaurant.name,
+  //       deliveryCost: restaurant.deliveryCost,
+  //       deliveryDiscount: restaurant.deliveryCost
+  //     }
+  //   });
+  // }
 
   redirect(contact) {
     const self = this;

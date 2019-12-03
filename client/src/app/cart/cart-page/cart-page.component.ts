@@ -70,7 +70,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IRestaurant) => {
       this.restaurant = r;
-      this.productSvc.find({ merchantId: r.id }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
+      this.productSvc.find({ merchantId: r._id }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
         this.products = ps;
       });
     });
