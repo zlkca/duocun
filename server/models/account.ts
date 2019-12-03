@@ -19,14 +19,16 @@ export interface IAccount {
   emailVerified?: boolean;
   phone?: string;
   id?: string;
-  password: string;
-  sex?: string;
-  openid?: string; // wechat openid
-  imageurl?: string;
-  unionid?: string; // wechat unionid
+  password?: string;
+
+  openId?: string;    // wechat info
+  sex?: number;       // wechat info
+  openid?: string;    // wechat openid
+  imageurl?: string;  // wechat imageurl
+  unionid?: string;   // wechat unionid
   accessTokens?: any[];
   // address?: IAddress;
-  roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'driver', 'user'
+  roles?: number[];   // 'super', 'merchant-admin', 'merchant-stuff', 'driver', 'user'
   visited?: boolean;
   stripeCustomerId?: string;
   pickup: string;
@@ -103,11 +105,10 @@ export class Account extends Model {
   // }
 
   login(req: Request, res: Response){
-    const self = this;
     const credential = {username: req.body.username, password: req.body.password};
     
     this.findOne({username: credential.username}).then((r: IAccount) => {
-      if(r != null){
+      if(r != null && r.password){
         bcrypt.compare(credential.password, r.password, (err, matched) => {
           if(matched){
             res.setHeader('Content-Type', 'application/json');
@@ -154,54 +155,56 @@ export class Account extends Model {
     const cfg = new Config();
     const authCode = req.query.code;
     utils.getWechatAccessToken(authCode).then((ret: any) => {
-      utils.getWechatUserInfo(ret.access_token, ret.openid).then((x: any) => {
-        this.findOne({openId: ret.openid}).then((r: any) => {
+      utils.getWechatUserInfo(ret.access_token, ret.openid).then((x: any) => { // IAccount
+        this.findOne({openId: ret.openid}).then((r: IAccount) => {
           if(r){
-            r.username = x.nickname;
-            r.imageurl = x.headimgurl;
-            r.address.city = x.city;
-            r.address.province = x.province;
-            r.address.country = x.country;
-            const accountId = r._id;
-            this.replaceById(accountId, r).then(account => {
-              const id = account._id.toString();
-              account.password = '';
-              const tokenId = jwt.sign(id, cfg.JWT.SECRET); // SHA256
-              const token = {id: tokenId, ttl: 10000, userId: id};
+            // update latest wechat info into account
+            const updates = { 
+              username: x.nickname, 
+              imageurl: x.headimgurl,
+              sex: x.sex
+            };
+            const accountId = r._id.toString();
+            this.updateOne({_id: accountId}, updates).then(() => {
+              const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
+              const token = {id: tokenId, ttl: 10000, userId: accountId};
               res.send(JSON.stringify(token, null, 3));
             }, err => {
               console.log(err);
+              res.send(JSON.stringify('', null, 3));
             });
           }else{
             const user = {
               type: 'user',
               username: x.nickname,
-              address: {city: x.city, province: x.province, country: x.country},
               imageurl: x.headimgurl,
+              sex: x.sex,
               realm: 'wechat',
               openId: x.openid,
-              unionId: x.unionid,
+              // unionId: x.unionid, // not be able to get wechat unionId
               balance: 0
             };
             this.insertOne(user).then(account => {
-              const id = account._id.toString();
-              account.password = '';
-              const tokenId = jwt.sign(id, cfg.JWT.SECRET); // SHA256
-              const token = {id: tokenId, ttl: 10000, userId: id};
+              const accountId = account._id.toString();
+              const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
+              const token = {id: tokenId, ttl: 10000, userId: accountId};
               res.send(JSON.stringify(token, null, 3));
             }, err => {
               console.log(err);
+              res.send(JSON.stringify('', null, 3));
             });
           }
         }, err => {
           console.log(err);
+          res.send(JSON.stringify('', null, 3));
         });
       }, err => {
         console.log(err);
+        res.send(JSON.stringify('', null, 3));
       });
     }, err => {
       console.log(err);
-      res.send();
+      res.send(JSON.stringify('', null, 3));
     });
   }
 
