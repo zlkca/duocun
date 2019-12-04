@@ -3,11 +3,7 @@ import { AccountService } from '../../account/account.service';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Role, IAccount } from '../../account/account.model';
-import { MatPaginator, MatSort } from '../../../../node_modules/@angular/material';
-
-import { MatTableDataSource } from '@angular/material/table';
 import { TransactionService } from '../../transaction/transaction.service';
-import { IClientPaymentData } from '../../payment/payment.model';
 
 @Component({
   selector: 'app-balance-page',
@@ -26,9 +22,6 @@ export class BalancePageComponent implements OnInit, OnDestroy {
   nTransactions = 0;
   loading = true;
   highlightedId = 0;
-  dataSource: MatTableDataSource<IClientPaymentData>;
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   constructor(
     private accountSvc: AccountService,
@@ -102,38 +95,8 @@ export class BalancePageComponent implements OnInit, OnDestroy {
       });
 
       this.transactions = list;
-      // this.dataSource = new MatTableDataSource(list);
       this.loading = false;
     });
   }
-
-  // reload(clientId: string) {
-  //   const transactionQuery = { $or: [{ fromId: clientId }, { toId: clientId }], amount: { $ne: 0 } };
-  //   this.transactionSvc.quickFind(transactionQuery).pipe(takeUntil(this.onDestroy$)).subscribe((ts: ITransaction[]) => {
-  //     let list = [];
-
-  //     ts.map(t => {
-  //       const b = t.fromId === clientId ? t.fromBalance : t.toBalance;
-  //       const description = this.getDescription(t, clientId);
-  //       const consumed = t.toId === clientId ? t.amount : 0;
-  //       const paid = t.fromId === clientId ? t.amount : 0;
-  //       list.push({ date: t.created, description: description, consumed: consumed, paid: paid, balance: -b });
-  //     });
-
-  //     list = list.sort((a: any, b: any) => {
-  //       const aMoment = moment(a.date);
-  //       const bMoment = moment(b.date); // .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-  //       if (aMoment.isAfter(bMoment)) {
-  //         return -1;
-  //       } else {
-  //         return 1;
-  //       }
-  //     });
-
-  //     this.dataSource = new MatTableDataSource(list);
-  //     this.dataSource.paginator = this.paginator;
-  //     this.dataSource.sort = this.sort;
-  //   });
-  // }
 }
 

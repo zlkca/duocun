@@ -15,7 +15,7 @@ export function OrderRouter(db: DB){
   router.put('/updatePurchaseTag', (req, res) => { controller.updatePurchaseTag(req, res)});
   router.put('/', (req, res) => { controller.replace(req, res); });
 
-  router.post('/pay', (req, res) => { controller.payOrder(req, res); });
+  router.post('/payOrder', (req, res) => { controller.payOrder(req, res); });
 
   // deprecated
   // router.post('/afterRemoveOrder', (req, res) => { controller.afterRemoveOrder(req, res); });

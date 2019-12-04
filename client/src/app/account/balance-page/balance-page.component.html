@@ -24,7 +24,7 @@
           <span class="text-xs">{{tr.date | date: 'MMMdE'}}</span>
         </div>
         <div class="col-3">
-          <span class="text-xs">{{tr.description}}</span>
+          <span class="text-xs">{{tr.description.length > 13 ? ((tr.description | slice:0:11) + '..') : tr.description}}</span>
         </div>
         <div class="col-2">
           <span class="text-xs">{{tr.consumed | number : '1.2-2'}}</span>

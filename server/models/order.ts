@@ -681,8 +681,8 @@ export class Order extends Model {
     // });
   }
 
-  //---------------------------------------------------------------
-  // change order status to 'paid' and insert a new transaction
+  //-----------------------------------------------------------------------------------------
+  // change order status to 'paid', insert a new transaction and update corresponding balance
   pay(toId: string, toName: string, received: number, orderId: string, note?: string) {
     const data = {
       status: 'paid',
