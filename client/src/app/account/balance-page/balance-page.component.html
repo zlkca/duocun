@@ -17,8 +17,9 @@
     </div>
 
 
+    <!-- [class.highlight]="tr.id === highlightedId" -->
     <div class="list-item" *ngFor="let tr of transactions | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPageNumber, totalItems: nTransactions }"
-      (click)="onSelect(tr)" [class.highlight]="tr.id === highlightedId">
+      (click)="onSelect(tr)" >
       <div class="row">
         <div class="col-3">
           <span class="text-xs">{{tr.date | date: 'MMMdE'}}</span>

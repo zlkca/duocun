@@ -10,7 +10,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { LoginFormComponent } from './login-form/login-form.component';
 import { SignupComponent } from './signup/signup.component';
-import { ChangePasswordComponent } from './change-password/change-password.component';
 import { ForgetPasswordComponent } from './forget-password/forget-password.component';
 import { ProfileFormComponent } from './profile-form/profile-form.component';
 import { AccountRoutingModule } from './account-routing.module';
@@ -46,7 +45,6 @@ import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pag
     declarations: [
       LoginFormComponent,
       SignupComponent,
-      ChangePasswordComponent,
       ForgetPasswordComponent,
       ProfileFormComponent,
       AccountPageComponent,

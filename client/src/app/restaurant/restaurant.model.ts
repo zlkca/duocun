@@ -11,7 +11,6 @@ export interface IPhase {
 
 export interface IRestaurant {
   _id?: string;
-  id?: string;
   name: string;
   description?: string;
   location?: GeoPoint;
@@ -46,7 +45,7 @@ export interface IRestaurant {
 
 // For database
 export class Restaurant implements IRestaurant {
-  id: string;
+  _id: string;
   name: string;
   description: string;
   location: GeoPoint;

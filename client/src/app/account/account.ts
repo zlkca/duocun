@@ -1,5 +1,5 @@
 export class User {
-    id: string;
+    _id: string;
     username: string;
     email: string;
     first_name: string;
@@ -9,7 +9,7 @@ export class User {
     password: string;
     constructor(o?: any) {
       if (o) {
-          this.id = o.id;
+          this._id = o._id;
           this.username = o.username;
           this.email = o.email;
           this.first_name = o.first_name;
@@ -23,7 +23,7 @@ export class User {
 
 
 export class Address {
-    id: string;
+    _id: string;
     street: string;
     postalCode: string;
     province: string;
@@ -34,7 +34,7 @@ export class Address {
 
     constructor(o?: any) {
         if (o) {
-            this.id = o.id;
+            this._id = o._id;
             this.street = o.street;
             this.postalCode = o.postalCode;
             this.province = o.province;

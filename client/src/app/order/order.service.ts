@@ -6,8 +6,6 @@ import { EntityService } from '../entity.service';
 import { AuthService } from '../account/auth.service';
 import { Observable } from '../../../node_modules/rxjs';
 import { IOrder } from './order.model';
-import { IPayment } from '../payment/payment.model';
-
 
 
 @Injectable()

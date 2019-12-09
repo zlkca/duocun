@@ -32,10 +32,9 @@ export class PaymentService extends EntityService {
     return this.doPost(url, { token: token, paid: paid, accountId: account._id, accountName: account.username, note: note });
   }
 
-  // pickup --- time
-  stripePayOrder(order: IOrder, paid: number, token: any, pickup: string): Observable<any> {
+  stripePayOrder(orderId: string, paid: number, token: any): Observable<any> {
     const url = this.url + '/stripePayOrder';
-    return this.doPost(url, { token: token, order: order, paid: paid, pickup: pickup });
+    return this.doPost(url, { token: token, orderId: orderId, paid: paid });
   }
 
   stripeCreateCustomer( tokenId: string, clientId: string, clientName: string, clientPhoneNumber: string): Observable<any> {
@@ -48,13 +47,13 @@ export class PaymentService extends EntityService {
     const url = this.url + '/snappayAddCredit';
     return this.doPost(url, { account: account, paid: paid, paymentMethod: paymentMethod, note: note });
   }
+
   // description: b.merchantName,
   // method: 'pay.webpay',
   // merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,
   // out_order_no: b.orderId,
   // payment_method: b.paymentMethod, // ALIPAY, UNIONPAY
   // trans_amount: b.amount
-
   snappayPayOrder( order: IOrder, paid: number): Observable<any> {
     const url = this.url + '/snappayPayOrder';
     return this.doPost(url, { order: order, paid: paid });

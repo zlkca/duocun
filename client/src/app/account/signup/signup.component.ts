@@ -65,7 +65,7 @@ export class SignupComponent implements OnInit {
       this.errMsg = 'InvalidChar';
     } else {
       this.accountSvc.signup(account).subscribe((user: Account) => {
-        if (user && user.id) {
+        if (user && user._id) {
           if (user.type === 'user') {
             this.router.navigate(['main/home']);
           } else if (user.type === 'worker') {

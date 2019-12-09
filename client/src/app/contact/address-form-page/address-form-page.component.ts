@@ -256,10 +256,11 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   cancel() {
     const self = this;
+    const merchantId = this.restaurant._id;
     const location = Cookies.get('duocun-old-location');
     if (!this.contact) {
       this.contact = new Contact();
-      this.contact.accountId = self.account.id;
+      this.contact.accountId = self.account._id;
     }
 
     this.contact.location = (location && location !== 'undefined') ? JSON.parse(location) : null;
@@ -278,7 +279,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     if (self.fromPage === 'account-setting') {
       self.router.navigate(['account/settings']);
     } else if (self.fromPage === 'restaurant-detail') {
-      self.router.navigate(['merchant/list/' + this.restaurant.id]);
+      self.router.navigate(['merchant/list/' + merchantId]);
     } else if (self.fromPage === 'contact-form') {
       self.router.navigate(['contact/form']);
     }
@@ -288,23 +289,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     const d = ds.find(r => r.destinationPlaceId === mall.placeId);
     return d ? d.element.distance.value : 0;
   }
-
-  // updateDeliveryFee(restaurant, malls, mallId, ds: IDistance[]) {
-  //   const self = this;
-  //   const mall = malls.find(m => m.id === mallId); // restaurant.malls[0]); // fix me, get physical distance
-  //   const distance = ds ? self.getDistance(ds, mall) : 0;
-  //   restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(distance / 1000);
-  //   restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(distance / 1000);
-
-  //   this.rx.dispatch({
-  //     type: CartActions.UPDATE_DELIVERY, payload: {
-  //       merchantId: restaurant.id,
-  //       merchantName: restaurant.name,
-  //       deliveryCost: restaurant.deliveryCost,
-  //       deliveryDiscount: restaurant.deliveryCost
-  //     }
-  //   });
-  // }
 
   redirect(contact) {
     const self = this;
@@ -400,57 +384,15 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       }
 
       // fix me!!!
-      const mall = this.malls.find(m => m.id === this.restaurant.malls[0]);
+      const mall = this.malls.find(m => m._id === this.restaurant.malls[0]);
       if (!this.mallSvc.isInRange(mall, this.availableRanges)) {
         alert('此餐馆不在配送范围内');
         return;
       }
 
       self.redirect(contact);
-      // this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
-      // this.realMalls = malls;
-      // check if road distance in database
-      // const malls = this.malls;
-      // const q = { originPlaceId: self.location.placeId }; // origin --- client origin
-
-      // self.distanceSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((ds: IDistance[]) => {
-      //   if (ds && ds.length > 0) {
-      //     // const mall = malls.find(m => m.id === restaurant.malls[0]); // fix me, get physical distance
-      //     // self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], ds);
-      //     self.redirect(contact);
-      //   } else {
-      //     const destinations: ILocation[] = [];
-      //     malls.map(m => {
-      //       destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-      //     });
-      //     self.distanceSvc.reqRoadDistances(self.location, destinations)
-      //        .pipe(takeUntil(self.onDestroy$)).subscribe((rs: IDistance[]) => {
-      //       if (rs) {
-      //         // self.updateDeliveryFee(restaurant, malls, restaurant.malls[0], rs);
-      //         self.redirect(contact);
-      //       }
-      //     }, err => {
-      //       console.log(err);
-      //     });
-      //   }
-      // });
-      // });
     }
   }
-
-  // checkMallSchedule(origin: ILocation, delivered: string): Promise<boolean> {
-  //   return new Promise((resolve, reject) => {
-  //     this.mallSvc.getAvailables(origin, delivered).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
-  //       const malls = ret.mallIds;
-  //       if (malls && malls.length > 0) {
-  //         const mallId = malls.find(m => m === this.restaurant.mallId);
-  //         resolve(mallId ? true : false);
-  //       } else {
-  //         resolve(false);
-  //       }
-  //     });
-  //   });
-  // }
 
   resetAddress() {
     const self = this;

@@ -5,9 +5,13 @@ import { Restaurant, IRestaurant } from '../restaurant/restaurant.model';
 import { Picture } from '../picture.model';
 import { ILocation } from '../location/location.model';
 
+export enum OrderType {
+  FOOD_DELIVERY = 1,
+  TELECOMMUNICATIONS
+}
+
 export interface IOrder {
   _id?: string;
-  id?: string;
   code?: string;
   clientId?: string;
   clientName?: string;
@@ -17,6 +21,7 @@ export interface IOrder {
   merchantName?: string;
   driverId?: string;
   driverName?: string;
+  type?: OrderType;      // in db
   status?: string;
   note?: string;
   address?: string;
@@ -47,7 +52,7 @@ export interface IOrder {
 }
 
 export class Order implements IOrder {
-  id: string;
+  _id: string;
   code?: string;
   clientId: string;
   clientName: string;
@@ -57,6 +62,7 @@ export class Order implements IOrder {
   merchantName: string;
   driverId?: string;
   driverName?: string;
+  type?: OrderType;      // in db
   status: string;
   note: string;
   address: string;

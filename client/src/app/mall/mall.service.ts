@@ -27,7 +27,7 @@ export class MallService extends EntityService {
     let bInRange = false;
     if (mall.ranges) {
       mall.ranges.map((rangeId: string) => {
-        const range = availableRanges.find(ar => ar.id === rangeId);
+        const range = availableRanges.find(ar => ar._id === rangeId);
         if (range) {
           bInRange = true;
         }

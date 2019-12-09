@@ -19,17 +19,9 @@ const CASH_NAME = 'Cash';
 const BANK_ID = '5c95019e0851a5096e044d0c';
 const BANK_NAME = 'TD Bank';
 
-export interface IPayment {
-  orderId: string,
-  clientId: string,
-  clientName: string,
-  merchantId: string,
-  merchantName: string,
-  action: string,
-  cost: number,
-  total: number,
-  paid: number,
-  chargeId: string
+export enum OrderType {
+  FOOD_DELIVERY = 1,
+  TELECOMMUNICATIONS
 }
 
 export interface IOrderItem {
@@ -54,6 +46,7 @@ export interface IOrder {
   merchantName: string;
   driverId?: string;
   driverName?: string;
+  type?: OrderType;        // OrderType
   status?: string;
   note?: string;
   address?: string;
@@ -217,10 +210,20 @@ export class Order extends Model {
         this.accountModel.findOne({ _id: clientId }).then((account: IAccount) => {
           this.merchantModel.findOne({ _id: merchantId }).then((merchant: any) => {
             if (account.pickup) {
-              const date = (order.dateType === 'today') ? moment() : moment().add(1, 'day');
-              order.delivered = this.getTime(date, account.pickup).toISOString();
+              if(order.dateType){
+                const date = (order.dateType === 'today') ? moment() : moment().add(1, 'day');
+                order.delivered = this.getTime(date, account.pickup).toISOString();
+              }else{
+                // telecommunication order
+                order.delivered = this.getTime(moment(), '01:00').toISOString();
+              }
             } else {
-              order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.dateType);
+              if(merchant && merchant.phases){
+                order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.dateType);
+              }else{
+                // telecommunication order
+                order.delivered = this.getTime(moment(), '01:00').toISOString();
+              }
             }
 
             delete order.dateType;
@@ -630,7 +633,12 @@ export class Order extends Model {
     return new Promise((resolve, reject) => {
       this.transactionModel.saveTransactionsForPlaceOrder(
         order._id.toString(),
-        merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
+        merchantId, merchantName,
+        clientId, clientName,
+        cost, 
+        total,
+        deliverd
+      ).then(() => {
           this.transactionModel.doInsertOne(tr).then(t => {
             const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
             this.updateOne({ _id: orderId }, data).then((r: any) => { // result
@@ -805,7 +813,6 @@ export class Order extends Model {
                 }
               }
             });
-
 
             const start = (currentPageNumber - 1) * itemsPerPage;
             const end = start + itemsPerPage;

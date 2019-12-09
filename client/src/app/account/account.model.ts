@@ -13,7 +13,6 @@ export enum Role {
 
 export interface IAccount {
   _id?: string;
-  id?: string;
   type: string; // wechat, google, fb
   realm?: string;
   username?: string;
@@ -36,7 +35,6 @@ export interface IAccount {
 
 export class Account implements IAccount {
   _id?: string;
-  id: string;
   type: string;
   realm: string; // wechat, google, fb
   username: string;
@@ -73,7 +71,7 @@ export interface IAddress {
   postalCode?: string;
   created?: Date;
   modified?: Date;
-  id?: number;
+  _id?: number;
 }
 
 export class Address implements IAddress {
@@ -89,7 +87,7 @@ export class Address implements IAddress {
   postalCode: string;
   created: Date;
   modified: Date;
-  id: number;
+  _id: number;
   constructor(data?: IAddress) {
     Object.assign(this, data);
   }

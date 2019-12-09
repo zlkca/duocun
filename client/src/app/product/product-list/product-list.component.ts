@@ -99,8 +99,14 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
             type: CartActions.ADD_TO_CART,
             payload: {
               items: [{
-                productId: p._id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures, cost: p.cost,
-                merchantId: p.merchantId, merchantName: this.restaurant.name
+                productId: p._id,
+                productName: p.name,
+                price: p.price,
+                cost: p.cost,
+                quantity: 1,
+                pictures: p.pictures,
+                merchantId: p.merchantId,
+                merchantName: this.restaurant.name
               }]
             }
           });
@@ -115,9 +121,14 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
       type: CartActions.REMOVE_FROM_CART,
       payload: {
         items: [{
-          productId: p._id, productName: p.name, price: p.price, quantity: 1, pictures: p.pictures,
+          productId: p._id,
+          productName: p.name,
+          price: p.price,
           cost: p ? p.cost : 0,
-          merchantId: p.merchantId, merchantName: this.restaurant.name
+          quantity: 1,
+          pictures: p.pictures,
+          merchantId: p.merchantId,
+          merchantName: this.restaurant.name
         }]
       }
     });
@@ -138,9 +149,14 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
       type: CartActions.UPDATE_QUANTITY,
       payload: {
         items: [{
-          productId: p._id, productName: p.name, price: p.price, quantity: quantity, pictures: p.pictures,
+          productId: p._id,
+          productName: p.name,
+          price: p.price,
+          quantity: quantity,
+          pictures: p.pictures,
           cost: p ? p.cost : 0,
-          merchantId: p.merchantId, merchantName: this.restaurant.name
+          merchantId: p.merchantId,
+          merchantName: this.restaurant.name
         }]
       }
     });

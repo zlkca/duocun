@@ -7,8 +7,6 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
-
-import { WizardComponent } from './wizard/wizard.component';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 import { FeedbackComponent } from './feedback/feedback.component';
 import { MapComponent } from './map/map.component';
@@ -32,7 +30,6 @@ import { LocationService } from '../location/location.service';
     MatButtonModule
   ],
   declarations: [
-    WizardComponent,
     ImageViewerComponent,
     FeedbackComponent,
     MapComponent,
@@ -48,7 +45,6 @@ import { LocationService } from '../location/location.service';
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
-    WizardComponent,
     ImageViewerComponent,
     FeedbackComponent,
     MapComponent,

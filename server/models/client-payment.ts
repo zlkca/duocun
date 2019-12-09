@@ -8,20 +8,19 @@ import https from 'https';
 // import NodeRSA from 'node-rsa';
 import { Md5 } from 'ts-md5';
 import moment, { now } from 'moment';
-import { Order, IOrder } from "../models/order";
+import { Order, OrderType } from "../models/order";
 import { ClientBalance } from "./client-balance";
-import { ObjectID } from "../../node_modules/@types/bson";
 import { Transaction } from "./transaction";
-import { resolve } from "path";
 import { Restaurant } from "./restaurant";
 import { ClientCredit } from "./client-credit";
+import { CellApplication, CellApplicationStatus } from "./cell-application";
 
 var fs = require('fs');
 var util = require('util');
 // var log_file = fs.createWriteStream('~/duocun-debug.log', {flags : 'w'}); // __dirname + 
 var log_stdout = process.stdout;
 
-console.log = function(d:any) { //
+console.log = function (d: any) { // 
   // log_file.write(util.format(d) + '\n');
   log_stdout.write(util.format(d) + '\n');
 };
@@ -33,6 +32,7 @@ export class ClientPayment extends Model {
   transactionModel: Transaction;
   merchantModel: Restaurant;
   clientCreditModel: ClientCredit;
+  cellApplicationModel: CellApplication;
 
   constructor(dbo: DB) {
     super(dbo, 'client_payments');
@@ -42,6 +42,7 @@ export class ClientPayment extends Model {
     this.merchantModel = new Restaurant(dbo);
     this.transactionModel = new Transaction(dbo);
     this.clientCreditModel = new ClientCredit(dbo);
+    this.cellApplicationModel = new CellApplication(dbo);
     this.cfg = new Config();
   }
 
@@ -176,41 +177,32 @@ export class ClientPayment extends Model {
   stripePayOrder(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
     const token = req.body.token;
-    const order = req.body.order;
+    const orderId = req.body.orderId;
     const paid = +req.body.paid;
-    const pickup = req.body.pickup;
-    const dateType = req.body.dateType; // 'today', 'tomorrow'
-    const now = moment().toISOString();
-    const merchantId = order.merchantId;
-
     const self = this;
-
-    stripe.charges.create({
-      // customer: req.body.customerId,
-      amount: Math.round((paid) * 100),
-      currency: 'cad',
-      description: order.merchantName,
-      source: token.id,
-      metadata: { orderId: order._id, customerId: order.clientId, customerName: order.clientName, merchantName: order.merchantName },
-    }, function (err: any, charge: any) {
-      res.setHeader('Content-Type', 'application/json');
-      if (!err) {
-        self.merchantModel.findOne({_id: merchantId}).then(merchant => {
-          if (pickup) { // have special pickup time ?
-            const date = (dateType === 'today') ? moment() : moment().add(1, 'day');
-            order.delivered = self.getTime(date, pickup).toISOString();
-          } else {
-            order.delivered = self.orderEntity.getDeliverDateTime(now, merchant.phases, dateType);
-          }
+    self.orderEntity.findOne({ _id: orderId }).then(order => {
+      const clientId = order.clientId.toString();
+      const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
+      stripe.charges.create({
+        // customer: req.body.customerId,
+        amount: Math.round((paid) * 100),
+        currency: 'cad',
+        description: order.merchantName,
+        source: token.id,
+        metadata: metadata
+      }, function (err: any, charge: any) {
+        res.setHeader('Content-Type', 'application/json');
+        if (!err) {
+          // update order and insert transactions
           self.orderEntity.doProcessPayment(order, 'pay by card', paid, charge.id).then(() => {
             res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
           }, err => {
             res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
           });
-        });
-      } else {
-        res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
-      }
+        } else {
+          res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+        }
+      });
     });
   }
 
@@ -231,10 +223,10 @@ export class ClientPayment extends Model {
     // console.log('snappayNotify customer_paid_amount' + b.customer_paid_amount);
     // console.log('snappayNotify trans_amount' + b.trans_amount);
 
-    this.orderEntity.find({_id: b.out_order_no}).then(orders => {
-      if(orders && orders.length >0){
+    this.orderEntity.find({ _id: b.out_order_no }).then(orders => {
+      if (orders && orders.length > 0) {
         const order = orders[0];
-        if(order.status === 'tmp'){
+        if (order.status === 'tmp') {
           const paid = +b.trans_amount;
           // --------------------------------------------------------------------------------------
           // 1.update order status to 'paid'
@@ -242,16 +234,25 @@ export class ClientPayment extends Model {
           // 3.update account balance
           this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
             // res.send(ret);
+            const q = { accountId: order.clientId.toString(), status: CellApplicationStatus.NEW };
+            const d = { status: CellApplicationStatus.SETUP_PAID };
+            this.cellApplicationModel.findOne(q).then((ca: any) => {
+              if(ca){
+                this.cellApplicationModel.updateOne(q, d).then(() => {
+
+                });
+              }
+            });
           }, err => {
             // res.send(ret);
           });
         }
       } else { // not a order means this is adding credit
-        this.clientCreditModel.find({_id: b.out_order_no}).then(ccs => {
-          if(ccs && ccs.length>0){
+        this.clientCreditModel.find({ _id: b.out_order_no }).then(ccs => {
+          if (ccs && ccs.length > 0) {
             const cc = ccs[0];
-            if(cc.status === 'new'){
-              this.clientCreditModel.updateOne({_id: cc._id}, {status: 'added'}).then(() => {
+            if (cc.status === 'new') {
+              this.clientCreditModel.updateOne({ _id: cc._id }, { status: 'added' }).then(() => {
                 this.transactionModel.doAddCredit(cc.accountId.toString(), cc.accountName, cc.total, cc.paymentMethod, cc.note).then(() => {
 
                 });
@@ -272,7 +273,7 @@ export class ClientPayment extends Model {
     const cc = {
       accountId: account._id,
       accountName: account.username,
-      total: Math.round(paid*100)/100,
+      total: Math.round(paid * 100) / 100,
       paymentMethod: paymentMethod,
       note: note,
       status: 'new'
@@ -289,12 +290,16 @@ export class ClientPayment extends Model {
     const order = req.body.order;
     const clientId = order.clientId;
     const paymentMethod = order.paymentMethod;
-
-    const returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
+    let returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
+    
+    if(+order.type === OrderType.TELECOMMUNICATIONS){
+      returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
+    }
+    
     this.snappayPayReq(res, returnUrl, order._id, paymentMethod, paid, order.merchantName);
   }
 
-  snappaySignParams(data: any){
+  snappaySignParams(data: any) {
     const sParams = this.createLinkstring(data);
     const encrypted = Md5.hashStr(sParams + this.cfg.SNAPPAY.MD5_KEY);
     data['sign'] = encrypted;
@@ -302,7 +307,7 @@ export class ClientPayment extends Model {
     return data;
   }
 
-  snappayPayReq(res: Response, returnUrl: string, orderId: string, paymentMethod:string, paid: number, description: string) {
+  snappayPayReq(res: Response, returnUrl: string, orderId: string, paymentMethod: string, paid: number, description: string) {
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
       charset: 'UTF-8',                          // Madatory
@@ -310,7 +315,7 @@ export class ClientPayment extends Model {
       format: 'JSON',                            // Madatory
       merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
-      notify_url:'https://duocun.com.cn/api/ClientPayments/snappayNotify',
+      notify_url: 'https://duocun.com.cn/api/ClientPayments/snappayNotify',
       out_order_no: orderId,                   // Service Mandatory
       payment_method: paymentMethod,       // WECHATPAY, ALIPAY, UNIONPAY
       return_url: returnUrl,
@@ -393,7 +398,7 @@ export class ClientPayment extends Model {
           }
         });
       });
-  
+
       post_req.write(JSON.stringify(params));
       post_req.end();
     });

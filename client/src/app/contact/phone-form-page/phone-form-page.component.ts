@@ -153,45 +153,6 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  // save() {
-  //   const self = this;
-  //   const v = this.form.value;
-  //   const account = this.account;
-
-  //   if (!this.contact.verified) {
-  //     return;
-  //   }
-
-  //   // Fix me
-  //   this.contactSvc.find({ accountId: account.id }).pipe(takeUntil(self.onDestroy$)).subscribe(oldContacts => {
-  //     if (oldContacts && oldContacts.length > 0) {
-  //       const oldContact = oldContacts[0];
-  //       oldContact.phone = v.phone;
-  //       oldContact.verificationCode = v.verificationCode;
-
-  //       // replace phone number only
-  //       const data = { phone: v.phone, verificationCode: v.verificationCode };
-  //       self.contactSvc.update({ accountId: account.id }, data).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-  //         if (x.ok === 1) {
-  //           this.redirect(oldContact);
-  //         }
-  //       });
-  //     } else {
-  //       const accountId = this.account._id;
-  //       const accountName = this.account.username;
-  //       const contact: any = {
-  //         accountId: accountId,
-  //         username: accountName,
-  //         phone: v.phone,
-  //         verificationCode: v.verificationCode
-  //       };
-  //       self.contactSvc.save(contact).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-  //         this.redirect(contact);
-  //       });
-  //     }
-  //   });
-  // }
-
   sendVerify() {
     const self = this;
     const accountId: string = self.account._id;

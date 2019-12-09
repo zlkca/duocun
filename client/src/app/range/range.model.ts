@@ -1,5 +1,5 @@
 export interface IRange {
-  id?: string;
+  _id?: string;
   name?: string;
   lat?: number;
   lng?: number;
@@ -10,7 +10,7 @@ export interface IRange {
 }
 
 export class Range implements IRange {
-  id?: string;
+  _id?: string;
   name?: string;
   lat?: number;
   lng?: number;

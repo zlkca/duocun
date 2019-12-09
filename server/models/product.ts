@@ -3,14 +3,17 @@ import { Model } from "./model";
 
 import { Entity } from "../entity";
 import { Category } from "./category";
-import { ObjectID } from "mongodb";
+import { ObjectID, Collection } from "mongodb";
 import { Request, Response } from "express";
+import { Account } from "./account";
 
 export class Product extends Model {
   categoryModel: Category;
+  accountModel: Account;
   constructor(dbo: DB) {
     super(dbo, 'products');
     this.categoryModel = new Category(dbo);
+    this.accountModel = new Account(dbo);
   }
 
   uploadPicture(req: Request, res: Response){
@@ -23,42 +26,68 @@ export class Product extends Model {
   }
 
   list(req: Request, res: Response) {
-    let query = null;
+    let query = {};
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
+    query = this.convertIdFields(query);
+    this.categoryModel.find({}).then(cs => {
+      this.accountModel.find({}).then(ms => { // fix me, arch design issue: merchant or account ???
+        this.find(query).then(ps => {
+          ps.map((p: any) => {
+            p.category = cs.find((c: any) => c._id.toString() === p.categoryId.toString());
+            const merchant = ms.find((m: any) => m._id.toString() === p.merchantId.toString());
+            if(merchant && merchant.password){
+              delete merchant.password;
+            }
+            if(merchant){ // fix me
+              merchant.name = merchant.username;
+            }
+            p.merchant = merchant;
+          });
 
-    let q = query;
-    if (q) {
-      if (q.where) {
-        q = query.where;
-      }
-    } else {
-      q = {};
-    }
-
-    if(q && q.merchantId){
-      q.merchantId = new ObjectID(q.merchantId);
-    }
-
-    if(q && q.categoryId){
-      q.categoryId = new ObjectID(q.categoryId);
-    }
-
-    const params = [
-      {$lookup:{from: 'categories', localField: 'categoryId', foreignField: '_id', as: 'category'}},
-      {$unwind:'$category'},
-      {$lookup:{from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}},
-      {$unwind:'$merchant'}
-    ];
-    this.join(params, q).then((rs: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      if (rs) {
-        res.send(JSON.stringify(rs, null, 3));
-      } else {
-        res.send(JSON.stringify(null, null, 3))
-      }
+          res.setHeader('Content-Type', 'application/json');
+          res.send(JSON.stringify(ps, null, 3));
+        });
+      });
     });
+
+    // let query = null;
+    // if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+    //   query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    // }
+
+    // let q = query;
+    // if (q) {
+    //   if (q.where) {
+    //     q = query.where;
+    //   }
+    // } else {
+    //   q = {};
+    // }
+
+    // if(q && q.merchantId){
+    //   q.merchantId = new ObjectID(q.merchantId);
+    // }
+
+    // if(q && q.categoryId){
+    //   q.categoryId = new ObjectID(q.categoryId);
+    // }
+
+    // const params = [
+    //   {$lookup:{from: 'categories', localField: 'categoryId', foreignField: '_id', as: 'category'}},
+    //   {$unwind:'$category'},
+    //   {$lookup:{from: 'restaurants', localField: 'merchantId', foreignField: '_id', as: 'merchant'}},
+    //   {$unwind:'$merchant'}
+    // ];
+    // this.join(params, q).then((rs: any) => {
+    //   res.setHeader('Content-Type', 'application/json');
+    //   if (rs) {
+    //     res.send(JSON.stringify(rs, null, 3));
+    //   } else {
+    //     res.send(JSON.stringify(null, null, 3))
+    //   }
+    // });
   }
 
   // load(req: Request, res: Response) {

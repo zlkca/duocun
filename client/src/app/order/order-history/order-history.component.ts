@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
-import { Order, IOrder } from '../order.model';
+import { Order, IOrder, OrderType } from '../order.model';
 // import { SocketService } from '../../shared/socket.service';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
@@ -34,6 +34,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   itemsPerPage = 10;
   nOrders = 0;
 
+  OrderTypes = OrderType;
+
   constructor(
     private accountSvc: AccountService,
     private orderSvc: OrderService,
@@ -63,22 +65,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     });
 
     // this.socketSvc.on('updateOrders', x => {
-    //   // self.onFilterOrders(this.selectedRange);
-    //   if (x.clientId === self.account.id) {
-    //     const index = self.orders.findIndex(i => i.id === x.id);
-    //     if (index !== -1) {
-    //       self.orders[index] = x;
-    //     } else {
-    //       self.orders.push(x);
-    //     }
-    //     self.orders.sort((a: Order, b: Order) => {
-    //       if (this.sharedSvc.compareDateTime(a.created, b.created)) {
-    //         return -1;
-    //       } else {
-    //         return 1;
-    //       }
-    //     });
-    //   }
     // });
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
@@ -184,7 +170,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   onSelect(order) {
     // this.select.emit({ order: c });
-    this.highlightedOrderId = order.id;
+    this.highlightedOrderId = order._id;
   }
 
   toDateTimeString(s) {
@@ -208,25 +194,5 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       this.loading = false;
     });
   }
-  // takeOrder(order) {
-  //   const self = this;
-  //   order.workerStatus = 'process';
-  //   this.orderSvc.replace(order).pipe(
-  //   takeUntil(this.onDestroy$)
-  // ).subscribe(x => {
-  //     // self.afterSave.emit({name: 'OnUpdateOrder'});
-  //     self.reload(self.account.id);
-  //   });
-  // }
 
-  // sendForDeliver(order) {
-  //   const self = this;
-  //   order.workerStatus = 'done';
-  //   this.orderSvc.replace(order).pipe(
-  //   takeUntil(this.onDestroy$)
-  // ).subscribe(x => {
-  //     // self.afterSave.emit({name: 'OnUpdateOrder'});
-  //     self.reload(self.account.id);
-  //   });
-  // }
 }

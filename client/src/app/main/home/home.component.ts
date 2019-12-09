@@ -164,13 +164,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       // process payment route ?clientId=x&paymentMethod=y
       const clientId = queryParams.get('clientId'); // use for after card pay, could be null
       const page = queryParams.get('page');
-      if (page === 'account_settings') {
+      if (page === 'account_settings') { // for wechatpay add credit procedure
         this.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
           this.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
           self.router.navigate(['account/balance']);
         });
         return;
-      } else if (page === 'order_history') {
+      } else if (page === 'order_history') { // for wechatpay procedure
         if (clientId) {
           this.bPayment = true;
           this.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
@@ -263,24 +263,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       }
     });
-
-    // this.clientBalanceSvc.quickFind({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((bs: IBalance[]) => {
-    //   if (bs && bs.length > 0) {
-    //     // update balance
-    //   } else {
-    //     // new balance entry
-    //     const data: IBalance = {
-    //       accountId: accountId,
-    //       accountName: account.username,
-    //       amount: 0,
-    //       created: new Date(),
-    //       modified: new Date()
-    //     };
-
-    //     self.clientBalanceSvc.save(data).pipe(takeUntil(self.onDestroy$)).subscribe((b: IBalance) => {
-    //     });
-    //   }
-    // });
   }
 
   ngOnInit() {

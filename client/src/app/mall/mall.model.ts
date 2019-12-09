@@ -1,13 +1,7 @@
 import { IRange } from '../range/range.model';
 
-export interface IEntityBase {
-  id?: string;
-}
 
-export interface IUserBase {
-  id: string;
-  username: string;
-}
+
 export interface IRegionOpening {
   regionId?: string;
   regionName?: string;
@@ -15,7 +9,7 @@ export interface IRegionOpening {
 }
 
 export interface IMall {
-  id?: string;
+  _id?: string;
   name?: string;
   description?: string;
   // type?: string;
@@ -36,7 +30,7 @@ export interface IMall {
 
 // For Database
 export class Mall implements IMall {
-  id: string;
+  _id: string;
   name: string;
   description?: string;
   // type: string;

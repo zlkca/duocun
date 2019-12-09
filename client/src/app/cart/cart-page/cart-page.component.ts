@@ -115,9 +115,13 @@ export class CartPageComponent implements OnInit, OnDestroy {
       type: CartActions.ADD_TO_CART,
       payload: {
         items: [{
-          productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
+          productId: item.productId,
+          productName: item.productName,
+          price: item.price,
+          quantity: 1,
           cost: product ? product.cost : 0,
-          merchantId: item.merchantId, merchantName: item.merchantName
+          merchantId: item.merchantId,
+          merchantName: item.merchantName
         }]
       }
     });
@@ -175,8 +179,9 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   back() {
+    const merchantId = this.restaurant._id;
     if (this.restaurant) {
-      this.router.navigate(['merchant/list/' + this.restaurant.id]);
+      this.router.navigate(['merchant/list/' + merchantId]);
     }
   }
 }
