@@ -34,7 +34,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   malls;
   loading = true;
   origin;
-  bHasAddress;
+  bHasAddress = false;
   cart;
 
   constructor(
@@ -200,5 +200,9 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
         return 0;
       }
     });
+  }
+
+  isCloseInTurn(r: IRestaurant) {
+    return (this.bHasAddress && !r.onSchedule) || r.isClosed;
   }
 }

@@ -23,7 +23,6 @@ import { MerchantService } from '../../merchant/merchant.service';
 
 import { environment } from '../../../environments/environment';
 import { PaymentService } from '../../payment/payment.service';
-import { TransactionService } from '../../transaction/transaction.service';
 import { DistanceService } from '../../location/distance.service';
 import { MallService } from '../../mall/mall.service';
 import { RangeService } from '../../range/range.service';
@@ -92,7 +91,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService,
     private paymentSvc: PaymentService,
     private distanceSvc: DistanceService,
-    private transactionSvc: TransactionService,
     private snackBar: MatSnackBar
   ) {
     const self = this;
@@ -103,11 +101,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     // update footer
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'order-form' } });
-
-    // this.rx.select('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-    //   self.account = account;
-    //   this.balance = account.balance;
-    // });
 
     // load delivery date and location
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
@@ -492,7 +485,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           // self.snackBar.open('', '已成功下单', { duration: 2000 });
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
           self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-          this.loading = true;
+          // this.loading = true; should not show loading, because tencent cache page
           window.location.href = r.data[0].h5pay_url;
         } else {
           self.loading = false;

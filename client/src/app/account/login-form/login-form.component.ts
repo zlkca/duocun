@@ -11,6 +11,7 @@ import { PageActions } from '../../main/main.actions';
 import { IAppState } from '../../store';
 
 import { Account } from '../account.model';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
 
 @Component({
   providers: [AuthService],
@@ -63,13 +64,13 @@ export class LoginFormComponent implements OnInit, OnDestroy {
     const v = this.form.value;
     this.authSvc.removeCookies();
     if (this.form.valid) {
-      this.accountSvc.login(v.account, v.password).subscribe((data: any) => {
+      this.accountSvc.login(v.account, v.password).pipe(takeUntil(this.onDestroy$)).subscribe((data: any) => {
         if (data) {
           self.authSvc.setUserId(data.userId);
           self.authSvc.setAccessToken(data.id);
-          self.accountSvc.getCurrentUser().subscribe((account: Account) => {
+          self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
             if (account) {
-              self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header, footer icons
+              self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header footer icons
               if (account.type === 'super') {
                 this.router.navigate(['admin']);
               } else if (account.type === 'worker') {

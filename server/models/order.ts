@@ -137,6 +137,41 @@ export class Order extends Model {
     });
   }
 
+  joinFind(query: any): Promise<IOrder[]>{
+    if (query.hasOwnProperty('pickup')) {
+      query.delivered = this.getPickupDateTime(query['pickup']);
+      delete query.pickup;
+    }
+    let q = query ? query : {};
+
+    return new Promise((resolve, reject) => {
+      this.contactModel.find({}).then(contacts => {
+        this.merchantModel.find({}).then(ms => {
+          this.productModel.find({}).then(ps => {
+            this.find(q).then((rs: any) => {
+              rs.map((order: any) => {
+                const items: any[] = [];
+                order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
+                order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
+                order.items.map((it: any) => {
+                  const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+                  if (product) {
+                    items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                  }
+                });
+                order.items = items;
+              });
+
+              resolve(rs);
+            });
+          });
+        });
+      });
+    });
+  }
+
+
+
   // pickup --- string '11:20'
   getPickupDateTime(pickup: string) {
     const h = +(pickup.split(':')[0]);
@@ -210,17 +245,17 @@ export class Order extends Model {
         this.accountModel.findOne({ _id: clientId }).then((account: IAccount) => {
           this.merchantModel.findOne({ _id: merchantId }).then((merchant: any) => {
             if (account.pickup) {
-              if(order.dateType){
+              if (order.dateType) {
                 const date = (order.dateType === 'today') ? moment() : moment().add(1, 'day');
                 order.delivered = this.getTime(date, account.pickup).toISOString();
-              }else{
+              } else {
                 // telecommunication order
                 order.delivered = this.getTime(moment(), '01:00').toISOString();
               }
             } else {
-              if(merchant && merchant.phases){
+              if (merchant && merchant.phases) {
                 order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.dateType);
-              }else{
+              } else {
                 // telecommunication order
                 order.delivered = this.getTime(moment(), '01:00').toISOString();
               }
@@ -635,19 +670,19 @@ export class Order extends Model {
         order._id.toString(),
         merchantId, merchantName,
         clientId, clientName,
-        cost, 
+        cost,
         total,
         deliverd
       ).then(() => {
-          this.transactionModel.doInsertOne(tr).then(t => {
-            const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
-            this.updateOne({ _id: orderId }, data).then((r: any) => { // result
-              // res.setHeader('Content-Type', 'application/json');
-              // res.end(JSON.stringify(r, null, 3));
-              resolve(r);
-            });
+        this.transactionModel.doInsertOne(tr).then(t => {
+          const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
+          this.updateOne({ _id: orderId }, data).then((r: any) => { // result
+            // res.setHeader('Content-Type', 'application/json');
+            // res.end(JSON.stringify(r, null, 3));
+            resolve(r);
           });
         });
+      });
     });
   }
 
@@ -772,6 +807,26 @@ export class Order extends Model {
 
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ keys: keys, vals: vals }, null, 3));
+    });
+  }
+
+  // date --- '2019-11-15'
+  getSummary(type: OrderType, date: string) {
+    const self = this;
+    const dt = moment(date);
+    const range = { $gt: dt.startOf('day').toISOString(), $lt: dt.endOf('day').toISOString() };
+    const q = { type: type, delivered: range, status: { $nin: ['del', 'bad', 'tmp'] } };
+    this.joinFind(q).then((orders: IOrder[]) => {
+      const orderIds: string[] = [];
+      orders.map(order => {
+        order.code = order.code ? order.code : 'N/A';
+        orderIds.push(order._id.toString());
+      });
+
+      const tQuery = { orderId: { $in: orderIds }, action: 'client pay cash' };
+      this.transactionModel.find(tQuery).then((ts: ITransaction[]) => {
+
+      });
     });
   }
 

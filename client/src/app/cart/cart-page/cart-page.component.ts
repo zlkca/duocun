@@ -54,7 +54,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe((acc: Account) => {
+    this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((acc: Account) => {
       this.account = acc;
     });
 

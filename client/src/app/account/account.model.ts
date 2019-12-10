@@ -27,7 +27,7 @@ export interface IAccount {
   accessTokens?: any[];
   address?: IAddress;
   roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'driver', 'user'
-  visited?: boolean;
+  visited?: boolean;          // in db
   stripeCustomerId?: string;
   pickup?: string;
   balance?: number;

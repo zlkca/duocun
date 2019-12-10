@@ -53,7 +53,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const self = this;
     this.loading = true;
-    this.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
+    this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
       if (account && account._id) {
         // self.reload(account._id);

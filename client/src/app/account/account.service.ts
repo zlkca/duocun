@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 
 import { environment } from '../../environments/environment';
-import { Account } from './account.model';
+import { Account, IAccount } from './account.model';
 
 import { NgRedux } from '@angular-redux/store';
 import { AccountActions } from './account.actions';
@@ -69,15 +69,6 @@ export class AccountService extends EntityService {
     }
   }
 
-  getCurrent(forceGet: boolean = false): Observable<Account> {
-    const self = this;
-    const state: any = this.ngRedux.getState();
-    if (!state || !state.account || !state.account._id || forceGet) {
-      return this.getCurrentUser();
-    } else {
-      return this.ngRedux.select<Account>('account');
-    }
-  }
 
   wechatLogin(authCode: string) {
     const url = this.url + '/wechatLogin?code=' + authCode;

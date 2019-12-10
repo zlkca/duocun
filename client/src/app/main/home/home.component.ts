@@ -54,9 +54,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   contact;
   inRange = false;
   onDestroy$ = new Subject<any>();
-  loading = false;
+  loading = true;
   location;
-  bFirstTime = true;
   bUpdateLocationList = true;
   bInputLocation = false;
   placeForm;
@@ -181,11 +180,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       }
 
-      self.accountSvc.getCurrent().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
         if (account) { // if already login
           this.loading = false;
-
-          self.bFirstTime = !account.visited ? true : false;
           self.account = account;
           self.init(account);
 
@@ -223,7 +220,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     self.authSvc.setAccessToken(data.id);
     self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
       if (account) {
-        self.bFirstTime = !account.visited ? true : false;
         self.account = account;
 
         this.snackBar.open('', '微信登录成功。', { duration: 1000 });
@@ -236,14 +232,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  updateFooterStatus(account: IAccount) {
+    this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } }); // for updating footer
+    this.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+  }
+
   init(account: IAccount) {
     const self = this;
     const accountId = account._id;
 
-    self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'loggedIn', args: null } });
-    self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-    self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'firstTimeUse', args: this.bFirstTime } });
-
+    this.updateFooterStatus(account);
     this.locationSvc.find({ accountId: accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
       const a = this.locationSvc.toPlaces(lhs);
       self.historyAddressList = a;
@@ -268,7 +266,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.places = []; // clear address list
     this.rx.dispatch<IPageAction>({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
-    this.rx.select('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
+    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'clear-location-list') {
         this.places = [];
       }
@@ -285,29 +283,28 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onAddressInputFocus(e?: any) {
-    const self = this;
-    const accountId = this.account._id;
+    const account = this.account;
     this.places = [];
-    self.bUpdateLocationList = true;
-    if (this.bFirstTime) {
-      this.bFirstTime = false;
-      if (this.account) {
+    this.bUpdateLocationList = true;
+
+    if (account) {
+      const accountId = account._id;
+      const visited = account.visited;
+
+      if (!visited) {
         this.account.visited = true;
-        this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
         this.accountSvc.update({ _id: accountId }, { visited: true }).pipe(takeUntil(this.onDestroy$)).subscribe(r => {
-          console.log('update user account');
+          this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
+          // console.log('update user account');
         });
       }
-    }
 
-    if (this.account) {
       if (e.input) {
         this.places = this.suggestAddressList;
-        // this.getSuggestLocationList(e.input);
       } else {
         this.places = this.historyAddressList.map(x => Object.assign({}, x));
       }
-      self.bAddressList = true;
+      this.bAddressList = true;
     }
   }
 
@@ -318,9 +315,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         type: AddressActions.UPDATE,
         payload: v
       });
-      // this.bFirstTime = false;
-      // this.account.visited = true;
-      // this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
       this.getSuggestLocationList(e.input, true);
       this.bAddressList = true;
     }

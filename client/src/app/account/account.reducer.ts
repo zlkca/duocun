@@ -7,7 +7,11 @@ export function accountReducer(state: Account = null, action: any) {
 
   switch (action.type) {
     case AccountActions.UPDATE:
-      return payload;
+      // return payload;
+      return {
+        ...state,
+        ...action.payload
+      };
     case AccountActions.LOGOUT:
       return null;
     case AccountActions.CLEAR:
