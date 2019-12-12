@@ -234,7 +234,7 @@ export class ClientPayment extends Model {
           // 3.update account balance
           this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
             // res.send(ret);
-            const q = { accountId: order.clientId.toString(), status: CellApplicationStatus.NEW };
+            const q = { accountId: order.clientId.toString(), status: CellApplicationStatus.APPLIED };
             const d = { status: CellApplicationStatus.SETUP_PAID };
             this.cellApplicationModel.findOne(q).then((ca: any) => {
               if(ca){

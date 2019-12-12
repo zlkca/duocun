@@ -23,7 +23,6 @@ import { IOrder } from './order/order.model';
 import { addressReducer } from './location/address.reducer';
 import { IRange } from './range/range.model';
 import { rangeReducer } from './range/range.reducer';
-
 export interface IAppState {
     cart: ICart;
     account: Account;

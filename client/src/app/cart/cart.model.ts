@@ -15,7 +15,7 @@ export interface ICart {
   clientId?: string;
   clientName?: string;
   clientPhoneNumber?: string;
-  merchantId?: string;
+  merchantId: string;
   merchantName?: string;
   deliveryCost?: number;
   deliveryDiscount?: number;

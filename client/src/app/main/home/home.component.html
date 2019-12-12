@@ -24,9 +24,10 @@
     </app-address-input>
   </div>
 
-  <!-- <div class="ad-block" *ngIf="!(places && places.length > 0)">
-    <img src="assets/images/fengcha.jpeg" />
-  </div> -->
+  <div class="ad-block" *ngIf="!(places && places.length > 0)">
+    <!-- <img src="assets/images/fengcha.jpeg" /> -->
+    <div>本公司因圣诞放假，2019-12-20至2020-01-05暂停营业, 2020-01-06恢复正常, 不便之处, 尽请谅解。</div>
+  </div>
 
   <div class="date-block" *ngIf="!(places && places.length > 0)">
     <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">

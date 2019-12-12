@@ -31,6 +31,8 @@ export interface IAccount {
   stripeCustomerId?: string;
   pickup?: string;
   balance?: number;
+
+  name?: string; // for merchant name
 }
 
 export class Account implements IAccount {

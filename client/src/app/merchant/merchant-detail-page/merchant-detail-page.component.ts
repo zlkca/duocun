@@ -27,7 +27,7 @@ import { SharedService } from '../../shared/shared.service';
   styleUrls: ['./merchant-detail-page.component.scss']
 })
 export class MerchantDetailPageComponent implements OnInit, OnDestroy {
-  groups;
+  categories: any[]; // [ {categoryId: x, items: [{product: p, quantity: q} ...]} ... ]
   restaurant: IRestaurant;
   subscription;
   // cart: ICart;
@@ -67,8 +67,8 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       this.cart = cart;
       if (self.products) {
         // update quantity of cart items
-        if (self.groups && self.groups.length > 0) {
-          self.groups.map(group => {
+        if (self.categories && self.categories.length > 0) {
+          self.categories.map(group => {
             group.items.map(groupItem => {
               const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product._id);
               groupItem.quantity = cartItem ? cartItem.quantity : 0;
@@ -134,12 +134,12 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           self.restaurant = restaurant;
 
           const q = { merchantId: merchantId };
-          self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
+          self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((products: IProduct[]) => { // include merchant account id
             self.products = products;
-            self.groups = self.groupByCategory(products);
+            self.categories = self.groupByCategory(products);
 
             // update quantity of cart items
-            self.groups.map(group => {
+            self.categories.map(group => {
               group.items.map(groupItem => {
                 const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product._id);
                 groupItem.quantity = cartItem ? cartItem.quantity : 0;
@@ -156,10 +156,10 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           const q = { merchantId: merchantId };
           self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
             self.products = products;
-            self.groups = self.groupByCategory(products);
+            self.categories = self.groupByCategory(products);
 
-            // update quantity of cart items
-            self.groups.map(group => {
+            // load quantity from the cart items
+            self.categories.map(group => {
               group.items.map(groupItem => {
                 const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product._id);
                 groupItem.quantity = cartItem ? cartItem.quantity : 0;
@@ -195,6 +195,8 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
   }
 
+  // --------------------------------------------------------------------------
+  // return --- [ {categoryId: x, items: [{product: p, quantity: q} ...]} ... ]
   groupByCategory(products: IProduct[]) {
     const cats = [];
 

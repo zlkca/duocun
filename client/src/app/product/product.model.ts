@@ -1,24 +1,27 @@
 import { Picture } from '../picture.model';
 import { Restaurant, IRestaurant } from '../restaurant/restaurant.model';
+import { IAccount } from '../account/account.model';
 
 export interface IProduct {
   _id?: string;
-  id?: string;
   name: string;
   description?: string;
-  price?: number;
+  price: number;
   cost?: number;
-  merchantId: string;
+  merchantId: string;   // merchant account _id !
   categoryId: string;
-  created?: Date;
-  modified?: Date;
+
+  merchant?: IAccount; // join account table from find()
+
   openDays?: number[];
-  restaurant?: IRestaurant;
+  restaurant?: IRestaurant; // ??
   category?: ICategory;
   pictures?: Picture[];
   dow?: string[];
   order?: number;
   status?: string;
+  created?: string;
+  modified?: string;
 }
 
 export class Product implements IProduct {
@@ -29,8 +32,6 @@ export class Product implements IProduct {
   cost?: number;
   merchantId: string;
   categoryId: string;
-  created: Date;
-  modified: Date;
   pictures: Picture[];
   dow?: string[];
   order?: number;

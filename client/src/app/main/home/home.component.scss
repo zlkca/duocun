@@ -12,7 +12,7 @@ $position-btn-width: 0px;
 $map-height: 360px;
 $address-search-height: 56px;
 $bottom-bar-height: 60px;
-$ad-height: 0px; // 120px;
+$ad-height: 60px; // 120px;
 $date-btn-height: 50px;
 
 // app-home
@@ -95,10 +95,10 @@ $date-btn-height: 50px;
   }
 
   .ad-block{
-    padding: 1px 10px;
+    padding: 8px 14px;
     width: 100%;
     height: $ad-height;
-
+    font-size: 14px;
     img {
       width: 100%;
       height: $ad-height;

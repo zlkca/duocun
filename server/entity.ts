@@ -279,6 +279,20 @@ export class Entity {
       }
     }
 
+    if (doc && doc.hasOwnProperty('productId')) {
+      const productId = doc['productId'];
+      if (typeof productId === 'string' && productId.length === 24) {
+        doc['productId'] = new ObjectID(productId);
+      } else if (productId && productId.hasOwnProperty('$in')) {
+        let a = productId['$in'];
+        const arr: any[] = [];
+        a.map((id: string) => {
+          arr.push(new ObjectID(id));
+        });
+        doc.productId = { $in: arr };
+      }
+    }
+
     if (doc && doc.hasOwnProperty('mallId')) {
       const mallId = doc['mallId'];
       if (typeof mallId === 'string' && mallId.length === 24) {

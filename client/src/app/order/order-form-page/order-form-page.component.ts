@@ -1,24 +1,23 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { IMall } from '../../mall/mall.model';
-import { IContact, Contact } from '../../contact/contact.model';
+import { IContact } from '../../contact/contact.model';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { OrderService } from '../order.service';
-import { IOrder, IOrderItem, ICharge, OrderItem, OrderType } from '../order.model';
+import { IOrder, ICharge, OrderItem, OrderType } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
-import { IDeliveryTime, IDelivery } from '../../delivery/delivery.model';
+import { IDelivery } from '../../delivery/delivery.model';
 import { OrderActions } from '../order.actions';
 import { IAccount, Role } from '../../account/account.model';
 import { LocationService } from '../../location/location.service';
 import { ILocation, IDistance, RangeRole } from '../../location/location.model';
-import * as moment from 'moment';
 import { MerchantService } from '../../merchant/merchant.service';
 
 import { environment } from '../../../environments/environment';
@@ -34,10 +33,7 @@ import { SharedService } from '../../shared/shared.service';
 import { AccountService } from '../../account/account.service';
 import { ContactService } from '../../contact/contact.service';
 
-declare var Stripe;
 declare var window;
-
-const DEFAULT_ADMIN = environment.DEFAULT_ADMIN;
 
 @Component({
   selector: 'app-order-form-page',
@@ -116,23 +112,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
       this.order = order;
     });
-
-    // this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe(x => {
-    //   self.contact = x;
-    //   const fromPage = this.route.snapshot.queryParamMap.get('fromPage');
-    //   if (fromPage === 'order-form') {
-    //     this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-    //       self.account = account;
-    //       const origin = self.delivery.origin;
-    //       const groupDiscount = 0; // bEligible ? 2 : 0;
-    //       self.getOverRange(origin, (distance, rate) => {
-    //         this.charge = this.getCharge(this.cart, (distance * rate), groupDiscount);
-    //         this.paymentMethod = (account.balance >= this.charge.total) ? 'prepaid' : self.paymentMethod;
-    //         self.doPay(this.contact, account, this.charge, this.cart, this.delivery, this.paymentMethod);
-    //       });
-    //     });
-    //   }
-    // });
 
     // ----------------------------------------------
     // trigger payment process from footer

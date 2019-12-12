@@ -6,7 +6,7 @@ export interface ICartAction {
   payload: ICart;
 }
 
-
+// if items is [], means empty cart
 function updateCart(c: ICart, items: ICartItem[]) {
   const cart = Object.assign({}, c);
   cart.productTotal = 0;
@@ -21,7 +21,7 @@ function updateCart(c: ICart, items: ICartItem[]) {
     cart.tax = Math.ceil(subtotal1 * 13) / 100;
     const subtotal2 = subtotal1 + cart.tax;
     cart.total = subtotal2 - cart.deliveryDiscount + cart.tips;
-  } else {
+  } else { // clear cart
     cart.productTotal = 0;
     cart.quantity = 0;
     cart.tax = 0;
@@ -33,6 +33,7 @@ function updateCart(c: ICart, items: ICartItem[]) {
 }
 
 export const DEFAULT_CART = {
+  merchantId: '',
   quantity: 0,
   productTotal: 0,
   deliveryCost: 0,

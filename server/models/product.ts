@@ -36,7 +36,7 @@ export class Product extends Model {
         this.find(query).then(ps => {
           ps.map((p: any) => {
             p.category = cs.find((c: any) => c && c._id && p && p.categoryId && c._id.toString() === p.categoryId.toString());
-            const merchant = ms.find((m: any) => m._id.toString() === p.merchantId.toString());
+            const merchant = ms.find((m: any) => m && m._id && p && p.merchantId && m._id.toString() === p.merchantId.toString());
             if(merchant && merchant.password){
               delete merchant.password;
             }

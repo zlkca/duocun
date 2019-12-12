@@ -5,9 +5,9 @@ import { Product } from "./product";
 import { Account } from "./account";
 
 export enum CellApplicationStatus {
-  NEW = 1,
-  ORDERED, // unpaid
-  SETUP_PAID
+  APPLIED = 1,    // submit application form but didn't submit setup fee page
+  ORDERED,        // submit setup fee page but unpaid
+  SETUP_PAID      // paid setup fee
 }
 
 export class CellApplication extends Model {
