@@ -7,6 +7,7 @@ import { Config } from "../config";
 import { Utils } from "../utils";
 import { Entity } from "../entity";
 import { ObjectID } from "mongodb";
+import { Contact } from "./contact";
 
 const saltRounds = 10;
 
@@ -36,52 +37,73 @@ export interface IAccount {
 }
 
 export class Account extends Model {
+  private contactModel: Contact;
   constructor(dbo: DB) {
     super(dbo, 'users');
+    this.contactModel = new Contact(dbo);
   }
 
-	signup(req: Request, rsp: Response){
-		const user = req.body;
+  list(req: Request, res: Response) {
+    let query = {};
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+    query = this.convertIdFields(query);
+    this.contactModel.find({}).then((cs: any[]) => {
+      this.find(query).then(accounts => {
+        accounts.map((account: any) => {
+          delete account.password;
+          account.contact = cs.find((c: any) => c.accountId.toString() === account._id.toString());
+        });
+
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(accounts, null, 3));
+      });
+    });
+  }
+
+  signup(req: Request, rsp: Response) {
+    const user = req.body;
     const dt = new Date();
     const self = this;
     user['created'] = dt.toISOString();
     user['type'] = 'user';
-      this.findOne({username: user.username}).then((r: any) => {
-        if(r != null){
-          // validateSignup(user, function(errors){
-          //self.saveUser(user, errors, rsp);
-          // });
-          return rsp.json(null);
-        }else{
-          bcrypt.hash(user.password, saltRounds, (err, hash) => {
-            user['password'] = hash;
-            self.insertOne(user).then(x => {
-              x.password = '';
-              return rsp.json(x);
-            });
+    this.findOne({ username: user.username }).then((r: any) => {
+      if (r != null) {
+        // validateSignup(user, function(errors){
+        //self.saveUser(user, errors, rsp);
+        // });
+        return rsp.json(null);
+      } else {
+        bcrypt.hash(user.password, saltRounds, (err, hash) => {
+          user['password'] = hash;
+          self.insertOne(user).then(x => {
+            x.password = '';
+            return rsp.json(x);
           });
-        }
-      });
+        });
+      }
+    });
   }
 
   // cb --- function(errors)
-	// validateLoginPassword( user, hashedPassword, cb ){
-	// 	const errors = [];
-	// 	if( user.password ){
-	// 		ut.checkHash(user.password, hashedPassword, function(err, bMatch){
-	// 			if(!bMatch){
-	// 				errors.push(Error.PASSWORD_MISMATCH);
-	// 			}
-	// 			if(cb){
-	// 				cb(errors);
-	// 			}
-	// 		});
-	// 	}else{
-	// 		if(cb){
-	// 			cb(errors);
-	// 		}
-	// 	}
-	// }
+  // validateLoginPassword( user, hashedPassword, cb ){
+  // 	const errors = [];
+  // 	if( user.password ){
+  // 		ut.checkHash(user.password, hashedPassword, function(err, bMatch){
+  // 			if(!bMatch){
+  // 				errors.push(Error.PASSWORD_MISMATCH);
+  // 			}
+  // 			if(cb){
+  // 				cb(errors);
+  // 			}
+  // 		});
+  // 	}else{
+  // 		if(cb){
+  // 			cb(errors);
+  // 		}
+  // 	}
+  // }
 
   // getById(req: Request, res: Response){
   //   const id = req.body._id;
@@ -104,76 +126,76 @@ export class Account extends Model {
   //   }
   // }
 
-  login(req: Request, res: Response){
-    const credential = {username: req.body.username, password: req.body.password};
-    
-    this.findOne({username: credential.username}).then((r: IAccount) => {
-      if(r != null && r.password){
+  login(req: Request, res: Response) {
+    const credential = { username: req.body.username, password: req.body.password };
+
+    this.findOne({ username: credential.username }).then((r: IAccount) => {
+      if (r != null && r.password) {
         bcrypt.compare(credential.password, r.password, (err, matched) => {
-          if(matched){
+          if (matched) {
             res.setHeader('Content-Type', 'application/json');
             r.password = '';
             const cfg = new Config();
             const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
-            const token = {id: tokenId, ttl: 10000, userId: r._id.toString()};
+            const token = { id: tokenId, ttl: 10000, userId: r._id.toString() };
             res.send(JSON.stringify(token, null, 3));
-          }else{
+          } else {
             res.send(JSON.stringify(null, null, 3));
           }
         });
-      }else{
-        return res.json({'errors': [], 'token': 'token', 'decoded': 'user'});
+      } else {
+        return res.json({ 'errors': [], 'token': 'token', 'decoded': 'user' });
       }
     });
   }
-	// 		validateLoginAccount(credential, function(accountErrors, doc){
-	// 			if(accountErrors && accountErrors.length > 0){
-	// 				return rsp.json({'errors':accountErrors, 'token':'', 'decoded':''});
-	// 			}else{
-	// 				validateLoginPassword(credential, doc.password, function(passwordErrors){
-	// 					var errors = accountErrors.concat(passwordErrors);
-	// 					if(errors && errors.length > 0){
-	// 						return rsp.json({'errors':errors, 'token': '', 'decoded':''});
-	// 					}else{
-	// 						var user = { id: doc._id, username: doc.username, 
-	// 								//email: doc.email, 
-	// 								role: doc.role, photo:doc.photo };
-							
-	// 						ut.signToken(user, function(token){	
-	// 							delete user.email;
-	// 							return rsp.json({'errors': errors, 'token': token, 'decoded': user});
-	// 						});
-	// 					}
-	// 				});	
-	// 			}
-	// 		});
-	// 	},
+  // 		validateLoginAccount(credential, function(accountErrors, doc){
+  // 			if(accountErrors && accountErrors.length > 0){
+  // 				return rsp.json({'errors':accountErrors, 'token':'', 'decoded':''});
+  // 			}else{
+  // 				validateLoginPassword(credential, doc.password, function(passwordErrors){
+  // 					var errors = accountErrors.concat(passwordErrors);
+  // 					if(errors && errors.length > 0){
+  // 						return rsp.json({'errors':errors, 'token': '', 'decoded':''});
+  // 					}else{
+  // 						var user = { id: doc._id, username: doc.username, 
+  // 								//email: doc.email, 
+  // 								role: doc.role, photo:doc.photo };
+
+  // 						ut.signToken(user, function(token){	
+  // 							delete user.email;
+  // 							return rsp.json({'errors': errors, 'token': token, 'decoded': user});
+  // 						});
+  // 					}
+  // 				});	
+  // 			}
+  // 		});
+  // 	},
   // };
 
-  wechatLogin(req: Request, res: Response){
+  wechatLogin(req: Request, res: Response) {
     const utils = new Utils();
     const cfg = new Config();
     const authCode = req.query.code;
     utils.getWechatAccessToken(authCode).then((ret: any) => {
       utils.getWechatUserInfo(ret.access_token, ret.openid).then((x: any) => { // IAccount
-        this.findOne({openId: ret.openid}).then((r: IAccount) => {
-          if(r){
+        this.findOne({ openId: ret.openid }).then((r: IAccount) => {
+          if (r) {
             // update latest wechat info into account
-            const updates = { 
-              username: x.nickname, 
+            const updates = {
+              username: x.nickname,
               imageurl: x.headimgurl,
               sex: x.sex
             };
             const accountId = r._id.toString();
-            this.updateOne({_id: accountId}, updates).then(() => {
+            this.updateOne({ _id: accountId }, updates).then(() => {
               const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
-              const token = {id: tokenId, ttl: 10000, userId: accountId};
+              const token = { id: tokenId, ttl: 10000, userId: accountId };
               res.send(JSON.stringify(token, null, 3));
             }, err => {
               console.log(err);
               res.send(JSON.stringify('', null, 3));
             });
-          }else{
+          } else {
             const user = {
               type: 'user',
               username: x.nickname,
@@ -187,7 +209,7 @@ export class Account extends Model {
             this.insertOne(user).then(account => {
               const accountId = account._id.toString();
               const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
-              const token = {id: tokenId, ttl: 10000, userId: accountId};
+              const token = { id: tokenId, ttl: 10000, userId: accountId };
               res.send(JSON.stringify(token, null, 3));
             }, err => {
               console.log(err);
