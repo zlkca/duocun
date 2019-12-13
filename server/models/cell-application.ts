@@ -7,7 +7,9 @@ import { Account } from "./account";
 export enum CellApplicationStatus {
   APPLIED = 1,    // submit application form but didn't submit setup fee page
   ORDERED,        // submit setup fee page but unpaid
-  SETUP_PAID      // paid setup fee
+  SETUP_PAID,     // paid setup fee
+  STARTED,          // start to charge monthly fee
+  STOPPED,          // start to charge monthly fee
 }
 
 export class CellApplication extends Model {
