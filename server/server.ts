@@ -13,7 +13,6 @@ import { Config } from "./config";
 //import * as SocketIOAuth from "socketio-auth";
 
 import { DB } from "./db";
-import { MerchantStuff } from "./merchant-stuff";
 import { Utils } from "./utils";
 import { Socket } from "./socket";
 
@@ -55,10 +54,18 @@ import { ApiMiddleWare } from "./api-middleware";
 import { schedule } from "node-cron";
 
 import { ClientBalance } from "./models/client-balance";
+import { Order } from "./models/order";
 
 
 process.env.TZ = 'America/Toronto';
 
+function startCellOrderTask(dbo: any){
+  // s m h d m w
+  schedule('0 30 23 27 * *', () => {
+    const orderModel = new Order(dbo);
+    orderModel.createMobilePlanOrders();
+  });
+}
 // schedule('0 45 23 * * *', () => {
 //   let cb = new ClientBalance(dbo);
 //   cb.updateAll();
@@ -122,12 +129,8 @@ function setupSocket(server: any) {
 
 // create db connection pool and return connection instance
 dbo.init(cfg.DATABASE).then(dbClient => {
-  // product = new Product(dbo);
-  // merchantStuff = new MerchantStuff(dbo);
-  // picture = new Picture();
-
   // socket = new Socket(dbo, io);
-
+  startCellOrderTask(dbo);
   // require('socketio-auth')(io, { authenticate: (socket: any, data: any, callback: any) => {
   //   const uId = data.userId;
   //   console.log('socketio connecting with uid: ' + uId + '/n');
@@ -150,17 +153,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   //   const ss = x;
   // });
 
-  // user.findOne({username: 'admin'}).then(x => {
-  //   if(x){
-  //     console.log('database duocun exists .../n');
-  //   }else{
-  //     user.insertOne({username:'guest', password:'', type:'user'}).then((x: any) => {
-  //       console.log('create database duocun and guest account .../n');
-  //       // res.setHeader('Content-Type', 'application/json');
-  //       // res.end(JSON.stringify(x.ops[0], null, 3))
-  //     });
-  //   }
-  // });
 
   app.get('/wx', (req, res) => {
     utils.genWechatToken(req, res);
@@ -239,7 +231,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     console.log("API is running on :%d/n", app.get("port"));
   });
 
-  setupSocket(server);
+  // setupSocket(server);
 });
 
 

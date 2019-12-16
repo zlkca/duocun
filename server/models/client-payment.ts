@@ -292,7 +292,7 @@ export class ClientPayment extends Model {
     const paymentMethod = order.paymentMethod;
     let returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
     
-    if(+order.type === OrderType.TELECOMMUNICATIONS){
+    if(+order.type === OrderType.MOBILE_PLAN_SETUP){
       returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
     }
     

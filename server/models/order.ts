@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { DB } from "../db";
 import { Model } from "./model";
 import { ILocation } from "./location";
-import { BulkWriteOpResultObject, ObjectID } from "mongodb";
+import { BulkWriteOpResultObject, ObjectID, ObjectId } from "mongodb";
 import { OrderSequence } from "./order-sequence";
 import { ClientBalance, IClientBalance } from "./client-balance";
 import moment from 'moment';
@@ -13,6 +13,7 @@ import { Transaction, ITransaction } from "./transaction";
 import { Product } from "./product";
 import { Contact } from "./contact";
 import { Assignment } from "./assignment";
+import { CellApplication, CellApplicationStatus, ICellApplication } from "./cell-application";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -21,22 +22,22 @@ const BANK_NAME = 'TD Bank';
 
 export enum OrderType {
   FOOD_DELIVERY = 1,
-  TELECOMMUNICATIONS
+  MOBILE_PLAN_SETUP,
+  MOBILE_PLAN_MONTHLY
 }
 
 export interface IOrderItem {
-  id?: number;
   productId: string;
   productName: string;
-  merchantId: string;
-  merchantName: string;
+  // merchantId: string;
+  // merchantName?: string;
   price: number;
-  cost?: number;
+  cost: number;
   quantity: number;
 }
 
 export interface IOrder {
-  _id: string;
+  _id?: string;
   code?: string;
   clientId: string;
   clientName: string;
@@ -52,7 +53,7 @@ export interface IOrder {
   address?: string;
   location: ILocation; // delivery address
   delivered?: string;
-  created: string;
+  created?: string;
   modified?: string;
   items?: IOrderItem[];
   tax?: number;
@@ -72,8 +73,10 @@ export interface IOrder {
   transactionId?: string;
 
   mode?: string; // for unit test
-  dateType: string; // 'today', 'tomorrow'
+  dateType?: string; // 'today', 'tomorrow'
 }
+
+
 
 export class Order extends Model {
   private productModel: Product;
@@ -83,6 +86,7 @@ export class Order extends Model {
   private transactionModel: Transaction;
   private contactModel: Contact;
   private assignmentModel: Assignment;
+  private cellApplicationModel: CellApplication;
 
   constructor(dbo: DB) {
     super(dbo, 'orders');
@@ -94,6 +98,7 @@ export class Order extends Model {
     this.transactionModel = new Transaction(dbo);
     this.contactModel = new Contact(dbo);
     this.assignmentModel = new Assignment(dbo);
+    this.cellApplicationModel = new CellApplication(dbo);
   }
 
   list(req: Request, res: Response) {
@@ -137,7 +142,7 @@ export class Order extends Model {
     });
   }
 
-  joinFind(query: any): Promise<IOrder[]>{
+  joinFind(query: any): Promise<IOrder[]> {
     if (query.hasOwnProperty('pickup')) {
       query.delivered = this.getPickupDateTime(query['pickup']);
       delete query.pickup;
@@ -231,58 +236,124 @@ export class Order extends Model {
     });
   }
 
-  doInsertOne(order: IOrder) {
-    const location: ILocation = order.location;
-    const clientId: string = order.clientId;
-    const merchantId: string = order.merchantId;
+  getDeliveryDateTime(order: IOrder): Promise<string> {
+    const orderType = order.type;
+    const dateType: any = order.dateType;
+    const clientId = order.clientId;
+    const merchantId = order.merchantId;
 
     return new Promise((resolve, reject) => {
-      this.sequenceModel.reqSequence().then((sequence: number) => {
-
-        order.code = this.sequenceModel.getCode(location, sequence);
-        order.created = moment().toISOString();
-
+      if (orderType === OrderType.MOBILE_PLAN_MONTHLY || orderType === OrderType.MOBILE_PLAN_SETUP) {
+        const delivered = this.getTime(moment(), '23:30').toISOString();
+        resolve(delivered);
+      } else {
+        let delivered = '';
         this.accountModel.findOne({ _id: clientId }).then((account: IAccount) => {
           this.merchantModel.findOne({ _id: merchantId }).then((merchant: any) => {
             if (account.pickup) {
-              if (order.dateType) {
-                const date = (order.dateType === 'today') ? moment() : moment().add(1, 'day');
-                order.delivered = this.getTime(date, account.pickup).toISOString();
+              if (dateType) {
+                const date = (dateType === 'today') ? moment() : moment().add(1, 'day');
+                delivered = this.getTime(date, account.pickup).toISOString();
               } else {
-                // telecommunication order
-                order.delivered = this.getTime(moment(), '01:00').toISOString();
+                delivered = this.getTime(moment(), '23:30').toISOString();
               }
             } else {
               if (merchant && merchant.phases) {
-                order.delivered = this.getDeliverDateTime(order.created, merchant.phases, order.dateType);
+                const created: any = order.created;
+                delivered = this.getDeliverDateTime(created, merchant.phases, dateType);
               } else {
-                // telecommunication order
-                order.delivered = this.getTime(moment(), '01:00').toISOString();
+                delivered = this.getTime(moment(), '23:30').toISOString();
               }
             }
+            resolve(delivered);
+          });
+        });
+      }
+    });
+  }
 
-            delete order.dateType;
+  createMobilePlanOrders() {
+    const self = this;
+    this.cellApplicationModel.joinFind({ status: CellApplicationStatus.STARTED }).then((cas: ICellApplication[]) => {
+      const accountIds: any[] = [];
+      cas.map((ca: ICellApplication) => {
+        accountIds.push(ca.accountId);
+        const items: IOrderItem[] = [{
+          productId: ca.productId.toString(),
+          productName: ca.product.name,
+          quantity: 1,
+          price: ca.product.price,
+          cost: ca.product.cost
+        }];
 
-            this.insertOne(order).then((savedOrder: IOrder) => {
-              const merchantId: string = order.merchantId.toString();
-              const merchantName = order.merchantName;
-              const clientId: string = order.clientId.toString();
-              const clientName = order.clientName;
-              const cost = order.cost;
-              const total = order.total;
-              const deliverd = order.delivered;
+        // orders.push(order);
+        setTimeout(() => {
+          const order: IOrder = {
+            clientId: ca.accountId.toString(),
+            clientName: ca.account.username,
+            merchantId: ca.product.merchantId.toString(),
+            merchantName: ca.merchant.username, // fix me
+            items: items,
+            price: Math.round(+ca.product.price * 100) / 100,
+            cost: Math.round(+ca.product.cost * 100) / 100,
+            address: ca.address,
+            location: {
+              streetNumber: '30', streetName: 'Fulton Way', city: 'Toronto', province: 'ON', country: 'CA', postalCode:'',
+              subLocality: 'RichmondHill', placeId: 'ChIJlQu-m1fTKogRNj4OtKn7yD0', lat: 43.983012, lng: -79.3906583
+            }, // fix me!!!
+            note: 'Mobile Plan Monthly Fee',
+            deliveryCost: Math.round(0 * 100) / 100,
+            deliveryDiscount: Math.round(0 * 100) / 100,
+            groupDiscount: Math.round(0 * 100) / 100,
+            overRangeCharge: Math.round(0 * 100) / 100,
+            total: Math.round(+ca.product.price * 1.13 * 100) / 100,
+            tax: Math.round(+ca.product.price * 0.13 * 100) / 100,
+            tips: Math.round(0 * 100) / 100,
+            type: OrderType.MOBILE_PLAN_MONTHLY,
+            status: 'new',
+            paymentMethod: 'recurring prepay'
+          };
 
-              // temporary order didn't update transaction until paid
-              if (order.status === 'tmp') {
-                resolve(savedOrder);
-              } else {
-                this.transactionModel.saveTransactionsForPlaceOrder(
-                  savedOrder._id.toString(),
-                  merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
-                    resolve(savedOrder);
-                  });
-              }
-            });
+          self.doInsertOne(order).then(() => {
+
+          });
+        }, 500);
+      });
+    });
+  }
+
+
+  doInsertOne(order: IOrder) {
+    const location: ILocation = order.location;
+
+    return new Promise((resolve, reject) => {
+      this.sequenceModel.reqSequence().then((sequence: number) => {
+        order.code = this.sequenceModel.getCode(location, sequence);
+        order.created = moment().toISOString();
+
+        this.getDeliveryDateTime(order).then((deliveredStr) => {
+          order.delivered = deliveredStr;
+          delete order.dateType;
+
+          this.insertOne(order).then((savedOrder: IOrder) => {
+            const merchantId: string = order.merchantId.toString();
+            const merchantName = order.merchantName;
+            const clientId: string = order.clientId.toString();
+            const clientName = order.clientName;
+            const cost = order.cost;
+            const total = order.total;
+            const deliverd = order.delivered;
+
+            // temporary order didn't update transaction until paid
+            if (order.status === 'tmp') {
+              resolve(savedOrder);
+            } else {
+              const orderId: any = savedOrder._id;
+              this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(),
+                merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
+                  resolve(savedOrder);
+                });
+            }
           });
         });
       });
@@ -646,7 +717,7 @@ export class Order extends Model {
   // 2.add two transactions for place order and add another transaction for deposit to bank
   // 3.update account balance
   doProcessPayment(order: IOrder, action: string, paid: number, chargeId: string) {
-    const orderId = order._id;
+    const orderId: any = order._id;
     const merchantId: string = order.merchantId.toString();
     const merchantName = order.merchantName;
     const clientId: string = order.clientId.toString();
@@ -667,7 +738,7 @@ export class Order extends Model {
 
     return new Promise((resolve, reject) => {
       this.transactionModel.saveTransactionsForPlaceOrder(
-        order._id.toString(),
+        orderId.toString(),
         merchantId, merchantName,
         clientId, clientName,
         cost,
@@ -813,14 +884,16 @@ export class Order extends Model {
   // date --- '2019-11-15'
   getSummary(type: OrderType, date: string) {
     const self = this;
+    
     const dt = moment(date);
     const range = { $gt: dt.startOf('day').toISOString(), $lt: dt.endOf('day').toISOString() };
     const q = { type: type, delivered: range, status: { $nin: ['del', 'bad', 'tmp'] } };
     this.joinFind(q).then((orders: IOrder[]) => {
       const orderIds: string[] = [];
       orders.map(order => {
+        const orderId: any = order._id;
         order.code = order.code ? order.code : 'N/A';
-        orderIds.push(order._id.toString());
+        orderIds.push(orderId.toString());
       });
 
       const tQuery = { orderId: { $in: orderIds }, action: 'client pay cash' };

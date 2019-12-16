@@ -186,7 +186,7 @@ export class Restaurant extends Model {
       this.mall.find({}).then((malls: IMall[]) => {
         this.find(query, options).then(rs => {
           rs.map((r: any) => {
-            r.mall = malls.find((m: IMall) => m._id.toString() === r.mallId.toString());
+            r.mall = malls.find((m: IMall) => m && r.mallId && m._id.toString() === r.mallId.toString());
           });
 
           resolve(rs);

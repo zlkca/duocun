@@ -307,8 +307,12 @@ export class Entity {
       }else if (accountId && accountId.hasOwnProperty('$in')) {
         let a = accountId['$in'];
         const arr: any[] = [];
-        a.map((id: string) => {
-          arr.push(new ObjectID(id));
+        a.map((id: any) => {
+          if (typeof id === 'string' && id.length === 24) {
+            arr.push(new ObjectID(id));
+          }else{
+            arr.push(id); // object type
+          }
         });
         doc.accountId = { $in: arr };
       }

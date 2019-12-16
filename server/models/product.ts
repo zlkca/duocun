@@ -5,7 +5,29 @@ import { Entity } from "../entity";
 import { Category } from "./category";
 import { ObjectID, Collection } from "mongodb";
 import { Request, Response } from "express";
-import { Account } from "./account";
+import { Account, IAccount } from "./account";
+
+export interface IProduct {
+  _id?: string;
+  name: string;
+  description?: string;
+  price: number;
+  cost: number;
+  merchantId: string;   // merchant account _id !
+  categoryId: string;
+
+  merchant?: IAccount; // join account table from find()
+
+  openDays?: number[];
+  // restaurant?: IRestaurant; // ??
+  // category?: ICategory;
+  // pictures?: Picture[];
+  dow?: string[];
+  order?: number;
+  status?: string;
+  created?: string;
+  modified?: string;
+}
 
 export class Product extends Model {
   categoryModel: Category;

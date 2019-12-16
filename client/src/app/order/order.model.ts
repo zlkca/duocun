@@ -7,7 +7,8 @@ import { ILocation } from '../location/location.model';
 
 export enum OrderType {
   FOOD_DELIVERY = 1,
-  TELECOMMUNICATIONS
+  MOBILE_PLAN_SETUP,
+  MOBILE_PLAN_MONTHLY
 }
 
 export interface IOrder {

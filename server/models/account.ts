@@ -15,7 +15,7 @@ export interface IAccount {
   _id: string;
   type: string; // wechat, google, fb
   realm?: string;
-  username?: string;
+  username: string;
   email?: string;
   emailVerified?: boolean;
   phone?: string;
