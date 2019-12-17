@@ -115,30 +115,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           self.bAddressList = false;
         }
 
-        this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
-          const ranges: IRange[] = [];
-          rs.map((r: IRange) => {
-            if (this.locationSvc.getDirectDistance(origin, { lat: r.lat, lng: r.lng }) < r.radius) {
-              ranges.push(r);
-            }
-          });
+        this.calcRange(origin);
 
-          this.inRange = (ranges && ranges.length > 0) ? true : false;
-          this.mapRanges = rs;
-
-          if (this.inRange) {
-            self.mapZoom = 14;
-            self.mapCenter = origin;
-          } else {
-            self.mapZoom = 9;
-            const farNorth = { lat: 44.2653618, lng: -79.4191007 };
-            self.mapCenter = {
-              lat: (origin.lat + farNorth.lat) / 2,
-              lng: (origin.lng + farNorth.lng) / 2
-            };
-          }
-          this.address = origin; // order matters
-        });
       } else {
         this.address = null;
         this.inRange = true;
@@ -155,7 +133,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: self.selectedDate } });
       }
     });
-
 
     self.route.queryParamMap.pipe(takeUntil(this.onDestroy$)).subscribe(queryParams => {
       const code = queryParams.get('code');
@@ -185,7 +162,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.loading = false;
           self.account = account;
           self.init(account);
-
         } else {
           if (code) {
             this.loading = true;
@@ -203,15 +179,50 @@ export class HomeComponent implements OnInit, OnDestroy {
             });
           } else { // no code in router
             this.loading = false;
+            // if (environment.language === 'en') {
+            //   this.router.navigate(['account/login']);
+            // }
           }
         }
       }, err => {
         this.loading = false;
-        console.log('login failed');
+        // if (environment.language === 'en') {
+        //   this.router.navigate(['account/login']);
+        // }
       });
     });
 
   }
+
+
+  calcRange(origin) {
+    const self = this;
+    this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+      const ranges: IRange[] = [];
+      rs.map((r: IRange) => {
+        if (this.locationSvc.getDirectDistance(origin, { lat: r.lat, lng: r.lng }) < r.radius) {
+          ranges.push(r);
+        }
+      });
+
+      this.inRange = (ranges && ranges.length > 0) ? true : false;
+      this.mapRanges = rs;
+
+      if (this.inRange) {
+        self.mapZoom = 14;
+        self.mapCenter = origin;
+      } else {
+        self.mapZoom = 9;
+        const farNorth = { lat: 44.2653618, lng: -79.4191007 };
+        self.mapCenter = {
+          lat: (origin.lat + farNorth.lat) / 2,
+          lng: (origin.lng + farNorth.lng) / 2
+        };
+      }
+      this.address = origin; // order matters
+    });
+  }
+
 
   // data : {id:'xxx', ttl: 10000, userId: 'xxxxx' }
   wechatLoginHandler(data: any) {

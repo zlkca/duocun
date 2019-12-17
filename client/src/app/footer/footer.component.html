@@ -55,7 +55,7 @@
       &nbsp;
       <!-- ${{total | number : '1.2-2'}} -->
     </div>
-    <div class="title-md pay-col" (click)="pay()" >确认下单</div>
+    <div class="title-md pay-col" (click)="pay()" i18n="@@ConfirmOrder">Confirm Order</div>
   </div>
 
   <div class="row cart-btn-row" *ngIf="page === 'cart-page' && cart.items.length > 0">

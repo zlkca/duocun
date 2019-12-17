@@ -766,6 +766,14 @@
           <context context-type="linenumber">39</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Cash" datatype="html">
+        <source>Cash</source>
+        <target>现金支付</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-form/order-form.component.html</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="DeliveryDate" datatype="html">
         <source>Delivery Date</source>
         <target>送餐日期</target>
@@ -1595,7 +1603,16 @@
           <context context-type="sourcefile">app/account/account-page.component.ts</context>
           <context context-type="linenumber">19</context>
         </context-group>
-      </trans-unit>         
+      </trans-unit>
+      <trans-unit id="CreditDebit" datatype="html">
+        <source>Credit or Debit Card</source>
+        <target>银行卡</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+               
     </body>
   </file>
 </xliff>

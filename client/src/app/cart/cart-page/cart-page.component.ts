@@ -4,7 +4,6 @@ import { IAppState } from '../../store';
 import { AccountService } from '../../account/account.service';
 import { Product, IProduct } from '../../product/product.model';
 import { Account } from '../../account/account.model';
-
 import { PageActions } from '../../main/main.actions';
 import { SharedService } from '../../shared/shared.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
@@ -19,6 +18,7 @@ import { ProductService } from '../../product/product.service';
 import { IDelivery } from '../../delivery/delivery.model';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-cart-page',
@@ -47,10 +47,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     private sharedSvc: SharedService,
     private router: Router
   ) {
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: { name: 'cart-page' }
-    });
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'cart-page' }});
   }
 
   ngOnInit() {
@@ -71,6 +68,11 @@ export class CartPageComponent implements OnInit, OnDestroy {
     this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IRestaurant) => {
       this.restaurant = r;
       this.productSvc.find({ merchantId: r._id }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
+        if (environment.language === 'en') {
+          ps.map(p => {
+            p.name = p.nameEN;
+          });
+        }
         this.products = ps;
       });
     });

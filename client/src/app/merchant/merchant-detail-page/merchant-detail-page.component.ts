@@ -18,8 +18,7 @@ import { ContactActions } from '../../contact/contact.actions';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { IDelivery } from '../../delivery/delivery.model';
-import * as moment from 'moment';
-import { SharedService } from '../../shared/shared.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-merchant-detail-page',
@@ -50,7 +49,6 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private rx: NgRedux<ICart>,
     private location: Location,
-    private sharedSvc: SharedService,
     public dialog: MatDialog
   ) {
     const self = this;
@@ -131,10 +129,19 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         self.merchantSvc.load(origin, dateType, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRestaurant[]) => {
           const restaurant = rs[0];
           restaurant.onSchedule = self.onSchedule;
+          if (environment.language === 'en') {
+            restaurant.name = restaurant.nameEN;
+          }
           self.restaurant = restaurant;
 
           const q = { merchantId: merchantId };
           self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((products: IProduct[]) => { // include merchant account id
+            if (environment.language === 'en') {
+              products.map(p => {
+                p.name = p.nameEN;
+              });
+            }
+
             self.products = products;
             self.categories = self.groupByCategory(products);
 
@@ -155,6 +162,11 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
           const q = { merchantId: merchantId };
           self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
+            if (environment.language === 'en') {
+              products.map(p => {
+                p.name = p.nameEN;
+              });
+            }
             self.products = products;
             self.categories = self.groupByCategory(products);
 

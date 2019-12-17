@@ -51,7 +51,7 @@ export class Distance extends Model {
   // ----------------------------------------------
   // return km
   getDirectDistance(d1: ILatLng, d2: ILatLng) {
-    if (d2) {
+    if (d1 && d2) {
       const lat1 = +d1.lat;
       const lng1 = +d1.lng;
       const lat2 = +d2.lat;
@@ -117,11 +117,11 @@ export class Distance extends Model {
     });
   }
 
-  dbHasAllPlaceIds(destIds: string[], dbDestIds: string[]){
+  dbHasAllPlaceIds(destIds: string[], dbDestIds: string[]) {
     let bFound = true;
     destIds.map(d => {
       const _id = dbDestIds.find(id => id === d);
-      if(!_id){
+      if (!_id) {
         bFound = false;
         return false;
       }
@@ -132,34 +132,38 @@ export class Distance extends Model {
   loadRoadDistances(origin: ILocation, destinations: ILocation[]): Promise<IDistance[]> {
     const destIds: string[] = destinations.map(d => d.placeId);
     return new Promise((resolve, reject) => {
-      this.find({ originPlaceId: origin.placeId }).then((ds: IDistance[]) => {
-        const dbDestIds: string[] = ds.map(d => d.destinationPlaceId);
+      if (!origin) {
+        resolve([]);
+      } else {
+        this.find({ originPlaceId: origin.placeId }).then((ds: IDistance[]) => {
+          const dbDestIds: string[] = ds.map(d => d.destinationPlaceId);
 
-        if (this.dbHasAllPlaceIds(destIds, dbDestIds)) {
-          resolve(ds);
-        } else {
-          this.doReqRoadDistances(origin, destinations).then((rds: IDistance[])=> {
-            const distances: IDistance[] = [];
-            rds.map((rd: IDistance) => {
-              if (dbDestIds.indexOf(rd.destinationPlaceId) === -1){
-                distances.push(rd);
-              }
-            });
+          if (this.dbHasAllPlaceIds(destIds, dbDestIds)) {
+            resolve(ds);
+          } else {
+            this.doReqRoadDistances(origin, destinations).then((rds: IDistance[]) => {
+              const distances: IDistance[] = [];
+              rds.map((rd: IDistance) => {
+                if (dbDestIds.indexOf(rd.destinationPlaceId) === -1) {
+                  distances.push(rd);
+                }
+              });
 
-            if (distances && distances.length > 0) {
+              if (distances && distances.length > 0) {
                 this.insertMany(distances).then(ds3 => {
-                  if(ds3 && ds3.length>0){
+                  if (ds3 && ds3.length > 0) {
                     resolve(ds.concat(ds3)); // ds + ds3
-                  }else{
+                  } else {
                     resolve(ds); // ds
                   }
                 });
-            } else {
-              resolve(ds);
-            }
-          });
-        }
-      });
+              } else {
+                resolve(ds);
+              }
+            });
+          }
+        });
+      }
     });
   }
 

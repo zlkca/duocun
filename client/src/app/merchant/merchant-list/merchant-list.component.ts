@@ -90,6 +90,9 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       this.bHasAddress = true;
       this.merchantSvc.load(origin, dateType, query).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
         rs.map((restaurant: IRestaurant) => {
+          if (environment.language === 'en') {
+            restaurant.name = restaurant.nameEN;
+          }
           restaurant.distance = restaurant.distance / 1000;
           restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
@@ -102,13 +105,9 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IRestaurant[]) => {
         // const markers = []; // markers on map
         rs.map((restaurant: IRestaurant) => {
-          // if (restaurant.location) {
-          //   markers.push({
-          //     lat: restaurant.location.lat,
-          //     lng: restaurant.location.lng,
-          //     name: restaurant.name
-          //   });
-          // }
+          if (environment.language === 'en') {
+            restaurant.name = restaurant.nameEN;
+          }
           restaurant.inRange = true; // for display order deadline wording
           restaurant.distance = 0; // restaurant.distance / 1000;
           restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);

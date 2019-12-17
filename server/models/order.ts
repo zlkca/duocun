@@ -201,7 +201,17 @@ export class Order extends Model {
     });
   }
 
-  getDeliverDateTime(createdDateTime: string, phases: any[], dateType: string) {
+
+
+  create(req: Request, res: Response) {
+    const order = req.body;
+    this.doInsertOne(order).then(savedOrder => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(savedOrder, null, 3));
+    });
+  }
+
+  getDeliveryDateTimeByPhase(createdDateTime: string, phases: any[], dateType: string) {
     if (dateType === 'today') {
       const created = moment(createdDateTime);
 
@@ -228,14 +238,6 @@ export class Order extends Model {
     }
   }
 
-  create(req: Request, res: Response) {
-    const order = req.body;
-    this.doInsertOne(order).then(savedOrder => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(savedOrder, null, 3));
-    });
-  }
-
   getDeliveryDateTime(order: IOrder): Promise<string> {
     const orderType = order.type;
     const dateType: any = order.dateType;
@@ -260,7 +262,7 @@ export class Order extends Model {
             } else {
               if (merchant && merchant.phases) {
                 const created: any = order.created;
-                delivered = this.getDeliverDateTime(created, merchant.phases, dateType);
+                delivered = this.getDeliveryDateTimeByPhase(created, merchant.phases, dateType);
               } else {
                 delivered = this.getTime(moment(), '23:30').toISOString();
               }
@@ -349,10 +351,9 @@ export class Order extends Model {
               resolve(savedOrder);
             } else {
               const orderId: any = savedOrder._id;
-              this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(),
-                merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
-                  resolve(savedOrder);
-                });
+              this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
+                resolve(savedOrder);
+              });
             }
           });
         });

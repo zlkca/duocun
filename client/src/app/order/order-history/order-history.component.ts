@@ -17,6 +17,7 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import * as moment from 'moment';
 import { DeliveryActions } from '../../delivery/delivery.actions';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-order-history',
@@ -189,6 +190,14 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.currentPageNumber = pageNumber;
     const query = { clientId: accountId, status: { $nin: ['del', 'bad', 'tmp'] } };
     this.orderSvc.loadPage(query, pageNumber, itemsPerPage).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
+      if (environment.language === 'en') {
+        ret.orders.map(order => {
+          order.merchantName = order.merchant ? order.merchant.nameEN : '';
+          order.items.map(item => {
+            item.product.name = item.product.nameEN;
+          });
+        });
+      }
       this.orders = ret.orders;
       this.nOrders = ret.total;
       this.loading = false;

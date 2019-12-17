@@ -31,10 +31,7 @@ $blue: #4285F3;
   padding: 10px 0px;
   border-bottom: solid 1px #eee;
 
-  .label{
-    width: 70px;
-    float: left;
-  }
+
   .row{
     margin: 0px;
     padding-bottom: 0px;
@@ -42,10 +39,15 @@ $blue: #4285F3;
   .phone-col{
     padding-left: 15px;
   }
+
   .title-md {
     padding-top: 0px;
     font-size: 14px;
     line-height: 22px;
+    .label{
+      width: 100px;
+      float: left;
+    }
   }
 
   .address-text{
@@ -222,9 +224,9 @@ mat-button-toggle-group{
     }
 
     .title-xs{
-      width: 80px;
+      width: 105px;
       float: left;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
     }
 

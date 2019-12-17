@@ -26,7 +26,7 @@
       </div>
       <div class="title-md">
         <div class="label">
-          <span i18n="@@DeliveryAddress">Delivery Address</span>:
+          <span i18n="@@DeliveryAddress">Delivery Addr</span>:
         </div>
         <span class="address-text">{{address}}</span>
       </div>
@@ -36,18 +36,18 @@
     <div class="title-md restaurant" *ngIf="cart.merchantName">{{cart.merchantName}}</div>
 
     <div class="row order-detail" *ngIf="cart">
-      <div class="col-7 items-col">
+      <div class="col-6 items-col">
         <div *ngFor="let item of cart.items" class="text-sm row item-row">
           <div class="col-8 product-col">{{item.productName}}</div>
           <div class="col-2 quantity-col">x{{item.quantity}}</div>
           <div class="col-2 price-col">${{item.price | number : '1.2-2'}}</div>
         </div>
       </div>
-      <div class="col-5 text-sm total-col" *ngIf="charge">
+      <div class="col-6 text-sm total-col" *ngIf="charge">
         <div class="row">
           <div class="col-12">
             <div class="title-xs">
-              <span i18n="@@ProductTotal">ProductTotal</span>:</div>
+              <span i18n="@@ProductTotal">Product Total</span>:</div>
             <div class="text-xs">&nbsp;${{charge.productTotal | number : '1.2-2'}}</div>
           </div>
           <div class="col-12">
@@ -83,7 +83,7 @@
 
           <div class="col-12" *ngIf="charge.overRangeCharge>0">
             <div class="title-xs">
-              <span i18n="@@OverRangeCharge">Over Range Charge</span>:</div>
+              <span i18n="@@OverRangeCharge">Over Range Fee</span>:</div>
             <div class="text-xs">&nbsp;${{charge.overRangeCharge | number : '1.2-2'}}</div>
           </div>
 
@@ -126,22 +126,23 @@
 
       <mat-button-toggle-group *ngIf="charge && balance < charge.total" #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)">
         <mat-button-toggle value="cash" aria-label="Cash">
-          <div class="title">现金支付</div>
+          <div class="title" i18n="@@Cash">Cash</div>
         </mat-button-toggle>
-        <mat-button-toggle value="WECHATPAY" aria-label="Wechat">
+
+        <mat-button-toggle value="WECHATPAY" aria-label="Wechat" *ngIf="language==='zh'">
           <div class="title">微信支付</div>
         </mat-button-toggle>
         <!-- <mat-button-toggle value="ALIPAY" aria-label="Ali" *ngIf="account.username==='li'">
           <div class="title">阿里支付</div>
         </mat-button-toggle> -->
         <mat-button-toggle value="card" aria-label="Card">
-          <div class="title">银行卡</div>
+          <div class="title" i18n="@@CreditCard">Credit/Debit Card</div>
         </mat-button-toggle>
       </mat-button-toggle-group>
 
       <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance < charge.total">
         <div class="form-row" *ngIf="contact && contact.verified">
-          <label for="card-element" class="label-sm">信用卡或银行卡:</label>
+          <label for="card-element" class="label-sm" i18n="@@CreditCard">Credit/Debit Card:</label>
           <div id="card-element">
             <!-- A Stripe Element will be inserted here. action="/charge" method="post" -->
           </div>

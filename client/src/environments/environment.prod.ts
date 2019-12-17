@@ -27,5 +27,6 @@ export const environment = {
   DEFAULT_ADMIN: {
     ID: '5d3a34afac8ce150f3bb70c2',
     NAME: 'duocun'
-  }
+  },
+  language: 'en'
 };

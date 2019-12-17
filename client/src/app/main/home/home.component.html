@@ -1,6 +1,6 @@
 
 
-<app-merchant-list class="merchant-list" *ngIf="!bPayment && account && !(places && places.length > 0) && inRange" 
+<app-merchant-list class="merchant-list" *ngIf="!bPayment && !(places && places.length > 0) && inRange" 
   [active]="inRange" [phase]="phase" [address]="address" [bAddressList]="bAddressList">
 </app-merchant-list>
 

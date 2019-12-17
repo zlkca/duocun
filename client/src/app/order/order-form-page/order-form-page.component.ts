@@ -70,6 +70,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   bSubmitted = false;
   fromPage = '';
 
+  language = 'zh';
   msg = '';
   log = '';
 
@@ -90,6 +91,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {
     const self = this;
+
+    this.language = environment.language;
 
     this.form = this.fb.group({
       note: ['']
