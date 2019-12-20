@@ -1,5 +1,5 @@
 import { Picture } from '../picture.model';
-import { Restaurant, IRestaurant } from '../restaurant/restaurant.model';
+import { Restaurant, IMerchant } from '../restaurant/restaurant.model';
 import { IAccount } from '../account/account.model';
 
 export interface IProduct {
@@ -15,7 +15,7 @@ export interface IProduct {
   merchant?: IAccount; // join account table from find()
 
   openDays?: number[];
-  restaurant?: IRestaurant; // ??
+  restaurant?: IMerchant; // ??
   category?: ICategory;
   pictures?: Picture[];
   dow?: string[];

@@ -13,7 +13,7 @@ import { CartActions } from '../../cart/cart.actions';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { ContactActions } from '../../contact/contact.actions';
 import { Contact, IContact } from '../../contact/contact.model';
-import { IRestaurant } from '../../restaurant/restaurant.model';
+import { IMerchant } from '../../restaurant/restaurant.model';
 import { ProductService } from '../../product/product.service';
 import { IDelivery } from '../../delivery/delivery.model';
 import { ICommand } from '../../shared/command.reducers';
@@ -51,7 +51,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((acc: Account) => {
+    this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((acc: Account) => {
       this.account = acc;
     });
 
@@ -65,7 +65,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
       this.location = d.origin;
     });
 
-    this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IRestaurant) => {
+    this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IMerchant) => {
       this.restaurant = r;
       this.productSvc.find({ merchantId: r._id }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
         if (environment.language === 'en') {

@@ -5,12 +5,14 @@ import { Entity } from "../entity";
 import moment from "moment";
 import { Area, IArea } from "./area";
 import { MallSchedule } from "./mall-schedule";
-import { ObjectID, Collection } from "mongodb";
+import { ObjectID, Collection, ObjectId } from "mongodb";
+import { Distance, ILocation, IDistance, IPlace } from "./distance";
 
-export interface IMall {
-  _id?: any;
-  name?: string;
-  description?: string;
+
+export interface IRspMall {
+  _id: string;
+  name: string;
+  description: string;
   placeId: string;
   lat: number;
   lng: number;
@@ -18,26 +20,68 @@ export interface IMall {
   distance?: number; // Dynamic
   deliverFee?: number; // Dynamic
   fullDeliverFee?: number; // Dynamic
-  created?: Date;
-  modified?: Date;
+  created?: string;
+  modified?: string;
+}
+
+export interface IDbMall {
+  _id: ObjectId;
+  name: string;
+  description: string;
+  placeId: string;
+  lat: number;
+  lng: number;
+  ranges?: string[];
+  distance?: number; // Dynamic
+  deliverFee?: number; // Dynamic
+  fullDeliverFee?: number; // Dynamic
+  created?: string;
+  modified?: string;
+}
+
+export interface IMall {
+  _id?: any;
+  name: string;
+  address: string;
+  placeId: string;
+  lat: number;
+  lng: number;
+  ranges: string[];
+  status: string;
+  type: string;
+
+  // optional
+  freeRanges?: any[];   // in db
+  opening?: any[];      // in db
+  pickupTimes: any[];   // in db
+
+  distance?: number;        // Dynamic
+  deliverFee?: number;      // Dynamic
+  fullDeliverFee?: number;  // Dynamic
+
+  created?: string;
+  modified?: string;
 }
 
 export interface IMallSchedule{
-  mallId?: string;
-  mall?: IMall;
-  areas: (string[])[];
+  mallId: string;
   status: string;
-  created?: Date;
-  modified?: Date;
+  areas: (string[])[];
+
+  mall?: IMall;
+  created?: string;
+  modified?: string;
 }
 
 export class Mall extends Model {
   mallSchedule: MallSchedule;
   areaModel: Area;
+  distanceModel: Distance;
   constructor(dbo: DB) {
     super(dbo, 'malls');
     this.mallSchedule = new MallSchedule(dbo);
     this.areaModel = new Area(dbo);
+    this.distanceModel = new Distance(dbo);
   }
 
   // load(query: any, options?: any): Promise<any> {
@@ -77,15 +121,15 @@ export class Mall extends Model {
   //   });
   // }
 
-  getScheduledMallIds(areaId: string, dow: number): Promise<any[]>{
+  getScheduledMallIds(areaId: string, dow: number): Promise<string[]>{
     return new Promise( (resolve, reject) => {
       this.mallSchedule.find({status: 'active'}).then(mss => {
-        const mallIds: any[] = [];
+        const mallIds: string[] = [];
         mss.map((ms: IMallSchedule) => {
           const areaIds: string[] = ms.areas[dow];
           const id = areaIds.find(id => id === areaId);
           if(id){
-            mallIds.push(ms.mallId);
+            mallIds.push(ms.mallId.toString());
           }
         });
         resolve(mallIds);
@@ -93,19 +137,21 @@ export class Mall extends Model {
     });
   }
 
-  getAvailableMallIds(req: Request, res: Response) {
-    const origin = req.body.origin;
-    const delivered = req.body.delivered;
 
-    this.areaModel.getNearestArea(origin).then((area: IArea) => {
-      const dow = moment(delivered).day();
-      this.getScheduledMallIds(area.id.toString(), dow).then((mallIds: any[]) => {
-        res.setHeader('Content-Type', 'application/json');
-        if (!(mallIds && mallIds.length)) {
-          res.end(JSON.stringify({ status: 'fail', mallIds: [] }, null, 3));
-        } else {
-          res.end(JSON.stringify({ status: 'success', mallIds: mallIds }, null, 3));
-        }
+  //------------------------------------------------------------------
+  // origin cannot be null
+  getRoadDistanceToMalls(origin: ILocation): Promise<IDistance[]> {
+    return new Promise((resolve, reject) => {
+      this.find({status: 'active'}).then((malls: IMall[]) => {
+        const destinations: IPlace[] = [];
+        malls.map((m: IMall) => {
+          const p: IPlace = { placeId: m.placeId, lat: m.lat, lng: m.lng };
+          destinations.push(p);
+        });
+
+        this.distanceModel.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
+          resolve(ds);
+        });
       });
     });
   }

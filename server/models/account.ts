@@ -5,9 +5,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Config } from "../config";
 import { Utils } from "../utils";
-import { Entity } from "../entity";
-import { ObjectID } from "mongodb";
-import { Contact } from "./contact";
+// import { Contact } from "./contact";
+import moment from 'moment';
+import { resolve } from "../../node_modules/@types/q";
 
 const saltRounds = 10;
 
@@ -37,10 +37,10 @@ export interface IAccount {
 }
 
 export class Account extends Model {
-  private contactModel: Contact;
+  // private contactModel: Contact;
   constructor(dbo: DB) {
     super(dbo, 'users');
-    this.contactModel = new Contact(dbo);
+    // this.contactModel = new Contact(dbo);
   }
 
   list(req: Request, res: Response) {
@@ -49,43 +49,130 @@ export class Account extends Model {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
     query = this.convertIdFields(query);
-    this.contactModel.find({}).then((cs: any[]) => {
+    // this.contactModel.find({}).then((cs: any[]) => {
       this.find(query).then(accounts => {
         accounts.map((account: any) => {
           delete account.password;
-          account.contact = cs.find((c: any) => c.accountId.toString() === account._id.toString());
+          // account.contact = cs.find((c: any) => c.accountId.toString() === account._id.toString());
         });
 
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(accounts, null, 3));
       });
+    // });
+  }
+
+
+  getCurrentAccount(req: Request, res: Response) {
+    const tokenId: string = req.query.tokenId;
+    const cfg = new Config();
+    const accountId = jwt.verify(tokenId, cfg.JWT.SECRET);
+    if(accountId){
+      this.findOne({_id: accountId}).then(account => {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(account, null, 3));
+      });
+    }
+  }
+
+  signup(req: Request, res: Response) {
+    const phone = req.body.phone;
+    const username = req.body.username;
+    const password = req.body.password;
+    const type = req.body.type;
+    const _id = req.body._id; // optional
+
+    this.doSignup(_id, type, username, phone, password).then((account: any) => {
+      res.setHeader('Content-Type', 'application/json');
+
+      const cfg = new Config();
+      const tokenId = jwt.sign(account._id.toString(), cfg.JWT.SECRET); // SHA256
+      res.send(JSON.stringify(tokenId, null, 3));
     });
   }
 
-  signup(req: Request, rsp: Response) {
-    const user = req.body;
-    const dt = new Date();
-    const self = this;
-    user['created'] = dt.toISOString();
-    user['type'] = 'user';
-    this.findOne({ username: user.username }).then((r: any) => {
-      if (r != null) {
-        // validateSignup(user, function(errors){
-        //self.saveUser(user, errors, rsp);
-        // });
-        return rsp.json(null);
-      } else {
-        bcrypt.hash(user.password, saltRounds, (err, hash) => {
-          user['password'] = hash;
-          self.insertOne(user).then(x => {
+  doSignup(accountId: string, type: string, username: string, phone: string, password: string): Promise<IAccount>{
+    const data = accountId ? {
+      _id: accountId,
+      username: username,
+      phone: phone,
+      type: type,
+      password: '',
+      balance: 0,
+      created: moment().toISOString()
+    } : {
+      username: username,
+      phone: phone,
+      type: type,
+      password: '',
+      balance: 0,
+      created: moment().toISOString()
+    };
+
+    return new Promise((resolve, reject) => {
+      if(accountId){
+        bcrypt.hash(password, saltRounds, (err, hash) => {
+          data['password'] = hash;
+          this.insertOne(data).then(x => {
             x.password = '';
-            return rsp.json(x);
+            resolve(x);
           });
         });
+      }else{
+        this.findOne({phone: phone}).then(x => {
+          if(x){
+            resolve();
+          }else{
+            bcrypt.hash(password, saltRounds, (err, hash) => {
+              data['password'] = hash;
+              this.insertOne(data).then(x => {
+                x.password = '';
+                resolve(x);
+              });
+            });
+          }
+        })
       }
     });
   }
 
+
+  // --------------------------------------------------------------------------------------------------
+  // wechat, google or facebook can not use this request to login
+  // username --- optional, can be null, unique  username
+  // phone    --- optional, can be null, unique phone number, verification code as password by default
+  // password --- mandadory field
+  doLogin(username: string, phone: string, password: string): Promise<string> {
+    return new Promise( (resolve, reject) => {
+      let query = null;
+      if(username){
+        query = { username: username };
+      }else if(phone){
+        query = { phone: phone };
+      }
+      
+      if(query){
+        this.findOne(query).then((r: IAccount) => {
+          if (r && r.password) {
+            bcrypt.compare(password, r.password, (err, matched) => {
+              if (matched) {
+                r.password = '';
+                const cfg = new Config();
+                const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
+                resolve(tokenId);
+              } else {
+                resolve();
+              }
+            });
+          } else {
+            return resolve();
+          }
+        });
+      }else{
+        resolve();
+      }
+    });
+  }
   // cb --- function(errors)
   // validateLoginPassword( user, hashedPassword, cb ){
   // 	const errors = [];
@@ -127,25 +214,13 @@ export class Account extends Model {
   // }
 
   login(req: Request, res: Response) {
-    const credential = { username: req.body.username, password: req.body.password };
+    const username = req.body.username;
+    const phone = req.body.phone;
+    const password = req.body.password;
 
-    this.findOne({ username: credential.username }).then((r: IAccount) => {
-      if (r != null && r.password) {
-        bcrypt.compare(credential.password, r.password, (err, matched) => {
-          if (matched) {
-            res.setHeader('Content-Type', 'application/json');
-            r.password = '';
-            const cfg = new Config();
-            const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
-            const token = { id: tokenId, ttl: 10000, userId: r._id.toString() };
-            res.send(JSON.stringify(token, null, 3));
-          } else {
-            res.send(JSON.stringify(null, null, 3));
-          }
-        });
-      } else {
-        return res.json({ 'errors': [], 'token': 'token', 'decoded': 'user' });
-      }
+    this.doLogin(username, phone, password).then((tokenId: string) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(tokenId, null, 3));
     });
   }
   // 		validateLoginAccount(credential, function(accountErrors, doc){
@@ -189,8 +264,7 @@ export class Account extends Model {
             const accountId = r._id.toString();
             this.updateOne({ _id: accountId }, updates).then(() => {
               const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
-              const token = { id: tokenId, ttl: 10000, userId: accountId };
-              res.send(JSON.stringify(token, null, 3));
+              res.send(JSON.stringify(tokenId, null, 3));
             }, err => {
               console.log(err);
               res.send(JSON.stringify('', null, 3));
@@ -209,8 +283,7 @@ export class Account extends Model {
             this.insertOne(user).then(account => {
               const accountId = account._id.toString();
               const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
-              const token = { id: tokenId, ttl: 10000, userId: accountId };
-              res.send(JSON.stringify(token, null, 3));
+              res.send(JSON.stringify(tokenId, null, 3));
             }, err => {
               console.log(err);
               res.send(JSON.stringify('', null, 3));

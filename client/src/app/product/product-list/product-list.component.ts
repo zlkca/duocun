@@ -14,7 +14,7 @@ import * as moment from 'moment';
 import { IDelivery } from '../../delivery/delivery.model';
 import { RangeService } from '../../range/range.service';
 // import { MallService } from '../../mall/mall.service';
-import { IRestaurant } from '../../restaurant/restaurant.model';
+import { IMerchant } from '../../restaurant/restaurant.model';
 import { IRange } from '../../range/range.model';
 // import { IMall } from '../../mall/mall.model';
 
@@ -29,7 +29,7 @@ const ADD_IMAGE = 'add_photo.png';
 export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   MEDIA_URL: string = environment.MEDIA_URL;
 
-  @Input() restaurant: IRestaurant;
+  @Input() restaurant: IMerchant;
   @Input() items: any[]; // {product:x, quantity: y}
   @Input() mode: string;
   @Input() hasAddress: boolean;

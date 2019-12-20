@@ -11,7 +11,7 @@ import moment, { now } from 'moment';
 import { Order, OrderType } from "../models/order";
 import { ClientBalance } from "./client-balance";
 import { Transaction } from "./transaction";
-import { Restaurant } from "./restaurant";
+import { Merchant } from "./merchant";
 import { ClientCredit } from "./client-credit";
 import { CellApplication, CellApplicationStatus } from "./cell-application";
 
@@ -30,7 +30,7 @@ export class ClientPayment extends Model {
   balanceEntity: ClientBalance;
   orderEntity: Order;
   transactionModel: Transaction;
-  merchantModel: Restaurant;
+  merchantModel: Merchant;
   clientCreditModel: ClientCredit;
   cellApplicationModel: CellApplication;
 
@@ -39,7 +39,7 @@ export class ClientPayment extends Model {
 
     this.orderEntity = new Order(dbo);
     this.balanceEntity = new ClientBalance(dbo);
-    this.merchantModel = new Restaurant(dbo);
+    this.merchantModel = new Merchant(dbo);
     this.transactionModel = new Transaction(dbo);
     this.clientCreditModel = new ClientCredit(dbo);
     this.cellApplicationModel = new CellApplication(dbo);

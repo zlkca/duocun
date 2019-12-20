@@ -34,7 +34,7 @@ import { TransactionRouter } from "./routers/transaction-route";
 import { OrderSequenceRouter } from "./routers/order-sequence-route";
 import { DriverHourRouter } from "./routers/driver-hour-route";
 import { CategoryRouter } from "./routers/category-route";
-import { RestaurantRouter } from "./routers/restaurant-route";
+import { MerchantRouter } from "./routers/merchant-route";
 import { ProductRouter } from "./routers/product-route";
 import { ContactRouter } from "./routers/contact-route";
 import { RangeRouter } from "./routers/range-route";
@@ -53,7 +53,6 @@ import { Product } from "./models/product";
 import { ApiMiddleWare } from "./api-middleware";
 import { schedule } from "node-cron";
 
-import { ClientBalance } from "./models/client-balance";
 import { Order } from "./models/order";
 
 
@@ -192,7 +191,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use(apimw.auth);
 
   app.use('/' + ROUTE_PREFIX + '/Categories', CategoryRouter(dbo));
-  app.use('/' + ROUTE_PREFIX + '/Restaurants', RestaurantRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Restaurants', MerchantRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Products', ProductRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Contacts', ContactRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Ranges', RangeRouter(dbo));

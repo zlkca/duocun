@@ -2,7 +2,7 @@
 import fs from 'fs';
 
 export interface IJWT {
-  EXPIRY: number;
+  EXPIRY: string;   // eg. '365 days'
   ALGORITHM: string;
   SECRET: string;
 }

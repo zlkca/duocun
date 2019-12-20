@@ -1420,6 +1420,22 @@
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="VerifyPhoneNumber" datatype="html">
+        <source>Verify Phone Number</source>
+        <target>验证手机号码</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/main/filter/filter.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="VerifyPhoneNumberNote" datatype="html">
+        <source>*In order to contact when we arrive, we may need to call this number.</source>
+        <target>*为了司机和客服送到时能联系到您，我们需要您的手机号码.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/main/filter/filter.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="LogoutDuocun" datatype="html">
         <source>LogoutDuocun</source>
         <target>退出多村外卖</target>
@@ -1463,6 +1479,14 @@
       <trans-unit id="Credit" datatype="html">
         <source>Credit</source>
         <target>存入</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="CreditCard" datatype="html">
+        <source>CreditCard</source>
+        <target>信用卡</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/account/account-page.component.ts</context>
           <context context-type="linenumber">19</context>

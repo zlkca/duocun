@@ -42,7 +42,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: {name: 'account-setting'} });
 
-    this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+    this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       const accountId = account._id;
 
       self.account = account;

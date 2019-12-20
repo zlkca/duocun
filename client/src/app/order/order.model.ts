@@ -1,7 +1,7 @@
 import { Product } from '../product/product.model';
 // import { Picture } from '../picture.model';
 import { Address } from '../account/account.model';
-import { Restaurant, IRestaurant } from '../restaurant/restaurant.model';
+import { Restaurant, IMerchant } from '../restaurant/restaurant.model';
 import { Picture } from '../picture.model';
 import { ILocation } from '../location/location.model';
 

@@ -1,10 +1,10 @@
 import express from "express";
 import { DB } from "../db";
-import { Restaurant } from "../models/restaurant";
+import { Merchant } from "../models/merchant";
 
-export function RestaurantRouter(db: DB){
+export function MerchantRouter(db: DB){
   const router = express.Router();
-  const controller = new Restaurant(db);
+  const controller = new Merchant(db);
 
   router.get('/qFind', (req, res) => { controller.quickFind(req, res); });
   router.get('/', (req, res) => { controller.list(req, res); });

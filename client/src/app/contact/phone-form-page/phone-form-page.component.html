@@ -1,38 +1,46 @@
 <div class="page">
-    <div class="title-row"><span class="title-bg">输入短信验证码完成下单</span></div>
-    <div class="row label-sm verify-hint">
-      <span>*为了司机和客服送到时能联系到您，我们需要您的手机号码</span><span>*</span>
-    </div>
-    <form [formGroup]="form">
-      <div class="row form-group">
-        <div class="row label-sm">
-          <span i18n="@@PhoneNumber">Phone Number</span><span>*</span>
-        </div>
-        <input name="phone" type="tel" pattern="[0-9]*" formControlName="phone" (keyup)="onPhoneChange($event)"/>
-      </div>
-      
-      <div class="row form-group">
-        <div class="row label-sm" [class.warning]="!contact.verified">
-          <span i18n="@@VerificationCode">Verification Code</span><span>*</span>
-        </div>
-        <input class="verification-code" type="number" pattern="[\d]*" name="verificationCode" formControlName="verificationCode" 
-        (keyup)="onVerificationCodeInput($event)"/>
-        
-        <div class="verification-result">
-            <svg *ngIf="contact.verified" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path fill="none" d="M0 0h24v24H0z"/>
-              <path fill="#0F9D58" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
-            </svg>
-        </div>
-        <div *ngIf="!bGettingCode" class="btn btn-primary get-code-btn" (click)="sendVerify()" i18n="@@GetVerificationCode">Get Verification Code</div>
-        <div *ngIf="bGettingCode" class="btn btn-secondary get-code-btn">
-          <!-- <span>Sending Code</span>: -->
-          <span>{{counter}}秒后重发</span>
-        </div>
-      </div>
-    </form>
-    <div class="row phone-save-row" *ngIf="this.fromPage === 'account-setting'">
-        <div class="col-6 title-md cancel-col" (click)="cancel()" i18n="@@Cancel">Cancel</div>
-        <!-- <div class="col-6 title-md save-col" (click)="save()" i18n="@@Save">Save</div> -->
-      </div>
+  <div class="title-row">
+    <span class="title-bg" i18n="@@VerifyPhoneNumber">Verify Phone Number</span>
   </div>
+  <div class="row label-sm verify-hint">
+    <span i18n="@@VerifyPhoneNumberNote">*In order to contact when we arrive, we may need to call this number.</span>
+  </div>
+  <form [formGroup]="form">
+    <div class="row form-group">
+      <div class="row label-sm">
+        <span i18n="@@PhoneNumber">Phone Number</span>
+        <span>*</span>
+      </div>
+      <input class="phone" name="phone" type="tel" pattern="[0-9]*" formControlName="phone" (keyup)="onPhoneInput($event)" />
+      <div class="btn btn-primary get-code-btn" (click)="sendVerify()" i18n="@@GetVerificationCode">Send Code</div>
+    </div>
+
+    <div class="row form-group" *ngIf="contact">
+      <div class="row label-sm" [class.warning]="!contact.verified">
+        <span i18n="@@VerificationCode">Verification Code</span>
+        <span>*</span>
+      </div>
+      <input class="verification-code" type="number" pattern="[\d]*" name="verificationCode" formControlName="verificationCode"
+        (keyup)="onVerificationCodeInput($event)" />
+
+      <div class="verification-result">
+        <svg *ngIf="contact.verified" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="none" d="M0 0h24v24H0z" />
+          <path fill="#0F9D58" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+        </svg>
+      </div>
+      <div class="btn btn-secondary get-code-btn">
+        <span>{{counter}}秒</span>
+      </div>
+    </div>
+    <div class="row form-group signup-block" *ngIf="!account">
+      <div *ngIf="hasContact()" class="btn btn-primary signup-btn" (click)="login()" i18n="@@Login">Login</div>
+      <div *ngIf="!hasContact()" class="btn btn-primary signup-btn" (click)="signup()" i18n="@@Signup">Signup</div>
+    </div>
+  </form>
+
+  <div class="row phone-save-row" *ngIf="this.fromPage === 'account-setting'">
+    <div class="col-6 title-md cancel-col" (click)="cancel()" i18n="@@Cancel">Cancel</div>
+    <!-- <div class="col-6 title-md save-col" (click)="save()" i18n="@@Save">Save</div> -->
+  </div>
+</div>

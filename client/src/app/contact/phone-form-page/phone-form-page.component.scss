@@ -1,12 +1,16 @@
 .page{
   height: 500px;
+
+  .verify-hint{
+    margin-bottom: 20px;
+  }
 }
 
 form{
   padding: 25px 15px;
   // margin-top: 60px;
   position: fixed;
-  top: 60px;
+  top: 90px;
   left: 0px;
   height: 400px;
 
@@ -29,8 +33,13 @@ form{
       width: 118px;
     }
   
-    input.verification-code{
+    input.verification-code {
       width: calc(100% - 148px);
+      border-right: none;
+    }
+
+    input.phone{
+      width: calc(100% - 118px);
       border-right: none;
     }
   }

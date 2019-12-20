@@ -6,7 +6,7 @@ import { BulkWriteOpResultObject, ObjectID, ObjectId } from "mongodb";
 import { OrderSequence } from "./order-sequence";
 import { ClientBalance, IClientBalance } from "./client-balance";
 import moment from 'moment';
-import { Restaurant } from "./restaurant";
+import { Merchant } from "./merchant";
 import { resolve } from "path";
 import { Account, IAccount } from "./account";
 import { Transaction, ITransaction } from "./transaction";
@@ -81,7 +81,7 @@ export interface IOrder {
 export class Order extends Model {
   private productModel: Product;
   private sequenceModel: OrderSequence;
-  private merchantModel: Restaurant;
+  private merchantModel: Merchant;
   private accountModel: Account;
   private transactionModel: Transaction;
   private contactModel: Contact;
@@ -93,7 +93,7 @@ export class Order extends Model {
 
     this.productModel = new Product(dbo);
     this.sequenceModel = new OrderSequence(dbo);
-    this.merchantModel = new Restaurant(dbo);
+    this.merchantModel = new Merchant(dbo);
     this.accountModel = new Account(dbo);
     this.transactionModel = new Transaction(dbo);
     this.contactModel = new Contact(dbo);
@@ -211,7 +211,7 @@ export class Order extends Model {
     });
   }
 
-  getDeliveryDateTimeByPhase(createdDateTime: string, phases: any[], dateType: string) {
+  getDeliveryDateTimeByPhase(createdDateTime: string, phases: any[], dateType: string): string {
     if (dateType === 'today') {
       const created = moment(createdDateTime);
 
@@ -222,6 +222,8 @@ export class Order extends Model {
         if (i === 0) {
           if (created.isSameOrBefore(orderEndTime)) {
             return this.getTime(moment(), phase.pickup).toISOString();
+          }else{
+            // pass
           }
         } else {
           const prePhase = phases[i - 1];
@@ -229,9 +231,14 @@ export class Order extends Model {
 
           if (created.isAfter(preEndTime) && created.isSameOrBefore(orderEndTime)) {
             return this.getTime(moment(), phase.pickup).toISOString();
+          }else{
+            // pass
           }
         }
       }
+      // if none of the phase hit, use the last
+      const last = phases[phases.length - 1];
+      return this.getTime(moment(), last.pickup).toISOString();
     } else {
       const phase = phases[0];
       return this.getTime(moment().add(1, 'day'), phase.pickup).toISOString();
@@ -360,6 +367,8 @@ export class Order extends Model {
       });
     });
   }
+
+
 
   doRemoveOne(orderId: string) {
     return new Promise((resolve, reject) => {

@@ -19,7 +19,7 @@ export interface IProduct {
   merchant?: IAccount; // join account table from find()
 
   openDays?: number[];
-  // restaurant?: IRestaurant; // ??
+  // restaurant?: IMerchant; // ??
   // category?: ICategory;
   // pictures?: Picture[];
   dow?: string[];

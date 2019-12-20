@@ -28,7 +28,7 @@ import { RangeService } from '../../range/range.service';
 import { IRange } from '../../range/range.model';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
-import { IRestaurant } from '../../restaurant/restaurant.model';
+import { IMerchant } from '../../restaurant/restaurant.model';
 import { SharedService } from '../../shared/shared.service';
 import { AccountService } from '../../account/account.service';
 import { ContactService } from '../../contact/contact.service';
@@ -149,7 +149,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     // trigger payment from the page of phone number verification
     if (this.fromPage === 'order-form') {
-      this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
         this.contactSvc.find({ accountId: account._id }).pipe(takeUntil(this.onDestroy$)).subscribe((contacts: IContact[]) => {
           self.contact = contacts[0];
           self.account = account;
@@ -174,7 +174,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         });
       });
     } else { // normal procedure
-      this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
         self.account = account;
 
         this.contactSvc.find({ accountId: account._id }).pipe(takeUntil(this.onDestroy$)).subscribe((contacts: IContact[]) => {
@@ -187,8 +187,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
           // fix me
           if (cart) {
-            this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IRestaurant[]) => {
-              const merchant: IRestaurant = ms[0];
+            this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMerchant[]) => {
+              const merchant: IMerchant = ms[0];
               // const merchantId = merchant._id;
               const origin = self.delivery.origin;
               // const address = this.locationSvc.getAddrString(origin);

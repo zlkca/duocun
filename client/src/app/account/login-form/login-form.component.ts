@@ -68,7 +68,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
         if (data) {
           self.authSvc.setUserId(data.userId);
           self.authSvc.setAccessToken(data.id);
-          self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
+          self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
             if (account) {
               self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header footer icons
               if (account.type === 'super') {

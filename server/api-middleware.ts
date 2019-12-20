@@ -12,6 +12,13 @@ export class ApiMiddleWare {
 
       if(req.path === '/api/Accounts/wechatLogin' || req.path === '/api/Accounts/login'
         || req.path === '/api/Accounts/signup' || req.path === '/api/Accounts/logout'
+        || (req.method === 'GET' && req.path.indexOf('/api/Accounts/') !== -1)
+        || req.path.indexOf('/api/Locations/Places/') !== -1
+        || req.path.indexOf('/api/Locations/Geocodes/') !== -1
+        || req.path === '/api/Contacts/verifyCode' || req.path === '/api/Contacts/sendVerifyMsg'
+        || req.path === '/api/Restaurants' || req.path === '/api/Restaurants/qFind' || req.path === '/api/Restaurants/load'
+        || req.path === '/api/Products' || req.path === '/api/Products/qFind'
+        || req.path === '/api/Ranges/inRange'
         || req.path === '/api/ClientPayments/snappayNotify'
         || req.path.includes('.jpeg') || req.path.includes('.jpg') || req.path.includes('.png')){
         next();

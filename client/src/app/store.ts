@@ -16,7 +16,7 @@ import { contactReducer } from './contact/contact.reducer';
 import { ICart } from './cart/cart.model';
 import { cartReducer, DEFAULT_CART } from './cart/cart.reducer';
 import { restaurantReducer } from './restaurant/restaurant.reducer';
-import { IRestaurant } from './restaurant/restaurant.model';
+import { IMerchant } from './restaurant/restaurant.model';
 import { Account } from './account/account.model';
 import { orderReducer } from './order/order.reducers';
 import { IOrder } from './order/order.model';
@@ -31,7 +31,7 @@ export interface IAppState {
     page: string;
     cmd: ICommand;
     // deliveryTime: IDeliveryTime;
-    restaurant: IRestaurant;
+    restaurant: IMerchant;
     malls: IMall[];
     delivery: IDelivery;
     contact: IContact;

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, OnChanges } from '@angular/core';
 import { MerchantService } from '../merchant.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
-import { IRestaurant } from '../../restaurant/restaurant.model';
+import { IMerchant } from '../../restaurant/restaurant.model';
 import { environment } from '../../../environments/environment';
 import { Router } from '../../../../node_modules/@angular/router';
 import { Subject } from '../../../../node_modules/rxjs';
@@ -89,7 +89,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       const query = { status: 'active' };
       this.bHasAddress = true;
       this.merchantSvc.load(origin, dateType, query).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
-        rs.map((restaurant: IRestaurant) => {
+        rs.map((restaurant: IMerchant) => {
           if (environment.language === 'en') {
             restaurant.name = restaurant.nameEN;
           }
@@ -102,9 +102,9 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       });
     } else {
       this.bHasAddress = false;
-      this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IRestaurant[]) => {
+      this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IMerchant[]) => {
         // const markers = []; // markers on map
-        rs.map((restaurant: IRestaurant) => {
+        rs.map((restaurant: IMerchant) => {
           if (environment.language === 'en') {
             restaurant.name = restaurant.nameEN;
           }
@@ -130,7 +130,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
-  toDetail(r: IRestaurant) {
+  toDetail(r: IMerchant) {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: { name: 'restaurants' }
@@ -154,12 +154,12 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
-  getDistanceString(r: IRestaurant) {
+  getDistanceString(r: IMerchant) {
     return r.distance.toFixed(2) + ' km';
   }
 
   sort(restaurants) {
-    return restaurants.sort((a: IRestaurant, b: IRestaurant) => {
+    return restaurants.sort((a: IMerchant, b: IMerchant) => {
       if (!a.isClosed && b.isClosed) {
         return -1;
       } else if (a.isClosed && !b.isClosed) {
@@ -201,7 +201,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  isCloseInTurn(r: IRestaurant) {
+  isCloseInTurn(r: IMerchant) {
     return (this.bHasAddress && !r.onSchedule) || r.isClosed;
   }
 }

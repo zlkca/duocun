@@ -47,7 +47,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     // listen account changes from UI
     this.rx.select<IAccount>('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => { // must be redux
       if (!account) {
-        this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
+        this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
           self.account = account1;
         });
       } else {

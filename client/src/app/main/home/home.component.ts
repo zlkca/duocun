@@ -157,7 +157,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       }
 
-      self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
         if (account) { // if already login
           this.loading = false;
           self.account = account;
@@ -229,7 +229,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const self = this;
     self.authSvc.setUserId(data.userId);
     self.authSvc.setAccessToken(data.id);
-    self.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
+    self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
       if (account) {
         self.account = account;
 
@@ -369,9 +369,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   onSelectPlace(e) {
     const self = this;
     const r: ILocation = e.location;
-    const accountId = self.account._id;
-    const accountName = self.account.username;
-
     this.places = [];
     this.bUpdateLocationList = false;
     this.location = r;
@@ -381,6 +378,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
 
       if (self.account) {
+        const accountId = self.account._id;
+        const accountName = self.account.username;
         const query = { accountId: accountId, placeId: r.placeId };
         const lh = { accountId: accountId, accountName: accountName, placeId: r.placeId, location: r };
 

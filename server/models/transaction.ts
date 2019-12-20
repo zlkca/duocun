@@ -4,6 +4,7 @@ import { ObjectID } from "mongodb";
 import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import moment from 'moment';
+import { Merchant } from "./merchant";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -31,11 +32,15 @@ export interface ITransaction {
 
 export class Transaction extends Model {
   private accountModel: Account;
+  private merchantModel: Merchant;
+
   constructor(dbo: DB) {
     super(dbo, 'transactions');
     this.accountModel = new Account(dbo);
+    this.merchantModel = new Merchant(dbo);
   }
 
+  // use in admin
   list(req: Request, res: Response) {
     let query = null;
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
@@ -322,63 +327,73 @@ export class Transaction extends Model {
 
   saveTransactionsForPlaceOrder(orderId: string, merchantId: string, merchantName: string, clientId: string, clientName: string,
     cost: number, total: number, delivered?: string) {
-    const t1: ITransaction = {
-      fromId: merchantId,
-      fromName: merchantName,
-      toId: CASH_ID,
-      toName: clientName,
-      action: 'duocun order from merchant',
-      amount: Math.round(cost * 100) / 100,
-      orderId: orderId,
-      delivered: delivered,
-    };
-
-    const t2: ITransaction = {
-      fromId: CASH_ID,
-      fromName: merchantName,
-      toId: clientId,
-      toName: clientName,
-      amount: Math.round(total * 100) / 100,
-      action: 'client order from duocun',
-      orderId: orderId,
-      delivered: delivered,
-    };
 
     return new Promise((resolve, reject) => {
-      this.doInsertOne(t1).then((x) => {
-        this.doInsertOne(t2).then((y) => {
-          resolve();
+      this.merchantModel.findOne({ _id: merchantId }).then(m => {
+        const merchantAccountId = m.accountId.toString();
+
+        const t1: ITransaction = {
+          fromId: merchantAccountId,
+          fromName: merchantName,
+          toId: CASH_ID,
+          toName: clientName,
+          action: 'duocun order from merchant',
+          amount: Math.round(cost * 100) / 100,
+          orderId: orderId,
+          delivered: delivered,
+        };
+
+        const t2: ITransaction = {
+          fromId: CASH_ID,
+          fromName: merchantName,
+          toId: clientId,
+          toName: clientName,
+          amount: Math.round(total * 100) / 100,
+          action: 'client order from duocun',
+          orderId: orderId,
+          delivered: delivered,
+        };
+
+        this.doInsertOne(t1).then((x) => {
+          this.doInsertOne(t2).then((y) => {
+            resolve();
+          });
         });
       });
     });
   }
 
+
   saveTransactionsForRemoveOrder(merchantId: string, merchantName: string, clientId: string, clientName: string,
     cost: number, total: number, delivered: string) {
-    const t1: ITransaction = {
-      fromId: CASH_ID,
-      fromName: clientName,
-      toId: merchantId,
-      toName: merchantName,
-      action: 'duocun cancel order from merchant',
-      amount: Math.round(cost * 100) / 100,
-      delivered: delivered
-    };
-
-    const t2: ITransaction = {
-      fromId: clientId,
-      fromName: clientName,
-      toId: CASH_ID,
-      toName: merchantName,
-      amount: Math.round(total * 100) / 100,
-      action: 'client cancel order from duocun',
-      delivered: delivered
-    };
 
     return new Promise((resolve, reject) => {
-      this.doInsertOne(t1).then((x) => {
-        this.doInsertOne(t2).then((y) => {
-          resolve();
+      this.merchantModel.findOne({ _id: merchantId }).then(m => {
+        const merchantAccountId = m.accountId.toString();
+        const t1: ITransaction = {
+          fromId: CASH_ID,
+          fromName: clientName,
+          toId: merchantAccountId,
+          toName: merchantName,
+          action: 'duocun cancel order from merchant',
+          amount: Math.round(cost * 100) / 100,
+          delivered: delivered
+        };
+
+        const t2: ITransaction = {
+          fromId: clientId,
+          fromName: clientName,
+          toId: CASH_ID,
+          toName: merchantName,
+          amount: Math.round(total * 100) / 100,
+          action: 'client cancel order from duocun',
+          delivered: delivered
+        };
+
+        this.doInsertOne(t1).then((x) => {
+          this.doInsertOne(t2).then((y) => {
+            resolve();
+          });
         });
       });
     });
@@ -492,7 +507,7 @@ export class Transaction extends Model {
       'other expense'
     ];
 
-    this.find({ fromId: '5cad44629687ac4a075e2f42', action: {$in: actions} }).then(trs1 => {
+    this.find({ fromId: '5cad44629687ac4a075e2f42', action: { $in: actions } }).then(trs1 => {
       const datas: any[] = [];
       trs1.map((t: any) => {
         datas.push({
@@ -502,7 +517,7 @@ export class Transaction extends Model {
       });
 
 
-      this.find({ toId: '5cad44629687ac4a075e2f42', action: {$in: actions} }).then(trs2 => {
+      this.find({ toId: '5cad44629687ac4a075e2f42', action: { $in: actions } }).then(trs2 => {
         trs2.map((t: any) => {
           datas.push({
             query: { _id: t._id },

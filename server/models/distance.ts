@@ -10,6 +10,12 @@ export interface ILatLng {
   lng: number;
 }
 
+export interface IPlace {
+  placeId: string;
+  lat: number;
+  lng: number;
+}
+
 export interface ILocation {
   placeId: string;
   lat: number;
@@ -37,7 +43,7 @@ export interface IDistance {
   originPlaceId: string;
   destinationPlaceId: string;
   origin: ILocation;
-  destination: ILocation;
+  destination: IPlace;
   element: IDistanceElement;
 }
 
@@ -70,7 +76,7 @@ export class Distance extends Model {
     }
   }
 
-  doReqRoadDistances(origin: ILocation, destinations: ILocation[]): Promise<IDistance[]> {
+  doReqRoadDistances(origin: ILocation, destinations: IPlace[]): Promise<IDistance[]> {
     const key = this.cfg.GOOGLE_DISTANCE_KEY;
     const ds: string[] = [];
     destinations.map((d: any) => {
@@ -119,6 +125,11 @@ export class Distance extends Model {
 
   dbHasAllPlaceIds(destIds: string[], dbDestIds: string[]) {
     let bFound = true;
+
+    if(destIds.length === 0 || dbDestIds.length === 0){
+      return false;
+    }
+
     destIds.map(d => {
       const _id = dbDestIds.find(id => id === d);
       if (!_id) {
@@ -129,10 +140,11 @@ export class Distance extends Model {
     return bFound;
   }
 
-  loadRoadDistances(origin: ILocation, destinations: ILocation[]): Promise<IDistance[]> {
+  // origin --- cannot be null, will have compile issue
+  loadRoadDistances(origin: ILocation, destinations: IPlace[]): Promise<IDistance[]> {
     const destIds: string[] = destinations.map(d => d.placeId);
     return new Promise((resolve, reject) => {
-      if (!origin) {
+      if (!origin || destinations.length === 0) {
         resolve([]);
       } else {
         this.find({ originPlaceId: origin.placeId }).then((ds: IDistance[]) => {

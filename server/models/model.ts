@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ObjectID } from "mongodb";
 import { DB } from "../db";
 import { Entity } from "../entity";
+import moment from "moment";
 
 export class Model extends Entity {
   constructor(dbo: DB, tableName: string) {
@@ -11,7 +12,7 @@ export class Model extends Entity {
   // m --- moment object for date
   // t --- string, eg: '11:20'
   // return moment object 
-  getTime(m: any, t: string) {
+  getTime(m: moment.Moment, t: string) {
     const hour = +(t.split(':')[0]);
     const minute = +(t.split(':')[1]);
     return m.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });

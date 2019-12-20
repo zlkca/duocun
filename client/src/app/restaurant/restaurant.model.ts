@@ -9,13 +9,13 @@ export interface IPhase {
   pickup: string; // hh:mm
 }
 
-export interface IRestaurant {
+export interface IMerchant {
   _id?: string;
   name: string;
   nameEN: string;
   description?: string;
   location?: GeoPoint;
-  ownerId?: string;
+  accountId: string;
   malls?: string[]; // mall id
   inRange?: boolean;
   created?: Date;
@@ -45,13 +45,13 @@ export interface IRestaurant {
 }
 
 // For database
-export class Restaurant implements IRestaurant {
+export class Restaurant implements IMerchant {
   _id: string;
   name: string;
   nameEN: string;
   description: string;
   location: GeoPoint;
-  ownerId: string;
+  accountId: string;
   malls: string[]; // mall id
   created: Date;
   modified: Date;
@@ -68,7 +68,7 @@ export class Restaurant implements IRestaurant {
   orderEnded: boolean; // do not save to db
   orderEndTime: string; // do not save to db
 
-  constructor(data?: IRestaurant) {
+  constructor(data?: IMerchant) {
     Object.assign(this, data);
   }
 }

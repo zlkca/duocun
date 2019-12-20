@@ -11,7 +11,6 @@ export interface ILatLng {
 
 export interface IArea {
   _id: string;
-  id: string;
   name: string;
   code: string;
   lat: number;
@@ -27,7 +26,7 @@ export class Area extends Model{
 
   getNearestArea(origin: ILatLng): Promise<IArea>{
     return new Promise( (resolve, reject) => {
-      this.find({}).then((areas: IArea[]) => {
+      this.find({status: 'active'}).then((areas: IArea[]) => {
         let selected: IArea = areas[0];
         let shortest = this.distanceModel.getDirectDistance(origin, selected);
         for (let i = 1; i < areas.length; i++) {
@@ -40,7 +39,7 @@ export class Area extends Model{
         }
         resolve(selected);
       }, err => {
-        reject();
+        resolve();
       });
     });
   }

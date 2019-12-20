@@ -35,7 +35,7 @@ export class AccountService extends EntityService {
     this.url = super.getBaseUrl() + 'Accounts';
   }
 
-  signup(account: Account): Observable<any> {
+  signup(account: IAccount): Observable<any> {
     return this.http.post(this.url + '/signup', account);
   }
 
@@ -57,18 +57,16 @@ export class AccountService extends EntityService {
   }
 
   // ------------------------------------
-  // getCurrentUser
-  // return Account object or null
-  getCurrentUser(): Observable<any> {
-    const id: any = this.authSvc.getUserId();
-    // const url = id ? (this.url + '/' + id) : (this.url + '/__anonymous__');
-    if (id) {
-      return this.findById(id);
+  // getCurrentAccount
+  // return IAccount or null
+  getCurrentAccount(): Observable<any> {
+    const tokenId: string = this.authSvc.getAccessTokenId();
+    if (tokenId) {
+      return this.http.get(this.url + '/current?tokenId=' + tokenId);
     } else {
       return of(null);
     }
   }
-
 
   wechatLogin(authCode: string) {
     const url = this.url + '/wechatLogin?code=' + authCode;

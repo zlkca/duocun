@@ -18,7 +18,7 @@ import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
 import { RangeService } from '../../range/range.service';
-import { IRestaurant } from '../../restaurant/restaurant.model';
+import { IMerchant } from '../../restaurant/restaurant.model';
 import { CartActions } from '../../cart/cart.actions';
 import { IMall } from '../../mall/mall.model';
 import { MallService } from '../../mall/mall.service';
@@ -92,7 +92,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const self = this;
 
-    this.accountSvc.getCurrentUser().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+    this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       const accountId: string = account._id;
       self.account = account;
 
@@ -122,7 +122,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IRestaurant) => {
+    this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IMerchant) => {
       self.restaurant = r;
     });
 
@@ -172,14 +172,14 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   onSelectPlace(e) {
     const origin: ILocation = e.location;
-    const accountId = this.account._id;
-    const accountName = this.account.username;
 
     this.options = [];
     if (origin) {
       this.location = origin;
       this.deliveryAddress = this.locationSvc.getAddrString(origin);
       if (this.account) {
+        const accountId = this.account._id;
+        const accountName = this.account.username;
         const query = { accountId: accountId, placeId: origin.placeId };
         const lh = { accountId: accountId, accountName: accountName, placeId: origin.placeId, location: origin };
 
@@ -189,41 +189,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       }
 
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: origin } });
-
-      // this.checkMallSchedule(origin, this.delivered.toISOString()).then(bOnSchedule => {
-      //   this.onSchedule = bOnSchedule;
-
-      //   this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
-      //     const ranges: IRange[] = [];
-      //     rs.map((r: IRange) => {
-      //       if (this.locationSvc.getDirectDistance(origin, {lat: r.lat, lng: r.lng}) < r.radius) {
-      //         ranges.push(r);
-      //       }
-      //     });
-
-      //     // this.rangeSvc.findAvailables(origin).pipe(takeUntil(this.onDestroy$)).subscribe((ranges: IRange[]) => {
-
-      //     this.inRange = (ranges && ranges.length > 0) ? true : false;
-      //     this.mapRanges = rs;
-      //     if (this.inRange) {
-      //       self.mapZoom = 14;
-      //       self.mapCenter = origin;
-      //     } else {
-      //       self.mapZoom = 9;
-      //       const farNorth = { lat: 44.2653618, lng: -79.4191007 };
-      //       self.mapCenter = {
-      //         lat: (origin.lat + farNorth.lat) / 2,
-      //         lng: (origin.lng + farNorth.lng) / 2
-      //       };
-      //     }
-      //     // this.address = origin; // order matters
-
-      //     self.rx.dispatch({
-      //       type: CommandActions.SEND,
-      //       payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: this.inRange } }
-      //     });
-      //   });
-      // });
     }
   }
 

@@ -3,7 +3,7 @@ import { AuthService } from '../account/auth.service';
 import { HttpClient } from '../../../node_modules/@angular/common/http';
 import { EntityService } from '../entity.service';
 import * as moment from 'moment';
-import { IRestaurant } from '../restaurant/restaurant.model';
+import { IMerchant } from '../restaurant/restaurant.model';
 import { ILocation } from '../location/location.model';
 import { Observable } from '../../../node_modules/rxjs';
 

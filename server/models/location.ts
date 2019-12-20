@@ -52,7 +52,7 @@ export class Location extends Model {
   reqPlaces(req: Request, res: Response) {
     let key = this.cfg.GOOGLE_PLACE_KEY;
     const input = req.params.input;
-
+    // const input = req.query.input;
     let url = encodeURI('https://maps.googleapis.com/maps/api/place/autocomplete/json?input=' + input + '&key=' + key
       + '&location=43.761539,-79.411079&radius=100'); // only for GTA
 

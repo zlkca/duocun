@@ -36,9 +36,6 @@ export class MallService extends EntityService {
     return bInRange;
   }
 
-  getAvailables( origin: ILocation, delivered: string ): Observable<any> {
-    const url = this.url + '/availables';
-    return this.doPost(url, { origin: origin, delivered: delivered });
-  }
+
 }
 
