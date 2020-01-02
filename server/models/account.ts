@@ -108,20 +108,18 @@ export class Account extends Model {
 
     this.trySignup(req.body.accountId, req.body.phone).then((r: any) => {
       if (r) {
-        // self.twilioClient.messages
-        //   .create({
-        //     body: (lang === 'en' ? 'Duocun Verification Code' : '多村外卖验证码:') + r.verificationCode,
-        //     from: '+16475591743',
-        //     to: "+1".concat(r.phone)
-        //   })
-        //   .then((message: any) => {
-        //     // console.log(message.sid);
-
-        const cfg = new Config();
-        const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
-        res.setHeader('Content-Type', 'application/json');
-        res.send(JSON.stringify(tokenId, null, 3));
-        // });
+        self.twilioClient.messages.create({
+            body: (lang === 'en' ? 'Duocun Verification Code' : '多村外卖验证码:') + r.verificationCode,
+            from: '+16475591743',
+            to: "+1".concat(r.phone)
+          })
+        .then((message: any) => {
+            // console.log(message.sid);
+          const cfg = new Config();
+          const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
+          res.setHeader('Content-Type', 'application/json');
+          res.send(JSON.stringify(tokenId, null, 3));
+        });
       } else {
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify('', null, 3));
