@@ -20,6 +20,8 @@ export function AccountRouter(db: DB){
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
 
+  router.post('/verifyCode', (req, res) => { controller.verifyCode(req, res); });
+  router.post('/sendVerifyMsg', (req, res) => { controller.sendVerifyMsg(req, res); });
   router.post('/applyMerchant', (req, res) => {merchantStuff.applyMerchant(req, res); });
   router.post('/getMerchantApplication', (req, res) => {merchantStuff.getApplication(req, res); });
 

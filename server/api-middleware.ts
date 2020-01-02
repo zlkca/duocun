@@ -12,6 +12,7 @@ export class ApiMiddleWare {
 
       if(req.path === '/api/Accounts/wechatLogin' || req.path === '/api/Accounts/login'
         || req.path === '/api/Accounts/signup' || req.path === '/api/Accounts/logout'
+        || req.path === '/api/Accounts/sendVerifyMsg'
         || (req.method === 'GET' && req.path.indexOf('/api/Accounts/') !== -1)
         || req.path.indexOf('/api/Locations/Places/') !== -1
         || req.path.indexOf('/api/Locations/Geocodes/') !== -1

@@ -51,35 +51,35 @@ export class SignupComponent implements OnInit {
 
   onSignup() {
     const v = this.form.value;
-    const account = new Account({
-      username: v.username,
-      email: '', // v.email,
-      password: v.password,
-      type: 'user'
-    });
-    this.authSvc.removeCookies();
+    // const account = new Account({
+    //   username: v.username,
+    //   email: '', // v.email,
+    //   password: v.password,
+    //   type: 'user'
+    // });
+    // this.authSvc.removeCookies();
 
-    if (this.form.invalid) {
-      this.errMsg = 'FieldEmpty';
-    } else if (this.validate(v.username)) {
-      this.errMsg = 'InvalidChar';
-    } else {
-      this.accountSvc.signup(account).subscribe((user: Account) => {
-        if (user && user._id) {
-          if (user.type === 'user') {
-            this.router.navigate(['main/home']);
-          } else if (user.type === 'worker') {
-            this.router.navigate(['order/list-worker']);
-          }
-        } else {
-          this.errMsg = 'UserExist';
-        }
-      },
-      err => {
-        console.log(err.message);
-        this.errMsg = 'UserExist';
-      });
-    }
+    // if (this.form.invalid) {
+    //   this.errMsg = 'FieldEmpty';
+    // } else if (this.validate(v.username)) {
+    //   this.errMsg = 'InvalidChar';
+    // } else {
+    //   this.accountSvc.signup(account).subscribe((user: Account) => {
+    //     if (user && user._id) {
+    //       if (user.type === 'user') {
+    //         this.router.navigate(['main/home']);
+    //       } else if (user.type === 'worker') {
+    //         this.router.navigate(['order/list-worker']);
+    //       }
+    //     } else {
+    //       this.errMsg = 'UserExist';
+    //     }
+    //   },
+    //   err => {
+    //     console.log(err.message);
+    //     this.errMsg = 'UserExist';
+    //   });
+    // }
   }
 
   onFocusUsername(e) {

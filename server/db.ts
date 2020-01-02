@@ -20,10 +20,10 @@ export class DB {
       MongoClient.connect(connectionStr, options).then((connectClient: MongoClient) => {
         const d: Db = connectClient.db(cfg.NAME);
         this.db = d;
-        console.log('mongodb connected ...');
+        // console.log('mongodb connected ...');
         resolve(connectClient);
       },(err)=>{
-        console.log('mongodb connection exception ...');
+        // console.log('mongodb connection exception ...');
         reject(err);
       });
     });

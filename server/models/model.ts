@@ -116,7 +116,7 @@ export class Model extends Entity {
     if (req.body.data instanceof Array) {
       this.bulkUpdate(req.body.data, req.body.options).then(x => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x.result, null, 3));
+        res.end(JSON.stringify(x, null, 3)); // x --- {status: 1, msg: ''}
       });
     } else {
       if (req.body && req.body.filter) {

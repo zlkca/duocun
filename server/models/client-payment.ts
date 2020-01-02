@@ -419,56 +419,56 @@ export class ClientPayment extends Model {
   }
 
   // deprecated
-  addGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const date = dateType === 'today' ? moment() : moment().add(1, 'day');
-      const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
-      const q = { delivered: range, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
-      this.orderEntity.find(q).then((orders: any[]) => {
-        this.orderEntity.addGroupDiscounts(clientId, orders).then((x: any) => {
-          this.balanceEntity.addGroupDiscounts(orders).then((x1: any) => {
-            resolve(x);
-          });
-        });
-      });
-    });
-  }
+  // addGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string): Promise<any> {
+  //   return new Promise((resolve, reject) => {
+  //     const date = dateType === 'today' ? moment() : moment().add(1, 'day');
+  //     const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
+  //     const q = { delivered: range, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
+  //     this.orderEntity.find(q).then((orders: any[]) => {
+  //       this.orderEntity.addGroupDiscounts(clientId, orders).then((x: any) => {
+  //         this.balanceEntity.addGroupDiscounts(orders).then((x1: any) => {
+  //           resolve(x);
+  //         });
+  //       });
+  //     });
+  //   });
+  // }
 
   // deprecated
-  removeGroupDiscount(date: string, address: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }
-      this.orderEntity.find(q).then((orders: any[]) => {
-        this.orderEntity.removeGroupDiscounts(orders).then((orderUpdates: any[]) => {
-          this.balanceEntity.removeGroupDiscounts(orders).then((balanceUpdates: any[]) => {
-            resolve(orders);
-          });
-        });
-      });
-    });
-  }
+  // removeGroupDiscount(date: string, address: string): Promise<any> {
+  //   return new Promise((resolve, reject) => {
+  //     const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }
+  //     this.orderEntity.find(q).then((orders: any[]) => {
+  //       this.orderEntity.removeGroupDiscounts(orders).then((orderUpdates: any[]) => {
+  //         this.balanceEntity.removeGroupDiscounts(orders).then((balanceUpdates: any[]) => {
+  //           resolve(orders);
+  //         });
+  //       });
+  //     });
+  //   });
+  // }
 
   // deprecated
-  reqAddGroupDiscount(req: Request, res: Response) {
-    const clientId = req.body.clientId;
-    const merchantId = req.body.merchantId;
-    const dateType = req.body.dateType;
-    const address = req.body.address;
+  // reqAddGroupDiscount(req: Request, res: Response) {
+  //   const clientId = req.body.clientId;
+  //   const merchantId = req.body.merchantId;
+  //   const dateType = req.body.dateType;
+  //   const address = req.body.address;
 
-    this.addGroupDiscount(clientId, merchantId, dateType, address).then((xs: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ status: 'success' }, null, 3));
-    });
-  }
+  //   this.addGroupDiscount(clientId, merchantId, dateType, address).then((xs: any) => {
+  //     res.setHeader('Content-Type', 'application/json');
+  //     res.end(JSON.stringify({ status: 'success' }, null, 3));
+  //   });
+  // }
 
   // deprecated
-  reqRemoveGroupDiscount(req: Request, res: Response) {
-    const delivered = req.body.delivered;
-    const address = req.body.address;
+  // reqRemoveGroupDiscount(req: Request, res: Response) {
+  //   const delivered = req.body.delivered;
+  //   const address = req.body.address;
 
-    this.removeGroupDiscount(delivered, address).then((xs: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ status: 'success' }, null, 3));
-    });
-  }
+  //   this.removeGroupDiscount(delivered, address).then((xs: any) => {
+  //     res.setHeader('Content-Type', 'application/json');
+  //     res.end(JSON.stringify({ status: 'success' }, null, 3));
+  //   });
+  // }
 }

@@ -16,11 +16,6 @@ export class AuthService {
     Cookies.set('duocun-token', token, { expires: COOKIE_EXPIRY_DAYS });
   }
 
-  getAccessToken(): string {
-    // return localStorage.getItem('token');
-    return Cookies.get('duocun-token');
-  }
-
 
   setAccessTokenId(token: string) {
     Cookies.set('duocun-token-id', token, { expires: COOKIE_EXPIRY_DAYS });

@@ -34,7 +34,7 @@ export class LocationService extends EntityService {
   // find(filter: any): Observable<any> {
   //   let headers: HttpHeaders = new HttpHeaders();
   //   headers = headers.append('Content-Type', 'application/json');
-  //   const accessTokenId = this.auth.getAccessToken();
+  //   const accessTokenId = this.auth.getAccessTokenId();
   //   if (accessTokenId) {
   //     headers = headers.append('Authorization', LoopBackConfig.getAuthPrefix() + accessTokenId);
   //     // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);

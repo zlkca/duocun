@@ -177,44 +177,45 @@ export class ClientBalance extends Model {
     }
   }
 
-  addGroupDiscounts(orders: any[]): Promise<any> {
-    const accountIds: string[] = [];
-    orders.map(item => { accountIds.push(item.clientId) });
+  // deprecated
+  // addGroupDiscounts(orders: any[]): Promise<any> {
+  //   const accountIds: string[] = [];
+  //   orders.map(item => { accountIds.push(item.clientId) });
 
-    return new Promise((resolve, reject) => {
-      this.find({ accountId: { $in: accountIds } }).then((balances: IClientBalance[]) => {
-        const balanceUpdates = this.getUpdatesForAddGroupDiscount(orders, balances, 2);
-        if (balanceUpdates && balanceUpdates.length > 0) {
-          this.bulkUpdate(balanceUpdates, {}).then((r: BulkWriteOpResultObject) => {
-            resolve(balanceUpdates);
-          });
-        } else {
-          resolve(balanceUpdates);
-        }
-      }, (err: any) => {
-        reject([]);
-      });
-    });
-  }
+  //   return new Promise((resolve, reject) => {
+  //     this.find({ accountId: { $in: accountIds } }).then((balances: IClientBalance[]) => {
+  //       const balanceUpdates = this.getUpdatesForAddGroupDiscount(orders, balances, 2);
+  //       if (balanceUpdates && balanceUpdates.length > 0) {
+  //         this.bulkUpdate(balanceUpdates, {}).then((r: BulkWriteOpResultObject) => {
+  //           resolve(balanceUpdates);
+  //         });
+  //       } else {
+  //         resolve(balanceUpdates);
+  //       }
+  //     }, (err: any) => {
+  //       reject([]);
+  //     });
+  //   });
+  // }
 
   // orders = [{data: {clientId: x}}];
-  removeGroupDiscounts(orders: any[]): Promise<any> {
-    const clientIds: string[] = [];
-    orders.map(item => { clientIds.push(item.clientId) });
+  // removeGroupDiscounts(orders: any[]): Promise<any> {
+  //   const clientIds: string[] = [];
+  //   orders.map(item => { clientIds.push(item.clientId) });
 
-    return new Promise((resolve, reject) => {
-      this.find({ accountId: { $in: clientIds } }).then((balances: any[]) => {
-        const balanceUpdates = this.getUpdatesForRemoveGroupDiscount(orders, balances, 2);
-        if (balanceUpdates && balanceUpdates.length > 0) {
-          this.bulkUpdate(balanceUpdates, {}).then((r: BulkWriteOpResultObject) => {
-            resolve(balanceUpdates);
-          });
-        } else {
-          resolve(balanceUpdates);
-        }
-      });
-    });
-  }
+  //   return new Promise((resolve, reject) => {
+  //     this.find({ accountId: { $in: clientIds } }).then((balances: any[]) => {
+  //       const balanceUpdates = this.getUpdatesForRemoveGroupDiscount(orders, balances, 2);
+  //       if (balanceUpdates && balanceUpdates.length > 0) {
+  //         this.bulkUpdate(balanceUpdates, {}).then((r: BulkWriteOpResultObject) => {
+  //           resolve(balanceUpdates);
+  //         });
+  //       } else {
+  //         resolve(balanceUpdates);
+  //       }
+  //     });
+  //   });
+  // }
 
   updateAll() {
     const dt = moment().endOf('day').toISOString();

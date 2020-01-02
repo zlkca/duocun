@@ -23,6 +23,7 @@ import { OrderService } from '../order/order.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { AddCreditPageComponent } from './add-credit-page/add-credit-page.component';
 import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
+import { PhoneVerifyPageComponent } from './phone-verify-page/phone-verify-page.component';
 
 @NgModule({
     imports: [
@@ -49,7 +50,8 @@ import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pag
       ProfileFormComponent,
       AccountPageComponent,
       BalancePageComponent,
-      AddCreditPageComponent
+      AddCreditPageComponent,
+      PhoneVerifyPageComponent
     ],
     providers: [
       AccountService,

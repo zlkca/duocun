@@ -35,8 +35,19 @@ export class AccountService extends EntityService {
     this.url = super.getBaseUrl() + 'Accounts';
   }
 
-  signup(account: IAccount): Observable<any> {
-    return this.http.post(this.url + '/signup', account);
+  // d --- accountId, phone, lang: 'en' or 'zh'
+  sendVerifyMsg(accountId: string, phone: string, lang: string): Observable<any> {
+    const url = this.url + '/sendVerifyMsg';
+    return this.doPost(url, {accountId: accountId, phone: phone, lang: lang});
+  }
+
+  verifyCode(phone: string, code: string): Observable<any> {
+    const url = this.url + '/verifyCode';
+    return this.doPost(url, {code: code, phone: phone});
+  }
+
+  signup(phone: string, verificationCode: string): Observable<any> {
+    return this.http.post(this.url + '/signup', {phone: phone, verificationCode: verificationCode});
   }
 
   // login --- return {id: tokenId, ttl: 10000, userId: r._id}

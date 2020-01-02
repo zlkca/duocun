@@ -24,7 +24,7 @@ export class EntityService {
   quickFind(filter?: any, distinct?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
@@ -42,7 +42,7 @@ export class EntityService {
   find(filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);
@@ -56,7 +56,7 @@ export class EntityService {
   findById(id: string, filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
     }
@@ -69,7 +69,7 @@ export class EntityService {
   doGet(url: string, filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
     }
@@ -82,7 +82,7 @@ export class EntityService {
   doPost(url: string, entity: any, filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
     }
@@ -97,7 +97,7 @@ export class EntityService {
   doPatch(url: string, data: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
     }
@@ -107,7 +107,7 @@ export class EntityService {
   save(entity: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
     }
@@ -117,7 +117,7 @@ export class EntityService {
   update(filter: any, data: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
     }
@@ -127,7 +127,7 @@ export class EntityService {
   remove(filter?: any): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
     }
@@ -140,7 +140,7 @@ export class EntityService {
   removeById(id: string): Observable<any> {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/json');
-    const accessTokenId = this.cookieSvc.getAccessToken();
+    const accessTokenId = this.cookieSvc.getAccessTokenId();
     if (accessTokenId) {
       headers = headers.append('Authorization', this.authPrefix + accessTokenId);
       // httpParams = httpParams.append('access_token', LoopBackConfig.getAuthPrefix() + accessTokenId);

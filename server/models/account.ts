@@ -34,13 +34,123 @@ export interface IAccount {
   stripeCustomerId?: string;
   pickup: string;
   balance: number;
+  verificationCode: string;
+  verified: boolean;
 }
 
 export class Account extends Model {
-  // private contactModel: Contact;
+  cfg: Config;
+  twilioClient: any;
+
   constructor(dbo: DB) {
     super(dbo, 'users');
-    // this.contactModel = new Contact(dbo);
+    this.cfg = new Config();// JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
+    this.twilioClient = require('twilio')(this.cfg.TWILIO.SID, this.cfg.TWILIO.TOKEN);
+  }
+
+  trySignup(accountId: string, rawPhone: any): Promise<any> {
+    const d1 = Math.floor(Math.random() * 10).toString();
+    const d2 = Math.floor(Math.random() * 10).toString();
+    const d3 = Math.floor(Math.random() * 10).toString();
+    const d4 = Math.floor(Math.random() * 10).toString();
+    const code = d1 + d2 + d3 + d4;
+
+    let phone = rawPhone.substring(0, 2) === '+1' ? rawPhone.substring(2) : rawPhone;
+    phone = phone.match(/\d+/g).join('');
+
+    return new Promise((resolve, reject) => {
+      this.findOne({ phone: phone }).then((account: IAccount) => {
+        if (account) { // phone number unchange, verification code could change
+          const data = { phone: phone, verificationCode: code };
+          this.updateOne({ _id: account._id.toString() }, data).then((r) => {
+            if (r.ok === 1) {
+              resolve({ accountId: account._id.toString(), phone: phone, verificationCode: code });
+            } else {
+              resolve({ accountId: '', phone: phone, verificationCode: code }); // fix me
+            }
+          });
+        } else {
+          if (accountId) { // account exist, change account phone number
+            const data = { phone: phone, verificationCode: code, verified: false };
+            this.updateOne({ _id: accountId }, data).then((r) => {
+              if (r.ok === 1) {
+                resolve({ accountId: accountId, phone: phone, verificationCode: code });
+              } else {
+                resolve({ accountId: '', phone: phone, verificationCode: code });
+              }
+            });
+          } else { // account and phone number do not exist, create temp account
+            // bcrypt.hash(password, saltRounds, (err, hash) => {
+            //   data['password'] = hash;
+            const data = {
+              username: phone,
+              phone: phone,
+              type: 'tmp', // tmp user are those verified phone but did not signup under agreement
+              balance: 0,
+              verificationCode: code,
+              verified: false,
+              created: moment().toISOString()
+            };
+            this.insertOne(data).then((x: IAccount) => {
+              resolve({ accountId: x._id.toString(), phone: phone, verificationCode: code });
+            });
+            // });
+          }
+        }
+      });
+    });
+  }
+
+  // req --- require accountId, username and phone fields
+  sendVerifyMsg(req: Request, res: Response) {
+    const self = this;
+    const lang = req.body.lang;
+
+    this.trySignup(req.body.accountId, req.body.phone).then((r: any) => {
+      if (r) {
+        // self.twilioClient.messages
+        //   .create({
+        //     body: (lang === 'en' ? 'Duocun Verification Code' : '多村外卖验证码:') + r.verificationCode,
+        //     from: '+16475591743',
+        //     to: "+1".concat(r.phone)
+        //   })
+        //   .then((message: any) => {
+        //     // console.log(message.sid);
+
+        const cfg = new Config();
+        const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(tokenId, null, 3));
+        // });
+      } else {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify('', null, 3));
+      }
+    });
+  }
+
+  doVerifyPhone(phone: string, code: string) {
+    return new Promise((resolve, reject) => {
+      this.findOne({ phone: phone }).then(a => {
+        if (a) {
+          const verified = a && a.verificationCode.toString() === code;
+          this.updateOne({ _id: a._id.toString() }, { verified: verified }).then((result) => {
+            resolve(verified);
+          });
+        } else {
+          resolve(false);
+        }
+      });
+    });
+  }
+
+  verifyCode(req: Request, res: Response) {
+    const phone = req.body.phone;
+    let code = req.body.code;
+    this.doVerifyPhone(phone, code).then((verified) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(verified, null, 3));
+    });
   }
 
   list(req: Request, res: Response) {
@@ -49,40 +159,53 @@ export class Account extends Model {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
     query = this.convertIdFields(query);
-    // this.contactModel.find({}).then((cs: any[]) => {
-      this.find(query).then(accounts => {
-        accounts.map((account: any) => {
-          delete account.password;
-          // account.contact = cs.find((c: any) => c.accountId.toString() === account._id.toString());
-        });
-
-        res.setHeader('Content-Type', 'application/json');
-        res.send(JSON.stringify(accounts, null, 3));
+    this.find(query).then(accounts => {
+      accounts.map((account: any) => {
+        delete account.password;
       });
-    // });
+
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(accounts, null, 3));
+    });
   }
 
 
   getCurrentAccount(req: Request, res: Response) {
     const tokenId: string = req.query.tokenId;
+
+    this.getAccountByToken(tokenId).then(account => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(account, null, 3));
+    });
+  }
+
+  getAccountByToken(tokenId: string): Promise<IAccount> {
     const cfg = new Config();
-    const accountId = jwt.verify(tokenId, cfg.JWT.SECRET);
-    if(accountId){
-      this.findOne({_id: accountId}).then(account => {
-        res.setHeader('Content-Type', 'application/json');
-        res.send(JSON.stringify(account, null, 3));
-      });
-    }
+
+    return new Promise((resolve, reject) => {
+      if(tokenId && tokenId !== 'undefined'){
+        const accountId = jwt.verify(tokenId, cfg.JWT.SECRET);
+        if (accountId) {
+          this.findOne({ _id: accountId }).then((account: IAccount) => {
+            if (account) {
+              delete account.password;
+            }
+            resolve(account);
+          });
+        } else {
+          resolve();
+        }
+      }else{
+        resolve();
+      }
+    });
   }
 
   signup(req: Request, res: Response) {
     const phone = req.body.phone;
-    const username = req.body.username;
-    const password = req.body.password;
-    const type = req.body.type;
-    const _id = req.body._id; // optional
+    const code = req.body.verificationCode;
 
-    this.doSignup(_id, type, username, phone, password).then((account: any) => {
+    this.doSignup(phone, code).then((account: any) => {
       res.setHeader('Content-Type', 'application/json');
 
       const cfg = new Config();
@@ -91,47 +214,86 @@ export class Account extends Model {
     });
   }
 
-  doSignup(accountId: string, type: string, username: string, phone: string, password: string): Promise<IAccount>{
-    const data = accountId ? {
-      _id: accountId,
-      username: username,
-      phone: phone,
-      type: type,
-      password: '',
-      balance: 0,
-      created: moment().toISOString()
-    } : {
-      username: username,
-      phone: phone,
-      type: type,
-      password: '',
-      balance: 0,
-      created: moment().toISOString()
-    };
-
+  createTmpAccount(phone: string, verificationCode: string): Promise<IAccount> {
     return new Promise((resolve, reject) => {
-      if(accountId){
-        bcrypt.hash(password, saltRounds, (err, hash) => {
-          data['password'] = hash;
-          this.insertOne(data).then(x => {
-            x.password = '';
-            resolve(x);
-          });
-        });
-      }else{
-        this.findOne({phone: phone}).then(x => {
-          if(x){
-            resolve();
-          }else{
-            bcrypt.hash(password, saltRounds, (err, hash) => {
-              data['password'] = hash;
-              this.insertOne(data).then(x => {
-                x.password = '';
-                resolve(x);
-              });
+
+    });
+  }
+
+  // There are two senarios for signup.
+  // 1. after user verified phone number, there is a button for signup. For this senario, phone number and verification code are mandatory
+  // 2. when user login from 3rd party, eg. from wechat, it will do signup. For this senario, wechat openid is mandaroty.
+  // only allow to signup with phone number and verification code (password)
+  doSignup(phone: string, verificationCode: string): Promise<IAccount> {
+    return new Promise((resolve, reject) => {
+      if (phone) {
+        this.findOne({ phone: phone }).then((x: IAccount) => {
+          if (x) {
+            // bcrypt.hash(password, saltRounds, (err, hash) => {
+            const updates = { phone: phone, verificationCode: verificationCode, type: 'client' };
+            this.updateOne({ _id: x._id.toString() }, updates).then(() => {
+              delete x.password;
+              x = { ...x, ...updates };
+              resolve(x);
+            });
+            // });
+          } else { // should not go here
+            const data = {
+              username: phone,
+              phone: phone,
+              type: 'client', // tmp user are those verified phone but did not signup under agreement
+              balance: 0,
+              verificationCode: verificationCode,
+              verified: false,
+              created: moment().toISOString()
+            };
+            this.insertOne(data).then((x: IAccount) => {
+              resolve(x);
             });
           }
-        })
+        });
+      } else {
+        resolve();
+      }
+    });
+  }
+
+  // When user login from 3rd party, eg. from wechat, it will do signup. For this senario, wechat openid is mandaroty.
+  doWechatSignup(openId: string, username: string, imageurl: string, sex: number): Promise<IAccount> {
+    return new Promise((resolve, reject) => {
+      if (openId) {
+        this.findOne({ openId: openId }).then((x: IAccount) => {
+          if (x) {
+            const updates = {
+              username: username,
+              imageurl: imageurl,
+              sex: sex
+            };
+            this.updateOne({ _id: x._id.toString() }, updates).then(() => {
+              delete x.password;
+              x = { ...x, ...updates };
+              resolve(x);
+            });
+          } else {
+            const data = {
+              username: username,
+              imageurl: imageurl,
+              sex: sex,
+              type: 'user',
+              realm: 'wechat',
+              openId: openId,
+              // unionId: x.unionid, // not be able to get wechat unionId
+              balance: 0,
+              created: moment().toISOString(),
+            };
+            this.insertOne(data).then((x: IAccount) => {
+              delete x.password;
+              resolve(x);
+            });
+          }
+        });
+      } else {
+        resolve();
       }
     });
   }
@@ -143,15 +305,15 @@ export class Account extends Model {
   // phone    --- optional, can be null, unique phone number, verification code as password by default
   // password --- mandadory field
   doLogin(username: string, phone: string, password: string): Promise<string> {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       let query = null;
-      if(username){
+      if (username) {
         query = { username: username };
-      }else if(phone){
+      } else if (phone) {
         query = { phone: phone };
       }
-      
-      if(query){
+
+      if (query) {
         this.findOne(query).then((r: IAccount) => {
           if (r && r.password) {
             bcrypt.compare(password, r.password, (err, matched) => {
@@ -168,9 +330,35 @@ export class Account extends Model {
             return resolve();
           }
         });
-      }else{
+      } else {
         resolve();
       }
+    });
+  }
+
+  wechatLogin(req: Request, res: Response) {
+    const utils = new Utils();
+    const cfg = new Config();
+    const authCode = req.query.code;
+    utils.getWechatAccessToken(authCode).then((r: any) => {
+      utils.getWechatUserInfo(r.access_token, r.openid).then((x: any) => { // IAccount
+        // try find
+        this.doWechatSignup(r.openid, r.nickname, r.headimgurl, r.sex).then((account: IAccount) => {
+          if (account) {
+            const accountId = account._id.toString();
+            const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
+            res.send(JSON.stringify(tokenId, null, 3));
+          } else {
+            res.send(JSON.stringify('', null, 3));
+          }
+        });
+      }, err => {
+        console.log(err);
+        res.send(JSON.stringify('', null, 3));
+      });
+    }, err => {
+      console.log(err);
+      res.send(JSON.stringify('', null, 3));
     });
   }
   // cb --- function(errors)
@@ -247,114 +435,60 @@ export class Account extends Model {
   // 	},
   // };
 
-  wechatLogin(req: Request, res: Response) {
-    const utils = new Utils();
-    const cfg = new Config();
-    const authCode = req.query.code;
-    utils.getWechatAccessToken(authCode).then((ret: any) => {
-      utils.getWechatUserInfo(ret.access_token, ret.openid).then((x: any) => { // IAccount
-        this.findOne({ openId: ret.openid }).then((r: IAccount) => {
-          if (r) {
-            // update latest wechat info into account
-            const updates = {
-              username: x.nickname,
-              imageurl: x.headimgurl,
-              sex: x.sex
-            };
-            const accountId = r._id.toString();
-            this.updateOne({ _id: accountId }, updates).then(() => {
-              const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
-              res.send(JSON.stringify(tokenId, null, 3));
-            }, err => {
-              console.log(err);
-              res.send(JSON.stringify('', null, 3));
-            });
-          } else {
-            const user = {
-              type: 'user',
-              username: x.nickname,
-              imageurl: x.headimgurl,
-              sex: x.sex,
-              realm: 'wechat',
-              openId: x.openid,
-              // unionId: x.unionid, // not be able to get wechat unionId
-              balance: 0
-            };
-            this.insertOne(user).then(account => {
-              const accountId = account._id.toString();
-              const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
-              res.send(JSON.stringify(tokenId, null, 3));
-            }, err => {
-              console.log(err);
-              res.send(JSON.stringify('', null, 3));
-            });
-          }
-        }, err => {
-          console.log(err);
-          res.send(JSON.stringify('', null, 3));
-        });
-      }, err => {
-        console.log(err);
-        res.send(JSON.stringify('', null, 3));
-      });
-    }, err => {
-      console.log(err);
-      res.send(JSON.stringify('', null, 3));
-    });
-  }
 
 
-  getMyBalanceForRemoveOrder(balance: number, paymentMethod: string, payable: number) {
-    if (paymentMethod === 'prepaid' || paymentMethod === 'cash') {
-      return Math.round((balance + payable) * 100) / 100;
-    } else if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
-      return Math.round((balance + payable) * 100) / 100;
-    } else {
-      return null; // no need to update balance
-    }
-  }
+
+  // getMyBalanceForRemoveOrder(balance: number, paymentMethod: string, payable: number) {
+  //   if (paymentMethod === 'prepaid' || paymentMethod === 'cash') {
+  //     return Math.round((balance + payable) * 100) / 100;
+  //   } else if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
+  //     return Math.round((balance + payable) * 100) / 100;
+  //   } else {
+  //     return null; // no need to update balance
+  //   }
+  // }
 
   // deprecated
-  updateMyBalanceForRemoveOrder(order: any): Promise<any> {
-    const clientId = order.clientId;
-    return new Promise((resolve, reject) => {
-      this.find({ _id: clientId }).then((accounts: any[]) => {
-        if (accounts && accounts.length > 0) {
-          const balance = accounts[0].balance;
-          const newAmount = this.getMyBalanceForRemoveOrder(balance, order.paymentMethod, order.total);
-          if (newAmount === null) {
-            resolve(null);
-          } else {
-            this.updateOne({ _id: clientId }, { amount: newAmount }).then(x => { // fix me
-              resolve(x);
-            });
-          }
-        } else {
-          resolve(null);
-        }
-      });
-    });
-  }
+  // updateMyBalanceForRemoveOrder(order: any): Promise<any> {
+  //   const clientId = order.clientId;
+  //   return new Promise((resolve, reject) => {
+  //     this.find({ _id: clientId }).then((accounts: any[]) => {
+  //       if (accounts && accounts.length > 0) {
+  //         const balance = accounts[0].balance;
+  //         const newAmount = this.getMyBalanceForRemoveOrder(balance, order.paymentMethod, order.total);
+  //         if (newAmount === null) {
+  //           resolve(null);
+  //         } else {
+  //           this.updateOne({ _id: clientId }, { amount: newAmount }).then(x => { // fix me
+  //             resolve(x);
+  //           });
+  //         }
+  //       } else {
+  //         resolve(null);
+  //       }
+  //     });
+  //   });
+  // }
 
-  updateMyBalanceForAddOrder(clientId: string, paid: number): Promise<any> {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      this.find({ _id: clientId }).then((accounts: any[]) => {
-        if (accounts && accounts.length > 0) {
-          const balance = accounts[0].balance;
-          const newAmount = Math.round((balance + paid) * 100) / 100;
-          // const newAmount = this.getMyBalanceForAddOrder(balance.amount, order.paymentMethod, order.status === 'paid', order.total, paid);
-          if (newAmount === null) {
-            resolve(null);
-          } else {
-            this.updateOne({ _id: clientId }, { amount: newAmount, ordered: true }).then(x => {
-              resolve(x);
-            });
-          }
-        } else {
-          resolve(null);
-        }
-      });
-    });
-  }
+  // updateMyBalanceForAddOrder(clientId: string, paid: number): Promise<any> {
+  //   const self = this;
+  //   return new Promise((resolve, reject) => {
+  //     this.find({ _id: clientId }).then((accounts: any[]) => {
+  //       if (accounts && accounts.length > 0) {
+  //         const balance = accounts[0].balance;
+  //         const newAmount = Math.round((balance + paid) * 100) / 100;
+  //         // const newAmount = this.getMyBalanceForAddOrder(balance.amount, order.paymentMethod, order.status === 'paid', order.total, paid);
+  //         if (newAmount === null) {
+  //           resolve(null);
+  //         } else {
+  //           this.updateOne({ _id: clientId }, { amount: newAmount, ordered: true }).then(x => {
+  //             resolve(x);
+  //           });
+  //         }
+  //       } else {
+  //         resolve(null);
+  //       }
+  //     });
+  //   });
+  // }
 }

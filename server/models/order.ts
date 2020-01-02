@@ -2,12 +2,10 @@ import { Request, Response } from "express";
 import { DB } from "../db";
 import { Model } from "./model";
 import { ILocation } from "./location";
-import { BulkWriteOpResultObject, ObjectID, ObjectId } from "mongodb";
+import { BulkWriteOpResultObject } from "mongodb";
 import { OrderSequence } from "./order-sequence";
-import { ClientBalance, IClientBalance } from "./client-balance";
 import moment from 'moment';
-import { Merchant } from "./merchant";
-import { resolve } from "path";
+import { Merchant, IPhase, IMerchant, IDbMerchant } from "./merchant";
 import { Account, IAccount } from "./account";
 import { Transaction, ITransaction } from "./transaction";
 import { Product } from "./product";
@@ -75,8 +73,6 @@ export interface IOrder {
   mode?: string; // for unit test
   dateType?: string; // 'today', 'tomorrow'
 }
-
-
 
 export class Order extends Model {
   private productModel: Product;
@@ -201,8 +197,6 @@ export class Order extends Model {
     });
   }
 
-
-
   create(req: Request, res: Response) {
     const order = req.body;
     this.doInsertOne(order).then(savedOrder => {
@@ -211,71 +205,88 @@ export class Order extends Model {
     });
   }
 
-  getDeliveryDateTimeByPhase(createdDateTime: string, phases: any[], dateType: string): string {
-    if (dateType === 'today') {
-      const created = moment(createdDateTime);
+  // localDateTime --- local date time string '2019-11-03T11:20:00.000Z'
+  // sLocalTime     --- local hour and minute eg. '11:20'
+  // return --- utc date time
+  getUTC(localDateTime: moment.Moment, sLocalTime: string ): moment.Moment {
+      const hour = +(sLocalTime.split(':')[0]);   // local hour
+      const minute = +(sLocalTime.split(':')[1]); // local minute
+      return localDateTime.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });
 
+  }
+
+  // sUTC --- utc date time string
+  toLocalDateTimeString(sUTC: string){
+    return moment(sUTC).local().format('YYYY-MM-DDTHH:mm:ss')+'.000Z';
+  }
+
+  // if over 11:30, the return dt is 11:20, this shouldn't happen
+  // return --- utc date time string
+  // utcCreated --- must be utc date time string!!! '2019-11-03T11:20:00.000Z'
+  getDeliveryDateTimeByPhase(sUtcCreated: string, phases: IPhase[], dateType: string): string {
+    const utcCreated = moment.utc(sUtcCreated);
+    const sLocalCreated = this.toLocalDateTimeString(sUtcCreated);
+
+    if (dateType === 'today') {
       for (let i = 0; i < phases.length; i++) {
         const phase = phases[i];
-        const orderEndTime = this.getTime(moment(), phase.orderEnd);
+        const orderEndTime = this.getUTC(moment(sLocalCreated), phase.orderEnd);
 
         if (i === 0) {
-          if (created.isSameOrBefore(orderEndTime)) {
-            return this.getTime(moment(), phase.pickup).toISOString();
+          if (utcCreated.isSameOrBefore(orderEndTime)) {
+            return this.getUTC(moment(sLocalCreated), phase.pickup).toISOString();
           }else{
             // pass
           }
         } else {
           const prePhase = phases[i - 1];
-          const preEndTime = this.getTime(moment(), prePhase.orderEnd);
+          const preEndTime = this.getUTC(moment(sLocalCreated), prePhase.orderEnd);
 
-          if (created.isAfter(preEndTime) && created.isSameOrBefore(orderEndTime)) {
-            return this.getTime(moment(), phase.pickup).toISOString();
+          if (utcCreated.isAfter(preEndTime) && utcCreated.isSameOrBefore(orderEndTime)) {
+            return this.getUTC(moment(sLocalCreated), phase.pickup).toISOString();
           }else{
             // pass
           }
         }
       }
-      // if none of the phase hit, use the last
-      const last = phases[phases.length - 1];
-      return this.getTime(moment(), last.pickup).toISOString();
+      // if none of the phase hit, use the first
+      const first = phases[0];
+      return this.getUTC(moment(sLocalCreated), first.pickup).toISOString();
     } else {
       const phase = phases[0];
-      return this.getTime(moment().add(1, 'day'), phase.pickup).toISOString();
+      return this.getUTC(moment(sLocalCreated), phase.pickup).add(1, 'day').toISOString();
     }
   }
 
-  getDeliveryDateTime(order: IOrder): Promise<string> {
-    const orderType = order.type;
-    const dateType: any = order.dateType;
-    const clientId = order.clientId;
-    const merchantId = order.merchantId;
+  getDeliveryDateTime(orderType: OrderType, dateType: string, clientId: string, phases: IPhase[], utcCreated: string): Promise<string> {
+    // const orderType = order.type;
+    // const dateType: any = order.dateType;
+    // const clientId = order.clientId;
+    // const merchantId = order.merchantId;
 
     return new Promise((resolve, reject) => {
       if (orderType === OrderType.MOBILE_PLAN_MONTHLY || orderType === OrderType.MOBILE_PLAN_SETUP) {
-        const delivered = this.getTime(moment(), '23:30').toISOString();
+        const delivered = this.getUTC(moment(), '23:30').toISOString();
         resolve(delivered);
       } else {
         let delivered = '';
         this.accountModel.findOne({ _id: clientId }).then((account: IAccount) => {
-          this.merchantModel.findOne({ _id: merchantId }).then((merchant: any) => {
-            if (account.pickup) {
-              if (dateType) {
-                const date = (dateType === 'today') ? moment() : moment().add(1, 'day');
-                delivered = this.getTime(date, account.pickup).toISOString();
-              } else {
-                delivered = this.getTime(moment(), '23:30').toISOString();
-              }
+          if (account.pickup) {
+            if (dateType) {
+              const date = (dateType === 'today') ? moment() : moment().add(1, 'day');
+              delivered = this.getUTC(date, account.pickup).toISOString();
             } else {
-              if (merchant && merchant.phases) {
-                const created: any = order.created;
-                delivered = this.getDeliveryDateTimeByPhase(created, merchant.phases, dateType);
-              } else {
-                delivered = this.getTime(moment(), '23:30').toISOString();
-              }
+              delivered = this.getUTC(moment(), '23:30').toISOString();
             }
-            resolve(delivered);
-          });
+          } else {
+            if (phases && phases.length > 0) {
+              // const utcCreated: any = order.created; // utc date time string
+              delivered = this.getDeliveryDateTimeByPhase(utcCreated, phases, dateType);
+            } else {
+              delivered = this.getUTC(moment(), '23:30').toISOString();
+            }
+          }
+          resolve(delivered);
         });
       }
     });
@@ -338,37 +349,44 @@ export class Order extends Model {
     return new Promise((resolve, reject) => {
       this.sequenceModel.reqSequence().then((sequence: number) => {
         order.code = this.sequenceModel.getCode(location, sequence);
-        order.created = moment().toISOString();
+        order.created = moment.utc().toISOString();
 
-        this.getDeliveryDateTime(order).then((deliveredStr) => {
-          order.delivered = deliveredStr;
-          delete order.dateType;
+        const orderType: any = order.type;
+        const dateType: any = order.dateType;
+        const clientId = order.clientId;
+        const merchantId = order.merchantId;
+        const utcCreatedStr = order.created;
 
-          this.insertOne(order).then((savedOrder: IOrder) => {
-            const merchantId: string = order.merchantId.toString();
-            const merchantName = order.merchantName;
-            const clientId: string = order.clientId.toString();
-            const clientName = order.clientName;
-            const cost = order.cost;
-            const total = order.total;
-            const deliverd = order.delivered;
+        this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
+          const phases = merchant ? merchant.phases : [];
+          this.getDeliveryDateTime(orderType, dateType, clientId, phases, utcCreatedStr).then((utcDeliveredStr) => {
+            order.delivered = utcDeliveredStr;
+            delete order.dateType;
 
-            // temporary order didn't update transaction until paid
-            if (order.status === 'tmp') {
-              resolve(savedOrder);
-            } else {
-              const orderId: any = savedOrder._id;
-              this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), merchantId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
+            this.insertOne(order).then((savedOrder: IOrder) => {
+              const merchantName = order.merchantName;
+              const clientId: string = order.clientId.toString();
+              const clientName = order.clientName;
+              const cost = order.cost;
+              const total = order.total;
+              const deliverd: any = order.delivered;
+
+              // temporary order didn't update transaction until paid
+              if (order.status === 'tmp') {
                 resolve(savedOrder);
-              });
-            }
+              } else {
+                const orderId: any = savedOrder._id;
+                const merchantAccountId = merchant.accountId.toString();
+                this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), merchantAccountId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
+                  resolve(savedOrder);
+                });
+              }
+            });
           });
         });
       });
     });
   }
-
-
 
   doRemoveOne(orderId: string) {
     return new Promise((resolve, reject) => {
@@ -388,9 +406,13 @@ export class Order extends Model {
               const total = order.total;
               const delivered = order.deliverd;
 
-              this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' }).then(() => {
-                this.transactionModel.saveTransactionsForRemoveOrder(merchantId, merchantName, clientId, clientName, cost, total, delivered).then(() => {
-                  resolve(order);
+              this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
+                this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' }).then(() => { // ??
+                  const merchantAccountId = merchant.accountId.toString();
+                  this.transactionModel.saveTransactionsForRemoveOrder(orderId, merchantAccountId, merchantName, clientId, clientName,
+                    cost, total, delivered).then(() => {
+                    resolve(order);
+                  });
                 });
               });
             }
@@ -465,37 +487,38 @@ export class Order extends Model {
   // }
 
   // date: string, address: string
-  addGroupDiscounts(clientId: string, orders: any[]): Promise<any> {
-    // this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
-    const others = orders.filter((x: any) => x.clientId && x.clientId.toString() !== clientId.toString()); // fix me!!!
-    // others > 0 then affect other orders and balances
-    const orderUpdates = this.getUpdatesForAddGroupDiscount(others, 2);
+  // addGroupDiscounts(clientId: string, orders: any[]): Promise<any> {
+  //   // this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
+  //   const others = orders.filter((x: any) => x.clientId && x.clientId.toString() !== clientId.toString()); // fix me!!!
+  //   // others > 0 then affect other orders and balances
+  //   const orderUpdates = this.getUpdatesForAddGroupDiscount(others, 2);
 
-    return new Promise((resolve, reject) => {
-      if (orderUpdates && orderUpdates.length > 0) {
-        this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
-          resolve(orderUpdates);
-        });
-      } else {
-        resolve(orderUpdates);
-      }
-    });
-  }
+  //   return new Promise((resolve, reject) => {
+  //     if (orderUpdates && orderUpdates.length > 0) {
+  //       this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
+  //         resolve(orderUpdates);
+  //       });
+  //     } else {
+  //       resolve(orderUpdates);
+  //     }
+  //   });
+  // }
 
   // date: string, address: string
-  removeGroupDiscounts(orders: any[]): Promise<any> {
-    const orderUpdates = this.getUpdatesForRemoveGroupDiscount(orders, 2);
-    return new Promise((resolve, reject) => {
-      if (orderUpdates && orderUpdates.length > 0) {
-        this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
-          resolve(orderUpdates);
-        });
-      } else {
-        resolve(orderUpdates);
-      }
-    });
-  }
+  // removeGroupDiscounts(orders: any[]): Promise<any> {
+  //   const orderUpdates = this.getUpdatesForRemoveGroupDiscount(orders, 2);
+  //   return new Promise((resolve, reject) => {
+  //     if (orderUpdates && orderUpdates.length > 0) {
+  //       this.bulkUpdate(orderUpdates, {}).then((r: BulkWriteOpResultObject) => {
+  //         resolve(orderUpdates);
+  //       });
+  //     } else {
+  //       resolve(orderUpdates);
+  //     }
+  //   });
+  // }
 
+  // deprecated
   replace(req: Request, res: Response) {
     this.replaceById(req.body.id, req.body).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
@@ -504,42 +527,45 @@ export class Order extends Model {
     });
   }
 
+  // deprecated
   //--------------------------------------------------------------------------------
   // The client can only get one group discount, if he/she has multiple orders.
-  getUpdatesForAddGroupDiscount(orders: IOrder[], groupDiscount: number) {
-    const groups = this.groupBy(orders, 'clientId');
-    const a: any[] = [];
-    Object.keys(groups).map(key => {
-      const os = groups[key];
-      if (os && os.length > 0) {
-        const hasGroupDiscount = os.find((x: IOrder) => x.groupDiscount !== 0);
-        if (hasGroupDiscount) {
-          // pass
-        } else {
-          const order = os[0];
-          const amount = Math.round(((order.total ? order.total : 0) - groupDiscount) * 100) / 100;
-          a.push({
-            query: { _id: order._id.toString() },
-            data: { total: amount, groupDiscount: groupDiscount }
-          });
-        }
-      }
-    });
-    return a;
-  }
+  // getUpdatesForAddGroupDiscount(orders: IOrder[], groupDiscount: number) {
+  //   const groups = this.groupBy(orders, 'clientId');
+  //   const a: any[] = [];
+  //   Object.keys(groups).map(key => {
+  //     const os = groups[key];
+  //     if (os && os.length > 0) {
+  //       const hasGroupDiscount = os.find((x: IOrder) => x.groupDiscount !== 0);
+  //       if (hasGroupDiscount) {
+  //         // pass
+  //       } else {
+  //         const order = os[0];
+  //         const amount = Math.round(((order.total ? order.total : 0) - groupDiscount) * 100) / 100;
+  //         a.push({
+  //           query: { _id: order._id.toString() },
+  //           data: { total: amount, groupDiscount: groupDiscount }
+  //         });
+  //       }
+  //     }
+  //   });
+  //   return a;
+  // }
 
-  checkGroupDiscount(req: Request, res: Response) {
-    const clientId: string = req.body.clientId;
-    const merchantId: string = req.body.merchantId;
-    const dateType: string = req.body.dateType;
-    const address: string = req.body.address;
+  // deprecated
+  // checkGroupDiscount(req: Request, res: Response) {
+  //   const clientId: string = req.body.clientId;
+  //   const merchantId: string = req.body.merchantId;
+  //   const dateType: string = req.body.dateType;
+  //   const address: string = req.body.address;
 
-    this.eligibleForGroupDiscount(clientId, merchantId, dateType, address).then((bEligible: boolean) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(bEligible, null, 3));
-    });
-  }
+  //   this.eligibleForGroupDiscount(clientId, merchantId, dateType, address).then((bEligible: boolean) => {
+  //     res.setHeader('Content-Type', 'application/json');
+  //     res.end(JSON.stringify(bEligible, null, 3));
+  //   });
+  // }
 
+  // deprecated
   eligibleForGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string): Promise<boolean> {
     const date = dateType === 'today' ? moment() : moment().add(1, 'day');
     const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
@@ -578,6 +604,7 @@ export class Order extends Model {
     });
   }
 
+  // deprecated
   //--------------------------------------------------------------------------------
   // call after remove order
   // The client can only get one group discount, if he/she has multiple orders.
@@ -622,6 +649,7 @@ export class Order extends Model {
     }
   }
 
+  // deprecated
   getDistinctArray(items: any, field: string) {
     const a: any[] = [];
     items.map((item: any) => {
@@ -705,6 +733,7 @@ export class Order extends Model {
   //   });
   // }
 
+  // deprecated
   //-------------------------------------------------------
   // pickupTime (string) --- eg. '11:20', '12:00'
   updateDeliveryTime(req: Request, res: Response) {
@@ -734,7 +763,7 @@ export class Order extends Model {
     const clientName = order.clientName;
     const cost = order.cost;
     const total = order.total;
-    const deliverd = order.delivered;
+    const deliverd: any = order.delivered;
 
     const tr: ITransaction = {
       fromId: clientId,
@@ -749,19 +778,25 @@ export class Order extends Model {
     return new Promise((resolve, reject) => {
       this.transactionModel.saveTransactionsForPlaceOrder(
         orderId.toString(),
-        merchantId, merchantName,
-        clientId, clientName,
+        merchantId, 
+        merchantName,
+        clientId, 
+        clientName,
         cost,
         total,
         deliverd
       ).then(() => {
         this.transactionModel.doInsertOne(tr).then(t => {
-          const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
-          this.updateOne({ _id: orderId }, data).then((r: any) => { // result
-            // res.setHeader('Content-Type', 'application/json');
-            // res.end(JSON.stringify(r, null, 3));
-            resolve(r);
-          });
+          if(t){
+            const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
+            this.updateOne({ _id: orderId }, data).then((r: any) => { // result
+              // res.setHeader('Content-Type', 'application/json');
+              // res.end(JSON.stringify(r, null, 3));
+              resolve(r);
+            });
+          }else{
+            resolve();
+          }
         });
       });
     });
@@ -984,4 +1019,10 @@ export class Order extends Model {
       });
     });
   }
+
+  // tools
+  convertUTC(){
+
+  }
+
 }

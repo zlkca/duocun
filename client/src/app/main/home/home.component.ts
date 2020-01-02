@@ -257,7 +257,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       const a = this.locationSvc.toPlaces(lhs);
       self.historyAddressList = a;
     });
-    // self.socketSvc.init(this.authSvc.getAccessToken());
+    // self.socketSvc.init(this.authSvc.getAccessTokenId());
 
     // redirect to filter if contact have default address
     self.contactSvc.find({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((r: IContact[]) => {

@@ -21,14 +21,4 @@ export class ContactService extends EntityService {
     this.url = super.getBaseUrl() + 'Contacts';
   }
 
-
-  sendVerifyMsg(d: any): Observable<any> {
-    const url = this.url + '/sendVerifyMsg';
-    return this.doPost(url, d);
-  }
-
-  verifyCode(code: string, accountId: string): Observable<any> {
-    const url = this.url + '/verifyCode';
-    return this.doPost(url, {code: code, accountId: accountId});
-  }
 }

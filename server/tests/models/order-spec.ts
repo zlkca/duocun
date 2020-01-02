@@ -1,3 +1,147 @@
+import { Order, OrderType } from "../../models/order";
+import { DB } from "../../db";
+import { expect } from 'chai';
+import moment from "moment";
+import { Config } from "../../config";
+import { IPhase } from "../../models/merchant";
+
+describe('getDeliveryDateTimeByPhase', () => {
+  it('should return delivered date time', () => {
+    const db = new DB();
+    const orderModel = new Order(db);
+    const phases: IPhase[] = [
+      {
+        orderEnd: '10:45',
+        pickup: '11:20'
+      },
+      {
+        orderEnd: '11:30',
+        pickup: '12:00'
+      },
+    ];
+
+    // utc time
+    const datas = [
+      { created: '2019-11-03T14:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T16:20:00.000Z' },
+      { created: '2019-11-03T15:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T17:00:00.000Z' },
+      { created: '2019-11-03T16:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T16:20:00.000Z' },
+    ];
+
+    datas.map(d => {
+      const r: string = orderModel.getDeliveryDateTimeByPhase(d.created, d.phases, d.type);
+      expect(r).to.equal(d.ret);
+    });
+
+  });
+});
+
+describe('getDeliveryDateTime', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let orderModel: Order;
+  let connection: any = null;
+
+  before(function (done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      connection = dbClient;
+      orderModel = new Order(db);
+      done();
+    });
+  });
+
+  after(function (done) {
+    connection.close();
+    done();
+  });
+
+  it('should return delivered date time string', (done) => {
+    const phases: IPhase[] = [
+      {
+        orderEnd: '10:45',
+        pickup: '11:20'
+      },
+      {
+        orderEnd: '11:30',
+        pickup: '12:00'
+      },
+    ];
+
+    // utc time
+    const datas = [
+      {
+        orderType: OrderType.FOOD_DELIVERY,
+        dateType: 'today',
+        clientId: '5dc463a7cb39ea565b0b634e',
+        phases: phases,
+        utcCreatedStr: '2019-12-10T15:25:16.210Z',
+        ret: '2019-12-10T16:20:00.000Z'
+      },
+    ];
+
+    datas.map(d => {
+      orderModel.getDeliveryDateTime(d.orderType, d.dateType, d.clientId, d.phases, d.utcCreatedStr).then(r => {
+        expect(r).to.equal(d.ret);
+        done();
+      });
+    });
+  });
+});
+
+
+describe('getDeliveryDateTime', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let orderModel: Order;
+  let connection: any = null;
+
+  before(function (done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      connection = dbClient;
+      orderModel = new Order(db);
+      done();
+    });
+  });
+
+  after(function (done) {
+    connection.close();
+    done();
+  });
+
+  it('should return delivered date time string without phases', (done) => {
+    const phases: IPhase[] = [];
+    const datas = [
+      {
+        orderType: OrderType.FOOD_DELIVERY,
+        dateType: 'today',
+        clientId: '5dc463a7cb39ea565b0b634e',
+        phases: phases,
+        utcCreatedStr: '2019-12-10T15:25:16.210Z',
+        ret: '2019-12-10T16:20:00.000Z'
+      },
+    ];
+
+    datas.map(d => {
+      orderModel.getDeliveryDateTime(d.orderType, d.dateType, d.clientId, d.phases, d.utcCreatedStr).then(r => {
+        // expect(r).to.equal(d.ret); // today's
+        done();
+      });
+    });
+  });
+});
+
+function convertUTC() {
+  // console.log(moment('2019-04-23T15:45:00').utc().format());
+  // console.log('it is ' + moment.utc(moment('2019-04-23T10:45:00.000Z').local()).format());
+  // console.log(moment().utc().format());
+  var a = moment('2019-04-23T15:45:00'); //.tz('2019-04-23T15:45:00', 'YYYY-MM-DDThh:mm:ss', 'America/Toronto');
+  var b = moment.utc('2019-04-23T19:45:00');
+  // a.set({hour: 10, minute: 30});
+  console.log(a.toISOString());  // 2013-02-04T10:35:24-08:00
+  console.log(b.toISOString());  // 2013-02-04T18:35:24+00:00
+  console.log(moment('2019-04-23T15:45:00').local().format('YYYY-MM-DDTHH:mm:ss') + '.000Z');
+}
+// getDeliveryDateTimeByPhase(createdDateTime: string, phases: IPhase[], dateType: string): string {
+
 // import { Order } from '../../models/order';
 // import { Account } from '../../models/account';
 // import { ClientBalance } from '../../models/client-balance';
@@ -210,7 +354,7 @@
 //           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z',
 //             groupDiscount: 2, total:9.5, paymentMethod: 'cash' },
 //         ];
-  
+
 //         // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
@@ -288,7 +432,7 @@
 //           { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
 //           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5 },
 //         ];
-  
+
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
 //           done();
@@ -376,7 +520,7 @@
 //           { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
 //           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 1, total:9.5 },
 //         ];
-  
+
 //         // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
@@ -410,7 +554,7 @@
 //       orders.map((o: any) => {
 //         cIds.push(o.clientId);
 //       });
-      
+
 //       oo.find({clientId: {$in: cIds}}).then((o1s: any[]) => {
 //         const order0 = o1s.find((x:any) => x.clientId.toString() === orders[0].clientId.toString());
 //         const order1 = o1s.find((x:any) => x.clientId.toString() === orders[1].clientId.toString());
@@ -421,7 +565,7 @@
 
 //         done();
 //       });
-      
+
 //     });
 //   });
 // });
@@ -453,7 +597,7 @@
 // //           // { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
 // //           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5 },
 // //         ];
-  
+
 // //         // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
 // //         oo.insertMany(orders).then((os: any[]) => {
 // //           ors = os;
@@ -536,7 +680,7 @@
 //           { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:8.5 },
 //           { mode: 'test', clientId: cId1, clientName: rs[1].username, address:'abc', delivered: dt, groupDiscount: 1, total:9.5 },
 //         ];
-  
+
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
 //           done();
@@ -569,7 +713,7 @@
 
 //     oo.eligibleForGroupDiscount(o1.clientId.toString(), 'merchantId', 'today', o1.address).then((bEligible1: boolean) => {
 //       expect(bEligible1).to.equal(true);
-      
+
 //       oo.eligibleForGroupDiscount(o2.clientId.toString(), 'merchantId', 'today', o2.address).then((bEligible1: boolean) => {
 //         expect(bEligible1).to.equal(false);
 //         done();
@@ -609,7 +753,7 @@
 //         orders = [
 //           { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:8.5 },
 //         ];
-  
+
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
 //           done();
@@ -673,7 +817,7 @@
 //         orders = [
 //           { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:8.5 },
 //         ];
-  
+
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
 //           done();
@@ -740,7 +884,7 @@
 //           { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:9.5 },
 //           { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt, groupDiscount: 0, total:7.5 },
 //         ];
-  
+
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
 //           done();
@@ -808,7 +952,7 @@
 //           { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt0, groupDiscount: 0, total:9.5 },
 //           { mode: 'test', clientId: cId1, clientName: rs[0].username, address:'abc', delivered: dt1, groupDiscount: 0, total:7.5 },
 //         ];
-  
+
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
 //           done();
@@ -843,7 +987,7 @@
 //     });
 //   });
 // });
-  
+
 
 // describe('eligibleForGroupDiscount with 2 orders of the same accounts - already discount', () => {
 //   const db: any = new DB();
@@ -877,7 +1021,7 @@
 //           { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt0, groupDiscount: 2, total:9.5 },
 //           { mode: 'test', clientId: cId1, clientName: rs[0].username, address:'abc', delivered: dt1, groupDiscount: 2, total:7.5 },
 //         ];
-  
+
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
 //           done();
@@ -947,7 +1091,7 @@
 //           { mode: 'test', clientId: cId0, clientName: rs[0].username, address:'abc', delivered: dt0, groupDiscount: 0, total:9.5 },
 //           { mode: 'test', clientId: cId1, clientName: rs[0].username, address:'abc', delivered: dt1, groupDiscount: 2, total:7.5 },
 //         ];
-  
+
 //         oo.insertMany(orders).then((os: any[]) => {
 //           ors = os;
 //           done();
@@ -1081,7 +1225,7 @@
 // // //             { clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:8.5 },
 // // //             { clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5 },
 // // //           ];
-    
+
 // // //           // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};
 // // //           c.createOne(orders[0], (order0: any) => {
 // // //             expect(order0.groupDiscount).to.equal(0);
@@ -1109,7 +1253,7 @@
 // // //                 bs.map(b => { balanceIds.push({ id: b.id.toString() }) });
 // // //                 ac.bulkDelete(accountIds).then((y: any) => {
 // // //                   expect(y.deletedCount).to.equal(3);
-      
+
 // // //                   bc.bulkDelete(balanceIds).then((y1: any) => {
 // // //                     expect(y1.deletedCount).to.equal(3);
 

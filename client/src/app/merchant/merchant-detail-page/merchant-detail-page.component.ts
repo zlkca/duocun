@@ -258,7 +258,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     const self = this;
 
     this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-      if (account) {
+      if (account) { // already logged in
         if (this.delivery.origin) {
           if (this.contact && this.contact.phone) {
             self.router.navigate(['order/form']);
@@ -269,9 +269,8 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: { location: null } });
           this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
         }
-      } else {
-        // self.router.navigate(['account/login']);
-        this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
+      } else { // not logged in, eg. from en website
+        this.router.navigate(['account/phone-verify'], { queryParams: { fromPage: 'restaurant-detail' } });
       }
     });
   }

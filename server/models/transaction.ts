@@ -1,6 +1,6 @@
 import { DB } from "../db";
 import { Model } from "./model";
-import { ObjectID } from "mongodb";
+import { ObjectID, ObjectId } from "mongodb";
 import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import moment from 'moment';
@@ -30,6 +30,25 @@ export interface ITransaction {
   modified?: string;
 }
 
+export interface IDbTransaction {
+  _id: ObjectId;
+  fromId: ObjectId;
+  fromName: string;
+  toId: ObjectId;
+  toName: string;
+  action: string;
+  amount: number;
+  fromBalance: number;
+  toBalance: number;
+
+  type?: string;
+  note?: string;
+
+  delivered?: string;
+  created?: string;
+  modified?: string;
+}
+
 export class Transaction extends Model {
   private accountModel: Account;
   private merchantModel: Merchant;
@@ -40,65 +59,14 @@ export class Transaction extends Model {
     this.merchantModel = new Merchant(dbo);
   }
 
-  // use in admin
+  // use in admin, $in
   list(req: Request, res: Response) {
     let query = null;
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
-    let q = query;
-    if (q) {
-      if (q.where) {
-        q = query.where;
-      }
-    } else {
-      q = {};
-    }
-
-    if (q && q.fromId && typeof q.fromId === 'string' && q.fromId.length === 24) {
-      q.fromId = new ObjectID(q.fromId);
-    } else if (q.fromId && q.fromId.hasOwnProperty('$in')) {
-      let a = q.fromId['$in'];
-      const arr: any[] = [];
-      a.map((id: string) => {
-        arr.push(new ObjectID(id));
-      });
-
-      q.fromId = { $in: arr };
-    }
-
-    if (q && q.toId && typeof q.toId === 'string' && q.toId.length === 24) {
-      q.toId = new ObjectID(q.toId);
-    } else if (q.toId && q.toId.hasOwnProperty('$in')) {
-      let a = q.toId['$in'];
-      const arr: any[] = [];
-      a.map((id: string) => {
-        arr.push(new ObjectID(id));
-      });
-
-      q.toId = { $in: arr };
-    }
-
-    if (q && q.hasOwnProperty('$or')) {
-      q['$or'].map((it: any) => {
-        if (it && it.hasOwnProperty('fromId') && typeof it.fromId === 'string' && it.fromId.length === 24) {
-          it.fromId = new ObjectID(it.fromId);
-        }
-        if (it && it.hasOwnProperty('toId') && typeof it.toId === 'string' && it.toId.length === 24) {
-          it.toId = new ObjectID(it.toId);
-        }
-      });
-    }
-
-    const params = [
-      { $lookup: { from: 'users', localField: 'fromId', foreignField: '_id', as: 'from' } },
-      { $unwind: '$from' },
-      { $lookup: { from: 'users', localField: 'toId', foreignField: '_id', as: 'to' } },
-      { $unwind: '$to' }
-    ];
-
-    this.join(params, q).then((rs: any) => {
+    this.find(query).then((rs: IDBTransaction[]) => {
       res.setHeader('Content-Type', 'application/json');
       if (rs) {
         res.send(JSON.stringify(rs, null, 3));
@@ -108,7 +76,7 @@ export class Transaction extends Model {
     });
   }
 
-  doInsertOne(tr: ITransaction): Promise<ITransaction> {
+  doInsertOne(tr: ITransaction): Promise<IDbTransaction> {
     const fromId: string = tr.fromId;
     const toId: string = tr.toId;
     const amount: number = tr.amount;
@@ -123,7 +91,7 @@ export class Transaction extends Model {
           tr.fromBalance = Math.round((fromAccount.balance + amount) * 100) / 100;
           tr.toBalance = Math.round((toAccount.balance - amount) * 100) / 100;
 
-          this.insertOne(tr).then((x) => {
+          this.insertOne(tr).then((x: IDbTransaction) => {
             const updates = [
               { query: { _id: fromId }, data: { balance: tr.fromBalance } },
               { query: { _id: toId }, data: { balance: tr.toBalance } }
@@ -134,19 +102,11 @@ export class Transaction extends Model {
             });
           });
         } else {
-          // if (accounts[0]) {
-          //   console.log("From:" + accounts[0]._id.toString());
-          // }
-
-          // if (accounts[1]) {
-          //   console.log("To:" + accounts[1]._id.toString());
-          // }
           resolve();
         }
       });
     });
   }
-
 
   create(req: Request, res: Response) {
     if (req.body instanceof Array) {
@@ -162,46 +122,6 @@ export class Transaction extends Model {
       });
     }
   }
-
-
-  // doRemoveOne(tr: ITransaction) {
-  //   const fromId: string = tr.fromId;
-  //   const toId: string = tr.toId;
-  //   const amount: number = tr.amount;
-
-  //   return new Promise((resolve, reject) => {
-  //     const accountQuery = { _id: { $in: [fromId, toId] } };
-  //     this.accountModel.find(accountQuery).then((accounts: IAccount[]) => {
-  //       const fromAccount: any = accounts.find(x => x._id.toString() === fromId);
-  //       const toAccount: any = accounts.find(x => x._id.toString() === toId);
-
-  //       if (fromAccount && toAccount) {
-  //         tr.fromBalance = Math.round((fromAccount.balance - amount) * 100) / 100;
-  //         tr.toBalance = Math.round((toAccount.balance + amount) * 100) / 100;
-
-  //         this.RemoveOne(tr).then((x) => {
-  //           const updates = [
-  //             { query: { _id: fromId }, data: { balance: tr.fromBalance } },
-  //             { query: { _id: toId }, data: { balance: tr.toBalance } }
-  //           ];
-
-  //           this.accountModel.bulkUpdate(updates).then((r) => {
-  //             resolve(x);
-  //           });
-  //         });
-  //       } else {
-  //         if (accounts[0]) {
-  //           console.log("From:" + accounts[0]._id.toString());
-  //         }
-
-  //         if (accounts[1]) {
-  //           console.log("To:" + accounts[1]._id.toString());
-  //         }
-  //         resolve();
-  //       }
-  //     });
-  //   });
-  // }
 
   doGetSales() {
     const q = {
@@ -324,76 +244,70 @@ export class Transaction extends Model {
     });
   }
 
-
-  saveTransactionsForPlaceOrder(orderId: string, merchantId: string, merchantName: string, clientId: string, clientName: string,
-    cost: number, total: number, delivered?: string) {
+  saveTransactionsForPlaceOrder(orderId: string, merchantAccountId: string, merchantName: string,
+    clientId: string, clientName: string, cost: number, total: number, delivered: string) {
 
     return new Promise((resolve, reject) => {
-      this.merchantModel.findOne({ _id: merchantId }).then(m => {
-        const merchantAccountId = m.accountId.toString();
+      const t1: ITransaction = {
+        fromId: merchantAccountId,
+        fromName: merchantName,
+        toId: CASH_ID,
+        toName: clientName,
+        action: 'duocun order from merchant',
+        amount: Math.round(cost * 100) / 100,
+        orderId: orderId,
+        delivered: delivered,
+      };
 
-        const t1: ITransaction = {
-          fromId: merchantAccountId,
-          fromName: merchantName,
-          toId: CASH_ID,
-          toName: clientName,
-          action: 'duocun order from merchant',
-          amount: Math.round(cost * 100) / 100,
-          orderId: orderId,
-          delivered: delivered,
-        };
+      const t2: ITransaction = {
+        fromId: CASH_ID,
+        fromName: merchantName,
+        toId: clientId,
+        toName: clientName,
+        amount: Math.round(total * 100) / 100,
+        action: 'client order from duocun',
+        orderId: orderId,
+        delivered: delivered,
+      };
 
-        const t2: ITransaction = {
-          fromId: CASH_ID,
-          fromName: merchantName,
-          toId: clientId,
-          toName: clientName,
-          amount: Math.round(total * 100) / 100,
-          action: 'client order from duocun',
-          orderId: orderId,
-          delivered: delivered,
-        };
-
-        this.doInsertOne(t1).then((x) => {
-          this.doInsertOne(t2).then((y) => {
-            resolve();
-          });
+      this.doInsertOne(t1).then((x) => {
+        this.doInsertOne(t2).then((y) => {
+          resolve();
         });
       });
     });
   }
 
 
-  saveTransactionsForRemoveOrder(merchantId: string, merchantName: string, clientId: string, clientName: string,
+  saveTransactionsForRemoveOrder(orderId: string, merchantAccountId: string, merchantName: string, clientId: string, clientName: string,
     cost: number, total: number, delivered: string) {
 
     return new Promise((resolve, reject) => {
-      this.merchantModel.findOne({ _id: merchantId }).then(m => {
-        const merchantAccountId = m.accountId.toString();
-        const t1: ITransaction = {
-          fromId: CASH_ID,
-          fromName: clientName,
-          toId: merchantAccountId,
-          toName: merchantName,
-          action: 'duocun cancel order from merchant',
-          amount: Math.round(cost * 100) / 100,
-          delivered: delivered
-        };
+      const t1: ITransaction = {
+        fromId: CASH_ID,
+        fromName: clientName,
+        toId: merchantAccountId,
+        toName: merchantName,
+        action: 'duocun cancel order from merchant',
+        amount: Math.round(cost * 100) / 100,
+        orderId: orderId,
+        delivered: delivered
+      };
 
-        const t2: ITransaction = {
-          fromId: clientId,
-          fromName: clientName,
-          toId: CASH_ID,
-          toName: merchantName,
-          amount: Math.round(total * 100) / 100,
-          action: 'client cancel order from duocun',
-          delivered: delivered
-        };
+      const t2: ITransaction = {
+        fromId: clientId,
+        fromName: clientName,
+        toId: CASH_ID,
+        toName: merchantName,
+        amount: Math.round(total * 100) / 100,
+        action: 'client cancel order from duocun',
+        orderId: orderId,
+        delivered: delivered
+      };
 
-        this.doInsertOne(t1).then((x) => {
-          this.doInsertOne(t2).then((y) => {
-            resolve();
-          });
+      this.doInsertOne(t1).then((x) => {
+        this.doInsertOne(t2).then((y) => {
+          resolve();
         });
       });
     });

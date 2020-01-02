@@ -3,6 +3,16 @@ import { DB } from "./db";
 import { Db } from 'mongodb';
 import moment from 'moment';
 
+export enum DbStatus {
+  SUCCESS = 1,
+  FAIL
+}
+
+export interface DbResult {
+  status: DbStatus,
+  msg: string
+}
+
 export interface IJoinParam {
   from: string,
   localField: string,
@@ -83,11 +93,11 @@ export class Entity {
   //     });
   //   });
   // }
-  
+
   // m --- moment object
-  toLocalDateTimeString(m: any){
+  toLocalDateTimeString(m: any) {
     const dt = m.toISOString(true);
-    return dt.split('.')[0]; 
+    return dt.split('.')[0];
   }
 
   insertOne(doc: any): Promise<any> {
@@ -95,7 +105,7 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         doc = this.convertIdFields(doc);
-        doc.created = moment().toISOString(); 
+        doc.created = moment().toISOString();
         doc.modified = moment().toISOString();
 
         c.insertOne(doc).then((result: any) => { // InsertOneWriteOpResult
@@ -132,7 +142,7 @@ export class Entity {
 
   // quick find
   find(query: any, options?: any): Promise<any> {
-    const self = this;    
+    const self = this;
     query = this.convertIdFields(query);
 
     return new Promise((resolve, reject) => {
@@ -167,8 +177,8 @@ export class Entity {
 
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
-        c.updateOne(query, { $set: doc }, options, (err, result: any) => { // {n: 1, nModified: 0, ok: 1}
-          resolve(result);
+        c.updateOne(query, { $set: doc }, options, (err, r: any) => { // {n: 1, nModified: 0, ok: 1}
+          resolve(r.result);
         });
       });
     });
@@ -208,7 +218,7 @@ export class Entity {
   }
 
   // only support query _id, not id
-  convertIdFields(doc: any){
+  convertIdFields(doc: any) {
     // if(doc && doc.hasOwnProperty('id')) {
     //   let body = doc.id;
     //   if (body && body.hasOwnProperty('$in')) {
@@ -225,15 +235,15 @@ export class Entity {
     //   }
     // }
 
-    if(doc && doc.hasOwnProperty('_id')) {
+    if (doc && doc.hasOwnProperty('_id')) {
       let body = doc._id;
       if (body && body.hasOwnProperty('$in')) {
         let a = body['$in'];
         const arr: any[] = [];
         a.map((id: any) => {
-          if(typeof id === "string" && id.length === 24){
+          if (typeof id === "string" && id.length === 24) {
             arr.push(new ObjectID(id));
-          }else{
+          } else {
             arr.push(id);
           }
         });
@@ -304,13 +314,13 @@ export class Entity {
       const accountId = doc['accountId'];
       if (typeof accountId === 'string' && accountId.length === 24) {
         doc['accountId'] = new ObjectID(accountId);
-      }else if (accountId && accountId.hasOwnProperty('$in')) {
+      } else if (accountId && accountId.hasOwnProperty('$in')) {
         let a = accountId['$in'];
         const arr: any[] = [];
         a.map((id: any) => {
           if (typeof id === 'string' && id.length === 24) {
             arr.push(new ObjectID(id));
-          }else{
+          } else {
             arr.push(id); // object type
           }
         });
@@ -325,9 +335,9 @@ export class Entity {
         let a = body['$in'];
         const arr: any[] = [];
         a.map((id: any) => {
-          if(typeof id === "string" && id.length === 24){
+          if (typeof id === "string" && id.length === 24) {
             arr.push(new ObjectID(id));
-          }else{
+          } else {
             arr.push(id);
           }
         });
@@ -337,7 +347,7 @@ export class Entity {
         doc['orderId'] = new ObjectID(body);
       }
     }
-    
+
     if (doc && doc.hasOwnProperty('driverId')) {
       const driverId = doc['driverId'];
       if (typeof driverId === 'string' && driverId.length === 24) {
@@ -359,13 +369,13 @@ export class Entity {
       }
     }
 
-    if(doc && doc.hasOwnProperty('$or')) {
+    if (doc && doc.hasOwnProperty('$or')) {
       const items: any[] = [];
       doc['$or'].map((it: any) => {
-        if (it && it.hasOwnProperty('toId') && typeof it.toId === 'string' && it.toId.length === 24){
-          items.push({toId: new ObjectID(it.toId)});
-        }else if(it && it.hasOwnProperty('fromId') && typeof it.fromId === 'string' && it.fromId.length === 24){
-          items.push({fromId: new ObjectID(it.fromId)});
+        if (it && it.hasOwnProperty('toId') && typeof it.toId === 'string' && it.toId.length === 24) {
+          items.push({ toId: new ObjectID(it.toId) });
+        } else if (it && it.hasOwnProperty('fromId') && typeof it.fromId === 'string' && it.fromId.length === 24) {
+          items.push({ fromId: new ObjectID(it.fromId) });
         }
       });
       doc['$or'] = items;
@@ -397,7 +407,7 @@ export class Entity {
     return doc;
   }
 
-  bulkUpdate(items: any[], options?: any): Promise<BulkWriteOpResultObject> {
+  bulkUpdate(items: any[], options?: any): Promise<DbResult> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         const clonedArray: any[] = JSON.parse(JSON.stringify(items));
@@ -406,21 +416,17 @@ export class Entity {
         clonedArray.map(item => {
           let query = item.query;
           let doc = item.data;
-          
+
           query = this.convertIdFields(query);
           doc = this.convertIdFields(doc);
           a.push({ updateOne: { filter: query, update: { $set: doc }, upsert: true } });
         });
 
         c.bulkWrite(a, (err, result: BulkWriteOpResultObject) => {
-          // if(result && result._id){
-          //   result.id = result._id;
-          //   delete(result._id);
-          // }
           if (err) {
-            reject(err);
+            reject({ status: DbStatus.FAIL, msg: err });
           } else {
-            resolve(result);
+            resolve({ status: DbStatus.SUCCESS, msg: '' });
           }
         });
       });
@@ -428,7 +434,7 @@ export class Entity {
   }
 
   // use for test
-  bulkDelete(queries: any[], options?: any): Promise<BulkWriteOpResultObject> {
+  bulkDelete(queries: any[], options?: any): Promise<DbResult> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         const clonedArray: any[] = JSON.parse(JSON.stringify(queries));
@@ -442,9 +448,10 @@ export class Entity {
 
         c.bulkWrite(a, (err: MongoError, result: BulkWriteOpResultObject) => {
           if (err) {
-            reject(err);
+            const s: any = err.errmsg;
+            resolve({ status: DbStatus.FAIL, msg: s });
           } else {
-            resolve(result);
+            resolve({ status: DbStatus.SUCCESS, msg: '' });
           }
         });
       });
@@ -476,7 +483,7 @@ export class Entity {
   deleteById(id: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
-        c.deleteOne({ _id: new ObjectID(id) }, (err, doc) => { // DeleteWriteOpResultObject
+        c.deleteOne({ _id: new ObjectId(id) }, (err, doc) => { // DeleteWriteOpResultObject
           resolve(doc);
         });
       });
@@ -489,7 +496,7 @@ export class Entity {
         items.map(it => {
           it = this.convertIdFields(it);
         });
-        
+
         c.insertMany(items, {}, (err: MongoError, r: any) => { //InsertWriteOpResult
           if (!err) {
             // const rs: any[] = [];
