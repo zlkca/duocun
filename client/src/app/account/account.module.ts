@@ -24,6 +24,7 @@ import { TransactionService } from '../transaction/transaction.service';
 import { AddCreditPageComponent } from './add-credit-page/add-credit-page.component';
 import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
 import { PhoneVerifyPageComponent } from './phone-verify-page/phone-verify-page.component';
+import { PhoneVerifyDialogComponent } from './phone-verify-dialog/phone-verify-dialog.component';
 
 @NgModule({
     imports: [
@@ -42,6 +43,7 @@ import { PhoneVerifyPageComponent } from './phone-verify-page/phone-verify-page.
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
+      PhoneVerifyDialogComponent
     ],
     declarations: [
       LoginFormComponent,
@@ -51,7 +53,8 @@ import { PhoneVerifyPageComponent } from './phone-verify-page/phone-verify-page.
       AccountPageComponent,
       BalancePageComponent,
       AddCreditPageComponent,
-      PhoneVerifyPageComponent
+      PhoneVerifyPageComponent,
+      PhoneVerifyDialogComponent
     ],
     providers: [
       AccountService,

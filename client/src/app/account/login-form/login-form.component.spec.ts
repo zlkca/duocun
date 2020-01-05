@@ -49,11 +49,11 @@ describe('LoginFormCompoent', () => {
       }
   ));
 
-  it('should login successful', inject([AuthService, HttpTestingController, SharedService], 
-      (service: AuthService, httpMock:HttpTestingController, sharedServ:SharedService) => {
-        let form: NgForm = new NgForm([], []);
-        component.onLogin(form);
+  // it('should login successful', inject([AuthService, HttpTestingController, SharedService], 
+  //     (service: AuthService, httpMock:HttpTestingController, sharedServ:SharedService) => {
+  //       let form: NgForm = new NgForm([], []);
+  //       component.onLogin(form);
 
-        expect(component.errMsg).toBe('');
-  }));
+  //       expect(component.errMsg).toBe('');
+  // }));
 });

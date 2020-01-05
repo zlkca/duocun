@@ -165,9 +165,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         } else {
           if (code) {
             this.loading = true;
-            this.accountSvc.wechatLogin(code).pipe(takeUntil(this.onDestroy$)).subscribe((data: any) => {
-              if (data) {
-                self.wechatLoginHandler(data);
+            this.accountSvc.wechatLogin(code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
+              if (tokenId) {
+                self.wechatLoginHandler(tokenId);
               } else { // failed from shared link login
                 this.loading = false;
 
@@ -225,10 +225,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 
   // data : {id:'xxx', ttl: 10000, userId: 'xxxxx' }
-  wechatLoginHandler(data: any) {
+  wechatLoginHandler(tokenId: string) {
     const self = this;
-    self.authSvc.setUserId(data.userId);
-    self.authSvc.setAccessToken(data.id);
+    self.authSvc.setAccessTokenId(tokenId);
     self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
       if (account) {
         self.account = account;
@@ -366,13 +365,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  // callback of the location list selection
   onSelectPlace(e) {
     const self = this;
     const r: ILocation = e.location;
     this.places = [];
     this.bUpdateLocationList = false;
     this.location = r;
-    self.bAddressList = false;
+    this.bAddressList = false;
+
     if (r) {
       this.deliveryAddress = e.address; // set address text to input
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });

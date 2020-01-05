@@ -2,7 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-// import { HttpClientModule } from '@angular/common/http';
+import { StoreModule } from '@ngrx/store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 import { NgReduxModule, NgRedux } from '@angular-redux/store';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -95,6 +96,10 @@ const appRoutes: Routes = [
     ),
     NgReduxModule,
     BrowserAnimationsModule,
+    // StoreModule.forRoot({ rootReducer }),
+    // StoreDevtoolsModule.instrument({
+    //   maxAge: 10
+    // })
     // NgxPaginationModule
     // SharedModule,
     // MainModule,

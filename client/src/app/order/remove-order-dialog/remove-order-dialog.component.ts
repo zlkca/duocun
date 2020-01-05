@@ -7,8 +7,6 @@ import { OrderService } from '../order.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { CommandActions } from '../../shared/command.actions';
-import { PaymentService } from '../../payment/payment.service';
-import { TransactionService } from '../../transaction/transaction.service';
 import { environment } from '../../../environments/environment';
 import { AccountService } from '../../account/account.service';
 import { IAccount } from '../../account/account.model';
@@ -42,8 +40,6 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
     private router: Router,
     private orderSvc: OrderService,
     private accountSvc: AccountService,
-    private paymentSvc: PaymentService,
-    private transactionSvc: TransactionService,
     private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<RemoveOrderDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData

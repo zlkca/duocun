@@ -12,27 +12,15 @@ export class AuthService {
 
   }
 
-  setAccessToken(token: string) {
-    Cookies.set('duocun-token', token, { expires: COOKIE_EXPIRY_DAYS });
-  }
-
-
   setAccessTokenId(token: string) {
-    Cookies.set('duocun-token-id', token, { expires: COOKIE_EXPIRY_DAYS });
+    if (token) {
+      Cookies.set('duocun-token-id', token, { expires: COOKIE_EXPIRY_DAYS });
+    }
   }
 
   getAccessTokenId(): string {
-    // return localStorage.getItem('token');
-    return Cookies.get('duocun-token-id');
-  }
-
-  setUserId(id: string) {
-    Cookies.remove('duocun-userId');
-    Cookies.set('duocun-userId', id, { expires: COOKIE_EXPIRY_DAYS });
-  }
-
-  getUserId(): string {
-    return Cookies.get('duocun-userId');
+    const tokenId = Cookies.get('duocun-token-id');
+    return tokenId ? tokenId : null;
   }
 
 

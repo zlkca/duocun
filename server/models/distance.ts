@@ -76,6 +76,7 @@ export class Distance extends Model {
     }
   }
 
+  // origin --- must include address fields for origin
   doReqRoadDistances(origin: ILocation, destinations: IPlace[]): Promise<IDistance[]> {
     const key = this.cfg.GOOGLE_DISTANCE_KEY;
     const ds: string[] = [];
@@ -140,7 +141,7 @@ export class Distance extends Model {
     return bFound;
   }
 
-  // origin --- cannot be null, will have compile issue
+  // origin --- must include address fields for origin, cannot be null, will have compile issue
   loadRoadDistances(origin: ILocation, destinations: IPlace[]): Promise<IDistance[]> {
     const destIds: string[] = destinations.map(d => d.placeId);
     return new Promise((resolve, reject) => {

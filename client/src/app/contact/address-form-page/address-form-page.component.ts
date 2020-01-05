@@ -125,10 +125,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IMerchant) => {
       self.restaurant = r;
     });
-
-    // this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((r: IDelivery) => {
-    //   this.delivered = r.date;
-    // });
   }
 
   ngOnDestroy() {
@@ -274,7 +270,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         }
       });
     } else if (self.fromPage === 'restaurant-detail') { // will no longer go here any more
-      // update delivery fee and distances
       if (self.contact && self.contact.phone) {
         self.router.navigate(['order/form']);
       } else {
@@ -313,7 +308,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     if (this.contact) {
       contact._id = this.contact._id;
     }
-    // Cookies.remove('duocun-old-delivery-time');
 
     this.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_LOCATION, payload: { location: location } });
     this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: location }});

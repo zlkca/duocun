@@ -18,7 +18,10 @@ export interface IAccount {
   username?: string;
   email?: string;
   emailVerified?: boolean;
+
   phone?: string;
+  verified?: boolean;   // in db, phone number is verified or not
+
   password?: string;
   sex?: string;
   openid?: string; // wechat openid

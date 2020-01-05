@@ -1420,6 +1420,14 @@
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="SignupAndContinuePay" datatype="html">
+        <source>Signup and Continue Pay</source>
+        <target>创建账号并继续付款</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/main/filter/filter.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="VerifyPhoneNumber" datatype="html">
         <source>Verify Phone Number</source>
         <target>验证手机号码</target>

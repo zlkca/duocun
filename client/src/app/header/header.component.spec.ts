@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from './header.component';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { AuthService } from '../../account/auth.service';
+import { AuthService } from '../account/auth.service';
 
 
 describe('HeaderComponent', () => {

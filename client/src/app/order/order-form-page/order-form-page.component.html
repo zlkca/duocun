@@ -8,12 +8,12 @@
   </div>
 
   <form [formGroup]="form" id="contact-form">
-    <div class="contact-block" *ngIf="contact" (click)="changeContact()">
+    <div class="contact-block" *ngIf="account" (click)="changeContact()">
       <div class="title-md">
         <div class="label">
           <span i18n="@@DeliveryTime">Delivery Time</span>:
         </div>
-        <span class="date">{{ delivery.date }} </span>
+        <span class="date">{{ delivery.date | date: 'yyyy-MM-dd'}} </span>
         <span class="time">11:45~13:00</span>
         <!-- <span class="time">{{delivery.date.toDate() | date: 'HH:mm'}}~{{delivery.toTime | date: 'HH:mm'}} </span> -->
       </div>
@@ -21,8 +21,8 @@
         <div class="label">
           <span i18n="@@DeliverTo">Deliver to</span>:
         </div>
-        <span class="user-col">{{contact.username}}</span>
-        <span class="phone-col" *ngIf="contact && contact.phone">{{contact.phone}}</span>
+        <span class="user-col">{{account.username}}</span>
+        <span class="phone-col" *ngIf="account && account.phone">{{account.phone}}</span>
       </div>
       <div class="title-md">
         <div class="label">
@@ -141,10 +141,10 @@
       </mat-button-toggle-group>
 
       <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance < charge.total">
-        <div class="form-row" *ngIf="contact && contact.verified">
+        <div class="form-row" >
           <label for="card-element" class="label-sm" i18n="@@CreditCard">Credit/Debit Card:</label>
           <div id="card-element">
-            <!-- A Stripe Element will be inserted here. action="/charge" method="post" -->
+            <!-- A Stripe Element will be inserted here. action="/charge" method="post" *ngIf="account && account.verified" -->
           </div>
 
           <!-- Used to display Element errors. -->

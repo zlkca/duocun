@@ -52,8 +52,8 @@
                 }
               ]
             },
-            "zh-Hans":{
-              "aot":true,
+            "zh-Hans": {
+              "aot": true,
               "outputPath": "dist/duocun-zh-Hans",
               "i18nFile": "src/locale/messages.zh-Hans.xlf",
               "i18nFormat": "xlf",
@@ -71,7 +71,7 @@
             "production": {
               "browserTarget": "duocun:build:production"
             },
-            "zh-Hans":{
+            "zh-Hans": {
               "browserTarget": "duocun:build:zh-Hans"
             }
           }
@@ -135,5 +135,8 @@
       }
     }
   },
-  "defaultProject": "duocun"
+  "defaultProject": "duocun",
+  "cli": {
+    "defaultCollection": "@ngrx/schematics"
+  }
 }

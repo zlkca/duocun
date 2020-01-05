@@ -56,4 +56,9 @@ export class RangeService extends EntityService {
     const url = this.url + '/availables';
     return this.doPost(url, { origin: origin });
   }
+
+  getOverRange( origin: ILatLng ): Observable<IRange[]> {
+    const url = this.url + '/overRange';
+    return this.doPost(url, { origin: origin });
+  }
 }

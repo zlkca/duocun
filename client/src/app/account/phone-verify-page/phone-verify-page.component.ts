@@ -13,10 +13,8 @@ import { PageActions } from '../../main/main.actions';
 import { IAppState } from '../../store';
 import { AccountService } from '../../account/account.service';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
-import * as Cookies from 'js-cookie';
 import { IDelivery } from '../../delivery/delivery.model';
 import { AuthService } from '../../account/auth.service';
-import { AccountActions } from '../../account/account.actions';
 import { IAccount } from '../../account/account.model';
 import { environment } from '../../../environments/environment.prod';
 
@@ -33,7 +31,10 @@ export class PhoneVerifyPageComponent implements OnInit, OnDestroy {
   bGettingCode = false;
   counter = 60;
   countDown;
-  fromPage;
+
+  fromPage: string; // params from previous page
+  action: string;   // params from previous page
+
   location;
   accountId; // if there is no account, use this to save temp account generated from backend
   verified = false;
@@ -57,12 +58,13 @@ export class PhoneVerifyPageComponent implements OnInit, OnDestroy {
       verificationCode: ['']
     });
 
+    this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
+    this.action = this.route.snapshot.queryParamMap.get('action');
+
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: { name: 'phone-form' }
     });
-
-    this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
   }
 
   ngOnInit() {
@@ -98,13 +100,13 @@ export class PhoneVerifyPageComponent implements OnInit, OnDestroy {
         phone = phone.match(/\d+/g).join('');
 
         // First time there is not token, api call do not allowed
-        this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
-          if (accounts && accounts.length > 0) {
-            this.account = accounts[0];
-          } else {
-            this.account = null;
-          }
-        });
+        // this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
+        //   if (accounts && accounts.length > 0) {
+        //     this.account = accounts[0];
+        //   } else {
+        //     this.account = null;
+        //   }
+        // });
       }
     }
   }
@@ -124,8 +126,25 @@ export class PhoneVerifyPageComponent implements OnInit, OnDestroy {
             clearInterval(self.countDown);
           }
           setTimeout(() => {
-            if (self.account && self.verified) {
-              self.redirect(self.account);
+            if (self.verified) {
+              if (self.account && self.account.type !== 'tmp') {
+                self.redirect(self.account);
+              } else {
+                self.accountSvc.loginByPhone(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
+                  self.authSvc.setAccessTokenId(tokenId);
+                  self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+                    if (account) {
+                      if (account.type === 'tmp') {
+                        self.account = account; // For display signup button
+                      } else {
+                        self.redirect(account);
+                      }
+                    } else {
+                      console.log('login failed');
+                    }
+                  });
+                });
+              }
             } else {
               // pass
             }
@@ -160,17 +179,35 @@ export class PhoneVerifyPageComponent implements OnInit, OnDestroy {
       // self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: contact });
       self.router.navigate(['account/settings']);
       self.snackBar.open('', '默认手机号已成功修改。', { duration: 1500 });
-    } else if (self.fromPage === 'restaurant-detail') {
-      // x.location = self.contact.location; // update address for the order
-      // self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact }); // fix me
-      // self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_WITHOUT_LOCATION, payload: contact });
-      self.router.navigate(['order/form']);
-      self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
-    } else if (self.fromPage === 'order-form') {
-      self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
-      // self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact }); // fix me
-      // self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_WITHOUT_LOCATION, payload: contact });
-      self.router.navigate(['order/form'], { queryParams: { fromPage: 'order-form' } });
+      // } else if (self.fromPage === 'restaurant-detail') {
+      //   if (this.action === 'pay') {
+      //     self.router.navigate(['order/form'], { queryParams: { fromPage: this.fromPage, action: 'pay' } });
+      //   } else {
+      //     // x.location = self.contact.location; // update address for the order
+      //     // self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact }); // fix me
+      //     // self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_WITHOUT_LOCATION, payload: contact });
+      //     self.router.navigate(['order/form']);
+      //     self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
+      //   }
+
+      // } else if (self.fromPage === 'order-form') {
+      //   if (this.action === 'pay') {
+      //     self.router.navigate(['order/form'], { queryParams: { fromPage: this.fromPage, action: 'pay' } });
+      //   } else {
+      //     self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
+      //     // self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact }); // fix me
+      //     // self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_WITHOUT_LOCATION, payload: contact });
+      //     self.router.navigate(['order/form'], { queryParams: { fromPage: 'order-form' } });
+      //   }
+    } else {
+      if (this.action === 'pay') {
+        self.router.navigate(['order/form'], { queryParams: { fromPage: 'order-form', action: 'pay' } });
+      } else {
+        self.snackBar.open('', '默认手机号已成功保存。', { duration: 1500 });
+        // self.rx.dispatch<IContactAction>({ type: ContactActions.LOAD_FROM_DB, payload: oldContact }); // fix me
+        // self.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_WITHOUT_LOCATION, payload: contact });
+        self.router.navigate(['order/form'], { queryParams: { fromPage: 'order-form' } });
+      }
     }
   }
 
@@ -210,24 +247,24 @@ export class PhoneVerifyPageComponent implements OnInit, OnDestroy {
     const self = this;
     const phone = this.form.value.phone;
     const code = this.form.value.verificationCode;
-    const lang = environment.language;
-    const accountId = this.account._id;
+    if (phone && code) {
+      this.accountSvc.signup(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: any) => {
+        if (tokenId) {
+          self.authSvc.setAccessTokenId(tokenId);
+          self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+            if (account) {
+              self.redirect(account);
+              // self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
+            }
+            this.snackBar.open('', 'Signup successful', { duration: 1000 });
+          });
+        } else {
 
-    // token --- { id:x, ttl:n, userId:x }
-    this.accountSvc.signup(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: any) => {
-      self.authSvc.setAccessTokenId(tokenId);
-      self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-        if (account) {
-          // self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
-          // self.contactSvc.find({ accountId: account._id }).pipe(takeUntil(self.onDestroy$)).subscribe(contacts => {
-          //   if (contacts && contacts.length > 0) {
-          //     self.redirect(contacts[0]);
-          //   }
-          // });
         }
-        this.snackBar.open('', 'Signup successful', { duration: 1000 });
       });
-    });
+    } else {
+      // fail to signup
+    }
   }
 
   login() {
@@ -235,6 +272,6 @@ export class PhoneVerifyPageComponent implements OnInit, OnDestroy {
   }
 
   hasContact() {
-
+    return this.account && this.account.type !== 'tmp';
   }
 }

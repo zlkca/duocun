@@ -53,7 +53,7 @@ export class Account extends Model {
     const d2 = Math.floor(Math.random() * 10).toString();
     const d3 = Math.floor(Math.random() * 10).toString();
     const d4 = Math.floor(Math.random() * 10).toString();
-    const code = d1 + d2 + d3 + d4;
+    const code: string = (d1 + d2 + d3 + d4).toString();
 
     let phone = rawPhone.substring(0, 2) === '+1' ? rawPhone.substring(2) : rawPhone;
     phone = phone.match(/\d+/g).join('');
@@ -177,11 +177,12 @@ export class Account extends Model {
     });
   }
 
+  // To do: test token is undefined or null
   getAccountByToken(tokenId: string): Promise<IAccount> {
     const cfg = new Config();
 
     return new Promise((resolve, reject) => {
-      if(tokenId && tokenId !== 'undefined'){
+      if(tokenId && tokenId !== 'undefined' && tokenId !== 'null'){
         const accountId = jwt.verify(tokenId, cfg.JWT.SECRET);
         if (accountId) {
           this.findOne({ _id: accountId }).then((account: IAccount) => {
@@ -200,8 +201,8 @@ export class Account extends Model {
   }
 
   signup(req: Request, res: Response) {
-    const phone = req.body.phone;
-    const code = req.body.verificationCode;
+    const phone = req.body.phone.toString();
+    const code: string = req.body.verificationCode.toString();
 
     this.doSignup(phone, code).then((account: any) => {
       res.setHeader('Content-Type', 'application/json');
@@ -296,19 +297,37 @@ export class Account extends Model {
     });
   }
 
+  // --------------------------------------------------------------------------------------------------
+  // wechat, google or facebook can not use this request to login
+  // phone    ---  unique phone number, verification code as password by default
+  doLoginByPhone(phone: string, verificationCode: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const query = { phone: phone };
+      this.findOne(query).then((r: IAccount) => {
+        if (r && r.verificationCode) {
+          if (r.verificationCode === verificationCode) {
+            const cfg = new Config();
+            const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
+            resolve(tokenId);
+          } else {
+            resolve();
+          }
+        } else {
+          return resolve();
+        }
+      });
+    });
+  }
 
   // --------------------------------------------------------------------------------------------------
   // wechat, google or facebook can not use this request to login
   // username --- optional, can be null, unique  username
-  // phone    --- optional, can be null, unique phone number, verification code as password by default
   // password --- mandadory field
-  doLogin(username: string, phone: string, password: string): Promise<string> {
+  doLogin(username: string, password: string): Promise<string> {
     return new Promise((resolve, reject) => {
       let query = null;
       if (username) {
         query = { username: username };
-      } else if (phone) {
-        query = { phone: phone };
       }
 
       if (query) {
@@ -331,6 +350,26 @@ export class Account extends Model {
       } else {
         resolve();
       }
+    });
+  }
+
+  loginByPhone(req: Request, res: Response) {
+    const phone = req.body.phone;
+    const verificationCode = req.body.verificationCode;
+
+    this.doLoginByPhone(phone, verificationCode).then((tokenId: string) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(tokenId, null, 3));
+    });
+  }
+
+  login(req: Request, res: Response) {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    this.doLogin(username, password).then((tokenId: string) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(tokenId, null, 3));
     });
   }
 
@@ -399,16 +438,7 @@ export class Account extends Model {
   //   }
   // }
 
-  login(req: Request, res: Response) {
-    const username = req.body.username;
-    const phone = req.body.phone;
-    const password = req.body.password;
 
-    this.doLogin(username, phone, password).then((tokenId: string) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(tokenId, null, 3));
-    });
-  }
   // 		validateLoginAccount(credential, function(accountErrors, doc){
   // 			if(accountErrors && accountErrors.length > 0){
   // 				return rsp.json({'errors':accountErrors, 'token':'', 'decoded':''});

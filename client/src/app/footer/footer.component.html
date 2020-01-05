@@ -63,7 +63,7 @@
     <!-- <div class="price-col col-6"> <*ngIf="carts && carts.length>0"> -->
       <!-- ${{carts[0].productTotal | number : '1.2-2'}} -->
     <!-- </div> -->
-    <div class="checkout-col col-6" (click)="checkout()" i18n="@@NextStep">Next Step</div>
+    <div class="checkout-col col-6" (click)="checkoutFromCartPage()" i18n="@@NextStep">Next Step</div>
   </div>
 
   <div class="row restaurant-btn-row" *ngIf="page === 'restaurant-detail'">

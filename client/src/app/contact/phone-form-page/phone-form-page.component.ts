@@ -111,9 +111,13 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
   onVerificationCodeInput(e) {
     const self = this;
     const accountId = this.account ? this.account._id : this.accountId;
+    let phone: string = this.form.value.phone;
+    phone = phone.substring(0, 2) === '+1' ? phone.substring(2) : phone;
+    phone = phone.match(/\d+/g).join('');
+
     if (e.target.value && e.target.value.length === 4) {
       const code = e.target.value;
-      this.accountSvc.verifyCode(code, accountId).pipe(takeUntil(this.onDestroy$)).subscribe(verified => {
+      this.accountSvc.verifyCode(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe(verified => {
         this.contact.verified = verified;
         if (verified) {
           if (self.countDown) {

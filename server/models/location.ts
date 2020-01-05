@@ -42,6 +42,26 @@ export interface ILocation {
   postalCode: string;
 }
 
+export interface IPlaceTerm {
+  offset: number;
+  value: string;
+}
+
+export interface IStructuredAddress {
+  main_text: string;
+  secondary_text: string;
+}
+
+export interface IPlace {
+  _id?: string;
+  type?: string;
+  description?: string;
+  placeId?: string;
+  structured_formatting: IStructuredAddress;
+  terms?: IPlaceTerm[];
+  location?: ILocation;
+}
+
 export class Location extends Model {
   cfg: Config;
   constructor(dbo: DB) {
@@ -49,6 +69,7 @@ export class Location extends Model {
     this.cfg = new Config();
   }
 
+  // return --- IPlace[]
   reqPlaces(req: Request, res: Response) {
     let key = this.cfg.GOOGLE_PLACE_KEY;
     const input = req.params.input;
@@ -69,10 +90,10 @@ export class Location extends Model {
           if (s.predictions && s.predictions.length > 0) {
             res.send(s.predictions);
           } else {
-            res.send();
+            res.send([]);
           }
         } else {
-          res.send('');
+          res.send([]);
         }
       });
     });

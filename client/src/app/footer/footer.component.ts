@@ -108,26 +108,36 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   toHome() {
-    const accountId = this.account._id;
-    this.rx.dispatch({
-      type: CommandActions.SEND,
-      payload: { name: 'clear-location-list', args: null }
-    });
-
-    this.contactSvc.find({ accountId: accountId }).subscribe((r: IContact[]) => {
-      // if (r && r.length > 0 && r[0].location) {
-      //   this.router.navigate(['main/filter']);
-      // } else {
+    if (this.account) {
+      this.rx.dispatch({
+        type: CommandActions.SEND,
+        payload: { name: 'clear-location-list', args: null }
+      });
       this.selected = 'home';
       this.router.navigate(['main/home']);
-      // }
-    });
+    } else {
+      this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
+        this.account = account1;
+        this.rx.dispatch({
+          type: CommandActions.SEND,
+          payload: { name: 'clear-location-list', args: null }
+        });
+        this.selected = 'home';
+        this.router.navigate(['main/home']);
+      });
+    }
   }
 
   toOrder() {
     if (this.account) {
       this.selected = 'order';
       this.router.navigate(['order/history']);
+    } else {
+      this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
+        this.account = account1;
+        this.selected = 'order';
+        this.router.navigate(['order/history']);
+      });
     }
   }
 
@@ -139,6 +149,12 @@ export class FooterComponent implements OnInit, OnDestroy {
     if (this.account) {
       this.selected = 'account';
       this.router.navigate(['account/settings']);
+    } else {
+      this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
+        this.account = account1;
+        this.selected = 'account';
+        this.router.navigate(['account/settings']);
+      });
     }
   }
 
@@ -148,20 +164,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     //   color: '#F4B400'; // '#0F9D58' // green
     // }
   }
-
-  // saveContact() {
-  //   this.rx.dispatch({
-  //     type: CommandActions.SEND,
-  //     payload: {name: 'save-contact', args: null}
-  //   });
-  // }
-
-  // cancelContact() {
-  //   this.rx.dispatch({
-  //     type: CommandActions.SEND,
-  //     payload: {name: 'cancel-contact', args: null}
-  //   });
-  // }
 
   cancelAddress() {
     this.rx.dispatch({
@@ -178,29 +180,21 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   pay() {
-    this.contactSvc.find({ accountId: this.account._id }).pipe(takeUntil(this.onDestroy$)).subscribe((contacts: IContact[]) => {
-      this.rx.dispatch({
-        type: CommandActions.SEND,
-        payload: {
-          name: 'pay',
-          args: {
-            account: this.account,
-            cart: this.cart,
-            delivery: this.delivery,
-            contact: contacts[0],
-            paymentMethod: this.order.paymentMethod
-          }
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: {
+        name: 'pay',
+        args: {
+          cart: this.cart,
+          delivery: this.delivery,
+          // contact: contacts[0],
+          paymentMethod: this.order.paymentMethod
         }
-      });
+      }
     });
   }
 
-  checkout() {
-    this.rx.dispatch({
-      type: CommandActions.SEND,
-      payload: { name: 'checkout', args: null }
-    });
-  }
+
 
   cartBack() {
     this.rx.dispatch({
@@ -220,6 +214,13 @@ export class FooterComponent implements OnInit, OnDestroy {
     if (this.quantity > 0) { // prevent missing bottom menus
       this.router.navigate(['cart']);
     }
+  }
+
+  checkoutFromCartPage() {
+    this.rx.dispatch({
+      type: CommandActions.SEND,
+      payload: { name: 'checkout', args: null }
+    });
   }
 
   checkoutFromRestaurant() {

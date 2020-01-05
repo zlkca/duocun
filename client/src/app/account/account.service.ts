@@ -50,13 +50,21 @@ export class AccountService extends EntityService {
     return this.http.post(this.url + '/signup', {phone: phone, verificationCode: verificationCode});
   }
 
-  // login --- return {id: tokenId, ttl: 10000, userId: r._id}
-  login(username: string, password: string, rememberMe: boolean = true): Observable<any> {
+  // login --- return string tokenId
+  login(username: string, password: string): Observable<any> {
     const credentials = {
       username: username,
       password: password
     };
     return this.http.post(this.url + '/login', credentials);
+  }
+
+  loginByPhone(phone: string, verificationCode: string): Observable<any> {
+    const credentials = {
+      phone: phone,
+      verificationCode: verificationCode
+    };
+    return this.http.post(this.url + '/loginByPhone', credentials);
   }
 
   logout(): Observable<any> {

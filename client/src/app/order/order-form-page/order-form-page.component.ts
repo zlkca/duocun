@@ -12,26 +12,21 @@ import { OrderService } from '../order.service';
 import { IOrder, ICharge, OrderItem, OrderType } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
-import { MatSnackBar } from '../../../../node_modules/@angular/material';
+import { MatSnackBar, MatDialog } from '../../../../node_modules/@angular/material';
 import { IDelivery } from '../../delivery/delivery.model';
 import { OrderActions } from '../order.actions';
 import { IAccount, Role } from '../../account/account.model';
 import { LocationService } from '../../location/location.service';
-import { ILocation, IDistance, RangeRole } from '../../location/location.model';
 import { MerchantService } from '../../merchant/merchant.service';
 
 import { environment } from '../../../environments/environment';
 import { PaymentService } from '../../payment/payment.service';
-import { DistanceService } from '../../location/distance.service';
-import { MallService } from '../../mall/mall.service';
 import { RangeService } from '../../range/range.service';
-import { IRange } from '../../range/range.model';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { IMerchant } from '../../restaurant/restaurant.model';
-import { SharedService } from '../../shared/shared.service';
 import { AccountService } from '../../account/account.service';
-import { ContactService } from '../../contact/contact.service';
+import { PhoneVerifyDialogComponent } from '../../account/phone-verify-dialog/phone-verify-dialog.component';
 
 declare var window;
 
@@ -68,7 +63,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   charge: ICharge;
   afterGroupDiscount: number;
   bSubmitted = false;
-  fromPage = '';
+
+  fromPage: string; // params from previous page
+  action: string;   // params from previous page
 
   language = 'zh';
   msg = '';
@@ -79,16 +76,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private rx: NgRedux<IAppState>,
     private router: Router,
     private route: ActivatedRoute,
-    private mallSvc: MallService,
     private rangeSvc: RangeService,
-    private contactSvc: ContactService,
     private orderSvc: OrderService,
     private merchantSvc: MerchantService,
     private locationSvc: LocationService,
     private accountSvc: AccountService,
     private paymentSvc: PaymentService,
-    private distanceSvc: DistanceService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    public dialogSvc: MatDialog
   ) {
     const self = this;
 
@@ -97,6 +92,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       note: ['']
     });
+    this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
+    this.action = this.route.snapshot.queryParamMap.get('action');
 
     // update footer
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'order-form' } });
@@ -121,22 +118,37 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'pay') {
         this.rx.dispatch({ type: CommandActions.SEND, payload: { name: '' } });
-        const contact = x.args.contact;
-        const account = x.args.account;
+        // const account = x.args.account;
         const delivery = x.args.delivery;
         const cart = x.args.cart;
         const paymentMethod = x.args.paymentMethod;
 
-        this.loading = false;
-        this.paymentMethod = paymentMethod;
-        this.balance = account.balance;
-        // this.contactSvc.find({accountId: account._id}).pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
+        self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+          this.loading = false;
 
-        const origin = delivery.origin;
-        const groupDiscount = 0; // bEligible ? 2 : 0;
-        self.getOverRange(origin, (distance, rate) => {
-          this.charge = this.getCharge(cart, (distance * rate), groupDiscount);
-          self.doPay(contact, account, self.charge, cart, delivery, paymentMethod);
+          if (account) {
+            this.paymentMethod = paymentMethod;
+            this.balance = account.balance;
+
+            const origin = delivery.origin;
+            const groupDiscount = 0; // bEligible ? 2 : 0;
+            if (origin) {
+              self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
+                this.charge = this.getCharge(cart, (r.distance * r.rate), groupDiscount);
+                if (account.type === 'tmp') {
+                  this.openPhoneVerifyDialog();
+                  // self.router.navigate(['account/phone-verify'], { queryParams: { fromPage: this.fromPage, action: 'pay' } });
+                } else {
+                  self.doPay(account, self.charge, cart, delivery, paymentMethod);
+                }
+              });
+            } else {
+              console.log('pay command require origin');
+            }
+          } else {
+            this.openPhoneVerifyDialog();
+            // this.router.navigate(['account/phone-verify'], { queryParams: { fromPage: this.fromPage, action: 'pay' } });
+          }
         });
       }
     });
@@ -145,60 +157,60 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const self = this;
     this.loading = false;
-    this.fromPage = this.route.snapshot.queryParamMap.get('fromPage');
 
     // trigger payment from the page of phone number verification
     if (this.fromPage === 'order-form') {
       this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-        this.contactSvc.find({ accountId: account._id }).pipe(takeUntil(this.onDestroy$)).subscribe((contacts: IContact[]) => {
-          self.contact = contacts[0];
-          self.account = account;
-          self.balance = account.balance;
-          self.loading = false;
-          self.bSubmitted = false;
-          const origin = self.delivery.origin;
-          const groupDiscount = 0; // bEligible ? 2 : 0;
-          self.getOverRange(origin, (distance, rate) => {
-            this.charge = this.getCharge(this.cart, (distance * rate), groupDiscount);
-            this.paymentMethod = this.order.paymentMethod;
-            this.loading = false;
+
+        self.account = account;
+        self.balance = account.balance;
+        self.loading = false;
+        self.bSubmitted = false;
+        const origin = self.delivery.origin;
+        const groupDiscount = 0; // bEligible ? 2 : 0;
+        if (origin) {
+          self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
+            self.charge = self.getCharge(self.cart, (r.distance * r.rate), groupDiscount);
+            self.paymentMethod = self.order ? self.paymentMethod : 'cash';
+            self.loading = false;
             setTimeout(() => {
               if (self.paymentMethod === 'card') {
                 const rt = self.paymentSvc.initStripe('card-element', 'card-errors');
                 this.stripe = rt.stripe;
                 this.card = rt.card;
               }
-              self.doPay(self.contact, account, this.charge, this.cart, this.delivery, this.paymentMethod);
+
+              if (this.action === 'pay') {
+                self.doPay(account, this.charge, this.cart, this.delivery, this.paymentMethod);
+              }
+
             }, 800);
           });
-        });
+        } else {
+          console.log('getOverRange require origin');
+        }
       });
-    } else { // normal procedure
+    } else { // normal procedure from restaurant detail page
       this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
         self.account = account;
+        self.balance = account ? account.balance : 0;
 
-        this.contactSvc.find({ accountId: account._id }).pipe(takeUntil(this.onDestroy$)).subscribe((contacts: IContact[]) => {
-          self.contact = contacts[0];
-          const balance = account.balance;
-          self.balance = balance;
-          // const accountId = this.account._id;
-          const cart: ICart = this.cart;
-          // const bNewOrder = (order && order._id) ? false : true;
+        const cart: ICart = this.cart;
 
-          // fix me
-          if (cart) {
-            this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMerchant[]) => {
-              const merchant: IMerchant = ms[0];
-              // const merchantId = merchant._id;
-              const origin = self.delivery.origin;
-              // const address = this.locationSvc.getAddrString(origin);
+        if (cart) {
+          this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMerchant[]) => {
+            const merchant: IMerchant = ms[0];
+            // const merchantId = merchant._id;
+            const origin = self.delivery.origin;
+            // const address = this.locationSvc.getAddrString(origin);
 
-              // this.orderSvc.checkGroupDiscount(accountId, merchantId, dateType, address)
-              // .pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
-              const groupDiscount = 0; // bEligible ? 2 : 0;
-              self.getOverRange(origin, (distance, rate) => {
-                this.charge = this.getCharge(cart, (distance * rate), groupDiscount);
-                this.paymentMethod = (balance >= this.charge.total) ? 'prepaid' : self.paymentMethod;
+            // this.orderSvc.checkGroupDiscount(accountId, merchantId, dateType, address)
+            // .pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
+            const groupDiscount = 0; // bEligible ? 2 : 0;
+            if (origin) {
+              self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
+                this.charge = this.getCharge(cart, (r.distance * r.rate), groupDiscount);
+                this.paymentMethod = (self.balance >= this.charge.total) ? 'prepaid' : self.paymentMethod;
                 this.rx.dispatch({
                   type: OrderActions.UPDATE_PAYMENT_METHOD,
                   payload: { paymentMethod: this.paymentMethod }
@@ -207,10 +219,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 self.loading = false;
                 self.groupDiscount = groupDiscount;
               });
-              // });
-            });
-          }
-        });
+            } else {
+              console.log('getOverRange need origin');
+            }
+            // });
+          });
+        }
       });
     }
   }
@@ -218,43 +232,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.onDestroy$.next();
     this.onDestroy$.complete();
-  }
-
-  getOverRange(origin: ILocation, cb?: any) {
-    const self = this;
-    const destinations: ILocation[] = [];
-    const qDist = { _id: '5d671c2f6f69011d1bd42f6c' }; // TNT mall
-
-    this.rangeSvc.find({ roles: [RangeRole.FREE_CENTER] }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
-      const ranges = self.rangeSvc.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, rs);
-      if (ranges && ranges.length > 0) {
-        const r = rs[0];
-        if (cb) {
-          cb(0, r.overRangeRate);
-        }
-      } else {
-        self.mallSvc.find(qDist).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMall[]) => {
-          ms.map(m => {
-            destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-          });
-
-          self.distanceSvc.reqRoadDistances(origin, destinations).pipe(takeUntil(this.onDestroy$)).subscribe((ds: IDistance[]) => {
-            if (ds && ds.length > 0) {
-              const r = rs[0];
-              const d = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000;
-              const distance = d > 0 ? d : 0; // kilo meter
-              if (cb) {
-                cb(distance, r.overRangeRate);
-              }
-            } else {
-              cb(5, 0); // should never go here
-            }
-          }, err => {
-            console.log(err);
-          });
-        });
-      }
-    });
   }
 
   getCharge(cart, overRangeCharge, groupDiscount) {
@@ -304,7 +281,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
   // delivery --- only need 'origin' and 'dateType' fields
-  createOrder(account: IAccount, contact: IContact, cart: ICart, delivery: IDelivery, charge: ICharge, note: string,
+  createOrder(account: IAccount, cart: ICart, delivery: IDelivery, charge: ICharge, note: string,
     paymentMethod: string): IOrder {
 
     const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
@@ -319,8 +296,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const summary = this.getCost(items);
 
     const order: IOrder = {
-      clientId: contact.accountId,
-      clientName: contact.username,
+      clientId: account._id,
+      clientName: account.username,
       defaultPickupTime: account.pickup,
       merchantId: cart.merchantId,
       merchantName: cart.merchantName,
@@ -349,19 +326,19 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
   pay() {
-    const contact = this.contact;
     const account = this.account;
     const charge = this.charge;
     const delivery = this.delivery;
     const cart = this.cart;
     const paymentMethod = this.paymentMethod;
-    this.doPay(contact, account, charge, cart, delivery, paymentMethod);
+    this.doPay(account, charge, cart, delivery, paymentMethod);
   }
 
-  doPay(contact: IContact, account: IAccount, charge: ICharge, cart: ICart, delivery: IDelivery, paymentMethod: string) {
+  doPay(account: IAccount, charge: ICharge, cart: ICart, delivery: IDelivery, paymentMethod: string) {
     const self = this;
-    if (!contact || !contact.phone || !contact.verified) {
-      this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
+    if (!account || !account.phone || !account.verified) {
+      this.openPhoneVerifyDialog(); // fix me
+      // this.router.navigate(['account/phone-verify'], { queryParams: { fromPage: 'order-form' } });
       return;
     }
 
@@ -387,7 +364,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     this.bSubmitted = true;
     const v = this.form.value;
-    const order = self.createOrder(account, contact, cart, delivery, charge, v.note, paymentMethod);
+    const order = self.createOrder(account, cart, delivery, charge, v.note, paymentMethod);
 
     if (paymentMethod === 'card') {
       this.paymentSvc.vaildateCardPay(this.stripe, this.card, 'card-errors').then((ret: any) => {
@@ -548,19 +525,42 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     if (e.value === 'cash') {
       // product
     } else if (e.value === 'card') {
-      const contact = this.contact;
-      if (contact && contact.phone && contact.verified) {
-        setTimeout(() => {
-          const rt = self.paymentSvc.initStripe('card-element', 'card-errors');
-          self.stripe = rt.stripe;
-          self.card = rt.card;
-        }, 500);
-      } else {
-        this.bSubmitted = true;
-        this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'order-form' } });
-      }
+      // const account = this.account;
+      // if (account && account.type !== 'tmp' && account.phone && account.verified) {
+      setTimeout(() => {
+        const rt = self.paymentSvc.initStripe('card-element', 'card-errors');
+        self.stripe = rt.stripe;
+        self.card = rt.card;
+      }, 500);
+      // } else {
+      //   this.bSubmitted = true;
+      //   this.router.navigate(['account/phone-verify'], { queryParams: { fromPage: 'order-form', 'action': 'change-paymentmethod' } });
+      // }
     } else {
       // pass
     }
+  }
+
+  openPhoneVerifyDialog(): void {
+    const dialogRef = this.dialogSvc.open(PhoneVerifyDialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Signup', content: '', buttonTextNo: '取消', buttonTextYes: '删除', account: this.account
+      },
+      panelClass: 'phone-verify-dialog'
+    });
+
+    dialogRef.afterClosed().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
+      this.account = account;
+      if (account) {
+        this.pay();
+      }
+    });
+  }
+
+  onPay() {
+    // this.dialogRef.close();
+    // this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
+
   }
 }

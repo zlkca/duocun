@@ -1,7 +1,7 @@
-<div class="page">
-  <div class="title-row">
-    <span class="title-bg" i18n="@@VerifyPhoneNumber">Verify Phone Number</span>
-  </div>
+<div mat-dialog-title class="dialog-head">
+  <div class="title-bg" i18n="@@VerifyPhoneNumber">Phone Verification</div>
+</div>
+<div mat-dialog-content>
   <div class="row label-sm verify-hint">
     <span i18n="@@VerifyPhoneNumberNote">*In order to contact when we arrive, we may need to call this number.</span>
   </div>
@@ -35,12 +35,8 @@
     </div>
     <div class="row form-group signup-block">
       <!-- <div *ngIf="hasContact()" class="btn btn-primary signup-btn" (click)="login()" i18n="@@Login">Login</div> -->
-      <div *ngIf="account && !hasContact()" class="btn btn-primary signup-btn" (click)="signup()" i18n="@@Signup">Signup</div>
+      <div *ngIf="account && !hasContact()" class="btn btn-primary signup-btn" (click)="signup()" i18n="@@SignupAndContinuePay">Signup and Continue Pay</div>
     </div>
   </form>
 
-  <div class="row phone-save-row" *ngIf="this.fromPage === 'account-setting'">
-    <div class="col-6 title-md cancel-col" (click)="cancel()" i18n="@@Cancel">Cancel</div>
-    <!-- <div class="col-6 title-md save-col" (click)="save()" i18n="@@Save">Save</div> -->
-  </div>
 </div>

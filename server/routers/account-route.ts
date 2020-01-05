@@ -26,6 +26,7 @@ export function AccountRouter(db: DB){
   router.post('/getMerchantApplication', (req, res) => {merchantStuff.getApplication(req, res); });
 
   router.post('/login', (req, res) => { controller.login(req, res); });
+  router.post('/loginByPhone', (req, res) => { controller.loginByPhone(req, res); });
   router.route('/signup').post((req, res) => {controller.signup(req, res); });
 
 
