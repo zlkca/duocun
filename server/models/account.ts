@@ -380,7 +380,7 @@ export class Account extends Model {
     utils.getWechatAccessToken(authCode).then((r: any) => {
       utils.getWechatUserInfo(r.access_token, r.openid).then((x: any) => { // IAccount
         // try find
-        this.doWechatSignup(r.openid, r.nickname, r.headimgurl, r.sex).then((account: IAccount) => {
+        this.doWechatSignup(x.openid, x.nickname, x.headimgurl, x.sex).then((account: IAccount) => {
           if (account) {
             const accountId = account._id.toString();
             const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256

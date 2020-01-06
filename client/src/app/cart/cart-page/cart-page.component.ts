@@ -124,7 +124,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
           cost: product ? product.cost : 0,
           merchantId: item.merchantId,
           merchantName: item.merchantName
-        }]
+        }],
+        merchantId: item.merchantId
       }
     });
   }
@@ -136,7 +137,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
         items: [{
           productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
           merchantId: item.merchantId, merchantName: item.merchantName
-        }]
+        }],
+        merchantId: item.merchantId
       }
     });
   }

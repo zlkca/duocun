@@ -107,7 +107,8 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
                 pictures: p.pictures,
                 merchantId: p.merchantId,
                 merchantName: p.merchant.name
-              }]
+              }],
+              merchantId: p.merchantId
             }
           });
         }
@@ -129,7 +130,8 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
           pictures: p.pictures,
           merchantId: p.merchantId,
           merchantName: p.merchant.name
-        }]
+        }],
+        merchantId: p.merchantId
       }
     });
   }

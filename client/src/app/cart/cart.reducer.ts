@@ -117,7 +117,8 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
         return {
           ...state,
           ...updated,
-          items: items
+          items: items,
+          merchantId: action.payload.merchantId
         };
       case CartActions.REMOVE_FROM_CART:
         const itemsToRemove: ICartItem[] = action.payload.items;
