@@ -11,8 +11,6 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
-import { ContactActions } from '../../contact/contact.actions';
-import { Contact, IContact } from '../../contact/contact.model';
 import { IMerchant } from '../../restaurant/restaurant.model';
 import { ProductService } from '../../product/product.service';
 import { IDelivery } from '../../delivery/delivery.model';
@@ -35,7 +33,6 @@ export class CartPageComponent implements OnInit, OnDestroy {
   carts;
   location;
   restaurant;
-  contact;
   products: IProduct[];
 
   @ViewChild('orderDetailModal', { static: true }) orderDetailModal;
@@ -75,10 +72,6 @@ export class CartPageComponent implements OnInit, OnDestroy {
         }
         this.products = ps;
       });
-    });
-
-    this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
-      this.contact = contact;
     });
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
@@ -143,22 +136,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  // cart --- grouped cart
-  checkout() {
-    const self = this;
 
-    // if it doesn't have default address
-    if (this.location) {
-      if (this.contact) {
-        this.router.navigate(['order/form']);
-      } else {
-        this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-      }
-    } else {
-      this.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: { location: null } });
-      this.router.navigate(['contact/address-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-    }
-  }
 
 
   clearCart() {
@@ -182,10 +160,15 @@ export class CartPageComponent implements OnInit, OnDestroy {
     const self = this;
   }
 
+  checkout() {
+    this.router.navigate(['order/form'], { queryParams: { fromPage: 'restaurant-detail' } });
+  }
+
   back() {
+    const onSchedule = true;
     const merchantId = this.restaurant._id;
     if (this.restaurant) {
-      this.router.navigate(['merchant/list/' + merchantId]);
+      this.router.navigate(['merchant/list/' + merchantId + '/' + onSchedule]);
     }
   }
 }

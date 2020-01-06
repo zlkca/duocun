@@ -72,6 +72,9 @@ export interface IOrder {
 
   mode?: string; // for unit test
   dateType?: string; // 'today', 'tomorrow'
+
+  client?: IAccount;
+  merchant?: IMerchant;
 }
 
 export class Order extends Model {
@@ -103,50 +106,13 @@ export class Order extends Model {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
-    if (query.hasOwnProperty('pickup')) {
-      query.delivered = this.getPickupDateTime(query['pickup']);
-      delete query.pickup;
-    }
-    let q = query ? query : {};
-
-    this.accountModel.find({}).then(accounts => {
-      this.contactModel.find({}).then(contacts => {
-        this.merchantModel.find({}).then(ms => {
-          this.productModel.find({}).then(ps => {
-            this.find(q).then((rs: any) => {
-              rs.map((order: any) => {
-                const items: any[] = [];
-                const account = accounts.find((c: any) => c._id.toString() === order.clientId.toString());
-                order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
-                if(account){
-                  if(order.client){
-                    order.client.phone = account.phone;
-                  }else{
-                    delete account.password;
-                    order.client = account;
-                  }
-                }
-                
-                order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
-                order.items.map((it: any) => {
-                  const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
-                  if (product) {
-                    items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
-                  }
-                });
-                order.items = items;
-              });
-
-              res.setHeader('Content-Type', 'application/json');
-              if (rs) {
-                res.send(JSON.stringify(rs, null, 3));
-              } else {
-                res.send(JSON.stringify(null, null, 3));
-              }
-            });
-          });
-        });
-      });
+    this.joinFind(query).then(rs => {
+      res.setHeader('Content-Type', 'application/json');
+      if (rs) {
+        res.send(JSON.stringify(rs, null, 3));
+      } else {
+        res.send(JSON.stringify(null, null, 3));
+      }
     });
   }
 
@@ -158,25 +124,28 @@ export class Order extends Model {
     let q = query ? query : {};
 
     return new Promise((resolve, reject) => {
-      this.contactModel.find({}).then(contacts => {
-        this.merchantModel.find({}).then(ms => {
-          this.productModel.find({}).then(ps => {
-            this.find(q).then((rs: any) => {
-              rs.map((order: any) => {
-                const items: any[] = [];
-                order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
-                order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
-                order.items.map((it: any) => {
-                  const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
-                  if (product) {
-                    items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
-                  }
-                });
-                order.items = items;
+      this.accountModel.find({}).then(accounts => {
+        this.productModel.find({}).then(ps => {
+          this.find(q).then((rs: any) => {
+            rs.map((order: any) => {
+              const items: any[] = [];
+              accounts.map((a: IAccount) => {
+                if (a && a.password) {
+                  delete a.password;
+                }
               });
-
-              resolve(rs);
+              order.client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
+              order.merchant = accounts.find((m: any) => m._id.toString() === order.merchantId.toString());
+              order.items.map((it: any) => {
+                const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+                if (product) {
+                  items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                }
+              });
+              order.items = items;
             });
+
+            resolve(rs);
           });
         });
       });
@@ -220,16 +189,16 @@ export class Order extends Model {
   // localDateTime --- local date time string '2019-11-03T11:20:00.000Z'
   // sLocalTime     --- local hour and minute eg. '11:20'
   // return --- utc date time
-  getUTC(localDateTime: moment.Moment, sLocalTime: string ): moment.Moment {
-      const hour = +(sLocalTime.split(':')[0]);   // local hour
-      const minute = +(sLocalTime.split(':')[1]); // local minute
-      return localDateTime.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });
+  getUTC(localDateTime: moment.Moment, sLocalTime: string): moment.Moment {
+    const hour = +(sLocalTime.split(':')[0]);   // local hour
+    const minute = +(sLocalTime.split(':')[1]); // local minute
+    return localDateTime.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });
 
   }
 
   // sUTC --- utc date time string
-  toLocalDateTimeString(sUTC: string){
-    return moment(sUTC).local().format('YYYY-MM-DDTHH:mm:ss')+'.000Z';
+  toLocalDateTimeString(sUTC: string) {
+    return moment(sUTC).local().format('YYYY-MM-DDTHH:mm:ss') + '.000Z';
   }
 
   // if over 11:30, the return dt is 11:20, this shouldn't happen
@@ -247,7 +216,7 @@ export class Order extends Model {
         if (i === 0) {
           if (utcCreated.isSameOrBefore(orderEndTime)) {
             return this.getUTC(moment(sLocalCreated), phase.pickup).toISOString();
-          }else{
+          } else {
             // pass
           }
         } else {
@@ -256,7 +225,7 @@ export class Order extends Model {
 
           if (utcCreated.isAfter(preEndTime) && utcCreated.isSameOrBefore(orderEndTime)) {
             return this.getUTC(moment(sLocalCreated), phase.pickup).toISOString();
-          }else{
+          } else {
             // pass
           }
         }
@@ -330,7 +299,7 @@ export class Order extends Model {
             cost: Math.round(+ca.product.cost * 100) / 100,
             address: ca.address,
             location: {
-              streetNumber: '30', streetName: 'Fulton Way', city: 'Toronto', province: 'ON', country: 'CA', postalCode:'',
+              streetNumber: '30', streetName: 'Fulton Way', city: 'Toronto', province: 'ON', country: 'CA', postalCode: '',
               subLocality: 'RichmondHill', placeId: 'ChIJlQu-m1fTKogRNj4OtKn7yD0', lat: 43.983012, lng: -79.3906583
             }, // fix me!!!
             note: 'Mobile Plan Monthly Fee',
@@ -422,8 +391,8 @@ export class Order extends Model {
                   const merchantAccountId = merchant.accountId.toString();
                   this.transactionModel.saveTransactionsForRemoveOrder(orderId, merchantAccountId, merchantName, clientId, clientName,
                     cost, total, delivered).then(() => {
-                    resolve(order);
-                  });
+                      resolve(order);
+                    });
                 });
               });
             }
@@ -789,23 +758,23 @@ export class Order extends Model {
     return new Promise((resolve, reject) => {
       this.transactionModel.saveTransactionsForPlaceOrder(
         orderId.toString(),
-        merchantId, 
+        merchantId,
         merchantName,
-        clientId, 
+        clientId,
         clientName,
         cost,
         total,
         deliverd
       ).then(() => {
         this.transactionModel.doInsertOne(tr).then(t => {
-          if(t){
+          if (t) {
             const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
             this.updateOne({ _id: orderId }, data).then((r: any) => { // result
               // res.setHeader('Content-Type', 'application/json');
               // res.end(JSON.stringify(r, null, 3));
               resolve(r);
             });
-          }else{
+          } else {
             resolve();
           }
         });
@@ -940,7 +909,7 @@ export class Order extends Model {
   // date --- '2019-11-15'
   getSummary(type: OrderType, date: string) {
     const self = this;
-    
+
     const dt = moment(date);
     const range = { $gt: dt.startOf('day').toISOString(), $lt: dt.endOf('day').toISOString() };
     const q = { type: type, delivered: range, status: { $nin: ['del', 'bad', 'tmp'] } };
@@ -1032,7 +1001,7 @@ export class Order extends Model {
   }
 
   // tools
-  convertUTC(){
+  convertUTC() {
 
   }
 

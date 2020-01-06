@@ -129,6 +129,44 @@ describe('getDeliveryDateTime', () => {
   });
 });
 
+
+describe('order joinFind query id', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let orderModel: Order;
+  let connection: any = null;
+
+  before(function (done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      connection = dbClient;
+      orderModel = new Order(db);
+      done();
+    });
+  });
+
+  after(function (done) {
+    connection.close();
+    done();
+  });
+
+  it('should return an order', (done) => {
+    const _id = '5ccce16995e72c44a1d65113';
+
+    orderModel.joinFind({ '_id': _id }).then(rs => {
+      const orderId: any = rs[0]._id;
+      const client: any = rs[0].client;
+      const merchant: any = rs[0].merchant;
+      expect(rs.length).to.equal(1);
+      expect(orderId.toString().length).to.equal(24);
+      expect(client._id.toString()).to.equal(rs[0].clientId.toString());
+      expect(merchant._id.toString()).to.equal(rs[0].merchantId.toString());
+
+      done();
+    });
+  });
+}); // end of merchant joinFind
+
+
 function convertUTC() {
   // console.log(moment('2019-04-23T15:45:00').utc().format());
   // console.log('it is ' + moment.utc(moment('2019-04-23T10:45:00.000Z').local()).format());
