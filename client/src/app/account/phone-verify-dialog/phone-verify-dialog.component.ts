@@ -83,21 +83,24 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
     this.verificationCode.patchValue('');
 
     if (e.target.value && e.target.value.length >= 10) {
-      if (this.account) {
-        // should never happen
-      } else {
-        let phone: string = this.form.value.phone;
-        phone = phone.substring(0, 2) === '+1' ? phone.substring(2) : phone;
-        phone = phone.match(/\d+/g).join('');
+      let phone: string = this.form.value.phone;
+      phone = phone.substring(0, 2) === '+1' ? phone.substring(2) : phone;
+      phone = phone.match(/\d+/g).join('');
 
-        // First time there is not token, api call do not allowed
-        // this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
-        //   if (accounts && accounts.length > 0) {
-        //     this.account = accounts[0];
-        //   } else {
-        //     this.account = null;
-        //   }
-        // });
+      if (this.account) {
+        this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
+          if (accounts && accounts.length > 0) {
+            if (accounts[0]._id !== this.account._id) {
+              alert('This phone number has already bind to an account, please try other phone number.');
+            } else {
+              // valid to bind
+            }
+          } else {
+            // valid to bind
+          }
+        });
+      } else { // did not login yet, should never happend
+
       }
     }
   }
@@ -150,13 +153,29 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
 
   sendVerify() {
     const self = this;
-    const accountId: string = self.account ? self.account._id : '';
     let phone: string = this.form.value.phone;
     phone = phone.substring(0, 2) === '+1' ? phone.substring(2) : phone;
+    phone = phone.match(/\d+/g).join('');
 
     if (phone) {
-      phone = phone.match(/\d+/g).join('');
-      this.bGettingCode = true;
+      this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
+        if (accounts && accounts.length > 0) {
+          if (accounts[0]._id !== this.account._id) {
+            alert('This phone number has already bind to an account, please try other phone number.');
+          } else { // valid to bind
+            this.resendVerify(phone);
+          }
+        } else { // valid to bind
+          this.resendVerify(phone);
+        }
+      });
+    }
+  }
+
+  resendVerify(phone: string) {
+    const self = this;
+    const accountId: string = self.account ? self.account._id : '';
+    this.bGettingCode = true;
       this.counter = 60;
       this.countDown = setInterval(function () {
         self.counter--;
@@ -177,8 +196,8 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
         }
         this.snackBar.open('', '短信验证码已发送', { duration: 1000 });
       });
-    }
   }
+
 
   signup() {
     const self = this;

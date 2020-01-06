@@ -6,7 +6,6 @@ import { SignupComponent } from './signup/signup.component';
 import { AccountPageComponent } from './account-page/account-page.component';
 import { BalancePageComponent } from './balance-page/balance-page.component';
 import { AddCreditPageComponent } from './add-credit-page/add-credit-page.component';
-import { PhoneVerifyPageComponent } from './phone-verify-page/phone-verify-page.component';
 
 const routes: Routes = [
   { path: 'forget-password', component: ForgetPasswordComponent },
@@ -14,8 +13,7 @@ const routes: Routes = [
   { path: 'login', component: LoginFormComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'settings', component: AccountPageComponent},
-  { path: 'balance', component: BalancePageComponent},
-  { path: 'phone-verify', component: PhoneVerifyPageComponent }
+  { path: 'balance', component: BalancePageComponent}
 ];
 
 @NgModule({

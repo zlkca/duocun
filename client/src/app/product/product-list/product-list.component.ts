@@ -105,10 +105,10 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
                 cost: p.cost,
                 quantity: 1,
                 pictures: p.pictures,
-                merchantId: p.merchantId,
+                merchantId: p.merchantId, // merchant account id
                 merchantName: p.merchant.name
               }],
-              merchantId: p.merchantId
+              merchantId: p.merchantId // merchant account id
             }
           });
         }

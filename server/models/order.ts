@@ -366,10 +366,10 @@ export class Order extends Model {
         const orderType: any = order.type;
         const dateType: any = order.dateType;
         const clientId = order.clientId;
-        const merchantId = order.merchantId;
+        const merchantAccountId = order.merchantId.toString(); // this is merchant accountId
         const utcCreatedStr = order.created;
 
-        this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
+        this.merchantModel.findOne({ accountId: merchantAccountId }).then((merchant: IDbMerchant) => {
           const phases = merchant ? merchant.phases : [];
           this.getDeliveryDateTime(orderType, dateType, clientId, phases, utcCreatedStr).then((utcDeliveredStr) => {
             order.delivered = utcDeliveredStr;
@@ -388,7 +388,6 @@ export class Order extends Model {
                 resolve(savedOrder);
               } else {
                 const orderId: any = savedOrder._id;
-                const merchantAccountId = merchant.accountId.toString();
                 this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), merchantAccountId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
                   resolve(savedOrder);
                 });

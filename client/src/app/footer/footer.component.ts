@@ -1,13 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
-import { Account, IAccount } from '../account/account.model';
+import { IAccount } from '../account/account.model';
 import { IAppState } from '../store';
 import { CommandActions } from '../shared/command.actions';
 import { takeUntil } from '../../../node_modules/rxjs/operators';
 import { Subject } from '../../../node_modules/rxjs';
-import { ContactService } from '../contact/contact.service';
-import { IContact } from '../contact/contact.model';
 import { ICommand } from '../shared/command.reducers';
 import { ICart } from '../cart/cart.model';
 import { IDelivery } from '../delivery/delivery.model';
@@ -39,7 +37,6 @@ export class FooterComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private rx: NgRedux<IAppState>,
-    private contactSvc: ContactService,
     private accountSvc: AccountService
   ) {
     const self = this;

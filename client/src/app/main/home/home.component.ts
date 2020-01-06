@@ -17,15 +17,12 @@ import { ICommand } from '../../shared/command.reducers';
 import { Account, IAccount } from '../../account/account.model';
 import { AccountActions } from '../../account/account.actions';
 import { MatSnackBar, MatTooltip } from '../../../../node_modules/@angular/material';
-import { ContactService } from '../../contact/contact.service';
-import { IContact, Contact } from '../../contact/contact.model';
 import { CommandActions } from '../../shared/command.actions';
 import { IAddressAction } from '../../location/address.reducer';
 import { AddressActions } from '../../location/address.actions';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
 import { IDelivery } from '../../delivery/delivery.model';
-import { ContactActions } from '../../contact/contact.actions';
 import * as moment from 'moment';
 import { RangeService } from '../../range/range.service';
 import { IRange } from '../../range/range.model';
@@ -82,7 +79,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     private authSvc: AuthService,
-    private contactSvc: ContactService,
     private rangeSvc: RangeService,
     // private socketSvc: SocketService,
     private router: Router,

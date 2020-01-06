@@ -1,0 +1,26 @@
+<!-- <div class="page">
+    <div class="row form-group address-input-block">
+      <div class="row label-sm">
+        <span i18n="@@DeliverAddress">Delivery Address</span><span>*</span>
+      </div>
+      <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
+        (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
+        (backHistory)="onAddressBack($event)"
+        [value]="deliveryAddress">
+      </app-address-input>
+    </div>
+    <app-location-list *ngIf="options && options.length > 0" [account]="account" [places]="options" (placeSeleted)="onSelectPlace($event)"></app-location-list>
+  
+    <div class="map-block" [class.range]="rangeMap" *ngIf="location && !(options && options.length > 0) && !inRange">
+      <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="options" [ranges]="mapRanges"></app-map>
+    
+      <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
+          <div class="col-12">
+              <div class="text-md">
+                <span>您的地址不在配送范围内，请尝试其它地址</span>
+              </div>
+          </div>
+        </button>
+    </div>
+  
+  </div> -->

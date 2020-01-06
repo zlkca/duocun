@@ -66,6 +66,10 @@ export class AccountPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
+  getDefaultAddress() {
+    return this.account.location ? this.locationSvc.getAddrString(this.account.location) : '';
+  }
+
   changePhoneNumber() {
     this.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'account-setting' } });
   }
