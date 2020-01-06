@@ -55,14 +55,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   inRange = false;
   onDestroy$ = new Subject<any>();
   loading = true;
-  location;
+  location: ILocation;
   bUpdateLocationList = true;
   bInputLocation = false;
   placeForm;
   historyAddressList = [];
   suggestAddressList = [];
   selectedDate = 'today';
-  address: ILocation;
 
   mapRanges;
   mapZoom;
@@ -118,7 +117,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.calcRange(origin);
 
       } else {
-        this.address = null;
+        this.location = null;
         this.inRange = true;
       }
 
@@ -219,7 +218,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           lng: (origin.lng + farNorth.lng) / 2
         };
       }
-      this.address = origin; // order matters
+      this.location = origin; // order matters
     });
   }
 
@@ -256,21 +255,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       const a = this.locationSvc.toPlaces(lhs);
       self.historyAddressList = a;
     });
-    // self.socketSvc.init(this.authSvc.getAccessTokenId());
 
-    // redirect to filter if contact have default address
-    self.contactSvc.find({ accountId: accountId }).pipe(takeUntil(self.onDestroy$)).subscribe((r: IContact[]) => {
-      if (r && r.length > 0) {
-        self.contact = new Contact(r[0]);
-        self.rx.dispatch({ type: ContactActions.LOAD_FROM_DB, payload: self.contact });
-        if (self.contact.location) {
-          self.bUpdateLocationList = false;
-          self.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: self.contact.location } });
-          self.deliveryAddress = self.locationSvc.getAddrString(self.contact.location); // set address text to input
-          self.address = self.contact.location; // update merchant list
-        }
-      }
-    });
+    // redirect to filter if account have default location
+    if (account && account.location) {
+      self.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: account.location } });
+      self.bUpdateLocationList = false;
+      self.deliveryAddress = self.locationSvc.getAddrString(account.location); // set address text to input
+    }
   }
 
   ngOnInit() {
@@ -305,7 +296,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.account.visited = true;
         this.accountSvc.update({ _id: accountId }, { visited: true }).pipe(takeUntil(this.onDestroy$)).subscribe(r => {
           this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
-          // console.log('update user account');
         });
       }
 
@@ -339,10 +329,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.deliveryAddress = '';
     this.places = [];
     this.bUpdateLocationList = true;
-    this.rx.dispatch({
-      type: DeliveryActions.UPDATE_ORIGIN,
-      payload: { origin: null }
-    });
+    this.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: null }});
     this.onAddressInputFocus({ input: '' });
   }
 
@@ -390,11 +377,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
 
       if (r) {
-        self.rx.dispatch({ type: ContactActions.UPDATE_LOCATION, payload: r });
         self.bUpdateLocationList = false;
         self.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
         self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
-        self.address = r; // update merchant list
+        self.location = r; // update merchant list
       }
     }
   }
@@ -412,7 +398,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   resetAddress() {
-    this.address = null;
+    this.location = null;
     this.inRange = true;
     this.deliveryAddress = '';
   }

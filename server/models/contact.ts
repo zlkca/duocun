@@ -99,7 +99,7 @@ export class Contact extends Model {
           if (a) {
             datas.push({
               query: { _id: a._id },
-              data: { phone: c.phone, verified: true, verificationCode: c.verificationCode }
+              data: { phone: c.phone, verified: true, verificationCode: c.verificationCode, location: c.location }
             });
           }
         });

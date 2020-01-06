@@ -23,8 +23,8 @@ import { OrderService } from '../order/order.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { AddCreditPageComponent } from './add-credit-page/add-credit-page.component';
 import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
-import { PhoneVerifyPageComponent } from './phone-verify-page/phone-verify-page.component';
 import { PhoneVerifyDialogComponent } from './phone-verify-dialog/phone-verify-dialog.component';
+import { AddressFormDialogComponent } from './address-form-dialog/address-form-dialog.component';
 
 @NgModule({
     imports: [
@@ -53,8 +53,8 @@ import { PhoneVerifyDialogComponent } from './phone-verify-dialog/phone-verify-d
       AccountPageComponent,
       BalancePageComponent,
       AddCreditPageComponent,
-      PhoneVerifyPageComponent,
-      PhoneVerifyDialogComponent
+      PhoneVerifyDialogComponent,
+      AddressFormDialogComponent
     ],
     providers: [
       AccountService,

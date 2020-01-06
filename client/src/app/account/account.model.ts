@@ -1,5 +1,5 @@
 
-import { GeoPoint } from '../location/location.model';
+import { GeoPoint, ILocation } from '../location/location.model';
 
 export enum Role {
   SUPER = 1,
@@ -21,6 +21,7 @@ export interface IAccount {
 
   phone?: string;
   verified?: boolean;   // in db, phone number is verified or not
+  location?: ILocation; // in db
 
   password?: string;
   sex?: string;
@@ -57,6 +58,7 @@ export class Account implements IAccount {
   visited?: boolean;
   stripeCustomerId?: string;
   balance?: number;
+  location?: ILocation; // in db
 
   constructor(data?: IAccount) {
     Object.assign(this, data);

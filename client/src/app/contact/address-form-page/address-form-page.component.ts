@@ -60,10 +60,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   constructor(
     private accountSvc: AccountService,
     private locationSvc: LocationService,
-    private contactSvc: ContactService,
     // private rangeSvc: RangeService,
     private mallSvc: MallService,
-    private distanceSvc: DistanceService,
+    // private distanceSvc: DistanceService,
     private rx: NgRedux<IAppState>,
     private router: Router,
     private route: ActivatedRoute,
@@ -102,25 +101,25 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       });
     });
 
-    this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact) => {
-      if (r) {
-        self.contact = new Contact(r); // use for phone
-        if (this.fromPage === 'account-setting') {
-          if (r.location) { // select from location list
-            self.deliveryAddress = this.locationSvc.getAddrString(r.location);
-          } else if (r.address) { // initial address display
-            self.deliveryAddress = r.address ? r.address : '';
-          }
-        } else {
-          // self.deliveryAddress = '';
-          self.deliveryAddress = self.locationSvc.getAddrString(r.location);
-        }
-        self.rx.dispatch({
-          type: CommandActions.SEND,
-          payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
-        });
-      }
-    });
+    // this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact) => {
+    //   if (r) {
+    //     self.contact = new Contact(r); // use for phone
+    //     if (this.fromPage === 'account-setting') {
+    //       if (r.location) { // select from location list
+    //         self.deliveryAddress = this.locationSvc.getAddrString(r.location);
+    //       } else if (r.address) { // initial address display
+    //         self.deliveryAddress = r.address ? r.address : '';
+    //       }
+    //     } else {
+    //       // self.deliveryAddress = '';
+    //       self.deliveryAddress = self.locationSvc.getAddrString(r.location);
+    //     }
+    //     self.rx.dispatch({
+    //       type: CommandActions.SEND,
+    //       payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
+    //     });
+    //   }
+    // });
 
     this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IMerchant) => {
       self.restaurant = r;
@@ -217,32 +216,14 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
 
   cancel() {
     const self = this;
-    const merchantId = this.restaurant._id;
     const location = Cookies.get('duocun-old-location');
-    if (!this.contact) {
-      this.contact = new Contact();
-      this.contact.accountId = self.account._id;
-    }
+    const oldLocation = (location && location !== 'undefined') ? JSON.parse(location) : null;
 
-    this.contact.location = (location && location !== 'undefined') ? JSON.parse(location) : null;
-
-    this.rx.dispatch<IContactAction>({
-      type: ContactActions.UPDATE_LOCATION,
-      payload: { location: this.contact.location }
-    });
-
-    this.rx.dispatch<IDeliveryAction>({
-      type: DeliveryActions.UPDATE_ORIGIN,
-      payload: { origin: this.contact.location }
-    });
+    this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: oldLocation }});
 
     Cookies.remove('duocun-old-location');
     if (self.fromPage === 'account-setting') {
       self.router.navigate(['account/settings']);
-    } else if (self.fromPage === 'restaurant-detail') {
-      self.router.navigate(['merchant/list/' + merchantId]);
-    } else if (self.fromPage === 'contact-form') {
-      self.router.navigate(['contact/form']);
     }
   }
 
@@ -251,105 +232,40 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     return d ? d.element.distance.value : 0;
   }
 
-  redirect(contact) {
-    const self = this;
-    if (self.fromPage === 'account-setting') {
-      this.contactSvc.find({ accountId: contact.accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((cs: IContact[]) => {
-        if (cs && cs.length > 0) {
-          const contactId = cs[0]._id;
-          const data = { address: contact.address, location: contact.location };
-          this.contactSvc.update({ _id: contactId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
-            self.router.navigate(['account/settings']);
-            self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
-          });
-        } else {
-          this.contactSvc.save(contact).subscribe(x => {
-            self.router.navigate(['account/settings']);
-            self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
-          });
-        }
-      });
-    } else if (self.fromPage === 'restaurant-detail') { // will no longer go here any more
-      if (self.contact && self.contact.phone) {
-        self.router.navigate(['order/form']);
-      } else {
-        self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-      }
-      self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
-    } else if (self.fromPage === 'contact-form') {
-      self.router.navigate(['contact/form']);
-      self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
-    // } else if (self.fromPage === 'contact/address') {
-    //   self.router.navigate(['contact/main'], { queryParams: { fromPage: 'address-form' } });
-    //   self.snackBar.open('', '已成功保存。', { duration: 1500 });
-    // } else if (self.fromPage === 'contact/phone') {
-    //   self.router.navigate(['contact/main'], { queryParams: { fromPage: 'phone-form' } });
-    //   self.snackBar.open('', '已成功保存。', { duration: 1500 });
-    } else {
-      // self.router.navigate(['contact/phone-form'], { queryParams: { fromPage: 'restaurant-detail' } });
-    }
-  }
 
   save() {
     const self = this;
     const accountId = this.account._id;
-    const accountName = this.account.username;
-    const address = this.deliveryAddress;
     const location = this.location;
 
-    const contact: any = {
-      accountId: accountId,
-      username: accountName,
-      phone: this.contact ? this.contact.phone : '',
-      location: location,
-      address: address
-    };
-
-    if (this.contact) {
-      contact._id = this.contact._id;
-    }
-
-    this.rx.dispatch<IContactAction>({ type: ContactActions.UPDATE_LOCATION, payload: { location: location } });
     this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: location }});
 
     if (this.fromPage === 'account-setting') {
-      this.contactSvc.find({ accountId: contact.accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((cs: IContact[]) => {
-        if (cs && cs.length > 0) {
-          const contactId = cs[0]._id;
-          const data = { address: address, location: location };
-          this.contactSvc.update({ _id: contactId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
-            self.router.navigate(['account/settings']);
-            self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
-          });
-        } else {
-          this.contactSvc.save(contact).subscribe(x => {
-            self.router.navigate(['account/settings']);
-            self.snackBar.open('', '账号默认地址已成功保存。', { duration: 1500 });
-          });
-        }
+      const data = { location: location };
+      this.accountSvc.update({ _id: accountId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
+        self.router.navigate(['account/settings']);
+        self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
       });
     } else {
-      // The order matters
-      if (!self.inRange) {
-        self.router.navigate(['main/home']);
-        return;
-      }
+      // // The order matters
+      // if (!self.inRange) {
+      //   self.router.navigate(['main/home']);
+      //   return;
+      // }
 
-      if (!self.onSchedule) {
-        this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
-        alert('该餐馆今天休息，请选择其他餐馆');
-        self.router.navigate(['main/home']);
-        return;
-      }
+      // if (!self.onSchedule) {
+      //   this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
+      //   alert('该餐馆今天休息，请选择其他餐馆');
+      //   self.router.navigate(['main/home']);
+      //   return;
+      // }
 
-      // fix me!!!
-      const mall = this.malls.find(m => m._id === this.restaurant.malls[0]);
-      if (!this.mallSvc.isInRange(mall, this.availableRanges)) {
-        alert('此餐馆不在配送范围内');
-        return;
-      }
-
-      self.redirect(contact);
+      // // fix me!!!
+      // const mall = this.malls.find(m => m._id === this.restaurant.malls[0]);
+      // if (!this.mallSvc.isInRange(mall, this.availableRanges)) {
+      //   alert('此餐馆不在配送范围内');
+      //   return;
+      // }
     }
   }
 

@@ -109,29 +109,41 @@ export class Order extends Model {
     }
     let q = query ? query : {};
 
-    this.contactModel.find({}).then(contacts => {
-      this.merchantModel.find({}).then(ms => {
-        this.productModel.find({}).then(ps => {
-          this.find(q).then((rs: any) => {
-            rs.map((order: any) => {
-              const items: any[] = [];
-              order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
-              order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
-              order.items.map((it: any) => {
-                const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
-                if (product) {
-                  items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+    this.accountModel.find({}).then(accounts => {
+      this.contactModel.find({}).then(contacts => {
+        this.merchantModel.find({}).then(ms => {
+          this.productModel.find({}).then(ps => {
+            this.find(q).then((rs: any) => {
+              rs.map((order: any) => {
+                const items: any[] = [];
+                const account = accounts.find((c: any) => c._id.toString() === order.clientId.toString());
+                order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
+                if(account){
+                  if(order.client){
+                    order.client.phone = account.phone;
+                  }else{
+                    delete account.password;
+                    order.client = account;
+                  }
                 }
+                
+                order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
+                order.items.map((it: any) => {
+                  const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+                  if (product) {
+                    items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                  }
+                });
+                order.items = items;
               });
-              order.items = items;
-            });
 
-            res.setHeader('Content-Type', 'application/json');
-            if (rs) {
-              res.send(JSON.stringify(rs, null, 3));
-            } else {
-              res.send(JSON.stringify(null, null, 3));
-            }
+              res.setHeader('Content-Type', 'application/json');
+              if (rs) {
+                res.send(JSON.stringify(rs, null, 3));
+              } else {
+                res.send(JSON.stringify(null, null, 3));
+              }
+            });
           });
         });
       });
