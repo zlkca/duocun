@@ -5,6 +5,37 @@ import moment from "moment";
 import { Config } from "../../config";
 import { IPhase } from "../../models/merchant";
 
+
+describe('getUTC', () => {
+  it('should return utc date time', () => {
+    const db = new DB();
+    const orderModel = new Order(db);
+    const phases: IPhase[] = [
+      {
+        orderEnd: '10:45',
+        pickup: '11:20'
+      },
+      {
+        orderEnd: '11:30',
+        pickup: '12:00'
+      },
+    ];
+
+    // utc time
+    const datas = [
+      { created: '2019-11-03T14:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T16:20:00.000Z' },
+      { created: '2019-11-03T15:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T16:20:00.000Z' },
+      { created: '2019-11-03T16:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T16:20:00.000Z' },
+    ];
+
+    datas.map(d => {
+      const r: moment.Moment = orderModel.getUTC(moment(d.created), d.phases[0].pickup);
+      expect(r.toISOString()).to.equal(d.ret);
+    });
+
+  });
+});
+
 describe('getDeliveryDateTimeByPhase', () => {
   it('should return delivered date time', () => {
     const db = new DB();
@@ -22,7 +53,7 @@ describe('getDeliveryDateTimeByPhase', () => {
 
     // utc time
     const datas = [
-      { created: '2019-11-03T14:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T16:20:00.000Z' },
+      { created: '2019-11-03T03:52:59.566Z', phases: phases, type: 'tomorrow', ret: '2019-11-03T16:20:00.000Z' },
       { created: '2019-11-03T15:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T17:00:00.000Z' },
       { created: '2019-11-03T16:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T16:20:00.000Z' },
     ];

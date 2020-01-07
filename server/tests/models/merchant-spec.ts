@@ -3,6 +3,7 @@ import { DB } from "../../db";
 import { expect } from 'chai';
 import moment from "../../../node_modules/moment";
 import { Config } from "../../config";
+import { ILocation } from "../../models/distance";
 
 describe('isOpeningDayOfWeek', () => {
   it('should return closing or open', () => {
@@ -308,3 +309,49 @@ describe('loadByDeliveryInfo without location and date', () => {
   });
 }); // end of loadByDeliveryInfo without location
 
+describe('loadByDeliveryInfo with location and date', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let merchantModel: Merchant;
+  let connection: any = null;
+  let origin: ILocation = {
+    placeId: 'ChIJKexEE0jRKogRH2KLGSg9bIA',
+    lat: 43.9990221,
+    lng: -79.4915457,
+    city: 'Aurora',
+    province: 'ON',
+    streetName: 'Delayne Dr',
+    streetNumber: '195'
+  };
+  let dt = moment.utc('2019-11-03T03:52:59.566Z');
+
+  before(function (done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      connection = dbClient;
+      merchantModel = new Merchant(db);
+      done();
+    });
+  });
+
+  after(function (done) {
+    connection.close();
+    done();
+  });
+
+  it('should return merchants with mall and account fileld', (done) => {
+    merchantModel.loadByDeliveryInfo({}, origin, dt).then(rs => {
+      rs.map(r => {
+        expect(r._id.toString().length).to.equal(24);
+        if(r.mallId === '5cca676b8b79db0d3aaaa058'){ // first markham place
+          expect(r.onSchedule).to.equal(false);
+        }
+
+        if(r.mallId === '5d2e9d79d1ba443c034764ab'){ // metro
+          expect(r.onSchedule).to.equal(true);
+        }
+      });
+
+      done();
+    });
+  });
+}); // end of loadByDeliveryInfo with location

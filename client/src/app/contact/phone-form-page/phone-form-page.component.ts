@@ -136,27 +136,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
           }
           setTimeout(() => {
             if (self.verified) {
-              if (self.account && self.account.type !== 'tmp') {
-                // must get updated account data
-                self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-                  // self.dialogRef.close(account);
-                });
-              } else {
-                self.accountSvc.loginByPhone(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
-                  self.authSvc.setAccessTokenId(tokenId);
-                  self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-                    if (account) {
-                      if (account.type === 'tmp') {
-                        self.account = account; // For display signup button
-                      } else {
-                        // self.dialogRef.close(account);
-                      }
-                    } else {
-                      console.log('login failed');
-                    }
-                  });
-                });
-              }
+              self.router.navigate(['account/settings']);
             } else {
               // pass
             }

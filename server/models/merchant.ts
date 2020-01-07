@@ -165,9 +165,14 @@ export class Merchant extends Model {
   // ------------------------------------------------------------------------------
   // s --- must be '2019-10-22' or '2019-11-03T13:52:59.566Z' format
   getDateString(s: string) {
-    if (s.indexOf('T') !== -1) {
-      return s.split('T')[0];
-    } else {
+    if(typeof s === 'string'){
+      if (s.indexOf('T') !== -1) {
+        return s.split('T')[0];
+      } else {
+        return s;
+      }
+    }else{
+      console.log('getDateString error input :' + s);
       return s;
     }
   }
@@ -245,13 +250,13 @@ export class Merchant extends Model {
   }
 
   // query { status: 'active' }
-  loadByDeliveryInfo(query: any, origin?: ILocation, date?: moment.Moment): Promise<IMerchant[]> {
+  loadByDeliveryInfo(query: any, origin?: ILocation, utcDate?: moment.Moment): Promise<IMerchant[]> {
 
     return new Promise((resolve, reject) => {
       if (origin) {
         this.area.getNearestArea(origin).then((area: IArea) => {
-          const datetime = date ? date : moment();
-          const dow: number = date ? date.day() : moment().day();
+          const datetime = utcDate ? utcDate : moment.utc();
+          const dow: number = utcDate ? utcDate.local().day() : moment.utc().local().day();
           this.mall.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
             this.mall.getRoadDistanceToMalls(origin).then((ds: IDistance[]) => {
               this.joinFind(query).then((ms: IDbMerchant[]) => {
@@ -306,7 +311,7 @@ export class Merchant extends Model {
   load(req: Request, res: Response) {
     const origin = req.body.origin;
     const dateType = req.body.dateType;
-    const dt = dateType === 'today' ? moment() : moment().add(1, 'days');
+    const dt = dateType === 'today' ? moment.utc() : moment.utc().add(1, 'days');
     let query = null;
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;

@@ -193,7 +193,6 @@ export class Order extends Model {
     const hour = +(sLocalTime.split(':')[0]);   // local hour
     const minute = +(sLocalTime.split(':')[1]); // local minute
     return localDateTime.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });
-
   }
 
   // sUTC --- utc date time string
