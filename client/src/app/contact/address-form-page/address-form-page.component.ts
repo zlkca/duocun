@@ -61,7 +61,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService,
     private locationSvc: LocationService,
     // private rangeSvc: RangeService,
-    private mallSvc: MallService,
+    // private mallSvc: MallService,
     // private distanceSvc: DistanceService,
     private rx: NgRedux<IAppState>,
     private router: Router,
@@ -75,9 +75,9 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       payload: { name: 'address-form', fromPage: this.fromPage }
     });
 
-    this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
-      this.malls = malls;
-    });
+    // this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
+    //   this.malls = malls;
+    // });
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'cancel-address') {
@@ -225,6 +225,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     if (self.fromPage === 'account-setting') {
       self.router.navigate(['account/settings']);
     }
+    this.rx.dispatch({ type: CommandActions.CLEAR_CMD, payload: {} });
   }
 
   getDistance(ds: IDistance[], mall: IMall) {
@@ -241,13 +242,15 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: location }});
 
     if (this.fromPage === 'account-setting') {
-      const data = { location: location };
+      const data = { location: location ? location : '' };
       this.accountSvc.update({ _id: accountId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
         self.router.navigate(['account/settings']);
         self.snackBar.open('', '账号默认地址已成功修改。', { duration: 1500 });
+        this.rx.dispatch({ type: CommandActions.CLEAR_CMD, payload: {} });
       });
     } else {
       // // The order matters
+      this.rx.dispatch({ type: CommandActions.CLEAR_CMD, payload: {} });
       // if (!self.inRange) {
       //   self.router.navigate(['main/home']);
       //   return;

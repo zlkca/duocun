@@ -12,8 +12,6 @@ const CASH_NAME = 'Cash';
 const BANK_ID = '5c95019e0851a5096e044d0c';
 const BANK_NAME = 'TD Bank';
 
-
-
 describe('entity bulkUpdate', () => {
   const db: any = new DB();
   const cfg: any = new Config();
@@ -71,5 +69,73 @@ describe('entity bulkUpdate', () => {
       });
     });
 
+  });
+});
+
+
+describe('entity update object {}', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let accountModel: Account;
+  let connection: any = null;
+
+  before(function (done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      connection = dbClient;
+      accountModel = new Account(db);
+      done();
+    });
+  });
+
+  after(function (done) {
+    connection.close();
+    done();
+  });
+
+  it('should return undefined', (done) => {
+    const client2Id = '5d953ff91a3174727b9a7c70';
+    const q = { _id:  client2Id};
+
+    accountModel.updateOne(q, {}).then((r: any) => {
+      expect(r).to.equal(undefined);
+      done();
+    });
+  });
+});
+
+describe("entity update object {phone: ''}", () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let accountModel: Account;
+  let connection: any = null;
+
+  before(function (done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      connection = dbClient;
+      accountModel = new Account(db);
+      done();
+    });
+  });
+
+  after(function (done) {
+    const client2Id = '5d953ff91a3174727b9a7c70';
+    const q = { _id:  client2Id};
+    accountModel.updateOne(q, {phone: '123456'}).then((r: any) => {
+      connection.close();
+      done();
+    });
+  });
+
+  it('should return empty string', (done) => {
+    const client2Id = '5d953ff91a3174727b9a7c70';
+
+    const q = { _id:  client2Id};
+
+    accountModel.updateOne(q, {phone: ''}).then((r: any) => {
+      accountModel.findOne(q).then((account: any) => {
+        expect(account.phone).to.equal('');
+        done();
+      });
+    });
   });
 });

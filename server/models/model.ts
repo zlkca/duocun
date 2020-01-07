@@ -122,7 +122,7 @@ export class Model extends Entity {
       if (req.body && req.body.filter) {
         this.updateOne(req.body.filter, req.body.data, req.body.options).then((x: any) => {
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(x, null, 3)); // {n: 1, nModified: 1, ok: 1}
+          res.end(x ? JSON.stringify(x, null, 3) : ''); // {n: 1, nModified: 1, ok: 1}
         });
       } else {
         res.end();

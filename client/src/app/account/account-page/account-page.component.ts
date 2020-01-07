@@ -39,7 +39,7 @@ export class AccountPageComponent implements OnInit, OnDestroy {
 
     this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       self.account = account;
-      self.balance = account.balance;
+      self.balance = account ? account.balance : 0;
 
       if (account && account.location) {
         self.address = this.locationSvc.getAddrString(account.location);
