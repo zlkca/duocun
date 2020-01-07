@@ -3,6 +3,40 @@ import { Model } from "./model";
 import { Request, Response } from "express";
 import { Product, IProduct } from "./product";
 import { Account, IAccount } from "./account";
+import { IncomingMessage } from "http";
+import https from 'https';
+import fs from "fs";
+import path from "path";
+import {createObjectCsvWriter} from 'csv-writer';
+
+const ApplicationStatus = [
+  {code: 1, text: 'APPLIED'},    // submit application form but didn't submit setup fee page
+  {code: 2, text: 'ORDERED'},        // submit setup fee page but unpaid
+  {code: 3, text: 'SETUP_PAID'},     // paid setup fee
+  {code: 4, text: 'STARTED'},          // start to charge monthly fee
+  {code: 5, text: 'STOPPED'},          // start to charge monthly fee
+];
+
+const carriers = [
+  { code: 1, name: 'Bell' },
+  { code: 2, name: 'Rogers' },
+  { code: 3, name: 'Telus' },
+  { code: 4, name: 'Fido' },
+  { code: 5, name: 'Freedom Mobile' },
+  { code: 6, name: 'Koodo Mobile' },
+  { code: 7, name: 'Public Mobile' },
+  { code: 8, name: 'Virgin Mobile' },
+  { code: 9, name: 'Chatr Wireless' },
+  { code: 10, name: 'SimplyConnect' },
+  { code: 11, name: 'Lucky Mobile' },
+  { code: 12, name: 'SaskTel' },
+  { code: 13, name: '7-Eleven SpeakOut' },
+  { code: 14, name: 'Videotron' },
+  { code: 15, name: 'Cityfone' },
+  { code: 16, name: 'Petro Canada' },
+  { code: 17, name: 'PC Mobile' },
+  { code: 30, name: 'Others' },
+];
 
 export enum CellApplicationStatus {
   APPLIED = 1,    // submit application form but didn't submit setup fee page
@@ -78,5 +112,67 @@ export class CellApplication extends Model {
         });
       });
     });
+  }
+
+  reqCSV(req: Request, res: Response) {
+    const path = '../a.csv';
+
+    const cw = createObjectCsvWriter({
+      path: path,
+      header: [
+        {id: 'product', title: 'Product'},
+        {id: 'client', title: 'Client'},
+        {id: 'phone', title: 'Phone Number'},
+        {id: 'carrier', title: 'Original Carrier'},
+        {id: 'status', title: 'Status'},
+      ]
+    });
+    const data: any[] = [];
+    this.joinFind({}).then((cas: ICellApplication[]) => {
+      cas.map(ca => {
+        const s = ApplicationStatus.find(a => a.code === ca.status);
+        const c = carriers.find(c => c.code === ca.carrier);
+        data.push({
+          product: ca.product.name,
+          client: ca.firstName + ' ' + ca.lastName,
+          phone: ca.phone,
+          carrier: c ? c.name : 'N/A',
+          status: s ? s.text : ca.status
+        });
+      });
+
+
+      cw.writeRecords(data).then(()=> {
+        res.download(path);
+        console.log('The CSV file was written successfully');
+      });
+    });
+
+    // const fileStream = fs.createReadStream(path);
+    // this.cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json', 'utf-8'));
+    // https.get(url, (res1: IncomingMessage) => {
+      const filename = 'a.csv'; // path.basename(path);
+      // res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+      // res.setHeader('Content-type', 'csv');
+      // fileStream.pipe(res);
+      
+      // res1.on('data', (d) => {
+      //   data += d;
+      // });
+
+      // res1.on('end', (rr: any) => {
+      //   // console.log('receiving done!');
+      //   if (data) {
+      //     const s = JSON.parse(data);
+      //     if (s.predictions && s.predictions.length > 0) {
+      //       res.send(s.predictions);
+      //     } else {
+      //       res.send([]);
+      //     }
+      //   } else {
+      //     res.send([]);
+      //   }
+      // });
+    // });
   }
 }
