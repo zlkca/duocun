@@ -73,7 +73,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.rx.select<string>('page').pipe(takeUntil(this.onDestroy$)).subscribe((x: any) => {
       self.page = x.name;
       self.selected = x.name;
-      if (x.name === 'contact-form' || x.name === 'phone-form' || x.name === 'address-form' || x.name === 'restaurant-detail' ||
+      if (x.name === 'phone-form' || x.name === 'address-form' || x.name === 'restaurant-detail' ||
         x.name === 'cart-page' || x.name === 'order-form') {
         self.bHideNavMenu = true;
         if (x.name === 'address-form') {
@@ -184,7 +184,6 @@ export class FooterComponent implements OnInit, OnDestroy {
         args: {
           cart: this.cart,
           delivery: this.delivery,
-          // contact: contacts[0],
           paymentMethod: this.order.paymentMethod
         }
       }

@@ -1,29 +1,19 @@
-import { Component, OnInit, OnDestroy, OnChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { IPlace, ILocation, ILocationHistory, IDistance } from '../../location/location.model';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { PageActions } from '../../main/main.actions';
-import { IContact, Contact } from '../contact.model';
-import { IContactAction } from '../contact.reducer';
-import { ContactActions } from '../contact.actions';
 import { ActivatedRoute, Router } from '../../../../node_modules/@angular/router';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
-import { ContactService } from '../contact.service';
 import { LocationService } from '../../location/location.service';
 import { AccountService } from '../../account/account.service';
-import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import * as Cookies from 'js-cookie';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
-import { RangeService } from '../../range/range.service';
 import { IMerchant } from '../../restaurant/restaurant.model';
-import { CartActions } from '../../cart/cart.actions';
 import { IMall } from '../../mall/mall.model';
-import { MallService } from '../../mall/mall.service';
-import { DistanceService } from '../../location/distance.service';
-import { IDelivery } from '../../delivery/delivery.model';
 import { IRange } from '../../range/range.model';
 import { CommandActions } from '../../shared/command.actions';
 import { ICommand } from '../../shared/command.reducers';
@@ -39,7 +29,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   location; // onSelect from list
   deliveryAddress;
   account: IAccount;
-  contact: Contact;
   fromPage;
   form;
   onDestroy$ = new Subject<any>();
@@ -60,9 +49,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   constructor(
     private accountSvc: AccountService,
     private locationSvc: LocationService,
-    // private rangeSvc: RangeService,
-    // private mallSvc: MallService,
-    // private distanceSvc: DistanceService,
     private rx: NgRedux<IAppState>,
     private router: Router,
     private route: ActivatedRoute,
@@ -74,10 +60,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
       type: PageActions.UPDATE_URL,
       payload: { name: 'address-form', fromPage: this.fromPage }
     });
-
-    // this.mallSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((malls: IMall[]) => {
-    //   this.malls = malls;
-    // });
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'cancel-address') {
@@ -100,26 +82,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         self.historyAddressList = a;
       });
     });
-
-    // this.rx.select('contact').pipe(takeUntil(this.onDestroy$)).subscribe((r: IContact) => {
-    //   if (r) {
-    //     self.contact = new Contact(r); // use for phone
-    //     if (this.fromPage === 'account-setting') {
-    //       if (r.location) { // select from location list
-    //         self.deliveryAddress = this.locationSvc.getAddrString(r.location);
-    //       } else if (r.address) { // initial address display
-    //         self.deliveryAddress = r.address ? r.address : '';
-    //       }
-    //     } else {
-    //       // self.deliveryAddress = '';
-    //       self.deliveryAddress = self.locationSvc.getAddrString(r.location);
-    //     }
-    //     self.rx.dispatch({
-    //       type: CommandActions.SEND,
-    //       payload: { name: 'address-change', args: { address: self.deliveryAddress, inRange: self.inRange } }
-    //     });
-    //   }
-    // });
 
     this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IMerchant) => {
       self.restaurant = r;
@@ -249,26 +211,7 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         this.rx.dispatch({ type: CommandActions.CLEAR_CMD, payload: {} });
       });
     } else {
-      // // The order matters
       this.rx.dispatch({ type: CommandActions.CLEAR_CMD, payload: {} });
-      // if (!self.inRange) {
-      //   self.router.navigate(['main/home']);
-      //   return;
-      // }
-
-      // if (!self.onSchedule) {
-      //   this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
-      //   alert('该餐馆今天休息，请选择其他餐馆');
-      //   self.router.navigate(['main/home']);
-      //   return;
-      // }
-
-      // // fix me!!!
-      // const mall = this.malls.find(m => m._id === this.restaurant.malls[0]);
-      // if (!this.mallSvc.isInRange(mall, this.availableRanges)) {
-      //   alert('此餐馆不在配送范围内');
-      //   return;
-      // }
     }
   }
 

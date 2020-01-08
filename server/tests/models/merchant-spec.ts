@@ -204,6 +204,8 @@ describe('merchant joinFind query id', () => {
   let merchantModel: Merchant;
   let connection: any = null;
 
+  const d = {merchantId: '5ded91a7707f730f042d2f58', accountId:'5cc84b506896b1635459e1cd', mallId:'5cca676b8b79db0d3aaaa058' }
+
   before(function (done) {
     db.init(cfg.DATABASE).then((dbClient: any) => {
       connection = dbClient;
@@ -218,13 +220,11 @@ describe('merchant joinFind query id', () => {
   });
 
   it('should return merchants with mall and account fileld', (done) => {
-    const merchantId = '5d9648019c916008a37f3b9e';
-
-    merchantModel.joinFind({ _id: merchantId }).then(rs => {
+    merchantModel.joinFind({ _id: d.merchantId }).then(rs => {
       expect(rs.length).to.equal(1);
       expect(rs[0]._id.toString().length).to.equal(24);
-      expect(rs[0].accountId.toString().length).to.equal(24);
-      expect(rs[0].mallId.toString().length).to.equal(24);
+      expect(rs[0].accountId.toString()).to.equal(d.accountId);
+      expect(rs[0].mallId.toString()).to.equal(d.mallId);
 
       const mall: any = rs[0].mall;
       expect(mall._id.toString().length).to.equal(24);

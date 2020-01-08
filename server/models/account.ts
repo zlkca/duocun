@@ -5,7 +5,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Config } from "../config";
 import { Utils } from "../utils";
-// import { Contact } from "./contact";
 import moment from 'moment';
 import { resolve } from "../../node_modules/@types/q";
 

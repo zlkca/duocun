@@ -1,5 +1,5 @@
 import { Picture } from '../picture.model';
-import { Restaurant, IMerchant } from '../restaurant/restaurant.model';
+import { IMerchant } from '../restaurant/restaurant.model';
 import { IAccount } from '../account/account.model';
 
 export interface IProduct {
@@ -9,10 +9,10 @@ export interface IProduct {
   description?: string;
   price: number;
   cost?: number;
-  merchantId: string;   // merchant account _id !
+  merchantId: string;
   categoryId: string;
 
-  merchant?: IAccount; // join account table from find()
+  merchantAccount?: IAccount; // join account table from find()
 
   openDays?: number[];
   restaurant?: IMerchant; // ??

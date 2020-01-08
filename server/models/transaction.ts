@@ -77,8 +77,8 @@ export class Transaction extends Model {
   }
 
   doInsertOne(tr: ITransaction): Promise<IDbTransaction> {
-    const fromId: string = tr.fromId;
-    const toId: string = tr.toId;
+    const fromId: string = tr.fromId; // must be account id
+    const toId: string = tr.toId;     // must be account id
     const amount: number = tr.amount;
 
     return new Promise((resolve, reject) => {
@@ -123,6 +123,76 @@ export class Transaction extends Model {
     }
   }
 
+
+  saveTransactionsForPlaceOrder(orderId: string, merchantAccountId: string, merchantName: string,
+    clientId: string, clientName: string, cost: number, total: number, delivered: string) {
+
+    return new Promise((resolve, reject) => {
+      const t1: ITransaction = {
+        fromId: merchantAccountId,
+        fromName: merchantName,
+        toId: CASH_ID,
+        toName: clientName,
+        action: 'duocun order from merchant',
+        amount: Math.round(cost * 100) / 100,
+        orderId: orderId,
+        delivered: delivered,
+      };
+
+      const t2: ITransaction = {
+        fromId: CASH_ID,
+        fromName: merchantName,
+        toId: clientId,
+        toName: clientName,
+        amount: Math.round(total * 100) / 100,
+        action: 'client order from duocun',
+        orderId: orderId,
+        delivered: delivered,
+      };
+
+      this.doInsertOne(t1).then((x) => {
+        this.doInsertOne(t2).then((y) => {
+          resolve();
+        });
+      });
+    });
+  }
+
+
+  saveTransactionsForRemoveOrder(orderId: string, merchantAccountId: string, merchantName: string, clientId: string, clientName: string,
+    cost: number, total: number, delivered: string) {
+
+    return new Promise((resolve, reject) => {
+      const t1: ITransaction = {
+        fromId: CASH_ID,
+        fromName: clientName,
+        toId: merchantAccountId,
+        toName: merchantName,
+        action: 'duocun cancel order from merchant',
+        amount: Math.round(cost * 100) / 100,
+        orderId: orderId,
+        delivered: delivered
+      };
+
+      const t2: ITransaction = {
+        fromId: clientId,
+        fromName: clientName,
+        toId: CASH_ID,
+        toName: merchantName,
+        amount: Math.round(total * 100) / 100,
+        action: 'client cancel order from duocun',
+        orderId: orderId,
+        delivered: delivered
+      };
+
+      this.doInsertOne(t1).then((x) => {
+        this.doInsertOne(t2).then((y) => {
+          resolve();
+        });
+      });
+    });
+  }
+  
   doGetSales() {
     const q = {
       action: {
@@ -244,74 +314,7 @@ export class Transaction extends Model {
     });
   }
 
-  saveTransactionsForPlaceOrder(orderId: string, merchantAccountId: string, merchantName: string,
-    clientId: string, clientName: string, cost: number, total: number, delivered: string) {
-
-    return new Promise((resolve, reject) => {
-      const t1: ITransaction = {
-        fromId: merchantAccountId,
-        fromName: merchantName,
-        toId: CASH_ID,
-        toName: clientName,
-        action: 'duocun order from merchant',
-        amount: Math.round(cost * 100) / 100,
-        orderId: orderId,
-        delivered: delivered,
-      };
-
-      const t2: ITransaction = {
-        fromId: CASH_ID,
-        fromName: merchantName,
-        toId: clientId,
-        toName: clientName,
-        amount: Math.round(total * 100) / 100,
-        action: 'client order from duocun',
-        orderId: orderId,
-        delivered: delivered,
-      };
-
-      this.doInsertOne(t1).then((x) => {
-        this.doInsertOne(t2).then((y) => {
-          resolve();
-        });
-      });
-    });
-  }
-
-
-  saveTransactionsForRemoveOrder(orderId: string, merchantAccountId: string, merchantName: string, clientId: string, clientName: string,
-    cost: number, total: number, delivered: string) {
-
-    return new Promise((resolve, reject) => {
-      const t1: ITransaction = {
-        fromId: CASH_ID,
-        fromName: clientName,
-        toId: merchantAccountId,
-        toName: merchantName,
-        action: 'duocun cancel order from merchant',
-        amount: Math.round(cost * 100) / 100,
-        orderId: orderId,
-        delivered: delivered
-      };
-
-      const t2: ITransaction = {
-        fromId: clientId,
-        fromName: clientName,
-        toId: CASH_ID,
-        toName: merchantName,
-        amount: Math.round(total * 100) / 100,
-        action: 'client cancel order from duocun',
-        orderId: orderId,
-        delivered: delivered
-      };
-
-      this.doInsertOne(t1).then((x) => {
-        this.doInsertOne(t2).then((y) => {
-          resolve();
-        });
-      });
-    });
-  }
+  
 
 
   // snappayAddCredit(req: Request, res: Response) {

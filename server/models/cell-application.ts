@@ -11,10 +11,10 @@ import {createObjectCsvWriter} from 'csv-writer';
 
 const ApplicationStatus = [
   {code: 1, text: 'APPLIED'},    // submit application form but didn't submit setup fee page
-  {code: 2, text: 'ORDERED'},        // submit setup fee page but unpaid
-  {code: 3, text: 'SETUP_PAID'},     // paid setup fee
-  {code: 4, text: 'STARTED'},          // start to charge monthly fee
-  {code: 5, text: 'STOPPED'},          // start to charge monthly fee
+  {code: 2, text: 'ORDERED'},    // submit setup fee page but unpaid
+  {code: 3, text: 'SETUP_PAID'}, // paid setup fee
+  {code: 4, text: 'STARTED'},    // start to charge monthly fee
+  {code: 5, text: 'STOPPED'},    // start to charge monthly fee
 ];
 
 const carriers = [
@@ -56,7 +56,7 @@ export interface ICellApplication {
   phone: string;
   productId: string;
   product: IProduct;
-  merchant: IAccount;
+  merchant: IAccount; // fix me!!!
   carrier: number;
   status: CellApplicationStatus;
   created?: string;

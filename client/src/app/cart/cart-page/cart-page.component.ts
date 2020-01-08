@@ -94,7 +94,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
         cart.items.push(item);
       } else {
         groupedCarts.push({
-          merchantId: item.merchantId, // merchant account id
+          merchantId: item.merchantId,
           merchantName: item.merchantName,
           productTotal: item.price * item.quantity,
           items: [item]
@@ -115,7 +115,7 @@ export class CartPageComponent implements OnInit, OnDestroy {
           price: item.price,
           quantity: 1,
           cost: product ? product.cost : 0,
-          merchantId: item.merchantId, // merchant account id
+          merchantId: item.merchantId,
           merchantName: item.merchantName
         }],
         merchantId: item.merchantId

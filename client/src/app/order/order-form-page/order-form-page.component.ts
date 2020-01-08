@@ -5,7 +5,6 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { IMall } from '../../mall/mall.model';
-import { IContact } from '../../contact/contact.model';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { OrderService } from '../order.service';
@@ -15,16 +14,14 @@ import { PageActions } from '../../main/main.actions';
 import { MatSnackBar, MatDialog } from '../../../../node_modules/@angular/material';
 import { IDelivery } from '../../delivery/delivery.model';
 import { OrderActions } from '../order.actions';
-import { IAccount, Role } from '../../account/account.model';
+import { IAccount } from '../../account/account.model';
 import { LocationService } from '../../location/location.service';
-import { MerchantService } from '../../merchant/merchant.service';
 
 import { environment } from '../../../environments/environment';
 import { PaymentService } from '../../payment/payment.service';
 import { RangeService } from '../../range/range.service';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
-import { IMerchant } from '../../restaurant/restaurant.model';
 import { AccountService } from '../../account/account.service';
 import { PhoneVerifyDialogComponent } from '../../account/phone-verify-dialog/phone-verify-dialog.component';
 
@@ -46,7 +43,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   deliveryDiscount = 0;
   deliveryCost = 0;
   tax = 0;
-  contact: IContact;
   form;
   account: IAccount;
   items: ICartItem[];
@@ -78,7 +74,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private rangeSvc: RangeService,
     private orderSvc: OrderService,
-    private merchantSvc: MerchantService,
     private locationSvc: LocationService,
     private accountSvc: AccountService,
     private paymentSvc: PaymentService,
@@ -198,32 +193,23 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const cart: ICart = this.cart;
 
         if (cart) {
-          this.merchantSvc.find({ _id: cart.merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMerchant[]) => {
-            const merchant: IMerchant = ms[0];
-            // const merchantId = merchant._id;
-            const origin = self.delivery.origin;
-            // const address = this.locationSvc.getAddrString(origin);
-
-            // this.orderSvc.checkGroupDiscount(accountId, merchantId, dateType, address)
-            // .pipe(takeUntil(this.onDestroy$)).subscribe(bEligible => {
-            const groupDiscount = 0; // bEligible ? 2 : 0;
-            if (origin) {
-              self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
-                this.charge = this.getCharge(cart, (r.distance * r.rate), groupDiscount);
-                this.paymentMethod = (self.balance >= this.charge.total) ? 'prepaid' : self.paymentMethod;
-                this.rx.dispatch({
-                  type: OrderActions.UPDATE_PAYMENT_METHOD,
-                  payload: { paymentMethod: this.paymentMethod }
-                });
-                this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
-                self.loading = false;
-                self.groupDiscount = groupDiscount;
+          const origin = self.delivery.origin;
+          const groupDiscount = 0; // bEligible ? 2 : 0;
+          if (origin) {
+            self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
+              this.charge = this.getCharge(cart, (r.distance * r.rate), groupDiscount);
+              this.paymentMethod = (self.balance >= this.charge.total) ? 'prepaid' : self.paymentMethod;
+              this.rx.dispatch({
+                type: OrderActions.UPDATE_PAYMENT_METHOD,
+                payload: { paymentMethod: this.paymentMethod }
               });
-            } else {
-              console.log('getOverRange need origin');
-            }
-            // });
-          });
+              this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
+              self.loading = false;
+              self.groupDiscount = groupDiscount;
+            });
+          } else {
+            console.log('getOverRange need origin');
+          }
         }
       });
     }
@@ -260,15 +246,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       total: productTotal + tax + tips - groupDiscount + overRangeTotal
     };
   }
-
-  changeContact() {
-    // this.router.navigate(['contact/list']);
-  }
-
-  // isPrepaidClient(account: IAccount) {
-  //   return account && account.roles && account.roles.length > 0
-  //     && account.roles.indexOf(Role.PREPAID_CLIENT) !== -1;
-  // }
 
   getCost(items: any[]) {
     let cost = 0;

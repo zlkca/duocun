@@ -48,7 +48,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   bTimeOptions = false;
   // overdue;
   afternoon;
-  contact;
   inRange = false;
   onDestroy$ = new Subject<any>();
   loading = true;

@@ -9,7 +9,6 @@ import { Merchant, IPhase, IMerchant, IDbMerchant } from "./merchant";
 import { Account, IAccount } from "./account";
 import { Transaction, ITransaction } from "./transaction";
 import { Product } from "./product";
-import { Contact } from "./contact";
 import { Assignment } from "./assignment";
 import { CellApplication, CellApplicationStatus, ICellApplication } from "./cell-application";
 
@@ -74,6 +73,7 @@ export interface IOrder {
   dateType?: string; // 'today', 'tomorrow'
 
   client?: IAccount;
+  merchantAccount?: IAccount;
   merchant?: IMerchant;
 }
 
@@ -83,7 +83,6 @@ export class Order extends Model {
   private merchantModel: Merchant;
   private accountModel: Account;
   private transactionModel: Transaction;
-  private contactModel: Contact;
   private assignmentModel: Assignment;
   private cellApplicationModel: CellApplication;
 
@@ -95,7 +94,6 @@ export class Order extends Model {
     this.merchantModel = new Merchant(dbo);
     this.accountModel = new Account(dbo);
     this.transactionModel = new Transaction(dbo);
-    this.contactModel = new Contact(dbo);
     this.assignmentModel = new Assignment(dbo);
     this.cellApplicationModel = new CellApplication(dbo);
   }
@@ -125,27 +123,31 @@ export class Order extends Model {
 
     return new Promise((resolve, reject) => {
       this.accountModel.find({}).then(accounts => {
-        this.productModel.find({}).then(ps => {
-          this.find(q).then((rs: any) => {
-            rs.map((order: any) => {
-              const items: any[] = [];
-              accounts.map((a: IAccount) => {
-                if (a && a.password) {
-                  delete a.password;
-                }
-              });
-              order.client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
-              order.merchant = accounts.find((m: any) => m._id.toString() === order.merchantId.toString());
-              order.items.map((it: any) => {
-                const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
-                if (product) {
-                  items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
-                }
-              });
-              order.items = items;
-            });
+        this.merchantModel.find({}).then(merchants => {
+          this.productModel.find({}).then(ps => {
+            this.find(q).then((rs: any) => {
+              rs.map((order: any) => {
+                const items: any[] = [];
+                accounts.map((a: IAccount) => {
+                  if (a && a.password) {
+                    delete a.password;
+                  }
+                });
+                order.client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
+                order.merchant = merchants.find((m: any) => m._id.toString() === order.merchantId.toString());
+                order.merchantAccount = accounts.find((a: any) => a._id.toString() === order.merchant.accountId.toString());
 
-            resolve(rs);
+                order.items.map((it: any) => {
+                  const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+                  if (product) {
+                    items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                  }
+                });
+                order.items = items;
+              });
+
+              resolve(rs);
+            });
           });
         });
       });
@@ -334,10 +336,10 @@ export class Order extends Model {
         const orderType: any = order.type;
         const dateType: any = order.dateType;
         const clientId = order.clientId;
-        const merchantAccountId = order.merchantId.toString(); // this is merchant accountId
+        const merchantId = order.merchantId.toString();
         const utcCreatedStr = order.created;
 
-        this.merchantModel.findOne({ accountId: merchantAccountId }).then((merchant: IDbMerchant) => {
+        this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
           const phases = merchant ? merchant.phases : [];
           this.getDeliveryDateTime(orderType, dateType, clientId, phases, utcCreatedStr).then((utcDeliveredStr) => {
             order.delivered = utcDeliveredStr;
@@ -356,6 +358,7 @@ export class Order extends Model {
                 resolve(savedOrder);
               } else {
                 const orderId: any = savedOrder._id;
+                const merchantAccountId = merchant.accountId.toString();
                 this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), merchantAccountId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
                   resolve(savedOrder);
                 });
@@ -943,7 +946,7 @@ export class Order extends Model {
     }
     let q = query ? query : {};
 
-    this.contactModel.find({}).then(contacts => {
+    this.accountModel.find({}).then(accounts => {
       this.merchantModel.find({}).then(ms => {
         this.productModel.find({}).then(ps => {
           this.find(q).then((rs: any) => {
@@ -973,8 +976,9 @@ export class Order extends Model {
 
             arr.map((order: any) => {
               const items: any[] = [];
-              order.client = contacts.find((c: any) => c.accountId.toString() === order.clientId.toString());
+              order.client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
               order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
+              order.merchantAccount = accounts.find((a: any) => a._id.toString() === order.merchant._id.toString());
 
               order.items.map((it: any) => {
                 const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
@@ -984,7 +988,6 @@ export class Order extends Model {
               });
               order.items = items;
             });
-
 
             res.setHeader('Content-Type', 'application/json');
             if (arr && arr.length > 0) {

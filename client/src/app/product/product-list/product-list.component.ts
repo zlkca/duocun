@@ -106,7 +106,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
                 quantity: 1,
                 pictures: p.pictures,
                 merchantId: p.merchantId, // merchant account id
-                merchantName: p.merchant.name
+                merchantName: p.merchantAccount.username
               }],
               merchantId: p.merchantId // merchant account id
             }
@@ -129,7 +129,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
           quantity: 1,
           pictures: p.pictures,
           merchantId: p.merchantId,
-          merchantName: p.merchant.name
+          merchantName: p.merchantAccount.username
         }],
         merchantId: p.merchantId
       }
@@ -158,7 +158,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
           pictures: p.pictures,
           cost: p ? p.cost : 0,
           merchantId: p.merchantId,
-          merchantName: p.merchant.name
+          merchantName: p.p.merchantAccount.username
         }]
       }
     });

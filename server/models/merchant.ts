@@ -75,14 +75,14 @@ export interface IDbMerchant {
 }
 
 export class Merchant extends Model {
-  mall: Mall;
+  mallModel: Mall;
   distance: Distance;
   area: Area;
   range: Range;
 
   constructor(dbo: DB) {
     super(dbo, 'merchants');
-    this.mall = new Mall(dbo);
+    this.mallModel = new Mall(dbo);
     this.distance = new Distance(dbo);
     this.area = new Area(dbo);
     this.range = new Range(dbo);
@@ -193,16 +193,12 @@ export class Merchant extends Model {
     }
   }
 
-
-  // find with join
   joinFind(query: any, options?: any): Promise<IDbMerchant[]> {
-    const self = this;
     return new Promise((resolve, reject) => {
-      this.mall.find({}).then((malls: IDbMall[]) => {
+      this.mallModel.find({}).then((malls: IDbMall[]) => {
+
         this.find(query, options).then((rs: IDbMerchant[]) => {
-          // const accountIds: ObjectId[] = [];
           rs.map((r: IDbMerchant) => {
-            // accountIds.push(r.accountId);
             r.mall = malls.find((m: IDbMall) => m && r.mallId && m._id.toString() === r.mallId.toString());
           });
 
@@ -257,8 +253,8 @@ export class Merchant extends Model {
         this.area.getNearestArea(origin).then((area: IArea) => {
           const datetime = utcDate ? utcDate : moment.utc();
           const dow: number = utcDate ? utcDate.local().day() : moment.utc().local().day();
-          this.mall.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
-            this.mall.getRoadDistanceToMalls(origin).then((ds: IDistance[]) => {
+          this.mallModel.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
+            this.mallModel.getRoadDistanceToMalls(origin).then((ds: IDistance[]) => {
               this.joinFind(query).then((ms: IDbMerchant[]) => {
 
                 const merchants: IMerchant[] = [];

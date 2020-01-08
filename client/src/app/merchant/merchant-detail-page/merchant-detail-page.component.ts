@@ -3,7 +3,6 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '../../../../node_modules/@angular/router';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
-
 import { MerchantService } from '../merchant.service';
 import { IMerchant } from '../../restaurant/restaurant.model';
 import { ProductService } from '../../product/product.service';
@@ -13,14 +12,10 @@ import { ICart, ICartItem } from '../../cart/cart.model';
 import { PageActions } from '../../main/main.actions';
 import { MatDialog } from '../../../../node_modules/@angular/material';
 import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-restaurant-dialog.component';
-import { IContact } from '../../contact/contact.model';
-import { ContactActions } from '../../contact/contact.actions';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { IDelivery } from '../../delivery/delivery.model';
 import { environment } from '../../../environments/environment';
-import { IAccount } from '../../account/account.model';
-import { AccountService } from '../../account/account.service';
 
 @Component({
   selector: 'app-merchant-detail-page',
@@ -31,21 +26,17 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   categories: any[]; // [ {categoryId: x, items: [{product: p, quantity: q} ...]} ... ]
   restaurant: IMerchant;
   subscription;
-  // cart: ICart;
   onDestroy$ = new Subject<any>();
   locationSubscription;
   dow: number; // day of week
-  // delivery: IDelivery;
   products;
   cart;
-  contact: IContact;
   delivery: IDelivery;
 
   onSchedule: boolean;
   bHasAddress: boolean;
 
   constructor(
-    private accountSvc: AccountService,
     private productSvc: ProductService,
     private merchantSvc: MerchantService,
     private route: ActivatedRoute,
@@ -61,7 +52,6 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       self.delivery = x;
-      // self.address = this.locationSvc.getAddrString(x.origin);
     });
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
@@ -79,9 +69,6 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.rx.select<IContact>('contact').pipe(takeUntil(this.onDestroy$)).subscribe((contact: IContact) => {
-      this.contact = contact;
-    });
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'checkout-from-restaurant') {
@@ -138,7 +125,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           self.restaurant = restaurant;
 
           const q = { merchantId: merchantId };
-          self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((products: IProduct[]) => { // include merchant account id
+          self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((products: IProduct[]) => {
             if (environment.language === 'en') {
               products.map(p => {
                 p.name = p.nameEN;
