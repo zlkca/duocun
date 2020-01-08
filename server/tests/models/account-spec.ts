@@ -16,7 +16,7 @@ describe('account doSignup a new account and getAccountByToken', () => {
     db.init(cfg.DATABASE).then((dbClient: any) => {
       connection = dbClient;
       accountModel = new Account(db);
-      accountModel.doSignup('1234567890', '1234').then((x: IAccount) => {
+      accountModel.doSignup('1234567899', '1234').then((x: IAccount) => {
         account = x;
         done();
       });

@@ -56,12 +56,9 @@ export class OrderSequence extends Model {
     }
 
     getCode(location: ILocation, n: number): string {
-      const regionName: string = location.subLocality ? location.subLocality : location.city;
       const index = n > 9 ? ('' + n) : ('0' + n);
-      const streetName = location.streetName.toUpperCase();
-      const streetNumber = Number(location.streetNumber);
-      const streetNum = streetNumber ? (streetNumber > 9 ? ('' + streetNumber) : ('00' + streetNumber)) : '00';
-      return regionName.substring(0, 2).toUpperCase() + index.substring(0, 2) + streetName.substring(0, 1) + streetNum;
+      const street = location.streetNumber + location.streetName.toUpperCase().replace(/\s/g,'');
+      return street.substring(0, 4) + index.substring(0, 2);
     }
 
     // this.sequenceSvc.generate().pipe(takeUntil(self.onDestroy$)).subscribe(sq => {
