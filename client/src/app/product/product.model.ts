@@ -12,7 +12,6 @@ export interface IProduct {
   merchantId: string;
   categoryId: string;
 
-  merchantAccount?: IAccount; // join account table from find()
 
   openDays?: number[];
   restaurant?: IMerchant; // ??
@@ -23,6 +22,9 @@ export interface IProduct {
   status?: string;
   created?: string;
   modified?: string;
+
+  merchant?: IMerchant; // join account table from find()
+  merchantAccount?: IAccount; // join account table from find()
 }
 
 export class Product implements IProduct {

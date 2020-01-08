@@ -138,7 +138,7 @@ export class Order extends Model {
                 order.merchantAccount = accounts.find((a: any) => a._id.toString() === order.merchant.accountId.toString());
 
                 order.items.map((it: any) => {
-                  const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
+                  const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
                   if (product) {
                     items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
                   }
@@ -835,7 +835,7 @@ export class Order extends Model {
       this.updateOne({ _id: orderId }, data).then(rt => {
         this.findOne({ _id: orderId }).then(order => {
           const tr = {
-            orderId: order._id.toString(),
+            orderId: order ? order._id.toString() : '', // fix me
             fromId: order.clientId.toString(),
             fromName: order.clientName,
             toId: toId,
