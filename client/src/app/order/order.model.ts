@@ -1,9 +1,18 @@
-import { Product } from '../product/product.model';
-// import { Picture } from '../picture.model';
 import { Address } from '../account/account.model';
-import { Restaurant, IMerchant } from '../merchant/merchant.model';
-import { Picture } from '../picture.model';
 import { ILocation } from '../location/location.model';
+
+export enum OrderStatus {
+  NEW = 1,
+  TEMP,             // generate a temp order for electronic order
+  DELETED,
+  LOADED,           // The driver took the food from Merchant
+  DONE,             // Finish delivery
+}
+
+export enum PaymentStatus {
+  UNPAID = 1,
+  PAID
+}
 
 export enum OrderType {
   FOOD_DELIVERY = 1,
@@ -22,8 +31,11 @@ export interface IOrder {
   merchantName?: string;
   driverId?: string;
   driverName?: string;
+
   type?: OrderType;      // in db
-  status?: string;
+  status?: OrderStatus;
+  paymentStatus?: PaymentStatus;
+
   note?: string;
   address?: string;
   location?: ILocation;
@@ -63,8 +75,11 @@ export class Order implements IOrder {
   merchantName: string;
   driverId?: string;
   driverName?: string;
+
   type?: OrderType;      // in db
-  status: string;
+  status?: OrderStatus;
+  paymentStatus?: PaymentStatus;
+
   note: string;
   address: string;
   location?: ILocation;

@@ -506,7 +506,7 @@ export class Account extends Model {
   //       if (accounts && accounts.length > 0) {
   //         const balance = accounts[0].balance;
   //         const newAmount = Math.round((balance + paid) * 100) / 100;
-  //         // const newAmount = this.getMyBalanceForAddOrder(balance.amount, order.paymentMethod, order.status === 'paid', order.total, paid);
+  //         // const newAmount = this.getMyBalanceForAddOrder(balance.amount, order.paymentMethod, order.paymentStatus === PaymentStatus.PAID, order.total, paid);
   //         if (newAmount === null) {
   //           resolve(null);
   //         } else {

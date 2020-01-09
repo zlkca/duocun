@@ -8,7 +8,7 @@ import { IMall } from '../../mall/mall.model';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { OrderService } from '../order.service';
-import { IOrder, ICharge, OrderItem, OrderType } from '../order.model';
+import { IOrder, ICharge, OrderItem, OrderType, OrderStatus, PaymentStatus } from '../order.model';
 import { CartActions } from '../../cart/cart.actions';
 import { PageActions } from '../../main/main.actions';
 import { MatSnackBar, MatDialog } from '../../../../node_modules/@angular/material';
@@ -293,7 +293,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       tax: Math.round(charge.tax * 100) / 100,
       tips: Math.round(charge.tips * 100) / 100,
       type: OrderType.FOOD_DELIVERY,
-      status: 'new',
+      status: OrderStatus.NEW,
+      paymentStatus: PaymentStatus.UNPAID,
       driverId: '',
       paymentMethod: paymentMethod,
       dateType: delivery.dateType // this.sharedSvc.getDateType(delivery.date)
@@ -341,7 +342,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
     this.bSubmitted = true;
     const v = this.form.value;
-    const order = self.createOrder(account, cart, delivery, charge, v.note, paymentMethod);
+    const order = self.createOrder(account, cart, delivery, charge, v.note, paymentMethod); // Create an unpaid order
+
+    this.accountSvc.update({ _id: account._id }, { type: 'client' }).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {});
 
     if (paymentMethod === 'card') {
       this.paymentSvc.vaildateCardPay(this.stripe, this.card, 'card-errors').then((ret: any) => {
@@ -364,11 +367,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     const balance: number = account.balance;
     const payable = Math.round((order.total - balance) * 100) / 100;
-    order.status = 'tmp'; // create a temporary order
 
-    this.accountSvc.update({ _id: account._id }, { type: 'client' }).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
-
-    });
+    order.status = OrderStatus.TEMP;
     // save order and update balance
     self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
       const orderId = ret._id;
@@ -398,11 +398,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     const balance: number = account.balance;
     const payable = Math.round((order.total - balance) * 100) / 100;
-    order.status = 'tmp'; // create a temporary order
 
-    this.accountSvc.update({ _id: account._id }, { type: 'client' }).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
-
-    });
+    order.status = OrderStatus.TEMP;
     // save order and update balance
     self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
       const merchantId = ret.merchantId;
@@ -417,8 +414,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
         self.bSubmitted = false;
         if (r.msg === 'success') {
-          // self.snackBar.open('', '已成功付款', { duration: 1800 });
-          // self.snackBar.open('', '已成功下单', { duration: 2000 });
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
           self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
           // this.loading = true; should not show loading, because tencent cache page
@@ -438,10 +433,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   handleWithCash(account: IAccount, order: IOrder, cart: ICart) {
     const self = this;
     const balance: number = account.balance;
-    // const dateType = delivery.dateType;
-    this.accountSvc.update({ _id: account._id }, { type: 'client' }).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {
 
-    });
     if (order && order._id) { // modify order, now do not support
       if (order) {
         const orderId = order._id;
@@ -463,7 +455,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     } else { // create new
       if (order) {
         if (balance >= order.total) {
-          order.status = 'paid';
+          order.paymentStatus = PaymentStatus.PAID;
         }
 
         self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((orderCreated: IOrder) => {
@@ -502,17 +494,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     if (e.value === 'cash') {
       // product
     } else if (e.value === 'card') {
-      // const account = this.account;
-      // if (account && account.type !== 'tmp' && account.phone && account.verified) {
       setTimeout(() => {
         const rt = self.paymentSvc.initStripe('card-element', 'card-errors');
         self.stripe = rt.stripe;
         self.card = rt.card;
       }, 500);
-      // } else {
-      //   this.bSubmitted = true;
-      //   this.router.navigate(['account/phone-verify'], { queryParams: { fromPage: 'order-form', 'action': 'change-paymentmethod' } });
-      // }
     } else {
       // pass
     }

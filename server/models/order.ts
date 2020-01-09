@@ -23,6 +23,19 @@ export enum OrderType {
   MOBILE_PLAN_MONTHLY
 }
 
+export enum OrderStatus {
+  NEW = 1,
+  TEMP,             // generate a temp order for electronic order
+  DELETED,
+  LOADED,           // The driver took the food from Merchant
+  DONE,             // Finish delivery
+}
+
+export enum PaymentStatus {
+  UNPAID = 1,
+  PAID
+}
+
 export interface IOrderItem {
   productId: string;
   productName: string;
@@ -45,7 +58,10 @@ export interface IOrder {
   driverId?: string;
   driverName?: string;
   type?: OrderType;        // OrderType
-  status?: string;
+  
+  paymentStatus?: PaymentStatus;
+  status?: OrderStatus;
+
   note?: string;
   address?: string;
   location: ILocation; // delivery address
@@ -312,7 +328,7 @@ export class Order extends Model {
             tax: Math.round(+ca.product.price * 0.13 * 100) / 100,
             tips: Math.round(0 * 100) / 100,
             type: OrderType.MOBILE_PLAN_MONTHLY,
-            status: 'new',
+            status: OrderStatus.NEW,
             paymentMethod: 'recurring prepay'
           };
 
@@ -354,7 +370,7 @@ export class Order extends Model {
               const deliverd: any = order.delivered;
 
               // temporary order didn't update transaction until paid
-              if (order.status === 'tmp') {
+              if (order.status === OrderStatus.TEMP) { // fix me
                 resolve(savedOrder);
               } else {
                 const orderId: any = savedOrder._id;
@@ -377,7 +393,7 @@ export class Order extends Model {
           const order = docs[0];
           this.updateOne({ _id: orderId }, { status: 'del' }).then(x => {
             // temporary order didn't update transaction until paid
-            if (order.status === 'tmp') {
+            if (order.status === OrderStatus.TEMP) {
               resolve(order);
             } else {
               const merchantId: string = order.merchantId.toString();
@@ -734,7 +750,8 @@ export class Order extends Model {
 
 
   // --------------------------------------------------------------------------------------
-  // 1.update order status to 'paid'
+  // process after payment gateway success
+  // 1.update payment status to 'paid'
   // 2.add two transactions for place order and add another transaction for deposit to bank
   // 3.update account balance
   doProcessPayment(order: IOrder, action: string, paid: number, chargeId: string) {
@@ -770,10 +787,8 @@ export class Order extends Model {
       ).then(() => {
         this.transactionModel.doInsertOne(tr).then(t => {
           if (t) {
-            const data = { status: 'paid', chargeId: chargeId, transactionId: t._id };
-            this.updateOne({ _id: orderId }, data).then((r: any) => { // result
-              // res.setHeader('Content-Type', 'application/json');
-              // res.end(JSON.stringify(r, null, 3));
+            const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
+            this.updateOne({ _id: orderId }, data).then((r: any) => { // result eg. {n: 1, nModified: 0, ok: 1}
               resolve(r);
             });
           } else {

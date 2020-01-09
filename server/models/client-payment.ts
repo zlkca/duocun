@@ -8,7 +8,7 @@ import https from 'https';
 // import NodeRSA from 'node-rsa';
 import { Md5 } from 'ts-md5';
 import moment, { now } from 'moment';
-import { Order, OrderType } from "../models/order";
+import { Order, OrderType, PaymentStatus } from "../models/order";
 import { ClientBalance } from "./client-balance";
 import { Transaction } from "./transaction";
 import { Merchant } from "./merchant";
@@ -45,65 +45,6 @@ export class ClientPayment extends Model {
     this.cellApplicationModel = new CellApplication(dbo);
     this.cfg = new Config();
   }
-
-  // abandon fix me !!
-  // createAndUpdateBalance(req: Request, res: Response) {
-  //   if (req.body instanceof Array) {
-  //     this.insertMany(req.body).then((x: any) => {
-  //       this.updateBalance(req, res);
-  //     });
-  //   } else {
-  //     this.insertOne(req.body).then((x: any) => {
-  //       this.updateBalance(req, res);
-  //     });
-  //   }
-  // }
-
-  // abandon fix me !!
-  // updateBalance(req: Request, res: Response) {
-  //   const self = this;
-  //   const date = new Date('2019-05-15T00:00:00').toISOString();
-  //   let balance = 0;
-
-  //   const payment = req.body;
-  //   const clientId = payment.clientId;
-
-  //   self.orderEntity.find({ clientId: clientId, delivered: { $gt: date } }).then(os => {
-  //     os.map((order: any) => {
-  //       balance -= order.total;
-  //     });
-
-  //     self.find({ clientId: clientId, created: { $gt: date } }).then(ps => {
-  //       ps.map((p: any) => {
-  //         if (p.type === 'credit' && p.amount > 0) {
-  //           balance += p.amount;
-  //         }
-  //       });
-
-  //       self.balanceEntity.find({ accountId: clientId }).then((x: any) => {
-  //         if (x && x.length > 0) {
-  //           self.balanceEntity.updateOne({ accountId: clientId }, { amount: balance }).then(() => {
-
-  //             res.setHeader('Content-Type', 'application/json');
-  //             res.end(JSON.stringify(x, null, 3));
-  //           });
-  //         } else {
-  //           self.balanceEntity.insertOne({
-  //             accountId: payment.clientId,
-  //             accountName: payment.clientName,
-  //             amount: balance,
-  //             created: new Date(),
-  //             modified: new Date()
-  //           }).then(() => {
-
-  //             res.setHeader('Content-Type', 'application/json');
-  //             res.end(JSON.stringify(x, null, 3));
-  //           });
-  //         }
-  //       });
-  //     });
-  //   });
-  // }
 
   createStripeSession(req: Request, res: Response) {
     // Set your secret key: remember to change this to your live secret key in production
@@ -226,10 +167,10 @@ export class ClientPayment extends Model {
     this.orderEntity.find({ _id: b.out_order_no }).then(orders => {
       if (orders && orders.length > 0) {
         const order = orders[0];
-        if (order.status === 'tmp') {
+        if (order.paymentStatus === PaymentStatus.UNPAID) {
           const paid = +b.trans_amount;
           // --------------------------------------------------------------------------------------
-          // 1.update order status to 'paid'
+          // 1.update payment status to 'paid'
           // 2.add two transactions for place order and add another transaction for deposit to bank
           // 3.update account balance
           this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
