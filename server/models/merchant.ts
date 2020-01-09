@@ -13,6 +13,11 @@ import { resolve } from "path";
 import { IAccount } from "./account";
 
 // ------------- interface v2 ----------------
+export enum MerchantType {
+  RESTAURANT = 1,
+  TELECOM
+}
+
 export interface IPhase {
   orderEnd: string; // hh:mm
   pickup: string; // hh:mm
@@ -30,6 +35,7 @@ export interface IMerchant {
   dow: string;          // day of week opening, eg. '1,2,3,4,5'
   pictures: string[];
   phases: IPhase[];
+  type: MerchantType;
   created: string;
   modified: string;
 
@@ -43,8 +49,6 @@ export interface IMerchant {
   isClosed?: boolean;
 
   order?: number;
-  startTime?: string;
-  endTime?: string;
   onSchedule?: boolean;
 }
 
@@ -58,6 +62,7 @@ export interface IDbMerchant {
   pictures: any[];
   closed: string[];
   dow: string;           // day of week opening, eg. '1,2,3,4,5'
+  type: MerchantType;
   created: string;
   modified: string;
 
@@ -67,8 +72,6 @@ export interface IDbMerchant {
   malls: string[];        // mall id
   address: string;
   order?: number;
-  startTime?: string;
-  endTime?: string;
   // inRange: boolean;
   onSchedule: boolean;
   phases: IPhase[];
@@ -236,6 +239,7 @@ export class Merchant extends Model {
       mall: m,
       phases: r.phases,
       pictures: r.pictures,
+      type: r.type,
       created: r.created,
       modified: r.modified,
 

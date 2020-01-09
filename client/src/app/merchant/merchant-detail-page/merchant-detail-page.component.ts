@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '../../../../node_modules/@angular/router
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { MerchantService } from '../merchant.service';
-import { IMerchant } from '../../restaurant/restaurant.model';
+import { IMerchant } from '../../merchant/merchant.model';
 import { ProductService } from '../../product/product.service';
 import { IProduct } from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';

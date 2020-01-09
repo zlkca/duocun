@@ -12,7 +12,7 @@ import * as Cookies from 'js-cookie';
 import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { IDeliveryAction } from '../../delivery/delivery.reducer';
-import { IMerchant } from '../../restaurant/restaurant.model';
+import { IMerchant } from '../../merchant/merchant.model';
 import { IMall } from '../../mall/mall.model';
 import { IRange } from '../../range/range.model';
 import { CommandActions } from '../../shared/command.actions';

@@ -35,6 +35,8 @@ export interface IAccount {
   balance: number;
   verificationCode: string;
   verified: boolean;
+
+  info?: string;  // client info
 }
 
 export class Account extends Model {

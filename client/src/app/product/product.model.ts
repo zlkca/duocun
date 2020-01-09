@@ -1,5 +1,5 @@
 import { Picture } from '../picture.model';
-import { IMerchant } from '../restaurant/restaurant.model';
+import { IMerchant } from '../merchant/merchant.model';
 import { IAccount } from '../account/account.model';
 
 export interface IProduct {

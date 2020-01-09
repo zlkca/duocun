@@ -1,5 +1,5 @@
-import { IMerchant } from './restaurant.model';
 import { RestaurantActions } from './restaurant.actions';
+import { IMerchant } from '../merchant/merchant.model';
 
 export interface IRestaurantAction {
   type: string;

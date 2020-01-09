@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, OnChanges } from '@angular/core';
 import { MerchantService } from '../merchant.service';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
-import { IMerchant } from '../../restaurant/restaurant.model';
+import { IMerchant, MerchantType } from '../../merchant/merchant.model';
 import { environment } from '../../../environments/environment';
 import { Router } from '../../../../node_modules/@angular/router';
 import { Subject } from '../../../../node_modules/rxjs';
@@ -85,8 +85,8 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   loadRestaurants(origin: ILocation, phase: string) {
     const self = this;
     const dateType = phase.split(':')[0];
+    const query = { status: 'active', type: MerchantType.RESTAURANT };
     if (origin) {
-      const query = { status: 'active' };
       this.bHasAddress = true;
       this.merchantSvc.load(origin, dateType, query).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
         rs.map((restaurant: IMerchant) => {
@@ -102,7 +102,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       });
     } else {
       this.bHasAddress = false;
-      this.merchantSvc.find({ status: 'active' }).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IMerchant[]) => {
+      this.merchantSvc.find(query).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IMerchant[]) => {
         // const markers = []; // markers on map
         rs.map((restaurant: IMerchant) => {
           if (environment.language === 'en') {

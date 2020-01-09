@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Restaurant } from '../restaurant.model';
 import { Address } from '../../account/account.model';
+import { IMerchant } from '../../merchant/merchant.model';
 
 @Component({
   selector: 'app-restaurant-about',
@@ -9,7 +9,7 @@ import { Address } from '../../account/account.model';
 })
 export class RestaurantAboutComponent implements OnInit {
 
-  @Input() restaurant: Restaurant;
+  @Input() restaurant: IMerchant;
 
   phoneNumber: number;
   address: Address;

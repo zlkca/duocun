@@ -11,7 +11,7 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
-import { IMerchant } from '../../restaurant/restaurant.model';
+import { IMerchant } from '../../merchant/merchant.model';
 import { ProductService } from '../../product/product.service';
 import { IDelivery } from '../../delivery/delivery.model';
 import { ICommand } from '../../shared/command.reducers';

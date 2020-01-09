@@ -14,7 +14,7 @@ import * as moment from 'moment';
 import { IDelivery } from '../../delivery/delivery.model';
 import { RangeService } from '../../range/range.service';
 // import { MallService } from '../../mall/mall.service';
-import { IMerchant } from '../../restaurant/restaurant.model';
+import { IMerchant } from '../../merchant/merchant.model';
 import { IRange } from '../../range/range.model';
 // import { IMall } from '../../mall/mall.model';
 
