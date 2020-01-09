@@ -86,7 +86,7 @@ export class Product extends Model {
               p.category = cs.find((c: any) => c && c._id && p && p.categoryId && c._id.toString() === p.categoryId.toString());
               p.merchant = ms.find((m: any) => m && m._id && p && p.merchantId && m._id.toString() === p.merchantId.toString());
               const merchant: any = p.merchant;
-              p.merchantAccount = accounts.find((a: any) => a._id.toString() === merchant.accountId.toString());
+              p.merchantAccount = accounts.find((a: any) => a && merchant && a._id.toString() === merchant.accountId.toString());
             });
             resolve(ps);
           });

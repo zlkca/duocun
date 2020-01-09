@@ -160,7 +160,7 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
     if (phone) {
       this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
         if (accounts && accounts.length > 0) {
-          if (accounts[0]._id !== this.account._id) {
+          if (this.account && accounts[0]._id !== this.account._id) {
             alert('This phone number has already bind to an account, please try other phone number.');
           } else { // valid to bind
             this.resendVerify(phone);

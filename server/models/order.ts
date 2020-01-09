@@ -135,7 +135,7 @@ export class Order extends Model {
                 });
                 order.client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
                 order.merchant = merchants.find((m: any) => m._id.toString() === order.merchantId.toString());
-                order.merchantAccount = accounts.find((a: any) => a._id.toString() === order.merchant.accountId.toString());
+                order.merchantAccount = accounts.find((a: any) => a && order.merchant && a._id.toString() === order.merchant.accountId.toString());
 
                 order.items.map((it: any) => {
                   const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
@@ -978,7 +978,7 @@ export class Order extends Model {
               const items: any[] = [];
               order.client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
               order.merchant = ms.find((m: any) => m._id.toString() === order.merchantId.toString());
-              order.merchantAccount = accounts.find((a: any) => a._id.toString() === order.merchant._id.toString());
+              order.merchantAccount = accounts.find((a: any) => a && order.merchant && a._id.toString() === order.merchant._id.toString());
 
               order.items.map((it: any) => {
                 const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
