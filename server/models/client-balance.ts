@@ -5,7 +5,7 @@ import moment from "moment";
 import { BulkWriteOpResultObject } from "../../node_modules/@types/mongodb";
 import { ObjectID } from "mongodb";
 import { Request, Response } from "express";
-import { IOrder } from "../models/order";
+import { IOrder, OrderStatus } from "../models/order";
 
 export interface IClientBalance {
   _id: string;
