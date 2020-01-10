@@ -392,7 +392,7 @@ export class Order extends Model {
       this.find({ _id: orderId }).then(docs => {
         if (docs && docs.length > 0) {
           const order = docs[0];
-          this.updateOne({ _id: orderId }, { status: 'del' }).then(x => {
+          this.updateOne({ _id: orderId }, { status: OrderStatus.DELETED }).then(x => {
             // temporary order didn't update transaction until paid
             if (order.status === OrderStatus.TEMP) {
               resolve(order);
@@ -406,7 +406,7 @@ export class Order extends Model {
               const delivered = order.deliverd;
 
               this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
-                this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' }).then(() => { // ??
+                this.transactionModel.updateMany({ orderId: orderId }, { status: OrderStatus.DELETED }).then(() => { // ??
                   const merchantAccountId = merchant.accountId.toString();
                   this.transactionModel.saveTransactionsForRemoveOrder(orderId, merchantAccountId, merchantName, clientId, clientName,
                     cost, total, delivered).then(() => {
@@ -453,7 +453,7 @@ export class Order extends Model {
   // createOne(body: any, cb: any) {
   //   const date = body.delivered;
   //   const address = body.address;
-  //   this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
+  //   this.find({ delivered: date, address: address, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } }).then(orders => {
   //     let newGroupDiscount = body.groupDiscount;
   //     const others = orders.filter((x: any) => x.clientId && x.clientId !== body.clientId);
   //     const orderUpdates = this.getUpdatesForAddGroupDiscount(others, newGroupDiscount);
@@ -487,7 +487,7 @@ export class Order extends Model {
 
   // date: string, address: string
   // addGroupDiscounts(clientId: string, orders: any[]): Promise<any> {
-  //   // this.find({ delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }).then(orders => {
+  //   // this.find({ delivered: date, address: address, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } }).then(orders => {
   //   const others = orders.filter((x: any) => x.clientId && x.clientId.toString() !== clientId.toString()); // fix me!!!
   //   // others > 0 then affect other orders and balances
   //   const orderUpdates = this.getUpdatesForAddGroupDiscount(others, 2);
@@ -568,7 +568,7 @@ export class Order extends Model {
   eligibleForGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string): Promise<boolean> {
     const date = dateType === 'today' ? moment() : moment().add(1, 'day');
     const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
-    const query = { delivered: range, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
+    const query = { delivered: range, address: address, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
 
     return new Promise((resolve, reject) => {
       this.find(query).then(orders => {
@@ -668,9 +668,9 @@ export class Order extends Model {
   //       const date = docs[0].delivered;
   //       const address = docs[0].address;
 
-  //       this.updateOne({ id: orderId }, { status: 'del' }).then(x => { // set order status to del
+  //       this.updateOne({ id: orderId }, { status: OrderStatus.DELETED }).then(x => { // set order status to del
 
-  //         this.find({ delivered: date, address: address, status: { $nin: ['del', 'bad', 'tmp'] } }).then(orders => {
+  //         this.find({ delivered: date, address: address, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } }).then(orders => {
 
   //           const orderUpdates = this.getUpdatesForRemoveGroupDiscount(orders,  2);
   //           // const balanceUpdates = this.getUpdatesForRemoveGroupDiscount(orders, balances, 2);
@@ -804,7 +804,7 @@ export class Order extends Model {
   // tools
   updatePurchaseTag(req: Request, res: Response) {
     this.accountModel.find({ type: { $nin: ['system', 'merchant', 'driver'] } }).then(accounts => {
-      this.distinct('clientId', { status: { $nin: ['del', 'tmp'] } }).then((clientIds: any[]) => {
+      this.distinct('clientId', { status: { $nin: [OrderStatus.DELETED, OrderStatus.TEMP] } }).then((clientIds: any[]) => {
         const datas: any[] = [];
         clientIds.map(clientId => {
           const account = accounts.find((a: any) => a._id.toString() === clientId.toString());
@@ -905,7 +905,7 @@ export class Order extends Model {
   getOrderTrends(req: Request, res: Response) {
     const query = {
       // delivered: { $gt: moment('2019-06-01').toDate() },
-      status: { $nin: ['bad', 'del', 'tmp'] }
+      status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] }
     };
 
     this.find(query).then(orders => {
@@ -930,7 +930,7 @@ export class Order extends Model {
 
     const dt = moment(date);
     const range = { $gt: dt.startOf('day').toISOString(), $lt: dt.endOf('day').toISOString() };
-    const q = { type: type, delivered: range, status: { $nin: ['del', 'bad', 'tmp'] } };
+    const q = { type: type, delivered: range, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
     this.joinFind(q).then((orders: IOrder[]) => {
       const orderIds: string[] = [];
       orders.map(order => {

@@ -136,7 +136,7 @@ describe('find $in with objectId', () => {
 //   });
 
 //   it('should return orders', (done) => {
-//     const a = orderModel.distinct('clientId', {status: { $nin: ['del', 'tmp']}}).then(os => {
+//     const a = orderModel.distinct('clientId', {status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP]}}).then(os => {
 //       expect(os.length).to.equal(361);
 //       done();
 //     });

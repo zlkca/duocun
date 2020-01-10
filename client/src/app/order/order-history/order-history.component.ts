@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
-import { Order, IOrder, OrderType } from '../order.model';
+import { Order, IOrder, OrderType, OrderStatus } from '../order.model';
 // import { SocketService } from '../../shared/socket.service';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
@@ -82,7 +82,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   reload(clientId) {
     // const self = this;
-    // const query = { clientId: clientId, status: { $nin: ['del', 'bad', 'tmp'] } };
+    // const query = { clientId: clientId, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
     // self.orderSvc.find(query).pipe(takeUntil(this.onDestroy$)).subscribe((orders: IOrder[]) => {
     //   orders.map((order: IOrder) => {
     //     let subTotal = 0;
@@ -188,7 +188,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.currentPageNumber = pageNumber;
-    const query = { clientId: accountId, status: { $nin: ['del', 'bad', 'tmp'] } };
+    const query = { clientId: accountId, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
     this.orderSvc.loadPage(query, pageNumber, itemsPerPage).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
       if (environment.language === 'en') {
         ret.orders.map(order => {

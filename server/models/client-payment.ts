@@ -364,7 +364,7 @@ export class ClientPayment extends Model {
   //   return new Promise((resolve, reject) => {
   //     const date = dateType === 'today' ? moment() : moment().add(1, 'day');
   //     const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
-  //     const q = { delivered: range, address: address, status: { $nin: ['bad', 'del', 'tmp'] } };
+  //     const q = { delivered: range, address: address, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
   //     this.orderEntity.find(q).then((orders: any[]) => {
   //       this.orderEntity.addGroupDiscounts(clientId, orders).then((x: any) => {
   //         this.balanceEntity.addGroupDiscounts(orders).then((x1: any) => {
@@ -378,7 +378,7 @@ export class ClientPayment extends Model {
   // deprecated
   // removeGroupDiscount(date: string, address: string): Promise<any> {
   //   return new Promise((resolve, reject) => {
-  //     const q = { delivered: date, address: address, status: { $nin: ['bad', 'del', 'tmp'] } }
+  //     const q = { delivered: date, address: address, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } }
   //     this.orderEntity.find(q).then((orders: any[]) => {
   //       this.orderEntity.removeGroupDiscounts(orders).then((orderUpdates: any[]) => {
   //         this.balanceEntity.removeGroupDiscounts(orders).then((balanceUpdates: any[]) => {

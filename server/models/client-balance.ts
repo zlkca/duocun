@@ -219,7 +219,7 @@ export class ClientBalance extends Model {
 
   updateAll() {
     const dt = moment().endOf('day').toISOString();
-    const orderQuery = { delivered: { $lt: dt }, status: { $nin: ['bad', 'del', 'tmp'] } }; // , delivered: { $lt: moment().endOf('day').toDate() }};
+    const orderQuery = { delivered: { $lt: dt }, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } }; // , delivered: { $lt: moment().endOf('day').toDate() }};
     this.orderEntity.find(orderQuery).then(os => {
       this.transactionEntity.find({ type: 'credit' }).then(ts => {
         this.find({}).then(cbs => {
