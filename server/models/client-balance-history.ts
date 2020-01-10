@@ -3,6 +3,7 @@ import { Model } from "./model";
 import { Entity } from "../entity";
 import { Request, Response } from "express";
 import moment from "moment-timezone";
+import { OrderStatus } from "./order";
 
 export class ClientBalanceHistory extends Model{
   paymentEntity: Entity;

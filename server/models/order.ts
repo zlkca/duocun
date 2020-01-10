@@ -788,6 +788,7 @@ export class Order extends Model {
       ).then(() => {
         this.transactionModel.doInsertOne(tr).then(t => {
           if (t) {
+            // change the status tmp to new !!!
             const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
             this.updateOne({ _id: orderId }, data).then((r: any) => { // result eg. {n: 1, nModified: 0, ok: 1}
               resolve(r);
@@ -842,7 +843,7 @@ export class Order extends Model {
   // change order status to 'paid', insert a new transaction and update corresponding balance
   pay(toId: string, toName: string, received: number, orderId: string, note?: string) {
     const data = {
-      status: 'paid',
+      paymentStatus: PaymentStatus.PAID,
       driverId: toId,
       driverName: toName
     };
