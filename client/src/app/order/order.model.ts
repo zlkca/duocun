@@ -2,8 +2,8 @@ import { Address } from '../account/account.model';
 import { ILocation } from '../location/location.model';
 
 export enum OrderStatus {
-  NEW = 1,
-  TEMP,             // generate a temp order for electronic order
+  TEMP = 1,         // generate a temp order for electronic order
+  NEW,
   DELETED,
   LOADED,           // The driver took the food from Merchant
   DONE,             // Finish delivery
