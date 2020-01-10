@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ObjectID } from "mongodb";
 import { DB } from "../db";
+
 import { Entity } from "../entity";
 import moment from "moment";
 
@@ -9,10 +10,10 @@ export class Model extends Entity {
     super(dbo, tableName);
   }
 
-  // m --- moment object for date
+  // m --- local moment object for date, m.isUTC() must be false
   // t --- string, eg: '11:20'
   // return moment object 
-  getTime(m: moment.Moment, t: string) {
+  getLocalTime(m: moment.Moment, t: string) {
     const hour = +(t.split(':')[0]);
     const minute = +(t.split(':')[1]);
     return m.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });

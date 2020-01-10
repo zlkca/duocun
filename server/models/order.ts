@@ -150,7 +150,13 @@ export class Order extends Model {
                     delete a.password;
                   }
                 });
-                order.client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
+
+                const client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
+                if(client){
+                  delete client.password;
+                  order.client = client;
+                }
+
                 order.merchant = merchants.find((m: any) => m._id.toString() === order.merchantId.toString());
                 order.merchantAccount = accounts.find((a: any) => a && order.merchant && a._id.toString() === order.merchant.accountId.toString());
 
@@ -205,10 +211,10 @@ export class Order extends Model {
     });
   }
 
-  // localDateTime --- local date time string '2019-11-03T11:20:00.000Z'
+  // local --- local date time string '2019-11-03T11:20:00.000Z', local.isUTC() must be false.
   // sLocalTime     --- local hour and minute eg. '11:20'
   // return --- utc date time
-  getUTC(localDateTime: moment.Moment, sLocalTime: string): moment.Moment {
+  setLocalTime(localDateTime: moment.Moment, sLocalTime: string): moment.Moment {
     const hour = +(sLocalTime.split(':')[0]);   // local hour
     const minute = +(sLocalTime.split(':')[1]); // local minute
     return localDateTime.set({ hour: hour, minute: minute, second: 0, millisecond: 0 });
@@ -220,29 +226,28 @@ export class Order extends Model {
   }
 
   // if over 11:30, the return dt is 11:20, this shouldn't happen
-  // return --- utc date time string
-  // utcCreated --- must be utc date time string!!! '2019-11-03T11:20:00.000Z'
-  getDeliveryDateTimeByPhase(sUtcCreated: string, phases: IPhase[], dateType: string): string {
-    const utcCreated = moment.utc(sUtcCreated);
-    const sLocalCreated = this.toLocalDateTimeString(sUtcCreated);
+  // return --- local date time string
+  // created --- must be local date time string!!! '2019-11-03T11:20:00.000Z'
+  getDeliveryDateTimeByPhase(sCreated: string, phases: IPhase[], dateType: string): string {
+    const created = moment(sCreated);
 
     if (dateType === 'today') {
       for (let i = 0; i < phases.length; i++) {
         const phase = phases[i];
-        const orderEndTime = this.getUTC(moment(sLocalCreated), phase.orderEnd);
+        const orderEndTime = this.setLocalTime(moment(sCreated), phase.orderEnd);
 
         if (i === 0) {
-          if (utcCreated.isSameOrBefore(orderEndTime)) {
-            return this.getUTC(moment(sLocalCreated), phase.pickup).toISOString();
+          if (created.isSameOrBefore(orderEndTime)) {
+            return this.setLocalTime(moment(sCreated), phase.pickup).toISOString();
           } else {
             // pass
           }
         } else {
           const prePhase = phases[i - 1];
-          const preEndTime = this.getUTC(moment(sLocalCreated), prePhase.orderEnd);
+          const preEndTime = this.setLocalTime(moment(sCreated), prePhase.orderEnd);
 
-          if (utcCreated.isAfter(preEndTime) && utcCreated.isSameOrBefore(orderEndTime)) {
-            return this.getUTC(moment(sLocalCreated), phase.pickup).toISOString();
+          if (created.isAfter(preEndTime) && created.isSameOrBefore(orderEndTime)) {
+            return this.setLocalTime(moment(sCreated), phase.pickup).toISOString();
           } else {
             // pass
           }
@@ -250,22 +255,24 @@ export class Order extends Model {
       }
       // if none of the phase hit, use the first
       const first = phases[0];
-      return this.getUTC(moment(sLocalCreated), first.pickup).toISOString();
+      return this.setLocalTime(moment(sCreated), first.pickup).toISOString();
     } else {
       const phase = phases[0];
-      return this.getUTC(moment(sLocalCreated), phase.pickup).add(1, 'day').toISOString();
+      return this.setLocalTime(moment(sCreated), phase.pickup).add(1, 'day').toISOString();
     }
   }
 
-  getDeliveryDateTime(orderType: OrderType, dateType: string, clientId: string, phases: IPhase[], utcCreated: string): Promise<string> {
+  // dateType --- 'today' or 'tomorrow'
+  getDeliveryDateTime(orderType: OrderType, dateType: string, clientId: string, phases: IPhase[], created: string): Promise<string> {
     // const orderType = order.type;
     // const dateType: any = order.dateType;
     // const clientId = order.clientId;
     // const merchantId = order.merchantId;
 
     return new Promise((resolve, reject) => {
+      const local = moment();
       if (orderType === OrderType.MOBILE_PLAN_MONTHLY || orderType === OrderType.MOBILE_PLAN_SETUP) {
-        const delivered = this.getUTC(moment(), '23:30').toISOString();
+        const delivered = this.setLocalTime(local, '23:30').toISOString();
         resolve(delivered);
       } else {
         let delivered = '';
@@ -273,16 +280,16 @@ export class Order extends Model {
           if (account.pickup) {
             if (dateType) {
               const date = (dateType === 'today') ? moment() : moment().add(1, 'day');
-              delivered = this.getUTC(date, account.pickup).toISOString();
+              delivered = this.setLocalTime(date, account.pickup).toISOString();
             } else {
-              delivered = this.getUTC(moment(), '23:30').toISOString();
+              delivered = this.setLocalTime(local, '23:30').toISOString();
             }
           } else {
             if (phases && phases.length > 0) {
-              // const utcCreated: any = order.created; // utc date time string
-              delivered = this.getDeliveryDateTimeByPhase(utcCreated, phases, dateType);
+              // const created: any = order.created; // utc date time string
+              delivered = this.getDeliveryDateTimeByPhase(created, phases, dateType);
             } else {
-              delivered = this.getUTC(moment(), '23:30').toISOString();
+              delivered = this.setLocalTime(local, '23:30').toISOString();
             }
           }
           resolve(delivered);
@@ -354,11 +361,11 @@ export class Order extends Model {
         const dateType: any = order.dateType;
         const clientId = order.clientId;
         const merchantId = order.merchantId.toString();
-        const utcCreatedStr = order.created;
+        const createdStr = order.created;
 
         this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
           const phases = merchant ? merchant.phases : [];
-          this.getDeliveryDateTime(orderType, dateType, clientId, phases, utcCreatedStr).then((utcDeliveredStr) => {
+          this.getDeliveryDateTime(orderType, dateType, clientId, phases, createdStr).then((utcDeliveredStr) => {
             order.delivered = utcDeliveredStr;
             delete order.dateType;
 
@@ -738,7 +745,7 @@ export class Order extends Model {
   updateDeliveryTime(req: Request, res: Response) {
     const pickupTime: string = req.body.pickup;
     const orderId: string = req.body.orderId;
-    const delivered: string = this.getTime(moment(), pickupTime).toISOString();
+    const delivered: string = this.getLocalTime(moment(), pickupTime).toISOString();
 
     this.updateOne({ _id: orderId }, { delivered: delivered }).then((result) => {
       this.find({ _id: orderId }).then((orders: IOrder[]) => {

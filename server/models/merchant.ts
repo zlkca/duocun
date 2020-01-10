@@ -118,10 +118,10 @@ export class Merchant extends Model {
   isOrderEnded(t: moment.Moment, deliveryDate: moment.Moment, area: IArea, phases: IPhase[]) {
     const last = area.code === 'C' ? phases[phases.length - 1].orderEnd : phases[0].orderEnd;
     const first = phases[0].orderEnd;
-    if (t.isAfter(this.getTime(deliveryDate, last))) {
+    if (t.isAfter(this.getLocalTime(deliveryDate, last))) {
       return true;
     } else {
-      if (t.isAfter(this.getTime(deliveryDate, first))) {
+      if (t.isAfter(this.getLocalTime(deliveryDate, first))) {
         if (area.code === 'C') {
           return false;
         } else {
@@ -250,13 +250,12 @@ export class Merchant extends Model {
   }
 
   // query { status: 'active' }
-  loadByDeliveryInfo(query: any, origin?: ILocation, utcDate?: moment.Moment): Promise<IMerchant[]> {
+  loadByDeliveryInfo(query: any, local: moment.Moment, origin?: ILocation): Promise<IMerchant[]> {
 
     return new Promise((resolve, reject) => {
       if (origin) {
         this.area.getNearestArea(origin).then((area: IArea) => {
-          const datetime = utcDate ? utcDate : moment.utc();
-          const dow: number = utcDate ? utcDate.local().day() : moment.utc().local().day();
+          const dow: number = local.day();
           this.mallModel.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
             this.mallModel.getRoadDistanceToMalls(origin).then((ds: IDistance[]) => {
               this.joinFind(query).then((ms: IDbMerchant[]) => {
@@ -271,9 +270,9 @@ export class Merchant extends Model {
 
                   merchant.onSchedule = scheduledMallId ? true : false;
                   merchant.distance = d ? d.element.distance.value : 0;
-                  merchant.orderEnded = this.isOrderEnded(moment(), datetime, area, r.phases);
+                  merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
                   merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
-                  merchant.isClosed = this.isClosed(datetime, r.closed, r.dow);
+                  merchant.isClosed = this.isClosed(local, r.closed, r.dow);
                   merchants.push(merchant);
                 });
                 resolve(merchants);
@@ -311,13 +310,13 @@ export class Merchant extends Model {
   load(req: Request, res: Response) {
     const origin = req.body.origin;
     const dateType = req.body.dateType;
-    const dt = dateType === 'today' ? moment.utc() : moment.utc().add(1, 'days');
+    const dt = dateType === 'today' ? moment() : moment().add(1, 'days');
     let query = null;
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
-    this.loadByDeliveryInfo(query, origin, dt).then((rs: any) => {
+    this.loadByDeliveryInfo(query, dt, origin).then((rs: any) => {
       if (rs) {
         res.send(JSON.stringify(rs, null, 3));
       } else {

@@ -269,7 +269,7 @@ describe('merchant joinFind all', () => {
 }); // end of merchant joinFind
 
 
-describe('loadByDeliveryInfo without location and date', () => {
+describe('loadByDeliveryInfo without location', () => {
   const db: any = new DB();
   const cfg: any = new Config();
   let merchantModel: Merchant;
@@ -289,7 +289,8 @@ describe('loadByDeliveryInfo without location and date', () => {
   });
 
   it('should return merchants with mall and account fileld', (done) => {
-    merchantModel.loadByDeliveryInfo({}).then(rs => {
+    const dt = moment('2019-11-03T03:52:59.566Z'); // saturday
+    merchantModel.loadByDeliveryInfo({}, dt).then(rs => {
       rs.map(r => {
         expect(r._id.toString().length).to.equal(24);
         expect(r.accountId.toString().length).to.equal(24);
@@ -339,7 +340,7 @@ describe('loadByDeliveryInfo with location and date', () => {
   });
 
   it('should return merchants with mall and account fileld', (done) => {
-    merchantModel.loadByDeliveryInfo({}, origin, dt).then(rs => {
+    merchantModel.loadByDeliveryInfo({}, dt, origin).then(rs => {
       rs.map(r => {
         expect(r._id.toString().length).to.equal(24);
         if(r.mallId === '5cca676b8b79db0d3aaaa058'){ // first markham place

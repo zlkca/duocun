@@ -29,7 +29,7 @@ describe('getUTC', () => {
     ];
 
     datas.map(d => {
-      const r: moment.Moment = orderModel.getUTC(moment(d.created), d.phases[0].pickup);
+      const r: moment.Moment = orderModel.setLocalTime(moment(d.created), d.phases[0].pickup);
       expect(r.toISOString()).to.equal(d.ret);
     });
 
@@ -51,7 +51,6 @@ describe('getDeliveryDateTimeByPhase', () => {
       },
     ];
 
-    // utc time
     const datas = [
       { created: '2019-11-03T03:52:59.566Z', phases: phases, type: 'tomorrow', ret: '2019-11-03T16:20:00.000Z' },
       { created: '2019-11-03T15:52:59.566Z', phases: phases, type: 'today', ret: '2019-11-03T17:00:00.000Z' },
