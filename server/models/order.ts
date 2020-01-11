@@ -314,11 +314,13 @@ export class Order extends Model {
 
         // orders.push(order);
         setTimeout(() => {
+          const account: any = ca.account;
+          const merchant: any = ca.merchant;
           const order: IOrder = {
             clientId: ca.accountId.toString(),
-            clientName: ca.account.username,
+            clientName: account ? account.username : 'N/A',
             merchantId: ca.product.merchantId.toString(),
-            merchantName: ca.merchant.username, // fix me
+            merchantName: merchant ? merchant.username : 'N/A', // fix me
             items: items,
             price: Math.round(+ca.product.price * 100) / 100,
             cost: Math.round(+ca.product.cost * 100) / 100,

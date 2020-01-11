@@ -221,24 +221,26 @@ export class Entity {
     });
   }
 
+  getProperty(doc: any, p: string){
+    let k = null;
+    if(doc){
+      const keys = Object.keys(doc);
+      keys.map(key => {
+        if(key){
+          if(key.indexOf(p) !== -1){
+            k = key;
+            return k;
+          }
+        }
+      });
+      return k;
+    }else{
+      return k;
+    }
+  }
+
   // only support query _id, not id
   convertIdFields(doc: any) {
-    // if(doc && doc.hasOwnProperty('id')) {
-    //   let body = doc.id;
-    //   if (body && body.hasOwnProperty('$in')) {
-    //     let a = body['$in'];
-    //     const arr: any[] = [];
-    //     a.map((id: string) => {
-    //       arr.push({ _id: new ObjectID(id) });
-    //     });
-
-    //     doc = { $or: arr };
-    //   } else if (typeof body === "string" && body.length === 24) {
-    //     doc['_id'] = new ObjectID(doc._id);
-    //     delete doc.id;
-    //   }
-    // }
-
     if (doc && doc.hasOwnProperty('_id')) {
       let body = doc._id;
       if (body && body.hasOwnProperty('$in')) {
@@ -293,17 +295,18 @@ export class Entity {
       }
     }
 
-    if (doc && doc.hasOwnProperty('productId')) {
-      const productId = doc['productId'];
-      if (typeof productId === 'string' && productId.length === 24) {
-        doc['productId'] = new ObjectID(productId);
-      } else if (productId && productId.hasOwnProperty('$in')) {
-        let a = productId['$in'];
+    const productIdKey = this.getProperty(doc, 'productId');
+    if (productIdKey) {
+      const val = doc[productIdKey];
+      if (typeof val === 'string' && val.length === 24) {
+        doc[productIdKey] = new ObjectID(val);
+      } else if (val && val.hasOwnProperty('$in')) {
+        let a = val['$in'];
         const arr: any[] = [];
         a.map((id: string) => {
           arr.push(new ObjectID(id));
         });
-        doc.productId = { $in: arr };
+        doc[productIdKey] = { $in: arr };
       }
     }
 
