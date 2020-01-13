@@ -6,7 +6,7 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { MerchantService } from '../merchant.service';
 import { IMerchant } from '../../merchant/merchant.model';
 import { ProductService } from '../../product/product.service';
-import { IProduct } from '../../product/product.model';
+import { IProduct, ICategory } from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { PageActions } from '../../main/main.actions';
@@ -32,7 +32,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   products;
   cart;
   delivery: IDelivery;
-
+  lang = environment.language;
   onSchedule: boolean;
   bHasAddress: boolean;
 
@@ -200,22 +200,23 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   // --------------------------------------------------------------------------
   // return --- [ {categoryId: x, items: [{product: p, quantity: q} ...]} ... ]
   groupByCategory(products: IProduct[]) {
+    const self = this;
     const cats = [];
 
     products.map(p => {
       const cat = cats.find(c => c.categoryId === p.categoryId);
-      const category = p.category;
+      const category: ICategory = p.category;
       if (cat) {
         cat.items.push({ product: p, quanlity: 0 });
       } else {
         if (category) {
           cats.push({
-            categoryId: p.categoryId, categoryName: category.name, order: category.order,
+            categoryId: p.categoryId, categoryName: self.lang === 'zh' ? category.name : category.nameEN, order: category.order,
             items: [{ product: p, quanlity: 0 }]
           });
         } else { // shouldn't happen
           cats.push({
-            categoryId: p.categoryId, categoryName: '其他', order: 0,
+            categoryId: p.categoryId, self.lang === 'zh' ? category.name : category.nameEN, order: 0,
             items: [{ product: p, quanlity: 0 }]
           });
         }

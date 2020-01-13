@@ -47,6 +47,7 @@ export class Product implements IProduct {
 
 export interface ICategory {
   name: string;
+  nameEN: string;
   description?: string;
   created?: Date;
   modified?: Date;
@@ -56,6 +57,7 @@ export interface ICategory {
 
 export class Category implements ICategory {
   name: string;
+  nameEN: string;
   description: string;
   created: Date;
   modified: Date;
