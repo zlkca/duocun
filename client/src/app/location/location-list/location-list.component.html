@@ -1,15 +1,17 @@
 <div class="place-option-list" *ngIf="places && places.length>0">
-  <div *ngFor="let place of places" class="row option-item" (click)="onSelectPlace(place)">
-    <div class="col-11" *ngIf="place">
-      <div class="text-md">
-        <span style="font-weight: 400">{{place.structured_formatting.main_text}}</span>
+  <div class="list-content">
+    <div *ngFor="let place of places" class="row option-item" (click)="onSelectPlace(place)">
+      <div class="col-11" *ngIf="place">
+        <div class="text-md">
+          <span style="font-weight: 400">{{place.structured_formatting.main_text}}</span>
+        </div>
+        <div class="text-sm">
+          <span>{{place.structured_formatting.secondary_text}}</span>
+        </div>
       </div>
-      <div class="text-sm">
-        <span>{{place.structured_formatting.secondary_text}}</span>
+      <div class="col-1">
+        <img class="enter-icon" src="assets/outline-transit_enterexit-24px.svg" alt="enter" />
       </div>
-    </div>
-    <div class="col-1">
-      <img class="enter-icon" src="assets/outline-transit_enterexit-24px.svg" alt="enter" />
     </div>
   </div>
 </div>

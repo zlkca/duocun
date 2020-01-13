@@ -71,6 +71,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   date;
   phase = 'today:lunch';
   bPayment = false;
+  lang = environment.language;
 
   @ViewChild('tooltip', { static: true }) tooltip: MatTooltip;
 

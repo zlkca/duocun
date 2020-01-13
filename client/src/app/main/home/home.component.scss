@@ -81,6 +81,7 @@ $date-btn-height: 50px;
   
 }
 
+
 .header-block{
   position: fixed;
   top: 0px;
@@ -88,36 +89,44 @@ $date-btn-height: 50px;
   width: 100%;
   background: white;
 
-  .address-search-block {
-    margin: 5px 0px 0px 0px;
-    width: 100%;
-    padding:0px 10px;
-  }
+  .banner{
+    background: #aaa;
+    padding: 40px 200px;
 
-  .ad-block{
-    padding: 8px 14px;
-    width: 100%;
-    height: $ad-height;
-    font-size: 14px;
-    img {
+    .address-search-block {
+      margin: 0px;
+      width: 100%;
+      padding:0px 10px;
+    }
+
+    .ad-block{
+      padding: 8px 14px;
       width: 100%;
       height: $ad-height;
+      font-size: 14px;
+      img {
+        width: 100%;
+        height: $ad-height;
+      }
     }
-  }
 
-  .date-block{
-    width: 100%;
-    margin: 0px;
-    padding: 0px 10px;
+    .date-block{
+      width: 100%;
+      margin: 0px;
+      padding: 0px 10px;
+    }
   }
 }
 
 .merchant-list{
   position: absolute;
-  top: $address-search-height + $ad-height + $date-btn-height; // 110px;
+  top: 226px;
+  padding: 20px 240px;
 
-  height: calc(100% - #{$address-search-height + $ad-height + $date-btn-height});
-  overflow: scroll;
+  app-merchant-list{
+    height: calc(100% - 226px);
+    overflow: scroll;
+  }
 }
 
 app-location-list{
@@ -224,6 +233,22 @@ and (orientation: landscape) {
 }
 
 @media #{$mobile}{
+  .header-block{
+    .banner{
+      background:white;
+      padding: 2px 0px;
+
+      .ad-block{
+        height: 0px;
+        padding: 4px 14px;
+      }
+    }
+  }
+
+  .merchant-list{
+    top: $address-search-height + $ad-height + $date-btn-height; // 110px;
+    padding: 0px;
+  }
 
   .branding-block{
     width: 100%;

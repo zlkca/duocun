@@ -26,6 +26,7 @@ export interface IPhase {
 export interface IMerchant {
   _id: string;
   name: string;
+  nameEN: string;
   description: string;
   // location: ILatLng; // lat lng
   accountId: string;
@@ -230,6 +231,7 @@ export class Merchant extends Model {
     const merchant: IMerchant = {
       _id: r._id.toString(),
       name: r.name,
+      nameEN: r.nameEN,
       description: r.description,
       accountId: r.accountId.toString(),
       mallId: r.mallId.toString(),

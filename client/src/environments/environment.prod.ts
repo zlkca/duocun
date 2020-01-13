@@ -6,7 +6,7 @@ export const environment = {
   API_URL: 'https://duocun.com.cn/api/', // window.location.origin + '/api/',
 
   APP_URL: window.location.origin,
-  MEDIA_URL: window.location.origin + '/media/',
+  MEDIA_URL: 'https://duocun.com.cn/media/', // window.location.origin + '/media/',
   APP: 'duocun',
   AUTH_PREFIX: '',
   GOOGLE_MAP: {

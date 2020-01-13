@@ -13,10 +13,16 @@ export class HeaderComponent implements OnInit {
   locality = '';
   type: string;
   addr = null;
+  isShown = false;
 
   constructor(
   ) { }
 
   ngOnInit() {
+  }
+
+  toMerchant() {
+    this.isShown = false;
+    window.location.href = 'https://duocun.ca/merchant';
   }
 }

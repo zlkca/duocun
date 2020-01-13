@@ -1,12 +1,19 @@
 .place-option-list{
-  padding: 10px;
-  height: 100%;
-  overflow: scroll;
+  
+  padding: 80px 210px;
+
+
+  .list-content{
+    border: 1px solid #aaa;
+    height: 480px;
+    overflow: scroll;
+  }
 
   .option-item{
     margin: 0px;
     padding: 10px 0px;
     height: 80px;
+    background: white;
     border-bottom: solid 1px #ddd;
 
     .col-11{
@@ -23,5 +30,20 @@
     width: 24px;
     height: 24px;
     border: none;
+  }
+}
+
+$cellphone: "(max-width:480px)";
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
+
+@media #{$mobile}{
+  .place-option-list{
+    padding: 10px;
+
+    .list-content{
+      height: 460px;
+    }
   }
 }

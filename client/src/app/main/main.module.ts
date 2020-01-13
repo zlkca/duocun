@@ -13,6 +13,7 @@ import { ReactiveFormsModule } from '../../../node_modules/@angular/forms';
 import { SharedModule } from '../shared/shared.module';
 import { RangeService } from '../range/range.service';
 import { MerchantModule } from '../merchant/merchant.module';
+import { HeaderComponent } from './header/header.component';
 
 @NgModule({
   imports: [
@@ -26,7 +27,8 @@ import { MerchantModule } from '../merchant/merchant.module';
     MerchantModule
   ],
   declarations: [
-    HomeComponent
+    HomeComponent,
+    HeaderComponent
   ],
   exports: [
   ],
