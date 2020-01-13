@@ -34,9 +34,6 @@ export class AuthService {
   //   return s ? JSON.parse(s) : null;
   // }
 
-  // removeLocation() {
-  //   Cookies.remove('duocun-location');
-  // }
 
   removeCookies() {
     Cookies.remove('duocun-token-id');

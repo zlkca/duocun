@@ -192,9 +192,11 @@ mat-button-toggle-group{
 
 .order-detail{
   padding-top: 8px;
+
   .items-col{
     padding-left: 0px;
-    padding-right: 8px;
+    padding-right: 10px;
+    margin-right: 0px;
 
     .item-row{
       padding-bottom: 3px;
@@ -224,7 +226,7 @@ mat-button-toggle-group{
     }
 
     .title-xs{
-      width: 105px;
+      width: 76px;
       float: left;
       font-size: 12px;
       font-weight: 500;
@@ -233,7 +235,7 @@ mat-button-toggle-group{
     .text-xs{
       float: left;
       font-size: 13px;
-      margin-left: 8px;
+      margin-left: 4px;
     }
 
     .total-row{
@@ -266,3 +268,6 @@ mat-button-toggle-group{
   }
 }
 
+.cash-note{
+  font-size: 13px;
+}

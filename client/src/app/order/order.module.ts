@@ -19,7 +19,7 @@ import { MerchantService } from '../merchant/merchant.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { MallService } from '../mall/mall.service';
 import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
-import { PhoneVerifyDialogComponent } from '../account/phone-verify-dialog/phone-verify-dialog.component';
+import { PhoneVerifyDialogComponent } from './phone-verify-dialog/phone-verify-dialog.component';
 
 @NgModule({
   imports: [
@@ -50,7 +50,8 @@ import { PhoneVerifyDialogComponent } from '../account/phone-verify-dialog/phone
   declarations: [
     OrderHistoryComponent,
     OrderFormPageComponent,
-    RemoveOrderDialogComponent
+    RemoveOrderDialogComponent,
+    PhoneVerifyDialogComponent
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

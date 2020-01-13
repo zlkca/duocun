@@ -36,14 +36,14 @@
     <div class="title-md restaurant" *ngIf="cart.merchantName">{{cart.merchantName}}</div>
 
     <div class="row order-detail" *ngIf="cart">
-      <div class="col-6 items-col">
+      <div class="col-7 items-col">
         <div *ngFor="let item of cart.items" class="text-sm row item-row">
           <div class="col-8 product-col">{{item.productName}}</div>
           <div class="col-2 quantity-col">x{{item.quantity}}</div>
           <div class="col-2 price-col">${{item.price | number : '1.2-2'}}</div>
         </div>
       </div>
-      <div class="col-6 text-sm total-col" *ngIf="charge">
+      <div class="col-5 text-sm total-col" *ngIf="charge">
         <div class="row">
           <div class="col-12">
             <div class="title-xs">
@@ -72,7 +72,7 @@
           </div>
           <div class="col-12">
             <div class="title-xs">
-              <span i18n="@@DeliveryDiscount">Delivery Discount</span>:</div>
+              <span i18n="@@DeliveryDiscount">Discount</span>:</div>
             <div class="text-xs">&nbsp;${{charge.deliveryDiscount | number : '1.2-2'}}</div>
           </div>
           <div class="col-12" *ngIf="charge.groupDiscount>0">
@@ -95,7 +95,7 @@
 
           <div class="col-12" *ngIf="charge && balance!=0">
             <div class="title-xs">
-              <span i18n="@@CurrentBalance">Current Balance</span>:</div>
+              <span i18n="@@CurrentBalance">Balance</span>:</div>
             <div class="text-xs">&nbsp;${{ balance | number : '1.2-2'}}</div>
           </div>
 
@@ -140,6 +140,7 @@
         </mat-button-toggle>
       </mat-button-toggle-group>
 
+      <div class="cash-note" *ngIf="paymentMethod==='cash'" i18n="@@PayCashNote">*Pay in cash upon delivery</div>
       <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance < charge.total">
         <div class="form-row" >
           <label for="card-element" class="label-sm" i18n="@@CreditCard">Credit/Debit Card:</label>

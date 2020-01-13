@@ -2,7 +2,7 @@ const http = require('http');
 const express = require('express')
 const path = require('path')
 const fs = require('fs');
-const cfg = JSON.parse(fs.readFileSync('../duocun.cfg.json','utf8'));
+const cfg = JSON.parse(fs.readFileSync('../../duocun.cfg.json','utf8'));
 const APP_SERVER = cfg.APP_SERVER;
 
 const app = express()

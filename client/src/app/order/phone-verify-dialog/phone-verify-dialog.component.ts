@@ -10,7 +10,7 @@ import { environment } from '../../../environments/environment';
 import { AccountService } from '../../account/account.service';
 import { IAccount } from '../../account/account.model';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../../account/auth.service';
 
 declare var Stripe;
 

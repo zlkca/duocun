@@ -14,7 +14,7 @@ export class SocketService {
   constructor(
     private authSvc: AuthService
   ) {
-    const url = environment.API_BASE + '/';
+    // const url = environment.API_BASE + '/';
     // this.socket = io(url);
   }
 

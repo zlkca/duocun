@@ -2,8 +2,9 @@ export const environment = {
   production: true,
   API_VERSION: 'api',
   SECURE: window.location.protocol === 'https:',
-  API_BASE: window.location.protocol + '//' + window.location.hostname,
-  API_URL: window.location.origin + '/api/',
+  API_BASE: window.location.protocol + '//' + window.location.hostname, // deprecated
+  API_URL: 'https://duocun.com.cn/api/', // window.location.origin + '/api/',
+
   APP_URL: window.location.origin,
   MEDIA_URL: window.location.origin + '/media/',
   APP: 'duocun',
@@ -28,5 +29,5 @@ export const environment = {
     ID: '5d3a34afac8ce150f3bb70c2',
     NAME: 'duocun'
   },
-  language: 'zh'
+  language: 'en'
 };

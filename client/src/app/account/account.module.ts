@@ -23,7 +23,6 @@ import { OrderService } from '../order/order.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { AddCreditPageComponent } from './add-credit-page/add-credit-page.component';
 import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
-import { PhoneVerifyDialogComponent } from './phone-verify-dialog/phone-verify-dialog.component';
 import { AddressFormDialogComponent } from './address-form-dialog/address-form-dialog.component';
 
 @NgModule({
@@ -43,7 +42,6 @@ import { AddressFormDialogComponent } from './address-form-dialog/address-form-d
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
-      PhoneVerifyDialogComponent
     ],
     declarations: [
       LoginFormComponent,
@@ -53,7 +51,6 @@ import { AddressFormDialogComponent } from './address-form-dialog/address-form-d
       AccountPageComponent,
       BalancePageComponent,
       AddCreditPageComponent,
-      PhoneVerifyDialogComponent,
       AddressFormDialogComponent
     ],
     providers: [

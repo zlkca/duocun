@@ -35,7 +35,7 @@
       </div>
       <div class="row" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
         <div class="col-12 address-row">
-          <span class="title-xs" i18n="@@DeliverAddress">Deliver Address</span>:
+          <span class="title-xs" i18n="@@DeliverAddress">Deliver to</span>:
           <span class="text-xs">{{order.address}}</span>
         </div>
       </div>
@@ -77,7 +77,7 @@
             </div>
             <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
               <div class="title-xs">
-                <span i18n="@@DeliveryDiscount">Delivery Discount</span>:</div>
+                <span i18n="@@DeliveryDiscount">Discount</span>:</div>
               <div class="text-xs">-${{order.deliveryDiscount | number : '1.2-2'}}</div>
             </div>
             <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY && order.groupDiscount>0">

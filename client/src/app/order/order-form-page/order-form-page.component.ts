@@ -23,7 +23,7 @@ import { RangeService } from '../../range/range.service';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { AccountService } from '../../account/account.service';
-import { PhoneVerifyDialogComponent } from '../../account/phone-verify-dialog/phone-verify-dialog.component';
+import { PhoneVerifyDialogComponent } from '../phone-verify-dialog/phone-verify-dialog.component';
 
 declare var window;
 

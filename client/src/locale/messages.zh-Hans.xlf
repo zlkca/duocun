@@ -1196,6 +1196,14 @@
           <context context-type="linenumber">44</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="PayCashNote" datatype="html">
+        <source>*Pay in cash upon delivery</source>
+        <target>*送达时付现金</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/order/order-form-page/order-form-page.component.html</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="ProductTotal" datatype="html">
         <source>Product Total</source>
         <target>商品总额</target>

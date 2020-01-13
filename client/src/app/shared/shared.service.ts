@@ -121,13 +121,6 @@ export class SharedService {
     return { day: d.date(), month: d.month() + 1, year: d.year() };
   }
 
-  getApiUrl() {
-    return environment.API_BASE + '/' + environment.API_VERSION + '/';
-  }
-
-  getApiBaseUrl() {
-    return environment.API_BASE + '/';
-  }
 
   getMediaUrl() {
     return environment.MEDIA_URL;

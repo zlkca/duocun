@@ -19,8 +19,6 @@ export interface IAccessToken {
   'userId'?: string;
 }
 
-const API_URL = environment.API_URL;
-
 @Injectable()
 export class AccountService extends EntityService {
   url;
