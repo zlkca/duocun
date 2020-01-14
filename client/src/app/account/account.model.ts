@@ -25,9 +25,9 @@ export interface IAccount {
 
   password?: string;
   sex?: string;
-  openid?: string; // wechat openid
+  openId?: string; // wechat openid
   imageurl?: string;
-  unionid?: string; // wechat unionid
+  unionId?: string; // wechat unionid
   accessTokens?: any[];
   address?: IAddress;
   roles?: number[]; // 'super', 'merchant-admin', 'merchant-stuff', 'driver', 'user'

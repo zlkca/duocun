@@ -4,6 +4,7 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Role, IAccount } from '../../account/account.model';
 import { TransactionService } from '../../transaction/transaction.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-balance-page',
@@ -22,6 +23,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
   nTransactions = 0;
   loading = true;
   highlightedId = 0;
+  lang = environment.language;
 
   constructor(
     private accountSvc: AccountService,
@@ -59,17 +61,17 @@ export class BalancePageComponent implements OnInit, OnDestroy {
 
   getDescription(t, clientId) {
     if (t.action === 'client cancel order from duocun') {
-      return '取消' + t.toName;
+      return (this.lang === 'en' ? 'Cancel' : '取消') + t.toName;
     } else if (t.action === 'pay by card') {
-      return '银行卡付款';
+      return (this.lang === 'en' ? 'by bank card' : '银行卡付款');
     } else if (t.action === 'pay by wechat') {
-      return '微信付款';
+      return (this.lang === 'en' ? 'wechat pay' : '微信付款');
     } else if (t.action === 'client add credit by cash') {
-      return '现金充值';
+      return (this.lang === 'en' ? 'add credit' : '现金充值');
     } else if (t.action === 'client add credit by card') {
-      return '信用卡充值';
+      return (this.lang === 'en' ? 'add credit' : '信用卡充值');
     } else if (t.action === 'client add credit by WECHATPAY') {
-      return '微信充值';
+      return (this.lang === 'en' ? 'add credit' : '微信充值');
     } else {
       return t.fromId === clientId ? t.toName : t.fromName;
     }

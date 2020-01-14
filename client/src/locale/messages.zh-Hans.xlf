@@ -1461,7 +1461,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="MerchantClosed" datatype="html">
-        <source>Merchant Closed Today</source>
+        <source>Closed Today</source>
         <target>轮休中</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/main/filter/filter.component.ts</context>
@@ -1471,6 +1471,14 @@
       <trans-unit id="LastOrder" datatype="html">
         <source>Last Order</source>
         <target>订单截止</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/main/filter/filter.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="PayByDeposit" datatype="html">
+        <source>Pay by my deposit</source>
+        <target>用余额付款</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/main/filter/filter.component.ts</context>
           <context context-type="linenumber">19</context>

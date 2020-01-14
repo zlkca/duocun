@@ -28,10 +28,12 @@ export interface DialogData {
 })
 export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
 
-  account;
+  account; // current logged in account
+  phoneMatchedAccount;
   form;
   verified: boolean;
   bGettingCode = false;
+  bAllowVerify = false;
   counter = 60;
   countDown;
   lang = environment.language;
@@ -72,21 +74,49 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
       phone = phone.substring(0, 2) === '+1' ? phone.substring(2) : phone;
       phone = phone.match(/\d+/g).join('');
 
-      if (this.account) {
-        this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
-          if (accounts && accounts.length > 0) {
-            if (accounts[0]._id !== this.account._id) {
-              alert('This phone number has already bind to an account, please try other phone number.');
+      this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
+        if (this.account) { // if logged in
+          if (accounts && accounts.length > 0) { // db has accounts with this number
+            const account: IAccount = accounts[0];
+            this.phoneMatchedAccount = account;
+            if (account._id !== this.account._id) {
+              const hint = this.lang === 'en' ? 'This phone number has already bind to an wechat account, please try use wechat to login.' :
+                '该号码已经被一个英文版的账号使用，请使用英文版登陆; 如果想更改账号请联系客服。';
+              alert(hint);
+              this.bAllowVerify = false;
             } else {
-              // valid to bind
+              this.bAllowVerify = true;
             }
           } else {
-            // valid to bind
+            this.bAllowVerify = true;
           }
-        });
-      } else { // did not login yet, should never happend
-
-      }
+        } else { // did not login yet
+          if (accounts && accounts.length > 0) { // db has accounts with this number
+            const account: IAccount = accounts[0];
+            this.phoneMatchedAccount = account;
+            if (this.lang === 'en') {
+              if (account.openId) {
+                alert('This phone number has already bind to an wechat account, please try use wechat to login.');
+                this.bAllowVerify = false;
+              } else {
+                this.bAllowVerify = true;
+              }
+            } else {
+              if (!account.openId) {
+                alert('该号码已经被一个英文版的账号使用，请使用英文版登陆; 如果想更改账号请联系客服。');
+                this.bAllowVerify = false;
+              } else {
+                this.bAllowVerify = true;
+              }
+            }
+          } else {
+            this.bAllowVerify = true;
+          }
+        }
+      });
+    } else {
+      this.bAllowVerify = false;
+      this.phoneMatchedAccount = null;
     }
   }
 
@@ -117,7 +147,7 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
                   self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
                     if (account) {
                       if (account.type === 'tmp') {
-                        self.account = account; // For display signup button
+                        // self.account = account; // For display signup button
                       } else {
                         self.dialogRef.close(account);
                       }
@@ -133,27 +163,31 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
           }, 1200);
         }
       });
+    } else {
+      this.verified = false;
     }
   }
 
   sendVerify() {
     const self = this;
-    let phone: string = this.form.value.phone;
-    phone = phone.substring(0, 2) === '+1' ? phone.substring(2) : phone;
-    phone = phone.match(/\d+/g).join('');
+    if (this.bAllowVerify) {
+      let phone: string = this.form.value.phone;
+      phone = phone.substring(0, 2) === '+1' ? phone.substring(2) : phone;
+      phone = phone.match(/\d+/g).join('');
 
-    if (phone) {
-      this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
-        if (accounts && accounts.length > 0) {
-          if (this.account && accounts[0]._id !== this.account._id) {
-            alert('This phone number has already bind to an account, please try other phone number.');
+      if (phone) {
+        this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
+          if (accounts && accounts.length > 0) {
+            if (this.account && accounts[0]._id !== this.account._id) {
+              alert('This phone number has already bind to an account, please try other phone number.');
+            } else { // valid to bind
+              this.resendVerify(phone);
+            }
           } else { // valid to bind
             this.resendVerify(phone);
           }
-        } else { // valid to bind
-          this.resendVerify(phone);
-        }
-      });
+        });
+      }
     }
   }
 
@@ -162,26 +196,26 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
     const accountId: string = self.account ? self.account._id : '';
     const sentHint = this.lang === 'en' ? 'SMS Verification Code sent' : '短信验证码已发送';
     this.bGettingCode = true;
-      this.counter = 60;
-      this.countDown = setInterval(function () {
-        self.counter--;
-        if (self.counter === 0) {
-          clearInterval(self.countDown);
-          self.bGettingCode = false;
-        }
-      }, 1000);
+    this.counter = 60;
+    this.countDown = setInterval(function () {
+      self.counter--;
+      if (self.counter === 0) {
+        clearInterval(self.countDown);
+        self.bGettingCode = false;
+      }
+    }, 1000);
 
-      this.verified = false;
-      this.verificationCode.patchValue('');
+    this.verified = false;
+    this.verificationCode.patchValue('');
 
-      // First time there is not token, api call do not allowed
-      const lang = environment.language;
-      this.accountSvc.sendVerifyMsg(accountId, phone, lang).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
-        if (tokenId) { // to allow api call
-          self.authSvc.setAccessTokenId(tokenId);
-        }
-        this.snackBar.open('', sentHint, { duration: 1000 });
-      });
+    // First time there is not token, api call do not allowed
+    const lang = environment.language;
+    this.accountSvc.sendVerifyMsg(accountId, phone, lang).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
+      if (tokenId) { // to allow api call
+        self.authSvc.setAccessTokenId(tokenId);
+      }
+      this.snackBar.open('', sentHint, { duration: 1000 });
+    });
   }
 
 
@@ -208,15 +242,5 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
       // fail to signup
     }
   }
-
-  login() {
-
-  }
-
-  hasContact() {
-    return this.account && this.account.type !== 'tmp';
-  }
-
-
 
 }

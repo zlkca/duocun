@@ -121,7 +121,7 @@
         <span i18n="@@PaymentMethod">Payment Method</span>:
       </div>
       <!-- <input name="paymentMethod" readonly /> -->
-      <div *ngIf="charge && balance >= charge.total">用余额付款</div>
+      <div *ngIf="charge && balance >= charge.total" i18n="@@PayByDeposit">Pay by my deposit</div>
       <!-- <div class="title" i18n="@@CashWhenDelivered" *ngIf="balance && charge && balance.amount < charge.total">Cash when Delivered</div> -->
 
       <mat-button-toggle-group *ngIf="charge && balance < charge.total" #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)">
