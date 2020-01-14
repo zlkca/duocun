@@ -1,18 +1,12 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
-import { NgRedux } from '../../../../node_modules/@angular-redux/store';
-import { IAppState } from '../../store';
-import { Router } from '../../../../node_modules/@angular/router';
 import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from '../../../../node_modules/@angular/material';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
-import { CommandActions } from '../../shared/command.actions';
 import { environment } from '../../../environments/environment';
 import { AccountService } from '../../account/account.service';
 import { IAccount } from '../../account/account.model';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { AuthService } from '../../account/auth.service';
-
-declare var Stripe;
 
 export interface DialogData {
   title: string;
@@ -40,6 +34,7 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
   bGettingCode = false;
   counter = 60;
   countDown;
+  lang = environment.language;
 
   get phone() { return this.form.get('phone'); }
   get verificationCode() { return this.form.get('verificationCode'); }
@@ -49,8 +44,6 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
     private authSvc: AuthService,
     private accountSvc: AccountService,
     private fb: FormBuilder,
-    private rx: NgRedux<IAppState>,
-    private router: Router,
     private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<PhoneVerifyDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData
@@ -63,14 +56,6 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.account = this.data.account;
-    // const self = this;
-    // this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
-    //   self.account = account;
-    //   if (account) {
-    //     self.phone.patchValue(self.account.phone);
-    //     self.verificationCode.patchValue('');
-    //   }
-    // });
   }
 
   ngOnDestroy() {
