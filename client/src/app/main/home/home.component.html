@@ -1,6 +1,6 @@
 <div class="merchant-list">
-  <app-merchant-list *ngIf="!bPayment && !(places && places.length > 0) && inRange" 
-    [active]="inRange" [phase]="phase" [address]="location" [bAddressList]="bAddressList">
+  <app-merchant-list *ngIf="!bPayment && !(places && places.length > 0) && inRange" [active]="inRange" [phase]="phase" [address]="location"
+    [bAddressList]="bAddressList">
   </app-merchant-list>
 </div>
 
@@ -10,7 +10,7 @@
   <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
     <div class="col-12">
       <div class="text-md">
-          <span i18n="@@NotInServiceRangeHint">Your address is not in our service range, please try another</span>
+        <span i18n="@@NotInServiceRangeHint">Your address is not in our service range, please try another</span>
       </div>
     </div>
   </button>
@@ -19,38 +19,45 @@
 <div class="header-block">
   <app-header *ngIf="lang==='en'"></app-header>
 
+
   <div class="banner">
-    <div class="address-search-block">
-      <app-address-input placeholder="Enter Delivery Address" (addrChange)="onAddressInputChange($event)" (addrClear)="onAddressInputClear($event)"
-        (inputFocus)="onAddressInputFocus($event)" (backHistory)="onBack()" [value]="deliveryAddress">
-      </app-address-input>
-    </div>
-    <app-location-list *ngIf="places && places.length > 0" [account]="account" [places]="places" (placeSeleted)="onSelectPlace($event)">
-    </app-location-list>
+    <div class="left-col">
+      <div class="address-search-block">
+        <app-address-input placeholder="Enter Delivery Address" (addrChange)="onAddressInputChange($event)" (addrClear)="onAddressInputClear($event)"
+          (inputFocus)="onAddressInputFocus($event)" (backHistory)="onBack()" [value]="deliveryAddress">
+        </app-address-input>
+      </div>
+      <app-location-list *ngIf="places && places.length > 0" [account]="account" [places]="places" (placeSeleted)="onSelectPlace($event)">
+      </app-location-list>
 
-    <div class="ad-block" *ngIf="!(places && places.length > 0)">
-      <!-- <img src="assets/images/fengcha.jpeg" /> -->
-      <!-- <div>本公司因圣诞放假，2019-12-20至2020-01-05暂停营业, 2020-01-06恢复正常, 不便之处, 尽请谅解。</div> -->
+      <div class="ad-block" *ngIf="!(places && places.length > 0)">
+        <!-- <img src="assets/images/fengcha.jpeg" /> -->
+        <!-- <div>本公司因圣诞放假，2019-12-20至2020-01-05暂停营业, 2020-01-06恢复正常, 不便之处, 尽请谅解。</div> -->
+      </div>
+
+      <div class="date-block" *ngIf="!(places && places.length > 0)">
+        <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">
+          <mat-button-toggle value="today" aria-label="Today">
+            <div class="title-block" i18n="@@LunchToday">Lunch Today</div>
+            <div class="time-row">
+              <span class="date">{{today.date | date: 'MMMd E' }} </span>
+              <span class="time">{{today.startTime}}~{{today.endTime}} </span>
+            </div>
+          </mat-button-toggle>
+          <mat-button-toggle value="tomorrow" aria-label="Tomorrow">
+            <div class="title-block" i18n="@@LunchTomorrow">Lunch Tomorrow</div>
+            <div class="time-row">
+              <span class="date">{{tomorrow.date | date: 'MMMd E' }} </span>
+              <span class="time">{{tomorrow.startTime}}~{{tomorrow.endTime}} </span>
+            </div>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
     </div>
 
-    <div class="date-block" *ngIf="!(places && places.length > 0)">
-      <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">
-        <mat-button-toggle value="today" aria-label="Today">
-          <div class="title-block" i18n="@@LunchToday">Lunch Today</div>
-          <div class="time-row">
-            <span class="date">{{today.date | date: 'MMMd E' }} </span>
-            <span class="time">{{today.startTime}}~{{today.endTime}} </span>
-          </div>
-        </mat-button-toggle>
-        <mat-button-toggle value="tomorrow" aria-label="Tomorrow">
-          <div class="title-block" i18n="@@LunchTomorrow">Lunch Tomorrow</div>
-          <div class="time-row">
-            <span class="date">{{tomorrow.date | date: 'MMMd E' }} </span>
-            <span class="time">{{tomorrow.startTime}}~{{tomorrow.endTime}} </span>
-          </div>
-        </mat-button-toggle>
-      </mat-button-toggle-group>
+    <div class="right-col">
+      <img src="assets/qrcode.jpg">
+      <div class="text-xs">Wechat QR Code for Chinese</div>
     </div>
   </div>
 </div>
-

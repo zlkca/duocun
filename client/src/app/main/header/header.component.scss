@@ -1,42 +1,42 @@
-#nav-left {
-  flex-grow: 1;
-}
-.navbar {
-  width: 100%;
-  height: 50px;
-  
-  a {
-    cursor: pointer;
-  }
-}
+// #nav-left {
+//   flex-grow: 1;
+// }
+// .navbar {
+//   width: 100%;
+//   height: 50px;
 
-.brand-row{
-  text-align:center;
-  position: absolute;
-  top:0px;
-  margin-top:200px;
-  width: 100%;
-}
+//   a {
+//     cursor: pointer;
+//   }
+// }
 
-.btn-row{
-  position: absolute;
-  top: 0px;
-  margin-top: 340px;
-  margin-right: auto;
-  margin-left: auto;
-  width: 100%;
+// .brand-row{
+//   text-align:center;
+//   position: absolute;
+//   top:0px;
+//   margin-top:200px;
+//   width: 100%;
+// }
 
-  .btn-block{
-    display: block;
-    width: 170px;
-    margin-left: auto;
-    margin-right: auto;
+// .btn-row{
+//   position: absolute;
+//   top: 0px;
+//   margin-top: 340px;
+//   margin-right: auto;
+//   margin-left: auto;
+//   width: 100%;
 
-    .btn:first-child{
-      margin-right: 15px;
-    }
-  }
-}
+//   .btn-block{
+//     display: block;
+//     width: 170px;
+//     margin-left: auto;
+//     margin-right: auto;
+
+//     .btn:first-child{
+//       margin-right: 15px;
+//     }
+//   }
+// }
 
 
 $mobile: "(max-width: 767px)";
@@ -44,7 +44,7 @@ $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
 @media #{$mobile}{
-  .navbar{
-    display: none;
-  }
+  // .navbar{
+  //   display: none;
+  // }
 }

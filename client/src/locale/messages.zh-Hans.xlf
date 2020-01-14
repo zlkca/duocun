@@ -1460,6 +1460,22 @@
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="MerchantClosed" datatype="html">
+        <source>Merchant Closed Today</source>
+        <target>轮休中</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/main/filter/filter.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="LastOrder" datatype="html">
+        <source>Last Order</source>
+        <target>订单截止</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/main/filter/filter.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="LogoutDuocun" datatype="html">
         <source>LogoutDuocun</source>
         <target>退出多村外卖</target>

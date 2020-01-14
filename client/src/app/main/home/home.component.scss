@@ -8,7 +8,7 @@ $yellow: rgb(244, 160, 0);
 $red: rgb(219, 68, 55);
 $blue: #4285F3;
 
-
+$header-height: 56px;
 $position-btn-width: 0px;
 $map-height: 360px;
 $address-search-height: 56px;
@@ -92,7 +92,26 @@ $date-btn-height: 50px;
 
   .banner{
     background: #aaa;
-
+    height: 180px;
+    .left-col{
+      float: left;
+      width: 60%;
+    }
+    .right-col{
+      float: left;
+      width: 40%;
+      display: block;
+      padding-left: 50px;
+      img{
+        width: 120px;
+        height: 120px;
+      }
+      .text-xs{
+        font-size: 9px;
+        color: #333;
+        padding-top:4px;
+      }
+    }
     .address-search-block {
       margin: 0px;
       width: 100%;
@@ -233,10 +252,19 @@ and (orientation: landscape) {
 
 @media #{$mobile}{
   .header-block{
+
     .banner{
+      height: $address-search-height + $ad-height + $date-btn-height;
       background:white;
       padding: 2px 0px;
 
+      .left-col{
+        width: 100%;
+      }
+      .right-col{
+        width: 0px;
+        display: none;
+      }
       .ad-block{
         height: 0px;
         padding: 4px 14px;
@@ -245,7 +273,7 @@ and (orientation: landscape) {
   }
 
   .merchant-list{
-    top: $address-search-height + $ad-height + $date-btn-height; // 110px;
+    top: $address-search-height + $ad-height + $date-btn-height + $header-height; // 110px;
     padding: 0px;
   }
 

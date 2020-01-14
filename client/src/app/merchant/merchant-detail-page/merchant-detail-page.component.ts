@@ -148,6 +148,9 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         self.merchantSvc.quickFind({ _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IMerchant[]) => {
           const restaurant = rs[0];
           restaurant.onSchedule = self.onSchedule;
+          if (environment.language === 'en') {
+            restaurant.name = restaurant.nameEN;
+          }
           self.restaurant = restaurant;
 
           const q = { merchantId: merchantId };
