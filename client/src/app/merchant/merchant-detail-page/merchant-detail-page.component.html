@@ -1,10 +1,10 @@
 <div class="page">
-  <div class="row title-row" *ngIf="restaurant">
+  <div class="row title-block" *ngIf="restaurant">
     <div class="col-12 restaurant-name title-bg">{{restaurant.name}}</div>
   </div>
 
   <div class="row content-block">
-    <div class="col-xs-12 col-md-8 product-block">
+    <div class="col-xs-12 product-block">
       <mat-tab-group mat-align-tabs="center">
         <mat-tab i18n-label label="Menu" *ngIf="categories && categories.length>0">
           <div *ngFor="let cat of categories">

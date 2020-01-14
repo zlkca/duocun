@@ -3,7 +3,7 @@
       <div class="row label-sm">
         <span i18n="@@DeliverAddress">Delivery Address</span><span>*</span>
       </div>
-      <app-address-input (addrChange)="onAddressChange($event)" placeholder="InputDeliveryAddress"
+      <app-address-input (addrChange)="onAddressChange($event)" placeholder="Enter Delivery Address"
         (addrClear)="onAddressClear($event)" (inputFocus)="onAddressInputFocus($event)"
         (backHistory)="onAddressBack($event)"
         [value]="deliveryAddress">
@@ -17,7 +17,7 @@
       <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
           <div class="col-12">
               <div class="text-md">
-                <span>您的地址不在配送范围内，请尝试其它地址</span>
+                <span i18n="@@NotInServiceRangeHint">Your address is not in our service range, please try another</span>
               </div>
           </div>
         </button>

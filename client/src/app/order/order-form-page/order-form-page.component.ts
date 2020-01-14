@@ -63,7 +63,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   fromPage: string; // params from previous page
   action: string;   // params from previous page
 
-  language = 'zh';
+  lang = environment.language;
   msg = '';
   log = '';
 
@@ -81,8 +81,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     public dialogSvc: MatDialog
   ) {
     const self = this;
-
-    this.language = environment.language;
 
     this.form = this.fb.group({
       note: ['']
@@ -314,6 +312,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   doPay(account: IAccount, charge: ICharge, cart: ICart, delivery: IDelivery, paymentMethod: string) {
     const self = this;
+    const missingInfoHint = this.lang === 'en' ? 'Missing phone number or address' : '缺少电话或地址';
+    const dupInfoHint = this.lang === 'en' ? 'Can not submit duplicated order' : '无法重复提交订单';
+    const emptyCartHint = this.lang === 'en' ? 'The Shopping cart is empty' : '购物车是空的';
     if (!account || !account.phone || !account.verified) {
       this.openPhoneVerifyDialog(); // fix me
       // this.router.navigate(['account/phone-verify'], { queryParams: { fromPage: 'order-form' } });
@@ -321,22 +322,17 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     }
 
     if (!(account && delivery && delivery.date && delivery.origin)) {
-      alert('缺少电话或地址');
+      alert(missingInfoHint);
       return;
     }
 
     if (this.bSubmitted) {
-      this.snackBar.open('', '无法重复提交订单', { duration: 1000 });
+      this.snackBar.open('', dupInfoHint, { duration: 1000 });
       return;
     }
 
     if (!(cart && cart.items && cart.items.length > 0)) {
-      alert('购物车是空的');
-      return;
-    }
-
-    if (!cart.merchantId) {
-      alert('没有选择商家');
+      alert(emptyCartHint);
       return;
     }
 
@@ -367,7 +363,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     const balance: number = account.balance;
     const payable = Math.round((order.total - balance) * 100) / 100;
-
+    const payAlert = this.lang === 'en' ? 'Unsuccessful payment, please contact our customer service.' : '付款未成功，请联系客服';
+    const payHint = this.lang === 'en' ? 'The order is placed and paid successfully' : '已成功下单';
     order.status = OrderStatus.TEMP;
     // save order and update balance
     self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
@@ -379,18 +376,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         self.bSubmitted = false;
         self.loading = false;
         if (ch.status === 'succeeded') {
-          self.snackBar.open('', '已成功付款', { duration: 1800 });
-          self.snackBar.open('', '已成功下单', { duration: 2000 });
+          self.snackBar.open('', payHint, { duration: 2000 });
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } }); // should be clear cart ?
           self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
           self.router.navigate(['order/history']);
         } else {
-          self.snackBar.open('', '付款未成功', { duration: 1800 });
-          alert('付款未成功，请联系客服');
+          alert(payAlert);
         }
       });
     }, err => {
-      self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
+      self.snackBar.open('', payAlert, { duration: 1800 });
     });
   }
 
@@ -398,6 +393,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     const balance: number = account.balance;
     const payable = Math.round((order.total - balance) * 100) / 100;
+    const payAlert = this.lang === 'en' ? 'Unsuccessful payment, please contact our customer service.' : '付款未成功，请联系客服';
+
 
     order.status = OrderStatus.TEMP;
     // save order and update balance
@@ -420,8 +417,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           window.location.href = r.data[0].h5pay_url;
         } else {
           self.loading = false;
-          self.snackBar.open('', '付款未成功', { duration: 1800 });
-          alert('付款未成功，请联系客服');
+          alert(payAlert);
         }
       });
     }, err => {
@@ -433,7 +429,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   handleWithCash(account: IAccount, order: IOrder, cart: ICart) {
     const self = this;
     const balance: number = account.balance;
-
+    const orderSuccessHint = this.lang === 'en' ? 'The order is placed successfully' : '已成功下单';
+    const orderFailHint = this.lang === 'en' ? 'The order is placed unsuccessfully' : '下单未成功';
     if (order && order._id) { // modify order, now do not support
       if (order) {
         const orderId = order._id;
@@ -442,12 +439,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
           self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
-          self.snackBar.open('', '您的订单已经成功修改。', { duration: 2000 });
+          self.snackBar.open('', orderSuccessHint, { duration: 2000 });
           self.bSubmitted = false;
           self.loading = false;
           self.router.navigate(['order/history']);
         }, err => {
-          self.snackBar.open('', '您的订单未更改成功，请重新更改。', { duration: 1800 });
+          self.snackBar.open('', orderFailHint, { duration: 1800 });
         });
       } else {
         this.snackBar.open('', '登录已过期，请重新从公众号进入', { duration: 1800 });
@@ -459,7 +456,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         }
 
         self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((orderCreated: IOrder) => {
-          self.snackBar.open('', '订单已成功保存', { duration: 1800 });
+          self.snackBar.open('', orderSuccessHint, { duration: 1800 });
           const items: ICartItem[] = cart.items.filter(x => x.merchantId === order.merchantId);
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
 
@@ -474,7 +471,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.router.navigate(['order/history']);
           // });
         }, err => {
-          self.snackBar.open('', '您的订单未登记成功，请重新下单。', { duration: 1800 });
+          self.snackBar.open('', orderFailHint, { duration: 1800 });
         });
       } else {
         self.bSubmitted = false;

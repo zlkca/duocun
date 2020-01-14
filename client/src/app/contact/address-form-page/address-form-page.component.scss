@@ -11,9 +11,9 @@ $blue: #4285F3;
 $map-height: 360px;
 
 .address-input-block{
-  position: fixed;
-  top: 0px;
-  padding: 15px;
+  // position: fixed;
+  // top: 0px;
+  padding: 15px 0px;
   width: 100%;
   background-color: white;
   z-index: 1000;
@@ -36,8 +36,8 @@ app-address-input{
 }
 
 app-location-list{
-  position: absolute;
-  top: 78px;
+  // position: absolute;
+  // top: 78px;
   height: calc(100% - 140px);
   overflow: scroll;
   width: 100%;

@@ -7,6 +7,7 @@ import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { IAccount } from '../account.model';
 import { AccountService } from '../account.service';
 import { Router } from '../../../../node_modules/@angular/router';
+import { environment } from '../../../environments/environment.prod';
 
 @Component({
   selector: 'app-add-credit-page',
@@ -21,6 +22,7 @@ export class AddCreditPageComponent implements OnInit {
   bSubmitted = false;
   account;
   loading = false;
+  lang = environment.language;
   private onDestroy$ = new Subject<any>();
 
   constructor(
@@ -57,7 +59,9 @@ export class AddCreditPageComponent implements OnInit {
     const received = this.received.value;
     const paymentMethod = this.paymentMethod;
     const note = this.note.value.trim();
-
+    const payAlert = this.lang === 'en' ? 'Unsuccessful payment, please contact our customer service.' : '付款未成功，请联系客服';
+    const inputAlert = this.lang === 'en' ? 'Something wrong entered, please try again' : '输入信息有错误，请核对';
+    const creditHint = this.lang === 'en' ? 'Added credit $' : '已成功充值 $';
     if (received === '') {
       return;
     } else {
@@ -67,11 +71,11 @@ export class AddCreditPageComponent implements OnInit {
           if (ret.status === 'failed') {
             self.loading = false;
             self.bSubmitted = false;
-            alert('输入信息有错误，请核对');
+            alert(inputAlert);
           } else {
             self.paymentSvc.stripeAddCredit(ret.token, account, +received, note).pipe(takeUntil(this.onDestroy$)).subscribe((x) => {
               self.loading = false;
-              self.snackBar.open('', '已成功充值 $' + Math.round(+received * 100) / 100, { duration: 1000 });
+              self.snackBar.open('', creditHint + Math.round(+received * 100) / 100, { duration: 1000 });
               self.router.navigate(['account/balance']);
             });
             // self.handleCardPayment(account, ret.token, order, cart);
@@ -81,15 +85,13 @@ export class AddCreditPageComponent implements OnInit {
         const paid = Math.round(+received * 100) / 100;
         this.loading = true;
         this.paymentSvc.snappayAddCredit(account, paid, paymentMethod, note).pipe(takeUntil(this.onDestroy$)).subscribe((r) => {
-          // this.snackBar.open('', '已成功充值 $' + Math.round(+received * 100) / 100, { duration: 1000 });
           self.bSubmitted = false;
           self.loading = false;
           if (r.msg === 'success') {
             this.loading = true;
             window.location.href = r.data[0].h5pay_url;
           } else {
-            self.snackBar.open('', '付款未成功', { duration: 1800 });
-            alert('付款未成功，请联系客服');
+            alert(payAlert);
           }
         });
       }

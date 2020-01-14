@@ -216,7 +216,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           });
         } else { // shouldn't happen
           cats.push({
-            categoryId: p.categoryId, self.lang === 'zh' ? category.name : category.nameEN, order: 0,
+            categoryId: p.categoryId, categoryName: self.lang === 'zh' ? category.name : category.nameEN, order: 0,
             items: [{ product: p, quanlity: 0 }]
           });
         }

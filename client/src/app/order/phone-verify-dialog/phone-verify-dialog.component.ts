@@ -175,6 +175,7 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
   resendVerify(phone: string) {
     const self = this;
     const accountId: string = self.account ? self.account._id : '';
+    const sentHint = this.lang === 'en' ? 'SMS Verification Code sent' : '短信验证码已发送';
     this.bGettingCode = true;
       this.counter = 60;
       this.countDown = setInterval(function () {
@@ -194,7 +195,7 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
         if (tokenId) { // to allow api call
           self.authSvc.setAccessTokenId(tokenId);
         }
-        this.snackBar.open('', '短信验证码已发送', { duration: 1000 });
+        this.snackBar.open('', sentHint, { duration: 1000 });
       });
   }
 
@@ -231,33 +232,6 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
     return this.account && this.account.type !== 'tmp';
   }
 
-  onSignup(): void {
-    // const self = this;
-    // const orderId = this.data.orderId;
-    // if (this.data && orderId) {
-    //   if (self.data.paymentMethod === 'card' || self.data.paymentMethod === 'WECHATPAY') {
 
-    //     self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-    //       self.dialogRef.close();
-    //       self.snackBar.open('', '订单已删除', { duration: 1000 });
-
-    //       self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
-    //       self.snackBar.open('', '余额已处理', { duration: 1000 });
-    //       self.router.navigate(['order/history']);
-
-    //     });
-    //   } else if (self.data.paymentMethod === 'cash' || self.data.paymentMethod === 'prepaid') { // cash or prepaid
-    //     self.orderSvc.removeById(self.data.orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
-    //       self.dialogRef.close();
-    //       self.snackBar.open('', '订单已删除', { duration: 1000 });
-
-    //       self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
-    //       self.snackBar.open('', '余额已处理', { duration: 1000 });
-    //       self.router.navigate(['order/history']);
-
-    //     });
-    //   }
-    // }
-  }
 
 }

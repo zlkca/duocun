@@ -35,6 +35,8 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
   stripe;
   balance;
   onDestroy$ = new Subject();
+  lang = environment.language;
+
   constructor(
     private rx: NgRedux<IAppState>,
     private router: Router,
@@ -71,25 +73,22 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
   onClickRemove(): void {
     const self = this;
     const orderId = this.data.orderId;
+    const text = this.lang === 'en' ? 'The Order is cancelled.' : '订单已删除';
     if (this.data && orderId) {
       if (self.data.paymentMethod === 'card' || self.data.paymentMethod === 'WECHATPAY') {
 
         self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
           self.dialogRef.close();
-          self.snackBar.open('', '订单已删除', { duration: 1000 });
-
           self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
-          self.snackBar.open('', '余额已处理', { duration: 1000 });
+          self.snackBar.open('', text, { duration: 1000 });
           self.router.navigate(['order/history']);
 
         });
       } else if (self.data.paymentMethod === 'cash' || self.data.paymentMethod === 'prepaid') { // cash or prepaid
         self.orderSvc.removeById(self.data.orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
           self.dialogRef.close();
-          self.snackBar.open('', '订单已删除', { duration: 1000 });
-
           self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });
-          self.snackBar.open('', '余额已处理', { duration: 1000 });
+          self.snackBar.open('', text, { duration: 1000 });
           self.router.navigate(['order/history']);
 
         });

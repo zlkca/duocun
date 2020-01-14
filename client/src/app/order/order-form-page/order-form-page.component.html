@@ -3,7 +3,7 @@
 </div>
 
 <div class="page" *ngIf="!loading">
-  <div class="title-row">
+  <div class="title-block">
     <span class="title-bg" i18n="@@ConfirmOrder">Confirm Order</span>
   </div>
 
@@ -129,7 +129,7 @@
           <div class="title" i18n="@@Cash">Cash</div>
         </mat-button-toggle>
 
-        <mat-button-toggle value="WECHATPAY" aria-label="Wechat" *ngIf="language==='zh'">
+        <mat-button-toggle value="WECHATPAY" aria-label="Wechat" *ngIf="lang==='zh'">
           <div class="title">微信支付</div>
         </mat-button-toggle>
         <!-- <mat-button-toggle value="ALIPAY" aria-label="Ali" *ngIf="account.username==='li'">

@@ -338,30 +338,72 @@ body{
   
 }// end of body
 
+$content-padding: 300px;
+
+.banner{
+  padding: 40px $content-padding;
+
+  app-location-list{
+    padding: 5px 0px;
+  }
+}
+
+.merchant-list{
+  padding: 20px $content-padding;
+}
+
+.dialog-head{
+  height: 60px;
+  width: 100%;
+}
+
+.phone-verify-dialog{
+  position: absolute !important;
+  top: 20%;
+  left: $content-padding;
+  width: calc(100% - #{$content-padding} - #{$content-padding}) !important;
+  height: 60%;
+  max-width: none !important;
+
+  .mat-dialog-container{
+    padding: 0px !important;
+    // width: 100%;
+    // max-width: none !important;
+  }
+}
+
+.footer{
+  left: $content-padding;
+  width: calc(100% - #{$content-padding} - #{$content-padding});
+}
 
 .page{
-  // margin-top:$navbar-height;
-  margin: 0px;
-  padding: 0px;
+  margin: auto;
+  padding: 0px $content-padding;
   min-height: 560px;
+  width: 100%;
 
   .row{
     margin: 0px;
   }
+
+  .title-block{
+    width: calc(100% - #{$content-padding} - #{$content-padding});
+  }
   
-  .title-row{
+  .title-block{
     padding: 15px 15px 10px 15px;
     text-align: center;
     border-bottom: solid 1px #eee;
     position: fixed;
     top: 0px;
-    width: 100%;
+    
     height: 60px;
     margin: 0px;
     background-color: white;
     z-index: 10;
   }
-  
+
   .option-list{
     margin-top: 46px;
     padding: 10px;
@@ -459,25 +501,7 @@ select:not([multiple]) {
   padding-right: 1.5em
 }
 
-.dialog-head{
-  height: 60px;
-  width: 100%;
-}
 
-.phone-verify-dialog{
-  position: absolute !important;
-  top: 2%;
-  left: 2%;
-  width: 96% !important;
-  height: 96%;
-  max-width: none !important;
-
-  .mat-dialog-container{
-    padding: 0px !important;
-    // width: 100%;
-    // max-width: none !important;
-  }
-}
 
   @media #{$desktop}{
 
@@ -488,10 +512,22 @@ select:not([multiple]) {
    }
 
   @media #{$mobile}{
+    .footer{
+      left: 0px;
+      width: 100%;
+    }
+    app-location-list{
+      padding: 80px 0px;
+    }
     .page{
-      margin-top:0px;
+      padding: 0px;
+      margin-top: 0px;
       // min-height:500px;
       padding-bottom: $bottom-bar-height;
+
+      .title-block, .content-block{
+        width: 100%;
+      }
     }
 
     .auth-form{
@@ -499,6 +535,21 @@ select:not([multiple]) {
 
       .btn{
         width:100%;
+      }
+    }
+
+    .phone-verify-dialog{
+      position: absolute !important;
+      top: 2%;
+      left: 2%;
+      width: 96% !important;
+      height: 96%;
+      max-width: none !important;
+    
+      .mat-dialog-container{
+        padding: 0px !important;
+        // width: 100%;
+        // max-width: none !important;
       }
     }
   }
@@ -509,12 +560,39 @@ select:not([multiple]) {
       padding-right:0px;
     }
 
+    .footer{
+      left: 0px;
+      width: 100%;
+    }
+    app-location-list{
+      padding: 5px 0px;
+    }
     .page{
+      padding: 0px;
       margin-top:0px;
       min-height:460px;
+
+      .title-block, .content-block{
+        width: 100%;
+      }
     }
     .auth-form{
       width:100%;
+    }
+
+    .phone-verify-dialog{
+      position: absolute !important;
+      top: 2%;
+      left: 2%;
+      width: 96% !important;
+      height: 96%;
+      max-width: none !important;
+    
+      .mat-dialog-container{
+        padding: 0px !important;
+        // width: 100%;
+        // max-width: none !important;
+      }
     }
   }
 

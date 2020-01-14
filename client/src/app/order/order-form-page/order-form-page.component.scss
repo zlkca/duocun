@@ -2,24 +2,20 @@
 $toggle-btn-height: 40px;
 $blue: #4285F3;
 
-.page{
-  padding: 0px 0px 60px 0px;
-  
-  #contact-form{
-    padding: 0px 15px;
-    margin-top: 60px; 
+#contact-form{
+  padding: 0px 15px;
+  margin-top: 60px; 
+}
+
+#payment-form{
+  margin-top: 13px;
+
+  .form-row{
+    margin: 0px;
   }
 
-  #payment-form{
-    margin-top: 13px;
-
-    .form-row{
-      margin: 0px;
-    }
-
-    label.label-sm{
-      margin-bottom: 0px;
-    }
+  label.label-sm{
+    margin-bottom: 0px;
   }
 }
 

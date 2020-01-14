@@ -35,59 +35,6 @@ export class Contact extends Model {
   }
 
 
-  // // req --- require accountId, username and phone fields
-  // sendVerifyMsg(req: Request, res: Response) {
-  //   const self = this;
-  //   const accountId = req.body.accountId ? req.body.accountId : new ObjectId().toString();
-  //   const username = req.body.username;
-  //   let phone = req.body.phone.substring(0, 2) === '+1' ? req.body.phone.substring(2) : req.body.phone;
-  //   phone = phone.match(/\d+/g).join('');
-
-  //   const d1 = Math.floor(Math.random() * 10).toString();
-  //   const d2 = Math.floor(Math.random() * 10).toString();
-  //   const d3 = Math.floor(Math.random() * 10).toString();
-  //   const d4 = Math.floor(Math.random() * 10).toString();
-  //   const code = d1 + d2 + d3 + d4;
-
-  //   const data = {
-  //     accountId: accountId,
-  //     username: username,
-  //     phone: phone,
-  //     verificationCode: code,
-  //     verified: false
-  //   }
-
-  //   if (!req.body.accountId) {
-  //     // this.accountModel.insertOne({username: phone, pa})
-  //   }
-
-  //   this.updateOne({ accountId: accountId }, data, { upsert: true }).then((result) => {
-  //     self.twilioClient.messages
-  //       .create({
-  //         body: '多村外卖验证码:' + code,
-  //         from: '+16475591743',
-  //         to: "+1".concat(phone)
-  //       })
-  //       .then((message: any) => {
-  //         // console.log(message.sid);
-  //         res.setHeader('Content-Type', 'application/json');
-  //         res.end(JSON.stringify(accountId, null, 3));
-  //       });
-  //   });
-  // }
-
-  verifyCode(req: Request, res: Response) {
-    const accountId = req.body.accountId;
-    let code = req.body.code;
-    this.findOne({ accountId: accountId }).then(contact => {
-      const verified = contact && contact.verificationCode.toString() === code;
-      const data = { verified: verified };
-      this.updateOne({ _id: contact._id }, data, { upsert: false }).then((result) => {
-        res.send(verified);
-      });
-    });
-  }
-
   // Tools
   movePhoneToAccount(req: Request, res: Response) {
     this.find({}).then(cs => {

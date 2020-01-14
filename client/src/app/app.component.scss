@@ -28,18 +28,15 @@ $bottom-bar-height: 60px;
   }
 }
 
-#footer{
+.footer{
   height: $bottom-bar-height;
-  width: 100%;
   display: block;
   background-color: #eee;
   position: fixed;
   bottom: 0px;
-  width: 100%;
 
   app-footer{
     z-index: 1000;
-
   }
 }
 

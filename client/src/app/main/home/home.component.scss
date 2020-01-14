@@ -8,6 +8,7 @@ $yellow: rgb(244, 160, 0);
 $red: rgb(219, 68, 55);
 $blue: #4285F3;
 
+
 $position-btn-width: 0px;
 $map-height: 360px;
 $address-search-height: 56px;
@@ -91,7 +92,6 @@ $date-btn-height: 50px;
 
   .banner{
     background: #aaa;
-    padding: 40px 200px;
 
     .address-search-block {
       margin: 0px;
@@ -121,7 +121,6 @@ $date-btn-height: 50px;
 .merchant-list{
   position: absolute;
   top: 226px;
-  padding: 20px 240px;
 
   app-merchant-list{
     height: calc(100% - 226px);
@@ -130,8 +129,8 @@ $date-btn-height: 50px;
 }
 
 app-location-list{
-  position: absolute;
-  top: 58px;
+  // position: absolute;
+  // top: 58px;
   width: 100%;
   height: calc(100% - 58px - 61px);
 }
@@ -169,7 +168,7 @@ app-location-list{
   font-size: 14px;
 }
 
-.title-row{
+.title-block{
   text-align: left;
   height: 28px;
   line-height: 34px;

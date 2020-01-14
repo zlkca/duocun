@@ -41,6 +41,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   cart;
   delivery: IDelivery;
   ranges: IRange[];
+  lang = environment.language;
 
   ngOnInit() {
 
@@ -71,20 +72,23 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
   addToCart(p: IProduct) {
     const merchant = this.restaurant;
-
+    const addressHint = this.lang === 'en' ? 'Please enter delivery address' : '请先输入送餐地址';
+    const breakHint = this.lang === 'en' ? 'The merchant closed, can not deliver today' : '该商家休息，暂时无法配送';
+    const overTimeHint = this.lang === 'en' ? 'The last order should before ' : '已过下单时间，该商家下单截止到';
+    const notInRangeHint = this.lang === 'en' ? 'The merchant is not in service range, can not deliver' : '该商家不在配送范围内，暂时无法配送';
     if (!this.hasAddress) {
-      alert('请先输入送餐地址');
+      alert(addressHint);
       this.router.navigate(['main/home']);
       return;
     }
 
     if (merchant.isClosed || (this.hasAddress && !merchant.onSchedule)) {
-      alert('该商家休息，暂时无法配送');
+      alert(breakHint);
       return;
     }
 
     if (merchant.orderEnded) {
-      alert('已过下单时间，该商家下单截止到' + this.restaurant.orderEndTime + 'am');
+      alert(overTimeHint + this.restaurant.orderEndTime + 'am');
       return;
     }
 
@@ -92,7 +96,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     if (origin) {
       this.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((inRange: boolean) => {
         if (!inRange) {
-          alert('该商家不在配送范围内，暂时无法配送'); // should never go here!
+          alert(notInRangeHint); // should never go here!
           return;
         } else {
           this.rx.dispatch({

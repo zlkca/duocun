@@ -34,7 +34,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   currentPageNumber = 1;
   itemsPerPage = 10;
   nOrders = 0;
-
+  lang = environment.language;
   OrderTypes = OrderType;
 
   constructor(
@@ -154,7 +154,10 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(RemoveOrderDialogComponent, {
       width: '300px',
       data: {
-        title: '提示', content: '确认要删除该订单吗？', buttonTextNo: '取消', buttonTextYes: '删除',
+        title: this.lang === 'en' ? 'Hint' : '提示',
+        content: this.lang === 'en' ? 'Are you sure to remove this order ?' : '确认要删除该订单吗？',
+        buttonTextNo: this.lang === 'en' ? 'Cancel' : '取消',
+        buttonTextYes: this.lang === 'en' ? 'Remove' : '删除',
         accountId: accountId,
         orderId: orderId,
         total: total,
