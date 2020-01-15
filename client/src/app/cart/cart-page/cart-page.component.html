@@ -1,8 +1,7 @@
 <div class="page">
   <div class="title-block">
-    <div class="back"></div>
     <div class="title-bg" i18n="@@ShoppingCart">Shopping Cart</div>
-    <div *ngIf="carts && carts.length>0" class="clear-cart text-md" i18n="@@ClearCart" (click)="clearCart()">Clear Cart</div>
+    <div *ngIf="carts && carts.length>0" class="clear-cart btn btn-sm btn-primary" i18n="@@ClearCart" (click)="clearCart()">Clear Cart</div>
   </div>
   <div class="empty-cart" *ngIf="!carts || carts.length==0">
       <div class="cart-image">

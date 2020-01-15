@@ -169,25 +169,11 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
   }
 
   sendVerify() {
-    const self = this;
     if (this.bAllowVerify) {
       let phone: string = this.form.value.phone;
       phone = phone.substring(0, 2) === '+1' ? phone.substring(2) : phone;
       phone = phone.match(/\d+/g).join('');
-
-      if (phone) {
-        this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
-          if (accounts && accounts.length > 0) {
-            if (this.account && accounts[0]._id !== this.account._id) {
-              alert('This phone number has already bind to an account, please try other phone number.');
-            } else { // valid to bind
-              this.resendVerify(phone);
-            }
-          } else { // valid to bind
-            this.resendVerify(phone);
-          }
-        });
-      }
+      this.resendVerify(phone);
     }
   }
 

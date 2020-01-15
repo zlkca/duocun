@@ -186,7 +186,10 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(QuitRestaurantDialogComponent, {
       width: '300px',
       data: {
-        title: '提示', content: '离开后将清空购物车。', buttonTextNo: '离开', buttonTextYes: '留下',
+        title: this.lang === 'en' ? 'Hint' : '提示',
+        content: this.lang === 'en' ? 'Cart will be clear when leave' : '离开后将清空购物车。',
+        buttonTextNo: this.lang === 'en' ? 'Leave' : '离开',
+        buttonTextYes: this.lang === 'en' ? 'Stay' : '留下',
         merchantId: merchantId, fromPage: fromPage, onSchedule: this.onSchedule
       },
     });
@@ -214,12 +217,16 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       } else {
         if (category) {
           cats.push({
-            categoryId: p.categoryId, categoryName: self.lang === 'zh' ? category.name : category.nameEN, order: category.order,
+            categoryId: p.categoryId,
+            categoryName: self.lang === 'zh' ? category.name : category.nameEN,
+            order: category.order,
             items: [{ product: p, quanlity: 0 }]
           });
         } else { // shouldn't happen
           cats.push({
-            categoryId: p.categoryId, categoryName: self.lang === 'zh' ? category.name : category.nameEN, order: 0,
+            categoryId: p.categoryId,
+            categoryName: self.lang === 'zh' ? category.name : category.nameEN,
+            order: 0,
             items: [{ product: p, quanlity: 0 }]
           });
         }

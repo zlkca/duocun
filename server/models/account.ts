@@ -110,7 +110,7 @@ export class Account extends Model {
     this.trySignup(req.body.accountId, req.body.phone).then((r: any) => {
       if (r) {
         self.twilioClient.messages.create({
-            body: (lang === 'en' ? 'Duocun Verification Code' : '多村外卖验证码:') + r.verificationCode,
+            body: (lang === 'en' ? 'Duocun Verification Code: ' : '多村外卖验证码: ') + r.verificationCode,
             from: '+16475591743',
             to: "+1".concat(r.phone)
           })

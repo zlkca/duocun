@@ -53,7 +53,7 @@
       <div class="col-12 label-sm">
         <span i18n="@@PaymentMethod">Payment Method</span>:
       </div>
-      <div class="col-12">
+      <div class="col-12" *ngIf="lang==='zh'">
         <mat-button-toggle-group #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)">
           <mat-button-toggle value="WECHATPAY" aria-label="Wechat">
             <div class="title">微信支付</div>
@@ -62,16 +62,17 @@
         <div class="title">阿里支付</div>
       </mat-button-toggle> -->
           <mat-button-toggle value="card" aria-label="Card">
-            <div class="title">银行卡</div>
+            <div class="title" i18n="@@CreditCard">Credit/Debit Card</div>
           </mat-button-toggle>
         </mat-button-toggle-group>
       </div>
     </div>
+
     <div class="row card-row">
       <div class="col-12 card-wrapper">
         <form id="payment-form1" onsubmit="return false;" *ngIf="paymentMethod==='card'">
           <div class="form-row">
-            <label for="card-element1" class="label-sm">信用卡或银行卡:</label>
+            <label for="card-element1" class="label-sm" i18n="@@CreditCard">Credit/Debit Card</label>
             <div id="card-element1">
               <!-- A Stripe Element will be inserted here. action="/charge" method="post" -->
             </div>
@@ -82,8 +83,8 @@
         </form>
       </div>
       <div class="col-12 actions-row">
-        <div class="btn btn-secondary btn-cancel" (click)="onCancel()">返回</div>
-        <div class="btn btn-primary btn-pay" (click)="onPay()">确认</div>
+        <div class="btn btn-secondary btn-cancel" (click)="onCancel()" i18n="@@Back">Back</div>
+        <div class="btn btn-primary btn-pay" (click)="onPay()" i18n="@@Ok">Ok</div>
       </div>
     </div>
   </div>

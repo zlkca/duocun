@@ -43,9 +43,18 @@ export class AddCreditPageComponent implements OnInit {
 
 
   ngOnInit() {
+    const self = this;
     this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       this.account = account;
-      this.paymentMethod = 'WECHATPAY';
+      this.paymentMethod = this.lang === 'en' ? 'card' : 'WECHATPAY';
+
+      if (this.lang === 'en') {
+        setTimeout(() => {
+          const rt = self.paymentSvc.initStripe('card-element1', 'card-errors1');
+          self.stripe = rt.stripe;
+          self.card = rt.card;
+        }, 500);
+      }
     });
   }
 

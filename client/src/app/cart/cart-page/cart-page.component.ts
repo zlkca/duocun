@@ -128,16 +128,15 @@ export class CartPageComponent implements OnInit, OnDestroy {
       type: CartActions.REMOVE_FROM_CART,
       payload: {
         items: [{
-          productId: item.productId, productName: item.productName, price: item.price, quantity: 1,
-          merchantId: item.merchantId, merchantName: item.merchantName
+          productId: item.productId,
+          productName: item.productName, price: item.price, quantity: 1,
+          merchantId: item.merchantId,
+          merchantName: item.merchantName
         }],
         merchantId: item.merchantId
       }
     });
   }
-
-
-
 
   clearCart() {
     this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });

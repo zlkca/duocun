@@ -1,31 +1,30 @@
-
 <div class="loading-spinner" *ngIf="loading && !bAddressList">
   <app-progress-spinner></app-progress-spinner>
 </div>
 
-<div class="row" *ngIf="!loading">
-  <div class="col-12 restaurant-grid" *ngIf="restaurants && restaurants.length>0">
-    <div class="col-12 grid-item" *ngFor="let r of restaurants; let i = index;" (click)="toDetail(r)">
-      <div class="row grid-item-body" *ngIf="r.distance!==null">
-        <div class="col-6 image-body">
-          <img [src]="getImageSrc(r)" [alt]="r.name">
-          <div class="shadow-layer" *ngIf="r.isClosed || (bHasAddress && !r.onSchedule) || r.orderEnded"></div>
-          <div class="title-sm rest-1" *ngIf="isCloseInTurn(r)" i18n="@@MerchantClosed">Closed Today</div>
-          <!-- <div class="title-md not-in-range" *ngIf="!r.inRange">不在配送范围</div> -->
-          <!-- <div class="title-sm rest-2" *ngIf="!r.inRange || r.isClosed">暂不提供配送</div> -->
-          <div class="title-sm rest-3" *ngIf="r.inRange && !r.isClosed && r.orderEnded">{{r.orderEndTime}}&nbsp;<span i18n="@@LastOrder">Last Order</span></div>
-          <!-- <div *ngIf="r.inRange && !r.isClosed" class="free delivery-fee notify-badge">
+<div class="restaurant-grid" *ngIf="!loading && restaurants && restaurants.length>0">
+  <div class="grid-item" *ngFor="let r of restaurants; let i = index;" (click)="toDetail(r)">
+    <div class="row grid-item-body" *ngIf="r.distance!==null">
+      <div class="col-6 image-body">
+        <img [src]="getImageSrc(r)" [alt]="r.name">
+        <div class="shadow-layer" *ngIf="r.isClosed || (bHasAddress && !r.onSchedule) || r.orderEnded"></div>
+        <div class="title-sm rest-1" *ngIf="isCloseInTurn(r)" i18n="@@MerchantClosed">Closed Today</div>
+        <!-- <div class="title-md not-in-range" *ngIf="!r.inRange">不在配送范围</div> -->
+        <!-- <div class="title-sm rest-2" *ngIf="!r.inRange || r.isClosed">暂不提供配送</div> -->
+        <div class="title-sm rest-3" *ngIf="r.inRange && !r.isClosed && r.orderEnded">{{r.orderEndTime}}&nbsp;
+          <span i18n="@@LastOrder">Last Order</span>
+        </div>
+        <!-- <div *ngIf="r.inRange && !r.isClosed" class="free delivery-fee notify-badge">
             <div class="text-sm" i18n="@@FreeDelivery">Free delivery</div>
             <del>
               <span *ngIf="r.fullDeliveryFee">${{r.fullDeliveryFee}}</span>
             </del>
           </div> -->
-        </div>
+      </div>
 
-        <div class="col-6 text-body">
-          <div class="title-bg text-left">{{r.name}}</div>
-          <div class="text-sm text-left" *ngIf="r && r.distance">{{getDistanceString(r)}}</div>
-        </div>
+      <div class="col-6 text-body">
+        <div class="title-bg text-left">{{r.name}}</div>
+        <div class="text-sm text-left" *ngIf="r && r.distance">{{getDistanceString(r)}}</div>
       </div>
     </div>
   </div>

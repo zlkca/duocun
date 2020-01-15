@@ -1380,6 +1380,14 @@
           <context context-type="linenumber">30</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Loading" datatype="html">
+        <source>Loading...</source>
+        <target>拼命加载中</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/contact/contact-form/contact-form.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="DefaultAddress" datatype="html">
         <source>Default Address</source>
         <target>默认地址</target>

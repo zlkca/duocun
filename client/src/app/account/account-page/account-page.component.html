@@ -3,7 +3,7 @@
     <div class="row head-block">
       <div class="col-8 name-block title-bg">{{account.username}}</div>
       <div class="col-4 portrait-block">
-        <div class="portrait-frame">
+        <div class="portrait-frame" *ngIf="account.imageurl">
           <img class="portrait" [src]="account.imageurl"/>
         </div>
       </div>

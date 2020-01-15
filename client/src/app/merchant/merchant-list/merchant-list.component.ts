@@ -36,6 +36,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   origin;
   bHasAddress = false;
   cart;
+  lang = environment.language;
 
   constructor(
     private merchantSvc: MerchantService,
@@ -145,7 +146,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       type: CartActions.UPDATE_DELIVERY,
       payload: {
         merchantId: r._id,
-        merchantName: r.name,
+        merchantName: this.lang === 'en' ? r.nameEN : r.name,
         deliveryCost: r.deliveryCost,
         deliveryDiscount: r.fullDeliveryFee
       }
