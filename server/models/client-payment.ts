@@ -9,7 +9,6 @@ import https from 'https';
 import { Md5 } from 'ts-md5';
 import moment, { now } from 'moment';
 import { Order, OrderType, PaymentStatus } from "../models/order";
-import { ClientBalance } from "./client-balance";
 import { Transaction } from "./transaction";
 import { Merchant } from "./merchant";
 import { ClientCredit } from "./client-credit";
@@ -27,7 +26,6 @@ console.log = function (d: any) { //
 
 export class ClientPayment extends Model {
   cfg: Config;
-  balanceEntity: ClientBalance;
   orderEntity: Order;
   transactionModel: Transaction;
   merchantModel: Merchant;
@@ -38,7 +36,6 @@ export class ClientPayment extends Model {
     super(dbo, 'client_payments');
 
     this.orderEntity = new Order(dbo);
-    this.balanceEntity = new ClientBalance(dbo);
     this.merchantModel = new Merchant(dbo);
     this.transactionModel = new Transaction(dbo);
     this.clientCreditModel = new ClientCredit(dbo);
