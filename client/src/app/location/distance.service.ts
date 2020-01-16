@@ -19,6 +19,7 @@ export class DistanceService extends EntityService {
     this.url = this.getBaseUrl() + 'Distances';
   }
 
+  // distance km
   getDeliveryCost(distance: number) {
     if (distance <= 3) {
       return 5;

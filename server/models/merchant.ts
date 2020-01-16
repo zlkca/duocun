@@ -269,7 +269,7 @@ export class Merchant extends Model {
                   const merchant = this.toBasicRspObject(r);
 
                   merchant.onSchedule = scheduledMallId ? true : false;
-                  merchant.distance = area.distance;
+                  merchant.distance = area.distance; // km
                   merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
                   merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
                   merchant.isClosed = this.isClosed(local, r.closed, r.dow);
@@ -287,7 +287,7 @@ export class Merchant extends Model {
                     const merchant = this.toBasicRspObject(r);
 
                     merchant.onSchedule = scheduledMallId ? true : false;
-                    merchant.distance = d ? d.element.distance.value : 0;
+                    merchant.distance = d ? Math.round((d.element.distance.value / 1000) * 100)/100 : 0;
                     merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
                     merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
                     merchant.isClosed = this.isClosed(local, r.closed, r.dow);

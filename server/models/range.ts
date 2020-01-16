@@ -140,7 +140,7 @@ export class Range extends Model {
                 self.distanceModel.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
                   if (ds && ds.length > 0) {
                     const r = rs[0];
-                    const d = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000;
+                    const d = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000; // km
                     const distance = d > 0 ? d : 0; // kilo meter
                     resolve({distance: distance, rate: r.overRangeRate});
                   } else {
