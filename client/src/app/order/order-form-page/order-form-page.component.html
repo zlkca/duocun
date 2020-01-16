@@ -7,7 +7,7 @@
     <span class="title-bg" i18n="@@ConfirmOrder">Confirm Order</span>
   </div>
 
-  <form [formGroup]="form" id="contact-form">
+  <form [formGroup]="form" id="order-form">
     <div class="contact-block" *ngIf="account" (click)="changeContact()">
       <div class="title-md">
         <div class="label">
@@ -154,6 +154,13 @@
 
         <!-- <button (click)="onSubmit()">Submit Payment</button> -->
       </form>
+    </div>
+
+    <div class="row warning-block">
+      <div class="label-sm text-warning" i18n="@@DeliverWarning">*If you are in condo or office building, Please pickup at the hall, we will not enter the building. In Downtown, our car will stop at the road side near the building.
+      </div>
+      <div class="label-sm text-warning" i18n="@@PhoneWarning">**Please turn on your phone to answering status.
+      </div>
     </div>
 
     <div class="notes-block">

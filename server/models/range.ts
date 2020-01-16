@@ -4,6 +4,7 @@ import { ILatLng, Distance, ILocation, IDistance } from "./distance";
 import { resolve } from "url";
 import { Request, Response } from "express";
 import { Mall, IMall } from "./mall";
+import { Area } from "./area";
 
 export enum RangeRole {
   DISTANCE_CENTER = 1,
@@ -24,10 +25,12 @@ export interface IRange {
 export class Range extends Model {
   distanceModel: Distance;
   mallModel: Mall;
+  areaModel: Area;
   constructor(dbo: DB) {
     super(dbo, 'ranges');
     this.distanceModel = new Distance(dbo);
     this.mallModel = new Mall(dbo);
+    this.areaModel = new Area(dbo);
   }
 
   inDeliveryRangeReq(req: Request, res: Response) {
@@ -51,14 +54,21 @@ export class Range extends Model {
     return new Promise((resolve, reject) => {
       const q = { status: 'active', type: 'service' };
       this.find(q).then((rs: any[]) => {
-        let ret: boolean = false;
+        let bInRange: boolean = false;
         rs.map(r => {
           const d = this.distanceModel.getDirectDistance(origin, r); // km
           if (d < r.radius) {
-            ret = true;
+            bInRange = true;
           }
         });
-        resolve(ret);
+        if(!bInRange){
+          this.areaModel.findOne({code:'DT'}).then(area => {
+            bInRange = this.areaModel.inPolygon(origin, area.coords);
+            resolve(bInRange);
+          });
+        }else{
+          resolve(bInRange);
+        }
       });
     });
   }
@@ -103,36 +113,45 @@ export class Range extends Model {
   }
 
   // origin --- must include address fields for origin
+  // return
+  //    distance --- over range km
   getOverRange(origin: ILocation) {
     const self = this;
     const destinations: any[] = []; // IPlace
     const qDist = { _id: '5d671c2f6f69011d1bd42f6c' }; // TNT mall
 
     return new Promise((resolve, reject) => {
-      this.find({ roles: [RangeRole.FREE_CENTER] }).then((rs: IRange[]) => {
-        const ranges = self.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, rs); // fix me ! origin could be null !
-        if (ranges && ranges.length > 0) {
-          const r = rs[0];
-          resolve({distance: 0, rate: 0});
-        } else {
-          self.mallModel.find(qDist).then((ms: IMall[]) => {
-            ms.map(m => {
-              destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
-            });
 
-            self.distanceModel.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
-              if (ds && ds.length > 0) {
-                const r = rs[0];
-                const d = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000;
-                const distance = d > 0 ? d : 0; // kilo meter
-                resolve({distance: distance, rate: r.overRangeRate});
-              } else {
-                resolve({distance: 5, rate: 0}); // should never go here
-              }
-            }, err => {
-              console.log(err);
+      this.areaModel.inDowntownArea(origin).then(area => {
+        if(area){
+          resolve({distance: 0, rate: area.rate});
+        }else{
+          this.find({ roles: [RangeRole.FREE_CENTER] }).then((rs: IRange[]) => {
+            const ranges = self.getAvailableRanges({ lat: origin.lat, lng: origin.lng }, rs); // fix me ! origin could be null !
+            if (ranges && ranges.length > 0) {
+              const r = rs[0];
               resolve({distance: 0, rate: 0});
-            });
+            } else {
+              self.mallModel.find(qDist).then((ms: IMall[]) => {
+                ms.map(m => {
+                  destinations.push({ lat: m.lat, lng: m.lng, placeId: m.placeId });
+                });
+    
+                self.distanceModel.loadRoadDistances(origin, destinations).then((ds: IDistance[]) => {
+                  if (ds && ds.length > 0) {
+                    const r = rs[0];
+                    const d = (+(ds[0].element.distance.value) - r.radius * 1000) / 1000;
+                    const distance = d > 0 ? d : 0; // kilo meter
+                    resolve({distance: distance, rate: r.overRangeRate});
+                  } else {
+                    resolve({distance: 5, rate: 0}); // should never go here
+                  }
+                }, err => {
+                  console.log(err);
+                  resolve({distance: 0, rate: 0});
+                });
+              });
+            }
           });
         }
       });

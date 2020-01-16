@@ -1564,6 +1564,22 @@
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="DeliverWarning" datatype="html">
+        <source>If you are in condo or office building, Please pickup the food at the hall, we will not enter the building. For downtown we will stop at the road side near the building.</source>
+        <target>*如果你在公寓或办公楼请在大堂取餐，我们不会上楼送餐。在市中心我们会停在大楼的路边。</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="PhoneWarning" datatype="html">
+        <source>Please turn on your phone to answering status.</source>
+        <target>**请打开您的电话设成接听状态，以便联系。</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="GroupDiscount" datatype="html">
         <source>GroupDiscount</source>
         <target>拼单折扣</target>

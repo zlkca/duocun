@@ -9,7 +9,8 @@ $red: rgb(219, 68, 55);
 $imgW:133px;
 $imgH:100px;
 
-$header-height: 0px; // 56px;
+$list-height: 430px; // 460px;
+$header-height: 56px;
 $position-btn-width: 0px;
 $map-height: 360px;
 $address-search-height: 56px;
@@ -24,7 +25,7 @@ $date-btn-height: 50px;
 .restaurant-grid{
   padding: 0px;
   margin: 0px;
-  height: 460px;
+  height: 430px;
   // height: calc(100% - #{$header-height} - #{$address-search-height} - #{$date-btn-height} - #{$bottom-bar-height});
   overflow: scroll;
 

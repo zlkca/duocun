@@ -192,29 +192,34 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   calcRange(origin) {
     const self = this;
-    this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
-      const ranges: IRange[] = [];
-      rs.map((r: IRange) => {
-        if (this.locationSvc.getDirectDistance(origin, { lat: r.lat, lng: r.lng }) < r.radius) {
-          ranges.push(r);
+    this.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
+      this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+        //   const ranges: IRange[] = [];
+        //   rs.map((r: IRange) => {
+        //     if (this.locationSvc.getDirectDistance(origin, { lat: r.lat, lng: r.lng }) < r.radius) {
+        //       ranges.push(r);
+        //     }
+        //   });
+
+        //   const inRange = (ranges && ranges.length > 0) ? true : false;
+
+        this.inRange = inRange;
+
+        this.mapRanges = rs;
+
+        if (this.inRange) {
+          self.mapZoom = 14;
+          self.mapCenter = origin;
+        } else {
+          self.mapZoom = 9;
+          const farNorth = { lat: 44.2653618, lng: -79.4191007 };
+          self.mapCenter = {
+            lat: (origin.lat + farNorth.lat) / 2,
+            lng: (origin.lng + farNorth.lng) / 2
+          };
         }
+        this.location = origin; // order matters
       });
-
-      this.inRange = (ranges && ranges.length > 0) ? true : false;
-      this.mapRanges = rs;
-
-      if (this.inRange) {
-        self.mapZoom = 14;
-        self.mapCenter = origin;
-      } else {
-        self.mapZoom = 9;
-        const farNorth = { lat: 44.2653618, lng: -79.4191007 };
-        self.mapCenter = {
-          lat: (origin.lat + farNorth.lat) / 2,
-          lng: (origin.lng + farNorth.lng) / 2
-        };
-      }
-      this.location = origin; // order matters
     });
   }
 
@@ -325,7 +330,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.deliveryAddress = '';
     this.places = [];
     this.bUpdateLocationList = true;
-    this.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: null }});
+    this.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: null } });
     this.onAddressInputFocus({ input: '' });
   }
 

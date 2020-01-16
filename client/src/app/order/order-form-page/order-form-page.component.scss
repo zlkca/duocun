@@ -1,10 +1,12 @@
-
+$header-bar-height: 60px;
+$bottom-bar-height: 60px;
 $toggle-btn-height: 40px;
 $blue: #4285F3;
 
-#contact-form{
+#order-form{
   padding: 0px 15px;
-  margin-top: 60px; 
+  margin-top: $header-bar-height;
+  margin-bottom: $bottom-bar-height;
 }
 
 #payment-form{
@@ -76,6 +78,13 @@ $blue: #4285F3;
   margin: 0px;
   .row{
     padding: 0px;
+  }
+}
+
+.warning-block{
+  .text-warning{
+    color: #d41a09 !important;
+    padding-bottom: 5px;
   }
 }
 

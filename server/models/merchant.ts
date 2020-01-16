@@ -169,13 +169,13 @@ export class Merchant extends Model {
   // ------------------------------------------------------------------------------
   // s --- must be '2019-10-22' or '2019-11-03T13:52:59.566Z' format
   getDateString(s: string) {
-    if(typeof s === 'string'){
+    if (typeof s === 'string') {
       if (s.indexOf('T') !== -1) {
         return s.split('T')[0];
       } else {
         return s;
       }
-    }else{
+    } else {
       console.log('getDateString error input :' + s);
       return s;
     }
@@ -256,31 +256,46 @@ export class Merchant extends Model {
 
     return new Promise((resolve, reject) => {
       if (origin) {
-        this.area.getNearestArea(origin).then((area: IArea) => {
+        this.area.getArea(origin).then((area: IArea) => {
           const dow: number = local.day();
           this.mallModel.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
-            this.mallModel.getRoadDistanceToMalls(origin).then((ds: IDistance[]) => {
-              this.joinFind(query).then((ms: IDbMerchant[]) => {
-
+            this.joinFind(query).then((ms: IDbMerchant[]) => {
+              if (area.code === 'DT') {
                 const merchants: IMerchant[] = [];
 
                 ms.map((r: IDbMerchant) => {
                   const mall: any = r.mall;
-                  const d = ds.find(x => x.destinationPlaceId === mall.placeId);
                   const scheduledMallId = scheduledMallIds.find((mId: any) => mId.toString() === mall._id.toString());
                   const merchant = this.toBasicRspObject(r);
 
                   merchant.onSchedule = scheduledMallId ? true : false;
-                  merchant.distance = d ? d.element.distance.value : 0;
+                  merchant.distance = area.distance;
                   merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
                   merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
                   merchant.isClosed = this.isClosed(local, r.closed, r.dow);
                   merchants.push(merchant);
                 });
                 resolve(merchants);
-              });
-            }, err => {
-              reject();
+              } else {
+                this.mallModel.getRoadDistanceToMalls(origin).then((ds: IDistance[]) => {
+                  const merchants: IMerchant[] = [];
+
+                  ms.map((r: IDbMerchant) => {
+                    const mall: any = r.mall;
+                    const d = ds.find(x => x.destinationPlaceId === mall.placeId);
+                    const scheduledMallId = scheduledMallIds.find((mId: any) => mId.toString() === mall._id.toString());
+                    const merchant = this.toBasicRspObject(r);
+
+                    merchant.onSchedule = scheduledMallId ? true : false;
+                    merchant.distance = d ? d.element.distance.value : 0;
+                    merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
+                    merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
+                    merchant.isClosed = this.isClosed(local, r.closed, r.dow);
+                    merchants.push(merchant);
+                  });
+                  resolve(merchants);
+                });
+              }
             });
           });
         });
