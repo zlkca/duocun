@@ -349,8 +349,10 @@ $content-padding: 300px;
     padding: 5px 0px;
   }
 }
-
-.merchant-list{
+.map-block{
+  padding: 0px $content-padding;
+}
+.merchant-list {
   padding: 10px $content-padding;
 }
 

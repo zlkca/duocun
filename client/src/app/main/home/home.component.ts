@@ -26,6 +26,7 @@ import { IDelivery } from '../../delivery/delivery.model';
 import * as moment from 'moment';
 import { RangeService } from '../../range/range.service';
 import { IRange } from '../../range/range.model';
+import { AreaService } from '../../area/area.service';
 
 const WECHAT_APP_ID = environment.WECHAT.APP_ID;
 const WECHAT_REDIRCT_URL = environment.WECHAT.REDIRECT_URL;
@@ -48,7 +49,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   bTimeOptions = false;
   // overdue;
   afternoon;
-  inRange = false;
+  inRange = true;
   onDestroy$ = new Subject<any>();
   loading = true;
   location: ILocation;
@@ -62,6 +63,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   mapRanges;
   mapZoom;
   mapCenter;
+  areas; // for display downtown in map
 
   availableRanges;
   sOrderDeadline;
@@ -80,6 +82,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private locationSvc: LocationService,
     private authSvc: AuthService,
     private rangeSvc: RangeService,
+    private areaSvc: AreaService,
     // private socketSvc: SocketService,
     private router: Router,
     private route: ActivatedRoute,
@@ -110,7 +113,10 @@ export class HomeComponent implements OnInit, OnDestroy {
           self.bAddressList = false;
         }
 
-        this.calcRange(origin);
+        this.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
+          this.inRange = inRange;
+          this.updateMap(origin, inRange);
+        });
 
       } else {
         this.location = null;
@@ -190,36 +196,28 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
 
-  calcRange(origin) {
+  updateMap(origin, inRange) {
     const self = this;
-    this.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
-      this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
-        //   const ranges: IRange[] = [];
-        //   rs.map((r: IRange) => {
-        //     if (this.locationSvc.getDirectDistance(origin, { lat: r.lat, lng: r.lng }) < r.radius) {
-        //       ranges.push(r);
-        //     }
-        //   });
-
-        //   const inRange = (ranges && ranges.length > 0) ? true : false;
-
-        this.inRange = inRange;
-
-        this.mapRanges = rs;
-
-        if (this.inRange) {
-          self.mapZoom = 14;
-          self.mapCenter = origin;
-        } else {
-          self.mapZoom = 9;
+    this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+      this.mapRanges = rs;
+      if (inRange) {
+        self.mapZoom = 14;
+        self.mapCenter = origin;
+      } else {
+        this.areaSvc.find({ code: 'DT' }).pipe(takeUntil(this.onDestroy$)).subscribe((areas: any[]) => {
           const farNorth = { lat: 44.2653618, lng: -79.4191007 };
+
+          self.mapZoom = 9;
           self.mapCenter = {
             lat: (origin.lat + farNorth.lat) / 2,
             lng: (origin.lng + farNorth.lng) / 2
           };
-        }
-        this.location = origin; // order matters
-      });
+          self.areas = areas;
+        });
+      }
+
+      this.location = origin; // order matters
+
     });
   }
 

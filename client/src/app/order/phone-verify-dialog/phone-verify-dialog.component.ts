@@ -148,6 +148,7 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
                     if (account) {
                       if (account.type === 'tmp') {
                         // self.account = account; // For display signup button
+                        self.phoneMatchedAccount = account;
                       } else {
                         self.dialogRef.close(account);
                       }

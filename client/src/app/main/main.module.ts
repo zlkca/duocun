@@ -14,6 +14,8 @@ import { SharedModule } from '../shared/shared.module';
 import { RangeService } from '../range/range.service';
 import { MerchantModule } from '../merchant/merchant.module';
 import { HeaderComponent } from './header/header.component';
+import { AreaModule } from '../area/area.module';
+import { AreaService } from '../area/area.service';
 
 @NgModule({
   imports: [
@@ -35,7 +37,8 @@ import { HeaderComponent } from './header/header.component';
   providers: [
     AccountService,
     AuthService,
-    RangeService
+    RangeService,
+    AreaService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

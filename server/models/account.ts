@@ -232,7 +232,9 @@ export class Account extends Model {
             // bcrypt.hash(password, saltRounds, (err, hash) => {
             const updates = { phone: phone, verificationCode: verificationCode, type: 'client' };
             this.updateOne({ _id: x._id.toString() }, updates).then(() => {
-              delete x.password;
+              if(x && x.password){
+                delete x.password;
+              }
               x = { ...x, ...updates };
               resolve(x);
             });
