@@ -8,6 +8,7 @@ export enum OrderStatus {
   NEW,
   LOADED,           // The driver took the food from Merchant
   DONE,             // Finish delivery
+  MERCHANT_CHECKED  // VIEWED BY MERCHANT
 }
 
 export enum PaymentStatus {

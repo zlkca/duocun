@@ -11,6 +11,7 @@ import { ICart } from '../cart/cart.model';
 import { IDelivery } from '../delivery/delivery.model';
 import { AccountService } from '../account/account.service';
 import { IOrder } from '../order/order.model';
+import { environment } from '../../environments/environment.prod';
 
 @Component({
   selector: 'app-footer',
@@ -31,6 +32,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   fromPage;
   delivery;
   order;
+  lang = environment.language;
 
   private onDestroy$ = new Subject<void>();
 
@@ -130,11 +132,14 @@ export class FooterComponent implements OnInit, OnDestroy {
       this.selected = 'order';
       this.router.navigate(['order/history']);
     } else {
-      this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
-        this.account = account1;
-        this.selected = 'order';
-        this.router.navigate(['order/history']);
-      });
+      const hint = this.lang === 'en' ? 'Require login, please try place an order, we will bring you to signup process' :
+      '登陆用户才能访问订单历史，请尝试重新进入并完成微信登陆';
+      alert(hint);
+      // this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
+      //   this.account = account1;
+      //   this.selected = 'order';
+      //   this.router.navigate(['order/history']);
+      // });
     }
   }
 
@@ -147,11 +152,14 @@ export class FooterComponent implements OnInit, OnDestroy {
       this.selected = 'account';
       this.router.navigate(['account/settings']);
     } else {
-      this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
-        this.account = account1;
-        this.selected = 'account';
-        this.router.navigate(['account/settings']);
-      });
+      const hint = this.lang === 'en' ? 'Require login, please try place an order, we will bring you to signup process' :
+      '登陆用户才能访问订单历史，请尝试重新进入并完成微信登陆';
+      alert(hint);
+      // this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
+      //   this.account = account1;
+      //   this.selected = 'account';
+      //   this.router.navigate(['account/settings']);
+      // });
     }
   }
 

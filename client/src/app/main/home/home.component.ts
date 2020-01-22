@@ -158,8 +158,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       }
 
+      // try default login
       self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-        if (account) { // if already login
+        if (account) { // if already use cookie to login
           this.loading = false;
           self.account = account;
           self.init(account);

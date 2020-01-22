@@ -43,6 +43,8 @@ import { PickupRouter } from "./routers/pickup-route";
 import { DriverRouter } from "./routers/driver-route";
 import { DriverShiftRouter } from "./routers/driver-shift-route";
 import { DriverScheduleRouter } from "./routers/driver-schedule-route";
+import { LogRouter } from "./routers/log-route";
+
 import { CellApplicationRouter } from "./routers/cell-application-route";
 
 import { AreaRouter } from './routers/area-route';
@@ -217,6 +219,9 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/DriverHours', DriverHourRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/DriverShifts', DriverShiftRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/DriverSchedules', DriverScheduleRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Logs', LogRouter(dbo));
+
+
   app.use('/' + ROUTE_PREFIX + '/CellApplications', CellApplicationRouter(dbo));
 
   app.use('/' + ROUTE_PREFIX + '/Areas', AreaRouter(dbo));

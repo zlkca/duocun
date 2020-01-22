@@ -11,6 +11,8 @@ import { Transaction, ITransaction } from "./transaction";
 import { Product } from "./product";
 import { Assignment } from "./assignment";
 import { CellApplication, CellApplicationStatus, ICellApplication } from "./cell-application";
+import { Log, Action, AccountType } from "./log";
+import { resolve } from "url";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -25,11 +27,12 @@ export enum OrderType {
 
 export enum OrderStatus {
   BAD = 1,
-  DELETED = 2,
-  TEMP = 3,         // generate a temp order for electronic order
-  NEW = 4,
-  LOADED,       // The driver took the food from Merchant
-  DONE,         // Finish delivery
+  DELETED,
+  TEMP,         // generate a temp order for electronic order
+  NEW,
+  LOADED,               // The driver took the food from Merchant
+  DONE,                 // Finish delivery
+  MERCHANT_CHECKED      // VIEWED BY MERCHANT
 }
 
 export enum PaymentStatus {
@@ -59,7 +62,7 @@ export interface IOrder {
   driverId?: string;
   driverName?: string;
   type?: OrderType;        // OrderType
-  
+
   paymentStatus?: PaymentStatus;
   status?: OrderStatus;
 
@@ -90,6 +93,7 @@ export interface IOrder {
   dateType?: string; // 'today', 'tomorrow'
 
   client?: IAccount;
+  driver?: IAccount;
   merchantAccount?: IAccount;
   merchant?: IMerchant;
 }
@@ -100,9 +104,8 @@ export class Order extends Model {
   private merchantModel: Merchant;
   private accountModel: Account;
   private transactionModel: Transaction;
-  private assignmentModel: Assignment;
   private cellApplicationModel: CellApplication;
-
+  private logModel: Log;
   constructor(dbo: DB) {
     super(dbo, 'orders');
 
@@ -111,8 +114,8 @@ export class Order extends Model {
     this.merchantModel = new Merchant(dbo);
     this.accountModel = new Account(dbo);
     this.transactionModel = new Transaction(dbo);
-    this.assignmentModel = new Assignment(dbo);
     this.cellApplicationModel = new CellApplication(dbo);
+    this.logModel = new Log(dbo);
   }
 
   list(req: Request, res: Response) {
@@ -151,22 +154,57 @@ export class Order extends Model {
                   }
                 });
 
-                const client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
-                if(client){
-                  delete client.password;
-                  order.client = client;
+                if (order.clientId) {
+                  const client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
+                  if (client) {
+                    if (client.password) {
+                      delete client.password;
+                    }
+                    order.client = client;
+                  }
+                } else {
+                  console.log(order._id);
                 }
 
-                order.merchant = merchants.find((m: any) => m._id.toString() === order.merchantId.toString());
-                order.merchantAccount = accounts.find((a: any) => a && order.merchant && a._id.toString() === order.merchant.accountId.toString());
+                if (order.merchantId) {
+                  order.merchant = merchants.find((m: any) => m._id.toString() === order.merchantId.toString());
+                } else {
+                  console.log(order._id);
+                }
 
-                order.items.map((it: any) => {
-                  const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
-                  if (product) {
-                    items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                if (order.merchant && order.merchant.accountId) {
+                  const merchantAccount = accounts.find((a: any) => a && order.merchant && a._id.toString() === order.merchant.accountId.toString());
+                  if (merchantAccount) {
+                    if (merchantAccount.password) {
+                      delete merchantAccount.password;
+                    }
+                    order.merchantAccount = merchantAccount;
                   }
-                });
-                order.items = items;
+                } else {
+                  console.log(order._id);
+                }
+
+                if (order.driverId) {
+                  const driver = accounts.find((a: IAccount) => a._id.toString() === order.driverId.toString());
+                  if (driver) {
+                    if (driver.password) {
+                      delete driver.password;
+                    }
+                    order.driver = driver;
+                  }
+                } else {
+                  console.log(order._id);
+                }
+
+                if (order.items) {
+                  order.items.map((it: any) => {
+                    const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
+                    if (product) {
+                      items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                    }
+                  });
+                  order.items = items;
+                }
               });
 
               resolve(rs);
@@ -889,10 +927,10 @@ export class Order extends Model {
     const note = req.body.note;
 
     this.pay(toId, toName, received, orderId, note).then((order: any) => {
-      this.assignmentModel.updateOne({ 'orderId': orderId }, { status: 'done' }).then(() => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ status: 'success' }, null, 3));
-      });
+      // this.assignmentModel.updateOne({ 'orderId': orderId }, { status: 'done' }).then(() => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ status: 'success' }, null, 3));
+      // });
     });
   }
 
@@ -1027,7 +1065,40 @@ export class Order extends Model {
       });
     });
   }
+  
+  reqLatestViewed(req: Request, res: Response){
+    this.getLatestViewed().then(rs => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(rs, null, 3));
+    });
+  }
 
+  getLatestViewed(){
+    const range = { $gte: moment().startOf('day').toISOString(), $lte: moment().endOf('day').toISOString() };
+    const query: any = {
+      created: range,
+      type: OrderType.FOOD_DELIVERY,
+      status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] }
+    };
+
+    return new Promise((resolve, reject) => {
+      this.find(query).then((orders: any) => {
+        this.logModel.getAllLatest(Action.VIEW_ORDER, AccountType.MERCHANT).then((logs: any[]) => {
+          let rs: any[] = [];
+          logs.map((log: any) => { // each log has only one merchant
+            const dt = moment(log.created);
+            const merchantId = log.merchantId.toString();
+            const its = orders.filter((order: IOrder) => order.merchantId.toString() === merchantId && moment(order.modified).isSameOrBefore(dt));
+            if(its && its.length>0){
+              rs = rs.concat(its);
+            }
+          });
+          
+          resolve(rs);
+        });
+      });
+    });
+  }
   // tools
   convertUTC() {
 

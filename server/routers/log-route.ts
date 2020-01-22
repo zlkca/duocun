@@ -1,23 +1,18 @@
 import express from "express";
-import { Assignment } from "../models/assignment";
 import { DB } from "../db";
+import { Log } from "../models/log";
 
-export function AssignmentRouter(db: DB){
+export function LogRouter(db: DB){
   const router = express.Router();
-  const controller = new Assignment(db);
-
+  const controller = new Log(db);
   
-  router.get('/moveAssignmentToOrder', (req, res) => { controller.moveAssignmentToOrder(req, res); });
-  router.get('/qFind', (req, res) => { controller.quickFind(req, res); });
+  router.get('/latest', (req, res) => { controller.reqAllLatest(req, res); });
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
   router.post('/', (req, res) => { controller.create(req, res); });
   router.put('/', (req, res) => { controller.replace(req, res); });
-
-  // tools
-  router.patch('/changeAccount', (req, res) => { controller.changeAccount(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
-
+  
   return router;
 };

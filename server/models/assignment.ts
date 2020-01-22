@@ -3,12 +3,14 @@ import { Model } from "./model";
 import { ObjectID } from "mongodb";
 import { Request, Response } from "express";
 import moment from 'moment';
+import { Order, OrderStatus } from "./order";
 
 export class Assignment extends Model {
+  orderModel: Order;
   constructor(dbo: DB) {
     super(dbo, 'assignments');
+    this.orderModel = new Order(dbo);
   }
-
 
   list(req: Request, res: Response) {
     let query = null;
@@ -107,4 +109,33 @@ export class Assignment extends Model {
       }
     });
   }
+
+  moveAssignmentToOrder(req: Request, res: Response) {
+    this.find({}).then(assignments => {
+      const datas: any[] = [];
+      assignments.map((a: any) => {
+        if (a.status === 'done') {
+          datas.push({
+            query: { _id: a.orderId },
+            data: { driverId: a.driverId, status: OrderStatus.DONE }
+          });
+        } else {
+          datas.push({
+            query: { _id: a.orderId },
+            data: { driverId: a.driverId }
+          });
+        }
+      });
+
+      res.setHeader('Content-Type', 'application/json');
+      if(datas && datas.length > 0){
+        this.orderModel.bulkUpdate(datas).then(() => {
+          res.end(JSON.stringify('success', null, 3));
+        });
+      } else {
+        res.end(JSON.stringify(null, null, 3));
+      }
+    });
+  }
 }
+
