@@ -8,7 +8,7 @@ import moment from 'moment';
 import { Merchant, IPhase, IMerchant, IDbMerchant } from "./merchant";
 import { Account, IAccount } from "./account";
 import { Transaction, ITransaction } from "./transaction";
-import { Product } from "./product";
+import { Product, IProduct } from "./product";
 import { Assignment } from "./assignment";
 import { CellApplication, CellApplicationStatus, ICellApplication } from "./cell-application";
 import { Log, Action, AccountType } from "./log";
@@ -48,6 +48,8 @@ export interface IOrderItem {
   price: number;
   cost: number;
   quantity: number;
+
+  product?: IProduct;
 }
 
 export interface IOrder {
@@ -197,10 +199,10 @@ export class Order extends Model {
                 }
 
                 if (order.items) {
-                  order.items.map((it: any) => {
+                  order.items.map((it: IOrderItem) => {
                     const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
                     if (product) {
-                      items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                      items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, product: product });
                     }
                   });
                   order.items = items;

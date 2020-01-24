@@ -29,5 +29,5 @@ export const environment = {
     ID: '5d3a34afac8ce150f3bb70c2',
     NAME: 'duocun'
   },
-  language: 'zh'
+  language: 'en'
 };
