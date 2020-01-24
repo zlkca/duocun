@@ -1078,7 +1078,7 @@ export class Order extends Model {
   getLatestViewed(){
     const range = { $gte: moment().startOf('day').toISOString(), $lte: moment().endOf('day').toISOString() };
     const query: any = {
-      created: range,
+      delivered: range,
       type: OrderType.FOOD_DELIVERY,
       status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] }
     };
