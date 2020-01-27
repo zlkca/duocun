@@ -9,7 +9,6 @@ import { Merchant, IPhase, IMerchant, IDbMerchant } from "./merchant";
 import { Account, IAccount } from "./account";
 import { Transaction, ITransaction } from "./transaction";
 import { Product, IProduct } from "./product";
-import { Assignment } from "./assignment";
 import { CellApplication, CellApplicationStatus, ICellApplication } from "./cell-application";
 import { Log, Action, AccountType } from "./log";
 import { resolve } from "url";

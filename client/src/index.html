@@ -7,6 +7,35 @@
   <meta name="description" content="多村外卖是目前多伦多最便宜的外卖平台,免运费,免小费。扫描二维码进入公众号即可在线点餐。">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <style>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -60px;
+  margin-left: -60px;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+  </style>
+
   <!-- <script type="text/javascript" src="cordova.js"></script> -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" async defer></script> -->
   <script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -14,6 +43,8 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEd6D6vc9K-YzMH-QtQWRSs5HZkLKSWyk&libraries=places" async defer></script>
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <div class="loader"></div>
+  </app-root>
 </body>
 </html>

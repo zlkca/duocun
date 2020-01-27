@@ -19,7 +19,6 @@ import { Socket } from "./socket";
 import { AccountRouter } from "./routers/account-route";
 import { DistanceRouter } from "./routers/distance-route";
 import { OrderRouter } from "./routers/order-route";
-import { AssignmentRouter } from "./routers/assignment-route";
 import { MerchantPaymentRouter } from "./routers/merchant-payment-route";
 import { MerchantBalanceRouter } from "./routers/merchant-balance-route";
 import { MerchantScheduleRouter } from "./routers/merchant-schedule-route";
@@ -205,7 +204,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Distances', DistanceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Regions', RegionRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Orders', OrderRouter(dbo));
-  app.use('/' + ROUTE_PREFIX + '/Assignments', AssignmentRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/MerchantPayments', MerchantPaymentRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/MerchantBalances', MerchantBalanceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/MerchantSchedules', MerchantScheduleRouter(dbo));

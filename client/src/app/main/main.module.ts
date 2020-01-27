@@ -16,6 +16,7 @@ import { MerchantModule } from '../merchant/merchant.module';
 import { HeaderComponent } from './header/header.component';
 import { AreaModule } from '../area/area.module';
 import { AreaService } from '../area/area.service';
+import { MerchantService } from '../merchant/merchant.service';
 
 @NgModule({
   imports: [
@@ -38,7 +39,8 @@ import { AreaService } from '../area/area.service';
     AccountService,
     AuthService,
     RangeService,
-    AreaService
+    AreaService,
+    MerchantService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

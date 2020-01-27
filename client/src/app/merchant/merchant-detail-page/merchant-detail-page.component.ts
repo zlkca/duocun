@@ -6,7 +6,7 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { MerchantService } from '../merchant.service';
 import { IMerchant } from '../../merchant/merchant.model';
 import { ProductService } from '../../product/product.service';
-import { IProduct, ICategory } from '../../product/product.model';
+import { IProduct, ICategory, ProductStatus } from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { PageActions } from '../../main/main.actions';
@@ -124,7 +124,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           }
           self.restaurant = restaurant;
 
-          const q = { merchantId: merchantId };
+          const q = { merchantId: merchantId, status: { $in: [ProductStatus.ACTIVE, ProductStatus.NEW, ProductStatus.PROMOTE]} };
           self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((products: IProduct[]) => {
             if (environment.language === 'en') {
               products.map(p => {
@@ -153,7 +153,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           }
           self.restaurant = restaurant;
 
-          const q = { merchantId: merchantId };
+          const q = { merchantId: merchantId, status: { $in: [ProductStatus.ACTIVE, ProductStatus.NEW, ProductStatus.PROMOTE]} };
           self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
             if (environment.language === 'en') {
               products.map(p => {

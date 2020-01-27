@@ -2,6 +2,13 @@ import { Picture } from '../picture.model';
 import { IMerchant } from '../merchant/merchant.model';
 import { IAccount } from '../account/account.model';
 
+export enum ProductStatus {
+  ACTIVE = 1,
+  INACTIVE,
+  NEW,
+  PROMOTE
+}
+
 export interface IProduct {
   _id?: string;
   name: string;
@@ -12,14 +19,13 @@ export interface IProduct {
   merchantId: string;
   categoryId: string;
 
-
   openDays?: number[];
   restaurant?: IMerchant; // ??
   category?: ICategory;
   pictures?: Picture[];
   dow?: string[];
   order?: number;
-  status?: string;
+  status?: ProductStatus;
   created?: string;
   modified?: string;
 
@@ -39,7 +45,7 @@ export class Product implements IProduct {
   pictures: Picture[];
   dow?: string[];
   order?: number;
-  status?: string;
+  status?: ProductStatus;
   constructor(data?: IProduct) {
     Object.assign(this, data);
   }

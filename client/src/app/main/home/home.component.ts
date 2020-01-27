@@ -27,6 +27,9 @@ import * as moment from 'moment';
 import { RangeService } from '../../range/range.service';
 import { IRange } from '../../range/range.model';
 import { AreaService } from '../../area/area.service';
+import { MerchantType, IMerchant } from '../../merchant/merchant.model';
+import { MerchantService } from '../../merchant/merchant.service';
+import { resolve } from 'url';
 
 const WECHAT_APP_ID = environment.WECHAT.APP_ID;
 const WECHAT_REDIRCT_URL = environment.WECHAT.REDIRECT_URL;
@@ -52,6 +55,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   inRange = true;
   onDestroy$ = new Subject<any>();
   loading = true;
+  merchants;
   location: ILocation;
   bUpdateLocationList = true;
   bInputLocation = false;
@@ -83,6 +87,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private authSvc: AuthService,
     private rangeSvc: RangeService,
     private areaSvc: AreaService,
+    private merchantSvc: MerchantService,
     // private socketSvc: SocketService,
     private router: Router,
     private route: ActivatedRoute,
@@ -99,7 +104,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow, startTime: '11:45', endTime: '13:15' };
 
     this.placeForm = this.fb.group({ addr: [''] });
-    this.loading = true;
 
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
 
@@ -131,113 +135,139 @@ export class HomeComponent implements OnInit, OnDestroy {
         self.selectedDate = 'today';
         self.phase = 'today:lunch';
         self.date = moment();
-        this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: self.selectedDate } });
+        self.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: self.selectedDate } });
       }
     });
 
-    self.route.queryParamMap.pipe(takeUntil(this.onDestroy$)).subscribe(queryParams => {
-      const code = queryParams.get('code');
-
-      // process payment route ?clientId=x&paymentMethod=y
-      const clientId = queryParams.get('clientId'); // use for after card pay, could be null
-      const page = queryParams.get('page');
-      if (page === 'account_settings') { // for wechatpay add credit procedure
-        this.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
-          this.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
-          self.router.navigate(['account/balance']);
-        });
-        return;
-      } else if (page === 'order_history') { // for wechatpay procedure
-        if (clientId) {
-          this.bPayment = true;
-          this.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
-            this.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
-            self.router.navigate(['order/history']);
-          });
-          return;
-        }
-      }
-
-      // try default login
-      self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-        if (account) { // if already use cookie to login
-          this.loading = false;
-          self.account = account;
-          self.init(account);
-        } else {
-          if (code) {
-            this.loading = true;
-            this.accountSvc.wechatLogin(code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
-              if (tokenId) {
-                self.wechatLoginHandler(tokenId);
-              } else { // failed from shared link login
-                this.loading = false;
-
-                // redirect to wechat authorize button page
-                window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + WECHAT_APP_ID
-                  + '&redirect_uri=' + WECHAT_REDIRCT_URL
-                  + '&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
-              }
+    this.loading = true;
+    this.routeUrl().then((origin: any) => {
+      // check range and update map or merchant list
+      if (origin) {
+        self.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
+          self.inRange = inRange;
+          if (inRange) {
+            self.loadRestaurants(origin, self.phase).then(rs => {
+              self.loading = false;
             });
-          } else { // no code in router
-            this.loading = false;
-            // if (environment.language === 'en') {
-            //   this.router.navigate(['account/login']);
-            // }
+          } else {
+            self.updateMap(origin, inRange).then(() => {
+              self.merchants = [];
+              self.loading = false;
+            });
           }
-        }
-      }, err => {
-        this.loading = false;
-        // if (environment.language === 'en') {
-        //   this.router.navigate(['account/login']);
-        // }
-      });
+        });
+      } else {
+        self.loadRestaurants(null, self.phase).then(rs => {
+          self.loading = false;
+        });
+      }
     });
-
   }
 
+  // process url and redirect to corresponding process
+  routeUrl() {
+    const self = this;
+    // tslint:disable-next-line:no-shadowed-variable
+    return new Promise((resolve, reject) => {
+      self.route.queryParamMap.pipe(takeUntil(this.onDestroy$)).subscribe(queryParams => {
+        // if url has format '...?clientId=x&page=y', it is some procedure that re-enter the home page
+        const clientId = queryParams.get('clientId'); // use for after card pay, could be null
+        const page = queryParams.get('page');
+
+        if (page === 'account_settings') { // for wechatpay add credit procedure
+          self.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
+            self.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
+            self.router.navigate(['account/balance']);
+            resolve();
+          });
+        } else if (page === 'order_history') { // for wechatpay procedure
+          if (clientId) {
+            self.bPayment = true;
+            self.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
+              self.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
+              self.router.navigate(['order/history']);
+              resolve();
+            });
+          }
+        } else {
+          // try default login
+          self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+            if (account) { // if already use cookie to login
+              self.account = account;
+              self.init(account).then((origin: any) => {
+                resolve(origin);
+              });
+            } else {
+              const code = queryParams.get('code');
+              if (code) { // try wechat login
+                this.accountSvc.wechatLogin(code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
+                  if (tokenId) {
+                    self.authSvc.setAccessTokenId(tokenId);
+                    // retry default login
+                    self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account2: Account) => {
+                      if (account2) {
+                        self.account = account2;
+                        self.snackBar.open('', '微信登录成功。', { duration: 1000 });
+                        self.init(account).then((origin: any) => {
+                          resolve(origin);
+                        });
+                      } else {
+                        self.snackBar.open('', '微信登录失败。', { duration: 1000 });
+                        resolve();
+                      }
+                    });
+                  } else { // failed from shared link login
+                    this.loading = false;
+
+                    setTimeout(() => {
+                      // redirect to wechat authorize button page
+                      window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + WECHAT_APP_ID
+                        + '&redirect_uri=' + WECHAT_REDIRCT_URL
+                        + '&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
+
+                      resolve(); // fix me !!!
+                    }, 500);
+                  }
+                });
+              } else { // no code in router, means did not use wechat login, and failed to use default login (en version eg.)
+                resolve();
+              }
+            }
+          }, err => {
+            resolve();
+          });
+        }
+      });
+    });
+  }
 
   updateMap(origin, inRange) {
     const self = this;
-    this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
-      this.mapRanges = rs;
-      if (inRange) {
-        self.mapZoom = 14;
-        self.mapCenter = origin;
-      } else {
-        this.areaSvc.find({ code: 'DT' }).pipe(takeUntil(this.onDestroy$)).subscribe((areas: any[]) => {
-          const farNorth = { lat: 44.2653618, lng: -79.4191007 };
+    // tslint:disable-next-line:no-shadowed-variable
+    return new Promise((resolve, reject) => {
+      this.rangeSvc.find({ status: 'active' }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IRange[]) => {
+        this.mapRanges = rs;
 
-          self.mapZoom = 9;
-          self.mapCenter = {
-            lat: (origin.lat + farNorth.lat) / 2,
-            lng: (origin.lng + farNorth.lng) / 2
-          };
-          self.areas = areas;
-        });
-      }
+        if (inRange) {
+          self.mapZoom = 14;
+          self.mapCenter = origin;
+          this.location = origin; // order matters
+          resolve();
+        } else {
+          this.areaSvc.find({ code: 'DT' }).pipe(takeUntil(this.onDestroy$)).subscribe((areas: any[]) => {
+            const farNorth = { lat: 44.2653618, lng: -79.4191007 };
 
-      this.location = origin; // order matters
-
-    });
-  }
-
-
-  // data : {id:'xxx', ttl: 10000, userId: 'xxxxx' }
-  wechatLoginHandler(tokenId: string) {
-    const self = this;
-    self.authSvc.setAccessTokenId(tokenId);
-    self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
-      if (account) {
-        self.account = account;
-
-        this.snackBar.open('', '微信登录成功。', { duration: 1000 });
-        self.loading = false;
-        self.init(account);
-      } else {
-        this.snackBar.open('', '微信登录失败。', { duration: 1000 });
-        self.loading = false;
-      }
+            self.mapZoom = 9;
+            self.mapCenter = {
+              lat: (origin.lat + farNorth.lat) / 2,
+              lng: (origin.lng + farNorth.lng) / 2
+            };
+            self.areas = areas;
+            self.location = origin; // order matters
+            resolve();
+          });
+        }
+      });
     });
   }
 
@@ -248,20 +278,35 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   init(account: IAccount) {
     const self = this;
-    const accountId = account._id;
+    const accountId = account ? account._id : null;
 
     this.updateFooterStatus(account);
-    this.locationSvc.find({ accountId: accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
-      const a = this.locationSvc.toPlaces(lhs);
-      self.historyAddressList = a;
-    });
 
-    // redirect to filter if account have default location
-    if (account && account.location) {
-      self.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: account.location } });
-      self.bUpdateLocationList = false;
-      self.deliveryAddress = self.locationSvc.getAddrString(account.location); // set address text to input
-    }
+    // tslint:disable-next-line:no-shadowed-variable
+    return new Promise((resolve, reject) => {
+      if (accountId) {
+        this.locationSvc.find({ accountId: accountId }).pipe(takeUntil(this.onDestroy$)).subscribe((lhs: ILocationHistory[]) => {
+          const a = this.locationSvc.toPlaces(lhs);
+          self.historyAddressList = a;
+
+          // redirect to filter if account have default location
+          if (account && account.location) {
+            self.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: account.location } });
+            self.bUpdateLocationList = false;
+            self.deliveryAddress = self.locationSvc.getAddrString(account.location); // set address text to input
+
+            resolve(account.location);
+          } else {
+            resolve();
+          }
+        });
+      } else {
+        self.historyAddressList = [];
+        self.bUpdateLocationList = false;
+        self.deliveryAddress = '';
+        resolve();
+      }
+    });
   }
 
   ngOnInit() {
@@ -323,6 +368,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   onBack() {
     // this.deliveryAddress = '';
     this.places = [];
+    this.loading = true;
+    this.loadRestaurants(this.location, this.phase).then(rs => {
+      this.loading = false;
+    });
   }
 
   onAddressInputClear(e) {
@@ -331,6 +380,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.bUpdateLocationList = true;
     this.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: null } });
     this.onAddressInputFocus({ input: '' });
+
   }
 
   getSuggestLocationList(input: string, bShowList: boolean) {
@@ -360,7 +410,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.bUpdateLocationList = false;
     this.location = r;
     this.bAddressList = false;
-
+    this.loading = true;
     if (r) {
       this.deliveryAddress = e.address; // set address text to input
       this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
@@ -376,16 +426,35 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
       }
 
-      if (r) {
-        self.bUpdateLocationList = false;
-        self.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
-        self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
-        self.location = r; // update merchant list
-      }
+      self.bUpdateLocationList = false;
+      self.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: r } });
+      self.deliveryAddress = self.locationSvc.getAddrString(r); // set address text to input
+      self.location = r; // update merchant list
+
+      const origin = self.location;
+
+      self.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
+        self.inRange = inRange;
+        if (inRange) {
+          self.loadRestaurants(origin, self.phase).then(rs => {
+            self.loading = false;
+          });
+        } else {
+          self.updateMap(origin, inRange).then(() => {
+            self.merchants = [];
+            self.loading = false;
+          });
+        }
+      });
+    } else {
+      self.loadRestaurants(null, self.phase).then(rs => {
+        self.loading = false;
+      });
     }
   }
 
   onSelectDate(e) {
+    const self = this;
     if (e.value === 'tomorrow') {
       const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
       this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow, dateType: 'tomorrow' } });
@@ -394,7 +463,21 @@ export class HomeComponent implements OnInit, OnDestroy {
       const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
       this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
       this.phase = 'today:lunch';
+
     }
+
+    const origin = this.location;
+    this.loading = true;
+    self.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
+      self.inRange = inRange;
+      if (inRange) {
+        self.loadRestaurants(origin, self.phase).then(rs => {
+          self.loading = false;
+        });
+      } else {
+        self.loading = false;
+      }
+    });
   }
 
   resetAddress() {
@@ -403,4 +486,29 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.deliveryAddress = '';
   }
 
+
+  // -----------------------------------------------------
+  // phase --- string 'today:lunch', 'tomorrow:lunch'
+  loadRestaurants(origin: ILocation, phase: string) {
+    const self = this;
+    const dateType = phase.split(':')[0];
+    const query = { status: 'active', type: MerchantType.RESTAURANT };
+
+    this.location = origin;
+
+    // tslint:disable-next-line:no-shadowed-variable
+    return new Promise((resolve, reject) => {
+      if (origin) {
+        this.merchantSvc.load(origin, dateType, query).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IMerchant[]) => {
+          self.merchants = rs;
+          resolve(rs);
+        });
+      } else {
+        this.merchantSvc.find(query).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IMerchant[]) => {
+          self.merchants = rs;
+          resolve(rs);
+        });
+      }
+    });
+  }
 }

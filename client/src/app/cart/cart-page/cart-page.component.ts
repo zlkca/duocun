@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { AccountService } from '../../account/account.service';
-import { Product, IProduct } from '../../product/product.model';
+import { Product, IProduct, ProductStatus } from '../../product/product.model';
 import { Account } from '../../account/account.model';
 import { PageActions } from '../../main/main.actions';
 import { SharedService } from '../../shared/shared.service';
@@ -64,7 +64,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IMerchant) => {
       this.restaurant = r;
-      this.productSvc.find({ merchantId: r._id }).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
+      const q = { merchantId: r._id, status: { $in: [ProductStatus.ACTIVE, ProductStatus.NEW, ProductStatus.PROMOTE]} };
+      this.productSvc.find(q).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
         if (environment.language === 'en') {
           ps.map(p => {
             p.name = p.nameEN;

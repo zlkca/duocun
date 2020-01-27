@@ -3,10 +3,10 @@
     <div class="row item-body" *ngIf="item">
       <div class="col-4 image-body">
         <img [src]="getProductImage(item.product)" alt="{{item.product.name}}">
-        <div *ngIf="item.product.status && item.product.status==='new'" class="new notify-badge">
+        <div *ngIf="item.product.status && item.product.status===Status.NEW" class="new notify-badge">
           <div class="text-sm" i18n="@@New">New</div>
         </div>
-        <div *ngIf="item.product.status && item.product.status==='promotion'" class="promotion notify-badge">
+        <div *ngIf="item.product.status && item.product.status===Status.PROMOTE" class="promotion notify-badge">
           <div class="text-sm" i18n="@@Promotion">Promotion</div>
         </div>
       </div>

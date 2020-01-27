@@ -4,7 +4,7 @@ import { ProductService } from '../product.service';
 import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
-import { Product, IProduct } from '../../product/product.model';
+import { Product, IProduct, ProductStatus } from '../../product/product.model';
 
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICart } from '../../cart/cart.model';
@@ -42,6 +42,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   delivery: IDelivery;
   ranges: IRange[];
   lang = environment.language;
+  Status = ProductStatus;
 
   ngOnInit() {
 

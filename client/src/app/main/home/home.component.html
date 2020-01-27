@@ -1,10 +1,15 @@
+<div class="loading-spinner" *ngIf="loading">
+  <app-progress-spinner></app-progress-spinner>
+</div>
+
 <div class="merchant-list">
-  <app-merchant-list *ngIf="!bPayment && !(places && places.length > 0) && inRange" [active]="inRange" [phase]="phase" [address]="location"
+  <app-merchant-list *ngIf="!loading && !bPayment && !(places && places.length > 0) && inRange"
+    [merchants]="merchants" [active]="inRange" [phase]="phase" [address]="location"
     [bAddressList]="bAddressList">
   </app-merchant-list>
 </div>
 
-<div class="header-block" >
+<div class="header-block" *ngIf="!loading">
   <app-header *ngIf="lang==='en'"></app-header>
   <div class="banner">
     <div class="left-col">
@@ -49,14 +54,14 @@
 </div>
 
 
-<div class="map-block" [class.range]="!inRange" *ngIf="!(places && places.length > 0) && !inRange">
-    <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="places" [ranges]="mapRanges" [areas]="areas"></app-map>
-  
-    <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
-      <div class="col-12">
-        <div class="text-md">
-          <span i18n="@@NotInServiceRangeHint">Your address is not in our service range, please try another</span>
-        </div>
+<div class="map-block" [class.range]="!inRange" *ngIf="!loading && !(places && places.length > 0) && !inRange">
+  <app-map [location]="location" [center]="mapCenter" [zoom]="mapZoom" [places]="places" [ranges]="mapRanges" [areas]="areas"></app-map>
+
+  <button mat-raised-button *ngIf="!inRange" class="row option-item no-free not-in-range-item" (click)="resetAddress()">
+    <div class="col-12">
+      <div class="text-md">
+        <span i18n="@@NotInServiceRangeHint">Your address is not in our service range, please try another</span>
       </div>
-    </button>
-  </div>
+    </div>
+  </button>
+</div>

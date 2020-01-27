@@ -21,7 +21,7 @@ import { ICart } from '../../cart/cart.model';
   styleUrls: ['./merchant-list.component.scss']
 })
 export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
-
+  @Input() merchants;
   @Input() phase; // string 'today:lunch', 'tomorrow:lunch'
   @Input() address; // ILocation
   @Input() active;
@@ -32,9 +32,8 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   restaurants;
   defaultPicture = window.location.protocol + '//placehold.it/400x300';
   malls;
-  loading = true;
+  loading = false;
   origin;
-  bHasAddress = false;
   cart;
   lang = environment.language;
 
@@ -62,12 +61,11 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     if (this.phase) {
-      if (this.address) {
-        this.origin = this.address;
+      this.origin = this.address;
+      if (this.merchants && this.merchants.length > 0) {
+        // this.loading = true;
+        this.restaurants = this.processMerchants(this.origin, this.merchants); // this.origin could be empty
       }
-
-      this.loading = true;
-      this.loadRestaurants(this.origin, this.phase); // this.origin could be empty
     }
   }
 
@@ -77,19 +75,13 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    this.loading = true;
-    this.loadRestaurants(this.address, this.phase);
+
   }
 
-  // -----------------------------------------------------
-  // phase --- string 'today:lunch', 'tomorrow:lunch'
-  loadRestaurants(origin: ILocation, phase: string) {
+  processMerchants(origin, rs) {
     const self = this;
-    const dateType = phase.split(':')[0];
-    const query = { status: 'active', type: MerchantType.RESTAURANT };
-    if (origin) {
-      this.bHasAddress = true;
-      this.merchantSvc.load(origin, dateType, query).pipe(takeUntil(self.onDestroy$)).subscribe(rs => {
+    if (rs && rs.length > 0) {
+      if (origin) {
         rs.map((restaurant: IMerchant) => {
           if (environment.language === 'en') {
             restaurant.name = restaurant.nameEN;
@@ -98,13 +90,8 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
           restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
         });
-        self.restaurants = this.sort(rs);
-        self.loading = false;
-      });
-    } else {
-      this.bHasAddress = false;
-      this.merchantSvc.find(query).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IMerchant[]) => {
-        // const markers = []; // markers on map
+        return this.sort(rs);
+      } else {
         rs.map((restaurant: IMerchant) => {
           if (environment.language === 'en') {
             restaurant.name = restaurant.nameEN;
@@ -115,12 +102,13 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.isClosed = false;
         });
-        // self.markers = markers;
-        self.restaurants = this.sort(rs);
-        self.loading = false;
-      });
+        return this.sort(rs);
+      }
+    } else {
+      return [];
     }
   }
+
 
   getImageSrc(restaurant: any) {
     if (restaurant.pictures && restaurant.pictures[0] && restaurant.pictures[0].url) {
@@ -203,6 +191,6 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   isCloseInTurn(r: IMerchant) {
-    return (this.bHasAddress && !r.onSchedule) || r.isClosed;
+    return (this.origin && !r.onSchedule) || r.isClosed;
   }
 }

@@ -306,18 +306,23 @@ export class LocationService extends EntityService {
 
   toPlaces(lhs: ILocationHistory[]) {
     const options: IPlace[] = [];
-    for (let i = lhs.length - 1; i >= 0; i--) {
-      const lh = lhs[i];
-      const loc = lh.location;
-      const p: IPlace = {
-        structured_formatting: {
-          main_text: loc.streetNumber + ' ' + loc.streetName,
-          secondary_text: (loc.subLocality ? loc.subLocality : loc.city) + ',' + loc.province
-        },
-        location: loc
-      };
-      options.push(p);
+    if (!lhs || lhs.length === 0) {
+      return options;
+    } else {
+      for (let i = lhs.length - 1; i >= 0; i--) {
+        const lh = lhs[i];
+        const loc = lh.location;
+        const p: IPlace = {
+          structured_formatting: {
+            main_text: loc.streetNumber + ' ' + loc.streetName,
+            secondary_text: (loc.subLocality ? loc.subLocality : loc.city) + ',' + loc.province
+          },
+          location: loc
+        };
+        options.push(p);
+      }
+      return options;
     }
-    return options;
+
   }
 }

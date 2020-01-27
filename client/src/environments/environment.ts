@@ -29,5 +29,5 @@ export const environment = {
     APP_ID: 'wx0591bdd165898739',
     REDIRECT_URL: 'https://duocun.com.cn'
   },
-  language: 'en'
+  language: 'zh'
 };

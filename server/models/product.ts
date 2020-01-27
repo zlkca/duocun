@@ -10,6 +10,13 @@ import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import { resolve } from "../../node_modules/@types/q";
 
+export enum ProductStatus {
+  ACTIVE = 1,
+  INACTIVE,
+  NEW,
+  PROMOTE
+}
+
 export interface ICategory {
   _id?: string;
   name: string;
@@ -34,7 +41,7 @@ export interface IProduct {
   // pictures?: Picture[];
   dow?: string[];
   order?: number;
-  status?: string;
+  status?: ProductStatus;
 
   created?: string;
   modified?: string;
