@@ -1066,15 +1066,15 @@ export class Order extends Model {
       });
     });
   }
-  
-  reqLatestViewed(req: Request, res: Response){
+
+  reqLatestViewed(req: Request, res: Response) {
     this.getLatestViewed().then(rs => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(rs, null, 3));
     });
   }
 
-  getLatestViewed(){
+  getLatestViewed() {
     const range = { $gte: moment().startOf('day').toISOString(), $lte: moment().endOf('day').toISOString() };
     const query: any = {
       delivered: range,
@@ -1090,19 +1090,116 @@ export class Order extends Model {
             const dt = moment(log.created);
             const merchantId = log.merchantId.toString();
             const its = orders.filter((order: IOrder) => order.merchantId.toString() === merchantId && moment(order.modified).isSameOrBefore(dt));
-            if(its && its.length>0){
+            if (its && its.length > 0) {
               rs = rs.concat(its);
             }
           });
-          
+
           resolve(rs);
         });
       });
     });
   }
   // tools
-  convertUTC() {
 
+  reqStatisticsByClient(req: Request, res: Response) {
+    this.getStatisticsByClient().then(rs => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(rs, null, 3));
+    });
+  }
+
+  groupByClientId(items: IOrder[]) {
+    const groups: any = {};
+    items.map(it => {
+      if (it.clientId) {
+        const clientId = it.clientId.toString();
+        const found = Object.keys(groups).find(cId => cId.toString() === clientId);
+
+        if (found) {
+          groups[clientId].push(it);
+        } else {
+          groups[clientId] = [it];
+        }
+      } else {
+        console.log('Bad order: ' + it._id);
+      }
+    });
+
+    return groups;
+  }
+
+  getStatisticsByClient() {
+    const query = {
+      status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] }
+    };
+
+    return new Promise((resolve, reject) => {
+      this.accountModel.find({}).then(accounts => {
+        this.find(query).then(orders => {
+          const groups = this.groupByClientId(orders);
+          const rs: any[] = [];
+          Object.keys(groups).map(key => {
+            const group = groups[key];
+            if (group && group.length > 0) {
+              const order = group[0];
+              if (order.clientId) {
+                const client = accounts.find((a: any) => a._id.toString() === order.clientId.toString());
+                if (client) {
+                  if (client.password) {
+                    delete client.password;
+                  }
+                  order.client = client;
+                }
+              } else {
+                console.log(order._id);
+              }
+              const date = this.getFirstAndLastDeliverDate(group);
+              if (date) {
+                const phone = order.client ? order.client.phone : 'N/A';
+                rs.push({ clientId: key, clientName: order.clientName, clientPhoneNum: phone,
+                  nOrders: group.length, firstOrdered: date.first, lastOrdered: date.last,
+                  frequency: Math.round( group.length / date.nDays * 100) / 100
+                });
+              }
+            }
+          });
+
+          const ret = rs.sort((a: any, b: any) => {
+            if (a.lastOrdered) {
+              if (moment(a.lastOrdered).isSameOrAfter(moment(b.lastOrdered))) {
+                return -1;
+              } else {
+                return 1;
+              }
+            } else {
+              return 1;
+            }
+          });
+
+          resolve(ret);
+        });
+      });
+    });
+  }
+
+  getFirstAndLastDeliverDate(orders: IOrder[]) {
+    if (orders && orders.length > 0) {
+      let last = moment('2019-01-01T00:00:00.000Z');
+      let first = moment();
+      orders.map(order => {
+        const dt = moment(order.delivered);
+        if (dt.isSameOrAfter(last)) {
+          last = dt;
+        }
+        if (dt.isSameOrBefore(first)) {
+          first = dt;
+        }
+      });
+      return { first: first, last: last, nDays: last.diff(first, 'days')+1 };
+    } else {
+      return null;
+    }
   }
 
 }
