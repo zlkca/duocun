@@ -1168,12 +1168,12 @@ export class Order extends Model {
           const ret = rs.sort((a: any, b: any) => {
             if (a.lastOrdered) {
               if (moment(a.lastOrdered).isSameOrAfter(moment(b.lastOrdered))) {
-                return -1;
-              } else {
                 return 1;
+              } else {
+                return -1;
               }
             } else {
-              return 1;
+              return -1;
             }
           });
 
