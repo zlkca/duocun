@@ -31,8 +31,9 @@ export class Model extends Entity {
     });
   }
 
+  // deprecated
   list(req: Request, res: Response) {
-    let query = null;
+    let query = {};
     let key = null;
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
@@ -41,22 +42,13 @@ export class Model extends Entity {
       key = (req.headers && req.headers.distinct) ? JSON.parse(req.headers.distinct) : null;
     }
 
-    let q = query;
-    if (q) {
-      if (q.where) {
-        q = query.where;
-      }
-    } else {
-      q = {};
-    }
-
     if (key && key.distinct) {
-      this.distinct(key.distinct, q).then((x: any) => {
+      this.distinct(key.distinct, query).then((x: any) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
       });
     } else {
-      this.find(q).then((x: any) => {
+      this.find(query).then((x: any) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(x, null, 3));
       });

@@ -10,6 +10,22 @@ import { resolve } from "../../node_modules/@types/q";
 
 const saltRounds = 10;
 
+export enum Role {
+  SUPER = 1,
+  MERCHANT_ADMIN = 2,
+  MERCHANT_STUFF = 3,
+  MANAGER = 4,
+  DRIVER = 5,
+  CLIENT = 6
+}
+
+export interface IAccountAttribute {
+  _id?: string;
+  code: string; //   I: INDOOR, G: GARDENING, R: ROOFING, O: OFFICE, P: PLAZA, H: HOUSE, C: CONDO
+  name: string;
+  nameEN?: string;
+}
+
 export interface IAccount {
   _id: string;
   type: string; // wechat, google, fb
@@ -36,7 +52,14 @@ export interface IAccount {
   verificationCode: string;
   verified: boolean;
 
+  attributes?: string[]; // IAccountAttribute's code, I: INDOOR, G: GARDENING, R: ROOFING, O: OFFICE, P: PLAZA, H: HOUSE, C: CONDO
   info?: string;  // client info
+}
+
+export class AccountAttribute extends Model {
+  constructor(dbo: DB) {
+    super(dbo, 'user_attributes');
+  }
 }
 
 export class Account extends Model {

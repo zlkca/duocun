@@ -1,12 +1,15 @@
 import express from "express";
 import { DB } from "../db";
-import { Account } from "../models/account";
+import { Account, AccountAttribute } from "../models/account";
 import { MerchantStuff } from "../merchant-stuff";
 
 export function AccountRouter(db: DB){
   const router = express.Router();
   const controller = new Account(db);
+  const attrModel = new AccountAttribute(db);
   const merchantStuff = new MerchantStuff(db);
+
+  router.get('/attributes', (req, res) => { attrModel.quickFind(req, res); });
 
   router.get('/wechatLogin', (req, res) => { controller.wechatLogin(req, res); });
 
