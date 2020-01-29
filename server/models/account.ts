@@ -113,6 +113,7 @@ export class Account extends Model {
               balance: 0,
               verificationCode: code,
               verified: false,
+              attributes: [],
               created: moment().toISOString()
             };
             this.insertOne(data).then((x: IAccount) => {
@@ -270,6 +271,7 @@ export class Account extends Model {
               balance: 0,
               verificationCode: verificationCode,
               verified: false,
+              attributes: [],
               created: moment().toISOString()
             };
             this.insertOne(data).then((x: IAccount) => {
@@ -309,6 +311,7 @@ export class Account extends Model {
               openId: openId,
               // unionId: x.unionid, // not be able to get wechat unionId
               balance: 0,
+              attributes: [],
               created: moment().toISOString(),
             };
             this.insertOne(data).then((x: IAccount) => {
