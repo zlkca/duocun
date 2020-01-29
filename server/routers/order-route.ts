@@ -6,6 +6,7 @@ export function OrderRouter(db: DB){
   const router = express.Router();
   const controller = new Order(db);
 
+  router.get('/clients', (req, res) => { controller.reqClients(req, res); });
   router.get('/statisticsByClient', (req, res) => { controller.reqStatisticsByClient(req, res); });
   router.get('/latestViewed', (req, res) => { controller.reqLatestViewed(req, res); });
   router.get('/loadPage/:currentPageNumber/:itemsPerPage', (req, res) => { controller.loadPage(req, res); });

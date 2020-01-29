@@ -850,7 +850,7 @@ export class Order extends Model {
   }
 
 
-  
+
 
   //-----------------------------------------------------------------------------------------
   // change order status to 'paid', insert a new transaction and update corresponding balance
@@ -960,6 +960,47 @@ export class Order extends Model {
     });
   }
 
+  // groupBy(items, key) {
+  //   return items.reduce((result, item) => ({
+  //     ...result,
+  //     [item[key]]: [
+  //       ...(result[item[key]] || []),
+  //       item,
+  //     ],
+  //   }), {});
+  // }
+  reqClients(req: Request, res: Response) {
+    this.getClients().then(rs => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(rs, null, 3));
+    });
+  }
+
+  getClients() {
+    const qOrder = {
+      type: OrderType.FOOD_DELIVERY,
+      status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] }
+    };
+    return new Promise((resolve, reject) => {
+      this.find(qOrder).then((orders: IOrder[]) => {
+        this.accountModel.find({}).then((clients: IAccount[]) => {
+          const groups = this.groupBy(orders, 'clientId');
+          const cs: IAccount[] = [];
+          Object.keys(groups).map(cId => {
+            const group = groups[cId];
+            if (group && group.length > 0) {
+              const order = group[0];
+              const client = clients.find((c:any) => c._id.toString() === order.clientId.toString());
+              if(client){
+                cs.push(client);
+              }
+            }
+          });
+          resolve(cs);
+        });
+      });
+    });
+  }
 
   loadPage(req: Request, res: Response) {
     const itemsPerPage = +req.params.itemsPerPage;
@@ -1122,9 +1163,10 @@ export class Order extends Model {
               const date = this.getFirstAndLastDeliverDate(group);
               if (date) {
                 const phone = order.client ? order.client.phone : 'N/A';
-                rs.push({ clientId: key, clientName: order.clientName, clientPhoneNum: phone,
+                rs.push({
+                  clientId: key, clientName: order.clientName, clientPhoneNum: phone,
                   nOrders: group.length, firstOrdered: date.first, lastOrdered: date.last,
-                  frequency: Math.round( group.length / date.nDays * 100) / 100
+                  frequency: Math.round(group.length / date.nDays * 100) / 100
                 });
               }
             }
@@ -1161,7 +1203,7 @@ export class Order extends Model {
           first = dt;
         }
       });
-      return { first: first, last: last, nDays: last.diff(first, 'days')+1 };
+      return { first: first, last: last, nDays: last.diff(first, 'days') + 1 };
     } else {
       return null;
     }
