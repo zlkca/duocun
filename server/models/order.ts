@@ -824,7 +824,7 @@ export class Order extends Model {
     };
 
     return new Promise((resolve, reject) => {
-      this.merchantModel.find({_id: merchantId}).then(merchant => {
+      this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
         const merchantAccountId = merchant.accountId.toString();
         this.transactionModel.saveTransactionsForPlaceOrder(
           orderId.toString(),
