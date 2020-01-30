@@ -824,26 +824,29 @@ export class Order extends Model {
     };
 
     return new Promise((resolve, reject) => {
-      this.transactionModel.saveTransactionsForPlaceOrder(
-        orderId.toString(),
-        merchantId,
-        merchantName,
-        clientId,
-        clientName,
-        cost,
-        total,
-        deliverd
-      ).then(() => {
-        this.transactionModel.doInsertOne(tr).then(t => {
-          if (t) {
-            // change the status tmp to new !!!
-            const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
-            this.updateOne({ _id: orderId }, data).then((r: any) => { // result eg. {n: 1, nModified: 0, ok: 1}
-              resolve(r);
-            });
-          } else {
-            resolve();
-          }
+      this.merchantModel.find({_id: merchantId}).then(merchant => {
+        const merchantAccountId = merchant.accountId.toString();
+        this.transactionModel.saveTransactionsForPlaceOrder(
+          orderId.toString(),
+          merchantAccountId,
+          merchantName,
+          clientId,
+          clientName,
+          cost,
+          total,
+          deliverd
+        ).then(() => {
+          this.transactionModel.doInsertOne(tr).then(t => {
+            if (t) {
+              // change the status tmp to new !!!
+              const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
+              this.updateOne({ _id: orderId }, data).then((r: any) => { // result eg. {n: 1, nModified: 0, ok: 1}
+                resolve(r);
+              });
+            } else {
+              resolve();
+            }
+          });
         });
       });
     });
