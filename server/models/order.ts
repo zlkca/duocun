@@ -416,7 +416,7 @@ export class Order extends Model {
               const clientName = order.clientName;
               const cost = order.cost;
               const total = order.total;
-              const deliverd: any = order.delivered;
+              const delivered: any = order.delivered;
 
               // temporary order didn't update transaction until paid
               if (order.status === OrderStatus.TEMP) { // fix me
@@ -424,7 +424,7 @@ export class Order extends Model {
               } else {
                 const orderId: any = savedOrder._id;
                 const merchantAccountId = merchant.accountId.toString();
-                this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), merchantAccountId, merchantName, clientId, clientName, cost, total, deliverd).then(() => {
+                this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), merchantAccountId, merchantName, clientId, clientName, cost, total, delivered).then(() => {
                   resolve(savedOrder);
                 });
               }
@@ -451,10 +451,10 @@ export class Order extends Model {
               const clientName = order.clientName;
               const cost = order.cost;
               const total = order.total;
-              const delivered = order.deliverd;
+              const delivered = order.delivered;
 
               this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
-                this.transactionModel.updateMany({ orderId: orderId }, { status: OrderStatus.DELETED }).then(() => { // ??
+                this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' }).then(() => { // This will affect balance calc
                   const merchantAccountId = merchant.accountId.toString();
                   this.transactionModel.saveTransactionsForRemoveOrder(orderId, merchantAccountId, merchantName, clientId, clientName,
                     cost, total, delivered).then(() => {
@@ -811,7 +811,7 @@ export class Order extends Model {
     const clientName = order.clientName;
     const cost = order.cost;
     const total = order.total;
-    const deliverd: any = order.delivered;
+    const delivered: any = order.delivered;
 
     const tr: ITransaction = {
       fromId: clientId,
@@ -820,7 +820,7 @@ export class Order extends Model {
       toName: BANK_NAME,
       action: action,
       amount: Math.round(paid * 100) / 100,
-      delivered: deliverd
+      delivered: delivered
     };
 
     return new Promise((resolve, reject) => {
@@ -834,7 +834,7 @@ export class Order extends Model {
           clientName,
           cost,
           total,
-          deliverd
+          delivered
         ).then(() => {
           this.transactionModel.doInsertOne(tr).then(t => {
             if (t) {

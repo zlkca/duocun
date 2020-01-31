@@ -454,4 +454,93 @@ export class Transaction extends Model {
       });
     });
   }
+
+  fixCancelTransactions(req: Request, res: Response){
+    const q1 = { action: {$in: ['client cancel order from duocun', 'duocun cancel order from merchant']}, delivered:null};
+    this.find(q1).then(t1s => {
+      const datas: any[] = [];
+      t1s.map((t1: ITransaction) => {
+        const m = moment(t1.created).set({ hour: 11, minute: 20, second: 0, millisecond: 0 });
+        datas.push({
+          query: { _id: t1._id },
+          data: { delivered: m.toISOString() }
+        });
+      });
+      this.bulkUpdate(datas).then(() => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify('success', null, 3));
+      });
+    });
+  }
+
+  updateBalanceByAccountId(accountId: string, transactions: ITransaction[]) {
+    const trs = transactions.filter(t => t.fromId.toString() === accountId || t.toId.toString() === accountId);
+
+    if (trs && trs.length > 0) {
+      let balance = 0;
+      const list = trs.sort((a: any, b: any) => {
+        const aMoment = moment(a.created);
+        const bMoment = moment(b.created);
+        if (aMoment.isSame(bMoment, 'day')) {
+          if (aMoment.isAfter(bMoment)) {
+            return 1; // a to bottom
+          } else {
+            return -1;
+          }
+        } else {
+          if (aMoment.isAfter(bMoment)) {
+            return 1;
+          } else {
+            return -1;
+          }
+        }
+      });
+
+      const datas: any[] = [];
+      list.map((t: ITransaction) => {
+        const oId: any = t._id;
+        if (t.fromId.toString() === accountId) {
+          balance += t.amount;
+          datas.push({
+            query: { _id: oId.toString() },
+            data: {
+              fromBalance: Math.round(balance * 100) / 100
+            }
+          });
+        } else if (t.toId.toString() === accountId) {
+          balance -= t.amount;
+          datas.push({
+            query: { _id: oId.toString() },
+            data: {
+              toBalance: Math.round(balance * 100) / 100,
+            }
+          });
+        }
+      });
+
+      balance = Math.round(balance * 100) / 100;
+      this.bulkUpdate(datas).then(() => {
+        this.accountModel.updateOne({ _id: accountId }, { balance: balance }).then(() => {
+          // console.log('Finish update ' + accountId);
+        });
+      });
+    }
+  }
+
+
+  updateBalances(req: Request, res: Response) {
+    const self = this;
+    this.accountModel.find({}).then(accounts => {
+      this.find({}).then(ts => {
+        accounts.map((a: IAccount) => {
+          setTimeout(() => {
+            self.updateBalanceByAccountId(a._id.toString(), ts);
+          }, 500);
+        });
+
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify('success', null, 3));
+      });
+    });
+  }
 }
