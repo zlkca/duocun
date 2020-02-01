@@ -41,8 +41,7 @@ export enum PaymentStatus {
 
 export interface IOrderItem {
   productId: string;
-  productName: string;
-  // merchantId: string;
+  productName?: string;
   // merchantName?: string;
   price: number;
   cost: number;
@@ -453,13 +452,23 @@ export class Order extends Model {
               const total = order.total;
               const delivered = order.delivered;
 
-              this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
-                this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' }).then(() => { // This will affect balance calc
-                  const merchantAccountId = merchant.accountId.toString();
-                  this.transactionModel.saveTransactionsForRemoveOrder(orderId, merchantAccountId, merchantName, clientId, clientName,
-                    cost, total, delivered).then(() => {
-                      resolve(order);
-                    });
+              this.productModel.find({}).then(ps => {
+                const items: IOrderItem[] = [];
+                order.items.map((it: IOrderItem) => {
+                  const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
+                  if (product) {
+                    items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, productName: product.name });
+                  }
+                });
+                
+                this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
+                  this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' }).then(() => { // This will affect balance calc
+                    const merchantAccountId = merchant.accountId.toString();
+                    this.transactionModel.saveTransactionsForRemoveOrder(orderId, merchantAccountId, merchantName, clientId, clientName,
+                      cost, total, delivered, items).then(() => {
+                        resolve(order);
+                      });
+                  });
                 });
               });
             }
@@ -1246,6 +1255,45 @@ export class Order extends Model {
     //     res.end(JSON.stringify('success', null, 3));
     //   });
     // });
+  }
+
+  fixCancelledTransaction(req: Request, res: Response){
+    const q = { action: 'duocun cancel order from merchant', orderId: {$exists: true} };
+
+    this.transactionModel.find(q).then(ts => {
+      const datas: any[] = [];
+      const oIds: string[] = [];
+
+      ts.map((t: ITransaction) => {
+        if(t.orderId){
+          oIds.push(t.orderId);
+        }
+      });
+      
+      this.joinFind({_id: {$in: oIds}}).then((orders: any[]) => {
+        ts.map((t: ITransaction) => {
+          const transOrderId: any = t.orderId;
+          const order = orders.find(ord => ord._id.toString() === transOrderId.toString());
+          if(order){
+            const items: any[] = [];
+            order.items.map((it: IOrderItem) => {
+              const product: any = it.product;
+              items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, productName: product.name });
+            });
+
+            datas.push({
+              query: { _id: t._id },
+              data: { items: items }
+            });
+          }
+        });
+
+        this.transactionModel.bulkUpdate(datas).then(() => {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify('success', null, 3));
+        });
+      });
+    });
   }
 
 }

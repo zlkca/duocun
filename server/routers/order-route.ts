@@ -24,6 +24,7 @@ export function OrderRouter(db: DB){
   // router.post('/afterRemoveOrder', (req, res) => { controller.afterRemoveOrder(req, res); });
   router.post('/', (req, res) => { controller.create(req, res); });
 
+  router.patch('/fixCancelledTransaction', (req, res) => { controller.fixCancelledTransaction(req, res); });
   router.patch('/updateDelivered', (req, res) => { controller.updateDeliveryTime(req, res); });
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });

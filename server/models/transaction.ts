@@ -4,7 +4,7 @@ import { ObjectID, ObjectId } from "mongodb";
 import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import moment from 'moment';
-import { Merchant } from "./merchant";
+import { IOrder, IOrderItem } from "./order";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -18,6 +18,7 @@ export interface ITransaction {
   toId: string;
   toName: string;
   orderId?: string;
+  items?: IOrderItem[];
   type?: string;
   action: string;
   amount: number;
@@ -51,12 +52,10 @@ export interface IDbTransaction {
 
 export class Transaction extends Model {
   private accountModel: Account;
-  private merchantModel: Merchant;
 
   constructor(dbo: DB) {
     super(dbo, 'transactions');
     this.accountModel = new Account(dbo);
-    this.merchantModel = new Merchant(dbo);
   }
 
   // use in admin, $in
@@ -160,7 +159,7 @@ export class Transaction extends Model {
 
 
   saveTransactionsForRemoveOrder(orderId: string, merchantAccountId: string, merchantName: string, clientId: string, clientName: string,
-    cost: number, total: number, delivered: string) {
+    cost: number, total: number, delivered: string, items: IOrderItem[]) {
 
     return new Promise((resolve, reject) => {
       const t1: ITransaction = {
@@ -171,6 +170,7 @@ export class Transaction extends Model {
         action: 'duocun cancel order from merchant',
         amount: Math.round(cost * 100) / 100,
         orderId: orderId,
+        items: items,
         delivered: delivered
       };
 
@@ -456,21 +456,21 @@ export class Transaction extends Model {
   }
 
   fixCancelTransactions(req: Request, res: Response){
-    const q1 = { action: {$in: ['client cancel order from duocun', 'duocun cancel order from merchant']}, delivered:null};
-    this.find(q1).then(t1s => {
-      const datas: any[] = [];
-      t1s.map((t1: ITransaction) => {
-        const m = moment(t1.created).set({ hour: 11, minute: 20, second: 0, millisecond: 0 });
-        datas.push({
-          query: { _id: t1._id },
-          data: { delivered: m.toISOString() }
-        });
-      });
-      this.bulkUpdate(datas).then(() => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify('success', null, 3));
-      });
-    });
+    // const q1 = { action: {$in: ['client cancel order from duocun', 'duocun cancel order from merchant']}, delivered:null};
+    // this.find(q1).then(t1s => {
+    //   const datas: any[] = [];
+    //   t1s.map((t1: ITransaction) => {
+    //     const m = moment(t1.created).set({ hour: 11, minute: 20, second: 0, millisecond: 0 });
+    //     datas.push({
+    //       query: { _id: t1._id },
+    //       data: { delivered: m.toISOString() }
+    //     });
+    //   });
+    //   this.bulkUpdate(datas).then(() => {
+    //     res.setHeader('Content-Type', 'application/json');
+    //     res.end(JSON.stringify('success', null, 3));
+    //   });
+    // });
   }
 
   updateBalanceByAccountId(accountId: string, transactions: ITransaction[]) {
