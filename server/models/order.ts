@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { DB } from "../db";
 import { Model } from "./model";
 import { ILocation } from "./location";
-import { BulkWriteOpResultObject } from "mongodb";
 import { OrderSequence } from "./order-sequence";
 import moment from 'moment';
 import { Merchant, IPhase, IMerchant, IDbMerchant } from "./merchant";
@@ -11,7 +10,7 @@ import { Transaction, ITransaction } from "./transaction";
 import { Product, IProduct } from "./product";
 import { CellApplication, CellApplicationStatus, ICellApplication } from "./cell-application";
 import { Log, Action, AccountType } from "./log";
-import { resolve } from "url";
+import {createObjectCsvWriter} from 'csv-writer';
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -1296,4 +1295,135 @@ export class Order extends Model {
     });
   }
 
+
+  // _id?: string;
+  // code?: string;
+  // clientId: string;
+  // clientName: string;
+  // clientPhoneNumber?: string;
+  // // prepaidClient?: boolean;
+  // merchantId: string;
+  // merchantName: string;
+  // driverId?: string;
+  // driverName?: string;
+  // type?: OrderType;        // OrderType
+
+  // paymentStatus?: PaymentStatus;
+  // status?: OrderStatus;
+
+  // note?: string;
+  // address?: string;
+  // location: ILocation; // delivery address
+  // delivered?: string;
+  // created?: string;
+  // modified?: string;
+  // items?: IOrderItem[];
+  // tax?: number;
+  // tips?: number;
+  // // deliveryAddress?: Address; // duplicated should remove
+  // deliveryCost?: number;
+  // deliveryDiscount?: number;
+  // overRangeCharge?: number;
+  // groupDiscount?: number;
+  // productTotal?: number;
+
+  // cost: number;
+  // price: number;
+  // total: number;
+  // paymentMethod: string;
+  // chargeId?: string; // stripe chargeId
+  // transactionId?: string;
+
+  // mode?: string; // for unit test
+  // dateType?: string; // 'today', 'tomorrow'
+
+  // client?: IAccount;
+  // driver?: IAccount;
+  // merchantAccount?: IAccount;
+  // merchant?: IMerchant;
+
+  getItemString(order: any){
+    const items: any[] = order.items;
+    let s = '';
+    items.map(it => {
+      const product: any = it.product;
+      s += product.name + ' x' + it.quantity + ' ';
+    });
+    return s;
+  }
+
+  getAttributesString(client: any){
+    if(client){
+      return client.attributes? client.attributes.join(' ') : 'N/A';
+    }else{
+      return 'N/A';
+    }
+  }
+
+  reqCSV(req: Request, res: Response) {
+    const path = '../order.csv';
+
+    const cw = createObjectCsvWriter({
+      path: path,
+      header: [
+        {id: 'code', title: 'code'},
+        {id: 'client', title: 'client'},
+        {id: 'clientAttr', title: 'client Attribute'},
+        {id: 'merchant', title: 'merchant'},
+        {id: 'items', title: 'items'},
+        {id: 'price', title: 'price'},
+        {id: 'cost', title: 'cost'},
+        {id: 'address', title: 'address'},
+        {id: 'note', title: 'note'},
+        {id: 'deliveryCost', title: 'deliveryCost'},
+        {id: 'groupDiscount', title: 'groupDiscount'},
+        {id: 'overRangeCharge', title: 'overRangeCharge'},
+        {id: 'total', title: 'total'},
+        {id: 'tax', title: 'tax'},
+        {id: 'type', title: 'type'},
+        {id: 'status', title: 'status'},
+        {id: 'paymentStatus', title: 'paymentStatus'},
+        {id: 'paymentMethod', title: 'paymentMethod'},
+        {id: 'delivered', title: 'delivered'},
+        {id: 'created', title: 'created'},
+        // {id: 'modified', title: 'modified'},
+      ]
+    });
+    const data: any[] = [];
+    this.joinFind({}).then((orders: IOrder[]) => {
+      orders.map(order => {
+        // const s = ApplicationStatus.find(a => a.code === ca.status);
+        // const c = carriers.find(c => c.code === ca.carrier);
+        const client: any = order.client;
+        data.push({
+          code: order.code,
+          client: order.clientName,
+          clientAttr: this.getAttributesString(client),
+          merchant: order.merchantName,
+          items: this.getItemString(order),
+          price: order.price,
+          cost: order.cost,
+          address: order.address,
+          note: order.note,
+          deliveryCost: order.deliveryCost,
+          groupDiscount: order.groupDiscount,
+          overRangeCharge: order.overRangeCharge,
+          total: order.total,
+          tax: order.tax,
+          type: order.type,
+          status: order.status,
+          paymentStatus: order.paymentStatus,
+          paymentMethod: order.paymentMethod,
+          delivered: order.delivered,
+          created: order.created,
+          // modified: order.modified
+        });
+      });
+
+      cw.writeRecords(data).then(()=> {
+        res.download(path);
+        console.log('The CSV file was written successfully');
+      });
+    });
+  }
 }
