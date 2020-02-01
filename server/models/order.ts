@@ -457,7 +457,7 @@ export class Order extends Model {
                 order.items.map((it: IOrderItem) => {
                   const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
                   if (product) {
-                    items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, productName: product.name });
+                    items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, product: product });
                   }
                 });
                 
@@ -1269,7 +1269,7 @@ export class Order extends Model {
           oIds.push(t.orderId);
         }
       });
-      
+
       this.joinFind({_id: {$in: oIds}}).then((orders: any[]) => {
         ts.map((t: ITransaction) => {
           const transOrderId: any = t.orderId;
@@ -1278,7 +1278,7 @@ export class Order extends Model {
             const items: any[] = [];
             order.items.map((it: IOrderItem) => {
               const product: any = it.product;
-              items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, productName: product.name });
+              items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, product: product });
             });
 
             datas.push({
