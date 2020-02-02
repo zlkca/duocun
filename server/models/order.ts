@@ -1368,6 +1368,7 @@ export class Order extends Model {
       header: [
         {id: 'code', title: 'code'},
         {id: 'client', title: 'client'},
+        {id: 'clientPhone', title: 'client phone'},
         {id: 'clientAttr', title: 'client Attribute'},
         {id: 'merchant', title: 'merchant'},
         {id: 'items', title: 'items'},
@@ -1398,6 +1399,7 @@ export class Order extends Model {
         data.push({
           code: order.code,
           client: order.clientName,
+          clientPhone: order.client ? order.client.phone: 'N/A',
           clientAttr: this.getAttributesString(client),
           merchant: order.merchantName,
           items: this.getItemString(order),
