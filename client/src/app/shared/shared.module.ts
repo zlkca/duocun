@@ -18,6 +18,7 @@ import { WarningDialogComponent } from './warning-dialog/warning-dialog.componen
 import { AddressInputComponent } from './address-input/address-input.component';
 import { ProgressSpinnerComponent } from './progress-spinner/progress-spinner.component';
 import { LocationService } from '../location/location.service';
+import { DateSelectComponent } from './date-select/date-select.component';
 
 @NgModule({
   imports: [
@@ -36,7 +37,8 @@ import { LocationService } from '../location/location.service';
     AddressAutocompleteComponent,
     WarningDialogComponent,
     AddressInputComponent,
-    ProgressSpinnerComponent
+    ProgressSpinnerComponent,
+    DateSelectComponent
   ],
   providers: [
     SharedService,
@@ -51,7 +53,8 @@ import { LocationService } from '../location/location.service';
     AddressAutocompleteComponent,
     WarningDialogComponent,
     AddressInputComponent,
-    ProgressSpinnerComponent
+    ProgressSpinnerComponent,
+    DateSelectComponent
   ]
 })
 export class SharedModule { }

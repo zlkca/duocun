@@ -7,61 +7,50 @@ import { ILocation } from "./location";
 
 
 export class OrderSequence extends Model {
-    constructor(dbo: DB) {
-        super(dbo, 'order_sequences');
-    }
+  constructor(dbo: DB) {
+    super(dbo, 'order_sequences');
+  }
 
-    generate(req: Request, res: Response) {
-      const start = moment().startOf('day').toDate();
-      const end = moment().endOf('day').toDate();
+  generate(req: Request, res: Response) {
+    this.reqSequence().then(index => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(index, null, 3));
+    });
+  }
 
-      const range = { "created": { "$gte": start, "$lte": end }};
-      this.findOne(range).then(x => {
-        if(x){
-          this.updateOne(range, {index: x.index + 1}).then(() => {
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify(x.index + 1, null, 3));
-          });
-        }else{
-          this.insertOne({index: 1, created: start}).then(() => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(1, null, 3));
+  reqSequence(): Promise<number> {
+    const dt = moment().toISOString();
+    return new Promise((resolve, reject) => {
+      this.findOne({}).then(x => {
+        if (x) {
+          if (x.index < 100000) {
+            const index = x.index + 1;
+            this.updateOne({ _id: x._id }, { index: index, modified: dt }).then(() => {
+              resolve(index);
+            }, err => {
+              resolve(index);
+            });
+          } else {
+            this.updateOne({ _id: x._id }, { index: 0, modified: dt }).then(() => {
+              resolve(0);
+            }, err => {
+              resolve(0);
+            });
+          }
+        } else {
+          this.insertOne({ index: 0, created: dt, modified: dt }).then(() => {
+            resolve(0);
+          }, err => {
+            resolve(0);
           });
         }
       });
-    }
+    });
+  }
 
-    reqSequence(): Promise<number>{
-      const start = moment().startOf('day').toISOString();
-      const end = moment().endOf('day').toISOString();
-      const range = { "created": { "$gte": start, "$lte": end }};
-
-      return new Promise((resolve, reject) => {
-        this.findOne(range).then(x => {
-          if(x){
-            this.updateOne(range, {index: x.index + 1}).then(() => {
-              resolve(x.index + 1);
-            }, err => {
-              resolve(1);
-            });
-          }else{
-            this.insertOne({index: 1, created: start}).then(() => {
-              resolve(1);
-            }, err => {
-              resolve(1);
-            });
-          }
-        });
-      });
-    }
-
-    getCode(location: ILocation, n: number): string {
-      const index = n > 9 ? ('' + n) : ('0' + n);
-      const street = location.streetNumber + location.streetName.toUpperCase().replace(/\s/g,'');
-      return street.substring(0, 4) + index.substring(0, 2);
-    }
-
-    // this.sequenceSvc.generate().pipe(takeUntil(self.onDestroy$)).subscribe(sq => {
-    //   //   order.id = this.order.id;
-    //   const code = self.getCode(self.delivery.origin, sq);
+  getCode(location: ILocation, n: number): string {
+    const index = n > 9 ? n.toString().slice(-2) : ('0' + n);
+    const street = location.streetNumber + location.streetName.toUpperCase().replace(/\s/g, '');
+    return street.substring(0, 4) + index.substring(0, 2);
+  }
 }
