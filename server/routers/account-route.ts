@@ -10,10 +10,9 @@ export function AccountRouter(db: DB){
   const merchantStuff = new MerchantStuff(db);
 
   router.get('/attributes', (req, res) => { attrModel.quickFind(req, res); });
-
   router.get('/wechatLogin', (req, res) => { controller.wechatLogin(req, res); });
-
   router.get('/qFind', (req, res) => { controller.quickFind(req, res); });
+  router.get('/shortList', (req, res) => { controller.shortList(req, res); });
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/current', (req, res) => { controller.getCurrentAccount(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });

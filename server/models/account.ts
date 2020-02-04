@@ -134,17 +134,17 @@ export class Account extends Model {
     this.trySignup(req.body.accountId, req.body.phone).then((r: any) => {
       if (r) {
         self.twilioClient.messages.create({
-            body: (lang === 'en' ? 'Duocun Verification Code: ' : '多村外卖验证码: ') + r.verificationCode,
-            from: '+16475591743',
-            to: "+1".concat(r.phone)
-          })
-        .then((message: any) => {
+          body: (lang === 'en' ? 'Duocun Verification Code: ' : '多村外卖验证码: ') + r.verificationCode,
+          from: '+16475591743',
+          to: "+1".concat(r.phone)
+        })
+          .then((message: any) => {
             // console.log(message.sid);
-          const cfg = new Config();
-          const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
-          res.setHeader('Content-Type', 'application/json');
-          res.send(JSON.stringify(tokenId, null, 3));
-        });
+            const cfg = new Config();
+            const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(tokenId, null, 3));
+          });
       } else {
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify('', null, 3));
@@ -193,6 +193,24 @@ export class Account extends Model {
   }
 
 
+  shortList(req: Request, res: Response) {
+    let query = {};
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+    query = this.convertIdFields(query);
+    this.find(query).then(accounts => {
+      const rs: any[] = [];
+      accounts.map((account: any) => {
+        delete account.password;
+        rs.push({ _id: account._id, username: account.username, phone: account.phone });
+      });
+
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(rs, null, 3));
+    });
+  }
+
   getCurrentAccount(req: Request, res: Response) {
     const tokenId: string = req.query.tokenId;
 
@@ -207,7 +225,7 @@ export class Account extends Model {
     const cfg = new Config();
 
     return new Promise((resolve, reject) => {
-      if(tokenId && tokenId !== 'undefined' && tokenId !== 'null'){
+      if (tokenId && tokenId !== 'undefined' && tokenId !== 'null') {
         const accountId = jwt.verify(tokenId, cfg.JWT.SECRET);
         if (accountId) {
           this.findOne({ _id: accountId }).then((account: IAccount) => {
@@ -219,7 +237,7 @@ export class Account extends Model {
         } else {
           resolve();
         }
-      }else{
+      } else {
         resolve();
       }
     });
@@ -256,7 +274,7 @@ export class Account extends Model {
             // bcrypt.hash(password, saltRounds, (err, hash) => {
             const updates = { phone: phone, verificationCode: verificationCode, type: 'client' };
             this.updateOne({ _id: x._id.toString() }, updates).then(() => {
-              if(x && x.password){
+              if (x && x.password) {
                 delete x.password;
               }
               x = { ...x, ...updates };
