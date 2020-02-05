@@ -9,14 +9,20 @@ $red: rgb(219, 68, 55);
 $imgW:133px;
 $imgH:100px;
 
-$list-height: 450px; // 470px; // 450px; // 
-$header-height: 56px; // 0px; // 56px;
-$position-btn-width: 0px;
 $map-height: 360px;
-$address-search-height: 56px;
-$bottom-bar-height: 60px;
+
+$header-height: 0px; // 0px; // 56px;
 $ad-height: 0px; // 120px;
-$date-btn-height: 50px;
+$address-search-height: 56px;
+$date-btn-height: 84px;
+$bottom-bar-height: 60px;
+
+// $list-height: calc(100% - #{$header-height} - #{$address-search-height} - #{$date-btn-height} - #{$ad-height} - #{$bottom-bar-height});
+
+
+$position-btn-width: 0px;
+
+
 
 .search-col{
   margin-top:10px;
@@ -25,13 +31,12 @@ $date-btn-height: 50px;
 .restaurant-grid{
   padding: 0px;
   margin: 0px;
-  height: $list-height;
-  // height: calc(100% - #{$header-height} - #{$address-search-height} - #{$date-btn-height} - #{$bottom-bar-height});
+  height: 100%; // $list-height;
   overflow: scroll;
 
-    .row{
-      margin:0px;
-    }
+  .row{
+    margin:0px;
+  }
 
     .grid-item{
       padding: 6px 0px;
@@ -210,17 +215,17 @@ $date-btn-height: 50px;
 
 	@media #{$mobile}{
     .restaurant-grid{
-        .grid-item{
-            .grid-item-body{
-                .image-body{
-                    padding-top:0px;
-                }
-            }
-        }
+      .grid-item{
+          .grid-item-body{
+              .image-body{
+                  padding-top:0px;
+              }
+          }
+      }
 
-        .grid-item:first-child{
-            border-top: 1px solid #eee;
-        }
+      .grid-item:first-child{
+          border-top: 1px solid #eee;
+      }
     }
 		// .left-side{
 		// 	min-height:40px;

@@ -1,11 +1,8 @@
 import { Component, OnInit, OnDestroy, Input, OnChanges } from '@angular/core';
-import { MerchantService } from '../merchant.service';
-import { takeUntil } from '../../../../node_modules/rxjs/operators';
-import { IMerchant, MerchantType } from '../../merchant/merchant.model';
+import { IMerchant } from '../../merchant/merchant.model';
 import { environment } from '../../../environments/environment';
 import { Router } from '../../../../node_modules/@angular/router';
 import { Subject } from '../../../../node_modules/rxjs';
-import { ILocation } from '../../location/location.model';
 import { DistanceService } from '../../location/distance.service';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
@@ -13,7 +10,6 @@ import { PageActions } from '../../main/main.actions';
 import { RestaurantActions } from '../../restaurant/restaurant.actions';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { CartActions } from '../../cart/cart.actions';
-import { ICart } from '../../cart/cart.model';
 
 @Component({
   selector: 'app-merchant-list',
@@ -22,50 +18,23 @@ import { ICart } from '../../cart/cart.model';
 })
 export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   @Input() merchants;
-  @Input() phase; // string 'today:lunch', 'tomorrow:lunch'
-  @Input() address; // ILocation
-  @Input() active;
-  @Input() bAddressList;
+  @Input() origin; // ILocation
 
   onDestroy$ = new Subject();
-  markers;
   restaurants;
   defaultPicture = window.location.protocol + '//placehold.it/400x300';
-  malls;
-  loading = false;
-  origin;
-  cart;
   lang = environment.language;
 
   constructor(
-    private merchantSvc: MerchantService,
     private distanceSvc: DistanceService,
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
-    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
-      this.cart = cart;
-    });
   }
 
   ngOnChanges(d) { // this is run before ngOnInit
-    if (d.address) {
-      // this.origin = d.address.currentValue;
-      // if (!this.origin) {
-      //   return;
-      // }
-
-      if (d.bAddressList && d.bAddressList.currentValue) {
-        return;
-      }
-    }
-
-    if (this.phase) {
-      this.origin = this.address;
-      if (this.merchants && this.merchants.length > 0) {
-        // this.loading = true;
-        this.restaurants = this.processMerchants(this.origin, this.merchants); // this.origin could be empty
-      }
+    if (this.merchants && this.merchants.length > 0) {
+      this.restaurants = this.processMerchants(this.origin, this.merchants); // this.origin could be empty
     }
   }
 
@@ -109,7 +78,6 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-
   getImageSrc(restaurant: any) {
     if (restaurant.pictures && restaurant.pictures[0] && restaurant.pictures[0].url) {
       return environment.MEDIA_URL + restaurant.pictures[0].url;
@@ -117,7 +85,6 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
       return this.defaultPicture;
     }
   }
-
 
   toDetail(r: IMerchant) {
     this.rx.dispatch({

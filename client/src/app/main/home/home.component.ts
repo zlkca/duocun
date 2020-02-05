@@ -62,7 +62,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   placeForm;
   historyAddressList = [];
   suggestAddressList = [];
-  selectedDate = 'today';
 
   mapRanges;
   mapZoom;
@@ -71,13 +70,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   availableRanges;
   sOrderDeadline;
-  today;
-  tomorrow;
   bAddressList = false;
-  date;
-  phase = 'today:lunch';
   bPayment = false;
   lang = environment.language;
+  bOrderEnded = false;
+
+  date = { code: 'L', type: 'today' };
 
   @ViewChild('tooltip', { static: true }) tooltip: MatTooltip;
 
@@ -96,48 +94,44 @@ export class HomeComponent implements OnInit, OnDestroy {
     private fb: FormBuilder
   ) {
     const self = this;
-    const today = moment().format('YYYY-MM-DD');
-    const tomorrow = moment().add(1, 'days').format('YYYY-MM-DD');
-
-    // For display purpose only
-    this.today = { type: 'lunch today', text: '今天午餐', date: today, startTime: '11:45', endTime: '13:15' };
-    this.tomorrow = { type: 'lunch tomorrow', text: '今天午餐', date: tomorrow, startTime: '11:45', endTime: '13:15' };
 
     this.placeForm = this.fb.group({ addr: [''] });
 
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
 
-    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
-      const origin = d.origin;
-      if (d && origin) {
-        self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
-        self.placeForm.get('addr').patchValue(self.deliveryAddress);
-        if (self.deliveryAddress && self.bUpdateLocationList) {
-          self.getSuggestLocationList(self.deliveryAddress, false);
-          self.bAddressList = false;
-        }
 
-        this.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
-          this.inRange = inRange;
-          this.updateMap(origin, inRange);
-        });
+    // receive from remote change ???
+    // this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
+    //   const origin = d.origin;
+    //   if (d && origin) {
+    //     self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
+    //     self.placeForm.get('addr').patchValue(self.deliveryAddress);
+    //     if (self.deliveryAddress && self.bUpdateLocationList) {
+    //       self.getSuggestLocationList(self.deliveryAddress, false);
+    //       self.bAddressList = false;
+    //     }
 
-      } else {
-        this.location = null;
-        this.inRange = true;
-      }
+    //     this.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
+    //       this.inRange = inRange;
+    //       this.updateMap(origin, inRange);
+    //     });
 
-      if (d && d.date) { // moment
-        self.selectedDate = d.dateType;
-        self.phase = (d.dateType === 'today') ? 'today:lunch' : 'tomorrow:lunch';
-        self.date = d.date;
-      } else {
-        self.selectedDate = 'today';
-        self.phase = 'today:lunch';
-        self.date = moment();
-        self.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: self.selectedDate } });
-      }
-    });
+    //   } else {
+    //     this.location = null;
+    //     this.inRange = true;
+    //   }
+
+    //   if (d && d.date) { // moment
+    //     self.selectedDate = d.dateType;
+    //     self.phase = (d.dateType === 'today') ? 'today:lunch' : 'tomorrow:lunch';
+    //     self.date = d.date;
+    //   } else {
+    //     self.selectedDate = 'today';
+    //     self.phase = 'today:lunch';
+    //     self.date = moment();
+    //     self.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: self.selectedDate } });
+    //   }
+    // });
 
     this.loading = true;
     this.routeUrl().then((origin: any) => {
@@ -146,7 +140,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         self.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
           self.inRange = inRange;
           if (inRange) {
-            self.loadRestaurants(origin, self.phase).then(rs => {
+            self.loadRestaurants(origin, self.date.type).then(rs => {
               self.loading = false;
             });
           } else {
@@ -157,7 +151,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
         });
       } else {
-        self.loadRestaurants(null, self.phase).then(rs => {
+        self.loadRestaurants(null, self.date.type).then(rs => {
+
           self.loading = false;
         });
       }
@@ -369,18 +364,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     // this.deliveryAddress = '';
     this.places = [];
     this.loading = true;
-    this.loadRestaurants(this.location, this.phase).then(rs => {
-      this.loading = false;
+    this.rangeSvc.inDeliveryRange(this.location).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
+      this.inRange = inRange;
+      this.loadRestaurants(this.location, this.date.type).then(rs => {
+        this.loading = false;
+      });
     });
   }
 
   onAddressInputClear(e) {
     this.deliveryAddress = '';
+    this.location = null;
     this.places = [];
     this.bUpdateLocationList = true;
     this.rx.dispatch({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: null } });
     this.onAddressInputFocus({ input: '' });
-
   }
 
   getSuggestLocationList(input: string, bShowList: boolean) {
@@ -436,7 +434,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       self.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
         self.inRange = inRange;
         if (inRange) {
-          self.loadRestaurants(origin, self.phase).then(rs => {
+          self.loadRestaurants(origin, self.date.type).then(rs => {
             self.loading = false;
           });
         } else {
@@ -447,36 +445,25 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      self.loadRestaurants(null, self.phase).then(rs => {
+      self.loadRestaurants(null, self.date.type).then(rs => {
         self.loading = false;
       });
     }
   }
 
-  onSelectDate(e) {
+  onDateChange(e) {
     const self = this;
-    if (e.value === 'tomorrow') {
-      const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
-      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow, dateType: 'tomorrow' } });
-      this.phase = 'tomorrow:lunch';
-    } else {
+    this.date = { code: e, type: e === 'L' ? 'today' : 'tomorrow' };
+    if (e === 'L') {
       const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
       this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
-      this.phase = 'today:lunch';
-
+    } else {
+      const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
+      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow, dateType: 'tomorrow' } });
     }
-
-    const origin = this.location;
     this.loading = true;
-    self.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
-      self.inRange = inRange;
-      if (inRange) {
-        self.loadRestaurants(origin, self.phase).then(rs => {
-          self.loading = false;
-        });
-      } else {
-        self.loading = false;
-      }
+    this.loadRestaurants(this.location, self.date.type).then(rs => {
+      self.loading = false;
     });
   }
 
@@ -486,12 +473,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.deliveryAddress = '';
   }
 
-
   // -----------------------------------------------------
-  // phase --- string 'today:lunch', 'tomorrow:lunch'
-  loadRestaurants(origin: ILocation, phase: string) {
+  // dateType --- string 'today', 'tomorrow'
+  loadRestaurants(origin: ILocation, dateType: string) {
     const self = this;
-    const dateType = phase.split(':')[0];
     const query = { status: 'active', type: MerchantType.RESTAURANT };
 
     this.location = origin;
@@ -501,14 +486,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (origin) {
         this.merchantSvc.load(origin, dateType, query).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IMerchant[]) => {
           self.merchants = rs;
+          self.bOrderEnded = !rs.some(m => !m.orderEnded);
           resolve(rs);
         });
       } else {
         this.merchantSvc.find(query).pipe(takeUntil(self.onDestroy$)).subscribe((rs: IMerchant[]) => {
           self.merchants = rs;
+          self.bOrderEnded = !rs.some(m => !m.orderEnded);
           resolve(rs);
         });
       }
     });
   }
+
 }

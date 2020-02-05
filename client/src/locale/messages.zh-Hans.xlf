@@ -1064,6 +1064,14 @@
           <context context-type="linenumber">68</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="Tomorrow" datatype="html">
+        <source>Tomorrow</source>
+        <target>明天</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/page/home/home.component.html</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="FreeDelivery" datatype="html">
         <source>Free Delivery</source>
         <target>免运费</target>
@@ -1708,7 +1716,14 @@
           <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
-               
+      <trans-unit id="MapHint" datatype="html">
+        <source>Sorry, the address is not in our service range</source>
+        <target>实在抱歉, 您的地址不在我们的配送范围内</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>               
     </body>
   </file>
 </xliff>
