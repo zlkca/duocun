@@ -1,0 +1,52 @@
+$primary-bg:#4285F3; // rgb(222,51, 56);
+$secondary-bg: #eee; // rgb(156, 166, 167);
+
+.btn-group{
+  width: 100%;
+
+  display:-webkit-flex;
+  -webkit-justify-content:space-between;
+  display:flex;
+  justify-content:space-between;
+
+  flex-direction: row;
+
+  .inner{
+    display: inline-block;
+    font-size: 16px;
+    .payment-icon, .title{
+      float:left;
+    }
+    .i-wechat, .i-card{
+      padding-right: 5px;
+    }
+    .i-cash, .i-card{
+      margin-top: -2px;
+    }
+  }
+
+  .btn-toggle{
+    -webkit-flex-grow:1;
+    flex-grow: 1;
+  
+    padding: 14px 10px 10px 8px;
+    // border: 1px solid #d1d1d1;
+    text-align: center;
+    background: $secondary-bg;
+  }
+
+  .btn-toggle:first-child{
+    // border-right: none;
+    border-right: 1px solid white;
+  }
+
+  .btn-toggle:last-child{
+    // border-left: none;
+    border-left: 1px solid white;
+  }
+
+  .btn-toggle.active{
+    background: $primary-bg;
+    color: white;
+  }
+}

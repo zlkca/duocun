@@ -340,7 +340,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const v = this.form.value;
     const order = self.createOrder(account, cart, delivery, charge, v.note, paymentMethod); // Create an unpaid order
 
-    this.accountSvc.update({ _id: account._id }, { type: 'client' }).pipe(takeUntil(self.onDestroy$)).subscribe(ret => {});
+    this.accountSvc.update({ _id: account._id }, { type: 'client' }).pipe(takeUntil(self.onDestroy$)).subscribe(ret => { });
 
     if (paymentMethod === 'card') {
       this.paymentSvc.vaildateCardPay(this.stripe, this.card, 'card-errors').then((ret: any) => {
@@ -481,16 +481,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
 
-  onSelectPaymentMethod(e) {
+  onSelectPaymentMethod(paymentMethod) {
     const self = this;
-    this.paymentMethod = e.value;
+    this.paymentMethod = paymentMethod;
     this.rx.dispatch({
       type: OrderActions.UPDATE_PAYMENT_METHOD,
       payload: { paymentMethod: this.paymentMethod }
     });
-    if (e.value === 'cash') {
+    if (paymentMethod === 'cash') {
       // product
-    } else if (e.value === 'card') {
+    } else if (paymentMethod === 'card') {
       setTimeout(() => {
         const rt = self.paymentSvc.initStripe('card-element', 'card-errors');
         self.stripe = rt.stripe;
@@ -523,4 +523,5 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     // this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
 
   }
+
 }

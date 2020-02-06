@@ -81,6 +81,10 @@ $blue: #4285F3;
   }
 }
 
+.payment-icon{
+  float: left;
+}
+
 .warning-block{
   .text-warning{
     color: #d41a09 !important;
@@ -274,5 +278,6 @@ mat-button-toggle-group{
 }
 
 .cash-note{
+  margin-top: 8px;
   font-size: 13px;
 }
