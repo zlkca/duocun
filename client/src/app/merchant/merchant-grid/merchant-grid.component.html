@@ -1,0 +1,25 @@
+<div class="merchant-grid">
+
+  <div class="grid-row" *ngFor="let row of rows">
+      <div class="grid-item" *ngFor="let r of row;" (click)="toDetail(r)">
+          <div class="grid-item-body" *ngIf="r.distance!==null">
+            <div class="image-body">
+              <img [src]="getImageSrc(r)" [alt]="r.name">
+              <div class="shadow-layer" *ngIf="r.isClosed || (origin && !r.onSchedule) || r.orderEnded">
+                <div class="title-sm rest-1" *ngIf="isCloseInTurn(r)" i18n="@@MerchantClosed">Closed Today</div>
+                <div class="title-sm rest-3" *ngIf="!isCloseInTurn(r) && r.inRange && !r.isClosed && r.orderEnded">{{r.orderEndTime}}&nbsp;
+                  <span i18n="@@LastOrder">Last Order</span>
+                </div>
+              </div>
+            </div>
+      
+            <div class="text-body">
+              <div class="title-bg text-left">{{r.name}}</div>
+              <!-- <div class="text-sm text-left" *ngIf="r && r.distance">{{getDistanceString(r)}}</div> -->
+            </div>
+          </div>
+        </div>
+  </div>
+
+
+</div>

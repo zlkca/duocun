@@ -4,12 +4,12 @@
 
 <div class="merchant-list">
 
-  <!-- <app-merchant-grid *ngIf="!loading && !bPayment && !(places && places.length > 0) && inRange"
+  <app-merchant-grid *ngIf="!loading && !bPayment && !(places && places.length > 0) && inRange"
       [merchants]="merchants" [origin]="location">
-  </app-merchant-grid> -->
-  <app-merchant-list *ngIf="!loading && !bPayment && !(places && places.length > 0) && inRange"
+  </app-merchant-grid>
+  <!-- <app-merchant-list *ngIf="!loading && !bPayment && !(places && places.length > 0) && inRange"
     [merchants]="merchants" [origin]="location">
-  </app-merchant-list>
+  </app-merchant-list> -->
 </div>
 
 <div class="header-block" *ngIf="!loading">

@@ -518,10 +518,4 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  onPay() {
-    // this.dialogRef.close();
-    // this.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } }); // refresh order history
-
-  }
-
 }
