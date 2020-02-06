@@ -87,10 +87,7 @@ export class MerchantListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   toDetail(r: IMerchant) {
-    this.rx.dispatch({
-      type: PageActions.UPDATE_URL,
-      payload: { name: 'restaurants' }
-    });
+    this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'restaurants' }});
     this.rx.dispatch({ type: RestaurantActions.UPDATE, payload: r });
     this.rx.dispatch({
       type: DeliveryActions.UPDATE_DESTINATION,

@@ -271,7 +271,6 @@ export class Account extends Model {
       if (phone) {
         this.findOne({ phone: phone }).then((x: IAccount) => {
           if (x) {
-            // bcrypt.hash(password, saltRounds, (err, hash) => {
             const updates = { phone: phone, verificationCode: verificationCode, type: 'client' };
             this.updateOne({ _id: x._id.toString() }, updates).then(() => {
               if (x && x.password) {
@@ -280,7 +279,6 @@ export class Account extends Model {
               x = { ...x, ...updates };
               resolve(x);
             });
-            // });
           } else { // should not go here
             const data = {
               username: phone,

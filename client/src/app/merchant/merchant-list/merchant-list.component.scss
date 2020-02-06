@@ -11,18 +11,12 @@ $imgH:100px;
 
 $map-height: 360px;
 
-$header-height: 0px; // 0px; // 56px;
+$header-height: 0px; // 56px;
 $ad-height: 0px; // 120px;
 $address-search-height: 56px;
 $date-btn-height: 84px;
 $bottom-bar-height: 60px;
-
-// $list-height: calc(100% - #{$header-height} - #{$address-search-height} - #{$date-btn-height} - #{$ad-height} - #{$bottom-bar-height});
-
-
 $position-btn-width: 0px;
-
-
 
 .search-col{
   margin-top:10px;
@@ -38,91 +32,89 @@ $position-btn-width: 0px;
     margin:0px;
   }
 
-    .grid-item{
-      padding: 6px 0px;
-      width: 100%;
-      height: 122px;
-      border-bottom: solid 1px #eee;
+  .grid-item{
+    padding: 6px 0px;
+    width: 100%;
+    height: 122px;
+    border-bottom: solid 1px #eee;
 
-      .grid-item-body{
-        padding: 4px 0px;
-        height: 100%;
+    .grid-item-body{
+      padding: 4px 0px;
+      height: 100%;
 
-            .image-body{
-                padding:0px;
-                padding-top:75%;
-                img{
-                  width: $imgW;
-                  height: $imgH;
-                  position: absolute;
-                  top:0;
-                  left:15px;
-                }
+      .image-body{
+          padding:0px;
+          padding-top:75%;
+          img{
+            width: $imgW;
+            height: $imgH;
+            position: absolute;
+            top:0;
+            left:15px;
+          }
 
-                .text-sm{
-                  padding-top: 3px;
-                  padding-left: 5px;
-                  line-height: 14px;
-                }
+          .text-sm{
+            padding-top: 3px;
+            padding-left: 5px;
+            line-height: 14px;
+          }
 
-                .rest-1{
-                  position: absolute;
-                  top: 30px;
-                  left: 28px;
-                  color: white;
-                }
-                .not-in-range{
-                  position: absolute;
-                  top: 30px;
-                  left: 28px;
-                  color: white;
-                }
-                .rest-2{
-                  position: absolute;
-                  top: 53px;
-                  left: 38px;
-                  color: white;
-                }
-                .rest-3{
-                  position: absolute;
-                  top: 58px;
-                  left: 28px;
-                  font-size: 14px;
-                  color: white;
-                }
+          .rest-1{
+            position: absolute;
+            top: 30px;
+            left: 28px;
+            color: white;
+          }
+          .not-in-range{
+            position: absolute;
+            top: 30px;
+            left: 28px;
+            color: white;
+          }
+          .rest-2{
+            position: absolute;
+            top: 53px;
+            left: 38px;
+            color: white;
+          }
+          .rest-3{
+            position: absolute;
+            top: 58px;
+            left: 28px;
+            font-size: 14px;
+            color: white;
+          }
 
-                .shadow-layer{
-                  position: absolute;
-                  top: 0px;
-                  left: 15px;
-                  width: $imgW;
-                  height: $imgH;
-                  background: rgba(0, 0, 0, 0.6);
-                }
-            }
-    
-            .text-body{              
-              padding:0px 10px;
-              .title-bg{
-                  font-size:16px;
-                  font-weight:400;
-                  font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-              }
-  
-              .text-sm{
-                  font-size:12px;
-                  font-weight:400;
-                  font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
-              }
-            }
+          .shadow-layer{
+            position: absolute;
+            top: 0px;
+            left: 15px;
+            width: $imgW;
+            height: $imgH;
+            background: rgba(0, 0, 0, 0.6);
+          }
+        }
 
+        .text-body{              
+          padding:0px 10px;
+          .title-bg{
+              font-size:16px;
+              font-weight:400;
+              font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
+          }
 
+          .text-sm{
+              font-size:12px;
+              font-weight:400;
+              font-family: "Microsoft Yahei", Arial, Helvetica, sans-serif;
+          }
         }
     }
+  }
 
-    .grid-item:hover{
-        background-color: #eee;
-    }
+  .grid-item:hover{
+      background-color: #eee;
+  }
 }
 
 
@@ -131,8 +123,6 @@ $position-btn-width: 0px;
 	    height: 380px;
 	    padding: 0px;
 	}
-
-
 
 	.left-side{
 		display:inline-block;

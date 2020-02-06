@@ -30,6 +30,7 @@ export interface ICategory {
 export interface IProduct {
   _id?: string;
   name: string;
+  nameEN: string;
   description?: string;
   price: number;
   cost: number;
@@ -100,6 +101,84 @@ export class Product extends Model {
           });
         });
       });
+    });
+  }
+
+  categorize(req: Request, res: Response) {
+    let query = {};
+    let lang: any = req.headers.lang;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    this.doCategorize(query, lang).then(cats => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(cats, null, 3));
+    });
+  }
+
+  doCategorize(query: any, lang: string) {
+    return new Promise((resolve, reject) => {
+      this.joinFind(query).then(ps => {
+        ps.map((p: IProduct) => {
+          if(lang === 'en'){
+            p.name = p.nameEN;
+          }
+        });
+
+        const cats = this.groupByCategory(ps, lang);
+        resolve(cats);
+      });
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // return --- [ {categoryId: x, items: [{product: p, quantity: q} ...]} ... ]
+  groupByCategory(products: IProduct[], lang: string) {
+    const cats: any[] = [];
+
+    products.map(p => {
+      if (p && p.categoryId) {
+        const cat = cats.find(c => c.categoryId === p.categoryId);
+        const category: any = p.category;
+        if (cat) {
+          cat.items.push({ product: p, quanlity: 0 });
+        } else {
+          if (category) {
+            cats.push({
+              categoryId: p.categoryId,
+              categoryName: lang === 'zh' ? category.name : category.nameEN,
+              order: category.order,
+              items: [{ product: p, quanlity: 0 }]
+            });
+          } else { // shouldn't happen
+            cats.push({
+              categoryId: p.categoryId,
+              categoryName: lang === 'zh' ? category.name : category.nameEN,
+              order: 0,
+              items: [{ product: p, quanlity: 0 }]
+            });
+          }
+        }
+      }
+    });
+
+    cats.map(c => {
+      c.items = c.items.sort((a: any, b: any) => {
+        if (a.product.order < b.product.order) {
+          return -1;
+        } else {
+          return 1;
+        }
+      });
+    });
+
+    return cats.sort((a, b) => {
+      if (a.order < b.order) {
+        return -1;
+      } else {
+        return 1;
+      }
     });
   }
 }

@@ -321,7 +321,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!(account && delivery && delivery.date && delivery.origin)) {
+    if (!(account && delivery && delivery.origin)) {
       alert(missingInfoHint);
       return;
     }

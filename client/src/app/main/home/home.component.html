@@ -3,6 +3,10 @@
 </div>
 
 <div class="merchant-list">
+
+  <!-- <app-merchant-grid *ngIf="!loading && !bPayment && !(places && places.length > 0) && inRange"
+      [merchants]="merchants" [origin]="location">
+  </app-merchant-grid> -->
   <app-merchant-list *ngIf="!loading && !bPayment && !(places && places.length > 0) && inRange"
     [merchants]="merchants" [origin]="location">
   </app-merchant-list>
@@ -29,7 +33,7 @@
         <!-- <div>本公司因圣诞放假，2019-12-20至2020-01-05暂停营业, 2020-01-06恢复正常, 不便之处, 尽请谅解。</div> -->
       </div>
 
-      <app-date-select *ngIf="inRange" [bOrderEnded]="bOrderEnded" [selected]="date.code" (dateChange)="onDateChange($event)"></app-date-select>
+      <app-date-select *ngIf="inRange && !(places && places.length > 0)" [bOrderEnded]="bOrderEnded" [selected]="date.code" (dateChange)="onDateChange($event)"></app-date-select>
 
       <!-- <div class="date-block" *ngIf="!(places && places.length > 0)">
         <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">

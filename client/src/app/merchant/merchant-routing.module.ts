@@ -4,7 +4,7 @@ import { MerchantDetailPageComponent } from './merchant-detail-page/merchant-det
 
 
 const routes: Routes = [
-  { path: 'list/:id/:onSchedule', component: MerchantDetailPageComponent }
+  { path: 'list/:id/:onSchedule', component: MerchantDetailPageComponent } //  onSchedule: 'undefined' means no address
 ];
 
 @NgModule({

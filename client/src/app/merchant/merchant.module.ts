@@ -12,12 +12,14 @@ import { QuitRestaurantDialogComponent } from './quit-restaurant-dialog/quit-res
 import { SharedModule } from '../shared/shared.module';
 import { AreaModule } from '../area/area.module';
 import { AreaService } from '../area/area.service';
+import { MerchantGridComponent } from './merchant-grid/merchant-grid.component';
 
 
 @NgModule({
   declarations: [MerchantListComponent,
     MerchantDetailPageComponent,
-    QuitRestaurantDialogComponent
+    QuitRestaurantDialogComponent,
+    MerchantGridComponent
   ],
   imports: [
     CommonModule,
@@ -30,7 +32,10 @@ import { AreaService } from '../area/area.service';
     SharedModule
   ],
   providers: [AreaService],
-  exports: [MerchantListComponent],
+  exports: [
+    MerchantListComponent,
+    MerchantGridComponent
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [QuitRestaurantDialogComponent]
 })

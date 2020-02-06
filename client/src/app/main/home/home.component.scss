@@ -173,7 +173,6 @@ $map-height: calc(100% - #{$header-height} - #{$address-search-height} - #{$ad-h
   height: calc(100% - #{$header-height} - #{$banner-height});
   position: absolute;
   top: $header-height + $banner-height;
-
 }
 
 app-location-list{

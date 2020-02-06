@@ -94,7 +94,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     private fb: FormBuilder
   ) {
     const self = this;
-
+    if (this.date.code === 'L') {
+      const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
+    } else {
+      const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
+      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow, dateType: 'tomorrow' } });
+    }
     this.placeForm = this.fb.group({ addr: [''] });
 
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
@@ -102,6 +108,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // receive from remote change ???
     // this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
+
     //   const origin = d.origin;
     //   if (d && origin) {
     //     self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
@@ -122,14 +129,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     //   }
 
     //   if (d && d.date) { // moment
-    //     self.selectedDate = d.dateType;
-    //     self.phase = (d.dateType === 'today') ? 'today:lunch' : 'tomorrow:lunch';
+    //     // self.selectedDate = d.dateType;
+    //     // self.phase = (d.dateType === 'today') ? 'today:lunch' : 'tomorrow:lunch';
     //     self.date = d.date;
     //   } else {
-    //     self.selectedDate = 'today';
-    //     self.phase = 'today:lunch';
-    //     self.date = moment();
-    //     self.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: self.selectedDate } });
+    //     // self.selectedDate = 'today';
+    //     // self.phase = 'today:lunch';
+    //     // self.date = moment();
+    //     self.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: moment(), dateType: 'today' } });
     //   }
     // });
 

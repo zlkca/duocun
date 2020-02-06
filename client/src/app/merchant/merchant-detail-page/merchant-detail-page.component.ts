@@ -29,7 +29,6 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject<any>();
   locationSubscription;
   dow: number; // day of week
-  products;
   cart;
   delivery: IDelivery;
   lang = environment.language;
@@ -56,19 +55,16 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.cart = cart;
-      if (self.products) {
-        // update quantity of cart items
-        if (self.categories && self.categories.length > 0) {
-          self.categories.map(group => {
-            group.items.map(groupItem => {
-              const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product._id);
-              groupItem.quantity = cartItem ? cartItem.quantity : 0;
-            });
+      // update quantity of cart items
+      if (self.categories && self.categories.length > 0) {
+        self.categories.map(group => {
+          group.items.map(groupItem => {
+            const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product._id);
+            groupItem.quantity = cartItem ? cartItem.quantity : 0;
           });
-        }
+        });
       }
     });
-
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'checkout-from-restaurant') {
@@ -102,7 +98,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    self.route.params.pipe(takeUntil(this.onDestroy$)).subscribe(params => {
+    this.route.params.pipe(takeUntil(this.onDestroy$)).subscribe(params => {
       const merchantId = params['id'];
       if (params['onSchedule'] === 'undefined') {
         this.bHasAddress = false;
@@ -112,36 +108,28 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         this.onSchedule = params['onSchedule'] === 'true' ? true : false;
       }
 
-      if (this.bHasAddress) {
+      if (this.delivery.origin) {
         const origin = this.delivery.origin;
         const dateType = this.delivery.dateType;
 
-        self.merchantSvc.load(origin, dateType, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((rs: IMerchant[]) => {
-          const restaurant = rs[0];
-          restaurant.onSchedule = self.onSchedule;
+        self.merchantSvc.load(origin, dateType, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMerchant[]) => {
+          const merchant = ms[0];
+          // restaurant.onSchedule = self.onSchedule;
           if (environment.language === 'en') {
-            restaurant.name = restaurant.nameEN;
+            merchant.name = merchant.nameEN;
           }
-          self.restaurant = restaurant;
 
           const q = { merchantId: merchantId, status: { $in: [ProductStatus.ACTIVE, ProductStatus.NEW, ProductStatus.PROMOTE]} };
-          self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe((products: IProduct[]) => {
-            if (environment.language === 'en') {
-              products.map(p => {
-                p.name = p.nameEN;
-              });
-            }
-
-            self.products = products;
-            self.categories = self.groupByCategory(products);
-
+          self.productSvc.categorize(q, this.lang).pipe(takeUntil(self.onDestroy$)).subscribe((cats: any[]) => {
             // update quantity of cart items
-            self.categories.map(group => {
+            cats.map(group => {
               group.items.map(groupItem => {
                 const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product._id);
                 groupItem.quantity = cartItem ? cartItem.quantity : 0;
               });
             });
+            self.restaurant = merchant;
+            self.categories = cats;
           });
         });
       } else {
@@ -151,25 +139,17 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
           if (environment.language === 'en') {
             restaurant.name = restaurant.nameEN;
           }
-          self.restaurant = restaurant;
-
           const q = { merchantId: merchantId, status: { $in: [ProductStatus.ACTIVE, ProductStatus.NEW, ProductStatus.PROMOTE]} };
-          self.productSvc.find(q).pipe(takeUntil(self.onDestroy$)).subscribe(products => {
-            if (environment.language === 'en') {
-              products.map(p => {
-                p.name = p.nameEN;
-              });
-            }
-            self.products = products;
-            self.categories = self.groupByCategory(products);
-
-            // load quantity from the cart items
-            self.categories.map(group => {
+          self.productSvc.categorize(q, this.lang).pipe(takeUntil(self.onDestroy$)).subscribe((cats: any[]) => {
+            // update quantity of cart items
+            cats.map(group => {
               group.items.map(groupItem => {
                 const cartItem: ICartItem = self.cart.items.find(item => item.productId === groupItem.product._id);
                 groupItem.quantity = cartItem ? cartItem.quantity : 0;
               });
             });
+            self.restaurant = restaurant;
+            self.categories = cats;
           });
         });
       }
@@ -203,54 +183,6 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
   }
 
-  // --------------------------------------------------------------------------
-  // return --- [ {categoryId: x, items: [{product: p, quantity: q} ...]} ... ]
-  groupByCategory(products: IProduct[]) {
-    const self = this;
-    const cats = [];
-
-    products.map(p => {
-      const cat = cats.find(c => c.categoryId === p.categoryId);
-      const category: ICategory = p.category;
-      if (cat) {
-        cat.items.push({ product: p, quanlity: 0 });
-      } else {
-        if (category) {
-          cats.push({
-            categoryId: p.categoryId,
-            categoryName: self.lang === 'zh' ? category.name : category.nameEN,
-            order: category.order,
-            items: [{ product: p, quanlity: 0 }]
-          });
-        } else { // shouldn't happen
-          cats.push({
-            categoryId: p.categoryId,
-            categoryName: self.lang === 'zh' ? category.name : category.nameEN,
-            order: 0,
-            items: [{ product: p, quanlity: 0 }]
-          });
-        }
-      }
-    });
-
-    cats.map(c => {
-      c.items = c.items.sort((a, b) => {
-        if (a.product.order < b.product.order) {
-          return -1;
-        } else {
-          return 1;
-        }
-      });
-    });
-
-    return cats.sort((a, b) => {
-      if (a.order < b.order) {
-        return -1;
-      } else {
-        return 1;
-      }
-    });
-  }
 
   checkout() {
     this.router.navigate(['order/form'], { queryParams: { fromPage: 'restaurant-detail' } });
