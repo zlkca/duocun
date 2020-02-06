@@ -139,7 +139,7 @@ export class Product extends Model {
 
     products.map(p => {
       if (p && p.categoryId) {
-        const cat = cats.find(c => c.categoryId === p.categoryId);
+        const cat = cats.find(c => c.categoryId.toString() === p.categoryId.toString());
         const category: any = p.category;
         if (cat) {
           cat.items.push({ product: p, quanlity: 0 });
