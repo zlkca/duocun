@@ -1,0 +1,3 @@
+<div class="item" [ngClass]="{active: selected._id === it._id}" *ngFor="let it of items" (click)="onSelect(it)">
+  {{it.name}}
+</div>

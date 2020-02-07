@@ -1,0 +1,12 @@
+$primary-bg:#4285F3; // rgb(222,51, 56);
+$secondary-bg: #eee; // rgb(156, 166, 167);
+
+.item{
+  border-bottom: 1px solid $secondary-bg;
+  border-right: 1px solid $secondary-bg;
+  padding: 15px;
+}
+.active{
+  border-left: 5px solid $primary-bg;
+  color: #333;
+}

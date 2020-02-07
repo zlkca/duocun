@@ -251,6 +251,8 @@ export class Merchant extends Model {
     return merchant;
   }
 
+
+  // origin --- can be null
   // query { status: 'active' }
   loadByDeliveryInfo(query: any, local: moment.Moment, origin?: ILocation): Promise<IMerchant[]> {
 
@@ -299,9 +301,8 @@ export class Merchant extends Model {
             });
           });
         });
-      } else {
+      } else { // no origin
         this.joinFind(query).then((ms: IDbMerchant[]) => {
-
           const merchants: IMerchant[] = [];
 
           ms.map((r: IDbMerchant) => {
@@ -311,7 +312,7 @@ export class Merchant extends Model {
             merchant.distance = 0;
             merchant.orderEnded = false;
             merchant.orderEndTime = this.getOrderEndTime(r.phases),
-              merchant.isClosed = false;
+            merchant.isClosed = false;
 
             merchants.push(merchant);
           });

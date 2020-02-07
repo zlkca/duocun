@@ -5,8 +5,9 @@ $desktop: "(min-width: 1200px)";
 
 $head-h: 60px;
 $bottom-h: 60px;
-$tab-h: 48px;
-
+$tab-h: 0px; // 48px;
+$cat-w: 90px;
+$secondary-bg:#eee;
 .page{
   height: 100%;
   overflow: scroll;
@@ -33,23 +34,31 @@ $tab-h: 48px;
   left: 0px;
   height: calc(100% - #{$head-h} - #{$bottom-h});
 
-  .product-block{
-    padding:0px 3px;
+  .mat-tab-group{
     height: 100%;
+  }
 
-    .mat-tab-group{
-      height: 100%;
-    }
+  .cat-list{
+    float: left;
+    width: $cat-w;
+    height: 100%;
+    // border-right:1px solid $secondary-bg;
+  }
 
-    .cat-list{
-      height: 100%;
-    }
-    
-    .category-row{
-      padding: 15px;
-      text-align: center;
-    }
+  .list{
+    width: calc(100% - #{$cat-w});
+    height: 100%;
+    overflow: scroll;
+  }
 
+  .category-row{
+    height: 30px;
+    padding: 5px;
+    text-align: center;
+  }
 
+  .product-block{
+    padding-left: 0px;
+    padding-right: 0px;
   }
 }

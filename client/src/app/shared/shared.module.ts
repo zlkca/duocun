@@ -20,6 +20,7 @@ import { ProgressSpinnerComponent } from './progress-spinner/progress-spinner.co
 import { LocationService } from '../location/location.service';
 import { DateSelectComponent } from './date-select/date-select.component';
 import { PaymentSelectComponent } from './payment-select/payment-select.component';
+import { VerticalTabComponent } from './vertical-tab/vertical-tab.component';
 
 @NgModule({
   imports: [
@@ -40,7 +41,8 @@ import { PaymentSelectComponent } from './payment-select/payment-select.componen
     AddressInputComponent,
     ProgressSpinnerComponent,
     DateSelectComponent,
-    PaymentSelectComponent
+    PaymentSelectComponent,
+    VerticalTabComponent
   ],
   providers: [
     SharedService,
@@ -57,7 +59,8 @@ import { PaymentSelectComponent } from './payment-select/payment-select.componen
     AddressInputComponent,
     ProgressSpinnerComponent,
     DateSelectComponent,
-    PaymentSelectComponent
+    PaymentSelectComponent,
+    VerticalTabComponent
   ]
 })
 export class SharedModule { }

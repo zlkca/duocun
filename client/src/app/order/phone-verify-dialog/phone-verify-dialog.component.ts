@@ -136,7 +136,7 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
           }
           setTimeout(() => {
             if (self.verified) {
-              if (self.account && self.account.type !== 'tmp') {
+              if (self.account && self.account.type !== 'tmp') { // user, client
                 // must get updated account data
                 self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
                   self.dialogRef.close(account);
@@ -162,6 +162,8 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
               // pass
             }
           }, 1200);
+        } else {
+          // pass
         }
       });
     } else {

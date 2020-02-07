@@ -8,43 +8,40 @@ $head-h: 60px;
 $bottom-h: 60px;
 $tab-h: 48px;
 
-.product-list{
-  padding-top: 30px;
-}
-
 .list-item{
   padding: 0px 0px 15px 0px;
   float: left;
 
   .item-body{
-      padding:5px 10px;
+    padding:5px 0px 5px 5px;
 
-      .image-body{
-          padding:0px;
-          img{
-              width:100%;
-          }    
-      }
+    .image-body{
+      padding:0px;
+      img{
+        width:100%;
+        border-radius: 10px;
+      }    
+    }
 
-      .notify-badge{
-        position: absolute;
-        left:-5px;
-        top:5px;
-        padding-bottom: 0px;
-        text-align: center;
-        border-radius: 30px;
-        color:white;
-        padding:3px 5px 0px 5px;
-        font-size: 12px;
-      }
-    
-      .new, .promotion{
-        background-color: $red;
+    .notify-badge{
+      position: absolute;
+      left:-5px;
+      top:5px;
+      padding-bottom: 0px;
+      text-align: center;
+      border-radius: 30px;
+      color:white;
+      padding:3px 5px 0px 5px;
+      font-size: 12px;
+    }
+  
+    .new, .promotion{
+      background-color: $red;
+      color: white;
+      .text-sm{
         color: white;
-        .text-sm{
-          color: white;
-        }
       }
+    }
 
       .text-body{
           padding:0px 0px 0px 10px;
@@ -58,7 +55,7 @@ $tab-h: 48px;
           .price-col{
             padding-left: 0px;
             padding-right: 0px;
-            font-size:20px;
+            font-size:18px;
             font-weight:400;
             color: $red;
           }
@@ -73,11 +70,11 @@ $tab-h: 48px;
               text-align: center;
               font-size: 20px;
               font-weight: 500;
-              padding: 0px 5px;
+              padding: 2px 2px;
             }
             .add-btn, .remove-btn{
               float: right;
-              padding: 2px;
+              padding: 0px;
             }
           }
         }

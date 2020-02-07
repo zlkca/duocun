@@ -10,13 +10,9 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { ICart } from '../../cart/cart.model';
 import { CartActions } from '../../cart/cart.actions';
 import { Subject } from '../../../../node_modules/rxjs';
-import * as moment from 'moment';
 import { IDelivery } from '../../delivery/delivery.model';
-import { RangeService } from '../../range/range.service';
-// import { MallService } from '../../mall/mall.service';
 import { IMerchant } from '../../merchant/merchant.model';
 import { IRange } from '../../range/range.model';
-// import { IMall } from '../../mall/mall.model';
 
 const ADD_IMAGE = 'add_photo.png';
 
@@ -58,7 +54,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   constructor(
-    private rangeSvc: RangeService,
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
@@ -76,7 +71,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     const addressHint = this.lang === 'en' ? 'Please enter delivery address' : '请先输入送餐地址';
     const breakHint = this.lang === 'en' ? 'The merchant closed, can not deliver today' : '该商家休息，暂时无法配送';
     const overTimeHint = this.lang === 'en' ? 'The last order should before ' : '已过下单时间，该商家下单截止到';
-    const notInRangeHint = this.lang === 'en' ? 'The merchant is not in service range, can not deliver' : '该商家不在配送范围内，暂时无法配送';
+    // const notInRangeHint = this.lang === 'en' ? 'The merchant is not in service range, can not deliver' : '该商家不在配送范围内，暂时无法配送';
     if (!this.hasAddress) {
       alert(addressHint);
       this.router.navigate(['main/home']);
@@ -95,30 +90,22 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
     const origin = this.delivery.origin;
     if (origin) {
-      this.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((inRange: boolean) => {
-        if (!inRange) {
-          alert(notInRangeHint); // should never go here!
-          return;
-        } else {
-          this.rx.dispatch({
-            type: CartActions.ADD_TO_CART,
-            payload: {
-              items: [{
-                productId: p._id,
-                productName: p.name,
-                price: p.price,
-                cost: p.cost,
-                quantity: 1,
-                pictures: p.pictures,
-                merchantId: p.merchantId, // merchant account id
-                merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-              }],
-              merchantId: p.merchantId // merchant account id
-            }
-          });
+      this.rx.dispatch({
+        type: CartActions.ADD_TO_CART,
+        payload: {
+          items: [{
+            productId: p._id,
+            productName: p.name,
+            price: p.price,
+            cost: p.cost,
+            quantity: 1,
+            pictures: p.pictures,
+            merchantId: p.merchantId, // merchant account id
+            merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+          }],
+          merchantId: p.merchantId // merchant account id
         }
       });
-
     }
   }
 

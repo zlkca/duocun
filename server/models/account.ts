@@ -154,7 +154,7 @@ export class Account extends Model {
 
   doVerifyPhone(phone: string, code: string) {
     return new Promise((resolve, reject) => {
-      this.findOne({ phone: phone }).then(a => {
+      this.findOne({ phone: phone }).then((a: IAccount) => {
         if (a) {
           const verified = a && a.verificationCode.toString() === code;
           this.updateOne({ _id: a._id.toString() }, { verified: verified }).then((result) => {

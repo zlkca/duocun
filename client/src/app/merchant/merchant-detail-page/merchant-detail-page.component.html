@@ -3,25 +3,23 @@
     <div class="col-12 restaurant-name title-bg">{{restaurant.name}}</div>
   </div>
 
-  <div class="row content-block">
-    <div class="col-12 product-block">
-      <mat-tab-group mat-align-tabs="center">
-        <mat-tab i18n-label label="Menu" *ngIf="categories && categories.length>0">
-          <div class="cat-list" *ngFor="let cat of categories">
-            <div class="cat-list-wrapper" *ngIf="cat && cat.items && cat.items.length > 0">
-              <div class="category-row text-sm">{{cat.categoryName}}</div>
-              <app-product-list [restaurant]="restaurant" [items]="cat.items" [hasAddress]="bHasAddress"></app-product-list>
+  <div class="content-block">
+      <!-- <mat-tab-group mat-align-tabs="center">
+        <mat-tab i18n-label label="Menu" *ngIf="categories && categories.length>0"> -->
+
+          <div class="cat-list">
+            <app-vertical-tab [selected]="category" [items]="categories" (select)="onCategorySelect($event)"></app-vertical-tab>
+          </div>
+          <div #list class="list">
+            <div [attr.id]="'cat'+grp.categoryId" class="row group" *ngFor="let grp of groups">
+              <div class="col-12 category-row text-sm">{{grp.categoryName}}</div>
+              <div class="col-12 product-block">
+                <app-product-list [restaurant]="restaurant" [items]="grp.items" [hasAddress]="bHasAddress"></app-product-list>
+              </div>
             </div>
           </div>
-        </mat-tab>
-        <!-- <mat-tab i18n-label label="Reviews">
-          <div></div>
-        </mat-tab>
-        <mat-tab i18n-label label="About">
-          <div></div>
-        </mat-tab> -->
-      </mat-tab-group>
-    </div>
+        <!-- </mat-tab>
+      </mat-tab-group> -->
   </div>
 </div>
   

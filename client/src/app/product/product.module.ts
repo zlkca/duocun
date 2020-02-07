@@ -8,7 +8,6 @@ import { ProductRoutingModule } from './product-routing.module';
 import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.component';
 import { CartModule } from '../cart/cart.module';
 import { MerchantService } from '../merchant/merchant.service';
-import { RangeService } from '../range/range.service';
 import { MallService } from '../mall/mall.service';
 
 @NgModule({
@@ -30,9 +29,6 @@ import { MallService } from '../mall/mall.service';
     WarningDialogComponent
   ],
   providers: [
-    MerchantService,
-    RangeService,
-    MallService,
   ],
   entryComponents: [WarningDialogComponent]
 })

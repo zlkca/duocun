@@ -468,9 +468,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
       this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow, dateType: 'tomorrow' } });
     }
-    this.loading = true;
+    // this.loading = true;
     this.loadRestaurants(this.location, self.date.type).then(rs => {
-      self.loading = false;
+      // self.loading = false;
     });
   }
 
