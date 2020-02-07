@@ -3,6 +3,10 @@ $mobile: "(max-width: 767px)";
 $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 
+$head-h: 60px;
+$bottom-h: 60px;
+$tab-h: 48px;
+
 .page{
   height: 100%;
   overflow: scroll;
@@ -13,24 +17,39 @@ $desktop: "(min-width: 1200px)";
   padding-bottom: 15px;
 }
 
-.product-block{
-  padding:0px 3px;
-
-  .category-row{
-    padding: 15px;
-    text-align: center;
-  }
-}
-
 .row{
   margin-left:0px;
   margin-right:0px;
 }
 
-.mat-tab-body-content{
-  height: calc(100% - 95px - 60px - 48px);
-}
+// .mat-tab-body-content{
+//   height: calc(100% - 95px - 60px - 48px);
+// }
 
 .content-block{
-  margin-top: 60px;
+  // margin-top: 60px;
+  position: fixed;
+  top: 60px;
+  left: 0px;
+  height: calc(100% - #{$head-h} - #{$bottom-h});
+
+  .product-block{
+    padding:0px 3px;
+    height: 100%;
+
+    .mat-tab-group{
+      height: 100%;
+    }
+
+    .cat-list{
+      height: 100%;
+    }
+    
+    .category-row{
+      padding: 15px;
+      text-align: center;
+    }
+
+
+  }
 }

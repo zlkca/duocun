@@ -4,11 +4,11 @@
   </div>
 
   <div class="row content-block">
-    <div class="col-xs-12 product-block">
+    <div class="col-12 product-block">
       <mat-tab-group mat-align-tabs="center">
         <mat-tab i18n-label label="Menu" *ngIf="categories && categories.length>0">
-          <div *ngFor="let cat of categories">
-            <div *ngIf="cat && cat.items && cat.items.length > 0">
+          <div class="cat-list" *ngFor="let cat of categories">
+            <div class="cat-list-wrapper" *ngIf="cat && cat.items && cat.items.length > 0">
               <div class="category-row text-sm">{{cat.categoryName}}</div>
               <app-product-list [restaurant]="restaurant" [items]="cat.items" [hasAddress]="bHasAddress"></app-product-list>
             </div>
