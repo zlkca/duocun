@@ -2,6 +2,10 @@ $map-height: 220px;
 $position-btn-width: 60px;
 $bottom-bar-height: 60px;
 
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
+
 #container{
   height: calc(100% - #{$bottom-bar-height});
   height: -webkit-calc(100% - #{$bottom-bar-height});
@@ -45,6 +49,17 @@ $bottom-bar-height: 60px;
   // }
 }
 
+@media #{$tablet}{
+  $bottom-bar-h: 60px;
+  $padding-w: 100px;
+
+  .footer{
+    height: $bottom-bar-h;
+    width: calc(100% - #{$padding-w} - #{$padding-w});
+    left: $padding-w;
+    padding: 0px;
+  }
+}
 
 /* iphone XR 1792x828px at 326ppi */
 @media only screen 

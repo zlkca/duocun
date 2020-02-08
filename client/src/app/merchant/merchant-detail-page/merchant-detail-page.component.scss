@@ -62,3 +62,29 @@ $secondary-bg:#eee;
     padding-right: 0px;
   }
 }
+
+@media #{$tablet}{
+  $bottom-bar-h: 60px;
+  $padding-w: 100px;
+  $cat-w: 120px;
+  .page{
+    padding: 0px $padding-w;
+  }
+
+  .title-block{
+    width: calc(100% - #{$padding-w} - #{$padding-w});
+  }
+
+  .content-block{
+    left: $padding-w;
+    width: calc(100% - #{$padding-w} - #{$padding-w});
+
+    .cat-list{
+      width: $cat-w;
+    }
+  
+    .list{
+      width: calc(100% - #{$cat-w});
+    }
+  }
+}

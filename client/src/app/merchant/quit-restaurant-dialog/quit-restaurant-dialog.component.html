@@ -1,13 +1,12 @@
 <h1 mat-dialog-title>{{data.title}}</h1>
 <div mat-dialog-content>
   <p>{{data.content}}</p>
-  <mat-form-field>
-    <!-- <input matInput [(ngModel)]="data.animal"> -->
-  </mat-form-field>
 </div>
 
-<div mat-dialog-actions>
-  <div mat-button class="btn-leave" (click)="onClickLeave()" >{{data.buttonTextNo}}</div>
-  <div mat-button class="btn-stay" (click)="onClickStay()" >{{data.buttonTextYes}}</div>
+<!-- <div mat-dialog-actions> -->
+<div class="row">
+  <div class="btn btn-secondary btn-leave" (click)="onLeave()" >{{data.buttonTextNo}}</div>
+  <div class="btn btn-primary btn-stay" (click)="onStay()" >{{data.buttonTextYes}}</div>
 </div>
+<!-- </div> -->
 

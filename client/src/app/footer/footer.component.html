@@ -68,7 +68,9 @@
 
   <div class="row restaurant-btn-row" *ngIf="page === 'restaurant-detail'">
     <div class="cart-col" (click)="toCart()">
-      <span class="fa-stack fa-2x has-badge" [attr.data-count]="quantity">
+      <!-- <span class="fa-stack fa-2x has-badge" [attr.data-count]="quantity"> -->
+      <span>
+        <span class="cart-quantity">{{quantity}}</span>
         <!-- <i class="fa fa-shopping-cart fa-3x"></i> -->
         <img class="img-shopping-cart" src="assets/outline-shopping_cart-24px.svg" alt="cart" height="40px" width="40px" />
       </span>

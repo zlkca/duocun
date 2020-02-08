@@ -16,6 +16,7 @@ import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { IDelivery } from '../../delivery/delivery.model';
 import { environment } from '../../../environments/environment';
+import { CartActions } from '../../cart/cart.actions';
 
 @Component({
   selector: 'app-merchant-detail-page',
@@ -37,7 +38,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   onSchedule: boolean;
   bHasAddress: boolean;
 
-  @ViewChild('list', {static: true}) list: ElementRef;
+  @ViewChild('list', { static: true }) list: ElementRef;
 
   constructor(
     private productSvc: ProductService,
@@ -110,8 +111,9 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       const dateType = this.delivery.dateType; // must have
 
       self.merchantSvc.load(origin, dateType, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMerchant[]) => {
-        const merchant = ms[0];
-        if (environment.language === 'en') {
+        const merchant = ms.find(m => m._id === merchantId);
+
+        if (merchant && environment.language === 'en') {
           merchant.name = merchant.nameEN;
         }
 
@@ -163,7 +165,14 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().pipe(takeUntil(this.onDestroy$)).subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
+      // if (r.action === 'leave') {
+      //   this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
+      //   this.router.navigate(['main/home']);
+      // } else if (r.action === 'stay') {
+      //   // do nothing
+      //   this.router.navigate(['merchant/list/' + r.merchantId + '/' + r.onSchedule]);
+      // }
 
     });
   }
@@ -180,5 +189,19 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   onCategorySelect(e) {
     this.category = e;
     this.list.nativeElement.querySelector('#cat' + e._id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  onAddProduct(e) {
+    this.rx.dispatch({
+      type: CartActions.ADD_TO_CART,
+      payload: e
+    });
+  }
+
+  onRemoveProduct(e) {
+    this.rx.dispatch({
+      type: CartActions.REMOVE_FROM_CART,
+      payload: e
+    });
   }
 }

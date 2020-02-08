@@ -77,4 +77,5 @@ export class OrderService extends EntityService {
     const url = this.url + '/loadPage/' + currentPageNumber + '/' + itemsPerPage;
     return this.doGet(url, filter);
   }
+
 }

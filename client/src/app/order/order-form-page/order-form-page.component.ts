@@ -24,6 +24,7 @@ import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { AccountService } from '../../account/account.service';
 import { PhoneVerifyDialogComponent } from '../phone-verify-dialog/phone-verify-dialog.component';
+import { CartService } from '../../cart/cart.service';
 
 declare var window;
 
@@ -74,6 +75,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private rangeSvc: RangeService,
     private orderSvc: OrderService,
+    private cartSvc: CartService,
     private locationSvc: LocationService,
     private accountSvc: AccountService,
     private paymentSvc: PaymentService,
@@ -127,7 +129,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             const groupDiscount = 0; // bEligible ? 2 : 0;
             if (origin) {
               self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
-                this.charge = this.getCharge(cart, (r.distance * r.rate), groupDiscount);
+                this.charge = this.cartSvc.getCost(cart, (r.distance * r.rate), groupDiscount);
                 if (account.type === 'tmp') {
                   this.openPhoneVerifyDialog();
                   // self.router.navigate(['account/phone-verify'], { queryParams: { fromPage: this.fromPage, action: 'pay' } });
@@ -163,7 +165,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const groupDiscount = 0; // bEligible ? 2 : 0;
         if (origin) {
           self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
-            self.charge = self.getCharge(self.cart, (r.distance * r.rate), groupDiscount);
+            self.charge = self.cartSvc.getCost(self.cart, (r.distance * r.rate), groupDiscount);
             self.paymentMethod = self.order ? self.paymentMethod : 'cash';
             self.loading = false;
             setTimeout(() => {
@@ -195,7 +197,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           const groupDiscount = 0; // bEligible ? 2 : 0;
           if (origin) {
             self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
-              this.charge = this.getCharge(cart, (r.distance * r.rate), groupDiscount);
+              this.charge = this.cartSvc.getCost(cart, (r.distance * r.rate), groupDiscount);
               this.paymentMethod = (self.balance >= this.charge.total) ? 'prepaid' : self.paymentMethod;
               this.rx.dispatch({
                 type: OrderActions.UPDATE_PAYMENT_METHOD,
@@ -216,33 +218,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.onDestroy$.next();
     this.onDestroy$.complete();
-  }
-
-  getCharge(cart, overRangeCharge, groupDiscount) {
-    let productTotal = 0;
-
-    const items: ICartItem[] = [];
-    if (cart.items && cart.items.length > 0) {
-      cart.items.map(x => {
-        productTotal += x.price * x.quantity;
-        items.push(x);
-      });
-    }
-
-    const subTotal = productTotal + cart.deliveryCost;
-    const tax = Math.ceil(subTotal * 13) / 100;
-    const tips = 0;
-    const overRangeTotal = Math.round(overRangeCharge * 100) / 100;
-    return {
-      productTotal: productTotal,
-      deliveryCost: cart.deliveryCost,
-      deliveryDiscount: cart.deliveryCost,
-      overRangeCharge: overRangeTotal,
-      groupDiscount: groupDiscount,
-      tips: tips,
-      tax: tax,
-      total: productTotal + tax + tips - groupDiscount + overRangeTotal
-    };
   }
 
   getCost(items: any[]) {

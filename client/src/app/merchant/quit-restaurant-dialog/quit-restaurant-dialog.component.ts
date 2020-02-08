@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, NgZone } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
@@ -25,6 +25,7 @@ export class QuitRestaurantDialogComponent implements OnInit {
   constructor(
     private rx: NgRedux<IAppState>,
     private router: Router,
+    private ngZone: NgZone,
     public dialogRef: MatDialogRef<QuitRestaurantDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) { }
@@ -33,20 +34,27 @@ export class QuitRestaurantDialogComponent implements OnInit {
 
   }
 
-  onClickLeave(): void {
-    this.dialogRef.close();
-    this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
-    if (this.data.fromPage === 'restaurant-list') {
-      this.router.navigate(['main/home']);
-    } else if (this.data.fromPage === 'order-history') {
-      this.router.navigate(['order/history']);
-    }
+  onLeave() {
+    const self = this;
+    this.ngZone.run(() => {
+    this.dialogRef.close({action: 'leave', parent: 'merchant-detail'});
+
+      self.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
+      if (self.data && self.data.fromPage === 'restaurant-list') {
+        self.router.navigate(['main/home']);
+      } else if (self.data.fromPage === 'order-history') {
+        self.router.navigate(['order/history']);
+      }
+    });
   }
 
-  onClickStay(): void {
-    this.dialogRef.close();
+  onStay() {
+    this.dialogRef.close({action: 'stay',
+      parent: 'merchant-detial',
+      merchantId: this.data.merchantId,
+      onSchedule: this.data.onSchedule
+    });
     this.router.navigate(['merchant/list/' + this.data.merchantId + '/' + this.data.onSchedule]);
   }
-
 }
 

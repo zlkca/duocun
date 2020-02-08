@@ -20,6 +20,7 @@ import { HttpClientModule } from '../../node_modules/@angular/common/http';
 import { EntityService } from './entity.service';
 import { AccountService } from './account/account.service';
 import { ContactService } from './contact/contact.service';
+import { CartModule } from './cart/cart.module';
 
 const appRoutes: Routes = [
   {
@@ -109,6 +110,7 @@ const appRoutes: Routes = [
     // OrderModule,
     // PageModule,
     // LocationModule
+    // CartModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent],

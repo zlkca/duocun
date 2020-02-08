@@ -514,8 +514,26 @@ select:not([multiple]) {
   }
 
   @media #{$tablet}{
+    $dialog-w: 400px;
+    $dialog-h: 560px;
 
-   }
+    .phone-verify-dialog{
+      top:0;
+      left:0;
+      position: relative !important;
+      margin-left: auto;
+      margin-right: auto;
+      width: $dialog-w !important;
+      height: $dialog-h;
+      max-width: none !important;
+    
+      .mat-dialog-container{
+        padding: 0px !important;
+        // width: 100%;
+        // max-width: none !important;
+      }
+    }
+  }
 
   @media #{$mobile}{
     .footer{

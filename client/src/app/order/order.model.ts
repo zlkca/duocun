@@ -131,7 +131,8 @@ export class OrderItem implements IOrderItem {
 }
 
 export interface ICharge {
-  productTotal: number;
+  price: number;
+  cost: number;
   deliveryCost: number;
   deliveryDiscount: number;
   overRangeCharge: number;

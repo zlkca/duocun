@@ -3,6 +3,10 @@ $bottom-bar-height: 68px;
 $toggle-btn-height: 40px;
 $blue: #4285F3;
 
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
+
 #order-form{
   padding: 0px 15px;
   margin-top: $header-bar-height;
@@ -280,4 +284,14 @@ mat-button-toggle-group{
 .cash-note{
   margin-top: 8px;
   font-size: 13px;
+}
+
+
+@media #{$tablet}{
+  $bottom-bar-h: 60px;
+  $padding-w: 100px;
+
+  .page{
+    padding: 0px $padding-w;
+  }
 }

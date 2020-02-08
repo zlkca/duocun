@@ -5,6 +5,7 @@ $desktop: "(min-width: 1200px)";
 
 $blue: #4285F3;
 $pay-btn-width: 180px;
+$bottom-bar-h: 60px;
 
 footer{
     height:100px;
@@ -102,6 +103,7 @@ footer{
   margin: 0px;
   padding: 0px;
   border-top: solid 1px #eee;
+  border-left: solid 1px #eee;
   background-color: white;
 
     .amount-col{
@@ -186,28 +188,34 @@ footer{
   padding: 0px;
   border-top: solid 1px #ddd;
   border-right: solid 1px #ddd;
+  border-left: solid 1px #eee;
   background-color: white;
   z-index: 10;
 
   
-    .fa-stack[data-count]:after{
-      position:absolute;
-      left: 45px;
-      top: 5px;
-      content: attr(data-count);
-      font-size:10px;
-      padding:.6em;
-      border-radius:999px;
-      line-height:.75em;
-      color: white;
-      background:rgba(255,0,0,.85);
-      text-align:center;
-      min-width:2em;
-      font-weight:bold;
-    }
+    // .fa-stack[data-count]:after{
+    //   position:absolute;
+    //   left: 45px;
+    //   top: 5px;
+    //   content: attr(data-count);
+    //   font-size:10px;
+    //   padding:.6em;
+    //   border-radius:999px;
+    //   line-height:.75em;
+    //   color: white;
+    //   background:rgba(255,0,0,.85);
+    //   text-align:center;
+    //   min-width:2em;
+    //   font-weight:bold;
+    // }
 
-    .fa-stack{
-      margin-left: 5px;
+    // .fa-stack{
+    //   margin-left: 5px;
+    // }
+    .cart-quantity{
+      position: absolute;
+      top: 5px;
+      left: 50px;
     }
     .img-shopping-cart{
       margin-left: 0px;
@@ -248,7 +256,8 @@ footer{
 }
 
 @media #{$tablet}{
-
+  $bottom-bar-h: 80px;
+  $padding-w: 60px;
 }
 
 @media #{$mobile}{

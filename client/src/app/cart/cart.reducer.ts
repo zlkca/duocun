@@ -21,6 +21,7 @@ function updateCart(c: ICart, items: ICartItem[]) {
     cart.tax = Math.ceil(subtotal1 * 13) / 100;
     const subtotal2 = subtotal1 + cart.tax;
     cart.total = subtotal2 - cart.deliveryDiscount + cart.tips;
+    // cart.items = items;
   } else { // clear cart
     cart.productTotal = 0;
     cart.quantity = 0;
@@ -28,12 +29,14 @@ function updateCart(c: ICart, items: ICartItem[]) {
     cart.total = 0;
     cart.merchantId = '';
     cart.merchantName = '';
+    // cart.items = [];
   }
   return cart;
 }
 
 export const DEFAULT_CART = {
   merchantId: '',
+  merchantName: '',
   quantity: 0,
   productTotal: 0,
   deliveryCost: 0,
@@ -98,6 +101,8 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
 
       case CartActions.ADD_TO_CART:
         const itemsToAdd = action.payload.items;
+
+        // add all into items variable
         itemsToAdd.map(itemToAdd => {
           const x = state.items.find(item => item.productId === itemToAdd.productId);
           if (x) {
@@ -113,6 +118,7 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
             items.push(x);
           }
         });
+
         updated = updateCart(state, items);
         return {
           ...state,

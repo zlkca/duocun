@@ -1,3 +1,7 @@
+$cellphone: "(max-width:480px)";
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
 
 .verify-hint{
   margin: 0px;
@@ -74,6 +78,19 @@ form{
     }
   }
 
+}
+
+
+@media #{$tablet}{
+  $bottom-bar-h: 60px;
+  $padding-w: 100px;
+  .page{
+    padding: 0px $padding-w;
+  }
+
+  .title-block{
+    width: calc(100% - #{$padding-w} - #{$padding-w});
+  }
 }
 
 // .phone-save-row{

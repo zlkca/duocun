@@ -82,3 +82,13 @@ app-location-list{
     height: calc(100% - 460px);
   }
 }
+
+
+@media #{$tablet}{
+  $bottom-bar-h: 60px;
+  $padding-w: 100px;
+
+  .page{
+    padding: 0px $padding-w;
+  }
+}

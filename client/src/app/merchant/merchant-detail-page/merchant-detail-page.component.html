@@ -4,22 +4,16 @@
   </div>
 
   <div class="content-block">
-      <!-- <mat-tab-group mat-align-tabs="center">
-        <mat-tab i18n-label label="Menu" *ngIf="categories && categories.length>0"> -->
-
-          <div class="cat-list">
-            <app-vertical-tab [selected]="category" [items]="categories" (select)="onCategorySelect($event)"></app-vertical-tab>
-          </div>
-          <div #list class="list">
-            <div [attr.id]="'cat'+grp.categoryId" class="row group" *ngFor="let grp of groups">
-              <div class="col-12 category-row text-sm">{{grp.categoryName}}</div>
-              <div class="col-12 product-block">
-                <app-product-list [restaurant]="restaurant" [items]="grp.items" [hasAddress]="bHasAddress"></app-product-list>
-              </div>
-            </div>
-          </div>
-        <!-- </mat-tab>
-      </mat-tab-group> -->
+    <div class="cat-list">
+      <app-vertical-tab [selected]="category" [items]="categories" (select)="onCategorySelect($event)"></app-vertical-tab>
+    </div>
+    <div #list class="list">
+      <div [attr.id]="'cat'+grp.categoryId" class="row group" *ngFor="let grp of groups">
+        <div class="col-12 category-row text-sm">{{grp.categoryName}}</div>
+        <div class="col-12 product-block">
+          <app-product-list [restaurant]="restaurant" [items]="grp.items" [hasAddress]="bHasAddress" (add)="onAddProduct($event)" (remove)="onRemoveProduct($event)"></app-product-list>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-  

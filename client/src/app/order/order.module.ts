@@ -20,6 +20,7 @@ import { TransactionService } from '../transaction/transaction.service';
 import { MallService } from '../mall/mall.service';
 import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
 import { PhoneVerifyDialogComponent } from './phone-verify-dialog/phone-verify-dialog.component';
+import { CartService } from '../cart/cart.service';
 
 @NgModule({
   imports: [
@@ -44,6 +45,7 @@ import { PhoneVerifyDialogComponent } from './phone-verify-dialog/phone-verify-d
     PaymentService,
     MerchantService,
     TransactionService,
+    CartService,
     MallService,
     PaginatePipe
   ],

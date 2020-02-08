@@ -10,6 +10,6 @@ export const DEFAULT_MALL: IMall = {
 };
 
 export class MallActions {
-  static UPDATE = 'UPDATE';
+  static UPDATE = 'UPDATE_MALL';
 }
 

@@ -7,8 +7,8 @@ import { IAppState } from '../../store';
 import { Product, IProduct, ProductStatus } from '../../product/product.model';
 
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
-import { ICart } from '../../cart/cart.model';
-import { CartActions } from '../../cart/cart.actions';
+// import { ICart } from '../../cart/cart.model';
+// import { CartActions } from '../../cart/cart.actions';
 import { Subject } from '../../../../node_modules/rxjs';
 import { IDelivery } from '../../delivery/delivery.model';
 import { IMerchant } from '../../merchant/merchant.model';
@@ -31,10 +31,12 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   @Input() hasAddress: boolean;
   @Output() select = new EventEmitter();
   @Output() afterDelete = new EventEmitter();
+  @Output() add = new EventEmitter();
+  @Output() remove = new EventEmitter();
 
   selected = null;
   onDestroy$ = new Subject();
-  cart;
+  // cart;
   delivery: IDelivery;
   ranges: IRange[];
   lang = environment.language;
@@ -57,9 +59,9 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
-    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
-      this.cart = cart;
-    });
+    // this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+    //   this.cart = cart;
+    // });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       this.delivery = x;
@@ -90,42 +92,70 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
     const origin = this.delivery.origin;
     if (origin) {
-      this.rx.dispatch({
-        type: CartActions.ADD_TO_CART,
-        payload: {
-          items: [{
-            productId: p._id,
-            productName: p.name,
-            price: p.price,
-            cost: p.cost,
-            quantity: 1,
-            pictures: p.pictures,
+      // this.rx.dispatch({
+      //   type: CartActions.ADD_TO_CART,
+      //   payload: {
+      //     items: [{
+      //       productId: p._id,
+      //       productName: p.name,
+      //       price: p.price,
+      //       cost: p.cost,
+      //       quantity: 1,
+      //       pictures: p.pictures,
+      //       merchantId: p.merchantId, // merchant account id
+      //       merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+      //     }],
+      //     merchantId: p.merchantId // merchant account id
+      //   }
+      // });
+      this.add.emit({
+            items: [{
+              productId: p._id,
+              productName: p.name,
+              price: p.price,
+              cost: p.cost,
+              quantity: 1,
+              pictures: p.pictures,
+              merchantId: p.merchantId, // merchant account id
+              merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+            }],
             merchantId: p.merchantId, // merchant account id
             merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-          }],
-          merchantId: p.merchantId // merchant account id
-        }
-      });
+          });
     }
   }
 
   removeFromCart(p: IProduct) {
-    this.rx.dispatch({
-      type: CartActions.REMOVE_FROM_CART,
-      payload: {
-        items: [{
-          productId: p._id,
-          productName: p.name,
-          price: p.price,
-          cost: p ? p.cost : 0,
-          quantity: 1,
-          pictures: p.pictures,
+    // this.rx.dispatch({
+    //   type: CartActions.REMOVE_FROM_CART,
+    //   payload: {
+    //     items: [{
+    //       productId: p._id,
+    //       productName: p.name,
+    //       price: p.price,
+    //       cost: p ? p.cost : 0,
+    //       quantity: 1,
+    //       pictures: p.pictures,
+    //       merchantId: p.merchantId,
+    //       merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+    //     }],
+    //     merchantId: p.merchantId
+    //   }
+    // });
+    this.remove.emit({
+          items: [{
+            productId: p._id,
+            productName: p.name,
+            price: p.price,
+            cost: p ? p.cost : 0,
+            quantity: 1,
+            pictures: p.pictures,
+            merchantId: p.merchantId,
+            merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+          }],
           merchantId: p.merchantId,
           merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-        }],
-        merchantId: p.merchantId
-      }
-    });
+        });
   }
 
   getProductImage(p: Product) {
@@ -136,25 +166,25 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onQuantityChanged(v, item) {
-    const p = item.product;
-    const quantity = v ? v : 0;
-    this.rx.dispatch({
-      type: CartActions.UPDATE_QUANTITY,
-      payload: {
-        items: [{
-          productId: p._id,
-          productName: p.name,
-          price: p.price,
-          quantity: quantity,
-          pictures: p.pictures,
-          cost: p ? p.cost : 0,
-          merchantId: p.merchantId,
-          merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-        }]
-      }
-    });
-  }
+  // onQuantityChanged(v, item) {
+  //   const p = item.product;
+  //   const quantity = v ? v : 0;
+  //   this.rx.dispatch({
+  //     type: CartActions.UPDATE_QUANTITY,
+  //     payload: {
+  //       items: [{
+  //         productId: p._id,
+  //         productName: p.name,
+  //         price: p.price,
+  //         quantity: quantity,
+  //         pictures: p.pictures,
+  //         cost: p ? p.cost : 0,
+  //         merchantId: p.merchantId,
+  //         merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+  //       }]
+  //     }
+  //   });
+  // }
 
   getImageSrc(p) {
     if (p.fpath) {

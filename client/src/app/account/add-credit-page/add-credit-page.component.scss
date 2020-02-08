@@ -1,5 +1,9 @@
 $toggle-btn-height: 40px;
 $blue: #4285F3;
+$cellphone: "(max-width:480px)";
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
 
 
 .form-block, .payment-method-block{
@@ -97,4 +101,17 @@ mat-button-toggle-group{
 #card-element1{
   width: 100%;
   border: 1px solid #ddd;
+}
+
+
+@media #{$tablet}{
+  $bottom-bar-h: 60px;
+  $padding-w: 100px;
+  .page{
+    padding: 0px $padding-w;
+  }
+
+  .title-block{
+    width: calc(100% - #{$padding-w} - #{$padding-w});
+  }
 }

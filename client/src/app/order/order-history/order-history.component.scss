@@ -1,3 +1,6 @@
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
 
 $yellow: rgba(244, 160, 0, 0.2);
 $blue: rgba(66,133,244, 0.1);
@@ -113,6 +116,18 @@ $blue: rgba(66,133,244, 0.1);
 // .ngx-pagination{
 //   margin-top: 30px !important;
 // }
+
+@media #{$tablet}{
+  $bottom-bar-h: 60px;
+  $padding-w: 100px;
+  .page{
+    padding: 0px $padding-w;
+  }
+
+  .title-block{
+    width: calc(100% - #{$padding-w} - #{$padding-w});
+  }
+}
 
 @media (max-width: 767px){
   .order-list{

@@ -43,45 +43,64 @@ $tab-h: 48px;
       }
     }
 
-      .text-body{
-          padding:0px 0px 0px 10px;
-          .title-bg{
-            font-size:18px;
-            font-weight:500;
+    .text-body{
+      padding:0px 0px 0px 10px;
+      .title-bg{
+        font-size:18px;
+        font-weight:500;
+      }
+
+      .order-row{
+        padding-top: 6px;
+        .price-col{
+          padding-left: 0px;
+          padding-right: 0px;
+          font-size:18px;
+          font-weight:400;
+          color: $red;
         }
 
-        .order-row{
-          padding-top: 6px;
-          .price-col{
-            padding-left: 0px;
-            padding-right: 0px;
-            font-size:18px;
-            font-weight:400;
-            color: $red;
+        .button-col{
+          padding: 0px 2px;
+
+          .quantity{
+            height: 36px;
+            width: 32px;
+            float: right;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+            padding: 0px;
           }
-
-          .button-col{
-            padding: 0px 2px;
-
-            .quantity{
-              height: 38px;
-              width: 36px;
-              float: right;
-              text-align: center;
-              font-size: 20px;
-              font-weight: 500;
-              padding: 2px 2px;
-            }
-            .add-btn, .remove-btn{
-              float: right;
-              padding: 0px;
-            }
+          .add-btn, .remove-btn{
+            float: right;
+            padding: 0px;
           }
         }
       }
+    }
   }
 }
 
 .grid-item:hover{
   background-color: #eee;
+}
+
+
+@media #{$tablet}{
+  $bottom-bar-h: 60px;
+  $padding-w: 100px;
+  $cat-w: 120px;
+  .list-item{
+    .item-body{
+      .text-body{
+        padding-right: 25px;
+        // .order-row{
+        //   .button-col{
+        //     padding: 0px 10px;
+        //   }
+        // }
+      }
+    }
+  }
 }

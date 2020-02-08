@@ -225,8 +225,6 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
           self.authSvc.setAccessTokenId(tokenId);
           self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
             if (account) {
-              // self.dialogRef.close(account);
-              // self.rx.dispatch({ type: AccountActions.UPDATE, payload: account });
             }
             this.snackBar.open('', 'Signup successful', { duration: 1000 });
           });

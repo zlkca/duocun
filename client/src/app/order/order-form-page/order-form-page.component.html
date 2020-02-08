@@ -48,7 +48,7 @@
           <div class="col-12">
             <div class="title-xs">
               <span i18n="@@ProductTotal">Product Total</span>:</div>
-            <div class="text-xs">&nbsp;${{charge.productTotal | number : '1.2-2'}}</div>
+            <div class="text-xs">&nbsp;${{charge.price | number : '1.2-2'}}</div>
           </div>
           <div class="col-12">
             <div class="title-xs">
@@ -58,7 +58,7 @@
           <div class="col-12">
             <div class="title-xs">
               <span i18n="@@Subtotal">Subtotal</span>:</div>
-            <div class="text-xs">&nbsp;${{charge.productTotal + charge.deliveryCost | number : '1.2-2'}}</div>
+            <div class="text-xs">&nbsp;${{charge.price + charge.deliveryCost | number : '1.2-2'}}</div>
           </div>
           <div class="col-12">
             <div class="title-xs">

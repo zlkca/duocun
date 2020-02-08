@@ -25,8 +25,6 @@ $map-info-height: 48px;
 $list-height: calc(100% - #{$header-height} - #{$address-search-height} - #{$date-btn-height} - #{$ad-height});
 $map-height: calc(100% - #{$header-height} - #{$address-search-height} - #{$ad-height} - #{$map-info-height} - #{$bottom-bar-height});
 
-
-
 // app-home
 // :host{
 //   width: 100%;
@@ -100,9 +98,7 @@ $map-height: calc(100% - #{$header-height} - #{$address-search-height} - #{$ad-h
     width: 100%;
     height: calc(100% - 460px);
   }
-  
 }
-
 
 .header-block{
   position: fixed;
@@ -170,7 +166,6 @@ $map-height: calc(100% - #{$header-height} - #{$address-search-height} - #{$ad-h
 
 .merchant-list{
   width: 100%;
-  height: $list-height;
   height: calc(100% - #{$header-height} - #{$banner-height});
   position: absolute;
   top: $header-height + $banner-height;
@@ -270,7 +265,17 @@ mat-button-toggle-group{
 }
 
 @media #{$tablet}{
+  $paddingw: 50px;
+  .header-block{
+    .banner, .banner-up{
+      padding: 15px $paddingw;
+    }
+  }
 
+  .merchant-list {
+    padding: 10px $paddingw;
+    height: calc(100% - #{$header-height} - #{$banner-height} - #{$bottom-bar-height});
+  }
 }
 
 @media only screen
