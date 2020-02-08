@@ -410,6 +410,11 @@ $content-padding: 300px;
     z-index: 10;
   }
 
+  .content-block{
+    left: $content-padding;
+    width: calc(100% - #{$content-padding} - #{$content-padding});
+  }
+
   .option-list{
     margin-top: 46px;
     padding: 10px;

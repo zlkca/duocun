@@ -71,3 +71,20 @@ td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:la
     padding-left: 4px;
   }
 }
+
+$cellphone: "(max-width:480px)";
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
+
+@media #{$tablet}{
+  $bottom-bar-h: 60px;
+  $padding-w: 100px;
+  .page{
+    padding: 0px $padding-w;
+  }
+
+  .title-block{
+    width: calc(100% - #{$padding-w} - #{$padding-w});
+  }
+}
