@@ -41,7 +41,7 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
   verified: boolean;
   bGettingCode = false;
   counter = 60;
-  countDown;
+  // countDown;
   lang = environment.language;
   phoneMatchedAccount;
   bAllowVerify = false;
@@ -162,9 +162,9 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
       this.accountSvc.verifyCode(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe(verified => {
         this.verified = verified;
         if (verified) {
-          if (self.countDown) {
-            clearInterval(self.countDown);
-          }
+          // if (self.countDown) {
+          //   clearInterval(self.countDown);
+          // }
           setTimeout(() => {
             if (self.verified) {
               self.router.navigate(['account/settings']);
@@ -191,28 +191,38 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
   resendVerify(phone: string) {
     const self = this;
     const accountId: string = self.account ? self.account._id : '';
-    const hint = this.lang === 'en' ? 'Verification code sent through SMS' : '短信验证码已发送';
+    const successHint = this.lang === 'en' ? 'SMS Verification Code sent' : '短信验证码已发送';
+    const failedHint = this.lang === 'en' ? 'Account issue, please contact our customer service。' : '账号有问题，请联系客服';
+
     this.bGettingCode = true;
       this.counter = 60;
-      this.countDown = setInterval(function () {
-        self.counter--;
-        if (self.counter === 0) {
-          clearInterval(self.countDown);
+      // this.countDown = setInterval(function () {
+        // self.counter--;
+        // if (self.counter === 0) {
+          // clearInterval(self.countDown);
           self.bGettingCode = false;
-        }
-      }, 1000);
+        // }
+      // }, 1000);
 
       this.verified = false;
       this.verificationCode.patchValue('');
 
       // First time there is not token, api call do not allowed
       const lang = environment.language;
+    // tslint:disable-next-line:no-shadowed-variable
+    return new Promise((resolve, reject) => {
+      // First time there is not token, api call do not allowed
       this.accountSvc.sendVerifyMsg(accountId, phone, lang).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
+        this.snackBar.open('', successHint, { duration: 1000 });
+        this.bGettingCode = true;
         if (tokenId) { // to allow api call
           self.authSvc.setAccessTokenId(tokenId);
+        } else {
+          alert(failedHint);
         }
-        this.snackBar.open('', hint, { duration: 1000 });
+        resolve(tokenId);
       });
+    });
   }
 
   signup() {

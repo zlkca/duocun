@@ -72,6 +72,12 @@ export class Account extends Model {
     this.twilioClient = require('twilio')(this.cfg.TWILIO.SID, this.cfg.TWILIO.TOKEN);
   }
 
+  // try signup an account with phone number.
+  // If this phone number is already used by an account, return that account.
+  // Otherwise:
+  // If user already login, and the phone number did not use, associate the phone number.
+  // If use did not login, create a new account with this phone number. 
+  //    --- if ok {accountId:x, phone: phone}, else {accountId:'', phone}
   trySignup(accountId: string, rawPhone: any): Promise<any> {
     const d1 = Math.floor(Math.random() * 10).toString();
     const d2 = Math.floor(Math.random() * 10).toString();
@@ -90,7 +96,7 @@ export class Account extends Model {
             if (r.ok === 1) {
               resolve({ accountId: account._id.toString(), phone: phone, verificationCode: code });
             } else {
-              resolve({ accountId: '', phone: phone, verificationCode: code }); // fix me
+              resolve({ accountId: '', phone: phone, verificationCode: code }); // update fail, should not happen
             }
           });
         } else {
@@ -100,7 +106,7 @@ export class Account extends Model {
               if (r.ok === 1) {
                 resolve({ accountId: accountId, phone: phone, verificationCode: code });
               } else {
-                resolve({ accountId: '', phone: phone, verificationCode: code });
+                resolve({ accountId: '', phone: phone, verificationCode: code }); // update fail, should not happen
               }
             });
           } else { // account and phone number do not exist, create temp account
@@ -132,23 +138,22 @@ export class Account extends Model {
     const lang = req.body.lang;
 
     this.trySignup(req.body.accountId, req.body.phone).then((r: any) => {
-      if (r) {
-        self.twilioClient.messages.create({
-          body: (lang === 'en' ? 'Duocun Verification Code: ' : '多村外卖验证码: ') + r.verificationCode,
-          from: '+16475591743',
-          to: "+1".concat(r.phone)
-        })
-          .then((message: any) => {
-            // console.log(message.sid);
-            const cfg = new Config();
-            const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(tokenId, null, 3));
-          });
-      } else {
-        res.setHeader('Content-Type', 'application/json');
-        res.send(JSON.stringify('', null, 3));
-      }
+      res.setHeader('Content-Type', 'application/json');
+
+      self.twilioClient.messages.create({
+        body: (lang === 'en' ? 'Duocun Verification Code: ' : '多村外卖验证码: ') + r.verificationCode,
+        from: '+16475591743',
+        to: "+1".concat(r.phone)
+      })
+      .then((message: any) => {
+        if(r.accountId){
+          const cfg = new Config();
+          const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
+          res.send(JSON.stringify(tokenId, null, 3));
+        }else{
+          res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
+        }
+      });
     });
   }
 

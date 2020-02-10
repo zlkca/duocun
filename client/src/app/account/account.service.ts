@@ -34,6 +34,7 @@ export class AccountService extends EntityService {
   }
 
   // d --- accountId, phone, lang: 'en' or 'zh'
+  // return tokenId if (signup) success, otherwise return ''
   sendVerifyMsg(accountId: string, phone: string, lang: string): Observable<any> {
     const url = this.url + '/sendVerifyMsg';
     return this.doPost(url, {accountId: accountId, phone: phone, lang: lang});
