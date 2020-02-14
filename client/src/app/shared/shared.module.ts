@@ -21,7 +21,6 @@ import { LocationService } from '../location/location.service';
 import { DateSelectComponent } from './date-select/date-select.component';
 import { PaymentSelectComponent } from './payment-select/payment-select.component';
 import { VerticalTabComponent } from './vertical-tab/vertical-tab.component';
-
 @NgModule({
   imports: [
     CommonModule,
@@ -42,7 +41,7 @@ import { VerticalTabComponent } from './vertical-tab/vertical-tab.component';
     ProgressSpinnerComponent,
     DateSelectComponent,
     PaymentSelectComponent,
-    VerticalTabComponent
+    VerticalTabComponent,
   ],
   providers: [
     SharedService,
@@ -60,7 +59,7 @@ import { VerticalTabComponent } from './vertical-tab/vertical-tab.component';
     ProgressSpinnerComponent,
     DateSelectComponent,
     PaymentSelectComponent,
-    VerticalTabComponent
+    VerticalTabComponent,
   ]
 })
 export class SharedModule { }

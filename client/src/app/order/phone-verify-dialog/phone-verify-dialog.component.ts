@@ -58,7 +58,10 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.account = this.data.account;
+    const self = this;
+    this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      self.account = account;
+    });
   }
 
   ngOnDestroy() {
@@ -67,6 +70,7 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
   }
 
   onPhoneInput(e) {
+    const self = this;
     this.verified = false;
     this.verificationCode.patchValue('');
 
@@ -76,11 +80,11 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
       phone = phone.match(/\d+/g).join('');
 
       this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
-        if (this.account) { // if logged in
+        if (self.account) { // if logged in
           if (accounts && accounts.length > 0) { // db has accounts with this number
             const account: IAccount = accounts[0];
             this.phoneMatchedAccount = account; // if phoneMatchedAccount.type === tmp,  display signup button
-            if (account._id !== this.account._id) {
+            if (account._id !== self.account._id) {
               const hint = this.lang === 'en' ? 'This phone number has already bind to an wechat account, please try use wechat to login.' :
                 '该号码已经被一个英文版的账号使用，请使用英文版登陆; 如果想更改账号请联系客服。';
               alert(hint);

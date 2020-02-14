@@ -6,6 +6,7 @@ export function MerchantRouter(db: DB){
   const router = express.Router();
   const controller = new Merchant(db);
 
+  router.get('/getByAccountId', (req, res) => { controller.getByAccountId(req, res); });
   router.get('/qFind', (req, res) => { controller.quickFind(req, res); });
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });

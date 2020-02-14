@@ -1723,7 +1723,23 @@
           <context context-type="sourcefile">app/account/account-page.component.ts</context>
           <context context-type="linenumber">19</context>
         </context-group>
-      </trans-unit>               
+      </trans-unit>
+      <trans-unit id="Leave" datatype="html">
+        <source>Leave</source>
+        <target>离开</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Stay" datatype="html">
+        <source>Stay</source>
+        <target>留下</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>                      
     </body>
   </file>
 </xliff>

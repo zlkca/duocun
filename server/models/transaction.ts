@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import moment from 'moment';
 import { IOrder, IOrderItem } from "./order";
+import { resolve } from "../../node_modules/@types/q";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -192,7 +193,7 @@ export class Transaction extends Model {
       });
     });
   }
-  
+
   doGetSales() {
     const q = {
       action: {
@@ -314,7 +315,7 @@ export class Transaction extends Model {
     });
   }
 
-  
+
 
 
   // snappayAddCredit(req: Request, res: Response) {
@@ -402,6 +403,109 @@ export class Transaction extends Model {
     });
   }
 
+  groupByDelivered(items: ITransaction[]) {
+    const groups: any = {};
+    items.map(it => {
+      let delivered: any = null;
+      if (it.hasOwnProperty('delivered')) {
+        delivered = moment(it.delivered);
+        const dt: any = Object.keys(groups).find(x => moment(x).isSame(delivered, 'day'));
+        if (dt) {
+          groups[dt].push(it);
+        } else {
+          groups[delivered.toISOString()] = [it];
+        }
+      } else {
+        console.log('No delivered Transaction:' + it._id);
+      }
+    });
+    return groups;
+  }
+
+  getMerchantDescription(t: any, merchantAccountId: string, lang: string) {
+    if (t.items && t.items.length > 0) {
+      if (lang === 'en') {
+        return 'client cancel order';
+      } else {
+        return '客户撤销订单';
+      }
+    } else {
+      return t.toId === merchantAccountId ? t.fromName : t.toName;
+    }
+  }
+
+  getMerchantBalance(req: Request, res: Response) {
+    let query: any = {};
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+    const merchantAccountId = query.id;
+    const lang = query.lang;
+
+    this.doGetMerchantBalance(merchantAccountId, lang).then((arr: any[]) => {
+      res.setHeader('Content-Type', 'application/json');
+      if (arr && arr.length > 0) {
+        res.send(JSON.stringify(arr, null, 3));
+      } else {
+        res.send(JSON.stringify([], null, 3));
+      }
+    });
+  }
+
+  doGetMerchantBalance(merchantAccountId: string, lang: string): Promise<any[]> {
+    const qCredit = { fromId: merchantAccountId };
+    const qDebit = { toId: merchantAccountId };
+
+    return new Promise((resolve, reject) => {
+      this.find(qCredit).then(credits => {
+        this.find(qDebit).then(debits => {
+          const list: any = [];
+          const receivables: any = this.groupByDelivered(credits);
+          Object.keys(receivables).map((dt: string) => {
+            const its: any[] = receivables[dt];
+            let amount = 0;
+            its.map((it: any) => { amount += it.amount; });
+            list.push({ created: dt, description: '', type: 'credit', receivable: amount, received: 0, balance: 0, items: null });
+          });
+
+          debits.map((t: any) => {
+            const dt = t.delivered ? t.delivered : t.created;
+            const description = this.getMerchantDescription(t, merchantAccountId, lang);
+            list.push({
+              created: dt, description: description, type: 'debit', receivable: 0, received: t.amount, balance: 0,
+              items: t.items ? t.items : null
+            });
+          });
+
+          const rs: any[] = list.sort((a: any, b: any) => {
+            const aMoment = moment(a.created);
+            const bMoment = moment(b.created);
+            if (aMoment.isSame(bMoment, 'day')) {
+              if (a.type === 'debit') {
+                return 1;
+              } else {
+                if (aMoment.isAfter(bMoment)) {
+                  return 1; // a to bottom
+                } else {
+                  return -1;
+                }
+              }
+            } else {
+              if (aMoment.isAfter(bMoment)) {
+                return 1;
+              } else {
+                return -1;
+              }
+            }
+          });
+
+          resolve(rs);
+        });
+      });
+    });
+  }
+
+
   // tools
   changeAccount(req: Request, res: Response) {
 
@@ -455,7 +559,7 @@ export class Transaction extends Model {
     });
   }
 
-  fixCancelTransactions(req: Request, res: Response){
+  fixCancelTransactions(req: Request, res: Response) {
     // const q1 = { action: {$in: ['client cancel order from duocun', 'duocun cancel order from merchant']}, delivered:null};
     // this.find(q1).then(t1s => {
     //   const datas: any[] = [];

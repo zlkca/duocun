@@ -268,16 +268,21 @@ export class Entity {
     }
 
     if (doc && doc.hasOwnProperty('merchantId')) {
-      const merchantId = doc['merchantId'];
-      if (typeof merchantId === 'string' && merchantId.length === 24) {
-        doc['merchantId'] = new ObjectID(merchantId);
-      } else if (merchantId && merchantId.hasOwnProperty('$in')) {
-        let a = merchantId['$in'];
+      let body = doc.merchantId;
+      if (body && body.hasOwnProperty('$in')) {
+        let a = body['$in'];
         const arr: any[] = [];
-        a.map((id: string) => {
-          arr.push(new ObjectID(id));
+        a.map((id: any) => {
+          if (typeof id === "string" && id.length === 24) {
+            arr.push(new ObjectID(id));
+          } else {
+            arr.push(id);
+          }
         });
-        doc.merchantId = { $in: arr };
+
+        doc['merchantId'] = { $in: arr };
+      } else if (typeof body === "string" && body.length === 24) {
+        doc['merchantId'] = new ObjectID(doc._id);
       }
     }
 

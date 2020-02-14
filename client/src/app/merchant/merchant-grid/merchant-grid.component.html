@@ -2,7 +2,7 @@
 
   <div class="grid-row" *ngFor="let row of rows">
       <div class="grid-item" *ngFor="let r of row;" (click)="toDetail(r)">
-          <div class="grid-item-body" *ngIf="r.distance!==null">
+          <div class="grid-item-body" *ngIf="r && r.distance!==null">
             <div class="image-body">
               <img [src]="getImageSrc(r)" [alt]="r.name">
               <div class="shadow-layer" *ngIf="r.isClosed || (origin && !r.onSchedule) || r.orderEnded">

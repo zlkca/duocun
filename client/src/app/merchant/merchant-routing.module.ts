@@ -1,10 +1,14 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
 import { MerchantDetailPageComponent } from './merchant-detail-page/merchant-detail-page.component';
+import { Routes, RouterModule } from '../../../node_modules/@angular/router';
+import { NgModule } from '../../../node_modules/@angular/core';
 
 
 const routes: Routes = [
-  { path: 'list/:id/:onSchedule', component: MerchantDetailPageComponent } //  onSchedule: 'undefined' means no address
+  {
+    path: 'list/:id/:onSchedule', //  onSchedule: 'undefined' means no address
+    component: MerchantDetailPageComponent,
+    // canDeactivate: [NavGuardService]
+ }
 ];
 
 @NgModule({

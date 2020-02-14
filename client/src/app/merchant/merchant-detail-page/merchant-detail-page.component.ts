@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Location } from '@angular/common';
-import { ActivatedRoute, Router } from '../../../../node_modules/@angular/router';
+import { ActivatedRoute, Router, ActivatedRouteSnapshot } from '../../../../node_modules/@angular/router';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { MerchantService } from '../merchant.service';
@@ -17,6 +17,7 @@ import { CommandActions } from '../../shared/command.actions';
 import { IDelivery } from '../../delivery/delivery.model';
 import { environment } from '../../../environments/environment';
 import { CartActions } from '../../cart/cart.actions';
+
 
 @Component({
   selector: 'app-merchant-detail-page',
@@ -37,6 +38,9 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   lang = environment.language;
   onSchedule: boolean;
   bHasAddress: boolean;
+  dialogRef;
+  action = '';
+  currentUrl;
 
   @ViewChild('list', { static: true }) list: ElementRef;
 
@@ -45,8 +49,8 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     private merchantSvc: MerchantService,
     private route: ActivatedRoute,
     private router: Router,
-    private rx: NgRedux<ICart>,
     private location: Location,
+    private rx: NgRedux<ICart>,
     public dialog: MatDialog
   ) {
     const self = this;
@@ -76,16 +80,37 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       }
     });
 
+    // this.locationSubscription = this.location.subscribe((x) => {
+    //   // if (window.location.pathname.indexOf('merchant/list/') !== -1) {
+    //   //   const merchantId = self.restaurant._id;
+    //   //   self.openDialog(merchantId, 'restaurant-list');
+    //   //   // this.router.navigate(['merchant/list/' + merchantId + '/' + this.onSchedule]);
+    //   // }
+    //   // setTimeout(() => {
+    //   //   this.modalSvc.open('custom-modal-1');
+    //   // console.log(window.location.pathname);
+    //   // }, 500);
+    // });
+
     this.locationSubscription = this.location.subscribe((x) => {
       const merchantId = self.restaurant._id;
+
       if (window.location.pathname.endsWith('main/home') ||
         window.location.pathname.endsWith('/') ||
         window.location.pathname.endsWith('contact/address-form')
       ) {
         // window.history.forward();
         if (self.restaurant && self.cart && self.cart.items && self.cart.items.length > 0) {
-          this.openDialog(merchantId, 'restaurant-list');
-        } else {
+          // setTimeout(() => {
+          self.openDialog(merchantId, 'restaurant-list');
+          // }, 300);
+          // const r = confirm('离开后将清空购物车, 确认要离开么？');
+          // if (r) {
+          //   this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
+          //   this.router.navigate(['main/home']);
+          // } else {
+          //   this.router.navigate(['merchant/list/' + merchantId + '/' + this.onSchedule]);
+          // }
 
         }
       } else if (window.location.pathname.endsWith('order/history')) {
@@ -94,6 +119,35 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  // closeModal(id) {
+  //   this.modalSvc.close(id);
+  // }
+
+  // deprecated
+  canLeave(route: ActivatedRouteSnapshot): boolean {
+    const self = this;
+    const currentUrlTree = this.router.createUrlTree([], route);
+    this.currentUrl = currentUrlTree.toString();
+
+    if (this.action === 'leave') {
+      this.action = '';
+      return true;
+    } else if (this.action === 'stay') {
+      // this.location.go(currentUrl);
+      this.action = '';
+      return false;
+    } else {
+      const target = window.location.pathname;
+      if (target.endsWith('/') || target.endsWith('main/home')) {
+        const merchantId = self.restaurant._id;
+        self.openDialog(merchantId, 'restaurant-list', target);
+        return false;
+      } else {
+        return true;
+      }
+    }
   }
 
   ngOnInit() {
@@ -113,7 +167,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       self.merchantSvc.load(origin, dateType, { _id: merchantId }).pipe(takeUntil(this.onDestroy$)).subscribe((ms: IMerchant[]) => {
         const merchant = ms.find(m => m._id === merchantId);
 
-        if (merchant && environment.language === 'en') {
+        if (merchant && this.lang === 'en') {
           merchant.name = merchant.nameEN;
         }
 
@@ -153,19 +207,21 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  openDialog(merchantId: string, fromPage: string): void {
-    const dialogRef = this.dialog.open(QuitRestaurantDialogComponent, {
+  openDialog(merchantId: string, fromPage: string, target?: string): void {
+    const self = this;
+    this.dialogRef = this.dialog.open(QuitRestaurantDialogComponent, {
       width: '300px',
       data: {
-        title: this.lang === 'en' ? 'Hint' : '提示',
-        content: this.lang === 'en' ? 'Cart will be clear when leave' : '离开后将清空购物车。',
-        buttonTextNo: this.lang === 'en' ? 'Leave' : '离开',
-        buttonTextYes: this.lang === 'en' ? 'Stay' : '留下',
-        merchantId: merchantId, fromPage: fromPage, onSchedule: this.onSchedule
+        // title: this.lang === 'en' ? 'Hint' : '提示',
+        // content: this.lang === 'en' ? 'Cart will be clear when leave' : '离开后将清空购物车。',
+        // buttonTextNo: this.lang === 'en' ? 'Leave' : '离开',
+        // buttonTextYes: this.lang === 'en' ? 'Stay' : '留下',
+        merchantId: merchantId, fromPage: fromPage, onSchedule: this.onSchedule, targetUrl: target
       },
+      closeOnNavigation: true
     });
 
-    dialogRef.afterClosed().pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
+    this.dialogRef.afterClosed().pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
       // if (r.action === 'leave') {
       //   this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
       //   this.router.navigate(['main/home']);
@@ -173,7 +229,14 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       //   // do nothing
       //   this.router.navigate(['merchant/list/' + r.merchantId + '/' + r.onSchedule]);
       // }
+      this.action = r.action;
+      if (r.action === 'leave') {
 
+      } else if (r.action === 'stay') {
+        // this.router.navigate(['merchant/list/' + merchantId + '/' + this.onSchedule]);
+        // history.pushState({}, '', r.targetUrl);
+        // this.location.go(this.currentUrl);
+      }
     });
   }
 

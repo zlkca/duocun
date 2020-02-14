@@ -31,7 +31,9 @@ import { MerchantGridComponent } from './merchant-grid/merchant-grid.component';
     AreaModule,
     SharedModule
   ],
-  providers: [AreaService],
+  providers: [
+    AreaService,
+  ],
   exports: [
     MerchantListComponent,
     MerchantGridComponent

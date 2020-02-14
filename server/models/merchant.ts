@@ -10,7 +10,7 @@ import { Request, Response } from "express";
 import { ObjectID, Collection, ObjectId } from "mongodb";
 import moment from "moment";
 import { resolve } from "path";
-import { IAccount } from "./account";
+import { IAccount, Account } from "./account";
 
 // ------------- interface v2 ----------------
 export enum MerchantType {
@@ -80,13 +80,16 @@ export interface IDbMerchant {
 
 export class Merchant extends Model {
   mallModel: Mall;
+  accountModel: Account;
   distance: Distance;
   area: Area;
   range: Range;
+  
 
   constructor(dbo: DB) {
     super(dbo, 'merchants');
     this.mallModel = new Mall(dbo);
+    this.accountModel = new Account(dbo);
     this.distance = new Distance(dbo);
     this.area = new Area(dbo);
     this.range = new Range(dbo);
@@ -112,6 +115,49 @@ export class Merchant extends Model {
       } else {
         res.send(JSON.stringify(null, null, 3))
       }
+    });
+  }
+
+  getByAccountId(req: Request, res: Response) {
+    let query = null;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+    const merchantAccountId = query.id;
+
+    this.doGetByAccountId(merchantAccountId).then((ms: IDbMerchant[]) => {
+      const rs: IMerchant[] = [];
+      ms.map(m => {
+        rs.push(this.toBasicRspObject(m));
+      });
+
+      res.setHeader('Content-Type', 'application/json');
+      if (rs) {
+        res.send(JSON.stringify(rs, null, 3));
+      } else {
+        res.send(JSON.stringify(null, null, 3))
+      }
+    });
+  }
+
+  doGetByAccountId(merchantAccountId: string): Promise<IDbMerchant[]>{
+    return new Promise((resolve, reject) => {
+      this.accountModel.findOne({_id: merchantAccountId}).then(account => {
+        if(account && account.merchants && account.merchants.length>0){
+          const merchantIds: string[] = [];
+          account.merchants.map((mId: string) => {
+            merchantIds.push(mId);
+          });
+
+          const query = this.convertIdFields({_id: {$in: merchantIds}});
+
+          this.joinFind(query).then((ms: IDbMerchant[]) => {
+            resolve(ms);
+          });
+        }else{
+          resolve([]);
+        }
+      });
     });
   }
 

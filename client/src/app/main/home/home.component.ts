@@ -28,6 +28,7 @@ import { IRange } from '../../range/range.model';
 import { AreaService } from '../../area/area.service';
 import { MerchantType, IMerchant } from '../../merchant/merchant.model';
 import { MerchantService } from '../../merchant/merchant.service';
+import { IDelivery } from '../../delivery/delivery.model';
 
 const WECHAT_APP_ID = environment.WECHAT.APP_ID;
 const WECHAT_REDIRCT_URL = environment.WECHAT.REDIRECT_URL;
@@ -73,7 +74,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   lang = environment.language;
   bOrderEnded = false;
 
-  date = { code: 'L', type: 'today' };
+  date = { code: 'L', type: 'today' }; // default value
 
   @ViewChild('tooltip', { static: true }) tooltip: MatTooltip;
 
@@ -92,21 +93,26 @@ export class HomeComponent implements OnInit, OnDestroy {
     private fb: FormBuilder
   ) {
     const self = this;
-    if (this.date.code === 'L') {
-      const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
-    } else {
-      const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
-      this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow, dateType: 'tomorrow' } });
-    }
+
     this.placeForm = this.fb.group({ addr: [''] });
 
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
 
 
-    // receive from remote change ???
-    // this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
-
+    // receive delivery from merchant detail page click brower back button event
+    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
+      if (d && d.dateType) {
+        this.date = d.dateType === 'today' ? { code: 'L', type: 'today' } : { code: 'R', type: 'tomorrow' };
+      } else { // set default date
+        if (this.date.code === 'L') {
+          const today = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+          this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: today, dateType: 'today' } });
+        } else {
+          const tomorrow = moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).add(1, 'days');
+          this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow, dateType: 'tomorrow' } });
+        }
+      }
+    });
     //   const origin = d.origin;
     //   if (d && origin) {
     //     self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
