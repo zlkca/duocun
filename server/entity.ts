@@ -282,7 +282,7 @@ export class Entity {
 
         doc['merchantId'] = { $in: arr };
       } else if (typeof body === "string" && body.length === 24) {
-        doc['merchantId'] = new ObjectID(doc._id);
+        doc['merchantId'] = new ObjectID(doc.merchantId);
       }
     }
 
