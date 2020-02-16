@@ -286,6 +286,25 @@ export class Entity {
       }
     }
 
+    if (doc && doc.hasOwnProperty('merchantAccountId')) {
+      let body = doc.merchantAccountId;
+      if (body && body.hasOwnProperty('$in')) {
+        let a = body['$in'];
+        const arr: any[] = [];
+        a.map((id: any) => {
+          if (typeof id === "string" && id.length === 24) {
+            arr.push(new ObjectID(id));
+          } else {
+            arr.push(id);
+          }
+        });
+
+        doc['merchantAccountId'] = { $in: arr };
+      } else if (typeof body === "string" && body.length === 24) {
+        doc['merchantAccountId'] = new ObjectID(doc.merchantAccountId);
+      }
+    }
+    
     if (doc && doc.hasOwnProperty('clientId')) {
       const clientId = doc['clientId'];
       if (typeof clientId === 'string' && clientId.length === 24) {

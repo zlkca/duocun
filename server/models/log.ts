@@ -96,13 +96,13 @@ export class Log extends Model {
 
   getAllLatest(actionId: number, accountType: number): Promise<any[]>{
     const range = { $gte: moment().startOf('day').toISOString(), $lte: moment().endOf('day').toISOString() };
-    const query = {created: range, action: actionId, type: accountType };
+    const query = { created: range, action: actionId, type: accountType };
 
     return new Promise((resolve, reject) => {
       this.joinFind(query).then(logs => {
         let groups: any = {};
         if(accountType === AccountType.MERCHANT){
-          groups = this.groupBy(logs, 'merchantId');
+          groups = this.groupBy(logs, 'merchantAccountId');
         }else{
           groups = this.groupBy(logs, 'accountId');
         }
