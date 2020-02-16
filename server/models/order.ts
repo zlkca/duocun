@@ -10,7 +10,7 @@ import { Transaction, ITransaction } from "./transaction";
 import { Product, IProduct } from "./product";
 import { CellApplication, CellApplicationStatus, ICellApplication } from "./cell-application";
 import { Log, Action, AccountType } from "./log";
-import {createObjectCsvWriter} from 'csv-writer';
+import { createObjectCsvWriter } from 'csv-writer';
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -459,7 +459,7 @@ export class Order extends Model {
                     items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, product: product });
                   }
                 });
-                
+
                 this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
                   this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' }).then(() => { // This will affect balance calc
                     const merchantAccountId = merchant.accountId.toString();
@@ -1001,8 +1001,8 @@ export class Order extends Model {
             const group = groups[cId];
             if (group && group.length > 0) {
               const order = group[0];
-              const client = clients.find((c:any) => c._id.toString() === order.clientId.toString());
-              if(client){
+              const client = clients.find((c: any) => c._id.toString() === order.clientId.toString());
+              if (client) {
                 cs.push(client);
               }
             }
@@ -1105,14 +1105,21 @@ export class Order extends Model {
           let rs: any[] = [];
           logs.map((log: any) => { // each log has only one merchant
             const dt = moment(log.created);
-            const merchantId = log.merchantId.toString();
-            const its = orders.filter((order: IOrder) => order.merchantId.toString() === merchantId && moment(order.modified).isSameOrBefore(dt));
-            if (its && its.length > 0) {
-              rs = rs.concat(its);
+            const merchantAccountId = log.merchantAccountId ? log.merchantAccountId.toString() : null;
+            if (merchantAccountId) {
+              this.accountModel.getMerchantIds(merchantAccountId).then((mIds: any[]) => {
+                const its = orders.filter((order: IOrder) => mIds.indexOf(order.merchantId.toString()) !== -1 
+                  && moment(order.modified).isSameOrBefore(dt));
+
+                if (its && its.length > 0) {
+                  rs = rs.concat(its);
+                }
+                resolve(rs);
+              });
+            } else {
+              resolve([]);
             }
           });
-
-          resolve(rs);
         });
       });
     });
@@ -1256,24 +1263,24 @@ export class Order extends Model {
     // });
   }
 
-  fixCancelledTransaction(req: Request, res: Response){
-    const q = { action: 'duocun cancel order from merchant', orderId: {$exists: true} };
+  fixCancelledTransaction(req: Request, res: Response) {
+    const q = { action: 'duocun cancel order from merchant', orderId: { $exists: true } };
 
     this.transactionModel.find(q).then(ts => {
       const datas: any[] = [];
       const oIds: string[] = [];
 
       ts.map((t: ITransaction) => {
-        if(t.orderId){
+        if (t.orderId) {
           oIds.push(t.orderId);
         }
       });
 
-      this.joinFind({_id: {$in: oIds}}).then((orders: any[]) => {
+      this.joinFind({ _id: { $in: oIds } }).then((orders: any[]) => {
         ts.map((t: ITransaction) => {
           const transOrderId: any = t.orderId;
           const order = orders.find(ord => ord._id.toString() === transOrderId.toString());
-          if(order){
+          if (order) {
             const items: any[] = [];
             order.items.map((it: IOrderItem) => {
               const product: any = it.product;
@@ -1342,7 +1349,7 @@ export class Order extends Model {
   // merchantAccount?: IAccount;
   // merchant?: IMerchant;
 
-  getItemString(order: any){
+  getItemString(order: any) {
     const items: any[] = order.items;
     let s = '';
     items.map(it => {
@@ -1352,10 +1359,10 @@ export class Order extends Model {
     return s;
   }
 
-  getAttributesString(client: any){
-    if(client){
-      return client.attributes? client.attributes.join(' ') : 'N/A';
-    }else{
+  getAttributesString(client: any) {
+    if (client) {
+      return client.attributes ? client.attributes.join(' ') : 'N/A';
+    } else {
       return 'N/A';
     }
   }
@@ -1366,27 +1373,27 @@ export class Order extends Model {
     const cw = createObjectCsvWriter({
       path: path,
       header: [
-        {id: 'code', title: 'code'},
-        {id: 'client', title: 'client'},
-        {id: 'clientPhone', title: 'client phone'},
-        {id: 'clientAttr', title: 'client Attribute'},
-        {id: 'merchant', title: 'merchant'},
-        {id: 'items', title: 'items'},
-        {id: 'price', title: 'price'},
-        {id: 'cost', title: 'cost'},
-        {id: 'address', title: 'address'},
-        {id: 'note', title: 'note'},
-        {id: 'deliveryCost', title: 'deliveryCost'},
-        {id: 'groupDiscount', title: 'groupDiscount'},
-        {id: 'overRangeCharge', title: 'overRangeCharge'},
-        {id: 'total', title: 'total'},
-        {id: 'tax', title: 'tax'},
-        {id: 'type', title: 'type'},
-        {id: 'status', title: 'status'},
-        {id: 'paymentStatus', title: 'paymentStatus'},
-        {id: 'paymentMethod', title: 'paymentMethod'},
-        {id: 'delivered', title: 'delivered'},
-        {id: 'created', title: 'created'},
+        { id: 'code', title: 'code' },
+        { id: 'client', title: 'client' },
+        { id: 'clientPhone', title: 'client phone' },
+        { id: 'clientAttr', title: 'client Attribute' },
+        { id: 'merchant', title: 'merchant' },
+        { id: 'items', title: 'items' },
+        { id: 'price', title: 'price' },
+        { id: 'cost', title: 'cost' },
+        { id: 'address', title: 'address' },
+        { id: 'note', title: 'note' },
+        { id: 'deliveryCost', title: 'deliveryCost' },
+        { id: 'groupDiscount', title: 'groupDiscount' },
+        { id: 'overRangeCharge', title: 'overRangeCharge' },
+        { id: 'total', title: 'total' },
+        { id: 'tax', title: 'tax' },
+        { id: 'type', title: 'type' },
+        { id: 'status', title: 'status' },
+        { id: 'paymentStatus', title: 'paymentStatus' },
+        { id: 'paymentMethod', title: 'paymentMethod' },
+        { id: 'delivered', title: 'delivered' },
+        { id: 'created', title: 'created' },
         // {id: 'modified', title: 'modified'},
       ]
     });
@@ -1399,7 +1406,7 @@ export class Order extends Model {
         data.push({
           code: order.code,
           client: order.clientName,
-          clientPhone: order.client ? order.client.phone: 'N/A',
+          clientPhone: order.client ? order.client.phone : 'N/A',
           clientAttr: this.getAttributesString(client),
           merchant: order.merchantName,
           items: this.getItemString(order),
@@ -1422,7 +1429,7 @@ export class Order extends Model {
         });
       });
 
-      cw.writeRecords(data).then(()=> {
+      cw.writeRecords(data).then(() => {
         res.download(path);
         console.log('The CSV file was written successfully');
       });

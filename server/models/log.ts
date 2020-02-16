@@ -75,7 +75,6 @@ export class Log extends Model {
     });
   }
 
-
   getLatest(logs: any[]){
     if(logs && logs.length > 0){
       if(logs.length > 1){

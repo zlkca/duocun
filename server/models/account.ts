@@ -145,15 +145,15 @@ export class Account extends Model {
         from: '+16475591743',
         to: "+1".concat(r.phone)
       })
-      .then((message: any) => {
-        if(r.accountId){
-          const cfg = new Config();
-          const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
-          res.send(JSON.stringify(tokenId, null, 3));
-        }else{
-          res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
-        }
-      });
+        .then((message: any) => {
+          if (r.accountId) {
+            const cfg = new Config();
+            const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
+            res.send(JSON.stringify(tokenId, null, 3));
+          } else {
+            res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
+          }
+        });
     });
   }
 
@@ -197,6 +197,17 @@ export class Account extends Model {
     });
   }
 
+  getMerchantIds(accountId: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      this.findOne({ _id: accountId }).then(account => {
+        if (account.merchants && account.merchants.length > 0) {
+          resolve(account.merchants);
+        } else {
+          resolve([]);
+        }
+      });
+    });
+  }
 
   shortList(req: Request, res: Response) {
     let query = {};
