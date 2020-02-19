@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
-import { Order, IOrder, OrderType, OrderStatus } from '../order.model';
+import { IOrder, OrderType, OrderStatus } from '../order.model';
 // import { SocketService } from '../../shared/socket.service';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
@@ -18,6 +18,8 @@ import { Subject } from '../../../../node_modules/rxjs';
 import * as moment from 'moment';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { environment } from '../../../environments/environment';
+import { LocationService } from '../../location/location.service';
+import { ILocation } from '../../location/location.model';
 
 @Component({
   selector: 'app-order-history',
@@ -27,7 +29,6 @@ import { environment } from '../../../environments/environment';
 export class OrderHistoryComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject();
   account;
-  restaurant;
   orders = [];
   loading = true;
   highlightedOrderId = 0;
@@ -41,6 +42,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService,
     private orderSvc: OrderService,
     private sharedSvc: SharedService,
+    private locationSvc: LocationService,
     private rx: NgRedux<IAppState>,
     private router: Router,
     public dialog: MatDialog
@@ -57,16 +59,12 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
       self.account = account;
       if (account && account._id) {
-        // self.reload(account._id);
         self.OnPageChange(this.currentPageNumber);
       } else {
         self.orders = []; // should never be here.
         this.loading = false;
       }
     });
-
-    // this.socketSvc.on('updateOrders', x => {
-    // });
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'reload-orders') {
@@ -205,6 +203,10 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       this.nOrders = ret.total;
       this.loading = false;
     });
+  }
+
+  getAddress(location: ILocation) {
+    return this.locationSvc.getAddrString(location);
   }
 
 }

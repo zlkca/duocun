@@ -36,37 +36,24 @@ declare var window;
 export class OrderFormPageComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<any>();
   cart;
-  subtotal;
-  total = 0;
-  tips = 0;
   malls: IMall[] = [];
-  productTotal = 0;
-  deliveryDiscount = 0;
-  deliveryCost = 0;
-  tax = 0;
   form;
   account: IAccount;
   items: ICartItem[];
   order: IOrder; // used for identifing new order or not, now used for updating paymentMethod info
   delivery: IDelivery;
-  address: string;
+  address: string;    // for display
   balance: number;
-  groupDiscount = 0;
   paymentMethod = 'cash';
   card;
   stripe;
   loading = true;
-
   charge: ICharge;
   afterGroupDiscount: number;
   bSubmitted = false;
-
   fromPage: string; // params from previous page
   action: string;   // params from previous page
-
   lang = environment.language;
-  msg = '';
-  log = '';
 
   constructor(
     private fb: FormBuilder,
@@ -113,10 +100,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'pay') {
         this.rx.dispatch({ type: CommandActions.SEND, payload: { name: '' } });
-        // const account = x.args.account;
+
         const delivery = x.args.delivery;
         const cart = x.args.cart;
         const paymentMethod = x.args.paymentMethod;
+        const origin = delivery.origin;
+        const groupDiscount = 0; // bEligible ? 2 : 0;
 
         self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
           this.loading = false;
@@ -125,14 +114,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             this.paymentMethod = paymentMethod;
             this.balance = account.balance;
 
-            const origin = delivery.origin;
-            const groupDiscount = 0; // bEligible ? 2 : 0;
             if (origin) {
               self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
                 this.charge = this.cartSvc.getCost(cart, (r.distance * r.rate), groupDiscount);
                 if (account.type === 'tmp') {
                   this.openPhoneVerifyDialog();
-                  // self.router.navigate(['account/phone-verify'], { queryParams: { fromPage: this.fromPage, action: 'pay' } });
                 } else {
                   self.doPay(account, self.charge, cart, delivery, paymentMethod);
                 }
@@ -205,7 +191,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               });
               this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
               self.loading = false;
-              self.groupDiscount = groupDiscount;
             });
           } else {
             console.log('getOverRange need origin');
@@ -231,8 +216,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   }
 
   // delivery --- only need 'origin' and 'dateType' fields
-  createOrder(account: IAccount, cart: ICart, delivery: IDelivery, charge: ICharge, note: string,
-    paymentMethod: string): IOrder {
+  createOrder(account: IAccount, cart: ICart, delivery: IDelivery, charge: ICharge, note: string, paymentMethod: string): IOrder {
 
     const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
       return {
@@ -243,8 +227,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       };
     });
 
-    const summary = this.getCost(items);
-
     const order: IOrder = {
       clientId: account._id,
       clientName: account.username,
@@ -252,11 +234,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       merchantId: cart.merchantId,
       merchantName: cart.merchantName,
       items: items,
-      price: Math.round(summary.price * 100) / 100,
-      cost: Math.round(summary.cost * 100) / 100,
-
-      address: this.locationSvc.getAddrString(delivery.origin),
-      location: delivery.origin, // fix me!!!
+      price: Math.round(charge.price * 100) / 100,
+      cost: Math.round(charge.cost * 100) / 100,
+      // address: this.locationSvc.getAddrString(delivery.origin),
+      location: delivery.origin,
       note: note,
       deliveryCost: Math.round(charge.deliveryCost * 100) / 100,
       deliveryDiscount: Math.round(charge.deliveryDiscount * 100) / 100,
@@ -380,10 +361,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       // if (paymentMethod === 'WECHATPAY' || paymentMethod === 'ALIPAY') {
       self.loading = false;
       this.paymentSvc.snappayPayOrder(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((r) => {
-
-        // this.msg = r.msg;
-        // this.log = r.data[0].trans_no;
-
         self.bSubmitted = false;
         if (r.msg === 'success') {
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
@@ -437,7 +414,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
           // adjust group discount
           // const clientId = order.clientId;
-          // const address = order.address;
           // const merchantId = order.merchantId;
 
           // self.paymentSvc.addGroupDiscount(clientId, merchantId, dateType, address).pipe(takeUntil(self.onDestroy$)).subscribe(r => {

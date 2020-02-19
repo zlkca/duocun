@@ -38,7 +38,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
   mapZoom = 14;
   rangeMap = false;
   mapCenter;
-  restaurant;
   suggestAddressList;
   historyAddressList;
   bUpdateLocationList = true;
@@ -82,10 +81,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
         const a = self.locationSvc.toPlaces(lhs);
         self.historyAddressList = a;
       });
-    });
-
-    this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IMerchant) => {
-      self.restaurant = r;
     });
   }
 

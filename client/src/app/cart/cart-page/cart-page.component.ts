@@ -31,9 +31,9 @@ export class CartPageComponent implements OnInit, OnDestroy {
   defaultProductPicture = window.location.protocol + '//placehold.it/400x300';
   private onDestroy$ = new Subject<void>();
   carts;
-  location;
-  restaurant;
+  // location;
   products: IProduct[];
+  merchantId: string;
 
   @ViewChild('orderDetailModal', { static: true }) orderDetailModal;
 
@@ -53,18 +53,9 @@ export class CartPageComponent implements OnInit, OnDestroy {
     });
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
-      this.total = cart.total;
-      this.quantity = cart.quantity;
-      this.carts = this.groupItemsByRestaurant(cart.items);
-    });
+      const merchantId = cart.merchantId;
+      const q = { merchantId: merchantId, status: { $in: [ProductStatus.ACTIVE, ProductStatus.NEW, ProductStatus.PROMOTE]} };
 
-    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
-      this.location = d.origin;
-    });
-
-    this.rx.select('restaurant').pipe(takeUntil(this.onDestroy$)).subscribe((r: IMerchant) => {
-      this.restaurant = r;
-      const q = { merchantId: r._id, status: { $in: [ProductStatus.ACTIVE, ProductStatus.NEW, ProductStatus.PROMOTE]} };
       this.productSvc.find(q).pipe(takeUntil(this.onDestroy$)).subscribe((ps: IProduct[]) => {
         if (environment.language === 'en') {
           ps.map(p => {
@@ -72,8 +63,16 @@ export class CartPageComponent implements OnInit, OnDestroy {
           });
         }
         this.products = ps;
+        this.merchantId = merchantId;
+        this.total = cart.total;
+        this.quantity = cart.quantity;
+        this.carts = this.groupItemsByRestaurant(cart.items);
       });
     });
+
+    // this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((d: IDelivery) => {
+    //   this.location = d.origin;
+    // });
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'checkout') {
@@ -166,9 +165,8 @@ export class CartPageComponent implements OnInit, OnDestroy {
 
   back() {
     const onSchedule = true;
-    const merchantId = this.restaurant._id;
-    if (this.restaurant) {
-      this.router.navigate(['merchant/list/' + merchantId + '/' + onSchedule]);
+    if (this.merchantId) {
+      this.router.navigate(['merchant/list/' + this.merchantId + '/' + onSchedule]);
     }
   }
 }

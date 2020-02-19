@@ -34,12 +34,12 @@ export interface IOrder {
   driverId?: string;
   driverName?: string;
 
-  type?: OrderType;      // in db
+  type?: OrderType;       // in db
   status?: OrderStatus;
   paymentStatus?: PaymentStatus;
 
   note?: string;
-  address?: string;
+  // address?: string;       // should not in db
   location?: ILocation;
 
   items?: IOrderItem[];

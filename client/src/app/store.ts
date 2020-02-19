@@ -15,7 +15,6 @@ import { IContact } from './contact/contact.model';
 import { contactReducer } from './contact/contact.reducer';
 import { ICart } from './cart/cart.model';
 import { cartReducer, DEFAULT_CART } from './cart/cart.reducer';
-import { restaurantReducer } from './restaurant/restaurant.reducer';
 import { IMerchant } from './merchant/merchant.model';
 import { Account } from './account/account.model';
 import { orderReducer } from './order/order.reducers';
@@ -23,6 +22,7 @@ import { IOrder } from './order/order.model';
 import { addressReducer } from './location/address.reducer';
 import { IRange } from './range/range.model';
 import { rangeReducer } from './range/range.reducer';
+import { merchantReducer } from './merchant/merchant.reducer';
 export interface IAppState {
     cart: ICart;
     account: Account;
@@ -75,7 +75,7 @@ export const rootReducer = combineReducers({
     page: pageReducer,
     cmd: commandReducer,
     // deliveryTime: deliveryTimeReducer,
-    restaurant: restaurantReducer,
+    merchant: merchantReducer,
     malls: mallReducer,
     delivery: deliveryReducer,
     contact: contactReducer,

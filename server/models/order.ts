@@ -1085,14 +1085,25 @@ export class Order extends Model {
   }
 
   reqLatestViewed(req: Request, res: Response) {
-    this.getLatestViewed().then(rs => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(rs, null, 3));
-    });
+    let query = null;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    res.setHeader('Content-Type', 'application/json');
+    if(query){
+      this.getLatestViewed(query.delivered).then(rs => {
+        res.end(JSON.stringify(rs, null, 3));
+      });
+    }else{
+      res.end(JSON.stringify([], null, 3));
+    }
+
   }
 
-  getLatestViewed() {
-    const range = { $gte: moment().startOf('day').toISOString(), $lte: moment().endOf('day').toISOString() };
+  // get all the orders that Merchant Viewed
+  getLatestViewed(delivered: string) {
+    const range = { $gte: moment(delivered).startOf('day').toISOString(), $lte: moment(delivered).endOf('day').toISOString() };
     const query: any = {
       delivered: range,
       type: OrderType.FOOD_DELIVERY,
@@ -1101,25 +1112,29 @@ export class Order extends Model {
 
     return new Promise((resolve, reject) => {
       this.find(query).then((orders: any) => {
-        this.logModel.getAllLatest(Action.VIEW_ORDER, AccountType.MERCHANT).then((logs: any[]) => {
+        this.logModel.getLatestByAccount(Action.VIEW_ORDER, AccountType.MERCHANT, delivered).then((logs: any[]) => {
           let rs: any[] = [];
-          logs.map((log: any) => { // each log has only one merchant
-            const dt = moment(log.created);
-            const merchantAccountId = log.merchantAccountId ? log.merchantAccountId.toString() : null;
-            if (merchantAccountId) {
-              this.accountModel.getMerchantIds(merchantAccountId).then((mIds: any[]) => {
-                const its = orders.filter((order: IOrder) => mIds.indexOf(order.merchantId.toString()) !== -1 
-                  && moment(order.modified).isSameOrBefore(dt));
+          if (logs && logs.length > 0) {
+            logs.map((log: any) => { // each log has only one merchant
+              const dt = moment(log.created);
+              const merchantAccountId = log.merchantAccountId ? log.merchantAccountId.toString() : null;
+              if (merchantAccountId) {
+                this.accountModel.getMerchantIds(merchantAccountId).then((mIds: any[]) => {
+                  const its = orders.filter((order: IOrder) => mIds.indexOf(order.merchantId.toString()) !== -1
+                    && moment(order.modified).isSameOrBefore(dt));
 
-                if (its && its.length > 0) {
-                  rs = rs.concat(its);
-                }
-                resolve(rs);
-              });
-            } else {
-              resolve([]);
-            }
-          });
+                  if (its && its.length > 0) {
+                    rs = rs.concat(its);
+                  }
+                  resolve(rs);
+                });
+              } else {
+                resolve([]);
+              }
+            });
+          } else {
+            resolve([]);
+          }
         });
       });
     });

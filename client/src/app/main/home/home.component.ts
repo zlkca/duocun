@@ -58,7 +58,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   location: ILocation;
   bUpdateLocationList = true;
   bInputLocation = false;
-  placeForm;
+  // placeForm;
   historyAddressList = [];
   suggestAddressList = [];
 
@@ -90,11 +90,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private rx: NgRedux<IAppState>,
     private snackBar: MatSnackBar,
-    private fb: FormBuilder
+    // private fb: FormBuilder
   ) {
     const self = this;
 
-    this.placeForm = this.fb.group({ addr: [''] });
+    // this.placeForm = this.fb.group({ addr: [''] });
 
     this.rx.dispatch({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
 
@@ -112,7 +112,15 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: tomorrow, dateType: 'tomorrow' } });
         }
       }
+
+      // reload address in address search
+      if (d && d.origin) {
+        self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
+      }
     });
+
+
+
     //   const origin = d.origin;
     //   if (d && origin) {
     //     self.deliveryAddress = self.locationSvc.getAddrString(d.origin);

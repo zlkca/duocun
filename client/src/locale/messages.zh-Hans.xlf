@@ -1739,7 +1739,23 @@
           <context context-type="sourcefile">app/account/account-page.component.ts</context>
           <context context-type="linenumber">19</context>
         </context-group>
-      </trans-unit>                      
+      </trans-unit>
+      <trans-unit id="LeaveCartHint" datatype="html">
+        <source>The Cart will be clear when leave</source>
+        <target>离开后将清空购物车</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="Hint" datatype="html">
+        <source>Hint</source>
+        <target>提示</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/account/account-page.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>                        
     </body>
   </file>
 </xliff>

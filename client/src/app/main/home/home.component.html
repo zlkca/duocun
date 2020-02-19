@@ -20,29 +20,9 @@
 
       <div class="ad-block" *ngIf="!(places && places.length > 0)">
         <!-- <img src="assets/images/fengcha.jpeg" /> -->
-        <!-- <div>本公司因圣诞放假，2019-12-20至2020-01-05暂停营业, 2020-01-06恢复正常, 不便之处, 尽请谅解。</div> -->
       </div>
 
       <app-date-select *ngIf="inRange && !(places && places.length > 0)" [bOrderEnded]="bOrderEnded" [selected]="date.code" (dateChange)="onDateChange($event)"></app-date-select>
-
-      <!-- <div class="date-block" *ngIf="!(places && places.length > 0)">
-        <mat-button-toggle-group #group="matButtonToggleGroup" [value]="selectedDate" (change)="onSelectDate($event)">
-          <mat-button-toggle value="today" aria-label="Today">
-            <div class="title-block" i18n="@@LunchToday">Lunch Today</div>
-            <div class="time-row">
-              <span class="date">{{today.date | date: 'M月d日 E' }} </span>
-              <span class="time">{{today.startTime}}~{{today.endTime}} </span>
-            </div>
-          </mat-button-toggle>
-          <mat-button-toggle value="tomorrow" aria-label="Tomorrow">
-            <div class="title-block" i18n="@@LunchTomorrow">Lunch Tomorrow</div>
-            <div class="time-row">
-              <span class="date">{{tomorrow.date | date: 'M月d日 E' }} </span>
-              <span class="time">{{tomorrow.startTime}}~{{tomorrow.endTime}} </span>
-            </div>
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-      </div> -->
     </div>
 
     <div class="right-col">

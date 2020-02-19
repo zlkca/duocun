@@ -26,13 +26,13 @@ $desktop: "(min-width: 1200px)";
 }
 
 .restaurant{
-  padding: 10px 0px 0px 0px;
+  padding: 6px 0px 0px 0px;
+  font-size: 16px;
 }
 
 .contact-block{
   padding: 10px 0px;
   border-bottom: solid 1px #eee;
-
 
   .row{
     margin: 0px;
@@ -44,10 +44,10 @@ $desktop: "(min-width: 1200px)";
 
   .title-md {
     padding-top: 0px;
-    font-size: 14px;
-    line-height: 22px;
+    font-size: 13px;
+    line-height: 20px;
     .label{
-      width: 100px;
+      width: 84px;
       float: left;
     }
   }
@@ -204,7 +204,7 @@ mat-button-toggle-group{
 }
 
 .order-detail{
-  padding-top: 8px;
+  padding-top: 6px;
 
   .items-col{
     padding-left: 0px;
@@ -293,5 +293,22 @@ mat-button-toggle-group{
 
   .page{
     padding: 0px $padding-w;
+  }
+}
+
+@media #{$mobile}{
+  #order-form{
+    padding: 0px 12px;
+  }
+
+  .order-detail{
+    .total-col{
+      font-size: 12px;
+
+      .text-xs{
+        font-size: 12px;
+        margin-left: 2px;
+      }
+    }
   }
 }

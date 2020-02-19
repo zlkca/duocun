@@ -60,13 +60,14 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       self.delivery = x;
+      self.bHasAddress = x.origin ? true : false;
     });
 
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.cart = cart;
       // update quantity of cart items
       if (self.groups && self.groups.length > 0) {
-        self.groups = this.updateQuantity(self.groups, cart);
+        self.groups = this.mergeQuantityFromCart(self.groups, cart);
       }
     });
 
@@ -80,38 +81,14 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       }
     });
 
-    // this.locationSubscription = this.location.subscribe((x) => {
-    //   // if (window.location.pathname.indexOf('merchant/list/') !== -1) {
-    //   //   const merchantId = self.restaurant._id;
-    //   //   self.openDialog(merchantId, 'restaurant-list');
-    //   //   // this.router.navigate(['merchant/list/' + merchantId + '/' + this.onSchedule]);
-    //   // }
-    //   // setTimeout(() => {
-    //   //   this.modalSvc.open('custom-modal-1');
-    //   // console.log(window.location.pathname);
-    //   // }, 500);
-    // });
-
     this.locationSubscription = this.location.subscribe((x) => {
       const merchantId = self.restaurant._id;
 
-      if (window.location.pathname.endsWith('main/home') ||
-        window.location.pathname.endsWith('/') ||
+      if (window.location.pathname.endsWith('main/home') || window.location.pathname.endsWith('/') ||
         window.location.pathname.endsWith('contact/address-form')
       ) {
-        // window.history.forward();
         if (self.restaurant && self.cart && self.cart.items && self.cart.items.length > 0) {
-          // setTimeout(() => {
           self.openDialog(merchantId, 'restaurant-list');
-          // }, 300);
-          // const r = confirm('离开后将清空购物车, 确认要离开么？');
-          // if (r) {
-          //   this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
-          //   this.router.navigate(['main/home']);
-          // } else {
-          //   this.router.navigate(['merchant/list/' + merchantId + '/' + this.onSchedule]);
-          // }
-
         }
       } else if (window.location.pathname.endsWith('order/history')) {
         if (self.restaurant && self.cart && self.cart.items && self.cart.items.length > 0) {
@@ -121,44 +98,13 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  // closeModal(id) {
-  //   this.modalSvc.close(id);
-  // }
-
-  // deprecated
-  canLeave(route: ActivatedRouteSnapshot): boolean {
-    const self = this;
-    const currentUrlTree = this.router.createUrlTree([], route);
-    this.currentUrl = currentUrlTree.toString();
-
-    if (this.action === 'leave') {
-      this.action = '';
-      return true;
-    } else if (this.action === 'stay') {
-      // this.location.go(currentUrl);
-      this.action = '';
-      return false;
-    } else {
-      const target = window.location.pathname;
-      if (target.endsWith('/') || target.endsWith('main/home')) {
-        const merchantId = self.restaurant._id;
-        self.openDialog(merchantId, 'restaurant-list', target);
-        return false;
-      } else {
-        return true;
-      }
-    }
-  }
-
   ngOnInit() {
     const self = this;
     this.route.params.pipe(takeUntil(this.onDestroy$)).subscribe(params => {
       const merchantId = params['id'];
       if (params['onSchedule'] === 'undefined') {
-        this.bHasAddress = false;
         this.onSchedule = true; // fix me!!!
       } else {
-        this.bHasAddress = true;
         this.onSchedule = params['onSchedule'] === 'true' ? true : false;
       }
       const origin = this.delivery.origin; // can be null
@@ -172,10 +118,10 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
         }
 
         const q = { merchantId: merchantId, status: { $in: [ProductStatus.ACTIVE, ProductStatus.NEW, ProductStatus.PROMOTE] } };
-        // product require merchant object here
+
         self.productSvc.categorize(q, this.lang).pipe(takeUntil(self.onDestroy$)).subscribe((groups: any[]) => {
           self.restaurant = merchant;
-          self.groups = this.updateQuantity(groups, this.cart);
+          self.groups = this.mergeQuantityFromCart(groups, this.cart);
           const categories: any[] = [];
           self.groups.map(grp => {
             categories.push({
@@ -190,8 +136,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  updateQuantity(groups, cart) {
-    // update quantity of cart items
+  mergeQuantityFromCart(groups, cart) {
     groups.map(group => {
       group.items.map(groupItem => {
         const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product._id);
@@ -212,30 +157,17 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     this.dialogRef = this.dialog.open(QuitRestaurantDialogComponent, {
       width: '300px',
       data: {
-        // title: this.lang === 'en' ? 'Hint' : '提示',
-        // content: this.lang === 'en' ? 'Cart will be clear when leave' : '离开后将清空购物车。',
-        // buttonTextNo: this.lang === 'en' ? 'Leave' : '离开',
-        // buttonTextYes: this.lang === 'en' ? 'Stay' : '留下',
         merchantId: merchantId, fromPage: fromPage, onSchedule: this.onSchedule, targetUrl: target
       },
       closeOnNavigation: true
     });
 
     this.dialogRef.afterClosed().pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
-      // if (r.action === 'leave') {
-      //   this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
-      //   this.router.navigate(['main/home']);
-      // } else if (r.action === 'stay') {
-      //   // do nothing
-      //   this.router.navigate(['merchant/list/' + r.merchantId + '/' + r.onSchedule]);
-      // }
       this.action = r.action;
       if (r.action === 'leave') {
-
+        // pass
       } else if (r.action === 'stay') {
-        // this.router.navigate(['merchant/list/' + merchantId + '/' + this.onSchedule]);
-        // history.pushState({}, '', r.targetUrl);
-        // this.location.go(this.currentUrl);
+        // pass
       }
     });
   }

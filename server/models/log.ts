@@ -59,21 +59,21 @@ export class Log extends Model {
     });
   }
 
-  reqAllLatest(req: Request, res: Response){
-    let query = null;
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
+  // reqAllLatest(req: Request, res: Response){
+  //   let query = null;
+  //   if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+  //     query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+  //   }
 
-    this.getAllLatest(query.action, query.type).then((rs: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      if (rs) {
-        res.send(JSON.stringify(rs, null, 3));
-      } else {
-        res.send(JSON.stringify(null, null, 3))
-      }
-    });
-  }
+  //   this.getLatestByAccount(query.action, query.type, query.delivered).then((rs: any) => {
+  //     res.setHeader('Content-Type', 'application/json');
+  //     if (rs) {
+  //       res.send(JSON.stringify(rs, null, 3));
+  //     } else {
+  //       res.send(JSON.stringify(null, null, 3))
+  //     }
+  //   });
+  // }
 
   getLatest(logs: any[]){
     if(logs && logs.length > 0){
@@ -93,8 +93,8 @@ export class Log extends Model {
     }
   }
 
-  getAllLatest(actionId: number, accountType: number): Promise<any[]>{
-    const range = { $gte: moment().startOf('day').toISOString(), $lte: moment().endOf('day').toISOString() };
+  getLatestByAccount(actionId: number, accountType: number, delivered: string): Promise<any[]>{
+    const range = { $gte: moment(delivered).startOf('day').toISOString(), $lte: moment(delivered).endOf('day').toISOString() };
     const query = { created: range, action: actionId, type: accountType };
 
     return new Promise((resolve, reject) => {

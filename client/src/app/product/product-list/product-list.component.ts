@@ -7,8 +7,6 @@ import { IAppState } from '../../store';
 import { Product, IProduct, ProductStatus } from '../../product/product.model';
 
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
-// import { ICart } from '../../cart/cart.model';
-// import { CartActions } from '../../cart/cart.actions';
 import { Subject } from '../../../../node_modules/rxjs';
 import { IDelivery } from '../../delivery/delivery.model';
 import { IMerchant } from '../../merchant/merchant.model';
@@ -36,7 +34,6 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
   selected = null;
   onDestroy$ = new Subject();
-  // cart;
   delivery: IDelivery;
   ranges: IRange[];
   lang = environment.language;
@@ -92,56 +89,24 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
 
     const origin = this.delivery.origin;
     if (origin) {
-      // this.rx.dispatch({
-      //   type: CartActions.ADD_TO_CART,
-      //   payload: {
-      //     items: [{
-      //       productId: p._id,
-      //       productName: p.name,
-      //       price: p.price,
-      //       cost: p.cost,
-      //       quantity: 1,
-      //       pictures: p.pictures,
-      //       merchantId: p.merchantId, // merchant account id
-      //       merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-      //     }],
-      //     merchantId: p.merchantId // merchant account id
-      //   }
-      // });
       this.add.emit({
-            items: [{
-              productId: p._id,
-              productName: p.name,
-              price: p.price,
-              cost: p.cost,
-              quantity: 1,
-              pictures: p.pictures,
-              merchantId: p.merchantId, // merchant account id
-              merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-            }],
-            merchantId: p.merchantId, // merchant account id
-            merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-          });
+        items: [{
+          productId: p._id,
+          productName: p.name,
+          price: p.price,
+          cost: p.cost,
+          quantity: 1,
+          pictures: p.pictures,
+          merchantId: p.merchantId, // merchant account id
+          merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+        }],
+        merchantId: p.merchantId, // merchant account id
+        merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+      });
     }
   }
 
   removeFromCart(p: IProduct) {
-    // this.rx.dispatch({
-    //   type: CartActions.REMOVE_FROM_CART,
-    //   payload: {
-    //     items: [{
-    //       productId: p._id,
-    //       productName: p.name,
-    //       price: p.price,
-    //       cost: p ? p.cost : 0,
-    //       quantity: 1,
-    //       pictures: p.pictures,
-    //       merchantId: p.merchantId,
-    //       merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-    //     }],
-    //     merchantId: p.merchantId
-    //   }
-    // });
     this.remove.emit({
           items: [{
             productId: p._id,

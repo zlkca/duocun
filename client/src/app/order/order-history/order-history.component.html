@@ -36,7 +36,7 @@
       <div class="row" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
         <div class="col-12 address-row">
           <span class="title-xs" i18n="@@DeliverAddress">Deliver to</span>:
-          <span class="text-xs">{{order.address}}</span>
+          <span class="text-xs">{{getAddress(order.location)}}</span>
         </div>
       </div>
 

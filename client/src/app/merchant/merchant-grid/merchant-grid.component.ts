@@ -7,9 +7,9 @@ import { DistanceService } from '../../location/distance.service';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { PageActions } from '../../main/main.actions';
-import { RestaurantActions } from '../../restaurant/restaurant.actions';
 import { DeliveryActions } from '../../delivery/delivery.actions';
 import { CartActions } from '../../cart/cart.actions';
+import { MerchantActions } from '../merchant.actions';
 
 @Component({
   selector: 'app-merchant-grid',
@@ -107,7 +107,7 @@ export class MerchantGridComponent implements OnInit, OnDestroy, OnChanges {
       type: PageActions.UPDATE_URL,
       payload: { name: 'restaurants' }
     });
-    this.rx.dispatch({ type: RestaurantActions.UPDATE, payload: r });
+    this.rx.dispatch({ type: MerchantActions.UPDATE_MERCHANT, payload: r });
     this.rx.dispatch({
       type: DeliveryActions.UPDATE_DESTINATION,
       payload: { destination: r.location, distance: r.distance }
