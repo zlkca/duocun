@@ -93,6 +93,22 @@ export class Log extends Model {
     }
   }
 
+  groupBy(items: any[], key: string) {
+    const groups: any = {};
+    items.map(it => {
+      const id = it[key].toString();
+      const ids = Object.keys(groups);
+      const found = ids.length === 0 ? null : ids.find(_id => _id === id);
+      if (found) {
+        groups[id].push(it);
+      } else {
+        groups[id] = [it];
+      }
+    });
+
+    return groups;
+  }
+
   getLatestByAccount(actionId: number, accountType: number, delivered: string): Promise<any[]>{
     const range = { $gte: moment(delivered).startOf('day').toISOString(), $lte: moment(delivered).endOf('day').toISOString() };
     const query = { created: range, action: actionId, type: accountType };

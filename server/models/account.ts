@@ -54,6 +54,8 @@ export interface IAccount {
 
   attributes?: string[]; // IAccountAttribute's code, I: INDOOR, G: GARDENING, R: ROOFING, O: OFFICE, P: PLAZA, H: HOUSE, C: CONDO
   info?: string;  // client info
+
+  merchants?: string[]; // only merchant account have this field
 }
 
 export class AccountAttribute extends Model {
@@ -194,18 +196,6 @@ export class Account extends Model {
 
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(accounts, null, 3));
-    });
-  }
-
-  getMerchantIds(accountId: string): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      this.findOne({ _id: accountId }).then(account => {
-        if (account.merchants && account.merchants.length > 0) {
-          resolve(account.merchants);
-        } else {
-          resolve([]);
-        }
-      });
     });
   }
 

@@ -1115,22 +1115,27 @@ export class Order extends Model {
         this.logModel.getLatestByAccount(Action.VIEW_ORDER, AccountType.MERCHANT, delivered).then((logs: any[]) => {
           let rs: any[] = [];
           if (logs && logs.length > 0) {
+            const accountIds: string[] = [];
             logs.map((log: any) => { // each log has only one merchant
-              const dt = moment(log.created);
               const merchantAccountId = log.merchantAccountId ? log.merchantAccountId.toString() : null;
               if (merchantAccountId) {
-                this.accountModel.getMerchantIds(merchantAccountId).then((mIds: any[]) => {
-                  const its = orders.filter((order: IOrder) => mIds.indexOf(order.merchantId.toString()) !== -1
-                    && moment(order.modified).isSameOrBefore(dt));
-
-                  if (its && its.length > 0) {
-                    rs = rs.concat(its);
-                  }
-                  resolve(rs);
-                });
-              } else {
-                resolve([]);
+                accountIds.push(merchantAccountId);
               }
+            });
+
+            this.accountModel.find({ _id: { $in: accountIds } }).then(accounts => {
+              accounts.map((a: IAccount) => {
+                const log = logs.find(l => l.merchantAccountId.toString() === a._id.toString());
+                const dt = moment(log.created);
+                const merchants: any = a.merchants; 
+                const its = orders.filter((order: IOrder) => merchants.indexOf(order.merchantId.toString()) !== -1
+                  && moment(order.modified).isSameOrBefore(dt));
+
+                if (its && its.length > 0) {
+                  rs = rs.concat(its);
+                }
+              });
+              resolve(rs);
             });
           } else {
             resolve([]);
