@@ -1091,11 +1091,11 @@ export class Order extends Model {
     }
 
     res.setHeader('Content-Type', 'application/json');
-    if(query){
+    if (query) {
       this.getLatestViewed(query.delivered).then(rs => {
         res.end(JSON.stringify(rs, null, 3));
       });
-    }else{
+    } else {
       res.end(JSON.stringify([], null, 3));
     }
 
@@ -1124,17 +1124,21 @@ export class Order extends Model {
             });
 
             this.accountModel.find({ _id: { $in: accountIds } }).then(accounts => {
-              accounts.map((a: IAccount) => {
-                const log = logs.find(l => l.merchantAccountId.toString() === a._id.toString());
-                const dt = moment(log.created);
-                const merchants: any = a.merchants; 
-                const its = orders.filter((order: IOrder) => merchants.indexOf(order.merchantId.toString()) !== -1
-                  && moment(order.modified).isSameOrBefore(dt));
+              if (accounts && accounts.length > 0) {
+                accounts.map((a: IAccount) => {
+                  const log = logs.find(l => l.merchantAccountId.toString() === a._id.toString());
+                  const dt = moment(log.created);
+                  const merchants: any = a.merchants;
+                  if (merchants && merchants.length > 0) {
+                    const its = orders.filter((order: IOrder) => merchants.indexOf(order.merchantId.toString()) !== -1
+                      && moment(order.modified).isSameOrBefore(dt));
 
-                if (its && its.length > 0) {
-                  rs = rs.concat(its);
-                }
-              });
+                    if (its && its.length > 0) {
+                      rs = rs.concat(its);
+                    }
+                  }
+                });
+              }
               resolve(rs);
             });
           } else {
