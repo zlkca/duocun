@@ -16,11 +16,28 @@ export enum PaymentStatus {
   PAID
 }
 
-export enum OrderType {
-  FOOD_DELIVERY = 1,
-  MOBILE_PLAN_SETUP,
-  MOBILE_PLAN_MONTHLY
-}
+export const OrderType = {
+  FOOD_DELIVERY: 'F',
+  // TELECOMMUNICATIONS: 'T'
+  MOBILE_PLAN_SETUP: 'MS',
+  MOBILE_PLAN_MONTHLY: 'MM'
+};
+
+// export enum OrderType {
+//   FOOD_DELIVERY = 1,
+//   MOBILE_PLAN_SETUP,
+//   MOBILE_PLAN_MONTHLY
+// }
+
+export const PaymentError = {
+  NONE: 'N',
+  PHONE_EMPTY: 'PE',
+  LOCATION_EMPTY: 'LE',
+  DUPLICATED_SUBMIT: 'DS',
+  CART_EMPTY: 'CE',
+  BANK_CARD_EMPTY: 'BE',
+  INVALID_BANK_CARD: 'IB'
+};
 
 export interface IOrder {
   _id?: string;

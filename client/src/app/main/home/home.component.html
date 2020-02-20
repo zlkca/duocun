@@ -1,7 +1,6 @@
 <div class="loading-spinner" *ngIf="loading">
   <app-progress-spinner></app-progress-spinner>
 </div>
-
 <div class="header-block" *ngIf="!loading">
   <app-header *ngIf="lang==='en'"></app-header>
   <div [ngClass]="inRange ? 'banner' : 'banner-up' ">

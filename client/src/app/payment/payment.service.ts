@@ -3,7 +3,7 @@ import { EntityService } from '../entity.service';
 import { AuthService } from '../account/auth.service';
 import { HttpClient } from '../../../node_modules/@angular/common/http';
 import { Observable } from '../../../node_modules/rxjs';
-import { IOrder } from '../order/order.model';
+import { IOrder, PaymentError } from '../order/order.model';
 import { environment } from '../../environments/environment';
 import { IAccount } from '../account/account.model';
 
@@ -122,19 +122,19 @@ export class PaymentService extends EntityService {
   vaildateCardPay(stripe: any, card: any, htmlErrorId: string) {
     return new Promise((resolve, reject) => {
       if (card._empty) {
-        resolve({ status: 'failed', chargeId: '', msg: 'empty card info' });
+        resolve({ err: PaymentError.BANK_CARD_EMPTY, chargeId: '', msg: 'empty card info' });
       } else {
-        stripe.createToken(card).then(function (result) {
-          if (result.error) {
+        stripe.createToken(card).then(function (r) {
+          if (r.error) {
             // Inform the user if there was an error.
             const errorElement = document.getElementById(htmlErrorId);
-            errorElement.textContent = result.error.message;
-            resolve({ status: 'failed', chargeId: '', msg: result.error.message });
+            errorElement.textContent = r.error.message;
+            resolve({ err: PaymentError.INVALID_BANK_CARD, chargeId: '', msg: r.error.message });
           } else {
-            resolve(result); // {status:x, chargeId:'', msg: '', token:x}
+            resolve({err: PaymentError.NONE, status: r.status, chargeId: r.chargeId, token: r.token, msg: ''});
           }
         }, err => {
-          resolve({ status: 'failed', chargeId: '', msg: 'empty card info' });
+          resolve({ err: PaymentError.INVALID_BANK_CARD, chargeId: '', msg: 'empty card info' });
         });
       }
     });
