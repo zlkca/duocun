@@ -17,11 +17,11 @@ const CASH_NAME = 'Cash';
 const BANK_ID = '5c95019e0851a5096e044d0c';
 const BANK_NAME = 'TD Bank';
 
-export enum OrderType {
-  FOOD_DELIVERY = 1,
-  MOBILE_PLAN_SETUP,
-  MOBILE_PLAN_MONTHLY
-}
+export const OrderType = {
+  FOOD_DELIVERY: 'F',
+  MOBILE_PLAN_SETUP: 'MS',
+  MOBILE_PLAN_MONTHLY: 'MM'
+};
 
 export enum OrderStatus {
   BAD = 1,

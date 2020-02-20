@@ -16,18 +16,6 @@ export enum PaymentStatus {
   PAID
 }
 
-export const OrderType = {
-  FOOD_DELIVERY: 'F',
-  // TELECOMMUNICATIONS: 'T'
-  MOBILE_PLAN_SETUP: 'MS',
-  MOBILE_PLAN_MONTHLY: 'MM'
-};
-
-// export enum OrderType {
-//   FOOD_DELIVERY = 1,
-//   MOBILE_PLAN_SETUP,
-//   MOBILE_PLAN_MONTHLY
-// }
 
 export const PaymentError = {
   NONE: 'N',
@@ -51,7 +39,7 @@ export interface IOrder {
   driverId?: string;
   driverName?: string;
 
-  type?: OrderType;       // in db
+  type?: string;       // in db
   status?: OrderStatus;
   paymentStatus?: PaymentStatus;
 
@@ -95,7 +83,7 @@ export class Order implements IOrder {
   driverId?: string;
   driverName?: string;
 
-  type?: OrderType;      // in db
+  type?: string;      // in db
   status?: OrderStatus;
   paymentStatus?: PaymentStatus;
 
