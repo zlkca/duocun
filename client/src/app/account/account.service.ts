@@ -40,6 +40,11 @@ export class AccountService extends EntityService {
     return this.doPost(url, {accountId: accountId, phone: phone, lang: lang});
   }
 
+  verifyAndLogin(phone: string, code: string, accountId: string): Observable<any> {
+    const url = this.url + '/verifyAndLogin';
+    return this.doPost(url, {code: code, phone: phone, accountId: accountId});
+  }
+
   verifyCode(phone: string, code: string): Observable<any> {
     const url = this.url + '/verifyCode';
     return this.doPost(url, {code: code, phone: phone});

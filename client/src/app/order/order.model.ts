@@ -16,7 +16,6 @@ export enum PaymentStatus {
   PAID
 }
 
-
 export const PaymentError = {
   NONE: 'N',
   PHONE_EMPTY: 'PE',
@@ -24,7 +23,15 @@ export const PaymentError = {
   DUPLICATED_SUBMIT: 'DS',
   CART_EMPTY: 'CE',
   BANK_CARD_EMPTY: 'BE',
-  INVALID_BANK_CARD: 'IB'
+  INVALID_BANK_CARD: 'IB',
+  BANK_CARD_FAIL: 'BF',
+  WECHATPAY_FAIL: 'WF'
+};
+
+export const OrderType = {
+  FOOD_DELIVERY: 'F',
+  MOBILE_PLAN_SETUP: 'MS',
+  MOBILE_PLAN_MONTHLY: 'MM'
 };
 
 export interface IOrder {

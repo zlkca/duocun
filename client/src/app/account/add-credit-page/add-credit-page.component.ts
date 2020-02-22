@@ -8,6 +8,7 @@ import { IAccount } from '../account.model';
 import { AccountService } from '../account.service';
 import { Router } from '../../../../node_modules/@angular/router';
 import { environment } from '../../../environments/environment.prod';
+import { PaymentError } from '../../order/order.model';
 
 @Component({
   selector: 'app-add-credit-page',
@@ -77,18 +78,18 @@ export class AddCreditPageComponent implements OnInit {
       if (paymentMethod === 'card') {
         this.loading = true;
         this.paymentSvc.vaildateCardPay(this.stripe, this.card, 'card-errors1').then((ret: any) => {
-          if (ret.status === 'failed') {
-            self.loading = false;
-            self.bSubmitted = false;
-            alert(inputAlert);
-          } else {
-            self.paymentSvc.stripeAddCredit(ret.token, account, +received, note).pipe(takeUntil(this.onDestroy$)).subscribe((x) => {
+            if (ret.err === PaymentError.NONE) {
+              // resolve({ err: ret.err });
+              self.paymentSvc.stripeAddCredit(ret.token, account, +received, note).pipe(takeUntil(this.onDestroy$)).subscribe((x) => {
+                self.loading = false;
+                self.snackBar.open('', creditHint + Math.round(+received * 100) / 100, { duration: 1000 });
+                self.router.navigate(['account/balance']);
+              });
+            } else {
               self.loading = false;
-              self.snackBar.open('', creditHint + Math.round(+received * 100) / 100, { duration: 1000 });
-              self.router.navigate(['account/balance']);
-            });
-            // self.handleCardPayment(account, ret.token, order, cart);
-          }
+              self.bSubmitted = false;
+              alert(inputAlert);
+            }
         });
       } else if (paymentMethod === 'WECHATPAY') {
         const paid = Math.round(+received * 100) / 100;

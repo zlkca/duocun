@@ -133,12 +133,12 @@ export class ClientPayment extends Model {
         if (!err) {
           // update order and insert transactions
           self.orderEntity.doProcessPayment(order, 'pay by card', paid, charge.id).then(() => {
-            res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
+            res.end(JSON.stringify({ status: 'success', chargeId: charge.id, err: err }, null, 3));
           }, err => {
-            res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+            res.end(JSON.stringify({ status: 'fail', chargeId: '', err: err }, null, 3));
           });
         } else {
-          res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+          res.end(JSON.stringify({ status: 'fail', chargeId: '', err: err }, null, 3));
         }
       });
     });
@@ -230,7 +230,7 @@ export class ClientPayment extends Model {
     const paymentMethod = order.paymentMethod;
     let returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
     
-    if(+order.type === OrderType.MOBILE_PLAN_SETUP){
+    if(order.type === OrderType.MOBILE_PLAN_SETUP){
       returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
     }
     

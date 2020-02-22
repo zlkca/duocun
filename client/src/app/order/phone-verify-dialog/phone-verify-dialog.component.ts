@@ -8,6 +8,17 @@ import { IAccount } from '../../account/account.model';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { AuthService } from '../../account/auth.service';
 
+export const AccountType = {
+  TEMP: 'tmp'
+};
+
+export const VerificationError = {
+  NONE: 'N',
+  WRONG_CODE: 'WC',
+  PHONE_NUMBER_OCCUPIED: 'PO',
+  REQUIRE_SIGNUP: 'RS',
+  NO_PHONE_NUMBER_BIND: 'NP'
+};
 
 export interface DialogData {
   title: string;
@@ -69,6 +80,30 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
+  verifyPhoneNumber(accountId: string, account: IAccount) {
+    if (accountId) {
+      if (account) {
+        // if (account.type === AccountType.TEMP) {
+        //   if (accountId === account._id) {
+        //     return VerificationError.NONE;
+        //   } else {
+        //     return VerificationError.PHONE_NUMBER_OCCUPIED;
+        //   }
+        // } else {
+        if (accountId === account._id) {
+          return VerificationError.NONE;
+        } else {
+          return VerificationError.PHONE_NUMBER_OCCUPIED;
+        }
+        // }
+      } else {
+        return VerificationError.NONE;
+      }
+    } else {
+      return VerificationError.NONE;
+    }
+  }
+
   onPhoneInput(e) {
     const self = this;
     this.verified = false;
@@ -80,49 +115,80 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
       phone = phone.match(/\d+/g).join('');
 
       this.accountSvc.find({ phone: phone }).pipe(takeUntil(this.onDestroy$)).subscribe(accounts => {
-        if (self.account) { // if logged in
-          if (accounts && accounts.length > 0) { // db has accounts with this number
-            const account: IAccount = accounts[0];
-            this.phoneMatchedAccount = account; // if phoneMatchedAccount.type === tmp,  display signup button
-            if (account._id !== self.account._id) {
-              const hint = this.lang === 'en' ? 'This phone number has already bind to an wechat account, please try use wechat to login.' :
-                '该号码已经被一个英文版的账号使用，请使用英文版登陆; 如果想更改账号请联系客服。';
-              alert(hint);
-              this.bAllowVerify = false;
-            } else {
-              this.bAllowVerify = true;
-            }
-          } else {
-            this.bAllowVerify = true;
-          }
-        } else { // did not login yet
-          if (accounts && accounts.length > 0) { // db has accounts with this number
-            const account: IAccount = accounts[0];
-            this.phoneMatchedAccount = account; // if phoneMatchedAccount.type === tmp,  display signup button
+        const account = (accounts && accounts.length > 0) ? accounts[0] : null;
+        const accountId = this.account ? this.account._id : '';
+        const err = this.verifyPhoneNumber(accountId, account);
 
-            if (this.lang === 'en') {
-              if (account.openId) { // weixin occupy this phone number
-                alert('This phone number has already bind to an wechat account, please try use wechat to login.');
-                this.bAllowVerify = false;
-              } else {
-                this.bAllowVerify = true;
-              }
-            } else {
-              if (!account.openId) { // english account occupy this phone number
-                alert('该号码已经被一个英文版的账号使用，请使用英文版登陆; 如果想更改账号请联系客服。');
-                this.bAllowVerify = false;
-              } else {
-                this.bAllowVerify = true;
-              }
-            }
-          } else {
-            this.bAllowVerify = true;
-          }
+        if (err === VerificationError.PHONE_NUMBER_OCCUPIED) {
+          const s = this.lang === 'en' ? 'This phone number has already bind to an wechat account, please try use wechat to login.' :
+                '该号码已经被一个英文版的账号使用，请使用英文版登陆; 如果想更改账号请联系客服。';
+          alert(s);
+          this.bAllowVerify = false;
+        } else {
+          this.bAllowVerify = true;
         }
+
+        // if (self.account) { // if logged in
+        //   if (accounts && accounts.length > 0) { // db has accounts with this number
+        //     const account: IAccount = accounts[0];
+        //     this.phoneMatchedAccount = account; // if phoneMatchedAccount.type === tmp,  display signup button
+        //     if (account._id !== self.account._id) {
+        //       const hint = this.lang === 'en' ? 'This phone number has already bind to an wechat account,
+        //  please try use wechat to login.' :
+        //         '该号码已经被一个英文版的账号使用，请使用英文版登陆; 如果想更改账号请联系客服。';
+        //       alert(hint);
+        //       this.bAllowVerify = false;
+        //     } else {
+        //       this.bAllowVerify = true;
+        //     }
+        //   } else { // there is no account occupy this phone number
+        //     this.bAllowVerify = true;
+        //   }
+        // } else { // did not login yet
+        //   if (accounts && accounts.length > 0) { // there is account occupy this phone number
+        //     const account: IAccount = accounts[0];
+        //     this.phoneMatchedAccount = account; // if phoneMatchedAccount.type === tmp,  display signup button
+
+        //     if (this.lang === 'en') {
+        //       if (account.openId) { // weixin occupy this phone number
+        //         alert('This phone number has already bind to an wechat account, please try use wechat to login.');
+        //         this.bAllowVerify = false;
+        //       } else {
+        //         this.bAllowVerify = true;
+        //       }
+        //     } else {
+        //       if (!account.openId) { // english account occupy this phone number
+        //         alert('该号码已经被一个英文版的账号使用，请使用英文版登陆; 如果想更改账号请联系客服。');
+        //         this.bAllowVerify = false;
+        //       } else {
+        //         this.bAllowVerify = true;
+        //       }
+        //     }
+        //   } else {
+        //     this.bAllowVerify = true;
+        //   }
+        // }
       });
     } else { // input less than 10 chars
       this.bAllowVerify = false;
       this.phoneMatchedAccount = null; // if phoneMatchedAccount.type === tmp,  display signup button
+    }
+  }
+
+  showError(err) {
+    let s = '';
+    if (err === VerificationError.PHONE_NUMBER_OCCUPIED) {
+      s = this.lang === 'en' ? 'This phone number has already bind to an wechat account, please try use wechat to login.' :
+        '该号码已经被一个英文版的账号使用，请使用英文版登陆; 如果想更改账号请联系客服。';
+    } else if (err === VerificationError.NO_PHONE_NUMBER_BIND) {
+      s = this.lang === 'en' ? 'login with phone number failed, please contact our customer service' :
+        '使用该电话号码登陆失败，请联系客服';
+    } else if (err === VerificationError.WRONG_CODE) {
+      s = this.lang === 'en' ? 'verification code is wrong, please try again.' : '验证码错误，请重新尝试';
+    }
+
+    if (s) {
+      this.snackBar.open('', s, { duration: 1500 });
     }
   }
 
@@ -134,41 +200,54 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
 
     if (e.target.value && e.target.value.length === 4) {
       const code = e.target.value;
-      this.accountSvc.verifyCode(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe(verified => {
-        this.verified = verified;
-        if (verified) {
-          if (self.account && self.account.type !== 'tmp') { // user, client
-            self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-              self.dialogRef.close(account);
-            });
-          } else {
-            const hint = this.lang === 'en' ? 'login with phone number failed, please contact our customer service' :
-              '使用该电话号码登陆失败，请联系客服';
-
-            self.accountSvc.loginByPhone(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
-              if (tokenId) {
-                self.authSvc.setAccessTokenId(tokenId);
-                self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-                  if (account) {
-                    if (account.type === 'tmp') {
-                      self.phoneMatchedAccount = account; // if phoneMatchedAccount.type === tmp,  display signup button
-                    } else {
-                      self.dialogRef.close(account);
-                    }
-                  } else {
-                    alert(hint);
-                  }
-                });
-              } else {
-                alert(hint);
-              }
-            });
-          }
+      const accountId = self.account ? self.account._id : '';
+      this.accountSvc.verifyAndLogin(phone, code, accountId).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
+        self.verified = r.verified;
+        if (r.err === VerificationError.NONE) {
+          const account = r.account;
+          self.authSvc.setAccessTokenId(r.tokenId);
+          self.dialogRef.close(account);
+        } else if (r.err === VerificationError.REQUIRE_SIGNUP) {
+          self.phoneMatchedAccount = r.account; // display signup button
         } else {
-          const hintVerify = this.lang === 'en' ? 'verification code is wrong, please try again.' : '验证码错误，请重新尝试';
-          alert(hintVerify);
+          self.showError(r.err);
         }
       });
+      // this.accountSvc.verifyCode(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe(verified => {
+      //   this.verified = verified;
+      //   if (verified) {
+      //     if (self.account && self.account.type !== 'tmp') { // user, client
+      //       self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      //         self.dialogRef.close(account);
+      //       });
+      //     } else {
+      //       const hint = this.lang === 'en' ? 'login with phone number failed, please contact our customer service' :
+      //         '使用该电话号码登陆失败，请联系客服';
+
+      //       self.accountSvc.loginByPhone(phone, code).pipe(takeUntil(this.onDestroy$)).subscribe((tokenId: string) => {
+      //         if (tokenId) {
+      //           self.authSvc.setAccessTokenId(tokenId);
+      //           self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      //             if (account) {
+      //               if (account.type === 'tmp') {
+      //                 self.phoneMatchedAccount = account; // if phoneMatchedAccount.type === tmp,  display signup button
+      //               } else {
+      //                 self.dialogRef.close(account);
+      //               }
+      //             } else {
+      //               alert(hint);
+      //             }
+      //           });
+      //         } else {
+      //           alert(hint);
+      //         }
+      //       });
+      //     }
+      //   } else {
+      //     const hintVerify = this.lang === 'en' ? 'verification code is wrong, please try again.' : '验证码错误，请重新尝试';
+      //     alert(hintVerify);
+      //   }
+      // });
     } else {
       this.verified = false;
     }

@@ -60,7 +60,7 @@ export interface IOrder {
   merchantName: string;
   driverId?: string;
   driverName?: string;
-  type?: OrderType;        // OrderType
+  type?: string;        // OrderType
 
   paymentStatus?: PaymentStatus;
   status?: OrderStatus;
@@ -300,7 +300,7 @@ export class Order extends Model {
   }
 
   // dateType --- 'today' or 'tomorrow'
-  getDeliveryDateTime(orderType: OrderType, dateType: string, clientId: string, phases: IPhase[], created: string): Promise<string> {
+  getDeliveryDateTime(orderType: string, dateType: string, clientId: string, phases: IPhase[], created: string): Promise<string> {
     // const orderType = order.type;
     // const dateType: any = order.dateType;
     // const clientId = order.clientId;
@@ -950,9 +950,7 @@ export class Order extends Model {
   }
 
   // date --- '2019-11-15'
-  getSummary(type: OrderType, date: string) {
-    const self = this;
-
+  getSummary(type: string, date: string) {
     const dt = moment(date);
     const range = { $gt: dt.startOf('day').toISOString(), $lt: dt.endOf('day').toISOString() };
     const q = { type: type, delivered: range, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
@@ -1326,52 +1324,6 @@ export class Order extends Model {
     });
   }
 
-
-  // _id?: string;
-  // code?: string;
-  // clientId: string;
-  // clientName: string;
-  // clientPhoneNumber?: string;
-  // // prepaidClient?: boolean;
-  // merchantId: string;
-  // merchantName: string;
-  // driverId?: string;
-  // driverName?: string;
-  // type?: OrderType;        // OrderType
-
-  // paymentStatus?: PaymentStatus;
-  // status?: OrderStatus;
-
-  // note?: string;
-  // address?: string;
-  // location: ILocation; // delivery address
-  // delivered?: string;
-  // created?: string;
-  // modified?: string;
-  // items?: IOrderItem[];
-  // tax?: number;
-  // tips?: number;
-  // // deliveryAddress?: Address; // duplicated should remove
-  // deliveryCost?: number;
-  // deliveryDiscount?: number;
-  // overRangeCharge?: number;
-  // groupDiscount?: number;
-  // productTotal?: number;
-
-  // cost: number;
-  // price: number;
-  // total: number;
-  // paymentMethod: string;
-  // chargeId?: string; // stripe chargeId
-  // transactionId?: string;
-
-  // mode?: string; // for unit test
-  // dateType?: string; // 'today', 'tomorrow'
-
-  // client?: IAccount;
-  // driver?: IAccount;
-  // merchantAccount?: IAccount;
-  // merchant?: IMerchant;
 
   getItemString(order: any) {
     const items: any[] = order.items;

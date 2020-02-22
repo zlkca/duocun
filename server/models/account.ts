@@ -9,6 +9,17 @@ import moment from 'moment';
 import { resolve } from "../../node_modules/@types/q";
 
 const saltRounds = 10;
+export const VerificationError = {
+  NONE: 'N',
+  WRONG_CODE: 'WC',
+  PHONE_NUMBER_OCCUPIED: 'PO',
+  REQUIRE_SIGNUP: 'RS',
+  NO_PHONE_NUMBER_BIND: 'NP'
+}
+
+export const AccountType = {
+  TEMP: 'tmp'
+}
 
 export enum Role {
   SUPER = 1,
@@ -39,7 +50,6 @@ export interface IAccount {
 
   openId?: string;    // wechat info
   sex?: number;       // wechat info
-  openid?: string;    // wechat openid
   imageurl?: string;  // wechat imageurl
   unionid?: string;   // wechat unionid
   accessTokens?: any[];
@@ -159,17 +169,94 @@ export class Account extends Model {
     });
   }
 
+  verifyAndLogin(req: Request, res: Response) {
+    const loggedInAccountId = req.body.accountId;
+    const phone = req.body.phone;
+    const code = req.body.code;
+
+    this.doVerifyAndLogin(phone, code, loggedInAccountId).then((r: any) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(r, null, 3));
+    });
+  }
+
+  doVerifyAndLogin(phone: string, code: string, loggedInAccountId: string) {
+    return new Promise((resolve, reject) => {
+      if (loggedInAccountId) { // logged in
+        this.findOne({ phone: phone }).then((account: IAccount) => {
+          if (account) {
+            if (account._id.toString() !== loggedInAccountId) {
+              resolve({ verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED });
+            } else {
+              if (account.verificationCode && code === account.verificationCode) {
+                if (account.password) {
+                  delete account.password;
+                }
+                account.verified = true;
+                this.updateOne({ _id: account._id }, { verified: true }).then(() => {
+                  if (account.type === AccountType.TEMP) {
+                    resolve({ verified: true, err: VerificationError.REQUIRE_SIGNUP, account: account });
+                  } else {
+                    resolve({ verified: true, err: VerificationError.NONE, account: account });
+                  }
+                });
+              } else {
+                resolve({ verified: false, err: VerificationError.WRONG_CODE });
+              }
+            }
+          } else {
+            resolve({ verified: false, err: VerificationError.NO_PHONE_NUMBER_BIND });
+          }
+        });
+      } else { // loggedInAccountId = ''
+        this.findOne({ phone: phone }).then(account => {
+          if (account) {
+            if (account.type === AccountType.TEMP) {
+              if (account.verificationCode && code === account.verificationCode) {
+                if (account.password) {
+                  delete account.password;
+                }
+                account.verified = true;
+                this.updateOne({ _id: account._id }, { verified: true }).then(() => {
+                  resolve({ verified: true, err: VerificationError.REQUIRE_SIGNUP, account: account });
+                });
+              } else {
+                resolve({ verified: false, err: VerificationError.WRONG_CODE });
+              }
+            } else {
+              if (account.openId) {
+                resolve({ verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED });
+              } else {
+                if (account.verificationCode && code === account.verificationCode) {
+                  const cfg = new Config();
+                  const tokenId = jwt.sign(account._id.toString(), cfg.JWT.SECRET); // SHA256
+                  if (account.password) {
+                    delete account.password;
+                  }
+                  account.verified = true;
+                  this.updateOne({ _id: account._id }, { verified: true }).then(() => {
+                    resolve({ verified: true, err: VerificationError.NONE, tokenId: tokenId, account: account });
+                  });
+                } else {
+                  resolve({ verified: false, err: VerificationError.WRONG_CODE });
+                }
+              }
+            }
+          } else {
+            resolve({ verified: false, err: VerificationError.NO_PHONE_NUMBER_BIND });
+          }
+        });
+      }
+    });
+  }
+
   doVerifyPhone(phone: string, code: string) {
     return new Promise((resolve, reject) => {
       this.findOne({ phone: phone }).then((a: IAccount) => {
-        if (a) {
-          const verified = a && a.verificationCode.toString() === code;
-          this.updateOne({ _id: a._id.toString() }, { verified: verified }).then((result) => {
-            resolve(verified);
-          });
-        } else {
-          resolve(false);
-        }
+        const verified = a && (a.verificationCode.toString() === code);
+        this.updateOne({ _id: a._id.toString() }, { verified: verified }).then((result) => {
+          resolve(verified);
+        });
       });
     });
   }
@@ -289,7 +376,7 @@ export class Account extends Model {
             const data = {
               username: phone,
               phone: phone,
-              type: 'client', // tmp user are those verified phone but did not signup under agreement
+              type: AccountType.TEMP, // tmp user are those verified phone but did not signup under agreement
               balance: 0,
               verificationCode: verificationCode,
               verified: false,
@@ -351,20 +438,30 @@ export class Account extends Model {
   // --------------------------------------------------------------------------------------------------
   // wechat, google or facebook can not use this request to login
   // phone    ---  unique phone number, verification code as password by default
-  doLoginByPhone(phone: string, verificationCode: string): Promise<string> {
+  doLoginByPhone(phone: string, verificationCode: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      const query = { phone: phone };
-      this.findOne(query).then((r: IAccount) => {
-        if (r && r.verificationCode) {
-          if (r.verificationCode === verificationCode) {
-            const cfg = new Config();
-            const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
-            resolve(tokenId);
+      this.findOne({ phone: phone }).then((r: IAccount) => {
+        if (r) {
+          if (r.verificationCode) {
+            if (r.verificationCode === verificationCode) {
+              const cfg = new Config();
+              const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
+              if (r.password) {
+                delete r.password;
+              }
+              resolve(tokenId);
+              // resolve({tokenId: tokenId, account: r});
+            } else {
+              resolve();
+              // resolve({tokenId: '', account: null});
+            }
           } else {
             resolve();
+            // resolve({tokenId: '', account: null});
           }
         } else {
-          return resolve();
+          resolve();
+          // resolve({tokenId: '', account: null});
         }
       });
     });
