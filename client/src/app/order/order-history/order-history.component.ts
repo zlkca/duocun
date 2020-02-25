@@ -86,7 +86,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     //     let subTotal = 0;
     //     subTotal = order.price + order.deliveryCost;
     //     order.tax = Math.ceil(subTotal * 13) / 100;
-    //     order.productTotal = order.price;
+    //     order.price = order.price;
     //   });
 
     //   orders.sort((a: IOrder, b: IOrder) => {

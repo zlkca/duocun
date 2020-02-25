@@ -72,7 +72,6 @@ export class MerchantGridComponent implements OnInit, OnDestroy, OnChanges {
             restaurant.name = restaurant.nameEN;
           }
           restaurant.distance = restaurant.distance;
-          restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
         });
         return this.sort(rs);
@@ -83,7 +82,6 @@ export class MerchantGridComponent implements OnInit, OnDestroy, OnChanges {
           }
           restaurant.inRange = true; // for display order deadline wording
           restaurant.distance = 0;
-          restaurant.fullDeliveryFee = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.deliveryCost = self.distanceSvc.getDeliveryCost(restaurant.distance);
           restaurant.isClosed = false;
         });
@@ -113,15 +111,6 @@ export class MerchantGridComponent implements OnInit, OnDestroy, OnChanges {
       payload: { destination: r.location, distance: r.distance }
     });
 
-    this.rx.dispatch({
-      type: CartActions.UPDATE_DELIVERY,
-      payload: {
-        merchantId: r._id,
-        merchantName: this.lang === 'en' ? r.nameEN : r.name,
-        deliveryCost: r.deliveryCost,
-        deliveryDiscount: r.fullDeliveryFee
-      }
-    });
     this.router.navigate(['merchant/list/' + r._id + '/' + r.onSchedule]);
   }
 

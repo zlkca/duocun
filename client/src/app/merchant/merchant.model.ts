@@ -32,8 +32,6 @@ export interface IMerchant {
   isClosed?: boolean;
   distance?: number; // km
   deliveryCost?: number;
-  fullDeliveryFee?: number;
-  deliveryDiscount?: number;
 
   pictureId?: string;
 

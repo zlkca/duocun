@@ -43,7 +43,7 @@ export interface IMerchant {
   // optional field
   account?: IAccount;
   mall?: IMall;
-  distance?: number;
+  distance?: number;  // km
   inRange?: boolean;
   orderEnded?: boolean;
   orderEndTime?: string;

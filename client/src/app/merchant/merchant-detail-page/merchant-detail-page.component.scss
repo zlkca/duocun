@@ -92,7 +92,7 @@ $cat-w: 120px;
 
 @media #{$mobile}{
   $padding-w: 0px;
-  $cat-w: 90px;
+  $cat-w: 76px;
 
   .page{
     padding: 0px $padding-w;
@@ -118,7 +118,7 @@ $cat-w: 120px;
 
 @media #{$cellphone}{
   $padding-w: 0px;
-  $cat-w: 90px;
+  $cat-w: 76px;
 
   .page{
     padding: 0px $padding-w;

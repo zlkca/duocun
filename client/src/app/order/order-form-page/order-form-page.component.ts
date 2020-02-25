@@ -22,9 +22,10 @@ import { RangeService } from '../../range/range.service';
 import { ICommand } from '../../shared/command.reducers';
 import { CommandActions } from '../../shared/command.actions';
 import { AccountService } from '../../account/account.service';
-import { PhoneVerifyDialogComponent } from '../phone-verify-dialog/phone-verify-dialog.component';
+import { PhoneVerifyDialogComponent, AccountType } from '../phone-verify-dialog/phone-verify-dialog.component';
 import { CartService } from '../../cart/cart.service';
 import { CartActions } from '../../cart/cart.actions';
+import { IMerchant } from '../../merchant/merchant.model';
 
 @Component({
   selector: 'app-order-form-page',
@@ -52,6 +53,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   fromPage: string; // params from previous page
   action: string;   // params from previous page
   lang = environment.language;
+  merchant: IMerchant;
 
   constructor(
     private fb: FormBuilder,
@@ -88,6 +90,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.cart = cart;
     });
 
+    this.rx.select<IMerchant>('merchant').pipe(takeUntil(this.onDestroy$)).subscribe((m: IMerchant) => {
+      this.merchant = m;
+    });
+
     // for modify order and update paymentMethod field
     this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
       this.order = order;
@@ -98,8 +104,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'pay') {
         this.loading = true;  // show loading ... animation
-        this.rx.dispatch({ type: CommandActions.SEND, payload: { name: '' } });
+        this.rx.dispatch({ type: CommandActions.SEND, payload: { name: '' } }); // clear command stack
 
+        const merchant = x.args.merchant;
         const delivery = x.args.delivery;
         const cart = x.args.cart;
         const paymentMethod = x.args.paymentMethod;
@@ -113,15 +120,15 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
             if (origin) {
               self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
-                this.charge = this.cartSvc.getCost(cart, (r.distance * r.rate), groupDiscount);
-                if (account.type === 'tmp') {
+                this.charge = this.getSummary(cart, merchant, (r.distance * r.rate), groupDiscount);
+                if (account.type === AccountType.TEMP) { // For no logged in user who get the verification code, but didn't finish verify
                   this.loading = false;
                   this.bSubmitted = false;
                   this.openPhoneVerifyDialog();
                 } else {
                   if (!this.bSubmitted) {
                     this.bSubmitted = true;
-                    self.doPay(account, self.charge, cart, delivery, paymentMethod).then((rt: any) => {
+                    self.doPay(account, self.merchant, self.charge, cart, delivery, paymentMethod).then((rt: any) => {
                       this.showError(rt.err);
                       this.loading = false; // hide loading ... animation
                       this.bSubmitted = false;
@@ -136,14 +143,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                   }
                 }
               });
-            } else {
+            } else { // no location, should never go here
               this.loading = false;
               console.log('pay command require origin');
             }
           } else { // didn't login
             this.loading = false;
             this.openPhoneVerifyDialog();
-            // this.router.navigate(['account/phone-verify'], { queryParams: { fromPage: this.fromPage, action: 'pay' } });
           }
         });
       }
@@ -164,7 +170,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const groupDiscount = 0; // bEligible ? 2 : 0;
         if (origin) {
           self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
-            self.charge = self.cartSvc.getCost(self.cart, (r.distance * r.rate), groupDiscount);
+            self.charge = self.getSummary(self.cart, self.merchant, (r.distance * r.rate), groupDiscount);
             self.paymentMethod = self.order ? self.paymentMethod : 'cash';
             setTimeout(() => {
               if (self.paymentMethod === 'card') {
@@ -174,7 +180,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               }
 
               if (this.action === 'pay') {
-                self.doPay(account, this.charge, this.cart, this.delivery, this.paymentMethod).then((rt: any) => {
+                self.doPay(account, this.merchant, this.charge, this.cart, this.delivery, this.paymentMethod).then((rt: any) => {
                   this.showError(rt.err);
                   this.loading = false; // hide loading ... animation
                   this.bSubmitted = false;
@@ -204,13 +210,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         self.balance = account ? account.balance : 0;
 
         const cart: ICart = this.cart;
+        const merchant = this.merchant;
 
         if (cart) {
           const origin = self.delivery.origin;
           const groupDiscount = 0; // bEligible ? 2 : 0;
           if (origin) {
             self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
-              this.charge = this.cartSvc.getCost(cart, (r.distance * r.rate), groupDiscount);
+              this.charge = this.getSummary(cart, merchant, (r.distance * r.rate), groupDiscount);
               this.paymentMethod = (self.balance >= this.charge.total) ? 'prepaid' : self.paymentMethod;
               this.rx.dispatch({
                 type: OrderActions.UPDATE_PAYMENT_METHOD,
@@ -245,8 +252,39 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return { cost: cost, price: price };
   }
 
+  getSummary(cart: ICart, merchant: IMerchant, overRangeCharge: number, groupDiscount: number) {
+    let price = 0;
+    let cost = 0;
+
+    const items: ICartItem[] = [];
+    if (cart.items && cart.items.length > 0) {
+      cart.items.map(x => {
+        price += x.price * x.quantity;
+        cost += x.cost * x.quantity;
+        items.push(x);
+      });
+    }
+
+    const subTotal = price + merchant.deliveryCost;
+    const tax = Math.ceil(subTotal * 13) / 100;
+    const tips = 0;
+    const overRangeTotal = Math.round(overRangeCharge * 100) / 100;
+    return {
+      price: price,
+      cost: cost,
+      overRangeCharge: overRangeTotal,
+      deliveryCost: merchant.deliveryCost,
+      deliveryDiscount: merchant.deliveryCost,
+      groupDiscount: groupDiscount,
+      tips: tips,
+      tax: tax,
+      total: price + tax + tips - groupDiscount + overRangeTotal
+    };
+  }
+
   // delivery --- only need 'origin' and 'dateType' fields
-  createOrder(account: IAccount, cart: ICart, delivery: IDelivery, charge: ICharge, note: string, paymentMethod: string): IOrder {
+  createOrder(account: IAccount, merchant: IMerchant, cart: ICart, delivery: IDelivery, charge: ICharge,
+    note: string, paymentMethod: string): IOrder {
 
     const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
       return {
@@ -261,16 +299,16 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       clientId: account._id,
       clientName: account.username,
       defaultPickupTime: account.pickup,
-      merchantId: cart.merchantId,
-      merchantName: cart.merchantName,
+      merchantId: merchant._id,
+      merchantName: this.lang === 'zh' ? merchant.name : merchant.nameEN,
       items: items,
       price: Math.round(charge.price * 100) / 100,
       cost: Math.round(charge.cost * 100) / 100,
       // address: this.locationSvc.getAddrString(delivery.origin),
       location: delivery.origin,
       note: note,
-      deliveryCost: Math.round(charge.deliveryCost * 100) / 100,
-      deliveryDiscount: Math.round(charge.deliveryDiscount * 100) / 100,
+      deliveryCost: Math.round(merchant.deliveryCost * 100) / 100,
+      deliveryDiscount: Math.round(merchant.deliveryCost * 100) / 100,
       groupDiscount: Math.round(charge.groupDiscount * 100) / 100,
       overRangeCharge: Math.round(charge.overRangeCharge * 100) / 100,
       total: Math.round(charge.total * 100) / 100,
@@ -291,13 +329,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   // after verify call this function
   pay() {
     const account = this.account;
+    const merchant = this.merchant;
     const charge = this.charge;
     const delivery = this.delivery;
     const cart = this.cart;
     const paymentMethod = this.paymentMethod;
     this.loading = true;  // show loading ... animation
     this.bSubmitted = true;
-    this.doPay(account, charge, cart, delivery, paymentMethod).then((rt: any) => {
+    this.doPay(account, merchant, charge, cart, delivery, paymentMethod).then((rt: any) => {
       this.showError(rt.err);
       this.loading = false; // hide loading ... animation
       this.bSubmitted = false;
@@ -332,10 +371,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  doPay(account: IAccount, charge: ICharge, cart: ICart, delivery: IDelivery, paymentMethod: string) {
+  doPay(account: IAccount, merchant: IMerchant, charge: ICharge, cart: ICart, delivery: IDelivery, paymentMethod: string) {
     const self = this;
     const v = this.form.value;
-    const order = self.createOrder(account, cart, delivery, charge, v.note, paymentMethod); // Create an unpaid order
+    const order = self.createOrder(account, merchant, cart, delivery, charge, v.note, paymentMethod); // Create an unpaid order
 
     this.accountSvc.update({ _id: account._id }, { type: 'client' }).pipe(takeUntil(self.onDestroy$)).subscribe(ret => { });
 
@@ -365,8 +404,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             resolve({ err: PaymentError.NONE });
           });
         } else { // wechat, alipay
-          self.handleSnappayPayment(account, order, cart).then(r => {
-            resolve({ err: PaymentError.NONE });
+          self.handleSnappayPayment(account, order, cart).then((r: any) => {
+            resolve({ err: PaymentError.NONE, url: r.url });
           });
         }
       }
@@ -498,4 +537,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  getAbs(n) {
+    return Math.abs(n);
+  }
 }

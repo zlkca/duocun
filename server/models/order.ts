@@ -79,7 +79,6 @@ export interface IOrder {
   deliveryDiscount?: number;
   overRangeCharge?: number;
   groupDiscount?: number;
-  productTotal?: number;
 
   cost: number;
   price: number;

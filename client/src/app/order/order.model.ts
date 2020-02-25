@@ -62,7 +62,6 @@ export interface IOrder {
   deliveryDiscount?: number;
   overRangeCharge?: number;
   groupDiscount?: number;
-  productTotal?: number;
   total?: number;
   paymentMethod ?: string;
   chargeId?: string; // stripe chargeId

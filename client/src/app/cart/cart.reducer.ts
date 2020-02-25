@@ -9,27 +9,17 @@ export interface ICartAction {
 // if items is [], means empty cart
 function updateCart(c: ICart, items: ICartItem[]) {
   const cart = Object.assign({}, c);
-  cart.productTotal = 0;
+  cart.price = 0;
   cart.quantity = 0;
 
   if (items && items.length > 0) {
     items.map(x => {
-      cart.productTotal += x.price * x.quantity;
+      cart.price += x.price * x.quantity;
       cart.quantity += x.quantity;
     });
-    const subtotal1 = cart.productTotal + cart.deliveryCost;
-    cart.tax = Math.ceil(subtotal1 * 13) / 100;
-    const subtotal2 = subtotal1 + cart.tax;
-    cart.total = subtotal2 - cart.deliveryDiscount + cart.tips;
-    // cart.items = items;
   } else { // clear cart
-    cart.productTotal = 0;
-    cart.quantity = 0;
-    cart.tax = 0;
-    cart.total = 0;
     cart.merchantId = '';
     cart.merchantName = '';
-    // cart.items = [];
   }
   return cart;
 }
@@ -38,12 +28,7 @@ export const DEFAULT_CART = {
   merchantId: '',
   merchantName: '',
   quantity: 0,
-  productTotal: 0,
-  deliveryCost: 0,
-  deliveryDiscount: 0,
-  tax: 0,
-  tips: 0,
-  total: 0,
+  price: 0,
   items: []
 };
 
@@ -56,19 +41,10 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
     // const item = state.items.find(x => x.productId === payload.productId);
 
     switch (action.type) {
-      case CartActions.UPDATE:
+      case CartActions.UPDATE_CART:
         return {
           ...state,
           ...action.payload.items
-        };
-
-      case CartActions.UPDATE_DELIVERY:
-        return {
-          ...state,
-          merchantId: action.payload.merchantId,
-          merchantName: action.payload.merchantName,
-          deliveryCost: action.payload.deliveryCost,
-          deliveryDiscount: action.payload.deliveryDiscount
         };
 
       case CartActions.UPDATE_QUANTITY:
@@ -151,7 +127,7 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
           items: its
         };
 
-      case CartActions.UPDATE_FROM_CHANGE_ORDER:
+      case CartActions.UPDATE_FROM_CHANGE_ORDER: // deprecated
         its = [...action.payload.items];
         updated = updateCart(state, its);
 
@@ -160,8 +136,6 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
           ...updated,
           merchantId: action.payload.merchantId,
           merchantName: action.payload.merchantName,
-          deliveryCost: action.payload.deliveryCost,
-          deliveryDiscount: action.payload.deliveryDiscount,
           items: its
         };
 

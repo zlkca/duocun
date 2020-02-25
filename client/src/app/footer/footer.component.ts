@@ -12,6 +12,7 @@ import { IDelivery } from '../delivery/delivery.model';
 import { AccountService } from '../account/account.service';
 import { IOrder } from '../order/order.model';
 import { environment } from '../../environments/environment.prod';
+import { IMerchant } from '../merchant/merchant.model';
 
 @Component({
   selector: 'app-footer',
@@ -32,6 +33,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   fromPage;
   delivery;
   order;
+  merchant;
   lang = environment.language;
 
   private onDestroy$ = new Subject<void>();
@@ -60,7 +62,11 @@ export class FooterComponent implements OnInit, OnDestroy {
         self.bHideNavMenu = cart.items.length !== 0;
       }
       self.quantity = cart.quantity;
-      self.productTotal = cart.productTotal;
+      self.productTotal = cart.price;
+    });
+
+    this.rx.select('merchant').pipe(takeUntil(this.onDestroy$)).subscribe((x: IMerchant) => {
+      self.merchant = x;
     });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
@@ -190,6 +196,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       payload: {
         name: 'pay',
         args: {
+          merchant: this.merchant,
           cart: this.cart,
           delivery: this.delivery,
           paymentMethod: this.order.paymentMethod
@@ -212,12 +219,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     //   type: CommandActions.SEND,
     //   payload: { name: 'after-checkout', args: $event }
     // });
-  }
-
-  toCart() {
-    if (this.quantity > 0) { // prevent missing bottom menus
-      this.router.navigate(['cart']);
-    }
   }
 
   checkoutFromCartPage() {

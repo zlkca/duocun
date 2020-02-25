@@ -10,6 +10,7 @@ import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import { resolve } from "../../node_modules/@types/q";
 
+
 export enum ProductStatus {
   ACTIVE = 1,
   INACTIVE,
@@ -27,6 +28,10 @@ export interface ICategory {
   modified?: string;
 }
 
+export interface IPicture {
+  url: string;
+}
+
 export interface IProduct {
   _id?: string;
   name: string;
@@ -39,7 +44,7 @@ export interface IProduct {
 
   openDays?: number[];
 
-  // pictures?: Picture[];
+  pictures: IPicture[];
   dow?: string[];
   order?: number;
   status?: ProductStatus;
@@ -179,6 +184,31 @@ export class Product extends Model {
       } else {
         return 1;
       }
+    });
+  }
+
+
+  clearImage(req: Request, res: Response) {
+    let query = {};
+    let lang: any = req.headers.lang;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    this.find({}).then((ps: IProduct[]) => {
+      const datas: any[] = [];
+      ps.map((p: IProduct) =>{
+        const url = (p && p.pictures && p.pictures.length >0)? p.pictures[0].url : '';
+        datas.push({
+          query: { _id: p._id },
+          data: { pictures:  [{url: url}]}
+        });
+      });
+
+      this.bulkUpdate(datas).then(() => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify('success', null, 3));
+      });
     });
   }
 }

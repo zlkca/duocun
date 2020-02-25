@@ -17,8 +17,6 @@ export function deliveryReducer(state: IDelivery = DEFAULT_DELIVERY, action: IDe
   switch (action.type) {
     case DeliveryActions.CLEAR:
       return null;
-    case DeliveryActions.UPDATE:
-      return action.payload;
     case DeliveryActions.UPDATE_DATE:
       return {
         ...state,

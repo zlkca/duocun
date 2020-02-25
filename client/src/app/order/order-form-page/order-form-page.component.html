@@ -42,7 +42,7 @@
           <div class="col-2 price-col">${{item.price | number : '1.2-2'}}</div>
         </div>
       </div>
-      <div class="col-5 text-sm total-col" *ngIf="charge">
+      <div class="col-5 text-sm total-col" *ngIf="charge && merchant">
         <div class="row">
           <div class="col-12">
             <div class="title-xs">
@@ -52,12 +52,12 @@
           <div class="col-12">
             <div class="title-xs">
               <span i18n="@@DeliveryFee">Delivery Fee</span>:</div>
-            <div class="text-xs">&nbsp;${{charge.deliveryCost | number : '1.2-2'}}</div>
+            <div class="text-xs">&nbsp;${{merchant.deliveryCost | number : '1.2-2'}}</div>
           </div>
           <div class="col-12">
             <div class="title-xs">
               <span i18n="@@Subtotal">Subtotal</span>:</div>
-            <div class="text-xs">&nbsp;${{charge.price + charge.deliveryCost | number : '1.2-2'}}</div>
+            <div class="text-xs">&nbsp;${{charge.price + merchant.deliveryCost | number : '1.2-2'}}</div>
           </div>
           <div class="col-12">
             <div class="title-xs">
@@ -72,7 +72,7 @@
           <div class="col-12">
             <div class="title-xs">
               <span i18n="@@DeliveryDiscount">Discount</span>:</div>
-            <div class="text-xs">&nbsp;${{charge.deliveryDiscount | number : '1.2-2'}}</div>
+            <div class="text-xs">-${{charge.deliveryDiscount | number : '1.2-2'}}</div>
           </div>
           <div class="col-12" *ngIf="charge.groupDiscount>0">
             <div class="title-xs">
@@ -95,7 +95,7 @@
           <div class="col-12" *ngIf="charge && balance!=0">
             <div class="title-xs">
               <span i18n="@@CurrentBalance">Balance</span>:</div>
-            <div class="text-xs">&nbsp;${{ balance | number : '1.2-2'}}</div>
+            <div class="text-xs"><span *ngIf="balance >= 0">&nbsp;</span><span *ngIf="balance < 0">-</span>${{ getAbs(balance) | number : '1.2-2'}}</div>
           </div>
 
           <div class="col-12 total-row" *ngIf="charge && balance!=0">

@@ -93,6 +93,7 @@ $tab-h: 48px;
   $padding-w: 100px;
   $cat-w: 120px;
   .list-item{
+    padding: 0px 0px 5px 0px;
     .item-body{
       .text-body{
         padding-right: 25px;
@@ -110,16 +111,13 @@ $tab-h: 48px;
   $cat-w: 90px;
 
   .list-item{
+    padding: 0px 0px 5px 0px;
     .item-body{
       padding:5px 0px 5px 5px;
-      // .text-body{
-      //   padding:0px 0px 0px 10px;
-      //   // .order-row{
-      //   //   .button-col{
-      //   //     padding: 0px 10px;
-      //   //   }
-      //   // }
-      // }
+
+      .text-body {
+        padding-right: 10px;
+      }
     }
   }
 }
