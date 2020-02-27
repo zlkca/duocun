@@ -114,6 +114,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
 
       // reload address in address search
+      this.location = d ? d.origin : null;
       if (d && d.origin) {
         self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
       }
@@ -218,11 +219,11 @@ export class HomeComponent implements OnInit, OnDestroy {
                   if (tokenId) {
                     self.authSvc.setAccessTokenId(tokenId);
                     // retry default login
-                    self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account2: Account) => {
-                      if (account2) {
-                        self.account = account2;
+                    self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((accountWX: Account) => {
+                      if (accountWX) {
+                        self.account = accountWX;
                         self.snackBar.open('', '微信登录成功。', { duration: 1000 });
-                        self.init(account).then((origin: any) => {
+                        self.init(accountWX).then((origin: any) => {
                           resolve(origin);
                         });
                       } else {
@@ -303,22 +304,25 @@ export class HomeComponent implements OnInit, OnDestroy {
           const a = this.locationSvc.toPlaces(lhs);
           self.historyAddressList = a;
 
-          // redirect to filter if account have default location
-          if (account && account.location) {
-            self.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: account.location } });
-            self.bUpdateLocationList = false;
-            self.deliveryAddress = self.locationSvc.getAddrString(account.location); // set address text to input
-
-            resolve(account.location);
+          if (self.location) {
+            resolve(self.location);
           } else {
-            resolve();
+            // redirect to filter if account have default location
+            if (account && account.location) {
+              self.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: account.location } });
+              self.bUpdateLocationList = false;
+              self.deliveryAddress = self.locationSvc.getAddrString(account.location); // set address text to input
+              resolve(account.location);
+            } else {
+              resolve(self.location);
+            }
           }
         });
       } else {
         self.historyAddressList = [];
         self.bUpdateLocationList = false;
         self.deliveryAddress = '';
-        resolve();
+        resolve(self.location);
       }
     });
   }

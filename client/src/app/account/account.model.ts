@@ -21,7 +21,7 @@ export interface IAccount {
 
   phone?: string;
   verified?: boolean;   // in db, phone number is verified or not
-  location?: ILocation; // in db
+  location?: ILocation; // in db, default location
 
   password?: string;
   sex?: string;
