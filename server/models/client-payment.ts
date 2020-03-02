@@ -14,15 +14,15 @@ import { Merchant } from "./merchant";
 import { ClientCredit } from "./client-credit";
 import { CellApplication, CellApplicationStatus } from "./cell-application";
 
-var fs = require('fs');
-var util = require('util');
-// var log_file = fs.createWriteStream('~/duocun-debug.log', {flags : 'w'}); // __dirname + 
-var log_stdout = process.stdout;
+// var fs = require('fs');
+// var util = require('util');
+// // var log_file = fs.createWriteStream('~/duocun-debug.log', {flags : 'w'}); // __dirname + 
+// var log_stdout = process.stdout;
 
-console.log = function (d: any) { // 
-  // log_file.write(util.format(d) + '\n');
-  log_stdout.write(util.format(d) + '\n');
-};
+// console.log = function (d: any) { // 
+//   // log_file.write(util.format(d) + '\n');
+//   log_stdout.write(util.format(d) + '\n');
+// };
 
 export class ClientPayment extends Model {
   cfg: Config;

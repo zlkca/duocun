@@ -5,7 +5,6 @@ import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import moment from 'moment';
 import { IOrder, IOrderItem } from "./order";
-import { resolve } from "../../node_modules/@types/q";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -19,6 +18,7 @@ export interface ITransaction {
   toId: string;
   toName: string;
   orderId?: string;
+  orderType?: string;
   items?: IOrderItem[];
   type?: string;
   action: string;
@@ -124,7 +124,7 @@ export class Transaction extends Model {
   }
 
 
-  saveTransactionsForPlaceOrder(orderId: string, merchantAccountId: string, merchantName: string,
+  saveTransactionsForPlaceOrder(orderId: string, orderType: string, merchantAccountId: string, merchantName: string,
     clientId: string, clientName: string, cost: number, total: number, delivered: string) {
 
     return new Promise((resolve, reject) => {
@@ -136,6 +136,7 @@ export class Transaction extends Model {
         action: 'duocun order from merchant',
         amount: Math.round(cost * 100) / 100,
         orderId: orderId,
+        orderType: orderType,
         delivered: delivered,
       };
 
@@ -147,6 +148,7 @@ export class Transaction extends Model {
         amount: Math.round(total * 100) / 100,
         action: 'client order from duocun',
         orderId: orderId,
+        orderType: orderType,
         delivered: delivered,
       };
 

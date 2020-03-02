@@ -352,11 +352,12 @@ export class Order extends Model {
         setTimeout(() => {
           const account: any = ca.account;
           const merchant: any = ca.merchant;
+
           const order: IOrder = {
             clientId: ca.accountId.toString(),
             clientName: account ? account.username : 'N/A',
             merchantId: ca.product.merchantId.toString(),
-            merchantName: merchant ? merchant.username : 'N/A', // fix me
+            merchantName: merchant ? merchant.name : 'N/A',
             items: items,
             price: Math.round(+ca.product.price * 100) / 100,
             cost: Math.round(+ca.product.cost * 100) / 100,
@@ -421,7 +422,8 @@ export class Order extends Model {
               } else {
                 const orderId: any = savedOrder._id;
                 const merchantAccountId = merchant.accountId.toString();
-                this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), merchantAccountId, merchantName, clientId, clientName, cost, total, delivered).then(() => {
+                this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), orderType,
+                  merchantAccountId, merchantName, clientId, clientName, cost, total, delivered).then(() => {
                   resolve(savedOrder);
                 });
               }
@@ -812,6 +814,7 @@ export class Order extends Model {
   // 3.update account balance
   doProcessPayment(order: IOrder, action: string, paid: number, chargeId: string) {
     const orderId: any = order._id;
+    const orderType: any = order.type;
     const merchantId: string = order.merchantId.toString();
     const merchantName = order.merchantName;
     const clientId: string = order.clientId.toString();
@@ -835,6 +838,7 @@ export class Order extends Model {
         const merchantAccountId = merchant.accountId.toString();
         this.transactionModel.saveTransactionsForPlaceOrder(
           orderId.toString(),
+          orderType,
           merchantAccountId,
           merchantName,
           clientId,

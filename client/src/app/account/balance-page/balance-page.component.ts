@@ -61,7 +61,8 @@ export class BalancePageComponent implements OnInit, OnDestroy {
 
   getDescription(t, clientId) {
     if (t.action === 'client cancel order from duocun') {
-      return (this.lang === 'en' ? 'Cancel' : '取消') + t.toName;
+      const toName = t.toName ? t.toName :  '';
+      return (this.lang === 'en' ? 'Cancel' : '取消') + toName;
     } else if (t.action === 'pay by card') {
       return (this.lang === 'en' ? 'by bank card' : '银行卡付款');
     } else if (t.action === 'pay by wechat') {
@@ -73,7 +74,10 @@ export class BalancePageComponent implements OnInit, OnDestroy {
     } else if (t.action === 'client add credit by WECHATPAY') {
       return (this.lang === 'en' ? 'add credit' : '微信充值');
     } else {
-      return t.fromId === clientId ? t.toName : t.fromName;
+      const fromId = t.fromId ? t.fromId :  '';
+      const toName = t.toName ? t.toName :  '';
+      const fromName = t.fromName ? t.fromName :  '';
+      return fromId === clientId ? toName : fromName;
     }
   }
 

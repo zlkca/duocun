@@ -352,15 +352,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.bUpdateLocationList = true;
 
     if (account) {
-      const accountId = account._id;
-      const visited = account.visited;
-
-      if (!visited) {
-        this.account.visited = true;
-        this.accountSvc.update({ _id: accountId }, { visited: true }).pipe(takeUntil(this.onDestroy$)).subscribe(r => {
-          this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
-        });
-      }
+      // const accountId = account._id;
+      // const visited = account.visited;
+      // if (!visited) {
+      //   this.account.visited = true;
+      //   this.accountSvc.update({ _id: accountId }, { visited: true }).pipe(takeUntil(this.onDestroy$)).subscribe(r => {
+      //     this.rx.dispatch({ type: AccountActions.UPDATE, payload: this.account });
+      //   });
+      // }
 
       if (e.input) {
         this.places = this.suggestAddressList;
