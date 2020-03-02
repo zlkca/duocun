@@ -61,7 +61,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
 
   getDescription(t, clientId) {
     if (t.action === 'client cancel order from duocun') {
-      const toName = t.toName ? t.toName :  '';
+      const toName = t.toName ? t.toName : '';
       return (this.lang === 'en' ? 'Cancel' : '取消') + toName;
     } else if (t.action === 'pay by card') {
       return (this.lang === 'en' ? 'by bank card' : '银行卡付款');
@@ -74,10 +74,17 @@ export class BalancePageComponent implements OnInit, OnDestroy {
     } else if (t.action === 'client add credit by WECHATPAY') {
       return (this.lang === 'en' ? 'add credit' : '微信充值');
     } else {
-      const fromId = t.fromId ? t.fromId :  '';
-      const toName = t.toName ? t.toName :  '';
-      const fromName = t.fromName ? t.fromName :  '';
-      return fromId === clientId ? toName : fromName;
+      const fromId = t.fromId ? t.fromId : '';
+      const toName = t.toName ? t.toName : '';
+      const fromName = t.fromName ? t.fromName : '';
+      const name = fromId === clientId ? toName : fromName;
+      if (t.orderType === 'MM') {
+        return name + (this.lang === 'en' ? ' Phone monthly fee' : ' 电话月费');
+      } else if (t.orderType === 'MS') {
+        return name + (this.lang === 'en' ? ' Phone setup fee' : ' 电话安装费');
+      } else {
+        return name + ' ' + t.note; // fix me
+      }
     }
   }
 
