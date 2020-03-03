@@ -13,6 +13,7 @@ import { Transaction } from "./transaction";
 import { Merchant } from "./merchant";
 import { ClientCredit } from "./client-credit";
 import { CellApplication, CellApplicationStatus } from "./cell-application";
+import { EventLog } from "./event-log";
 
 // var fs = require('fs');
 // var util = require('util');
@@ -23,6 +24,14 @@ import { CellApplication, CellApplicationStatus } from "./cell-application";
 //   // log_file.write(util.format(d) + '\n');
 //   log_stdout.write(util.format(d) + '\n');
 // };
+export interface IStripeError {
+  type: string;
+  code: string;
+  decline_code: string;
+  message: string;
+  param: string;
+  payment_intent: any;
+}
 
 export class ClientPayment extends Model {
   cfg: Config;
@@ -31,6 +40,7 @@ export class ClientPayment extends Model {
   merchantModel: Merchant;
   clientCreditModel: ClientCredit;
   cellApplicationModel: CellApplication;
+  eventLogModel: EventLog;
 
   constructor(dbo: DB) {
     super(dbo, 'client_payments');
@@ -40,9 +50,12 @@ export class ClientPayment extends Model {
     this.transactionModel = new Transaction(dbo);
     this.clientCreditModel = new ClientCredit(dbo);
     this.cellApplicationModel = new CellApplication(dbo);
+    this.eventLogModel = new EventLog(dbo);
+
     this.cfg = new Config();
   }
 
+  // deprecated
   createStripeSession(req: Request, res: Response) {
     // Set your secret key: remember to change this to your live secret key in production
     // See your keys here: https://dashboard.stripe.com/account/apikeys
@@ -65,6 +78,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // deprecated
   stripeCreateCustomer(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
     stripe.customers.create({
@@ -98,7 +112,7 @@ export class ClientPayment extends Model {
       description: 'client add credit by card',
       source: token.id,
       metadata: { customerId: accountId, customerName: accountName },
-    }, function (err: any, charge: any) {
+    }, function (err: IStripeError, charge: any) {
       res.setHeader('Content-Type', 'application/json');
       if (!err) {
         self.transactionModel.doAddCredit(accountId, accountName, paid, 'card', note).then(x => {
@@ -107,7 +121,17 @@ export class ClientPayment extends Model {
           res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
         });
       } else {
-        res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+        const eventLog = {
+          accountId: accountId,
+          type: err.type,
+          code: err.code,
+          decline_code: err.decline_code,
+          message: err.message,
+          created: moment().toISOString()
+        }
+        self.eventLogModel.insertOne(eventLog).then(() => {
+          res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+        });
       }
     });
   }
@@ -128,7 +152,7 @@ export class ClientPayment extends Model {
         description: order.merchantName,
         source: token.id,
         metadata: metadata
-      }, function (err: any, charge: any) {
+      }, function (err: IStripeError, charge: any) {
         res.setHeader('Content-Type', 'application/json');
         if (!err) {
           // update order and insert transactions
@@ -138,7 +162,17 @@ export class ClientPayment extends Model {
             res.end(JSON.stringify({ status: 'fail', chargeId: '', err: err }, null, 3));
           });
         } else {
-          res.end(JSON.stringify({ status: 'fail', chargeId: '', err: err }, null, 3));
+          const eventLog = {
+            accountId: clientId,
+            type: err.type,
+            code: err.code,
+            decline_code: err.decline_code,
+            message: err.message,
+            created: moment().toISOString()
+          }
+          self.eventLogModel.insertOne(eventLog).then(() => {
+            res.end(JSON.stringify({ status: 'fail', chargeId: '', err: err }, null, 3));
+          });
         }
       });
     });
@@ -175,7 +209,7 @@ export class ClientPayment extends Model {
             const q = { accountId: order.clientId.toString(), status: CellApplicationStatus.APPLIED };
             const d = { status: CellApplicationStatus.SETUP_PAID };
             this.cellApplicationModel.findOne(q).then((ca: any) => {
-              if(ca){
+              if (ca) {
                 this.cellApplicationModel.updateOne(q, d).then(() => {
 
                 });
@@ -219,7 +253,7 @@ export class ClientPayment extends Model {
 
     this.clientCreditModel.insertOne(cc).then((c) => {
       const returnUrl = 'https://duocun.com.cn?clientId=' + account._id.toString() + '&paymentMethod=' + paymentMethod + '&page=account_settings';
-      this.snappayPayReq(res, returnUrl, c._id.toString(), paymentMethod, paid, 'add credit');
+      this.snappayPayReq(res, returnUrl, account._id, c._id.toString(), paymentMethod, paid, 'add credit');
     });
   }
 
@@ -229,12 +263,12 @@ export class ClientPayment extends Model {
     const clientId = order.clientId;
     const paymentMethod = order.paymentMethod;
     let returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
-    
-    if(order.type === OrderType.MOBILE_PLAN_SETUP){
+
+    if (order.type === OrderType.MOBILE_PLAN_SETUP) {
       returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
     }
-    
-    this.snappayPayReq(res, returnUrl, order._id, paymentMethod, paid, order.merchantName);
+
+    this.snappayPayReq(res, returnUrl, clientId, order._id, paymentMethod, paid, order.merchantName);
   }
 
   snappaySignParams(data: any) {
@@ -245,7 +279,7 @@ export class ClientPayment extends Model {
     return data;
   }
 
-  snappayPayReq(res: Response, returnUrl: string, orderId: string, paymentMethod: string, paid: number, description: string) {
+  snappayPayReq(res: Response, returnUrl: string, accountId: string, orderId: string, paymentMethod: string, paid: number, description: string) {
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
       charset: 'UTF-8',                          // Madatory
@@ -260,7 +294,7 @@ export class ClientPayment extends Model {
       trans_amount: paid,                        // Service Mandatory
       version: '1.0'                             // Madatory
     };
-
+    const self = this;
     const params = this.snappaySignParams(data);
     const options = {
       hostname: 'open.snappay.ca',
@@ -278,11 +312,22 @@ export class ClientPayment extends Model {
       res1.on('end', (r: any) => {
         if (ss) { // code, data, msg, total, psn, sign
           const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
-          if (ret.msg === 'success') {
-            res.send(ret);
-          } else {
-            res.send(ret);
+
+          const eventLog = {
+            accountId: accountId,
+            type: 'snappay',
+            code: ret.code,
+            decline_code: '',
+            message: ret.msg,
+            created: moment().toISOString()
           }
+          self.eventLogModel.insertOne(eventLog).then(() => {
+            if (ret.msg === 'success') {
+              res.send(ret);
+            } else {
+              res.send(ret);
+            }
+          });
         } else {
           res.send({ msg: 'failed' });
         }

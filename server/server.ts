@@ -43,6 +43,7 @@ import { DriverRouter } from "./routers/driver-route";
 import { DriverShiftRouter } from "./routers/driver-shift-route";
 import { DriverScheduleRouter } from "./routers/driver-schedule-route";
 import { LogRouter } from "./routers/log-route";
+import { EventLogRouter } from "./routers/event-log-route";
 
 import { CellApplicationRouter } from "./routers/cell-application-route";
 
@@ -218,6 +219,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/DriverShifts', DriverShiftRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/DriverSchedules', DriverScheduleRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Logs', LogRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/EventLogs', EventLogRouter(dbo));
 
 
   app.use('/' + ROUTE_PREFIX + '/CellApplications', CellApplicationRouter(dbo));

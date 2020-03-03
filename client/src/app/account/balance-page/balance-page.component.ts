@@ -83,7 +83,7 @@ export class BalancePageComponent implements OnInit, OnDestroy {
       } else if (t.orderType === 'MS') {
         return name + (this.lang === 'en' ? ' Phone setup fee' : ' 电话安装费');
       } else {
-        return name + ' ' + t.note; // fix me
+        return name + ' ' + (t.note ? t.note : ''); // fix me
       }
     }
   }

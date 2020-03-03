@@ -41,12 +41,15 @@
       </div>
 
       <div class="row order-detail">
-        <div class="col-7 items-col">
+        <div class="col-7 items-col" *ngIf="order.type!=='MM'">
           <div *ngFor="let item of order.items" class="text-sm row item-row">
             <div class="col-7 product-col">{{item.product.name}}</div>
             <div class="col-2 quantity-col">x {{item.quantity}}</div>
             <div class="col-3 price-col">${{item.product.price | number : '1.2-2'}}</div>
           </div>
+        </div>
+        <div class="col-7 items-col">
+          <div class="description-col">{{order.description}}</div>
         </div>
         <div class="col-5 text-sm total-col" *ngIf="order.total">
           <div class="row">
