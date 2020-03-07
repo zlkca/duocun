@@ -11,7 +11,9 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { IDelivery } from '../../delivery/delivery.model';
 import { IMerchant } from '../../merchant/merchant.model';
 import { IRange } from '../../range/range.model';
-
+import { getCartItemPrice } from '../../cart/cart.reducer';
+import { ICart } from '../../cart/cart.model';
+import { CartActions } from '../../cart/cart.actions';
 const ADD_IMAGE = 'add_photo.png';
 
 @Component({
@@ -38,7 +40,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   ranges: IRange[];
   lang = environment.language;
   Status = ProductStatus;
-
+  cart;
   ngOnInit() {
 
   }
@@ -56,16 +58,16 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
-    // this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
-    //   this.cart = cart;
-    // });
+    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+      this.cart = cart;
+    });
 
     this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
       this.delivery = x;
     });
   }
 
-  addToCart(p: IProduct) {
+  isValidProduct(p: IProduct) {
     const merchant = this.restaurant;
     const addressHint = this.lang === 'en' ? 'Please enter delivery address' : '请先输入送餐地址';
     const breakHint = this.lang === 'en' ? 'The merchant closed, can not deliver today' : '该商家休息，暂时无法配送';
@@ -74,16 +76,23 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     if (!this.hasAddress) {
       alert(addressHint);
       this.router.navigate(['main/home']);
-      return;
+      return false;
     }
 
     if (merchant.isClosed || (this.hasAddress && !merchant.onSchedule)) {
       alert(breakHint);
-      return;
+      return false;
     }
 
     if (merchant.orderEnded) {
       alert(overTimeHint + this.restaurant.orderEndTime + 'am');
+      return false;
+    }
+    return true;
+  }
+
+  addToCart(p: IProduct) {
+    if (!this.isValidProduct(p)) {
       return;
     }
 
@@ -162,6 +171,32 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   onSelect(p) {
     this.selected = p;
     this.select.emit({ 'product': p });
+  }
+
+  // check if a product has any specification
+  hasSpecification(product): boolean {
+    console.log(product.specifications);
+    return product.specifications && product.specifications.length;
+  }
+
+  getProductItemPrice(product: IProduct): string {
+    const cartItem = this.cart.items.find(item => item.productId === product._id);
+    if (cartItem) {
+      return getCartItemPrice(cartItem).toFixed(2);
+    } else {
+      return product.price.toFixed(2);
+    }
+  }
+  selectProductForSpec(product: IProduct) {
+    if (!this.isValidProduct(product)) {
+      return;
+    }
+    this.rx.dispatch({
+      type: CartActions.SELECT_FOR_SPEC,
+      payload: {
+        selectedProduct: product
+      }
+    });
   }
 
 }
