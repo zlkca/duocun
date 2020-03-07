@@ -1,4 +1,20 @@
 // import { Picture } from '../picture.model';
+import {IProduct} from '../product/product.model';
+
+export interface ICartItemSpecDetail {
+  name: string;
+  nameEN?: string;
+  price: number;
+  cost: number;
+  quantity: number;
+}
+
+export interface ICartItemSpec {
+  specId: string;
+  specName: string;
+  type: 'single' | 'multiple';
+  list: Array<ICartItemSpecDetail>;
+}
 
 export interface ICartItem {
   productId: string;
@@ -9,6 +25,7 @@ export interface ICartItem {
   price: number;
   cost: number;
   quantity: number;
+  spec?: Array<ICartItemSpec>;
 }
 
 export interface ICart {
@@ -19,5 +36,6 @@ export interface ICart {
   merchantName?: string;
   price?: number;
   quantity?: number;
+  selectedProduct?: IProduct; // selected product for specification
   items: ICartItem[];
 }
