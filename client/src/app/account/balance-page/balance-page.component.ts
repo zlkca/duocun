@@ -5,6 +5,8 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Role, IAccount } from '../../account/account.model';
 import { TransactionService } from '../../transaction/transaction.service';
 import { environment } from '../../../environments/environment';
+import { ITransaction, TransactionAction } from '../../transaction/transaction.model';
+import { OrderType } from '../../order/order.model';
 
 @Component({
   selector: 'app-balance-page',
@@ -59,28 +61,28 @@ export class BalancePageComponent implements OnInit, OnDestroy {
     }), {});
   }
 
-  getDescription(t, clientId) {
-    if (t.action === 'client cancel order from duocun') {
+  getDescription(t: ITransaction, clientId) {
+    if (t.actionCode === TransactionAction.CANCEL_ORDER_FROM_DUOCUN.code ) { // 'client cancel order from duocun') {
       const toName = t.toName ? t.toName : '';
       return (this.lang === 'en' ? 'Cancel' : '取消') + toName;
-    } else if (t.action === 'pay by card') {
+    } else if (t.actionCode === TransactionAction.PAY_BY_CARD.code ) { // 'pay by card') {
       return (this.lang === 'en' ? 'by bank card' : '银行卡付款');
-    } else if (t.action === 'pay by wechat') {
+    } else if (t.actionCode === TransactionAction.PAY_BY_WECHAT.code ) { // 'pay by wechat') {
       return (this.lang === 'en' ? 'wechat pay' : '微信付款');
-    } else if (t.action === 'client add credit by cash') {
+    } else if (t.actionCode === TransactionAction.ADD_CREDIT_BY_CASH.code ) { // 'client add credit by cash') {
       return (this.lang === 'en' ? 'add credit' : '现金充值');
-    } else if (t.action === 'client add credit by card') {
+    } else if (t.actionCode === TransactionAction.ADD_CREDIT_BY_CARD.code ) { // 'client add credit by card') {
       return (this.lang === 'en' ? 'add credit' : '信用卡充值');
-    } else if (t.action === 'client add credit by WECHATPAY') {
+    } else if (t.actionCode === TransactionAction.ADD_CREDIT_BY_WECHAT.code ) { // 'client add credit by WECHATPAY') {
       return (this.lang === 'en' ? 'add credit' : '微信充值');
     } else {
       const fromId = t.fromId ? t.fromId : '';
       const toName = t.toName ? t.toName : '';
       const fromName = t.fromName ? t.fromName : '';
       const name = fromId === clientId ? toName : fromName;
-      if (t.orderType === 'MM') {
+      if (t.orderType === OrderType.MOBILE_PLAN_MONTHLY) {
         return name + (this.lang === 'en' ? ' Phone monthly fee' : ' 电话月费');
-      } else if (t.orderType === 'MS') {
+      } else if (t.orderType === OrderType.MOBILE_PLAN_SETUP) {
         return name + (this.lang === 'en' ? ' Phone setup fee' : ' 电话安装费');
       } else {
         return name + ' ' + (t.note ? t.note : ''); // fix me

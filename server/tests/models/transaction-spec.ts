@@ -1,10 +1,79 @@
-import { Transaction, ITransaction, IDbTransaction } from "../../models/transaction";
+import { Transaction, ITransaction, IDbTransaction, TransactionAction } from "../../models/transaction";
 import { DB } from "../../db";
-import { expect } from 'chai';
-import moment from "moment";
+// import { expect } from 'chai';
+// import moment from "moment";
 import { Config } from "../../config";
 import { Account, IAccount } from "../../models/account";
-import { ObjectId } from "mongodb";
+// import { ObjectId } from "mongodb";
+
+
+describe('transaction CRUD operation', () => {
+  const db: any = new DB();
+  const cfg: any = new Config();
+  let accountModel: Account;
+  let transactionModel: Transaction;
+  let connection: any = null;
+
+
+  before(function (done) {
+    db.init(cfg.DATABASE).then((dbClient: any) => {
+      connection = dbClient;
+      transactionModel = new Transaction(db);
+      done();
+    });
+  });
+
+  after(function (done) {
+    connection.close();
+    done();
+  });
+
+  it('should return delivered date time string', (done) => {
+    const clientId = '5d953ff91a3174727b9a7c70'; // test account
+    const merchantId = '5e00d408d90bbb02130cc43c'; // test merchant
+
+    accountModel.findOne({ _id: clientId }).then((c: IAccount) => {
+      accountModel.findOne({ _id: merchantId }).then((m: IAccount) => {
+        const t: ITransaction = {
+          fromId: c._id.toString(),
+          fromName: c.username,
+          toId: m._id.toString(),
+          toName: m.username,
+          actionCode: TransactionAction.TEST.code,
+          amount: 10,
+          fromBalance: c.balance,
+          toBalance: m.balance
+        };
+
+        // transactionModel.insertOne(t).then((r: IDbTransaction) => {
+        //   if (r) {
+        //     transactionModel.findOne({ _id: r._id.toString() }).then((t1: IDbTransaction) => {
+        //       accountModel.findOne({ _id: client1Id }).then((c1: IAccount) => {
+        //         accountModel.findOne({ _id: client2Id }).then((c2: IAccount) => {
+
+        //           expect(t1.amount).to.equal(10);
+        //           expect(c1.balance).to.equal(t1.fromBalance);
+        //           expect(c2.balance).to.equal(t1.toBalance);
+        //           expect(c1.balance).to.equal(r.fromBalance);
+        //           expect(c2.balance).to.equal(r.toBalance);
+
+        //           done();
+
+        //         });
+        //       });
+        //     });
+        //   } else {
+        //     done();
+        //   }
+
+        // });
+      });
+    });
+  });
+});
+
+
+
 
 // describe('getDeliveryDateTimeByPhase', () => {
 //   it('should return delivered date time', () => {

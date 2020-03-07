@@ -26,6 +26,7 @@ import { PhoneVerifyDialogComponent, AccountType } from '../phone-verify-dialog/
 import { CartService } from '../../cart/cart.service';
 import { CartActions } from '../../cart/cart.actions';
 import { IMerchant } from '../../merchant/merchant.model';
+import { IPaymentResponse, ResponseStatus } from '../../transaction/transaction.model';
 
 @Component({
   selector: 'app-order-form-page',
@@ -394,8 +395,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             if (ret.err !== PaymentError.NONE) {
               resolve({ err: ret.err });
             } else {
-              self.handleCardPayment(account, ret.token, order, cart).then(r => {
-                resolve({ err: PaymentError.NONE });
+              self.handleCardPayment(account, ret.token, order, cart).then((r: any) => {
+                resolve({ err: r.err });
               });
             }
           });
@@ -405,7 +406,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           });
         } else { // wechat, alipay
           self.handleSnappayPayment(account, order, cart).then((r: any) => {
-            resolve({ err: PaymentError.NONE, url: r.url });
+            resolve({ err: r.err, url: r.url });
           });
         }
       }
@@ -427,13 +428,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         const merchantId = ret.merchantId;
         const items: ICartItem[] = cart.items.filter(x => x.merchantId === merchantId);
 
-        self.paymentSvc.stripePayOrder(orderId, payable, token).pipe(takeUntil(self.onDestroy$)).subscribe((ch: any) => {
-          if (ch.status === 'success') {
+        self.paymentSvc.stripePayOrder(orderId, payable, token).pipe(takeUntil(self.onDestroy$)).subscribe((rsp: IPaymentResponse) => {
+          if (rsp.status === ResponseStatus.SUCCESS) {
             self.snackBar.open('', payHint, { duration: 2000 });
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } }); // should be clear cart ?
             self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
           }
-          const error = ch.status === 'success' ? PaymentError.NONE : PaymentError.BANK_CARD_FAIL;
+          const error = rsp.status === ResponseStatus.SUCCESS ? PaymentError.NONE : PaymentError.BANK_CARD_FAIL;
           resolve({ err: error });
         });
       });
@@ -454,13 +455,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
         const merchantId = ret.merchantId;
         const items: ICartItem[] = cart.items.filter(x => x.merchantId === merchantId);
-        this.paymentSvc.snappayPayOrder(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((r) => {
-          if (r.msg === 'success') {
+
+        this.paymentSvc.snappayPayOrder(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((rsp: IPaymentResponse) => {
+          if (rsp.status === ResponseStatus.SUCCESS) {
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
             self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
           }
-          const error = r.msg === 'success' ? PaymentError.NONE : PaymentError.WECHATPAY_FAIL;
-          resolve({ err: error, url: r.data[0].h5pay_url });
+          const error = rsp.status === ResponseStatus.SUCCESS ? PaymentError.NONE : PaymentError.WECHATPAY_FAIL;
+          resolve({ err: error, url: rsp.url });
         });
       });
     });

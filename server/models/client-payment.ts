@@ -9,7 +9,7 @@ import https from 'https';
 import { Md5 } from 'ts-md5';
 import moment, { now } from 'moment';
 import { Order, OrderType, PaymentStatus } from "../models/order";
-import { Transaction } from "./transaction";
+import { Transaction, TransactionAction, IDbTransaction } from "./transaction";
 import { Merchant } from "./merchant";
 import { ClientCredit } from "./client-credit";
 import { CellApplication, CellApplicationStatus } from "./cell-application";
@@ -24,6 +24,21 @@ import { EventLog } from "./event-log";
 //   // log_file.write(util.format(d) + '\n');
 //   log_stdout.write(util.format(d) + '\n');
 // };
+
+export const ResponseStatus = {
+  SUCCESS : 'S',
+  FAIL: 'F'
+}
+
+export interface IPaymentResponse {
+  status: string;       // ResponseStatus
+  code: string;         // stripe/snappay return code
+  decline_code: string; // strip decline_code
+  msg: string;          // stripe/snappay retrun message
+  chargeId: string;     // stripe { chargeId:x }
+  url: string;          // snappay {url: data[0].h5pay_url} //  { code, data, msg, total, psn, sign }
+}
+
 export interface IStripeError {
   type: string;
   code: string;
@@ -96,6 +111,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // return rsp: IPaymentResponse
   stripeAddCredit(req: Request, res: Response) {
     const self = this;
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
@@ -113,29 +129,39 @@ export class ClientPayment extends Model {
       source: token.id,
       metadata: { customerId: accountId, customerName: accountName },
     }, function (err: IStripeError, charge: any) {
+      
+      const eventLog = {
+        accountId: accountId,
+        type: err ? err.type : '',
+        code: err ? err.code : '',
+        decline_code: err ? err.decline_code : '',
+        message: err ? err.message : '',
+        created: moment().toISOString()
+      }
+
+      const rsp: IPaymentResponse = {
+        status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+        code: err ? err.code : '',                    // stripe/snappay code
+        decline_code: err ? err.decline_code : '',    // stripe decline_code
+        msg: err ? err.message : '',                  // stripe/snappay retrun message
+        chargeId: charge ? charge.id : '',            // stripe { chargeId:x }
+        url: ''                                       // for snappay data[0].h5pay_url
+      }
+
       res.setHeader('Content-Type', 'application/json');
       if (!err) {
-        self.transactionModel.doAddCredit(accountId, accountName, paid, 'card', note).then(x => {
-          res.end(JSON.stringify({ status: 'succeeded', chargeId: charge.id, err: err }, null, 3));
-        }, err => {
-          res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+        self.transactionModel.doAddCredit(accountId, accountName, paid, 'card', note).then((x: IDbTransaction) => {
+          res.end(JSON.stringify(rsp, null, 3));
         });
       } else {
-        const eventLog = {
-          accountId: accountId,
-          type: err.type,
-          code: err.code,
-          decline_code: err.decline_code,
-          message: err.message,
-          created: moment().toISOString()
-        }
         self.eventLogModel.insertOne(eventLog).then(() => {
-          res.end(JSON.stringify({ status: 'failed', chargeId: '', err: err }, null, 3));
+          res.end(JSON.stringify(rsp, null, 3));
         });
       }
     });
   }
 
+// return rsp: IPaymentResponse
   stripePayOrder(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
     const token = req.body.token;
@@ -153,25 +179,34 @@ export class ClientPayment extends Model {
         source: token.id,
         metadata: metadata
       }, function (err: IStripeError, charge: any) {
+
+        const eventLog = {
+          accountId: clientId,
+          type: err ? err.type : '',
+          code: err ? err.code : '',
+          decline_code: err ? err.decline_code : '',
+          message: err ? err.message : '',
+          created: moment().toISOString()
+        }
+  
+        const rsp: IPaymentResponse = {
+          status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+          code: err ? err.code : '',                    // stripe/snappay code
+          decline_code: err ? err.decline_code : '',    // stripe decline_code
+          msg: err ? err.message : '',                  // stripe/snappay retrun message
+          chargeId: charge ? charge.id : '',            // stripe { chargeId:x }
+          url: ''                                       // for snappay data[0].h5pay_url
+        }
+
         res.setHeader('Content-Type', 'application/json');
         if (!err) {
           // update order and insert transactions
-          self.orderEntity.doProcessPayment(order, 'pay by card', paid, charge.id).then(() => {
-            res.end(JSON.stringify({ status: 'success', chargeId: charge.id, err: err }, null, 3));
-          }, err => {
-            res.end(JSON.stringify({ status: 'fail', chargeId: '', err: err }, null, 3));
+          self.orderEntity.doProcessPayment(order, TransactionAction.PAY_BY_CARD.code, paid, charge.id).then(() => {
+            res.end(JSON.stringify(rsp, null, 3));
           });
         } else {
-          const eventLog = {
-            accountId: clientId,
-            type: err.type,
-            code: err.code,
-            decline_code: err.decline_code,
-            message: err.message,
-            created: moment().toISOString()
-          }
           self.eventLogModel.insertOne(eventLog).then(() => {
-            res.end(JSON.stringify({ status: 'fail', chargeId: '', err: err }, null, 3));
+            res.end(JSON.stringify(rsp, null, 3));
           });
         }
       });
@@ -186,7 +221,10 @@ export class ClientPayment extends Model {
     return s.substring(0, s.length - 1);
   }
 
+
+
   // This request could response multiple times !!!
+  // return rsp: IPaymentResponse
   snappayNotify(req: Request, res: Response) {
     const b = req.body;
     // console.log('snappayNotify trans_status:' + b.trans_status);
@@ -204,7 +242,8 @@ export class ClientPayment extends Model {
           // 1.update payment status to 'paid'
           // 2.add two transactions for place order and add another transaction for deposit to bank
           // 3.update account balance
-          this.orderEntity.doProcessPayment(order, 'pay by wechat', paid, '').then(() => {
+          this.orderEntity.doProcessPayment(order,
+            TransactionAction.PAY_BY_WECHAT.code, paid, '').then(() => {
             // res.send(ret);
             const q = { accountId: order.clientId.toString(), status: CellApplicationStatus.APPLIED };
             const d = { status: CellApplicationStatus.SETUP_PAID };
@@ -236,6 +275,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // return rsp: IPaymentResponse
   snappayAddCredit(req: Request, res: Response) {
     const paid = +req.body.paid;
     const account = req.body.account;
@@ -257,6 +297,7 @@ export class ClientPayment extends Model {
     });
   }
 
+  // return rsp: IPaymentResponse
   snappayPayOrder(req: Request, res: Response) {
     const paid = req.body.paid;
     const order = req.body.order;
@@ -310,26 +351,44 @@ export class ClientPayment extends Model {
       let ss = '';
       res1.on('data', (d) => { ss += d; });
       res1.on('end', (r: any) => {
-        if (ss) { // code, data, msg, total, psn, sign
+        if (ss) { // { code, data, msg, total, psn, sign }
           const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
 
           const eventLog = {
             accountId: accountId,
             type: 'snappay',
-            code: ret.code,
+            code: ret ? ret.code : '',
             decline_code: '',
-            message: ret.msg,
+            message: ret ? ret.message : '',
             created: moment().toISOString()
           }
-          self.eventLogModel.insertOne(eventLog).then(() => {
-            if (ret.msg === 'success') {
-              res.send(ret);
-            } else {
-              res.send(ret);
-            }
-          });
+          
+          const rsp: IPaymentResponse = {
+            status: (ret && ret.msg === 'success') ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+            code: ret ? ret.code : '',                    // stripe/snappay code
+            decline_code: '',    // stripe decline_code
+            msg: ret ? ret.msg : '',                  // stripe/snappay retrun message
+            chargeId: '',            // stripe { chargeId:x }
+            url: (ret.data && ret.data[0]) ? ret.data[0].h5pay_url : ''   // snappay data[0].h5pay_url
+          }
+
+          if (ret.msg === 'success') {
+            res.send(rsp);
+          } else {
+            self.eventLogModel.insertOne(eventLog).then(() => {
+              res.send(rsp);
+            });
+          }
         } else {
-          res.send({ msg: 'failed' });
+          const rsp: IPaymentResponse = {
+            status: ResponseStatus.FAIL,
+            code: 'UNKNOWN_ISSUE',  // snappay return code
+            decline_code: '',       // stripe decline_code
+            msg: 'UNKNOWN_ISSUE',   // snappay retrun message
+            chargeId: '',           // stripe { chargeId:x }
+            url: ''                 // for snappay data[0].h5pay_url
+          }
+          res.send(rsp);
         }
       });
     });
