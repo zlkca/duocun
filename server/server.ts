@@ -8,7 +8,7 @@ import fs from "fs";
 import Server from "socket.io";
 import { ObjectID } from "mongodb";
 
-import jwt from "jsonwebtoken";
+import jwt, {Algorithm} from "jsonwebtoken";
 import { Config } from "./config";
 //import * as SocketIOAuth from "socketio-auth";
 
@@ -105,7 +105,7 @@ function setupSocket(server: any) {
     socket.on('authentication', function (token: any) {
       const cfg = new Config();
       if (token) {
-        jwt.verify(token, cfg.JWT.SECRET, { algorithms: [cfg.JWT.ALGORITHM] }, (err, decoded: any) => {
+        jwt.verify(token, cfg.JWT.SECRET, { algorithms: [<Algorithm> cfg.JWT.ALGORITHM] }, (err, decoded: any) => {
           if (err) {
             console.log('socket authentication error:' + err);
           }
@@ -167,7 +167,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.get('/' + ROUTE_PREFIX + '/geocodeLocations', (req, res) => {
     utils.getGeocodeLocationList(req, res);
   });
-  
+
   app.get('/' + ROUTE_PREFIX + '/places', (req, res) => {
     utils.getPlaces(req, res);
   });
