@@ -9,6 +9,7 @@ import { ObjectID, Collection } from "mongodb";
 import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import { resolve } from "../../node_modules/@types/q";
+import {Specification} from "./specification";
 
 
 export enum ProductStatus {
@@ -55,17 +56,20 @@ export interface IProduct {
   merchant?: IMerchant;
   category?: ICategory;
   merchantAccount?: IAccount; // join account table from find()
+  specifications: Array<Specification> // lookup specification, localField is _id(of Product) and foreginField is productId(of Specification)
 }
 
 export class Product extends Model {
   categoryModel: Category;
   accountModel: Account;
   merchantModel: Merchant;
+  specificationModel: Specification;
   constructor(dbo: DB) {
     super(dbo, 'products');
     this.categoryModel = new Category(dbo);
     this.accountModel = new Account(dbo);
     this.merchantModel = new Merchant(dbo);
+    this.specificationModel = new Specification(dbo);
   }
 
   uploadPicture(req: Request, res: Response) {
@@ -90,19 +94,23 @@ export class Product extends Model {
   }
 
   joinFind(query: any): Promise<IProduct[]> {
+    // I highly wonder if this is the last resort
     return new Promise((resolve, reject) => {
       this.accountModel.find({}).then(accounts => {
         this.categoryModel.find({}).then(cs => {
           this.merchantModel.find({}).then(ms => { // fix me, arch design issue: merchant or account ???
-            this.find(query).then(ps => {
-              ps.map((p: IProduct) => {
-                p.category = cs.find((c: any) => c && c._id && p && p.categoryId && c._id.toString() === p.categoryId.toString());
-                p.merchant = ms.find((m: any) => m && m._id && p && p.merchantId && m._id.toString() === p.merchantId.toString());
-                const merchant: any = p.merchant;
-                p.merchantAccount = accounts.find((a: any) => a && merchant && a._id.toString() === merchant.accountId.toString());
+            this.specificationModel.find({}).then(specs => {
+              this.find(query).then(ps => {
+                ps.map((p: IProduct) => {
+                  p.category = cs.find((c: any) => c && c._id && p && p.categoryId && c._id.toString() === p.categoryId.toString());
+                  p.merchant = ms.find((m: any) => m && m._id && p && p.merchantId && m._id.toString() === p.merchantId.toString());
+                  const merchant: any = p.merchant;
+                  p.merchantAccount = accounts.find((a: any) => a && merchant && a._id.toString() === merchant.accountId.toString());
+                  p.specifications = specs.filter((s: any) => s && s._id && p && p._id && s.productId.toString() === p._id.toString());
+                });
+                resolve(ps);
               });
-              resolve(ps);
-            });
+            })
           });
         });
       });
