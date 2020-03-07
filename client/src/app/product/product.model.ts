@@ -1,6 +1,7 @@
 import { Picture } from '../picture.model';
 import { IMerchant } from '../merchant/merchant.model';
 import { IAccount } from '../account/account.model';
+import {ISpecification} from '../specification/specification.model';
 
 export enum ProductStatus {
   ACTIVE = 1,
@@ -31,6 +32,7 @@ export interface IProduct {
 
   merchant?: IMerchant; // join account table from find()
   merchantAccount?: IAccount; // join account table from find()
+  specifications?: Array<ISpecification>;
 }
 
 export class Product implements IProduct {
@@ -46,6 +48,7 @@ export class Product implements IProduct {
   dow?: string[];
   order?: number;
   status?: ProductStatus;
+  specifications?: Array<ISpecification>;
   constructor(data?: IProduct) {
     Object.assign(this, data);
   }
