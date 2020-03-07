@@ -1,3 +1,5 @@
+<app-product-specification [restaurant]="restaurant" *ngIf="restaurant && cart.selectedProduct; else productList;"></app-product-specification>
+<ng-template #productList>
 <div class="page">
   <div class="row title-block" *ngIf="restaurant">
     <div class="col-12 restaurant-name title-bg">{{restaurant.name}}</div>
@@ -17,6 +19,7 @@
     </div>
   </div>
 </div>
+</ng-template>
 
 <!-- <app-modal id="custom-modal-1">
   <h1>A Custom Modal!</h1>
