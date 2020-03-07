@@ -886,7 +886,7 @@ export class Order extends Model {
             toId: toId,
             toName: toName,
             type: 'credit',
-            actionCode: TransactionAction.PAY_BY_CASH.code, // 'client pay cash',
+            actionCode: TransactionAction.PAY_DRIVER_CASH.code, // 'client pay cash',
             amount: received,
             note: note
           };
@@ -968,7 +968,7 @@ export class Order extends Model {
         orderIds.push(orderId.toString());
       });
 
-      const tQuery = { orderId: { $in: orderIds }, actionCode: TransactionAction.PAY_BY_CASH.code };// 'client pay cash' };
+      const tQuery = { orderId: { $in: orderIds }, actionCode: TransactionAction.PAY_DRIVER_CASH.code };// 'client pay cash' };
       this.transactionModel.find(tQuery).then((ts: ITransaction[]) => {
 
       });
