@@ -3,7 +3,8 @@ $tablet: "(min-width: 768px) and (max-width: 1199px)";
 $desktop: "(min-width: 1200px)";
 $red: rgb(219, 68, 55);
 $green: rgb(24, 128, 56);
-
+$yellow: #ffc107;
+$light: #eeeeee;
 $head-h: 60px;
 $bottom-h: 60px;
 $tab-h: 48px;
@@ -20,7 +21,7 @@ $tab-h: 48px;
       img{
         width:100%;
         border-radius: 10px;
-      }    
+      }
     }
 
     .notify-badge{
@@ -34,7 +35,7 @@ $tab-h: 48px;
       padding:3px 5px 0px 5px;
       font-size: 12px;
     }
-  
+
     .new, .promotion{
       background-color: $red;
       color: white;
@@ -63,7 +64,13 @@ $tab-h: 48px;
 
         .button-col{
           padding: 0px 2px;
-
+          .select-specification {
+            float: right;
+            border: 1px solid $yellow;
+            border-radius: 7px;
+            color: $yellow;
+            padding: 4px;
+          }
           .quantity{
             height: 36px;
             width: 32px;
@@ -71,11 +78,11 @@ $tab-h: 48px;
             text-align: center;
             font-size: 18px;
             font-weight: 500;
-            padding: 0px;
+            padding: 0;
           }
           .add-btn, .remove-btn{
             float: right;
-            padding: 0px;
+            padding: 0;
           }
         }
       }
@@ -84,7 +91,7 @@ $tab-h: 48px;
 }
 
 .grid-item:hover{
-  background-color: #eee;
+  background-color: $light;
 }
 
 
