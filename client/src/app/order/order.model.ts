@@ -34,6 +34,21 @@ export const OrderType = {
   MOBILE_PLAN_MONTHLY: 'MM'
 };
 
+export interface IOrderItemSpecDetail {
+  name: string;
+  nameEN?: string;
+  price: number;
+  cost: number;
+  quantity: number;
+}
+
+export interface IOrderItemSpec {
+  specId: string;
+  specName: string;
+  type: 'single' | 'multiple';
+  list: Array<IOrderItemSpecDetail>;
+}
+
 export interface IOrder {
   _id?: string;
   code?: string;
@@ -129,6 +144,7 @@ export interface IOrderItem {
   price?: number;
   cost?: number;
   quantity: number;
+  spec?: Array<IOrderItemSpec>;
 }
 
 export class OrderItem implements IOrderItem {
@@ -136,6 +152,7 @@ export class OrderItem implements IOrderItem {
   quantity: number;
   price?: number;
   cost?: number;
+  spec?: Array<IOrderItemSpec>;
   constructor(data?: IOrderItem) {
     Object.assign(this, data);
   }
