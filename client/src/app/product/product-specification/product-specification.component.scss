@@ -1,0 +1,69 @@
+.page {
+  .title-row {
+    height: auto;
+    position: static;
+    margin-top: 0.5rem;
+    margin-bottom: .5rem;
+    padding: 0.5rem;
+    .product-name {
+      font-size: 1.125rem;
+    }
+    .navigation > a {
+      text-decoration: none;
+      & > svg {
+        width: 12px;
+        padding-bottom: 4px;
+      }
+    }
+    .quantity {
+      height: 38px;
+      width: calc(100% - 66px);
+      float: right;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 500;
+      padding: 0px 5px;
+    }
+    .add-btn {
+      float: right;
+    }
+    .remove-btn {
+      float: left;
+    }
+  }
+
+  .page-content {
+    .specification {
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eeeeee;
+      &:not(:first-of-type) {
+        padding-top: 10px;
+      }
+      .spec-name {
+        font-size: 1.125rem;
+      }
+      .spec-detail {
+        padding-top: .5rem;
+        padding-bottom: .5rem;
+      }
+    }
+    .custom-control-label::before {
+      background-color: white;
+      border: 1px solid #aaa;
+    }
+    .custom-radio .custom-control-input:checked ~ .custom-control-label::before,
+    .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before{
+      background-color: #ffc107;
+      border-color: #ffc107;
+    }
+  }
+  .page-footer {
+    .btn-grad-warning {
+      background-image: linear-gradient(to right, #FF8008 0%, #FFC837 51%, #FF8008 100%);
+      &:hover {
+        background-position: right center;
+      }
+      color: white;
+    }
+  }
+}
