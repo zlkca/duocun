@@ -152,6 +152,7 @@ export class Transaction extends Model {
             resolve();
           }
         });
+
       });
     });
   }
@@ -404,11 +405,21 @@ export class Transaction extends Model {
       actionCode = TransactionAction.ADD_CREDIT_BY_CASH.code;
     }
 
+
     const t: ITransaction = { fromId, fromName, toId, toName, amount, actionCode, note };
-    
+    const eventLog = {
+      accountId: fromId,
+      type: 'debug2',
+      code: 'fromId:' + t.fromId,
+      decline_code: 'toId' + t.toId,
+      message: t.fromName + ' to ' + t.toName + ' ' + t.actionCode,
+      created: moment().toISOString()
+    }
     return new Promise((resolve, reject) => {
-      this.doInsertOne(t).then((x) => {
-        resolve(x);
+      this.eventLogModel.insertOne(eventLog).then(() => {
+        this.doInsertOne(t).then((x) => {
+          resolve(x);
+        });
       });
     });
 
