@@ -61,14 +61,14 @@ export class Range extends Model {
             bInRange = true;
           }
         });
-        if(!bInRange){
-          this.areaModel.findOne({code:'DT'}).then(area => {
-            bInRange = this.areaModel.inPolygon(origin, area.coords);
-            resolve(bInRange);
-          });
-        }else{
+        // if(!bInRange){
+        //   this.areaModel.findOne({code:'DT'}).then(area => {
+        //     bInRange = this.areaModel.inPolygon(origin, area.coords);
+        //     resolve(bInRange);
+        //   });
+        // }else{
           resolve(bInRange);
-        }
+        // }
       });
     });
   }
