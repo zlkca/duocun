@@ -124,23 +124,34 @@ export class Transaction extends Model {
         const fromAccount: any = accounts.find(x => x._id.toString() === fromId);
         const toAccount: any = accounts.find(x => x._id.toString() === toId);
 
-        if (fromAccount && toAccount) {
-          tr.fromBalance = Math.round((fromAccount.balance + amount) * 100) / 100;
-          tr.toBalance = Math.round((toAccount.balance - amount) * 100) / 100;
-
-          this.insertOne(tr).then((x: IDbTransaction) => {
-            const updates = [
-              { query: { _id: fromId }, data: { balance: tr.fromBalance } },
-              { query: { _id: toId }, data: { balance: tr.toBalance } }
-            ];
-
-            this.accountModel.bulkUpdate(updates).then((r) => {
-              resolve(x);
-            });
-          });
-        } else {
-          resolve();
+        const eventLog = {
+          accountId: fromId,
+          type: 'debug',
+          code: 'fromId:' + tr.fromId,
+          decline_code: 'toId' + tr.toId,
+          message: tr.fromName + ' to ' + tr.toName + ' ' + tr.actionCode,
+          created: moment().toISOString()
         }
+        
+        this.eventLogModel.insertOne(eventLog).then(() => {
+          if (fromAccount && toAccount) {
+            tr.fromBalance = Math.round((fromAccount.balance + amount) * 100) / 100;
+            tr.toBalance = Math.round((toAccount.balance - amount) * 100) / 100;
+  
+            this.insertOne(tr).then((x: IDbTransaction) => {
+              const updates = [
+                { query: { _id: fromId }, data: { balance: tr.fromBalance } },
+                { query: { _id: toId }, data: { balance: tr.toBalance } }
+              ];
+  
+              this.accountModel.bulkUpdate(updates).then((r) => {
+                resolve(x);
+              });
+            });
+          } else {
+            resolve();
+          }
+        });
       });
     });
   }
@@ -394,24 +405,12 @@ export class Transaction extends Model {
     }
 
     const t: ITransaction = { fromId, fromName, toId, toName, amount, actionCode, note };
-
-    const eventLog = {
-      accountId: fromId,
-      type: 'debug',
-      code: '',
-      decline_code: '',
-      message: fromName + ' to ' + toName + ' ' + actionCode,
-      created: moment().toISOString()
-    }
     
     return new Promise((resolve, reject) => {
-      this.eventLogModel.insertOne(eventLog).then(() => {
-        this.doInsertOne(t).then((x) => {
-          resolve(x);
-        });
+      this.doInsertOne(t).then((x) => {
+        resolve(x);
       });
     });
-
 
   }
 
