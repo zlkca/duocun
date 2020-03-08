@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import moment from 'moment';
 import { IOrder, IOrderItem } from "./order";
+import { EventLog } from "./event-log";
 
 const CASH_BANK_ID = '5c9511bb0851a5096e044d10';
 const CASH_BANK_NAME = 'Cash Bank';
@@ -88,10 +89,11 @@ export interface IDbTransaction {
 
 export class Transaction extends Model {
   private accountModel: Account;
-
+  eventLogModel: EventLog;
   constructor(dbo: DB) {
     super(dbo, 'transactions');
     this.accountModel = new Account(dbo);
+    this.eventLogModel = new EventLog(dbo);
   }
 
   // use in admin, $in
@@ -393,11 +395,24 @@ export class Transaction extends Model {
 
     const t: ITransaction = { fromId, fromName, toId, toName, amount, actionCode, note };
 
+    const eventLog = {
+      accountId: fromId,
+      type: 'debug',
+      code: '',
+      decline_code: '',
+      message: fromName + ' to ' + toName + ' ' + actionCode,
+      created: moment().toISOString()
+    }
+    
     return new Promise((resolve, reject) => {
-      this.doInsertOne(t).then((x) => {
-        resolve(x);
+      this.eventLogModel.insertOne(eventLog).then(() => {
+        this.doInsertOne(t).then((x) => {
+          resolve(x);
+        });
       });
     });
+
+
   }
 
 
