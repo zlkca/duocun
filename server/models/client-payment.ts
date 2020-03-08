@@ -364,7 +364,7 @@ export class ClientPayment extends Model {
           }
           
           const rsp: IPaymentResponse = {
-            status: (ret && ret.msg === 'success') ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+            status: (ret && ret.msg === 'success') ? ResponseStatus.SUCCESS : ResponseStatus.FAIL,
             code: ret ? ret.code : '',                    // stripe/snappay code
             decline_code: '',    // stripe decline_code
             msg: ret ? ret.msg : '',                  // stripe/snappay retrun message

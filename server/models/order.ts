@@ -191,7 +191,7 @@ export class Order extends Model {
                     order.driver = driver;
                   }
                 } else {
-                  console.log(order._id);
+                  console.log('Order without driver id:' + order._id.toString());
                 }
 
                 if (order.items) {
