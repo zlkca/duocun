@@ -12,6 +12,18 @@
       </div>
       <div class="col-8 text-body" *ngIf="item">
         <div class="title-bg">{{item.product.name}}</div>
+        <div class="row order-spec-row" *ngIf="hasSpecification(item.product)">
+          <div class="col-12 m-0 p-0">
+            <small>{{getProductItemSingleDesc(item.product)}}</small>
+          </div>
+          <div class="col-12 m-0 p-0" *ngIf="{detail: getProductItemMultipleSpecs(item.product)} as detailInfo">
+            <div class="row" *ngFor="let info of detailInfo.detail; index as i">
+              <div class="col-12 m-0 p-0">
+                <small>{{info.name}} &times; {{info.quantity}}</small>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="row order-row">
           <div class="col-4 price-col">${{getProductItemPrice(item.product)}}</div>
           <div class="col-8 button-col">

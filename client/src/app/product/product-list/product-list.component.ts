@@ -5,7 +5,6 @@ import { environment } from '../../../environments/environment';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
 import { Product, IProduct, ProductStatus } from '../../product/product.model';
-
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
 import { IDelivery } from '../../delivery/delivery.model';
@@ -207,5 +206,41 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  getProductItemSingleDesc(product: IProduct): string {
+    const names = [];
+    const cartItem = this.cart.items.find(item => item.productId === product._id);
+    if (cartItem) {
+      const singleDetails = CartItem.singleSpecDetails(cartItem);
+      singleDetails.forEach(detail => {
+        let name = detail.name;
+        if (this.lang === 'en' && detail.nameEN) {
+          name = detail.nameEN;
+        }
+        names.push(name);
+      });
+    }
+    return names.join(' ');
+  }
+
+  getProductItemMultipleSpecs(product: IProduct): Array<{name: string, quantity: number}> {
+    const cartItem = this.cart.items.find(item => item.productId === product._id);
+    const details = [];
+    if (cartItem) {
+      const multipleDetails = CartItem.multipleSpecDetails(cartItem);
+
+      multipleDetails.forEach(detail => {
+        let localName = detail.name;
+        if (this.lang === 'en' && detail.nameEN) {
+          localName = detail.nameEN;
+        }
+        details.push({
+          name: localName,
+          quantity: detail.quantity
+        });
+      });
+    }
+
+    return details;
+  }
 }
 
