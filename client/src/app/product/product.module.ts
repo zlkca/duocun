@@ -10,6 +10,8 @@ import { WarningDialogComponent } from '../shared/warning-dialog/warning-dialog.
 import { CartModule } from '../cart/cart.module';
 import { MerchantService } from '../merchant/merchant.service';
 import { MallService } from '../mall/mall.service';
+import { ProductSpecConfirmModalComponent } from './product-spec-confirm-modal/product-spec-confirm-modal.component';
+import {MatDialogModule} from '@angular/material/dialog';
 
 @NgModule({
   imports: [
@@ -19,12 +21,14 @@ import { MallService } from '../mall/mall.service';
     ReactiveFormsModule,
     ProductRoutingModule,
     SharedModule,
-    CartModule
+    CartModule,
+    MatDialogModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
     ProductListComponent,
-    ProductSpecificationComponent
+    ProductSpecificationComponent,
+    ProductSpecConfirmModalComponent,
   ],
   exports: [
     ProductListComponent,
@@ -33,6 +37,6 @@ import { MallService } from '../mall/mall.service';
   ],
   providers: [
   ],
-  entryComponents: [WarningDialogComponent]
+  entryComponents: [WarningDialogComponent, ProductSpecConfirmModalComponent]
 })
 export class ProductModule { }
