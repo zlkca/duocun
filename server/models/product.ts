@@ -155,21 +155,21 @@ export class Product extends Model {
         const cat = cats.find(c => c.categoryId.toString() === p.categoryId.toString());
         const category: any = p.category;
         if (cat) {
-          cat.items.push({ product: p, quanlity: 0 });
+          cat.items.push({ product: p, quantity: 0 });
         } else {
           if (category) {
             cats.push({
               categoryId: p.categoryId,
               categoryName: lang === 'zh' ? category.name : category.nameEN,
               order: category.order,
-              items: [{ product: p, quanlity: 0 }]
+              items: [{ product: p, quantity: 0 }]
             });
           } else { // shouldn't happen
             cats.push({
               categoryId: p.categoryId,
               categoryName: lang === 'zh' ? category.name : category.nameEN,
               order: 0,
-              items: [{ product: p, quanlity: 0 }]
+              items: [{ product: p, quantity: 0 }]
             });
           }
         }
