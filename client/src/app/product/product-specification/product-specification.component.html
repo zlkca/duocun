@@ -134,7 +134,7 @@
     <div class="col-12 px-0 mb-3">
       <div class="row">
         <div class="col-6">
-          <strong class="spec-name">合计</strong>
+          <strong class="spec-name" i18n="@@Sum">Total</strong>
         </div>
         <div class="col-6 text-right">
           <span class="font-weight-bold">${{getCartItemSubtotal()}}</span>
@@ -142,7 +142,7 @@
       </div>
     </div>
     <div class="col-12">
-      <button class="btn btn-grad-warning w-100 font-weight-bold" (click)="addToCart()">选好了</button>
+      <button class="btn btn-grad-warning w-100 font-weight-bold" (click)="openDialog()" i18n="@@SaveSepcification">Confirm</button>
     </div>
   </div>
 </div>

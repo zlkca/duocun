@@ -9,8 +9,8 @@ import {CartActions} from '../../cart/cart.actions';
 import { IMerchant } from '../../merchant/merchant.model';
 import {environment} from '../../../environments/environment';
 import {Specification} from '../../specification/specification.model';
-
-
+import {MatDialog, MatDialogConfig} from '@angular/material';
+import {ProductSpecConfirmModalComponent} from '../product-spec-confirm-modal/product-spec-confirm-modal.component';
 @Component({
   selector: 'app-product-specification',
   templateUrl: './product-specification.component.html',
@@ -24,8 +24,10 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject();
   product: IProduct;
   lang = environment.language;
+  closeResult: string;
   constructor(
-    private rx: NgRedux<IAppState>
+    private rx: NgRedux<IAppState>,
+    private dialog: MatDialog
   ) {
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       this.cart = cart;
@@ -46,6 +48,40 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
     this.rx.dispatch({
       type: CartActions.CANCEL_SPEC_SELECT,
       payload: {}
+    });
+  }
+  openDialog() {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = true;
+    const dialogRef = this.dialog.open(ProductSpecConfirmModalComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(action => {
+      console.log(action);
+      switch (action) {
+        case 'save':
+          this.rx.dispatch({
+            type: CartActions.UPDATE_QUANTITY,
+            payload: { items: [this.cartItem]}
+          });
+          this.rx.dispatch({
+            type: CartActions.CANCEL_SPEC_SELECT,
+            payload: {}
+          });
+          break;
+        case 'clear':
+          this.rx.dispatch({
+            type: CartActions.REMOVE_FROM_CART,
+            payload: {
+              items: [this.cartItem]
+            }
+          });
+          this.rx.dispatch({
+            type: CartActions.CANCEL_SPEC_SELECT,
+            payload: {}
+          });
+          break;
+        default:
+          break;
+      }
     });
   }
   upCartItemQuantity() {
@@ -72,13 +108,14 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
       return cartItem.productId === this.product._id;
     });
     if (item) {
-      return item;
+      // returns copy of the item
+      return Object.assign({}, item);
     } else {
       const defaultItem = {
         productId: this.product._id,
         productName: this.product.name,
         merchantId: this.product.merchantId,
-        merchantName: this.lang === 'en' ? this.restaurant.nameEN: this.restaurant.name,
+        merchantName: this.lang === 'en' ? this.restaurant.nameEN : this.restaurant.name,
         price: this.product.price,
         cost: this.product.cost,
         quantity: 1,
@@ -229,7 +266,6 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
     return CartItem.calcSubtotal(this.cartItem).toFixed(2);
   }
   addToCart(): void {
-    const confirmMsg = this.lang === 'en' ? 'Do you want to save selected specification?' : '您需要保留已选好的规格和配菜么？';
     this.rx.dispatch({
       type: CartActions.UPDATE_QUANTITY,
       payload: { items: [this.cartItem]}
