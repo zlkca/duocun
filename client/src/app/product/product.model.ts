@@ -1,7 +1,7 @@
 import { Picture } from '../picture.model';
 import { IMerchant } from '../merchant/merchant.model';
 import { IAccount } from '../account/account.model';
-import {ISpecification} from '../specification/specification.model';
+import {ISpecification, Specification} from '../specification/specification.model';
 
 export enum ProductStatus {
   ACTIVE = 1,
@@ -51,6 +51,40 @@ export class Product implements IProduct {
   specifications?: Array<ISpecification>;
   constructor(data?: IProduct) {
     Object.assign(this, data);
+  }
+  static calcPrice(p: IProduct): number {
+    let price = p.price;
+    p.specifications.forEach(spec => {
+      const defaultDetail = Specification.getDefaultDetail(spec);
+      if (defaultDetail) {
+        price += defaultDetail.price;
+      }
+    });
+    return price;
+  }
+  static calcCost(p: IProduct): number {
+    let cost = p.cost;
+    p.specifications.forEach(spec => {
+      const defaultDetail = Specification.getDefaultDetail(spec);
+      if (defaultDetail) {
+        cost += defaultDetail.cost;
+      }
+    });
+    return cost;
+  }
+  static singleSpec(p: IProduct): Array<ISpecification> {
+    if (!p.specifications) {
+      return [];
+    } else {
+      return p.specifications.filter(spec => spec.type === 'single');
+    }
+  }
+  static multipleSpec(p: IProduct): Array<ISpecification> {
+    if (!p.specifications) {
+      return [];
+    } else {
+      return p.specifications.filter(spec => spec.type === 'multiple');
+    }
   }
 }
 

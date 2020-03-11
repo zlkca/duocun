@@ -1,8 +1,9 @@
-export interface ISepcificationList {
+export interface ISpecificationDetail {
   name: string;
   nameEN?: string;
   price: number;
   cost: number;
+  default?: boolean;
 }
 
 export interface ISpecification {
@@ -12,7 +13,7 @@ export interface ISpecification {
   type: 'single' | 'multiple';
   name: string;
   nameEN?: string;
-  list: Array<ISepcificationList>;
+  list: Array<ISpecificationDetail>;
 }
 
 export class Specification implements ISpecification {
@@ -22,8 +23,20 @@ export class Specification implements ISpecification {
   type: 'single' | 'multiple';
   name: string;
   nameEN?: string;
-  list: Array<ISepcificationList>;
+  list: Array<ISpecificationDetail>;
   constructor(data: ISpecification) {
     Object.assign(this, data);
   }
+
+  static getDefaultDetail(spec: ISpecification): ISpecificationDetail {
+    const defaultDetail = spec.list.find(detail => detail.default);
+    if (defaultDetail) {
+      return defaultDetail;
+    }
+    if (spec.type === 'single') {
+      return spec.list[0];
+    }
+    return null;
+  }
+
 }
