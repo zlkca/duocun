@@ -1764,6 +1764,30 @@
         <source>Edit</source>
         <target>规格变更</target>
       </trans-unit>
+      <trans-unit id="Sum" datatype="html">
+        <source>Total</source>
+        <target>合计</target>
+      </trans-unit>
+      <trans-unit id="SaveSepcification" datatype="html">
+        <source>Confirm</source>
+        <target>选好了</target>
+      </trans-unit>
+      <trans-unit id="ModalConfirmTitle" datatype="html">
+        <source>Are you sure?</source>
+        <target>提示</target>
+      </trans-unit>
+      <trans-unit id="ModalConfirmSpecificationBody" datatype="html">
+        <source>Do you want to save selected specification?</source>
+        <target>您需要保留已选好的规格和配菜么？</target>
+      </trans-unit>
+      <trans-unit id="ModalConfirmSpecificationOK" datatype="html">
+        <source>Save</source>
+        <target>保留</target>
+      </trans-unit>
+      <trans-unit id="ModalConfirmSpecificationClear" datatype="html">
+        <source>Cancel</source>
+        <target>关闭</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
