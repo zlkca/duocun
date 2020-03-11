@@ -41,15 +41,37 @@
       </div>
 
       <div class="row order-detail">
-        <div class="col-7 items-col" *ngIf="order.type!=='MM'">
-          <div *ngFor="let item of order.items" class="text-sm row item-row">
-            <div class="col-7 product-col">{{item.product.name}}</div>
-            <div class="col-2 quantity-col">x {{item.quantity}}</div>
-            <div class="col-3 price-col">${{item.product.price | number : '1.2-2'}}</div>
+        <div class="col-7">
+          <div class="row">
+            <div class="col-12 items-col" *ngIf="order.type!=='MM'">
+              <div *ngFor="let item of order.items" class="text-sm row item-row">
+                <div class="col-7 product-col">
+                  <div class="row">
+                    <div class="col-12 m-0 p-0">
+                      {{item.product.name}}
+                    </div>
+                  </div>
+                  <div class="row mt-1 pl-2" *ngIf="item.spec">
+                    <div class="col-12 m-0 p-0">
+                      <small>{{getOrderItemSingleSpecDesc(item)}}</small>
+                    </div>
+                  </div>
+                  <div class="row mt-1 pl-2" *ngIf="{data: getOrderItemMultipleDetails(item)} as multiple">
+                    <div class="col-12 m-0 p-0" *ngFor="let mInfo of multiple.data">
+                      <small>{{mInfo.name}} &times; {{mInfo.quantity}}</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-2 quantity-col">x {{item.quantity}}</div>
+                <div class="col-3 price-col">${{getOrderItemPrice(item) | number : '1.2-2'}}</div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="col-7 items-col">
-          <div class="description-col">{{order.description}}</div>
+          <div class="row">
+            <div class="col-12 items-col">
+              <div class="description-col">{{order.description}}</div>
+            </div>
+          </div>
         </div>
         <div class="col-5 text-sm total-col" *ngIf="order.total">
           <div class="row">

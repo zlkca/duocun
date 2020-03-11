@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
-import { IOrder, OrderType, OrderStatus } from '../order.model';
+import {IOrder, OrderType, OrderStatus, OrderItem} from '../order.model';
 // import { SocketService } from '../../shared/socket.service';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
@@ -230,5 +230,13 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   getAddress(location: ILocation) {
     return this.locationSvc.getAddrString(location);
   }
-
+  getOrderItemPrice(orderItem) {
+    return OrderItem.priceIncSpec(orderItem);
+  }
+  getOrderItemSingleSpecDesc(orderItem) {
+    return OrderItem.singleSpecDesc(orderItem, this.lang);
+  }
+  getOrderItemMultipleDetails(orderItem) {
+    return OrderItem.multipleSpecDesc(orderItem, this.lang);
+  }
 }
