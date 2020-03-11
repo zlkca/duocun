@@ -3,7 +3,7 @@ import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
-import { ICart, ICartItem } from '../../cart/cart.model';
+import {CartItem, ICart, ICartItem} from '../../cart/cart.model';
 import { IMall } from '../../mall/mall.model';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
@@ -255,18 +255,19 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   getSummary(cart: ICart, merchant: IMerchant, overRangeCharge: number, groupDiscount: number) {
     let price = 0;
     let cost = 0;
-
+    const taxRate = 13 / 100;
     const items: ICartItem[] = [];
     if (cart.items && cart.items.length > 0) {
       cart.items.map(x => {
-        price += x.price * x.quantity;
-        cost += x.cost * x.quantity;
+        const cartItemData = CartItem.priceAndCost(x);
+        price += cartItemData.price * x.quantity;
+        cost += cartItemData.cost * x.quantity;
         items.push(x);
       });
     }
 
     const subTotal = price + merchant.deliveryCost;
-    const tax = Math.ceil(subTotal * 13) / 100;
+    const tax = Math.ceil(subTotal * taxRate);
     const tips = 0;
     const overRangeTotal = Math.round(overRangeCharge * 100) / 100;
     return {
@@ -291,7 +292,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         productId: it.productId,
         quantity: it.quantity,
         price: it.price,
-        cost: it.cost
+        cost: it.cost,
+        spec: it.spec
       };
     });
 
@@ -539,5 +541,31 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   getAbs(n) {
     return Math.abs(n);
+  }
+
+  hasSpecification(cartItem): boolean {
+    return !!cartItem['spec'];
+  }
+
+  cartItemPrice(cartItem): number {
+    return CartItem.calcPrice(cartItem);
+  }
+  cartItemSingleDesc(cartItem): string {
+    return CartItem.singleSpecDesc(cartItem, this.lang);
+  }
+  cartItemMultipleSpec(cartItem): Array<{name: string, quantity: number}> {
+    const details = [];
+    const multipleDetails = CartItem.multipleSpecDetails(cartItem);
+    multipleDetails.forEach(detail => {
+      let localName = detail.name;
+      if (this.lang === 'en' && detail.nameEN) {
+        localName = detail.nameEN;
+      }
+      details.push({
+        name: localName,
+        quantity: detail.quantity
+      });
+    });
+    return details;
   }
 }

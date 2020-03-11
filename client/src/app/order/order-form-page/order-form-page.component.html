@@ -36,10 +36,30 @@
 
     <div class="row order-detail" *ngIf="cart">
       <div class="col-7 items-col">
-        <div *ngFor="let item of cart.items" class="text-sm row item-row">
-          <div class="col-8 product-col">{{item.productName}}</div>
-          <div class="col-2 quantity-col">x{{item.quantity}}</div>
-          <div class="col-2 price-col">${{item.price | number : '1.2-2'}}</div>
+        <div *ngFor="let item of cart.items" class="text-sm row item-row mb-1">
+          <div class="col-8 product-col">
+            <div class="row">
+              <div class="col-12 m-0 p-0">
+                {{item.productName}}
+              </div>
+            </div>
+            <div class="row mt-1 pl-2" *ngIf="hasSpecification(item)">
+              <div class="col-12 m-0 p-0">
+                <small>{{cartItemSingleDesc(item)}}</small>
+              </div>
+            </div>
+            <div class="row mt-1 pl-2" *ngIf="{data: cartItemMultipleSpec(item)} as multiple">
+              <div class="col-12 m-0 p-0" *ngFor="let mInfo of multiple.data">
+                <small>{{mInfo.name}} &times; {{mInfo.quantity}}</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-2 quantity-col">
+            <span>&times; {{item.quantity}}</span>
+          </div>
+          <div class="col-2 price-col">
+            <span>${{cartItemPrice(item) * item.quantity | number : '1.2-2'}}</span>
+          </div>
         </div>
       </div>
       <div class="col-5 text-sm total-col" *ngIf="charge && merchant">
