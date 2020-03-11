@@ -19,7 +19,7 @@
       </div>
       <div class="icon-text" i18n="@@Order">Order</div>
     </div>
-    
+
     <!-- <div class="menu" *ngIf="account && account.type !== 'super'" (click)="toCart()">
       <div class="icon">
         <img src="assets/outline-shopping_cart-24px.svg" alt="cart" />
@@ -37,7 +37,7 @@
       <div class="icon-text" i18n="@@Account">Account</div>
     </div>
   </div>
-  
+
   <div class="copyright">
       <a href="#">Duocun Inc.</a> &#169;<span id="copyright-year">{{year}}</span>
       <!-- <a href="index-5.html">Privacy Policy</a> -->
@@ -67,14 +67,14 @@
   </div>
 
   <div class="row restaurant-btn-row" *ngIf="page === 'restaurant-detail'">
-    <div class="cart-col">
-      <!-- <span class="fa-stack fa-2x has-badge" [attr.data-count]="quantity"> -->
-      <span>
-        <span class="cart-quantity">{{quantity}}</span>
-        <!-- <i class="fa fa-shopping-cart fa-3x"></i> -->
-        <img class="img-shopping-cart" src="assets/outline-shopping_cart-24px.svg" alt="cart" height="40px" width="40px" />
-      </span>
-    </div>
+<!--    <div class="cart-col">-->
+<!--      &lt;!&ndash; <span class="fa-stack fa-2x has-badge" [attr.data-count]="quantity"> &ndash;&gt;-->
+<!--      <span>-->
+<!--        <span class="cart-quantity">{{quantity}}</span>-->
+<!--        &lt;!&ndash; <i class="fa fa-shopping-cart fa-3x"></i> &ndash;&gt;-->
+<!--        <img class="img-shopping-cart" src="assets/outline-shopping_cart-24px.svg" alt="cart" height="40px" width="40px" />-->
+<!--      </span>-->
+<!--    </div>-->
     <div class="title-md amount-col">
       ${{productTotal | number : '1.2-2'}}
     </div>
