@@ -15,23 +15,35 @@
         <div class="row order-row">
           <div class="col-4 price-col">${{getProductItemPrice(item.product)}}</div>
           <div class="col-8 button-col">
-            <div class="select-specification" (click)="selectProductForSpec(item.product)" *ngIf="hasSpecification(item.product); else addToCartButton">
-              选規格
+            <div class="row m-0 p-0 justify-content-end"
+                 *ngIf="hasSpecification(item.product); else cartQuantityArea">
+              <div class="col-12 m-0 p-0 select-specification"  (click)="onSelect(item.product)">
+                <span i18n="@@SelectSpecification" *ngIf="!item.quantity">Select</span>
+                <span i18n="@@EditSpecification" *ngIf="item.quantity > 0">Edit</span>
+              </div>
+              <div class="col-12 mt-2 p-0" *ngIf="item.quantity > 0">
+                <ng-template [ngTemplateOutlet]="cartQuantityArea"></ng-template>
+              </div>
             </div>
-            <ng-template #addToCartButton>
+            <ng-template #cartQuantityArea>
               <div class="add-btn" (click)="addToCart(item.product)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                  <path fill="none" d="M0 0h24v24H0V0z" />
-                  <path fill="#0F9D58" d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path fill="none" d="M0 0h24v24H0V0z"/>
+                  <path fill="#0F9D58"
+                        d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
                   />
                 </svg>
               </div>
               <!-- <input class="quantity" type="number" (change)="onQuantityChanged($event, item)" /> -->
-              <div class="quantity" *ngIf="item.quantity>0">{{item.quantity}}</div>
-              <div class="remove-btn" *ngIf="item.quantity>0" (click)="removeFromCart(item.product)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                  <path fill="none" d="M0 0h24v24H0V0z" />
-                  <path fill="#F4B400" d="M7 11v2h10v-2H7zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+              <div class="quantity">
+                <input class="form-control" type="number" value="{{item.quantity}}"
+                       (input)="onQuantityChanged($event.target.value, item.product)"/>
+              </div>
+              <div class="remove-btn" (click)="item.quantity > 0 && removeFromCart(item.product)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path fill="none" d="M0 0h24v24H0V0z"/>
+                  <path fill="#F4B400"
+                        d="M7 11v2h10v-2H7zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                 </svg>
               </div>
             </ng-template>

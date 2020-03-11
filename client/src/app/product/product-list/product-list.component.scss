@@ -48,7 +48,7 @@ $tab-h: 48px;
       padding:0px 0px 0px 10px;
 
       .title-bg{
-        font-size:18px;
+        font-size:1rem;
         font-weight:500;
       }
 
@@ -57,28 +57,36 @@ $tab-h: 48px;
         .price-col{
           padding-left: 0px;
           padding-right: 0px;
-          font-size:18px;
+          font-size:1rem;
           font-weight:400;
           color: $red;
+          line-height: 34px;
         }
 
         .button-col{
-          padding: 0px 2px;
+          padding: 3px 2px;
           .select-specification {
-            float: right;
             border: 1px solid $yellow;
             border-radius: 7px;
             color: $yellow;
             padding: 4px;
+            max-width: 72px;
+            text-align: center;
           }
           .quantity{
-            height: 36px;
-            width: 32px;
+            height: 28px;
+            width: calc(100% - 56px);
+            min-width: 28px;
+            max-width: 120px;
             float: right;
             text-align: center;
-            font-size: 18px;
+            font-size: 1rem;
             font-weight: 500;
-            padding: 0;
+            padding: 0 3px;
+            input.form-control {
+              height: 28px!important;
+              text-align: center!important;
+            }
           }
           .add-btn, .remove-btn{
             float: right;
