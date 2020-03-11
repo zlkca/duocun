@@ -23,6 +23,9 @@
       font-size: 20px;
       font-weight: 500;
       padding: 0px 5px;
+      input.form-control {
+        height: 32px;
+      }
     }
     .add-btn {
       float: right;
@@ -64,6 +67,34 @@
         background-position: right center;
       }
       color: white;
+    }
+  }
+  .form-control {
+    text-align: center!important;
+  }
+  .price-col {
+    line-height: 34px;
+  }
+  .button-col{
+    padding: 3px 2px;
+    .quantity{
+      height: 28px;
+      width: calc(100% - 56px);
+      min-width: 28px;
+      max-width: 72px;
+      float: right;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 500;
+      padding: 0 3px;
+      input.form-control {
+        height: 28px!important;
+        text-align: center!important;
+      }
+    }
+    .add-btn, .remove-btn{
+      float: right;
+      padding: 0;
     }
   }
 }

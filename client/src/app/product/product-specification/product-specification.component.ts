@@ -1,14 +1,15 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {IProduct} from '../product.model';
+import {IProduct, Product} from '../product.model';
 import {NgRedux} from '@angular-redux/store';
 import {IAppState} from '../../store';
-import {ICart, ICartItem, ICartItemSpec} from '../../cart/cart.model';
+import {CartItem, ICart, ICartItem, ICartItemSpec} from '../../cart/cart.model';
 import {takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {CartActions} from '../../cart/cart.actions';
 import { IMerchant } from '../../merchant/merchant.model';
-import {getCartItemPrice} from '../../cart/cart.reducer';
 import {environment} from '../../../environments/environment';
+import {Specification} from '../../specification/specification.model';
+
 
 @Component({
   selector: 'app-product-specification',
@@ -53,32 +54,57 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
   downCartItemQuantity() {
     this.cartItem.quantity = this.cartItem.quantity > 0 ? this.cartItem.quantity - 1 : 0;
   }
-  singleSepcs(): Array<any> {
-    if (!this.product.specifications) {
-      return [];
+  setCartItemQuantity(val: any) {
+    let quantity = parseInt(val, 10);
+    if (isNaN(quantity)) {
+      quantity = 0;
     }
-    return this.product.specifications.filter(spec => spec.type === 'single');
+    this.cartItem.quantity = quantity;
+  }
+  singleSpecs(): Array<any> {
+    return Product.singleSpec(this.product);
   }
   multipleSpecs(): Array<any> {
-    if (!this.product.specifications) {
-      return [];
-    }
-    return this.product.specifications.filter(spec => spec.type === 'multiple');
+    return Product.multipleSpec(this.product);
   }
   getCartItemForSpec(cart: ICart): ICartItem {
     const item = cart.items.find(cartItem => {
       return cartItem.productId === this.product._id;
     });
-    return item ? item : {
-      productId: this.product._id,
-      productName: this.product.name,
-      merchantId: this.product.merchantId,
-      merchantName: this.lang === 'en' ? this.restaurant.nameEN: this.restaurant.name,
-      price: this.product.price,
-      cost: this.product.cost,
-      quantity: 0,
-      spec: []
-    };
+    if (item) {
+      return item;
+    } else {
+      const defaultItem = {
+        productId: this.product._id,
+        productName: this.product.name,
+        merchantId: this.product.merchantId,
+        merchantName: this.lang === 'en' ? this.restaurant.nameEN: this.restaurant.name,
+        price: this.product.price,
+        cost: this.product.cost,
+        quantity: 1,
+        spec: []
+      };
+      // set default specifications
+      this.product.specifications.forEach(spec => {
+        const defaultDetail = Specification.getDefaultDetail(spec);
+        if (defaultDetail) {
+          defaultItem.spec.push({
+            specId: spec._id,
+            specName: spec.name,
+            type: spec.type,
+            list: [{
+              name: defaultDetail.name,
+              nameEN: defaultDetail.nameEN,
+              price: defaultDetail.price,
+              cost: defaultDetail.cost,
+              quantity: 1
+            }]
+          });
+        }
+      });
+      return defaultItem;
+    }
+
   }
   getSpecDetailQuantity(spec, specDetail): number {
     if (!this.cartItem || !this.cartItem.spec) {
@@ -111,6 +137,10 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
     }
     if (!this.cartItem.spec) {
       this.cartItem.spec = [];
+    }
+    quantity = parseInt(quantity, 10);
+    if (isNaN(quantity)) {
+      quantity = 0;
     }
     // find cart item spec index by specification id
     const specIndex = this.cartItem.spec.findIndex(cartItemSpec => {
@@ -195,9 +225,11 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
       }
   }
   getCartItemSubtotal(): string {
-    return (getCartItemPrice(this.cartItem) * this.cartItem.quantity).toFixed(2);
+
+    return CartItem.calcSubtotal(this.cartItem).toFixed(2);
   }
   addToCart(): void {
+    const confirmMsg = this.lang === 'en' ? 'Do you want to save selected specification?' : '您需要保留已选好的规格和配菜么？';
     this.rx.dispatch({
       type: CartActions.UPDATE_QUANTITY,
       payload: { items: [this.cartItem]}
