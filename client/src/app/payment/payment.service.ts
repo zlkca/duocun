@@ -6,6 +6,7 @@ import { Observable } from '../../../node_modules/rxjs';
 import { IOrder, PaymentError } from '../order/order.model';
 import { environment } from '../../environments/environment';
 import { IAccount } from '../account/account.model';
+import { IPaymentResponse } from '../transaction/transaction.model';
 
 declare var Stripe;
 @Injectable({
@@ -26,57 +27,49 @@ export class PaymentService extends EntityService {
     return this.doGet(url);
   }
 
-
-  stripeAddCredit(token: any, account: IAccount, paid: number, note: string): Observable<any> {
+  stripeAddCredit(token: any, account: IAccount, paid: number, note: string): Observable<IPaymentResponse> {
     const url = this.url + '/stripeAddCredit';
     return this.doPost(url, { token: token, paid: paid, accountId: account._id, accountName: account.username, note: note });
   }
 
-  stripePayOrder(orderId: string, paid: number, token: any): Observable<any> {
+  stripePayOrder(orderId: string, paid: number, token: any): Observable<IPaymentResponse> {
     const url = this.url + '/stripePayOrder';
     return this.doPost(url, { token: token, orderId: orderId, paid: paid });
   }
 
+  snappayAddCredit(account: IAccount, paid: number, paymentMethod: string, note: string): Observable<IPaymentResponse> {
+    const url = this.url + '/snappayAddCredit';
+    return this.doPost(url, { account: account, paid: paid, paymentMethod: paymentMethod, note: note });
+  }
+
+  snappayPayOrder( order: IOrder, paid: number): Observable<IPaymentResponse> {
+    const url = this.url + '/snappayPayOrder';
+    return this.doPost(url, { order: order, paid: paid });
+  }
+
+  // deprecated
   stripeCreateCustomer( tokenId: string, clientId: string, clientName: string, clientPhoneNumber: string): Observable<any> {
     const url = this.url + '/stripeCreateCustomer';
     return this.doPost(url, {source: tokenId, clientId: clientId, clientName: clientName, clientPhoneNumber: clientPhoneNumber});
   }
 
-
-  snappayAddCredit(account: IAccount, paid: number, paymentMethod: string, note: string): Observable<any> {
-    const url = this.url + '/snappayAddCredit';
-    return this.doPost(url, { account: account, paid: paid, paymentMethod: paymentMethod, note: note });
-  }
-
-  // description: b.merchantName,
-  // method: 'pay.webpay',
-  // merchant_no: this.cfg.SNAPPAY.MERCHANT_ID,
-  // out_order_no: b.orderId,
-  // payment_method: b.paymentMethod, // ALIPAY, UNIONPAY
-  // trans_amount: b.amount
-  snappayPayOrder( order: IOrder, paid: number): Observable<any> {
-    const url = this.url + '/snappayPayOrder';
-    return this.doPost(url, { order: order, paid: paid });
-  }
-
+  // deprecated
   refund(chargeId: string): Observable<any> {
     const url = this.url + '/refund';
     return this.doPost(url, {chargeId: chargeId});
   }
 
-
-
+  // deprecated
   addGroupDiscount( clientId: string, merchantId: string, dateType: string, address: string ): Observable<any> {
     const url = this.url + '/addGroupDiscount';
     return this.doPost(url, { clientId: clientId, merchantId: merchantId, dateType: dateType, address: address });
   }
 
+  // deprecated
   removeGroupDiscount( orderId: string ): Observable<any> {
     const url = this.url + '/removeGroupDiscount';
     return this.doPost(url, { orderId: orderId });
   }
-
-
 
   initStripe(htmlCardId, htmlErrorId) {
     const stripe = Stripe(environment.STRIPE.API_KEY);
@@ -119,6 +112,7 @@ export class PaymentService extends EntityService {
     return {stripe: stripe, card: card};
   }
 
+  // fix me
   vaildateCardPay(stripe: any, card: any, htmlErrorId: string) {
     return new Promise((resolve, reject) => {
       if (card._empty) {

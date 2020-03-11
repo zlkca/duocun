@@ -6,7 +6,10 @@ $secondary-bg: #eee; // rgb(156, 166, 167);
   border-right: 1px solid $secondary-bg;
   padding: 15px;
 }
+
 .active{
-  border-left: 5px solid $primary-bg;
-  color: #333;
+  // border-left: 5px solid $primary-bg;
+  // color: #333;
+  background: $primary-bg;
+  color: white;
 }

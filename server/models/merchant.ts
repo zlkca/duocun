@@ -308,23 +308,23 @@ export class Merchant extends Model {
           const dow: number = local.day();
           this.mallModel.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
             this.joinFind(query).then((ms: IDbMerchant[]) => {
-              if (area.code === 'DT') {
-                const merchants: IMerchant[] = [];
+              // if (area.code === 'DT') {
+              //   const merchants: IMerchant[] = [];
 
-                ms.map((r: IDbMerchant) => {
-                  const mall: any = r.mall;
-                  const scheduledMallId = scheduledMallIds.find((mId: any) => mId.toString() === mall._id.toString());
-                  const merchant = this.toBasicRspObject(r);
+              //   ms.map((r: IDbMerchant) => {
+              //     const mall: any = r.mall;
+              //     const scheduledMallId = scheduledMallIds.find((mId: any) => mId.toString() === mall._id.toString());
+              //     const merchant = this.toBasicRspObject(r);
 
-                  merchant.onSchedule = scheduledMallId ? true : false;
-                  merchant.distance = area.distance; // km
-                  merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
-                  merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
-                  merchant.isClosed = this.isClosed(local, r.closed, r.dow);
-                  merchants.push(merchant);
-                });
-                resolve(merchants);
-              } else {
+              //     merchant.onSchedule = scheduledMallId ? true : false;
+              //     merchant.distance = area.distance; // km
+              //     merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
+              //     merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
+              //     merchant.isClosed = this.isClosed(local, r.closed, r.dow);
+              //     merchants.push(merchant);
+              //   });
+              //   resolve(merchants);
+              // } else {
                 this.mallModel.getRoadDistanceToMalls(origin).then((ds: IDistance[]) => {
                   const merchants: IMerchant[] = [];
 
@@ -343,7 +343,7 @@ export class Merchant extends Model {
                   });
                   resolve(merchants);
                 });
-              }
+              // }
             });
           });
         });

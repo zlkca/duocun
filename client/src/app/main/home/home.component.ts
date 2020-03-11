@@ -269,7 +269,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.location = origin; // order matters
           resolve();
         } else {
-          this.areaSvc.find({ code: 'DT' }).pipe(takeUntil(this.onDestroy$)).subscribe((areas: any[]) => {
+          // this.areaSvc.find({ code: 'DT' }).pipe(takeUntil(this.onDestroy$)).subscribe((areas: any[]) => {
             const farNorth = { lat: 44.2653618, lng: -79.4191007 };
 
             self.mapZoom = 9;
@@ -277,10 +277,10 @@ export class HomeComponent implements OnInit, OnDestroy {
               lat: (origin.lat + farNorth.lat) / 2,
               lng: (origin.lng + farNorth.lng) / 2
             };
-            self.areas = areas;
+            // self.areas = areas;
             self.location = origin; // order matters
             resolve();
-          });
+          // });
         }
       });
     });

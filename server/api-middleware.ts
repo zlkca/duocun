@@ -15,8 +15,9 @@ export class ApiMiddleWare {
         || req.path === '/api/Accounts/sendVerifyMsg' || req.path === '/api/Accounts/loginByPhone'
         || req.path === '/api/Accounts/verifyCode' || req.path === '/api/Accounts/sendVerifyMsg'
         || (req.method === 'GET' && req.path.indexOf('/api/Accounts') !== -1)
-        || req.path.indexOf('/api/Locations/Places/') !== -1
-        || req.path.indexOf('/api/Locations/Geocodes/') !== -1
+        || req.path.indexOf('/api/Locations') !== -1
+        // || req.path.indexOf('/api/Locations/Places/') !== -1
+        // || req.path.indexOf('/api/Locations/Geocodes/') !== -1
         || req.path === '/api/Restaurants' || req.path === '/api/Restaurants/qFind' || req.path === '/api/Restaurants/load'
         || req.path === '/api/Products' || req.path === '/api/Products/qFind' || req.path === '/api/Products/categorize'
         || req.path === '/api/Ranges' || req.path === '/api/Ranges/overRange' || req.path === '/api/Ranges/inRange'

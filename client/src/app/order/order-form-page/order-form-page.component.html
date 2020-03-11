@@ -141,10 +141,10 @@
       </div>
       <div *ngIf="charge && balance >= charge.total" i18n="@@PayByDeposit">Pay by my deposit</div>
 
-      <app-payment-select [selected]="paymentMethod" (select)="onSelectPaymentMethod($event)"></app-payment-select>
+      <app-payment-select *ngIf="balance < charge.total" [selected]="paymentMethod" (select)="onSelectPaymentMethod($event)"></app-payment-select>
 
       <div class="cash-note" *ngIf="paymentMethod==='cash'" i18n="@@PayCashNote">*Pay in cash upon delivery</div>
-      <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card' && balance < charge.total">
+      <form id="payment-form" onsubmit="return false;" *ngIf="paymentMethod==='card'">
         <div class="form-row" >
           <label for="card-element" class="label-sm" i18n="@@CreditCard">Credit/Debit Card:</label>
           <div id="card-element">

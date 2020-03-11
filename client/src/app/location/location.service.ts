@@ -323,6 +323,5 @@ export class LocationService extends EntityService {
       }
       return options;
     }
-
   }
 }

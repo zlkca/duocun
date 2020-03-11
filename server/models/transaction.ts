@@ -5,11 +5,47 @@ import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import moment from 'moment';
 import { IOrder, IOrderItem } from "./order";
+import { EventLog } from "./event-log";
 
-const CASH_ID = '5c9511bb0851a5096e044d10';
-const CASH_NAME = 'Cash';
-const BANK_ID = '5c95019e0851a5096e044d0c';
-const BANK_NAME = 'TD Bank';
+const CASH_BANK_ID = '5c9511bb0851a5096e044d10';
+const CASH_BANK_NAME = 'Cash Bank';
+const TD_BANK_ID = '5c95019e0851a5096e044d0c';
+const TD_BANK_NAME = 'TD Bank';
+const SNAPPAY_BANK_ID = '5e60139810cc1f34dea85349';
+const SNAPPAY_BANK_NAME = 'SnapPay Bank';
+
+
+
+export const TransactionAction = {
+  PAY_DRIVER_CASH: { code: 'PDCH', name: 'client pay driver cash' }, // 'client pay cash', 'pay cash'
+  PAY_BY_CARD: { code: 'PC', name: 'client pay by card' }, // 'pay by card'
+  PAY_BY_WECHAT: { code: 'PW', name: 'client pay by wechat' }, // 'pay by wechat'
+
+  PAY_MERCHANT_CASH: { code: 'PMCH', name: 'driver pay merchant cash' }, // pay merchant
+  PAY_MERCHANT_BY_CARD: { code: 'PMC', name: 'driver pay merchant by card' }, // pay merchant by card
+  PAY_MERCHANT_BY_WECHAT: { code: 'PMW', name: 'driver pay merchant by wechat' }, // pay merchant by wechat
+
+  PAY_SALARY: { code: 'PS', name: 'pay salary' },
+  PAY_OFFICE_RENT: { code: 'POR', name: 'pay office rent' },
+
+  ORDER_FROM_MERCHANT: { code: 'OFM', name: 'duocun order from merchant' },
+  ORDER_FROM_DUOCUN: { code: 'OFD', name: 'client order from duocun' },
+  CANCEL_ORDER_FROM_MERCHANT: { code: 'CFM', name: 'duocun cancel order from merchant' },
+  CANCEL_ORDER_FROM_DUOCUN: { code: 'CFD', name: 'client cancel order from duocun' },
+
+  REFUND_EXPENSE: { code: 'RE', name: 'refund expense' },
+  REFUND_CLIENT: { code: 'RC', name: 'refund client' },
+  ADD_CREDIT_BY_CARD: { code: 'ACC', name: 'client add credit by card' },
+  ADD_CREDIT_BY_WECHAT: { code: 'ACW', name: 'client add credit by WECHATPAY' },
+  ADD_CREDIT_BY_CASH: { code: 'ACCH', name: 'client add credit by cash' },
+  TRANSFER: { code: 'T', name: 'transfer' },
+  BUY_MATERIAL: { code: 'BM', name: 'buy material' }, // buy drinks
+  BUY_EQUIPMENT: { code: 'BE', name: 'buy equipment' },
+  BUY_ADVERTISEMENT: { code: 'BA', name: 'buy advertisement' },
+  OTHER_EXPENSE: { code: 'OE', name: 'other expense' },
+  TEST: { code: 'TEST', name: 'test' }
+};
+
 
 export interface ITransaction {
   _id?: string;
@@ -21,7 +57,7 @@ export interface ITransaction {
   orderType?: string;
   items?: IOrderItem[];
   type?: string;
-  action: string;
+  actionCode: string;
   amount: number;
   note?: string;
   fromBalance?: number;
@@ -38,7 +74,7 @@ export interface IDbTransaction {
   fromName: string;
   toId: ObjectId;
   toName: string;
-  action: string;
+  actionCode: string;
   amount: number;
   fromBalance: number;
   toBalance: number;
@@ -53,10 +89,11 @@ export interface IDbTransaction {
 
 export class Transaction extends Model {
   private accountModel: Account;
-
+  eventLogModel: EventLog;
   constructor(dbo: DB) {
     super(dbo, 'transactions');
     this.accountModel = new Account(dbo);
+    this.eventLogModel = new EventLog(dbo);
   }
 
   // use in admin, $in
@@ -102,9 +139,20 @@ export class Transaction extends Model {
             });
           });
         } else {
-          resolve();
+          const eventLog = {
+            accountId: fromId,
+            type: 'debug',
+            code: '',
+            decline_code: '',
+            message: 'fromId: ' + tr.fromId + ' toId: ' + tr.toId + ' actionCode: ' + tr.actionCode,
+            created: moment().toISOString()
+          }
+          this.eventLogModel.insertOne(eventLog).then(() => {
+            resolve();
+          });
         }
       });
+
     });
   }
 
@@ -131,9 +179,9 @@ export class Transaction extends Model {
       const t1: ITransaction = {
         fromId: merchantAccountId,
         fromName: merchantName,
-        toId: CASH_ID,
+        toId: CASH_BANK_ID,
         toName: clientName,
-        action: 'duocun order from merchant',
+        actionCode: TransactionAction.ORDER_FROM_MERCHANT.code, // 'duocun order from merchant',
         amount: Math.round(cost * 100) / 100,
         orderId: orderId,
         orderType: orderType,
@@ -141,12 +189,12 @@ export class Transaction extends Model {
       };
 
       const t2: ITransaction = {
-        fromId: CASH_ID,
+        fromId: CASH_BANK_ID,
         fromName: merchantName,
         toId: clientId,
         toName: clientName,
         amount: Math.round(total * 100) / 100,
-        action: 'client order from duocun',
+        actionCode: TransactionAction.ORDER_FROM_DUOCUN.code, // 'client order from duocun',
         orderId: orderId,
         orderType: orderType,
         delivered: delivered,
@@ -166,11 +214,11 @@ export class Transaction extends Model {
 
     return new Promise((resolve, reject) => {
       const t1: ITransaction = {
-        fromId: CASH_ID,
+        fromId: CASH_BANK_ID,
         fromName: clientName,
         toId: merchantAccountId,
         toName: merchantName,
-        action: 'duocun cancel order from merchant',
+        actionCode: TransactionAction.CANCEL_ORDER_FROM_MERCHANT.code, // 'duocun cancel order from merchant',
         amount: Math.round(cost * 100) / 100,
         orderId: orderId,
         items: items,
@@ -180,10 +228,10 @@ export class Transaction extends Model {
       const t2: ITransaction = {
         fromId: clientId,
         fromName: clientName,
-        toId: CASH_ID,
+        toId: CASH_BANK_ID,
         toName: merchantName,
         amount: Math.round(total * 100) / 100,
-        action: 'client cancel order from duocun',
+        actionCode: TransactionAction.CANCEL_ORDER_FROM_DUOCUN.code, // 'client cancel order from duocun',
         orderId: orderId,
         delivered: delivered
       };
@@ -198,11 +246,14 @@ export class Transaction extends Model {
 
   doGetSales() {
     const q = {
-      action: {
+      actionCode: {
         $in: [
-          'client pay cash',
-          'client pay by card',
-          'client pay by wechat'
+          // 'client pay cash',
+          // 'client pay by card',
+          // 'client pay by wechat'
+          TransactionAction.PAY_DRIVER_CASH.code, // 'duocun order from merchant',
+          TransactionAction.PAY_BY_CARD.code, // 'pay salary',
+          TransactionAction.PAY_BY_WECHAT.code, // 'pay office rent',
         ]
       }
     };
@@ -211,11 +262,11 @@ export class Transaction extends Model {
       this.find(q).then((trs: ITransaction[]) => {
         let sales = { cash: 0, card: 0, wechat: 0, total: 0 };
         trs.map((tr: ITransaction) => {
-          if (tr.action === 'client pay cash') {
+          if (tr.actionCode === TransactionAction.PAY_DRIVER_CASH.code) { // 'client pay cash') {
             sales.cash += tr.amount;
-          } else if (tr.action === 'client pay by card') {
+          } else if (tr.actionCode === TransactionAction.PAY_BY_CARD.code) { // 'client pay by card') {
             sales.card += tr.amount;
-          } else if (tr.action === 'client pay by wechat') {
+          } else if (tr.actionCode === TransactionAction.PAY_BY_WECHAT.code) { // 'client pay by wechat') {
             sales.wechat += tr.amount;
           }
         });
@@ -235,12 +286,12 @@ export class Transaction extends Model {
 
   doGetCost() {
     const q = {
-      action: {
+      actionCode: {
         $in: [
-          'duocun order from merchant',
-          'pay salary',
-          'pay office rent',
-          'refund expense'
+          TransactionAction.ORDER_FROM_MERCHANT.code, // 'duocun order from merchant',
+          TransactionAction.PAY_SALARY.code, // 'pay salary',
+          TransactionAction.PAY_OFFICE_RENT.code, // 'pay office rent',
+          TransactionAction.REFUND_EXPENSE.code // 'refund expense'
         ]
       }
     };
@@ -249,13 +300,13 @@ export class Transaction extends Model {
       this.find(q).then((trs: ITransaction[]) => {
         let cost = { merchant: 0, salary: 0, officeRent: 0, refund: 0, total: 0 };
         trs.map((tr: ITransaction) => {
-          if (tr.action === 'duocun order from merchant') {
+          if (tr.actionCode === TransactionAction.ORDER_FROM_MERCHANT.code) { // 'duocun order from merchant'
             cost.merchant += tr.amount;
-          } else if (tr.action === 'pay salary') {
+          } else if (tr.actionCode === TransactionAction.PAY_SALARY.code) { // 'pay salary') {
             cost.salary += tr.amount;
-          } else if (tr.action === 'pay office rent') {
+          } else if (tr.actionCode === TransactionAction.PAY_OFFICE_RENT.code) { // 'pay office rent') {
             cost.officeRent += tr.amount;
-          } else if (tr.action === 'refund expense') {
+          } else if (tr.actionCode === TransactionAction.REFUND_EXPENSE.code) { // 'refund expense') {
             cost.refund += tr.amount;
           }
         });
@@ -288,7 +339,7 @@ export class Transaction extends Model {
   }
 
   doGetMerchantPay() {
-    const q = { action: 'duocun order from merchant' };
+    const q = { actionCode: TransactionAction.ORDER_FROM_MERCHANT }; // 'duocun order from merchant' };
 
     return new Promise((resolve, reject) => {
       this.find(q).then((trs: ITransaction[]) => {
@@ -303,7 +354,7 @@ export class Transaction extends Model {
   }
 
   doGetSalary() {
-    const q = { action: 'pay salary' };
+    const q = { actionCode: TransactionAction.PAY_SALARY }; // 'pay salary' };
 
     return new Promise((resolve, reject) => {
       this.find(q).then((trs: ITransaction[]) => {
@@ -333,42 +384,35 @@ export class Transaction extends Model {
   //   });
   // }
 
-  doAddCredit(clientId: string, clientName: string, total: number, paymentMethod: string, note: string) {
-    if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
-      const t1: ITransaction = {
-        fromId: clientId,
-        fromName: clientName,
-        toId: BANK_ID,
-        toName: BANK_NAME,
-        amount: Math.round(total * 100) / 100,
-        action: 'client add credit by ' + paymentMethod,
-        note: note
-      };
-      return new Promise((resolve, reject) => {
-        this.doInsertOne(t1).then((x) => {
-          resolve(x);
-        });
-      });
-    } else {
-      const t2: ITransaction = {
-        fromId: clientId,
-        fromName: clientName,
-        toId: CASH_ID,
-        toName: CASH_NAME,
-        amount: Math.round(total * 100) / 100,
-        action: 'client add credit by cash',
-        note: note
-      };
+  doAddCredit(fromId: string, fromName: string, total: number, paymentMethod: string, note: string): Promise<IDbTransaction> {
+    let toId = '';
+    let toName = '';
+    let actionCode = '';
+    const amount = Math.round(total * 100) / 100;
 
-      return new Promise((resolve, reject) => {
-        this.doInsertOne(t2).then((x) => {
-          resolve(x);
-        });
-      });
+    if (paymentMethod === 'card') {
+      actionCode = TransactionAction.ADD_CREDIT_BY_CARD.code;
+      toId = TD_BANK_ID;
+      toName = TD_BANK_NAME;
+    } else if (paymentMethod === 'WECHATPAY') {
+      actionCode = TransactionAction.ADD_CREDIT_BY_WECHAT.code;
+      toId = SNAPPAY_BANK_ID;
+      toName = SNAPPAY_BANK_NAME;
+    } else { // cash + prepay
+      toId = CASH_BANK_ID;
+      toName = CASH_BANK_NAME;
+      actionCode = TransactionAction.ADD_CREDIT_BY_CASH.code;
     }
+
+    const t: ITransaction = { fromId, fromName, toId, toName, amount, actionCode, note };
+
+    return new Promise((resolve, reject) => {
+      this.doInsertOne(t).then((x) => {
+        resolve(x); // x could be null
+      });
+    });
+
   }
-
-
 
   loadPage(req: Request, res: Response) {
     const itemsPerPage = +req.params.itemsPerPage;
@@ -509,6 +553,7 @@ export class Transaction extends Model {
 
 
   // tools
+  // fix account
   changeAccount(req: Request, res: Response) {
 
     const actions = [
@@ -530,35 +575,35 @@ export class Transaction extends Model {
       'other expense'
     ];
 
-    this.find({ fromId: '5cad44629687ac4a075e2f42', action: { $in: actions } }).then(trs1 => {
-      const datas: any[] = [];
-      trs1.map((t: any) => {
-        datas.push({
-          query: { _id: t._id },
-          data: { fromId: '5de520d9dfb6771fe8ea0f60', fromName: 'li2' }
-        });
-      });
+    // this.find({ fromId: '5cad44629687ac4a075e2f42', action: { $in: actions } }).then(trs1 => {
+    //   const datas: any[] = [];
+    //   trs1.map((t: any) => {
+    //     datas.push({
+    //       query: { _id: t._id },
+    //       data: { fromId: '5de520d9dfb6771fe8ea0f60', fromName: 'li2' }
+    //     });
+    //   });
 
 
-      this.find({ toId: '5cad44629687ac4a075e2f42', action: { $in: actions } }).then(trs2 => {
-        trs2.map((t: any) => {
-          datas.push({
-            query: { _id: t._id },
-            data: { toId: '5de520d9dfb6771fe8ea0f60', toName: 'li2' }
-          });
-        });
+    //   this.find({ toId: '5cad44629687ac4a075e2f42', action: { $in: actions } }).then(trs2 => {
+    //     trs2.map((t: any) => {
+    //       datas.push({
+    //         query: { _id: t._id },
+    //         data: { toId: '5de520d9dfb6771fe8ea0f60', toName: 'li2' }
+    //       });
+    //     });
 
-        res.setHeader('Content-Type', 'application/json');
-        if (datas && datas.length > 0) {
-          this.bulkUpdate(datas).then(() => {
-            res.end(JSON.stringify('success', null, 3));
-          });
-        } else {
-          res.end(JSON.stringify(null, null, 3));
-        }
+    //     res.setHeader('Content-Type', 'application/json');
+    //     if (datas && datas.length > 0) {
+    //       this.bulkUpdate(datas).then(() => {
+    //         res.end(JSON.stringify('success', null, 3));
+    //       });
+    //     } else {
+    //       res.end(JSON.stringify(null, null, 3));
+    //     }
 
-      });
-    });
+    //   });
+    // });
   }
 
   fixCancelTransactions(req: Request, res: Response) {

@@ -21,25 +21,54 @@ export class Model extends Entity {
 
   quickFind(req: Request, res: Response) {
     let query = {};
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    let fields: any;
+    if (req.headers) {
+      if (req.headers.filter && typeof req.headers.filter === 'string') {
+        query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+      }
+
+      if (req.headers.fields && typeof req.headers.fields === 'string') {
+        fields = JSON.parse(req.headers.fields);
+      }
     }
 
-    this.find(query).then((x: any) => {
+    this.find(query).then((xs: any[]) => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
+      if (fields && fields.length > 0) {
+        const rs: any[] = [];
+
+        xs.map((x: any) => {
+          const it: any = {};
+          fields.map((key: any) => {
+            it[key] = x[key];
+          });
+
+          rs.push(it);
+        });
+
+        res.end(JSON.stringify(rs, null, 3));
+      } else {
+        res.end(JSON.stringify(xs, null, 3));
+      }
     });
   }
 
-  // deprecated
   list(req: Request, res: Response) {
     let query = {};
     let key = null;
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
-    if (req.headers && req.headers.distinct && typeof req.headers.distinct === 'string') {
-      key = (req.headers && req.headers.distinct) ? JSON.parse(req.headers.distinct) : null;
+    let fields: any = null;
+    if (req.headers) {
+      if (req.headers.filter && typeof req.headers.filter === 'string') {
+        query = req.headers.filter ? JSON.parse(req.headers.filter) : null;
+      }
+
+      if (req.headers.distinct && typeof req.headers.distinct === 'string') {
+        key = req.headers.distinct ? JSON.parse(req.headers.distinct) : null;
+      }
+
+      if (req.headers.fields && typeof req.headers.fields === 'string') {
+        fields = JSON.parse(req.headers.fields);
+      }
     }
 
     if (key && key.distinct) {
@@ -48,9 +77,24 @@ export class Model extends Entity {
         res.end(JSON.stringify(x, null, 3));
       });
     } else {
-      this.find(query).then((x: any) => {
+      this.find(query).then((xs: any) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
+        if (fields && fields.length > 0) {
+          const rs: any[] = [];
+  
+          xs.map((x: any) => {
+            const it: any = {};
+            fields.map((key: any) => {
+              it[key] = x[key];
+            });
+  
+            rs.push(it);
+          });
+  
+          res.end(JSON.stringify(rs, null, 3));
+        } else {
+          res.end(JSON.stringify(xs, null, 3));
+        }
       });
     }
   }
@@ -173,7 +217,7 @@ export class Model extends Entity {
     const query = req.body.query;
     const data = req.body.data;
 
-    this.updateOne(query, data, {upsert: true}).then((result) => { // {n: 1, nModified: 0, ok: 1}
+    this.updateOne(query, data, { upsert: true }).then((result) => { // {n: 1, nModified: 0, ok: 1}
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(result, null, 3));
     });

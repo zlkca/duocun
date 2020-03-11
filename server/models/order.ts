@@ -6,7 +6,7 @@ import { OrderSequence } from "./order-sequence";
 import moment from 'moment';
 import { Merchant, IPhase, IMerchant, IDbMerchant } from "./merchant";
 import { Account, IAccount } from "./account";
-import { Transaction, ITransaction } from "./transaction";
+import { Transaction, ITransaction, TransactionAction } from "./transaction";
 import { Product, IProduct } from "./product";
 import { CellApplication, CellApplicationStatus, ICellApplication } from "./cell-application";
 import { Log, Action, AccountType } from "./log";
@@ -179,7 +179,7 @@ export class Order extends Model {
                     order.merchantAccount = merchantAccount;
                   }
                 } else {
-                  console.log(order._id);
+                  console.log('Order has no merchant: ' + order._id);
                 }
 
                 if (order.driverId) {
@@ -191,7 +191,7 @@ export class Order extends Model {
                     order.driver = driver;
                   }
                 } else {
-                  console.log(order._id);
+                  console.log('Order without driver id:' + order._id.toString());
                 }
 
                 if (order.items) {
@@ -812,7 +812,7 @@ export class Order extends Model {
   // 1.update payment status to 'paid'
   // 2.add two transactions for place order and add another transaction for deposit to bank
   // 3.update account balance
-  doProcessPayment(order: IOrder, action: string, paid: number, chargeId: string) {
+  doProcessPayment(order: IOrder, actionCode: string, paid: number, chargeId: string) {
     const orderId: any = order._id;
     const orderType: any = order.type;
     const merchantId: string = order.merchantId.toString();
@@ -828,7 +828,7 @@ export class Order extends Model {
       fromName: clientName,
       toId: BANK_ID,
       toName: BANK_NAME,
-      action: action,
+      actionCode: actionCode,
       amount: Math.round(paid * 100) / 100,
       delivered: delivered
     };
@@ -878,6 +878,7 @@ export class Order extends Model {
     return new Promise((resolve, reject) => {
       this.updateOne({ _id: orderId }, data).then(rt => {
         this.findOne({ _id: orderId }).then(order => {
+
           const tr = {
             orderId: order ? order._id.toString() : '', // fix me
             fromId: order.clientId.toString(),
@@ -885,13 +886,15 @@ export class Order extends Model {
             toId: toId,
             toName: toName,
             type: 'credit',
-            action: 'client pay cash',
+            actionCode: TransactionAction.PAY_DRIVER_CASH.code, // 'client pay cash',
             amount: received,
             note: note
           };
+
           this.transactionModel.doInsertOne(tr).then(t => {
             resolve(order);
           });
+
         });
       });
     });
@@ -965,7 +968,7 @@ export class Order extends Model {
         orderIds.push(orderId.toString());
       });
 
-      const tQuery = { orderId: { $in: orderIds }, action: 'client pay cash' };
+      const tQuery = { orderId: { $in: orderIds }, actionCode: TransactionAction.PAY_DRIVER_CASH.code };// 'client pay cash' };
       this.transactionModel.find(tQuery).then((ts: ITransaction[]) => {
 
       });
@@ -1292,7 +1295,8 @@ export class Order extends Model {
   }
 
   fixCancelledTransaction(req: Request, res: Response) {
-    const q = { action: 'duocun cancel order from merchant', orderId: { $exists: true } };
+    const q = { actionCode: TransactionAction.CANCEL_ORDER_FROM_MERCHANT, //'duocun cancel order from merchant',
+      orderId: { $exists: true } };
 
     this.transactionModel.find(q).then(ts => {
       const datas: any[] = [];

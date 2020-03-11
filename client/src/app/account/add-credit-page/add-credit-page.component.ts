@@ -9,6 +9,7 @@ import { AccountService } from '../account.service';
 import { Router } from '../../../../node_modules/@angular/router';
 import { environment } from '../../../environments/environment.prod';
 import { PaymentError } from '../../order/order.model';
+import { ResponseStatus, IPaymentResponse } from '../../transaction/transaction.model';
 
 @Component({
   selector: 'app-add-credit-page',
@@ -24,7 +25,7 @@ export class AddCreditPageComponent implements OnInit {
   account;
   loading = false;
   lang = environment.language;
-  private onDestroy$ = new Subject<any>();
+  private destroy$ = new Subject<any>();
 
   constructor(
     private fb: FormBuilder,
@@ -45,7 +46,7 @@ export class AddCreditPageComponent implements OnInit {
 
   ngOnInit() {
     const self = this;
-    this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+    this.accountSvc.getCurrentAccount().pipe(takeUntil(this.destroy$)).subscribe((account: IAccount) => {
       this.account = account;
       this.paymentMethod = this.lang === 'en' ? 'card' : 'WECHATPAY';
 
@@ -78,30 +79,37 @@ export class AddCreditPageComponent implements OnInit {
       if (paymentMethod === 'card') {
         this.loading = true;
         this.paymentSvc.vaildateCardPay(this.stripe, this.card, 'card-errors1').then((ret: any) => {
-            if (ret.err === PaymentError.NONE) {
-              // resolve({ err: ret.err });
-              self.paymentSvc.stripeAddCredit(ret.token, account, +received, note).pipe(takeUntil(this.onDestroy$)).subscribe((x) => {
-                self.loading = false;
+          if (ret.err === PaymentError.NONE) {
+            const token = ret.token;
+            self.paymentSvc.stripeAddCredit(token, account, +received, note)
+              .pipe(takeUntil(this.destroy$)).subscribe((rsp: IPaymentResponse) => {
+
+              self.loading = false;
+              if (rsp.status === ResponseStatus.SUCCESS) {
                 self.snackBar.open('', creditHint + Math.round(+received * 100) / 100, { duration: 1000 });
                 self.router.navigate(['account/balance']);
-              });
-            } else {
-              self.loading = false;
-              self.bSubmitted = false;
-              alert(inputAlert);
-            }
+              } else {
+                self.snackBar.open('', payAlert, { duration: 2000 });
+              }
+            });
+          } else {
+            self.loading = false;
+            self.bSubmitted = false;
+            alert(inputAlert);
+          }
         });
       } else if (paymentMethod === 'WECHATPAY') {
         const paid = Math.round(+received * 100) / 100;
         this.loading = true;
-        this.paymentSvc.snappayAddCredit(account, paid, paymentMethod, note).pipe(takeUntil(this.onDestroy$)).subscribe((r) => {
+        this.paymentSvc.snappayAddCredit(account, paid, paymentMethod, note)
+          .pipe(takeUntil(this.destroy$)).subscribe((rsp: IPaymentResponse) => {
           self.bSubmitted = false;
           self.loading = false;
-          if (r.msg === 'success') {
+          if (rsp.status === ResponseStatus.SUCCESS) {
             this.loading = true;
-            window.location.href = r.data[0].h5pay_url;
+            window.location.href = rsp.url;
           } else {
-            alert(payAlert);
+            self.snackBar.open('', payAlert, { duration: 2000 });
           }
         });
       }
