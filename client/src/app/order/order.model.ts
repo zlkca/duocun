@@ -196,7 +196,7 @@ export class OrderItem implements IOrderItem {
       orderItem.spec.forEach(spec => {
         if (spec.list && spec.list.length) {
           spec.list.forEach(specDetail => {
-            costIncSpec += specDetail.cost;
+            costIncSpec += specDetail.cost * specDetail.quantity;
           });
         }
       });
@@ -209,7 +209,7 @@ export class OrderItem implements IOrderItem {
       orderItem.spec.forEach(spec => {
         if (spec.list && spec.list.length) {
           spec.list.forEach(specDetail => {
-            priceIncSpec += specDetail.price;
+            priceIncSpec += specDetail.price * specDetail.quantity;
           });
         }
       });
