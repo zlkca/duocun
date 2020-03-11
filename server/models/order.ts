@@ -1066,7 +1066,10 @@ export class Order extends Model {
               order.items.map((it: any) => {
                 const product = ps.find((p: any) => p._id.toString() === it.productId.toString());
                 if (product) {
-                  items.push({ product: product, quantity: it.quantity, price: it.price, cost: it.cost });
+                  items.push({
+                    product: product, quantity: it.quantity, price: it.price, cost: it.cost,
+                    spec: it.spec ? it.spec : []
+                  });
                 }
               });
               order.items = items;
