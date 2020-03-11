@@ -11,9 +11,7 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { IDelivery } from '../../delivery/delivery.model';
 import { IMerchant } from '../../merchant/merchant.model';
 import { IRange } from '../../range/range.model';
-import { getCartItemPrice } from '../../cart/cart.reducer';
-import { ICart } from '../../cart/cart.model';
-import { CartActions } from '../../cart/cart.actions';
+import {CartItem, ICart} from '../../cart/cart.model';
 const ADD_IMAGE = 'add_photo.png';
 
 @Component({
@@ -33,7 +31,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   @Output() afterDelete = new EventEmitter();
   @Output() add = new EventEmitter();
   @Output() remove = new EventEmitter();
-
+  @Output() setquantity = new EventEmitter();
   selected = null;
   onDestroy$ = new Subject();
   delivery: IDelivery;
@@ -140,25 +138,42 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  // onQuantityChanged(v, item) {
-  //   const p = item.product;
-  //   const quantity = v ? v : 0;
-  //   this.rx.dispatch({
-  //     type: CartActions.UPDATE_QUANTITY,
-  //     payload: {
-  //       items: [{
-  //         productId: p._id,
-  //         productName: p.name,
-  //         price: p.price,
-  //         quantity: quantity,
-  //         pictures: p.pictures,
-  //         cost: p ? p.cost : 0,
-  //         merchantId: p.merchantId,
-  //         merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-  //       }]
-  //     }
-  //   });
-  // }
+  onQuantityChanged(v, product: IProduct) {
+    if (!this.isValidProduct(product)) {
+      return;
+    }
+    let quantity = 0;
+    if (!isNaN(parseInt(v, 10))) {
+      quantity = parseInt(v, 10) >= 0 ? parseInt(v, 10) : 0;
+    }
+    this.setquantity.emit({
+      items: [{
+        productId: product._id,
+        productName: product.name,
+        price: product.price,
+        cost: product.cost,
+        quantity,
+        pictures: product.pictures,
+        merchantId: product.merchantId,
+        merchantName: this.lang === 'en' ? product.merchant.nameEN : product.merchant.name
+      }],
+    });
+    // this.rx.dispatch({
+    //   type: CartActions.UPDATE_QUANTITY,
+    //   payload: {
+    //     items: [{
+    //       productId: p._id,
+    //       productName: p.name,
+    //       price: p.price,
+    //       quantity: quantity,
+    //       pictures: p.pictures,
+    //       cost: p ? p.cost : 0,
+    //       merchantId: p.merchantId,
+    //       merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+    //     }]
+    //   }
+    // });
+  }
 
   getImageSrc(p) {
     if (p.fpath) {
@@ -168,35 +183,28 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onSelect(p) {
-    this.selected = p;
-    this.select.emit({ 'product': p });
+  // select product for specification
+  onSelect(product: IProduct) {
+    if (!this.isValidProduct(product)) {
+      return;
+    }
+    this.select.emit({
+      selectedProduct: product
+    });
   }
 
   // check if a product has any specification
   hasSpecification(product): boolean {
-    console.log(product.specifications);
     return product.specifications && product.specifications.length;
   }
 
   getProductItemPrice(product: IProduct): string {
     const cartItem = this.cart.items.find(item => item.productId === product._id);
     if (cartItem) {
-      return getCartItemPrice(cartItem).toFixed(2);
+      return CartItem.calcPrice(cartItem).toFixed(2);
     } else {
-      return product.price.toFixed(2);
+      return Product.calcPrice(product).toFixed(2);
     }
-  }
-  selectProductForSpec(product: IProduct) {
-    if (!this.isValidProduct(product)) {
-      return;
-    }
-    this.rx.dispatch({
-      type: CartActions.SELECT_FOR_SPEC,
-      payload: {
-        selectedProduct: product
-      }
-    });
   }
 
 }
