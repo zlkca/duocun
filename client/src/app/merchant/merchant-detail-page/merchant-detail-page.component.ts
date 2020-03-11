@@ -6,7 +6,7 @@ import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { MerchantService } from '../merchant.service';
 import { IMerchant } from '../../merchant/merchant.model';
 import { ProductService } from '../../product/product.service';
-import { ProductStatus } from '../../product/product.model';
+import {IProduct, ProductStatus} from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { ICart, ICartItem } from '../../cart/cart.model';
 import { PageActions } from '../../main/main.actions';
@@ -187,6 +187,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   }
 
   onAddProduct(e) {
+    console.log(e);
     this.rx.dispatch({
       type: CartActions.ADD_TO_CART,
       payload: e
@@ -194,8 +195,22 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   }
 
   onRemoveProduct(e) {
+    console.log(e);
     this.rx.dispatch({
       type: CartActions.REMOVE_FROM_CART,
+      payload: e
+    });
+  }
+
+  onSetQuantity(e) {
+    this.rx.dispatch({
+      type: CartActions.UPDATE_QUANTITY,
+      payload: e
+    });
+  }
+  onSelectProductForSpec(e) {
+    this.rx.dispatch({
+      type: CartActions.SELECT_FOR_SPEC,
       payload: e
     });
   }

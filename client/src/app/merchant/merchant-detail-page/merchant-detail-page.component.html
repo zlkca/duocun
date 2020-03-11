@@ -13,7 +13,15 @@
       <div [attr.id]="'cat'+grp.categoryId" class="row group" *ngFor="let grp of groups">
         <div class="col-12 category-row text-sm">{{grp.categoryName}}</div>
         <div class="col-12 product-block">
-          <app-product-list [restaurant]="restaurant" [items]="grp.items" [hasAddress]="bHasAddress" (add)="onAddProduct($event)" (remove)="onRemoveProduct($event)"></app-product-list>
+          <app-product-list
+            [restaurant]="restaurant"
+            [items]="grp.items"
+            [hasAddress]="bHasAddress"
+            (add)="onAddProduct($event)"
+            (remove)="onRemoveProduct($event)"
+            (setquantity)="onSetQuantity($event)"
+            (select)="onSelectProductForSpec($event)"
+          ></app-product-list>
         </div>
       </div>
     </div>
