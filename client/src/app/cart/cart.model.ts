@@ -35,6 +35,17 @@ export class CartItemSpec implements ICartItemSpec {
       return cartItemSpec.list[0] ? cartItemSpec.list[0].price : 0;
     }
   }
+  static calcCost(cartItemSpec: ICartItemSpec) {
+    if (cartItemSpec.type !== 'single') {
+      let subtotal = 0;
+      cartItemSpec.list.forEach(itemSpecDetail => {
+        subtotal += itemSpecDetail.cost * itemSpecDetail.quantity;
+      })
+      return subtotal;
+    } else {
+      return cartItemSpec.list[0] ? cartItemSpec.list[0].cost : 0;
+    }
+  }
 }
 
 export interface ICartItem {
@@ -62,6 +73,15 @@ export class CartItem implements ICartItem {
   constructor(obj: ICartItem) {
     Object.assign(this, obj);
   }
+  static calcCost(cartItem: ICartItem) {
+    let cost = cartItem.price;
+    if (cartItem.spec) {
+      cartItem.spec.forEach(spec => {
+        cost += CartItemSpec.calcCost(spec);
+      });
+    }
+    return cost;
+  }
   static calcPrice(cartItem: ICartItem) {
     let price = cartItem.price;
     if (cartItem.spec) {
@@ -71,8 +91,85 @@ export class CartItem implements ICartItem {
     }
     return price;
   }
+  static priceAndCost(cartItem: ICartItem): {price: number, cost: number} {
+    const data = {
+      price: cartItem.price,
+      cost: cartItem.cost
+    };
+    if (cartItem.spec) {
+      cartItem.spec.forEach(spec => {
+        data.price += CartItemSpec.calcPrice(spec);
+        data.cost += CartItemSpec.calcCost(spec);
+      });
+    }
+    return data;
+  }
   static calcSubtotal(cartItem: ICartItem) {
     return this.calcPrice(cartItem) * cartItem.quantity;
+  }
+  static singleSpecDetails(cartItem: ICartItem): Array<ICartItemSpecDetail> {
+    const details = [];
+    if (cartItem.spec) {
+      cartItem.spec.forEach(spec => {
+        if (spec.type === 'single' && spec.list && spec.list.length) {
+          details.push(spec.list[0]);
+        }
+      });
+    }
+    return details;
+  }
+  static multipleSpecDetails(cartItem: ICartItem): Array<ICartItemSpecDetail> {
+    const details = [];
+    if (cartItem.spec) {
+      cartItem.spec.forEach(spec => {
+        if (spec.type === 'multiple' && spec.list && spec.list.length) {
+          spec.list.forEach(detail => {
+            details.push(detail);
+          });
+        }
+      });
+    }
+    return details;
+  }
+  static singleSpecDesc(cartItem: ICartItem, local: string = 'en', glue: string = ' '): string {
+    const singles = [];
+    if (cartItem.spec) {
+      const singleSpecs = cartItem.spec.filter(spec => spec.type === 'single');
+      singleSpecs.forEach(spec => {
+        if (spec.list && spec.list.length) {
+          const detail = spec.list[0];
+          let detailName = '';
+          if (local === 'en') {
+            detailName =  detail.nameEN || detail.name;
+          } else {
+            detailName =  detail.name;
+          }
+          singles.push(detailName);
+        }
+      });
+    }
+    return singles.join(glue);
+  }
+  static multipleSpecDesc(cartItem: ICartItem, local: string = 'en'): Array<object> {
+    const multiples = [];
+    if (cartItem.spec) {
+      const multipleSpecs = cartItem.spec.filter(spec => spec.type === 'multiple');
+      multipleSpecs.forEach(spec => {
+        if (spec.list) {
+          spec.list.forEach(detail => {
+            let detailName = detail.name;
+            if (local === 'en' && detail.nameEN) {
+              detailName = detail.nameEN;
+            }
+            multiples.push({
+              name: detailName,
+              quantity: detail.quantity
+            });
+          });
+        }
+      });
+    }
+    return multiples;
   }
 }
 
