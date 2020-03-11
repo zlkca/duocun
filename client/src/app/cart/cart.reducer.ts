@@ -1,30 +1,11 @@
 import { CartActions } from './cart.actions';
-import {ICart, ICartItem, ICartItemSpec} from './cart.model';
+import {CartItem, ICart, ICartItem, ICartItemSpec} from './cart.model';
 
 export interface ICartAction {
   type: string;
   payload: ICart;
 }
-export function getCartItemSpecSubtotal(cartItemSpec: ICartItemSpec) {
-  if (cartItemSpec.type !== 'single') {
-    let subtotal = 0;
-    cartItemSpec.list.forEach(itemSpecList => {
-      subtotal += itemSpecList.price * itemSpecList.quantity;
-    })
-    return subtotal;
-  } else {
-    return cartItemSpec.list[0] ? cartItemSpec.list[0].price : 0;
-  }
-}
-export function getCartItemPrice(cartItem: ICartItem): number {
-  let price = cartItem.price;
-  if (cartItem.spec) {
-    cartItem.spec.forEach(spec => {
-      price += getCartItemSpecSubtotal(spec);
-    });
-  }
-  return price;
-}
+
 // if items is [], means empty cart
 function updateCart(c: ICart, items: ICartItem[]) {
   const cart = Object.assign({}, c);
@@ -34,7 +15,7 @@ function updateCart(c: ICart, items: ICartItem[]) {
   if (items && items.length > 0) {
     items.map(x => {
 
-      cart.price +=  getCartItemPrice(x) * x.quantity;
+      cart.price +=  CartItem.calcPrice(x) * x.quantity;
       cart.quantity += x.quantity;
     });
   } else { // clear cart
@@ -69,7 +50,6 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
 
       case CartActions.UPDATE_QUANTITY:
         const itemsToUpdate = action.payload.items;
-
         itemsToUpdate.map(itemToUpdate => {
           const x = state.items.find(item => item.productId === itemToUpdate.productId);
           if (x) {
