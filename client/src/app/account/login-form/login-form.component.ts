@@ -66,7 +66,7 @@ export class LoginFormComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.accountSvc.login(v.account, v.password).pipe(takeUntil(this.onDestroy$)).subscribe((data: any) => {
         if (data) {
-          self.authSvc.setAccessTokenId(data.id);
+          self.authSvc.setAccessTokenId(data);
           self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: Account) => {
             if (account) {
               self.rx.dispatch({ type: AccountActions.UPDATE, payload: account }); // update header footer icons
