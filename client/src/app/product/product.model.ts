@@ -72,19 +72,43 @@ export class Product implements IProduct {
     });
     return cost;
   }
-  static singleSpec(p: IProduct): Array<ISpecification> {
-    if (!p.specifications) {
+  singleSpecs(): Array<ISpecification> {
+    if (!this.specifications) {
       return [];
     } else {
-      return p.specifications.filter(spec => spec.type === 'single');
+      return this.specifications.filter(spec => spec.type === 'single');
     }
   }
-  static multipleSpec(p: IProduct): Array<ISpecification> {
-    if (!p.specifications) {
+  multipleSpec(): Array<ISpecification> {
+    if (!this.specifications) {
       return [];
     } else {
-      return p.specifications.filter(spec => spec.type === 'multiple');
+      return this.specifications.filter(spec => spec.type === 'multiple');
     }
+  }
+  priceIncSpec(): number {
+    let price = this.price;
+    if (this.specifications) {
+      this.specifications.forEach(spec => {
+        const defaultDetail = Specification.getDefaultDetail(spec);
+        if (defaultDetail) {
+          price += defaultDetail.price;
+        }
+      });
+    }
+    return price;
+  }
+  costIncSpec(): number {
+    let cost = this.cost ? this.cost : 0;
+    if (this.specifications) {
+      this.specifications.forEach(spec => {
+        const defaultDetail = Specification.getDefaultDetail(spec);
+        if (defaultDetail) {
+          cost += defaultDetail.cost;
+        }
+      });
+    }
+    return cost;
   }
 }
 
