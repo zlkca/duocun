@@ -7,7 +7,7 @@ import { CommandActions } from '../shared/command.actions';
 import { takeUntil } from '../../../node_modules/rxjs/operators';
 import { Subject } from '../../../node_modules/rxjs';
 import { ICommand } from '../shared/command.reducers';
-import { ICart } from '../cart/cart.model';
+import {Cart, ICart} from '../cart/cart.model';
 import { IDelivery } from '../delivery/delivery.model';
 import { AccountService } from '../account/account.service';
 import { IOrder } from '../order/order.model';
@@ -27,7 +27,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   selected = 'home';
   deliveryAddress;
   inRange;
-  cart;
+  cart: Cart;
   quantity;
   productTotal;
   fromPage;
@@ -56,7 +56,7 @@ export class FooterComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+    this.rx.select<Cart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: Cart) => {
       self.cart = cart;
       if (self.page === 'cart-page') {
         self.bHideNavMenu = cart.items.length !== 0;
