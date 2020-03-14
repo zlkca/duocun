@@ -1,4 +1,5 @@
 export class CartActions {
+  static CREATE_CART = 'CREATE_CART';
   static UPDATE_CART = 'UPDATE_CART';
   static ADD_TO_CART = 'ADD_TO_CART';
   static REMOVE_FROM_CART = 'REMOVE_FROM_CART';
