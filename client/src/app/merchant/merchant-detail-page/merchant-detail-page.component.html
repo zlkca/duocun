@@ -1,4 +1,4 @@
-<app-product-specification [restaurant]="restaurant" *ngIf="restaurant && cart.selectedProduct; else productList;"></app-product-specification>
+<app-product-specification [restaurant]="restaurant" *ngIf="restaurant && cart && cart.selectedCartItem; else productList;"></app-product-specification>
 <ng-template #productList>
 <div class="page">
   <div class="row title-block" *ngIf="restaurant">
