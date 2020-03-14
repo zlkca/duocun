@@ -12,7 +12,7 @@
     <div class="col-6 px-0 text-left">
       <div class="row">
         <h6 class="col-12 pl-0 font-weight-bold product-name">{{product.name}}</h6>
-        <p class="col-12 pl-0 font-weight-bold">${{product.price}}</p>
+        <p class="col-12 pl-0 font-weight-bold">${{product.priceIncSpec()}}</p>
       </div>
     </div>
     <div class="col-6 text-right p-0">
@@ -28,9 +28,9 @@
           </div>
           <div class="quantity">
             <input class="form-control" (input)="setCartItemQuantity($event.target.value)"
-                   value="{{cartItem.quantity}}"/>
+                   value="{{item.quantity}}"/>
           </div>
-          <div class="remove-btn" (click)="downCartItemQuantity()">
+          <div class="remove-btn" (click)="item.quantity > 1 && downCartItemQuantity()">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
               <path fill="none" d="M0 0h24v24H0V0z"/>
               <path fill="#F4B400"
@@ -45,7 +45,7 @@
     </div>
   </div>
   <div class="row page-content">
-    <div class="col-12 px-0 specification" *ngFor="let spec of singleSpecs()">
+    <div class="col-12 px-0 specification" *ngFor="let spec of product.singleSpecs()">
       <div class="row">
         <div class="col-12 mb-2">
           <strong class="spec-name">{{spec.name}}</strong>
@@ -62,19 +62,17 @@
                 >
                 <label class="custom-control-label" for="{{'customRadio_' + spec.name + '_s_' + i}}">
                   {{detail.name}}
-<!--                  <small-->
-<!--                    class="text-muted">&times; {{getSpecDetailQuantity(spec, detail) * cartItem.quantity}}</small>-->
                 </label>
               </div>
             </div>
             <div class="col-7 p-0 text-right font-weight-bold">
-              <span>+${{detail.price.toFixed(2)}}</span>
+              <span>+${{detail.price| number : '1.2-2'}}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-12 px-0 specification" *ngFor="let spec of multipleSpecs()">
+    <div class="col-12 px-0 specification" *ngFor="let spec of product.multipleSpec()">
       <div class="row">
         <div class="col-12 mb-2">
           <strong class="spec-name">{{spec.name}}</strong>
@@ -89,17 +87,15 @@
                        (change)="toggleSpecDetail($event, spec, detail)">
                 <label class="custom-control-label" for="{{'customRadio_' + spec.name + '_m_' + i}}">
                   {{detail.name}}
-<!--                  <small>&times; {{getSpecDetailQuantity(spec, detail) * cartItem.quantity}}</small>-->
                 </label>
               </div>
             </div>
-            <div class="col-7 p-0 text-right font-weight-bold"
-                 *ngIf="{detailQuantity: getSpecDetailQuantity(spec, detail)} as specInfo">
+            <div class="col-7 p-0 text-right font-weight-bold">
               <div class="row">
                 <div class="col-7 button-col">
                   <div class="row m-0 p-0 justify-content-end">
-                    <div class="add-btn"
-                         (click)="specInfo.detailQuantity > 1 && setSpecDetailQuantity(spec, detail, specInfo.detailQuantity - 1)">
+                    <div class="remove-btn"
+                         (click)="getSpecDetailQuantity(spec, detail) > 1 && setSpecDetailQuantity(spec, detail, getSpecDetailQuantity(spec, detail) - 1)">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <path fill="none" d="M0 0h24v24H0V0z"/>
                         <path fill="#F4B400"
@@ -108,9 +104,9 @@
                     </div>
                     <div class="quantity">
                       <input class="form-control" (input)="setSpecDetailQuantity(spec, detail, $event.target.value)"
-                             value="{{specInfo.detailQuantity}}"/>
+                             value="{{getSpecDetailQuantity(spec, detail)}}"/>
                     </div>
-                    <div class="remove-btn" (click)="setSpecDetailQuantity(spec, detail, specInfo.detailQuantity + 1)">
+                    <div class="add-btn" (click)="setSpecDetailQuantity(spec, detail, getSpecDetailQuantity(spec, detail) + 1)">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                         <path fill="none" d="M0 0h24v24H0V0z"/>
                         <path fill="#0F9D58"
@@ -121,7 +117,7 @@
                   </div>
                 </div>
                 <div class="col-5 price-col p-0">
-                  <span>+${{detail.price.toFixed(2)}}</span>
+                  <span>+${{detail.price| number : '1.2-2'}}</span>
                 </div>
               </div>
             </div>
@@ -137,7 +133,7 @@
           <strong class="spec-name" i18n="@@Sum">Total</strong>
         </div>
         <div class="col-6 text-right">
-          <span class="font-weight-bold">${{getCartItemSubtotal()}}</span>
+          <span class="font-weight-bold">${{item.totalPrice()| number : '1.2-2'}}</span>
         </div>
       </div>
     </div>

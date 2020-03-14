@@ -53,17 +53,17 @@
                   </div>
                   <div class="row mt-1 pl-2" *ngIf="item.spec">
                     <div class="col-12 m-0 p-0">
-                      <small>{{getOrderItemSingleSpecDesc(item)}}</small>
+                      <small>{{item.singleSpecDesc(this.lang)}}</small>
                     </div>
                   </div>
-                  <div class="row mt-1 pl-2" *ngIf="{data: getOrderItemMultipleDetails(item)} as multiple">
+                  <div class="row mt-1 pl-2" *ngIf="{data: item.multipleSpecDesc(this.lang)} as multiple">
                     <div class="col-12 m-0 p-0" *ngFor="let mInfo of multiple.data">
                       <small>{{mInfo.name}} &times; {{mInfo.quantity}}</small>
                     </div>
                   </div>
                 </div>
                 <div class="col-2 quantity-col">x {{item.quantity}}</div>
-                <div class="col-3 price-col">${{getOrderItemPrice(item) | number : '1.2-2'}}</div>
+                <div class="col-3 price-col">${{item.totalPrice() | number : '1.2-2'}}</div>
               </div>
             </div>
           </div>

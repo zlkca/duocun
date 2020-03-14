@@ -13,8 +13,8 @@ import { IDelivery } from './delivery/delivery.model';
 import { deliveryReducer, DEFAULT_DELIVERY } from './delivery/delivery.reducer';
 import { IContact } from './contact/contact.model';
 import { contactReducer } from './contact/contact.reducer';
-import { ICart } from './cart/cart.model';
-import { cartReducer, DEFAULT_CART } from './cart/cart.reducer';
+import {Cart} from './cart/cart.model';
+import { cartReducer } from './cart/cart.reducer';
 import { IMerchant } from './merchant/merchant.model';
 import { Account } from './account/account.model';
 import { orderReducer } from './order/order.reducers';
@@ -23,8 +23,10 @@ import { addressReducer } from './location/address.reducer';
 import { IRange } from './range/range.model';
 import { rangeReducer } from './range/range.reducer';
 import { merchantReducer } from './merchant/merchant.reducer';
+import {CartService} from './cart/cart.service';
+
 export interface IAppState {
-    cart: ICart;
+    cart: Cart;
     account: Account;
     // picture: IPicture;
     // location: ILocation;
@@ -41,7 +43,7 @@ export interface IAppState {
 }
 
 export const INITIAL_STATE: IAppState = {
-    cart: DEFAULT_CART,
+    cart: CartService.DEFAULT_CART,
     account: null,
     // picture: DEFAULT_PICTURE,
     // location: null,

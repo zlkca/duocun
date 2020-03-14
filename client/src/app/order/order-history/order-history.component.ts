@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AccountService } from '../../account/account.service';
 import { OrderService } from '../../order/order.service';
 import { SharedService } from '../../shared/shared.service';
-import {IOrder, OrderType, OrderStatus, OrderItem} from '../order.model';
+import {IOrder, OrderType, OrderStatus, OrderItem, Order} from '../order.model';
 // import { SocketService } from '../../shared/socket.service';
 import { NgRedux } from '@angular-redux/store';
 import { IAppState } from '../../store';
@@ -29,7 +29,7 @@ import { ILocation } from '../../location/location.model';
 export class OrderHistoryComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject();
   account;
-  orders = [];
+  orders: Array<Order>;
   loading = true;
   highlightedOrderId = 0;
   currentPageNumber = 1;
@@ -205,23 +205,22 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   OnPageChange(pageNumber) {
     const accountId = this.account._id;
     const itemsPerPage = this.itemsPerPage;
-
+    this.orders = [];
     this.loading = true;
     this.currentPageNumber = pageNumber;
     const query = { clientId: accountId, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
     this.orderSvc.loadPage(query, pageNumber, itemsPerPage).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
 
-      ret.orders.map(order => {
-        order.description = this.getDescription(order);
+      ret.orders.map(orderData => {
+        orderData.description = this.getDescription(orderData);
         if (environment.language === 'en') {
-          order.merchantName = order.merchant ? order.merchant.nameEN : '';
-          order.items.map(item => {
+          orderData.merchantName = orderData.merchant ? orderData.merchant.nameEN : '';
+          orderData.items.map(item => {
             item.product.name = item.product.nameEN;
           });
         }
+        this.orders.push(Order.fromRawData(orderData));
       });
-
-      this.orders = ret.orders;
       this.nOrders = ret.total;
       this.loading = false;
     });
@@ -229,14 +228,5 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   getAddress(location: ILocation) {
     return this.locationSvc.getAddrString(location);
-  }
-  getOrderItemPrice(orderItem) {
-    return OrderItem.priceIncSpec(orderItem);
-  }
-  getOrderItemSingleSpecDesc(orderItem) {
-    return OrderItem.singleSpecDesc(orderItem, this.lang);
-  }
-  getOrderItemMultipleDetails(orderItem) {
-    return OrderItem.multipleSpecDesc(orderItem, this.lang);
   }
 }

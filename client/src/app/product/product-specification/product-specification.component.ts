@@ -2,15 +2,16 @@ import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {IProduct, Product} from '../product.model';
 import {NgRedux} from '@angular-redux/store';
 import {IAppState} from '../../store';
-import {CartItem, ICart, ICartItem, ICartItemSpec} from '../../cart/cart.model';
+import {Cart, CartItem, CartItemSpec, ICart, ICartItem, CartItemSpecDetail} from '../../cart/cart.model';
 import {takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {CartActions} from '../../cart/cart.actions';
 import { IMerchant } from '../../merchant/merchant.model';
 import {environment} from '../../../environments/environment';
-import {Specification} from '../../specification/specification.model';
+import {ISpecification, ISpecificationDetail, Specification} from '../../specification/specification.model';
 import {MatDialog, MatDialogConfig} from '@angular/material';
 import {ProductSpecConfirmModalComponent} from '../product-spec-confirm-modal/product-spec-confirm-modal.component';
+import {CartService} from '../../cart/cart.service';
 @Component({
   selector: 'app-product-specification',
   templateUrl: './product-specification.component.html',
@@ -19,30 +20,35 @@ import {ProductSpecConfirmModalComponent} from '../product-spec-confirm-modal/pr
 
 export class ProductSpecificationComponent implements OnInit, OnDestroy {
   @Input() restaurant: IMerchant;
-  cart: ICart;
-  cartItem: ICartItem;
+  cart: Cart;
+  product: Product;
+  item: CartItem;
   onDestroy$ = new Subject();
-  product: IProduct;
   lang = environment.language;
   closeResult: string;
   constructor(
     private rx: NgRedux<IAppState>,
     private dialog: MatDialog
   ) {
-    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+    this.rx.select<Cart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: Cart) => {
       this.cart = cart;
-      this.product = cart.selectedProduct;
+      this.product = new Product(cart.selectedProduct);
+      // copy so we can cancel changes
+      this.item = cart.selectedCartItem;
+      if (this.item.quantity < 1) {
+        this.item.quantity = 1;
+      }
+      console.log('construcotr', this.item, this.item.quantity)
     });
   }
 
-  ngOnInit() {
-    this.cartItem = this.getCartItemForSpec(this.cart);
-  }
-
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }
+  ngOnInit(): void {
+  }
+
   cancelSpecSelect(event: Event) {
     event.preventDefault();
     this.rx.dispatch({
@@ -54,13 +60,17 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.autoFocus = true;
     const dialogRef = this.dialog.open(ProductSpecConfirmModalComponent, dialogConfig);
+
     dialogRef.afterClosed().subscribe(action => {
-      console.log(action);
       switch (action) {
         case 'save':
           this.rx.dispatch({
+            type: CartActions.REMOVE_FROM_CART,
+            payload: { items: [this.cart.selectedCartItem] }
+          });
+          this.rx.dispatch({
             type: CartActions.UPDATE_QUANTITY,
-            payload: { items: [this.cartItem]}
+            payload: { items: [this.item] }
           });
           this.rx.dispatch({
             type: CartActions.CANCEL_SPEC_SELECT,
@@ -68,12 +78,14 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
           });
           break;
         case 'clear':
-          this.rx.dispatch({
-            type: CartActions.REMOVE_FROM_CART,
-            payload: {
-              items: [this.cartItem]
-            }
-          });
+          if (!(this.cart.selectedCartItem.equals(CartItem.getDefault(this.cart.selectedProduct, this.restaurant)))) {
+            this.rx.dispatch({
+              type: CartActions.REMOVE_FROM_CART,
+              payload: {
+                items: [this.cart.selectedCartItem]
+              }
+            });
+          }
           this.rx.dispatch({
             type: CartActions.CANCEL_SPEC_SELECT,
             payload: {}
@@ -85,173 +97,35 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
     });
   }
   upCartItemQuantity() {
-    this.cartItem.quantity = this.cartItem.quantity + 1;
+    this.item.quantity = this.item.quantity + 1;
+    console.log('upcartitemquantity: ', this.item, this.item.quantity)
   }
   downCartItemQuantity() {
-    this.cartItem.quantity = this.cartItem.quantity > 0 ? this.cartItem.quantity - 1 : 0;
+    this.item.quantity = this.item.quantity > 0 ? this.item.quantity - 1 : 0;
+    console.log('downcartitemquantity: ', this.item, this.item.quantity)
   }
   setCartItemQuantity(val: any) {
     let quantity = parseInt(val, 10);
     if (isNaN(quantity)) {
       quantity = 0;
     }
-    this.cartItem.quantity = quantity;
+    this.item.quantity = quantity;
   }
-  singleSpecs(): Array<any> {
-    return Product.singleSpec(this.product);
-  }
-  multipleSpecs(): Array<any> {
-    return Product.multipleSpec(this.product);
-  }
-  getCartItemForSpec(cart: ICart): ICartItem {
-    const item = cart.items.find(cartItem => {
-      return cartItem.productId === this.product._id;
-    });
+  getCartItemForSpec(cart: Cart): CartItem {
+    const item = cart.findByItem(this.item);
     if (item) {
       // returns copy of the item
-      return Object.assign({}, item);
+      return new CartItem(item);
     } else {
-      const defaultItem = {
-        productId: this.product._id,
-        productName: this.product.name,
-        merchantId: this.product.merchantId,
-        merchantName: this.lang === 'en' ? this.restaurant.nameEN : this.restaurant.name,
-        price: this.product.price,
-        cost: this.product.cost,
-        quantity: 1,
-        spec: []
-      };
-      // set default specifications
-      this.product.specifications.forEach(spec => {
-        const defaultDetail = Specification.getDefaultDetail(spec);
-        if (defaultDetail) {
-          defaultItem.spec.push({
-            specId: spec._id,
-            specName: spec.name,
-            type: spec.type,
-            list: [{
-              name: defaultDetail.name,
-              nameEN: defaultDetail.nameEN,
-              price: defaultDetail.price,
-              cost: defaultDetail.cost,
-              quantity: 1
-            }]
-          });
-        }
-      });
-      return defaultItem;
-    }
-
-  }
-  getSpecDetailQuantity(spec, specDetail): number {
-    if (!this.cartItem || !this.cartItem.spec) {
-      return 0;
-    }
-    // find cart item spec by specification id
-    const checkedSpec = this.cartItem.spec.find(cartItemSpec => {
-      return cartItemSpec.specId === spec._id;
-    });
-    if (!checkedSpec || !checkedSpec.list) {
-      return 0;
-    }
-    // find cart item spec list by list name
-    const checkedSpecDetail = checkedSpec.list.find(cartItemSpecDetail => {
-      return cartItemSpecDetail.name === specDetail.name;
-    });
-    if (checkedSpecDetail) {
-      if (spec.type === 'single') {
-        return 1;
-      } else {
-        return checkedSpecDetail.quantity || 0;
-      }
-    } else {
-      return 0;
+      return CartService.getDefaultCartItem(this.product, this.restaurant, this.lang);
     }
   }
-  setSpecDetailQuantity(spec, specDetail, quantity) {
-    if (!this.cartItem) {
-      return false;
-    }
-    if (!this.cartItem.spec) {
-      this.cartItem.spec = [];
-    }
-    quantity = parseInt(quantity, 10);
-    if (isNaN(quantity)) {
-      quantity = 0;
-    }
-    // find cart item spec index by specification id
-    const specIndex = this.cartItem.spec.findIndex(cartItemSpec => {
-      return cartItemSpec.specId === spec._id;
-    });
-    // if specification exists
-    if (specIndex >= 0) {
-      const cartItemSpec = this.cartItem.spec[specIndex];
-      // if specification is single type we need to set only first item
-      if (spec.type === 'single') {
-        if (quantity > 0) {
-          cartItemSpec.list = [{
-            name: specDetail.name,
-            nameEN: specDetail.nameEN,
-            price: specDetail.price,
-            cost: specDetail.cost,
-            quantity
-          }];
-        } else {
-          this.cartItem.spec.splice(specIndex, 1);
-        }
-        // console.log(this.cartItem);
-        return;
-      }
-      if (!cartItemSpec.list) {
-        cartItemSpec.list = [];
-      }
-      // find cart item spec list index by list name
-      const cartItemDetailIndex = cartItemSpec.list.findIndex(cartItemSpecDetail => {
-        return cartItemSpecDetail.name === specDetail.name;
-      });
-      // if cart item spec list detail exists
-      if (cartItemDetailIndex >= 0) {
-        // if quantity is above zero, set it
-        if (quantity > 0) {
-          cartItemSpec.list[cartItemDetailIndex].quantity = quantity;
-        } else {
-          // if quantity is zero, remove it
-          cartItemSpec.list.splice(cartItemDetailIndex, 1);
-          // if cart item list becomes an empty array by removing a detail, remove the specification itself
-          if (!cartItemSpec.list.length) {
-            this.cartItem.spec.splice(specIndex, 1);
-          }
-        }
-      } else {
-        if (quantity > 0) {
-          cartItemSpec.list.push({
-            name: specDetail.name,
-            nameEN: specDetail.nameEN,
-            price: specDetail.price,
-            cost: specDetail.cost,
-            quantity
-          });
-        }
-      }
-    // if specification does not exist in cart item
-    } else {
-      // if quantity is above zero push new specifcation and detail
-      if (quantity > 0) {
-        this.cartItem.spec.push({
-          specId: spec._id,
-          specName: spec.name,
-          type: spec.type,
-          list: [{
-            name: specDetail.name,
-            nameEN: specDetail.nameEN,
-            price: specDetail.price,
-            cost: specDetail.cost,
-            quantity: quantity
-          }]
-        });
-      }
-    }
-    // console.log(this.cartItem);
+  getSpecDetailQuantity(spec: ISpecification, specDetail: ISpecificationDetail): number {
+    const itemSpecDetail = this.item.findNestedItemByTypes(spec, specDetail);
+    return itemSpecDetail ? itemSpecDetail.quantity : 0;
+  }
+  setSpecDetailQuantity(spec: ISpecification, specDetail: ISpecificationDetail, quantity: number) {
+    this.item.setItemQuantity(spec, specDetail, quantity);
   }
   // when you toggle an option or a checkbox
   toggleSpecDetail(event, spec, detail): void {
@@ -262,17 +136,6 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
       }
   }
   getCartItemSubtotal(): string {
-
-    return CartItem.calcSubtotal(this.cartItem).toFixed(2);
-  }
-  addToCart(): void {
-    this.rx.dispatch({
-      type: CartActions.UPDATE_QUANTITY,
-      payload: { items: [this.cartItem]}
-    });
-    this.rx.dispatch({
-      type: CartActions.CANCEL_SPEC_SELECT,
-      payload: {}
-    });
+    return this.item.totalPrice().toFixed(2);
   }
 }

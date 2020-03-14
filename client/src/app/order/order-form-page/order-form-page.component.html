@@ -43,12 +43,12 @@
                 {{item.productName}}
               </div>
             </div>
-            <div class="row mt-1 pl-2" *ngIf="hasSpecification(item)">
+            <div class="row mt-1 pl-2" *ngIf="item.spec">
               <div class="col-12 m-0 p-0">
-                <small>{{cartItemSingleDesc(item)}}</small>
+                <small>{{item.singleSpecDesc(lang)}}</small>
               </div>
             </div>
-            <div class="row mt-1 pl-2" *ngIf="{data: cartItemMultipleSpec(item)} as multiple">
+            <div class="row mt-1 pl-2" *ngIf="{data: item.multipleSpecDesc(lang)} as multiple">
               <div class="col-12 m-0 p-0" *ngFor="let mInfo of multiple.data">
                 <small>{{mInfo.name}} &times; {{mInfo.quantity}}</small>
               </div>
@@ -58,7 +58,7 @@
             <span>&times; {{item.quantity}}</span>
           </div>
           <div class="col-2 price-col">
-            <span>${{cartItemPrice(item) * item.quantity | number : '1.2-2'}}</span>
+            <span>${{item.totalPrice() | number : '1.2-2'}}</span>
           </div>
         </div>
       </div>

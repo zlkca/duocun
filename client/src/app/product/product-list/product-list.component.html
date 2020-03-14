@@ -1,6 +1,7 @@
 <div class="product-list" *ngIf="items && items.length>0">
   <div class="col-12 list-item" *ngFor="let item of items; let i = index;">
-    <div class="row item-body" *ngIf="item">
+    <!-- BEGIN DEFAULT CART ITEM -->
+    <div class="row item-body">
       <div class="col-4 image-body">
         <img [src]="getProductImage(item.product)" alt="{{item.product.name}}">
         <div *ngIf="item.product.status && item.product.status===Status.NEW" class="new notify-badge">
@@ -10,35 +11,23 @@
           <div class="text-sm" i18n="@@Promotion">Promotion</div>
         </div>
       </div>
-      <div class="col-8 text-body" *ngIf="item">
+      <div class="col-8 text-body"  *ngIf="{quantity: getDefaultItemQuantity(item.product)} as p">
         <div class="title-bg">{{item.product.name}}</div>
-        <div class="row order-spec-row" *ngIf="hasSpecification(item.product)">
-          <div class="col-12 m-0 p-0">
-            <small>{{getProductItemSingleDesc(item.product)}}</small>
-          </div>
-          <div class="col-12 m-0 p-0" *ngIf="{detail: getProductItemMultipleSpecs(item.product)} as detailInfo">
-            <div class="row" *ngFor="let info of detailInfo.detail; index as i">
-              <div class="col-12 m-0 p-0">
-                <small>{{info.name}} &times; {{info.quantity}}</small>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="row order-row">
-          <div class="col-4 price-col">${{getProductItemPrice(item.product)}}</div>
+          <div class="col-4 price-col">${{getProductPrice(item.product)|number : '1.2-2'}}</div>
           <div class="col-8 button-col">
             <div class="row m-0 p-0 justify-content-end"
                  *ngIf="hasSpecification(item.product); else cartQuantityArea">
               <div class="col-12 m-0 p-0 select-specification"  (click)="onSelect(item.product)">
-                <span i18n="@@SelectSpecification" *ngIf="!item.quantity">Select</span>
-                <span i18n="@@EditSpecification" *ngIf="item.quantity > 0">Edit</span>
+                <span i18n="@@SelectSpecification" *ngIf="p.quantity === 0">Select</span>
+                <span i18n="@@EditSpecification" *ngIf="p.quantity > 0">Edit</span>
               </div>
-              <div class="col-12 mt-2 p-0" *ngIf="item.quantity > 0">
+              <div class="col-12 mt-2 p-0" *ngIf="p.quantity > 0">
                 <ng-template [ngTemplateOutlet]="cartQuantityArea"></ng-template>
               </div>
             </div>
             <ng-template #cartQuantityArea>
-              <div class="add-btn" (click)="addToCart(item.product)">
+              <div class="add-btn" (click)="onQuantityChanged(p.quantity + 1, item.product)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                   <path fill="none" d="M0 0h24v24H0V0z"/>
                   <path fill="#0F9D58"
@@ -48,10 +37,75 @@
               </div>
               <!-- <input class="quantity" type="number" (change)="onQuantityChanged($event, item)" /> -->
               <div class="quantity">
-                <input class="form-control" type="number" value="{{item.quantity}}"
+                <input class="form-control" type="number" value="{{p.quantity}}"
                        (input)="onQuantityChanged($event.target.value, item.product)"/>
               </div>
-              <div class="remove-btn" (click)="item.quantity > 0 && removeFromCart(item.product)">
+              <div class="remove-btn" (click)="p.quantity > 0 && onQuantityChanged(p.quantity - 1, item.product)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path fill="none" d="M0 0h24v24H0V0z"/>
+                  <path fill="#F4B400"
+                        d="M7 11v2h10v-2H7zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                </svg>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    <!--  END DEFAULT CART ITEM  -->
+    </div>
+    <!-- BEGIN NON-DEFAULT CART ITEM -->
+    <div class="row item-body" *ngFor="let cartItem of getNonDefaultCartItems(item.product).reverse()">
+      <div class="col-4 image-body">
+        <img [src]="getProductImage(item.product)" alt="{{item.product.name}}">
+        <div *ngIf="item.product.status && item.product.status===Status.NEW" class="new notify-badge">
+          <div class="text-sm" i18n="@@New">New</div>
+        </div>
+        <div *ngIf="item.product.status && item.product.status===Status.PROMOTE" class="promotion notify-badge">
+          <div class="text-sm" i18n="@@Promotion">Promotion</div>
+        </div>
+      </div>
+      <!--  END NON-DEFAULT CART ITEM  -->
+      <div class="col-8 text-body">
+        <div class="title-bg">{{item.product.name}}</div>
+        <div class="row order-spec-row" *ngIf="cartItem.spec">
+          <div class="col-12 m-0 p-0">
+            <small>{{cartItem.singleSpecDesc(this.lang)}}</small>
+          </div>
+          <div class="col-12 m-0 p-0" *ngIf="{detail: cartItem.multipleSpecDesc(this.lang)} as detailInfo">
+            <div class="row" *ngFor="let info of detailInfo.detail">
+              <div class="col-12 m-0 p-0">
+                <small>{{info.name}} &times; {{info.quantity}}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row order-row">
+          <div class="col-4 price-col">${{cartItem.priceIncSpec()|number : '1.2-2'}}</div>
+          <div class="col-8 button-col">
+            <div class="row m-0 p-0 justify-content-end"
+                 *ngIf="cartItem.spec; else cartQuantityArea">
+              <div class="col-12 m-0 p-0 select-specification"  (click)="onSelect(item.product, cartItem)">
+                <span i18n="@@EditSpecification" *ngIf="cartItem.quantity > 0">Edit</span>
+              </div>
+              <div class="col-12 mt-2 p-0" *ngIf="cartItem.quantity > 0">
+                <ng-template [ngTemplateOutlet]="cartQuantityArea"></ng-template>
+              </div>
+            </div>
+            <ng-template #cartQuantityArea>
+              <div class="add-btn" (click)="onQuantityChanged(cartItem.quantity + 1, cartItem)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path fill="none" d="M0 0h24v24H0V0z"/>
+                  <path fill="#0F9D58"
+                        d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+                  />
+                </svg>
+              </div>
+              <!-- <input class="quantity" type="number" (change)="onQuantityChanged($event, item)" /> -->
+              <div class="quantity">
+                <input class="form-control" type="number" value="{{cartItem.quantity}}"
+                       (input)="onQuantityChanged($event.target.value, cartItem)"/>
+              </div>
+              <div class="remove-btn" (click)="cartItem.quantity > 0 && onQuantityChanged(cartItem.quantity - 1, cartItem)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                   <path fill="none" d="M0 0h24v24H0V0z"/>
                   <path fill="#F4B400"

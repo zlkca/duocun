@@ -3,12 +3,12 @@ import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { Subject } from '../../../../node_modules/rxjs';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
-import {CartItem, ICart, ICartItem} from '../../cart/cart.model';
+import {Cart, CartItem, ICart, ICartItem} from '../../cart/cart.model';
 import { IMall } from '../../mall/mall.model';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { OrderService } from '../order.service';
-import { IOrder, ICharge, OrderItem, OrderType, OrderStatus, PaymentStatus, PaymentError } from '../order.model';
+import {IOrder, ICharge, OrderItem, OrderType, OrderStatus, PaymentStatus, PaymentError, Order} from '../order.model';
 import { PageActions } from '../../main/main.actions';
 import { MatSnackBar, MatDialog } from '../../../../node_modules/@angular/material';
 import { IDelivery } from '../../delivery/delivery.model';
@@ -35,12 +35,12 @@ import { IPaymentResponse, ResponseStatus } from '../../transaction/transaction.
 })
 export class OrderFormPageComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<any>();
-  cart;
+  cart: Cart;
   malls: IMall[] = [];
   form;
   account: IAccount;
-  items: ICartItem[];
-  order: IOrder; // used for identifing new order or not, now used for updating paymentMethod info
+  items: CartItem[];
+  order: Order; // used for identifing new order or not, now used for updating paymentMethod info
   delivery: IDelivery;
   address: string;    // for display
   balance: number;
@@ -87,8 +87,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       self.address = this.locationSvc.getAddrString(x.origin);
     });
 
-    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+    this.rx.select<Cart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: Cart) => {
       this.cart = cart;
+      this.cart.selectedCartItem = null;
+      this.cart.selectedProduct = null;
     });
 
     this.rx.select<IMerchant>('merchant').pipe(takeUntil(this.onDestroy$)).subscribe((m: IMerchant) => {
@@ -96,7 +98,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
 
     // for modify order and update paymentMethod field
-    this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
+    this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: Order) => {
       this.order = order;
     });
 
@@ -210,7 +212,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         self.account = account;
         self.balance = account ? account.balance : 0;
 
-        const cart: ICart = this.cart;
+        const cart: Cart = this.cart;
         const merchant = this.merchant;
 
         if (cart) {
@@ -253,34 +255,25 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return { cost: cost, price: price };
   }
 
-  getSummary(cart: ICart, merchant: IMerchant, overRangeCharge: number, groupDiscount: number) {
-    let price = 0;
-    let cost = 0;
+  getSummary(cart: Cart, merchant: IMerchant, overRangeCharge: number, groupDiscount: number) {
     const taxRate = 13 / 100;
     const items: ICartItem[] = [];
-    if (cart.items && cart.items.length > 0) {
-      cart.items.map(x => {
-        const cartItemData = CartItem.priceAndCost(x);
-        price += cartItemData.price * x.quantity;
-        cost += cartItemData.cost * x.quantity;
-        items.push(x);
-      });
-    }
+    cart.update();
 
-    const subTotal = price + merchant.deliveryCost;
+    const subTotal = cart.price + merchant.deliveryCost;
     const tax = Math.ceil(subTotal * taxRate);
     const tips = 0;
     const overRangeTotal = Math.round(overRangeCharge * 100) / 100;
     return {
-      price: price,
-      cost: cost,
+      price: cart.price,
+      cost: cart.cost,
       overRangeCharge: overRangeTotal,
       deliveryCost: merchant.deliveryCost,
       deliveryDiscount: merchant.deliveryCost,
       groupDiscount: groupDiscount,
       tips: tips,
       tax: tax,
-      total: price + tax + tips - groupDiscount + overRangeTotal
+      total: cart.price + tax + tips - groupDiscount + overRangeTotal
     };
   }
 
@@ -288,17 +281,20 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   createOrder(account: IAccount, merchant: IMerchant, cart: ICart, delivery: IDelivery, charge: ICharge,
     note: string, paymentMethod: string): IOrder {
 
-    const items: OrderItem[] = cart.items.filter(x => x.merchantId === cart.merchantId).map(it => {
-      return {
+    const items: OrderItem[] = cart.items.map(it => {
+      return new OrderItem({
+        merchantId: it.merchantId,
+        merchantName: it.merchantName,
+        productName: it.productName,
         productId: it.productId,
         quantity: it.quantity,
         price: it.price,
         cost: it.cost,
         spec: it.spec
-      };
+      });
     });
 
-    const order: IOrder = {
+    const order = new Order({
       clientId: account._id,
       clientName: account.username,
       defaultPickupTime: account.pickup,
@@ -323,7 +319,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       driverId: '',
       paymentMethod: paymentMethod,
       dateType: delivery.dateType // this.sharedSvc.getDateType(delivery.date)
-    };
+    });
 
     return order;
   }
@@ -543,31 +539,5 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   getAbs(n) {
     return Math.abs(n);
-  }
-
-  hasSpecification(cartItem): boolean {
-    return !!cartItem['spec'];
-  }
-
-  cartItemPrice(cartItem): number {
-    return CartItem.calcPrice(cartItem);
-  }
-  cartItemSingleDesc(cartItem): string {
-    return CartItem.singleSpecDesc(cartItem, this.lang);
-  }
-  cartItemMultipleSpec(cartItem): Array<{name: string, quantity: number}> {
-    const details = [];
-    const multipleDetails = CartItem.multipleSpecDetails(cartItem);
-    multipleDetails.forEach(detail => {
-      let localName = detail.name;
-      if (this.lang === 'en' && detail.nameEN) {
-        localName = detail.nameEN;
-      }
-      details.push({
-        name: localName,
-        quantity: detail.quantity
-      });
-    });
-    return details;
   }
 }

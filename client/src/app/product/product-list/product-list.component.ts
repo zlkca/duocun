@@ -10,7 +10,7 @@ import { Subject } from '../../../../node_modules/rxjs';
 import { IDelivery } from '../../delivery/delivery.model';
 import { IMerchant } from '../../merchant/merchant.model';
 import { IRange } from '../../range/range.model';
-import {CartItem, ICart} from '../../cart/cart.model';
+import {Cart, CartItem} from '../../cart/cart.model';
 const ADD_IMAGE = 'add_photo.png';
 
 @Component({
@@ -37,7 +37,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   ranges: IRange[];
   lang = environment.language;
   Status = ProductStatus;
-  cart;
+  cart: Cart;
   ngOnInit() {
 
   }
@@ -55,7 +55,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     private router: Router,
     private rx: NgRedux<IAppState>
   ) {
-    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+    this.rx.select<Cart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: Cart) => {
       this.cart = cart;
     });
 
@@ -64,7 +64,7 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  isValidProduct(p: IProduct) {
+  isValidAction() {
     const merchant = this.restaurant;
     const addressHint = this.lang === 'en' ? 'Please enter delivery address' : '请先输入送餐地址';
     const breakHint = this.lang === 'en' ? 'The merchant closed, can not deliver today' : '该商家休息，暂时无法配送';
@@ -88,45 +88,26 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     return true;
   }
 
-  addToCart(p: IProduct) {
-    if (!this.isValidProduct(p)) {
+  addItemToCart(p: IProduct|CartItem) {
+    if (!this.isValidAction()) {
       return;
     }
-
     const origin = this.delivery.origin;
     if (origin) {
       this.add.emit({
-        items: [{
-          productId: p._id,
-          productName: p.name,
-          price: p.price,
-          cost: p.cost,
-          quantity: 1,
-          pictures: p.pictures,
-          merchantId: p.merchantId, // merchant account id
-          merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-        }],
-        merchantId: p.merchantId, // merchant account id
-        merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
+        items: [ p instanceof CartItem ? p : CartItem.getDefault(p, this.restaurant)]
       });
     }
   }
 
-  removeFromCart(p: IProduct) {
+  getProductPrice(p: IProduct): number {
+    return Product.calcPrice(p);
+  }
+
+  removeItemFromCart(p: IProduct|CartItem) {
     this.remove.emit({
-          items: [{
-            productId: p._id,
-            productName: p.name,
-            price: p.price,
-            cost: p ? p.cost : 0,
-            quantity: 1,
-            pictures: p.pictures,
-            merchantId: p.merchantId,
-            merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-          }],
-          merchantId: p.merchantId,
-          merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-        });
+        items: [ p instanceof CartItem ? p : CartItem.getDefault(p, this.restaurant) ]
+    });
   }
 
   getProductImage(p: Product) {
@@ -137,41 +118,15 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onQuantityChanged(v, product: IProduct) {
-    if (!this.isValidProduct(product)) {
+  onQuantityChanged(v: number, p: IProduct|CartItem) {
+    if (!this.isValidAction()) {
       return;
     }
-    let quantity = 0;
-    if (!isNaN(parseInt(v, 10))) {
-      quantity = parseInt(v, 10) >= 0 ? parseInt(v, 10) : 0;
-    }
+    const cartItem = p instanceof CartItem ? p : CartItem.getDefault(p, this.restaurant);
+    cartItem.quantity = v;
     this.setquantity.emit({
-      items: [{
-        productId: product._id,
-        productName: product.name,
-        price: product.price,
-        cost: product.cost,
-        quantity,
-        pictures: product.pictures,
-        merchantId: product.merchantId,
-        merchantName: this.lang === 'en' ? product.merchant.nameEN : product.merchant.name
-      }],
+      items: [ cartItem ],
     });
-    // this.rx.dispatch({
-    //   type: CartActions.UPDATE_QUANTITY,
-    //   payload: {
-    //     items: [{
-    //       productId: p._id,
-    //       productName: p.name,
-    //       price: p.price,
-    //       quantity: quantity,
-    //       pictures: p.pictures,
-    //       cost: p ? p.cost : 0,
-    //       merchantId: p.merchantId,
-    //       merchantName: this.lang === 'en' ? p.merchant.nameEN : p.merchant.name
-    //     }]
-    //   }
-    // });
   }
 
   getImageSrc(p) {
@@ -183,64 +138,33 @@ export class ProductListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   // select product for specification
-  onSelect(product: IProduct) {
-    if (!this.isValidProduct(product)) {
+  onSelect(p: IProduct, item?: CartItem) {
+    if (!this.isValidAction()) {
       return;
     }
+    const selectedCartItem = item ? item : CartItem.getDefault(p, this.restaurant);
+    selectedCartItem.quantity = this.cart.getItemQuantity(selectedCartItem);
     this.select.emit({
-      selectedProduct: product
+      selectedProduct: p,
+      selectedCartItem
     });
   }
 
+  defaultCartItem(product): CartItem {
+    return CartItem.getDefault(product, this.restaurant);
+  }
+
+  getCartItemQuantity(cartItem: CartItem) {
+    return this.cart.getItemQuantity(cartItem);
+  }
+  getDefaultItemQuantity(product): number {
+    return this.getCartItemQuantity(this.defaultCartItem(product));
+  }
+  getNonDefaultCartItems(product): Array<CartItem> {
+    return this.cart.getNonDefaultCartItems(product, this.restaurant);
+  }
   // check if a product has any specification
   hasSpecification(product): boolean {
     return product.specifications && product.specifications.length;
   }
-
-  getProductItemPrice(product: IProduct): string {
-    const cartItem = this.cart.items.find(item => item.productId === product._id);
-    if (cartItem) {
-      return CartItem.calcPrice(cartItem).toFixed(2);
-    } else {
-      return Product.calcPrice(product).toFixed(2);
-    }
-  }
-
-  getProductItemSingleDesc(product: IProduct): string {
-    const names = [];
-    const cartItem = this.cart.items.find(item => item.productId === product._id);
-    if (cartItem) {
-      const singleDetails = CartItem.singleSpecDetails(cartItem);
-      singleDetails.forEach(detail => {
-        let name = detail.name;
-        if (this.lang === 'en' && detail.nameEN) {
-          name = detail.nameEN;
-        }
-        names.push(name);
-      });
-    }
-    return names.join(' ');
-  }
-
-  getProductItemMultipleSpecs(product: IProduct): Array<{name: string, quantity: number}> {
-    const cartItem = this.cart.items.find(item => item.productId === product._id);
-    const details = [];
-    if (cartItem) {
-      const multipleDetails = CartItem.multipleSpecDetails(cartItem);
-
-      multipleDetails.forEach(detail => {
-        let localName = detail.name;
-        if (this.lang === 'en' && detail.nameEN) {
-          localName = detail.nameEN;
-        }
-        details.push({
-          name: localName,
-          quantity: detail.quantity
-        });
-      });
-    }
-
-    return details;
-  }
 }
-
