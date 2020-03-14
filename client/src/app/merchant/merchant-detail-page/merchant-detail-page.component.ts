@@ -8,7 +8,7 @@ import { IMerchant } from '../../merchant/merchant.model';
 import { ProductService } from '../../product/product.service';
 import {IProduct, ProductStatus} from '../../product/product.model';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
-import { ICart, ICartItem } from '../../cart/cart.model';
+import {Cart, ICartItem} from '../../cart/cart.model';
 import { PageActions } from '../../main/main.actions';
 import { MatDialog } from '../../../../node_modules/@angular/material';
 import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-restaurant-dialog.component';
@@ -33,7 +33,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
   onDestroy$ = new Subject<any>();
   locationSubscription;
   dow: number; // day of week
-  cart;
+  cart: Cart;
   delivery: IDelivery;
   lang = environment.language;
   onSchedule: boolean;
@@ -50,7 +50,7 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
-    private rx: NgRedux<ICart>,
+    private rx: NgRedux<Cart>,
     public dialog: MatDialog
   ) {
     const self = this;
@@ -63,11 +63,11 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       self.bHasAddress = x.origin ? true : false;
     });
 
-    this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
+    this.rx.select<Cart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: Cart) => {
       this.cart = cart;
       // update quantity of cart items
       if (self.groups && self.groups.length > 0) {
-        self.groups = this.mergeQuantityFromCart(self.groups, cart);
+        // self.groups = this.mergeQuantityFromCart(self.groups, cart);
       }
     });
 
@@ -121,7 +121,8 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
         self.productSvc.categorize(q, this.lang).pipe(takeUntil(self.onDestroy$)).subscribe((groups: any[]) => {
           self.restaurant = merchant;
-          self.groups = this.mergeQuantityFromCart(groups, this.cart);
+          self.groups = groups;
+          // self.groups = this.mergeQuantityFromCart(groups, this.cart);
           const categories: any[] = [];
           self.groups.map(grp => {
             categories.push({
@@ -136,15 +137,15 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  mergeQuantityFromCart(groups, cart) {
-    groups.map(group => {
-      group.items.map(groupItem => {
-        const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product._id);
-        groupItem.quantity = cartItem ? cartItem.quantity : 0;
-      });
-    });
-    return groups;
-  }
+  // mergeQuantityFromCart(groups, cart) {
+  //   groups.map(group => {
+  //     group.items.map(groupItem => {
+  //       const cartItem: ICartItem = cart.items.find(item => item.productId === groupItem.product._id);
+  //       groupItem.quantity = cartItem ? cartItem.quantity : 0;
+  //     });
+  //   });
+  //   return groups;
+  // }
 
   ngOnDestroy() {
     this.locationSubscription.unsubscribe();
