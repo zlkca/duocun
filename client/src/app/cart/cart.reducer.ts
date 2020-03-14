@@ -1,39 +1,20 @@
 import { CartActions } from './cart.actions';
-import {CartItem, ICart, ICartItem, ICartItemSpec} from './cart.model';
+import {Cart, CartItem, ICart, ICartItem, ICartItemSpec} from './cart.model';
+import {User} from '../account/account';
+import {CartService} from './cart.service';
 
 export interface ICartAction {
   type: string;
-  payload: ICart;
+  payload: any;
 }
 
 // if items is [], means empty cart
-function updateCart(c: ICart, items: ICartItem[]) {
-  const cart = Object.assign({}, c);
-  cart.price = 0;
-  cart.quantity = 0;
-
-  if (items && items.length > 0) {
-    items.map(x => {
-
-      cart.price +=  CartItem.calcPrice(x) * x.quantity;
-      cart.quantity += x.quantity;
-    });
-  } else { // clear cart
-    cart.merchantId = '';
-    cart.merchantName = '';
-  }
+function updateCart(cart: Cart, items: CartItem[]): Cart {
+  cart.update();
   return cart;
 }
 
-export const DEFAULT_CART = {
-  merchantId: '',
-  merchantName: '',
-  quantity: 0,
-  price: 0,
-  items: []
-};
-
-export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
+export function cartReducer(state: Cart = CartService.DEFAULT_CART, action: ICartAction) {
   const items = [];
   let updated = null;
   let its = [];
@@ -43,121 +24,49 @@ export function cartReducer(state: ICart = DEFAULT_CART, action: ICartAction) {
 
     switch (action.type) {
       case CartActions.UPDATE_CART:
-        return {
-          ...state,
-          ...action.payload.items
-        };
-
+        state.update();
+        return Object.create(state);
       case CartActions.UPDATE_QUANTITY:
         const itemsToUpdate = action.payload.items;
-        itemsToUpdate.map(itemToUpdate => {
-          const x = state.items.find(item => item.productId === itemToUpdate.productId);
-          if (x) {
-            x.quantity = itemToUpdate.quantity;
-          } else {
-            items.push({ ...itemToUpdate });
-          }
+        itemsToUpdate.forEach(item => {
+          state.setItemQuantity(item, item.quantity);
         });
-
-        state.items.map(x => {
-          const it = items.find(y => y.productId === x.productId);
-          if (!it) {
-            items.push(x);
-          }
-        });
-
-        its = items.filter(x => x.quantity > 0);
-        updated = updateCart(state, its);
-
-        return {
-          ...state,
-          ...updated,
-          items: its
-        };
+        return Object.create(state);
 
       case CartActions.ADD_TO_CART:
         const itemsToAdd = action.payload.items;
-
         // add all into items variable
         itemsToAdd.map(itemToAdd => {
-          const x = state.items.find(item => item.productId === itemToAdd.productId);
-          if (x) {
-            items.push({ ...x, quantity: x.quantity + itemToAdd.quantity });
-          } else {
-            items.push({ ...itemToAdd });
-          }
+          state.addItem(itemToAdd);
         });
-
-        state.items.map(x => {
-          const it = items.find(y => y.productId === x.productId);
-          if (!it) {
-            items.push(x);
-          }
-        });
-
-        updated = updateCart(state, items);
-        return {
-          ...state,
-          ...updated,
-          items: items,
-          merchantId: action.payload.merchantId,
-          merchantName: action.payload.merchantName
-        };
+        return Object.create(state);
       case CartActions.REMOVE_FROM_CART:
         const itemsToRemove: ICartItem[] = action.payload.items;
-        itemsToRemove.map((itemToRemove: ICartItem) => {
-          const x = state.items.find(item => item.productId === itemToRemove.productId);
-          if (x) {
-            items.push({ ...x, quantity: x.quantity - itemToRemove.quantity });
-          }
-        });
-        state.items.map(x => {
-          const it = items.find(y => y.productId === x.productId);
-          if (!it) {
-            items.push(x);
-          }
-        });
-
-        its = items.filter(x => x.quantity > 0);
-        updated = updateCart(state, its);
-
-        return {
-          ...state,
-          ...updated,
-          items: its
-        };
-
+        itemsToRemove.forEach(item => {
+          state.removeItem(item);
+        })
+        return Object.create(state);
       case CartActions.UPDATE_FROM_CHANGE_ORDER: // deprecated
         its = [...action.payload.items];
         updated = updateCart(state, its);
-
-        return {
-          ...state,
-          ...updated,
-          merchantId: action.payload.merchantId,
-          merchantName: action.payload.merchantName,
-          items: its
-        };
-
+        state.items = its;
+        state['updated'] = updateCart(state, its);
+        state.merchantId = action.payload.merchantId;
+        state.merchantName = action.payload.merchantName;
+        return Object.create(state);
       case CartActions.CLEAR_CART:
-        updated = updateCart(state, []);
-        return {
-          ...state,
-          ...updated,
-          items: []
-        };
+        state = CartService.DEFAULT_CART;
+        return Object.create(state);
       case CartActions.SELECT_FOR_SPEC:
-        return {
-          ...state,
-          selectedProduct: action.payload.selectedProduct
-        };
+        state.selectedProduct = action.payload.selectedProduct;
+        state.selectedCartItem = action.payload.selectedCartItem;
+        return Object.create(state);
       case CartActions.CANCEL_SPEC_SELECT:
-        return {
-          ...state,
-          selectedProduct: null
-        };
+        state.selectedProduct = null;
+        state.selectedCartItem = null;
+        return Object.create(state);
       default:
-        return { ...state };
+        return state;
     }
   }
 
