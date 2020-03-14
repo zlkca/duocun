@@ -1,6 +1,7 @@
 import { Address } from '../account/account.model';
 import { ILocation } from '../location/location.model';
-import {ICartItem} from "../cart/cart.model";
+import {CartItem, CartItemSpec, CartItemSpecDetail, ICartItemSpecDetail} from '../cart/cart.model';
+import {IProduct} from "../product/product.model";
 
 export enum OrderStatus {
   BAD = 1,          // client return, compansate
@@ -43,11 +44,28 @@ export interface IOrderItemSpecDetail {
   quantity: number;
 }
 
+class OrderItemSpecDetail extends CartItemSpecDetail implements IOrderItemSpecDetail  {}
+
 export interface IOrderItemSpec {
   specId: string;
   specName: string;
   type: 'single' | 'multiple';
   list: Array<IOrderItemSpecDetail>;
+}
+
+class OrderItemSpec extends CartItemSpec implements IOrderItemSpec {}
+
+export class OrderItem extends CartItem {
+  product: IProduct;
+  constructor(obj) {
+    super(obj);
+    this.product = obj.product;
+  }
+  static fromRawData(obj) {
+    const instance = new OrderItem(CartItem.fromRawData(obj));
+    instance.product = obj.product;
+    return instance;
+  }
 }
 
 export interface IOrder {
@@ -70,7 +88,7 @@ export interface IOrder {
   // address?: string;       // should not in db
   location?: ILocation;
 
-  items?: IOrderItem[];
+  items?: OrderItem[];
   tax?: number;
   tips?: number;
   deliveryAddress?: Address;
@@ -135,129 +153,17 @@ export class Order implements IOrder {
   constructor(data?: IOrder) {
     Object.assign(this, data);
   }
-  static financialSummary(order: IOrder): {costIncSpec: number, priceIncSpec: number, cost: number, price: number} {
-    const orderSummary = {
-      costIncSpec: 0,
-      priceIncSpec: 0,
-      cost: 0,
-      price: 0
-    };
-    order.items.forEach(orderItem => {
-      const orderItemSummary = OrderItem.financialSummary(orderItem);
-      orderSummary.cost = orderItem.cost * orderItem.quantity;
-      orderSummary.price = orderItem.price * orderItem.quantity;
-      orderSummary.costIncSpec = orderItemSummary.costIncSpec * orderItem.quantity;
-      orderSummary.priceIncSpec = orderItemSummary.priceIncSpec * orderItem.quantity;
-    });
-    return orderSummary;
+  static fromRawData(obj): Order {
+    const items = [];
+    if (obj.items) {
+      obj.items.forEach(item => {
+        items.push(OrderItem.fromRawData(item));
+      });
+    }
+    return new Order({...obj, items});
   }
 }
 
-export interface IOrderItem {
-  productId: string;
-  productName?: string;
-  merchantId?: string;
-  merchantName?: string;
-  price?: number;
-  cost?: number;
-  quantity: number;
-  spec?: Array<IOrderItemSpec>;
-}
-
-export class OrderItem implements IOrderItem {
-  productId: string;
-  quantity: number;
-  price?: number;
-  cost?: number;
-  spec?: Array<IOrderItemSpec>;
-  constructor(data?: IOrderItem) {
-    Object.assign(this, data);
-  }
-  static financialSummary(orderItem: IOrderItem): {costIncSpec: number, priceIncSpec: number} {
-    const summary = {
-      costIncSpec: orderItem.cost,
-      priceIncSpec: orderItem.price
-    }
-    if (orderItem.spec) {
-      orderItem.spec.forEach(spec => {
-        if (spec.list && spec.list.length) {
-          spec.list.forEach(specDetail => {
-            summary.costIncSpec += specDetail.cost;
-            summary.priceIncSpec += specDetail.price;
-          });
-        }
-      });
-    }
-    return summary;
-  }
-  static costIncSpec(orderItem: IOrderItem): number {
-    let costIncSpec = orderItem.cost;
-    if (orderItem.spec) {
-      orderItem.spec.forEach(spec => {
-        if (spec.list && spec.list.length) {
-          spec.list.forEach(specDetail => {
-            costIncSpec += specDetail.cost * specDetail.quantity;
-          });
-        }
-      });
-    }
-    return costIncSpec;
-  }
-  static priceIncSpec(orderItem: IOrderItem): number {
-    let priceIncSpec = orderItem.price;
-    if (orderItem.spec) {
-      orderItem.spec.forEach(spec => {
-        if (spec.list && spec.list.length) {
-          spec.list.forEach(specDetail => {
-            priceIncSpec += specDetail.price * specDetail.quantity;
-          });
-        }
-      });
-    }
-    return priceIncSpec;
-  }
-  static subTotalIncSpec(orderItem: IOrderItem): number {
-    return this.priceIncSpec(orderItem) * orderItem.quantity;
-  }
-  static singleSpecDesc(orderItem: IOrderItem, local: string = 'en', glue: string = ' '): string {
-    const singles = [];
-    if (orderItem.spec) {
-      const singleSpecs = orderItem.spec.filter(spec => spec.type === 'single');
-      singleSpecs.forEach(spec => {
-        if (spec.list && spec.list.length) {
-          const detail = spec.list[0];
-          let detailName = detail.name;
-          if (local === 'en' && detail.nameEN) {
-            detailName =  detail.nameEN
-          }
-          singles.push(detailName);
-        }
-      });
-    }
-    return singles.join(glue);
-  }
-  static multipleSpecDesc(orderItem: IOrderItem, local: string = 'en'): Array<object> {
-    const multiples = [];
-    if (orderItem.spec) {
-      const multipleSpecs = orderItem.spec.filter(spec => spec.type === 'multiple');
-      multipleSpecs.forEach(spec => {
-        if (spec.list) {
-          spec.list.forEach(detail => {
-            let detailName = detail.name;
-            if (local === 'en' && detail.nameEN) {
-              detailName = detail.nameEN;
-            }
-            multiples.push({
-              name: detailName,
-              quantity: detail.quantity
-            });
-          });
-        }
-      });
-    }
-    return multiples;
-  }
-}
 
 export interface ICharge {
   price: number;
