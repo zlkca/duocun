@@ -576,7 +576,6 @@ export class Cart implements ICart {
     this.update();
   }
   setItemQuantity(item: ICartItem, quantity: number): void {
-    console.log('set item quqntity', item, quantity)
     if (quantity <= 0) {
       this.removeItem(item);
     } else {

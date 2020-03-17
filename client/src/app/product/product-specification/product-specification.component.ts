@@ -38,7 +38,6 @@ export class ProductSpecificationComponent implements OnInit, OnDestroy {
       if (this.item.quantity < 1) {
         this.item.quantity = 1;
       }
-      console.log('construcotr', this.item, this.item.quantity)
     });
   }
 

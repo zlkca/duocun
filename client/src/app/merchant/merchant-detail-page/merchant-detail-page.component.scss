@@ -83,7 +83,7 @@ $cat-w: 120px;
     .cat-list{
       width: $cat-w;
     }
-  
+
     .list{
       width: calc(100% - #{$cat-w});
     }
@@ -105,11 +105,11 @@ $cat-w: 120px;
   .content-block{
     left: $padding-w;
     width: calc(100% - #{$padding-w} - #{$padding-w});
-  
+
     .cat-list{
       width: $cat-w;
     }
-  
+
     .list{
       width: calc(100% - #{$cat-w});
     }
@@ -131,11 +131,11 @@ $cat-w: 120px;
   .content-block{
     left: $padding-w;
     width: calc(100% - #{$padding-w} - #{$padding-w});
-  
+
     .cat-list{
       width: $cat-w;
     }
-  
+
     .list{
       width: calc(100% - #{$cat-w});
     }
