@@ -2,7 +2,7 @@ import { DB } from "../db";
 import { Model } from "./model";
 import { ObjectID } from "mongodb";
 
-export interface SpecificationDetailInterface {
+export interface ISpecificationDetail {
   name: string,
   nameEN?: string,
   description?: string,
@@ -11,16 +11,16 @@ export interface SpecificationDetailInterface {
 }
 
 
-export interface SpecificationInterface {
+export interface ISpecification {
   _id: ObjectID,
   productId: ObjectID,
   type: "single" | "multiple",
   name: string,
   nameEN?: string,
-  list: Array<SpecificationDetailInterface>
+  list: Array<ISpecificationDetail>
 }
 
-export class Specification extends Model {
+export class Specification extends Model  {
 
   constructor(dbo: DB) {
     super(dbo, 'specifications');
