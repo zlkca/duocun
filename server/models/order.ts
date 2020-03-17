@@ -47,6 +47,7 @@ export interface IOrderItem {
   quantity: number;
 
   product?: IProduct;
+  spec? : Array<any>
 }
 
 export interface IOrder {
@@ -198,7 +199,7 @@ export class Order extends Model {
                   order.items.map((it: IOrderItem) => {
                     const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
                     if (product) {
-                      items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, product: product });
+                      items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, product: product, spec: it.spec ? it.spec : [] });
                     }
                   });
                   order.items = items;
