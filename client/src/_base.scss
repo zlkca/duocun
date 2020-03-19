@@ -23,7 +23,7 @@ $bottom-btn-w: 125px;
 $content-padding: 300px;
 
 app-footer{
-  z-index: 9900;
+  z-index: 990; // spinner 1000
   position: fixed;
   bottom: 0px;
   width: 100%;
