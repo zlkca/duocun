@@ -30,7 +30,6 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   year = 2019;
   account: IAccount;
-  bHideNavMenu = false;
   page;
   selected = 'home';
   deliveryAddress;
@@ -39,9 +38,9 @@ export class FooterComponent implements OnInit, OnDestroy {
   quantity;
   productTotal;
   fromPage;
-  delivery;
-  order;
-  merchant;
+  // order;
+  // delivery;
+  // merchant;
   lang = environment.language;
 
   private onDestroy$ = new Subject<void>();
@@ -67,42 +66,41 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.rx.select<ICart>('cart').pipe(takeUntil(this.onDestroy$)).subscribe((cart: ICart) => {
       self.cart = cart;
       if (self.page === 'cart-page') {
-        self.bHideNavMenu = cart.items.length !== 0;
       }
       self.quantity = cart.quantity;
       self.productTotal = cart.price;
     });
 
-    this.rx.select('merchant').pipe(takeUntil(this.onDestroy$)).subscribe((x: IMerchant) => {
-      self.merchant = x;
-    });
+    // this.rx.select('merchant').pipe(takeUntil(this.onDestroy$)).subscribe((x: IMerchant) => {
+    //   self.merchant = x;
+    // });
 
-    this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
-      self.delivery = x;
-    });
+    // this.rx.select('delivery').pipe(takeUntil(this.onDestroy$)).subscribe((x: IDelivery) => {
+    //   self.delivery = x;
+    // });
 
-    // for update paymentMethod for order-form-page
-    this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
-      this.order = order;
-    });
+    // // for update paymentMethod for order-form-page
+    // this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
+    //   this.order = order;
+    // });
 
     this.rx.select<string>('page').pipe(takeUntil(this.onDestroy$)).subscribe((x: any) => {
       self.page = x.name;
       self.selected = x.name;
       if (x.name === 'phone-form' || x.name === 'address-form' || x.name === 'restaurant-detail' ||
         x.name === 'cart-page' || x.name === 'order-form') {
-        self.bHideNavMenu = true;
+
         if (x.name === 'address-form') {
           self.fromPage = x.fromPage;
         }
       } else {
-        self.bHideNavMenu = false;
+
       }
     });
 
     this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
       if (x.name === 'loggedIn') {
-        self.bHideNavMenu = false;
+        // pass
       } else if (x.name === 'address-change') {
         self.deliveryAddress = x.args.address;
         self.inRange = x.args.inRange;
@@ -181,22 +179,6 @@ export class FooterComponent implements OnInit, OnDestroy {
     // }
   }
 
-  // pay() {
-  //   this.rx.dispatch({
-  //     type: CommandActions.SEND,
-  //     payload: {
-  //       name: 'pay',
-  //       args: {
-  //         merchant: this.merchant,
-  //         cart: this.cart,
-  //         delivery: this.delivery,
-  //         paymentMethod: this.order.paymentMethod
-  //       }
-  //     }
-  //   });
-  // }
-
-
 
   cartBack() {
     this.rx.dispatch({
@@ -231,12 +213,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   onPay() {
-    this.pay.emit({
-      merchant: this.merchant,
-      cart: this.cart,
-      delivery: this.delivery,
-      paymentMethod: this.order.paymentMethod
-    });
+    this.pay.emit();
   }
 
   onSave() {

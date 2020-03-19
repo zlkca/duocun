@@ -25,6 +25,17 @@ import { resolve } from "url";
 //   // log_file.write(util.format(d) + '\n');
 //   log_stdout.write(util.format(d) + '\n');
 // };
+export const PaymentError = {
+  NONE: 'N',
+  PHONE_EMPTY: 'PE',
+  LOCATION_EMPTY: 'LE',
+  DUPLICATED_SUBMIT: 'DS',
+  CART_EMPTY: 'CE',
+  BANK_CARD_EMPTY: 'BE',
+  INVALID_BANK_CARD: 'IB',
+  BANK_CARD_FAIL: 'BF',
+  WECHATPAY_FAIL: 'WF'
+};
 
 export const ResponseStatus = {
   SUCCESS : 'S',
@@ -449,9 +460,9 @@ export class ClientPayment extends Model {
 
     if(orders && orders.length > 0){  // pay order
       const order = orders[0];
-      const orderIds = orders.map((order: any) => order._id);;
+      // const orderIds = orders.map((order: any) => order._id);;
       // let { price, cost } = this.getChargeSummary(orders); 
-      metadata = { orderIds };
+      metadata = { batchId: order.batchId };
       description = accountName + ' order from ' + orders[0].merchantName;
       batchId = order.batchId;
     }else{
@@ -461,7 +472,13 @@ export class ClientPayment extends Model {
 
     this.stripePay(accountId, amount, 'cad', description, metadata).then((rsp: any) => {
       this.orderEntity.processAfterPay(batchId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
-        res.send(JSON.stringify(rsp, null, 3));
+        if(rsp && rsp.status === ResponseStatus.FAIL){
+          const r = {err: PaymentError.BANK_CARD_FAIL};
+          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+        }else{
+          const r = {err: PaymentError.NONE};
+          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+        }
       });
     });
   }

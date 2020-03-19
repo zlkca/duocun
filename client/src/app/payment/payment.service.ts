@@ -141,15 +141,7 @@ export class PaymentService extends EntityService {
   payByCreditCard(accountId, accountName, orders, amount, note) {
     const url = this.url + '/payByCreditCard';
     const data = { accountId, accountName, orders, amount, note };
-    return new Promise((resolve, reject) => {
-      this.doPost(url, data).toPromise().then(rsp => {
-      if (rsp.status === HttpStatus.OK.code) {
-        resolve(rsp.data);
-      } else {
-        resolve();
-      }
-    });
-      });
+    return this.doPost(url, data).toPromise();
   }
 
   // order --- when order == null, add credit, when order != null, pay order
@@ -158,11 +150,7 @@ export class PaymentService extends EntityService {
     const data = { accountId, accountName, orders, amount, note };
     return new Promise((resolve, reject) => {
       this.doPost(url, data).toPromise().then(rsp => {
-        if (rsp.status === HttpStatus.OK.code) {
-          resolve(rsp.data);
-        } else {
-          resolve();
-        }
+        resolve(rsp);
       });
     });
   }

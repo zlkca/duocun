@@ -29,6 +29,7 @@ import { AreaService } from '../../area/area.service';
 import { MerchantType, IMerchant, MerchantStatus } from '../../merchant/merchant.model';
 import { MerchantService } from '../../merchant/merchant.service';
 import { IDelivery } from '../../delivery/delivery.model';
+import { resolve } from 'url';
 
 const WECHAT_APP_ID = environment.WECHAT.APP_ID;
 const WECHAT_REDIRCT_URL = environment.WECHAT.REDIRECT_URL;
@@ -180,23 +181,28 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  async login(code) {
-    const account = await this.accountSvc.getCurrentAccount(); // try default login
-    if (account) {
-      return account;
-    } else {
-      if (code) { // try wechat login
-        const r: any = this.accountSvc.wxLogin(code);
-        if (r) {
-          this.accountSvc.setAccessTokenId(r.tokenId);
-          return r.account;
+  login(code) {
+    // tslint:disable-next-line:no-shadowed-variable
+    return new Promise((resolve, reject) => {
+      this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe(account => {
+        if (account) {
+          resolve(account);
         } else {
-          return null;
+          if (code) { // try wechat login
+            this.accountSvc.wxLogin(code).then((r: any) => {
+              if (r) {
+                this.accountSvc.setAccessTokenId(r.tokenId);
+                resolve(r.account);
+              } else {
+                resolve();
+              }
+            });
+          } else {
+            resolve();
+          }
         }
-      } else {
-        return null;
-      }
-    }
+      });
+    });
   }
 
   // process url and redirect to corresponding process

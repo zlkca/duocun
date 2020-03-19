@@ -14,7 +14,7 @@ export class ApiMiddleWare {
         || req.path === '/api/Accounts/wechatLogin' || req.path === '/api/Accounts/login'
         || req.path === '/api/Accounts/signup' || req.path === '/api/Accounts/logout'
         || req.path === '/api/Accounts/sendVerifyMsg' || req.path === '/api/Accounts/loginByPhone'
-        || req.path === '/api/Accounts/verifyCode' || req.path === '/api/Accounts/sendVerifyMsg'
+        || req.path === '/api/Accounts/verifyCode' || req.path === '/api/Accounts/sendVerifyMsg' || req.path === '/api/Accounts/verifyAndLogin'
         || (req.method === 'GET' && req.path.indexOf('/api/Accounts') !== -1)
         || req.path.indexOf('/api/Locations') !== -1
         // || req.path.indexOf('/api/Locations/Places/') !== -1

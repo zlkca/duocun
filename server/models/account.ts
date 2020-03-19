@@ -319,15 +319,19 @@ export class Account extends Model {
 
     return new Promise((resolve, reject) => {
       if (tokenId && tokenId !== 'undefined' && tokenId !== 'null') {
-        const a : any = jwt.verify(tokenId, cfg.JWT.SECRET);
-        if (a.id) {
-          this.findOne({ _id: a.id }).then((account: IAccount) => {
-            if (account) {
-              delete account.password;
-            }
-            resolve(account);
-          });
-        } else {
+        try {
+          const a : any = jwt.verify(tokenId, cfg.JWT.SECRET);
+          if (a.id) {
+            this.findOne({ _id: a.id }).then((account: IAccount) => {
+              if (account) {
+                delete account.password;
+              }
+              resolve(account);
+            });
+          } else {
+            resolve();
+          }
+        } catch(e){
           resolve();
         }
       } else {

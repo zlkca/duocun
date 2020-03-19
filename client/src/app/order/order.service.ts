@@ -82,11 +82,11 @@ export class OrderService extends EntityService {
     const url = this.url + '/bulk';
     return new Promise((resolve, reject) => {
       this.doPost(url, orders).toPromise().then(rsp => {
-        if (rsp.status === HttpStatus.OK.code) {
-          resolve(rsp.data);
-        } else {
-          resolve();
-        }
+        // if (rsp.status === HttpStatus.OK.code) {
+        //   resolve(rsp.data);
+        // } else {
+          resolve(rsp);
+        // }
       });
     });
   }

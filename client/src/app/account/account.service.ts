@@ -1,4 +1,4 @@
-import { throwError as observableThrowError, Observable ,  empty, of } from 'rxjs';
+import { throwError as observableThrowError, Observable, empty, of } from 'rxjs';
 import { map, catchError, mergeMap, flatMap } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -40,21 +40,21 @@ export class AccountService extends EntityService {
   // return tokenId if (signup) success, otherwise return ''
   sendVerifyMsg(accountId: string, phone: string, lang: string): Observable<any> {
     const url = this.url + '/sendVerifyMsg';
-    return this.doPost(url, {accountId: accountId, phone: phone, lang: lang});
+    return this.doPost(url, { accountId: accountId, phone: phone, lang: lang });
   }
 
   verifyAndLogin(phone: string, code: string, accountId: string): Observable<any> {
     const url = this.url + '/verifyAndLogin';
-    return this.doPost(url, {code: code, phone: phone, accountId: accountId});
+    return this.doPost(url, { code: code, phone: phone, accountId: accountId });
   }
 
   verifyCode(phone: string, code: string): Observable<any> {
     const url = this.url + '/verifyCode';
-    return this.doPost(url, {code: code, phone: phone});
+    return this.doPost(url, { code: code, phone: phone });
   }
 
   signup(phone: string, verificationCode: string): Observable<any> {
-    return this.http.post(this.url + '/signup', {phone: phone, verificationCode: verificationCode});
+    return this.http.post(this.url + '/signup', { phone: phone, verificationCode: verificationCode });
   }
 
   // login --- return string tokenId
@@ -101,6 +101,10 @@ export class AccountService extends EntityService {
 
   // v2
   setAccessTokenId(token) {
+    const oldToken = this.getAccessTokenId();
+    if (oldToken) {
+      Cookies.remove('duocun-token-id');
+    }
     if (token) {
       Cookies.set('duocun-token-id', token, { expires: COOKIE_EXPIRY_DAYS });
     }
@@ -112,14 +116,14 @@ export class AccountService extends EntityService {
   }
 
   // v2
-  async wxLogin(authCode) {
+  wxLogin(authCode) {
     const url = this.url + '/wxLogin?code=' + authCode;
-    const rsp: any = await this.http.get(url);
-    if (rsp.status === HttpStatus.OK.code) {
-      return rsp.data;
-    } else {
-      return null;
-    }
+    return this.http.get(url).toPromise();
+    // if (rsp.status === HttpStatus.OK.code) {
+    //   return rsp.data;
+    // } else {
+    //   return null;
+    // }
   }
 }
 

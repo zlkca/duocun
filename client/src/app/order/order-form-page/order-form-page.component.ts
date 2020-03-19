@@ -35,28 +35,32 @@ import * as moment from 'moment';
 })
 export class OrderFormPageComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<any>();
-  cart;
   malls: IMall[] = [];
   form;
   account: IAccount;
   items: ICartItem[];
   order: IOrder; // used for identifing new order or not, now used for updating paymentMethod info
-  delivery: IDelivery;
   address: string;    // for display
   balance: number;
-  paymentMethod = PaymentMethod.CASH;
   card;
   stripe;
-  loading = true;
   charge: ICharge;
   afterGroupDiscount: number;
   bSubmitted = false;
   fromPage: string; // params from previous page
   action: string;   // params from previous page
-  lang = environment.language;
-  merchant: IMerchant;
 
+  // state start
+  loading = true;
+  merchant: IMerchant;
+  delivery: IDelivery;
+  cart;
+  paymentMethod = PaymentMethod.CASH;
+  // state end
+
+  // const
   PaymentMethod = PaymentMethod;
+  lang = environment.language;
 
   constructor(
     private fb: FormBuilder,
@@ -352,8 +356,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 resolve({ err: PaymentError.BANK_CARD_FAIL });
               } else {
                 this.paymentSvc.payByCreditCard(account._id, account.username, newOrders, amount, note).then((rsp: any) => {
-                  // const items: ICartItem[] = cart.items.filter(x => x.merchantId === order.merchantId);
-                  // self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
                   resolve({ err: rsp.err });
                 });
               }
@@ -370,109 +372,94 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleCardPayment(account: IAccount, token: any, order: IOrder, cart: ICart) {
-    const self = this;
-    const balance: number = account.balance;
-    const payable = Math.round((order.total - balance) * 100) / 100;
-    const payHint = this.lang === 'en' ? 'The order is placed and paid successfully' : '已成功下单';
-    order.status = OrderStatus.TEMP;
+  // handleCardPayment(account: IAccount, token: any, order: IOrder, cart: ICart) {
+  //   const self = this;
+  //   const balance: number = account.balance;
+  //   const payable = Math.round((order.total - balance) * 100) / 100;
+  //   const payHint = this.lang === 'en' ? 'The order is placed and paid successfully' : '已成功下单';
+  //   order.status = OrderStatus.TEMP;
 
-    // tslint:disable-next-line:no-shadowed-variable
-    return new Promise((resolve, reject) => {
-      // save order and update balance
-      self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
-        const orderId = ret._id;
-        const merchantId = ret.merchantId;
-        const items: ICartItem[] = cart.items.filter(x => x.merchantId === merchantId);
+  //   // tslint:disable-next-line:no-shadowed-variable
+  //   return new Promise((resolve, reject) => {
+  //     // save order and update balance
+  //     self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
+  //       const orderId = ret._id;
+  //       const merchantId = ret.merchantId;
+  //       const items: ICartItem[] = cart.items.filter(x => x.merchantId === merchantId);
 
-        self.paymentSvc.stripePayOrder(orderId, payable, token).pipe(takeUntil(self.onDestroy$)).subscribe((rsp: IPaymentResponse) => {
-          if (rsp.status === ResponseStatus.SUCCESS) {
-            self.snackBar.open('', payHint, { duration: 2000 });
-            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } }); // should be clear cart ?
-          }
-          const error = rsp.status === ResponseStatus.SUCCESS ? PaymentError.NONE : PaymentError.BANK_CARD_FAIL;
-          resolve({ err: error });
-        });
-      });
-    });
-  }
+  //       self.paymentSvc.stripePayOrder(orderId, payable, token).pipe(takeUntil(self.onDestroy$)).subscribe((rsp: IPaymentResponse) => {
+  //         if (rsp.status === ResponseStatus.SUCCESS) {
+  //           self.snackBar.open('', payHint, { duration: 2000 });
+  //           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } }); // should be clear cart ?
+  //         }
+  //         const error = rsp.status === ResponseStatus.SUCCESS ? PaymentError.NONE : PaymentError.BANK_CARD_FAIL;
+  //         resolve({ err: error });
+  //       });
+  //     });
+  //   });
+  // }
 
-  handleSnappayPayment(account: IAccount, order: IOrder, cart: ICart) {
-    const self = this;
-    const balance: number = account.balance;
-    const payable = Math.round((order.total - balance) * 100) / 100;
+  // handleSnappayPayment(account: IAccount, order: IOrder, cart: ICart) {
+  //   const self = this;
+  //   const balance: number = account.balance;
+  //   const payable = Math.round((order.total - balance) * 100) / 100;
 
-    order.status = OrderStatus.TEMP;
+  //   order.status = OrderStatus.TEMP;
 
-    // tslint:disable-next-line:no-shadowed-variable
-    return new Promise((resolve, reject) => {
-      // save order and update balance
-      self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
-        const merchantId = ret.merchantId;
-        const items: ICartItem[] = cart.items.filter(x => x.merchantId === merchantId);
+  //   // tslint:disable-next-line:no-shadowed-variable
+  //   return new Promise((resolve, reject) => {
+  //     // save order and update balance
+  //     self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((ret: IOrder) => {
+  //       const merchantId = ret.merchantId;
+  //       const items: ICartItem[] = cart.items.filter(x => x.merchantId === merchantId);
 
-        this.paymentSvc.snappayPayOrder(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((rsp: IPaymentResponse) => {
-          if (rsp.status === ResponseStatus.SUCCESS) {
-            self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-          }
-          const error = rsp.status === ResponseStatus.SUCCESS ? PaymentError.NONE : PaymentError.WECHATPAY_FAIL;
-          resolve({ err: error, url: rsp.url });
-        });
-      });
-    });
+  //       this.paymentSvc.snappayPayOrder(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((rsp: IPaymentResponse) => {
+  //         if (rsp.status === ResponseStatus.SUCCESS) {
+  //           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+  //         }
+  //         const error = rsp.status === ResponseStatus.SUCCESS ? PaymentError.NONE : PaymentError.WECHATPAY_FAIL;
+  //         resolve({ err: error, url: rsp.url });
+  //       });
+  //     });
+  //   });
 
-  }
+  // }
 
-  // only happend on balance < order.total
-  handleWithCash(account: IAccount, order: IOrder, cart: ICart) {
-    const self = this;
-    const balance: number = account.balance;
-    const orderSuccessHint = this.lang === 'en' ? 'The order is placed successfully' : '已成功下单';
+  // // only happend on balance < order.total
+  // handleWithCash(account: IAccount, order: IOrder, cart: ICart) {
+  //   const self = this;
+  //   const balance: number = account.balance;
+  //   const orderSuccessHint = this.lang === 'en' ? 'The order is placed successfully' : '已成功下单';
 
-    // tslint:disable-next-line:no-shadowed-variable
-    return new Promise((resolve, reject) => {
-      if (order && order._id) { // modify order, now do not support
-        const orderId = order._id;
+  //   // tslint:disable-next-line:no-shadowed-variable
+  //   return new Promise((resolve, reject) => {
+  //     if (order && order._id) { // modify order, now do not support
+  //       const orderId = order._id;
 
-        self.orderSvc.update({ _id: orderId }, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
-          const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
-          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-          self.snackBar.open('', orderSuccessHint, { duration: 2000 });
-          resolve({ err: PaymentError.NONE, type: 'update', order: r });
-        });
-      } else { // create new
-        if (balance >= order.total) {
-          order.paymentStatus = PaymentStatus.PAID;
-        }
+  //       self.orderSvc.update({ _id: orderId }, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
+  //         const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
+  //         self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+  //         self.snackBar.open('', orderSuccessHint, { duration: 2000 });
+  //         resolve({ err: PaymentError.NONE, type: 'update', order: r });
+  //       });
+  //     } else { // create new
+  //       if (balance >= order.total) {
+  //         order.paymentStatus = PaymentStatus.PAID;
+  //       }
 
-        self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((orderCreated: IOrder) => {
-          self.snackBar.open('', orderSuccessHint, { duration: 1800 });
-          const items: ICartItem[] = cart.items.filter(x => x.merchantId === order.merchantId);
-          self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-          resolve({ err: PaymentError.NONE, type: 'new', order: orderCreated });
-        });
-      } // end of create new
-    });
-  }
+  //       self.orderSvc.save(order).pipe(takeUntil(self.onDestroy$)).subscribe((orderCreated: IOrder) => {
+  //         self.snackBar.open('', orderSuccessHint, { duration: 1800 });
+  //         const items: ICartItem[] = cart.items.filter(x => x.merchantId === order.merchantId);
+  //         self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+  //         resolve({ err: PaymentError.NONE, type: 'new', order: orderCreated });
+  //       });
+  //     } // end of create new
+  //   });
+  // }
 
 
   onSelectPaymentMethod(paymentMethod) {
     this.paymentMethod = paymentMethod;
-    // this.rx.dispatch({
-    //   type: OrderActions.UPDATE_PAYMENT_METHOD,
-    //   payload: { paymentMethod: this.paymentMethod }
-    // });
-    // if (paymentMethod === PaymentMethod.CASH) {
-    //   // pass
-    // } else if (paymentMethod === PaymentMethod.CREDIT_CARD) {
-    // //   setTimeout(() => {
-    // //     const rt = this.paymentSvc.initStripe('card-element', 'card-errors');
-    // //     this.stripe = rt.stripe;
-    // //     this.card = rt.card;
-    // //   }, 100);
-    // // } else {
-    // //   // pass
-    // }
   }
 
   openPhoneVerifyDialog(): void {
@@ -496,20 +483,18 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     return Math.abs(n);
   }
 
-  onPay(e) {
+  onPay() {
     const self = this;
-    const merchant = e.merchant;
-    const delivery = e.delivery;
-    const cart = e.cart;
-    const paymentMethod = e.paymentMethod;
+    const merchant = this.merchant;
+    const delivery = this.delivery;
+    const cart = this.cart;
+    const paymentMethod = this.paymentMethod;
     const origin = delivery.origin;
     const groupDiscount = 0; // bEligible ? 2 : 0;
 
     this.loading = true;  // show loading ... animation
-
     this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       if (account) {
-        this.paymentMethod = paymentMethod;
         this.balance = account.balance;
 
         if (origin) {

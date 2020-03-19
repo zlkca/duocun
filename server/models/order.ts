@@ -19,18 +19,6 @@ const CASH_NAME = 'Cash';
 const BANK_ID = '5c95019e0851a5096e044d0c';
 const BANK_NAME = 'TD Bank';
 
-export const PaymentError = {
-  NONE: 'N',
-  PHONE_EMPTY: 'PE',
-  LOCATION_EMPTY: 'LE',
-  DUPLICATED_SUBMIT: 'DS',
-  CART_EMPTY: 'CE',
-  BANK_CARD_EMPTY: 'BE',
-  INVALID_BANK_CARD: 'IB',
-  BANK_CARD_FAIL: 'BF',
-  WECHATPAY_FAIL: 'WF'
-};
-
 export const OrderType = {
   FOOD_DELIVERY: 'F',
   MOBILE_PLAN_SETUP: 'MS',
