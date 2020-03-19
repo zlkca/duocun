@@ -389,6 +389,7 @@ export class ClientPayment extends Model {
 
   // v2 --- each order has a paymentId
   payBySnappay(req: Request, res: Response) {
+    const appType = req.body.appType;
     const accountId = req.body.accountId;
     const accountName = req.body.accountName;
     const orders = req.body.orders;
@@ -411,9 +412,9 @@ export class ClientPayment extends Model {
       if (orderType === OrderType.MOBILE_PLAN_SETUP) {
         returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
       }else if(orderType === OrderType.GROCERY){
-        returnUrl = 'https://duocun.com.cn/account?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
+        returnUrl = 'https://duocun.com.cn/account/history?cId=' + clientId + '&app=' + appType;
       }else{
-        returnUrl = 'https://duocun.com.cn/account?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
+        returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
       }
 
       // let { price, cost } = this.getChargeSummary(orders);
@@ -441,6 +442,7 @@ export class ClientPayment extends Model {
   
         this.clientCreditModel.insertOne(cc).then((c) => {
           const returnUrl = 'https://duocun.com.cn?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=account_settings';
+          // const returnUrl = 'https://duocun.com.cn/account/balance?cId=' + accountId + '&app=' + appType;
           const metadata = { customerId: accountId, customerName: accountName };
           const description = accountName + 'add credit';
           this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId, paymentMethod).then((rsp: any) => {
@@ -461,6 +463,7 @@ export class ClientPayment extends Model {
 
   // v2 --- each order has a paymentId
   payByCreditCard(req: Request, res: Response) {
+    const appType = req.body.appType;
     const accountId = req.body.accountId;
     const accountName = req.body.accountName;
     const orders = req.body.orders;

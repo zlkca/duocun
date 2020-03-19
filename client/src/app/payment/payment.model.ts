@@ -1,3 +1,10 @@
+export const AppType = {
+  FOOD_DELIVERY: 'F',
+  GROCERY: 'G',
+  FRESH: 'F',
+  TELECOM: 'T'
+};
+
 
 export const PaymentError = {
   NONE: 'N',

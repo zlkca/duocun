@@ -138,16 +138,16 @@ export class PaymentService extends EntityService {
 
 
   // order --- when order == null, add credit, when order != null, pay order
-  payByCreditCard(accountId, accountName, orders, amount, note) {
+  payByCreditCard(appType, accountId, accountName, orders, amount, note) {
     const url = this.url + '/payByCreditCard';
-    const data = { accountId, accountName, orders, amount, note };
+    const data = { appType, accountId, accountName, orders, amount, note };
     return this.doPost(url, data).toPromise();
   }
 
   // order --- when order == null, add credit, when order != null, pay order
-  payBySnappay(accountId, accountName, orders, amount, note) {
+  payBySnappay(appType, accountId, accountName, orders, amount, note) {
     const url = this.url + '/payBySnappay';
-    const data = { accountId, accountName, orders, amount, note };
+    const data = { appType, accountId, accountName, orders, amount, note };
     return new Promise((resolve, reject) => {
       this.doPost(url, data).toPromise().then(rsp => {
         resolve(rsp);

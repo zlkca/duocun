@@ -9,7 +9,7 @@ import { AccountService } from '../account.service';
 import { Router } from '../../../../node_modules/@angular/router';
 import { environment } from '../../../environments/environment.prod';
 import { ResponseStatus, IPaymentResponse } from '../../transaction/transaction.model';
-import { PaymentError, PaymentMethod } from '../../payment/payment.model';
+import { PaymentError, PaymentMethod, AppType } from '../../payment/payment.model';
 
 @Component({
   selector: 'app-add-credit-page',
@@ -155,13 +155,13 @@ export class AddCreditPageComponent implements OnInit {
             // An error happened when collecting card details, show `result.error.message` in the payment form.
             resolve({ err: PaymentError.BANK_CARD_FAIL });
           } else {
-            this.paymentSvc.payByCreditCard(account._id, account.username, [], amount, note).then((rsp: any) => {
+            this.paymentSvc.payByCreditCard(AppType.FOOD_DELIVERY, account._id, account.username, [], amount, note).then((rsp: any) => {
               resolve(rsp);
             });
           }
         });
       } else if (paymentMethod === PaymentMethod.WECHAT) {
-        this.paymentSvc.payBySnappay(account._id, account.username, [], amount, note).then((rsp: any) => {
+        this.paymentSvc.payBySnappay(AppType.FOOD_DELIVERY, account._id, account.username, [], amount, note).then((rsp: any) => {
           resolve(rsp);
         });
       } else { // PaymentMethod.CASH || PaymentMethod.PREPAY

@@ -24,7 +24,7 @@ import { PhoneVerifyDialogComponent, AccountType } from '../phone-verify-dialog/
 import { CartActions } from '../../cart/cart.actions';
 import { IMerchant } from '../../merchant/merchant.model';
 import { IPaymentResponse, ResponseStatus } from '../../transaction/transaction.model';
-import { PaymentMethod, PaymentError, PaymentStatus } from '../../payment/payment.model';
+import { PaymentMethod, PaymentError, PaymentStatus, AppType } from '../../payment/payment.model';
 import { SharedService } from '../../shared/shared.service';
 import * as moment from 'moment';
 
@@ -355,13 +355,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 // An error happened when collecting card details, show `result.error.message` in the payment form.
                 resolve({ err: PaymentError.BANK_CARD_FAIL });
               } else {
-                this.paymentSvc.payByCreditCard(account._id, account.username, newOrders, amount, note).then((rsp: any) => {
+                this.paymentSvc.payByCreditCard(AppType.FOOD_DELIVERY, account._id, account.username, newOrders, 
+                  amount, note).then((rsp: any) => {
                   resolve({ err: rsp.err });
                 });
               }
             });
           } else if (paymentMethod === PaymentMethod.WECHAT) {
-            this.paymentSvc.payBySnappay(account._id, account.username, newOrders, amount, note).then((rsp: any) => {
+            this.paymentSvc.payBySnappay(AppType.FOOD_DELIVERY, account._id, account.username, newOrders, amount, note).then((rsp: any) => {
               resolve({ err: rsp.err, url: rsp.url });
             });
           } else { // PaymentMethod.CASH || PaymentMethod.PREPAY
