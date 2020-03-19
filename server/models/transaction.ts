@@ -53,7 +53,7 @@ export interface ITransaction {
   fromName: string;
   toId: string;
   toName: string;
-  batchId?: string;
+  paymentId?: string;
   orderId?: string;
   orderType?: string;
   items?: IOrderItem[];

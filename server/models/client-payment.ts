@@ -15,6 +15,7 @@ import { ClientCredit } from "./client-credit";
 import { CellApplication, CellApplicationStatus } from "./cell-application";
 import { EventLog } from "./event-log";
 import { resolve } from "url";
+import { ObjectID } from "mongodb";
 
 // var fs = require('fs');
 // var util = require('util');
@@ -230,7 +231,7 @@ export class ClientPayment extends Model {
   // v2
   // return {url}
   snappayPay(accountId: string, returnUrl: string, amount: number, description: string, metadata: any,
-    batchId: string, paymentMethod: string = 'WECHATPAY') {
+    paymentId: string, paymentMethod: string = 'WECHATPAY') {
     
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
@@ -241,7 +242,7 @@ export class ClientPayment extends Model {
       merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
       notify_url: 'https://duocun.com.cn/api/ClientPayments/snappayNotify', // 'https://duocun.com.cn/api/ClientPayments/snappayNotify',
-      out_order_no: batchId,                   // Service Mandatory
+      out_order_no: paymentId,                   // Service Mandatory
       payment_method: 'WECHATPAY',             // paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
       return_url: returnUrl,
       trans_amount: amount,                    // Service Mandatory
@@ -386,7 +387,7 @@ export class ClientPayment extends Model {
     return {price, cost};
   }
 
-  // v2 --- each order has a batchId
+  // v2 --- each order has a paymentId
   payBySnappay(req: Request, res: Response) {
     const accountId = req.body.accountId;
     const accountName = req.body.accountName;
@@ -402,7 +403,7 @@ export class ClientPayment extends Model {
       const orderType = order.type;
       const clientId = order.clientId;
       const orderIds = orders.map((order: any) => order._id);
-      const batchId = order.batchId;
+      const paymentId = order.paymentId;
       const metadata = { orderIds };
       const description = accountName + ' order from ' + order.merchantName;
 
@@ -416,7 +417,7 @@ export class ClientPayment extends Model {
       }
 
       // let { price, cost } = this.getChargeSummary(orders);
-      this.snappayPay(accountId, returnUrl, amount, description, metadata, batchId, paymentMethod).then((rsp: any) => {
+      this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId, paymentMethod).then((rsp: any) => {
         if(rsp && rsp.status === ResponseStatus.FAIL){
           const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
           res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
@@ -427,13 +428,14 @@ export class ClientPayment extends Model {
       });
     }else{  // add credit
       if(amount > 0){
-        const batchId = '-1';
+        const paymentId = new ObjectID().toString();
         const cc = {
-          accountId: accountId,
-          accountName: accountName,
+          accountId,
+          accountName,
           total: Math.round(amount * 100) / 100,
-          paymentMethod: paymentMethod,
-          note: note,
+          paymentMethod,
+          note,
+          paymentId,
           status: 'N'
         }
   
@@ -441,7 +443,7 @@ export class ClientPayment extends Model {
           const returnUrl = 'https://duocun.com.cn?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=account_settings';
           const metadata = { customerId: accountId, customerName: accountName };
           const description = accountName + 'add credit';
-          this.snappayPay(accountId, returnUrl, amount, description, metadata, batchId, paymentMethod).then((rsp: any) => {
+          this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId, paymentMethod).then((rsp: any) => {
             if(rsp && rsp.status === ResponseStatus.FAIL){
               const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
               res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
@@ -457,7 +459,7 @@ export class ClientPayment extends Model {
     }
   }
 
-  // v2 --- each order has a batchId
+  // v2 --- each order has a paymentId
   payByCreditCard(req: Request, res: Response) {
     const accountId = req.body.accountId;
     const accountName = req.body.accountName;
@@ -466,7 +468,7 @@ export class ClientPayment extends Model {
     let amount = +req.body.amount;
     let metadata = {};
     let description = '';
-    let batchId = '-1';
+    let paymentId = new ObjectID().toString();
 
     res.setHeader('Content-Type', 'application/json');
 
@@ -474,23 +476,35 @@ export class ClientPayment extends Model {
       const order = orders[0];
       // const orderIds = orders.map((order: any) => order._id);;
       // let { price, cost } = this.getChargeSummary(orders); 
-      metadata = { batchId: order.batchId };
+      metadata = { paymentId: order.paymentId };
       description = accountName + ' order from ' + orders[0].merchantName;
-      batchId = order.batchId;
+      paymentId = order.paymentId;
     }else{
       metadata = { customerId: accountId, customerName: accountName };
       description = accountName + 'add credit';
     }
 
     this.stripePay(accountId, amount, 'cad', description, metadata).then((rsp: any) => {
-      this.orderEntity.processAfterPay(batchId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
-        if(rsp && rsp.status === ResponseStatus.FAIL){
-          const r = {...rsp, err: PaymentError.BANK_CARD_FAIL};
-          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-        }else{
-          const r = {...rsp, err: PaymentError.NONE};
-          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-        }
+      const cc = {
+        accountId,
+        accountName,
+        total: Math.round(amount * 100) / 100,
+        paymentMethod: PaymentMethod.CREDIT_CARD,
+        note,
+        paymentId,
+        status: 'N'
+      }
+
+      this.clientCreditModel.insertOne(cc).then((c) => {
+        this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
+          if(rsp && rsp.status === ResponseStatus.FAIL){
+            const r = {...rsp, err: PaymentError.BANK_CARD_FAIL};
+            res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+          }else{
+            const r = {...rsp, err: PaymentError.NONE};
+            res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+          }
+        });
       });
     });
   }
@@ -515,14 +529,14 @@ export class ClientPayment extends Model {
     // console.log('snappayNotify out_order_no' + b.out_order_no);
     // console.log('snappayNotify customer_paid_amount' + b.customer_paid_amount);
     // console.log('snappayNotify trans_amount' + b.trans_amount);
-    const batchId = req.body.out_order_no;
+    const paymentId = req.body.out_order_no;
     const amount = +req.body.trans_amount;
 
-    this.orderEntity.processAfterPay(batchId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
+    this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
 
     });
 
-    // this.orderEntity.find({ batchId: b.out_order_no }).then(orders => {
+    // this.orderEntity.find({ paymentId: b.out_order_no }).then(orders => {
     //   if (orders && orders.length > 0) {
     //     // if orders is unpaid get total amount.
     //     const order = orders[0];

@@ -24,43 +24,45 @@ import { TransactionService } from '../transaction/transaction.service';
 import { AddCreditPageComponent } from './add-credit-page/add-credit-page.component';
 import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
 import { AddressFormDialogComponent } from './address-form-dialog/address-form-dialog.component';
+import { PaymentModule } from '../payment/payment.module';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        RouterModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatTableModule,
-        MatSortModule,
-        MatSnackBarModule,
-        MatButtonToggleModule,
-        NgxPaginationModule,
-        AccountRoutingModule,
-        SharedModule
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    exports: [
-    ],
-    declarations: [
-      LoginFormComponent,
-      SignupComponent,
-      ForgetPasswordComponent,
-      ProfileFormComponent,
-      AccountPageComponent,
-      BalancePageComponent,
-      AddCreditPageComponent,
-      AddressFormDialogComponent
-    ],
-    providers: [
-      AccountService,
-      AuthService,
-      BalanceService,
-      PaymentService,
-      OrderService,
-      TransactionService,
-      PaginatePipe
-    ]
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatSortModule,
+    MatSnackBarModule,
+    MatButtonToggleModule,
+    NgxPaginationModule,
+    AccountRoutingModule,
+    SharedModule,
+    PaymentModule
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  exports: [
+  ],
+  declarations: [
+    LoginFormComponent,
+    SignupComponent,
+    ForgetPasswordComponent,
+    ProfileFormComponent,
+    AccountPageComponent,
+    BalancePageComponent,
+    AddCreditPageComponent,
+    AddressFormDialogComponent
+  ],
+  providers: [
+    AccountService,
+    AuthService,
+    BalanceService,
+    PaymentService,
+    OrderService,
+    TransactionService,
+    PaginatePipe
+  ]
 })
 export class AccountModule { }

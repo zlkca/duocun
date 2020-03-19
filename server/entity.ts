@@ -283,10 +283,10 @@ export class Entity {
       }
     }
 
-    if (doc && doc.hasOwnProperty('batchId')) {
-      const batchId = doc['batchId'];
-      if (typeof batchId === 'string' && batchId.length === 24) {
-        doc['batchId'] = new ObjectID(batchId);
+    if (doc && doc.hasOwnProperty('paymentId')) {
+      const paymentId = doc['paymentId'];
+      if (typeof paymentId === 'string' && paymentId.length === 24) {
+        doc['paymentId'] = new ObjectID(paymentId);
       }
     }
 

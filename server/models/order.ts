@@ -100,7 +100,7 @@ export interface IOrder {
   paymentMethod: string;
   chargeId?: string; // stripe chargeId
   transactionId?: string;
-  batchId?: string;
+  paymentId?: string;
 
   mode?: string; // for unit test
   dateType?: string; // 'today', 'tomorrow'
@@ -432,10 +432,10 @@ export class Order extends Model {
   // create order batch Id
   async placeOrders(orders: IOrder[]) {
     const savedOrders: IOrder[] = [];
-    const batchId = (new ObjectID()).toString();
+    const paymentId = (new ObjectID()).toString();
     if (orders && orders.length > 0) {
       for (let i = 0; i < orders.length; i++) {
-        orders[i].batchId = batchId;
+        orders[i].paymentId = paymentId;
         const order: IOrder = orders[i];
         const date = moment(order.deliverDate).toISOString();
         const deliverTime: any = order.deliverTime;
@@ -953,7 +953,7 @@ export class Order extends Model {
     }
   }
 
-  async addCreditTransaction(batchId: string, clientId: string, clientName: string, amount: number, actionCode: string, delivered: string) {
+  async addCreditTransaction(paymentId: string, clientId: string, clientName: string, amount: number, actionCode: string, delivered: string) {
     const tr: ITransaction = {
       fromId: clientId,
       fromName: clientName,
@@ -961,7 +961,7 @@ export class Order extends Model {
       toName: BANK_NAME,
       amount,
       actionCode,
-      batchId,
+      paymentId,
       delivered
     };
 
@@ -978,9 +978,9 @@ export class Order extends Model {
   }
 
   // use for both snappay and stripe
-  // batchId --- order batchId
-  async processAfterPay(batchId: string, actionCode: string, amount: number, chargeId: string) {
-    const orders = await this.find({ batchId });
+  // paymentId --- order paymentId
+  async processAfterPay(paymentId: string, actionCode: string, amount: number, chargeId: string) {
+    const orders = await this.find({ paymentId });
     if (orders && orders.length > 0) {
       const order = orders[0];
       if (order.paymentStatus === PaymentStatus.UNPAID) {
@@ -989,11 +989,11 @@ export class Order extends Model {
         // 2.add two transactions for place order and add another transaction for deposit to bank
         // 3.update account balance
         await this.addDebitTransactions(orders);
-        const t: any = await this.addCreditTransaction(batchId, order.clientId.toString(), order.clientName, amount, actionCode, order.delivered);
+        const t: any = await this.addCreditTransaction(paymentId, order.clientId.toString(), order.clientName, amount, actionCode, order.delivered);
         await this.updateOrderStatus(orders, chargeId, t);
       }
-    } else { // add credit
-      const credit = await this.clientCreditModel.findOne({ batchId });
+    } else { // add credit for Wechat
+      const credit = await this.clientCreditModel.findOne({ paymentId });
       if (credit) {
         if (credit.status === 'new') {
           await this.clientCreditModel.updateOne({ _id: credit._id }, { status: 'added' });
@@ -1001,7 +1001,8 @@ export class Order extends Model {
         const accountId = credit.accountId.toString();
         const accountName = credit.accountName;
         const note = credit.note;
-        await this.transactionModel.doAddCredit(accountId, accountName, amount, PaymentMethod.CREDIT_CARD, note);
+        const paymentMethod = credit.paymentMethod;
+        await this.transactionModel.doAddCredit(accountId, accountName, amount, paymentMethod, note);
       }
     }
   }
