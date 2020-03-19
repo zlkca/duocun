@@ -417,7 +417,13 @@ export class ClientPayment extends Model {
 
       // let { price, cost } = this.getChargeSummary(orders);
       this.snappayPay(accountId, returnUrl, amount, description, metadata, batchId, paymentMethod).then((rsp: any) => {
-        res.send(JSON.stringify(rsp, null, 3));
+        if(rsp && rsp.status === ResponseStatus.FAIL){
+          const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
+          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+        }else{
+          const r = {...rsp, err: PaymentError.NONE};
+          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+        }
       });
     }else{  // add credit
       if(amount > 0){
@@ -435,8 +441,14 @@ export class ClientPayment extends Model {
           const returnUrl = 'https://duocun.com.cn?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=account_settings';
           const metadata = { customerId: accountId, customerName: accountName };
           const description = accountName + 'add credit';
-          this.snappayPay(accountId, returnUrl, amount, description, metadata, batchId, paymentMethod).then(rsp => {
-            res.send(JSON.stringify(rsp, null, 3));
+          this.snappayPay(accountId, returnUrl, amount, description, metadata, batchId, paymentMethod).then((rsp: any) => {
+            if(rsp && rsp.status === ResponseStatus.FAIL){
+              const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
+              res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+            }else{
+              const r = {...rsp, err: PaymentError.NONE};
+              res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+            }
           });
         });
       } else{
@@ -473,10 +485,10 @@ export class ClientPayment extends Model {
     this.stripePay(accountId, amount, 'cad', description, metadata).then((rsp: any) => {
       this.orderEntity.processAfterPay(batchId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
         if(rsp && rsp.status === ResponseStatus.FAIL){
-          const r = {err: PaymentError.BANK_CARD_FAIL};
+          const r = {...rsp, err: PaymentError.BANK_CARD_FAIL};
           res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
         }else{
-          const r = {err: PaymentError.NONE};
+          const r = {...rsp, err: PaymentError.NONE};
           res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
         }
       });
