@@ -128,27 +128,50 @@ export class Entity {
     });
   }
 
-  findOne(query: any, options?: any): Promise<any> {
+  findOne(query: any, options?: any, fields?: any[]): Promise<any> {
     const self = this;
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         query = this.convertIdFields(query);
         c.findOne(query, options, (err, doc) => {
-          resolve(doc);
+          if (fields && fields.length > 0) {
+            const it: any = {};
+            fields.map((key: any) => {
+              it[key] = doc[key];
+            });
+            resolve(it);
+          } else {
+            resolve(doc);
+          }
         });
       });
     });
   }
 
   // quick find
-  find(query: any, options?: any): Promise<any> {
+  find(query: any, options?: any, fields?: any[]): Promise<any> {
     const self = this;
     query = this.convertIdFields(query);
 
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.find(query, options).toArray((err, docs) => {
-          resolve(docs);
+
+          if (fields && fields.length > 0) {
+            const rs: any[] = [];
+    
+            docs.map((x: any) => {
+              const it: any = {};
+              fields.map((key: any) => {
+                it[key] = x[key];
+              });
+    
+              rs.push(it);
+            });
+            resolve(rs);
+          } else {
+            resolve(docs);
+          }
         });
       });
     });
@@ -257,6 +280,13 @@ export class Entity {
         doc['_id'] = { $in: arr };
       } else if (typeof body === "string" && body.length === 24) {
         doc['_id'] = new ObjectID(doc._id);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('batchId')) {
+      const batchId = doc['batchId'];
+      if (typeof batchId === 'string' && batchId.length === 24) {
+        doc['batchId'] = new ObjectID(batchId);
       }
     }
 
@@ -530,14 +560,6 @@ export class Entity {
 
         c.insertMany(items, {}, (err: MongoError, r: any) => { //InsertWriteOpResult
           if (!err) {
-            // const rs: any[] = [];
-            // r.ops.map((obj: any) => {
-            //   if (obj && obj._id) {
-            //     obj.id = obj._id;
-            //     // delete (obj._id);
-            //     rs.push(obj);
-            //   }
-            // });
             resolve(r.ops);
           } else {
             reject(err);

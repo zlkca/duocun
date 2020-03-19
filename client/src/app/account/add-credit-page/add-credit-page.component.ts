@@ -8,8 +8,8 @@ import { IAccount } from '../account.model';
 import { AccountService } from '../account.service';
 import { Router } from '../../../../node_modules/@angular/router';
 import { environment } from '../../../environments/environment.prod';
-import { PaymentError } from '../../order/order.model';
 import { ResponseStatus, IPaymentResponse } from '../../transaction/transaction.model';
+import { PaymentError, PaymentMethod } from '../../payment/payment.model';
 
 @Component({
   selector: 'app-add-credit-page',
@@ -25,6 +25,9 @@ export class AddCreditPageComponent implements OnInit {
   account;
   loading = false;
   lang = environment.language;
+
+  PaymentMethod = PaymentMethod;
+
   private destroy$ = new Subject<any>();
 
   constructor(
@@ -48,7 +51,7 @@ export class AddCreditPageComponent implements OnInit {
     const self = this;
     this.accountSvc.getCurrentAccount().pipe(takeUntil(this.destroy$)).subscribe((account: IAccount) => {
       this.account = account;
-      this.paymentMethod = this.lang === 'en' ? 'card' : 'WECHATPAY';
+      this.paymentMethod = this.lang === 'en' ? PaymentMethod.CREDIT_CARD : PaymentMethod.WECHAT;
 
       if (this.lang === 'en') {
         setTimeout(() => {
@@ -76,14 +79,13 @@ export class AddCreditPageComponent implements OnInit {
     if (received === '') {
       return;
     } else {
-      if (paymentMethod === 'card') {
+      if (paymentMethod === PaymentMethod.CREDIT_CARD) {
         this.loading = true;
         this.paymentSvc.vaildateCardPay(this.stripe, this.card, 'card-errors1').then((ret: any) => {
           if (ret.err === PaymentError.NONE) {
             const token = ret.token;
             self.paymentSvc.stripeAddCredit(token, account, +received, note)
               .pipe(takeUntil(this.destroy$)).subscribe((rsp: IPaymentResponse) => {
-
               self.loading = false;
               if (rsp.status === ResponseStatus.SUCCESS) {
                 self.snackBar.open('', creditHint + Math.round(+received * 100) / 100, { duration: 1000 });
@@ -98,7 +100,7 @@ export class AddCreditPageComponent implements OnInit {
             alert(inputAlert);
           }
         });
-      } else if (paymentMethod === 'WECHATPAY') {
+      } else if (paymentMethod === PaymentMethod.WECHAT) {
         const paid = Math.round(+received * 100) / 100;
         this.loading = true;
         this.paymentSvc.snappayAddCredit(account, paid, paymentMethod, note)
@@ -120,7 +122,7 @@ export class AddCreditPageComponent implements OnInit {
     const self = this;
     this.paymentMethod = e.value;
 
-    if (e.value === 'card') {
+    if (e.value === PaymentMethod.CREDIT_CARD) {
       setTimeout(() => {
         const rt = self.paymentSvc.initStripe('card-element1', 'card-errors1');
         self.stripe = rt.stripe;

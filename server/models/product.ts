@@ -207,7 +207,7 @@ export class Product extends Model {
 
       this.bulkUpdate(datas).then(() => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify('success', null, 3));
+        res.send(JSON.stringify('success', null, 3));
       });
     });
   }

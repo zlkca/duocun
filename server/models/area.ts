@@ -103,9 +103,9 @@ export class Area extends Model {
     this.getNearestArea(origin).then((area: IArea) => {
       res.setHeader('Content-Type', 'application/json');
       if (!area) {
-        res.end(JSON.stringify({ status: 'fail', area: '' }, null, 3));
+        res.send(JSON.stringify({ status: 'fail', area: '' }, null, 3));
       } else {
-        res.end(JSON.stringify({ status: 'success', area: area }, null, 3));
+        res.send(JSON.stringify({ status: 'success', area: area }, null, 3));
       }
     });
   }

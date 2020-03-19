@@ -15,7 +15,6 @@ import { CoreModule } from './core/core.module';
 import { AppComponent } from './app.component';
 
 import { AuthService } from './account/auth.service';
-import { FooterComponent } from './footer/footer.component';
 import { HttpClientModule } from '../../node_modules/@angular/common/http';
 import { EntityService } from './entity.service';
 import { AccountService } from './account/account.service';
@@ -77,8 +76,7 @@ const appRoutes: Routes = [
 
 @NgModule({
   declarations: [
-    AppComponent,
-    FooterComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,

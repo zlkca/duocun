@@ -25,10 +25,10 @@ export class MerchantStuff extends Entity{
       if(!r){
         this.insertOne(req.body).then((x: any) => {
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(x, null, 3));
+          res.send(JSON.stringify(x, null, 3));
         });
       }else{
-        res.end(JSON.stringify(null, null, 3));
+        res.send(JSON.stringify(null, null, 3));
       }
     });
   }

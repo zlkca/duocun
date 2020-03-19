@@ -10,6 +10,7 @@ import { CommandActions } from '../../shared/command.actions';
 import { environment } from '../../../environments/environment';
 import { AccountService } from '../../account/account.service';
 import { IAccount } from '../../account/account.model';
+import { PaymentMethod } from '../../payment/payment.model';
 
 declare var Stripe;
 
@@ -75,7 +76,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
     const orderId = this.data.orderId;
     const text = this.lang === 'en' ? 'The Order is cancelled.' : '订单已删除';
     if (this.data && orderId) {
-      if (self.data.paymentMethod === 'card' || self.data.paymentMethod === 'WECHATPAY') {
+      if (self.data.paymentMethod === PaymentMethod.CREDIT_CARD || self.data.paymentMethod === PaymentMethod.WECHAT) {
 
         self.orderSvc.removeById(orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
           self.dialogRef.close();
@@ -84,7 +85,7 @@ export class RemoveOrderDialogComponent implements OnInit, OnDestroy {
           self.router.navigate(['order/history']);
 
         });
-      } else if (self.data.paymentMethod === 'cash' || self.data.paymentMethod === 'prepaid') { // cash or prepaid
+      } else if (self.data.paymentMethod === PaymentMethod.CASH || self.data.paymentMethod === PaymentMethod.PREPAY) { // cash or prepaid
         self.orderSvc.removeById(self.data.orderId).pipe(takeUntil(self.onDestroy$)).subscribe(x => {
           self.dialogRef.close();
           self.rx.dispatch({ type: CommandActions.SEND, payload: { name: 'reload-orders', args: null } });

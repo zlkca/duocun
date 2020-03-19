@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { EntityService } from '../entity.service';
+import { EntityService, HttpStatus } from '../entity.service';
 import { AuthService } from '../account/auth.service';
 import { HttpClient } from '../../../node_modules/@angular/common/http';
 import { Observable } from '../../../node_modules/rxjs';
-import { IOrder, PaymentError } from '../order/order.model';
+import { IOrder } from '../order/order.model';
 import { environment } from '../../environments/environment';
 import { IAccount } from '../account/account.model';
 import { IPaymentResponse } from '../transaction/transaction.model';
+import { PaymentError, PaymentMethod } from './payment.model';
 
 declare var Stripe;
 @Injectable({
@@ -74,7 +75,7 @@ export class PaymentService extends EntityService {
   initStripe(htmlCardId, htmlErrorId) {
     const stripe = Stripe(environment.STRIPE.API_KEY);
     const elements = stripe.elements();
-    const type = 'card';
+    const type = PaymentMethod.CREDIT_CARD;
 
     // Custom styling can be passed to options when creating an Element.
     const style = {
@@ -131,6 +132,38 @@ export class PaymentService extends EntityService {
           resolve({ err: PaymentError.INVALID_BANK_CARD, chargeId: '', msg: 'empty card info' });
         });
       }
+    });
+  }
+
+
+
+  // order --- when order == null, add credit, when order != null, pay order
+  payByCreditCard(accountId, accountName, orders, amount, note) {
+    const url = this.url + '/payByCreditCard';
+    const data = { accountId, accountName, orders, amount, note };
+    return new Promise((resolve, reject) => {
+      this.doPost(url, data).toPromise().then(rsp => {
+      if (rsp.status === HttpStatus.OK.code) {
+        resolve(rsp.data);
+      } else {
+        resolve();
+      }
+    });
+      });
+  }
+
+  // order --- when order == null, add credit, when order != null, pay order
+  payBySnappay(accountId, accountName, orders, amount, note) {
+    const url = this.url + '/payBySnappay';
+    const data = { accountId, accountName, orders, amount, note };
+    return new Promise((resolve, reject) => {
+      this.doPost(url, data).toPromise().then(rsp => {
+        if (rsp.status === HttpStatus.OK.code) {
+          resolve(rsp.data);
+        } else {
+          resolve();
+        }
+      });
     });
   }
 }

@@ -11,6 +11,7 @@ export const environment = {
   API_URL: 'http://localhost:8000/api/',
   APP_URL: window.location.origin,
   MEDIA_URL: 'http://localhost:8000/',
+  GROCERY_APP_URL: 'http://localhost:3000',
   APP: 'duocun',
   AUTH_PREFIX: '',
   GOOGLE_MAP: {

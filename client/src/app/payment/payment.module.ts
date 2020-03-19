@@ -8,6 +8,7 @@ import { TransactionService } from '../transaction/transaction.service';
 import { BalanceService } from './balance.service';
 import { AccountService } from '../account/account.service';
 import { SharedService } from '../shared/shared.service';
+import { CreditCardFormComponent } from './credit-card-form/credit-card-form.component';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { SharedService } from '../shared/shared.service';
     PaymentRoutingModule
   ],
   declarations: [
-    PaymentFormComponent
+    PaymentFormComponent,
+    CreditCardFormComponent
   ],
   providers: [
     OrderService,
@@ -24,6 +26,9 @@ import { SharedService } from '../shared/shared.service';
     TransactionService,
     AccountService,
     SharedService
+  ],
+  exports: [
+    CreditCardFormComponent
   ]
 })
 export class PaymentModule { }

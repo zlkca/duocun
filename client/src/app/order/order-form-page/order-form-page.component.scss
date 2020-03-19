@@ -1,11 +1,8 @@
+@import '../../../base';
+
 $header-bar-height: 60px;
 $bottom-bar-height: 68px;
 $toggle-btn-height: 40px;
-$blue: #4285F3;
-
-$mobile: "(max-width: 767px)";
-$tablet: "(min-width: 768px) and (max-width: 1199px)";
-$desktop: "(min-width: 1200px)";
 
 #order-form{
   padding: 0px 15px;
@@ -13,17 +10,6 @@ $desktop: "(min-width: 1200px)";
   margin-bottom: $bottom-bar-height;
 }
 
-#payment-form{
-  margin-top: 13px;
-
-  .form-row{
-    margin: 0px;
-  }
-
-  label.label-sm{
-    margin-bottom: 0px;
-  }
-}
 
 .restaurant{
   padding: 6px 0px 0px 0px;
@@ -166,42 +152,7 @@ mat-button-toggle-group{
     // }
   }
 }
-/**
- * The CSS shown here will not be introduced in the Quickstart guide, but shows
- * how you can use CSS to style your Element's container.
- */
- .StripeElement {
-  box-sizing: border-box;
 
-  height: 40px;
-
-  padding: 10px 12px;
-
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background-color: white;
-
-  box-shadow: 0 1px 3px 0 #e6ebf1;
-  -webkit-transition: box-shadow 150ms ease;
-  transition: box-shadow 150ms ease;
-}
-
-.StripeElement--focus {
-  box-shadow: 0 1px 3px 0 #cfd7df;
-}
-
-.StripeElement--invalid {
-  border-color: #fa755a;
-}
-
-.StripeElement--webkit-autofill {
-  background-color: #fefde5 !important;
-}
-
-#card-element{
-  width: 100%;
-  border: 1px solid #ddd;
-}
 
 .order-detail{
   padding-top: 6px;

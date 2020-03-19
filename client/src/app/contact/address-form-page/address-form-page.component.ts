@@ -16,7 +16,6 @@ import { IMerchant } from '../../merchant/merchant.model';
 import { IMall } from '../../mall/mall.model';
 import { IRange } from '../../range/range.model';
 import { CommandActions } from '../../shared/command.actions';
-import { ICommand } from '../../shared/command.reducers';
 import { IAccount } from '../../account/account.model';
 import { environment } from '../../../environments/environment';
 
@@ -59,14 +58,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: { name: 'address-form', fromPage: this.fromPage }
-    });
-
-    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
-      if (x.name === 'cancel-address') {
-        this.cancel();
-      } else if (x.name === 'save-address') {
-        this.save();
-      }
     });
   }
 
@@ -172,7 +163,14 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  cancel() {
+
+
+  getDistance(ds: IDistance[], mall: IMall) {
+    const d = ds.find(r => r.destinationPlaceId === mall.placeId);
+    return d ? d.element.distance.value : 0;
+  }
+
+  onCancel() {
     const self = this;
     const location = Cookies.get('duocun-old-location');
     const oldLocation = (location && location !== 'undefined') ? JSON.parse(location) : null;
@@ -183,32 +181,21 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     if (self.fromPage === 'account-setting') {
       self.router.navigate(['account/settings']);
     }
-    this.rx.dispatch({ type: CommandActions.CLEAR_CMD, payload: {} });
   }
 
-  getDistance(ds: IDistance[], mall: IMall) {
-    const d = ds.find(r => r.destinationPlaceId === mall.placeId);
-    return d ? d.element.distance.value : 0;
-  }
-
-
-  save() {
+  onSave() {
     const self = this;
     const accountId = this.account._id;
     const location = this.location;
     const hint = this.lang === 'en' ? 'Change default address successfully' : '账号默认地址已成功修改';
     this.rx.dispatch<IDeliveryAction>({ type: DeliveryActions.UPDATE_ORIGIN, payload: { origin: location }});
 
-    if (this.fromPage === 'account-setting') {
-      const data = { location: location ? location : '' };
-      this.accountSvc.update({ _id: accountId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
-        self.router.navigate(['account/settings']);
-        self.snackBar.open('', hint, { duration: 1500 });
-        this.rx.dispatch({ type: CommandActions.CLEAR_CMD, payload: {} });
-      });
-    } else {
+    const data = { location: location ? location : '' };
+    this.accountSvc.update({ _id: accountId }, data).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
+      self.router.navigate(['account/settings']);
+      self.snackBar.open('', hint, { duration: 1500 });
       this.rx.dispatch({ type: CommandActions.CLEAR_CMD, payload: {} });
-    }
+    });
   }
 
   resetAddress() {

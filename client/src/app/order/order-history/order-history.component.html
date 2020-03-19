@@ -1,113 +1,117 @@
 <div class="loading-spinner" *ngIf="loading">
   <app-progress-spinner></app-progress-spinner>
 </div>
+
 <div class="page">
   <div class="title-block">
     <span class="title-bg" i18n="@@OrderHistory">Order History</span>
   </div>
 
-  <div class="empty-order" *ngIf="!loading && (!orders || orders.length===0)">
-    <div class="order-image">
-      <img src="assets/outline-assignment-24px.svg" alt="order" />
+  <div class="page-body">
+    <div class="empty-order" *ngIf="!loading && (!orders || orders.length===0)">
+      <div class="order-image">
+        <img src="assets/outline-assignment-24px.svg" alt="order" />
+      </div>
+      <span i18n="@@OrderEmptyMsg">You don't have any order yet.</span>
     </div>
-    <span i18n="@@OrderEmptyMsg">You don't have any order yet.</span>
-  </div>
 
-  <div class="order-list" *ngIf="!loading && orders && orders.length>0">
-    <!-- *ngFor="let order of orders;"  -->
-    <div class="list-item" *ngFor="let order of orders | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPageNumber, totalItems: nOrders }"
-      (click)="onSelect(order)" [class.highlight]="order._id === highlightedOrderId">
-      <div class="row first-row">
-        <div class="col-12 text-col">
-          <div class="col-12">
-            <span class="title-xs" i18n="@@Merchant">Merchant</span>:
-            <span class="text-xs">{{order.merchantName}}</span>
-          </div>
-          <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
-            <span class="title-xs" i18n="@@DeliveryDate">Deliver Date</span>:
-            <span class="text-xs">{{toDateString(order.delivered)}}</span>
-          </div>
-          <div class="col-12">
-            <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
-            <span class="text-xs">{{toDateString(order.created)}}</span>
-          </div>
-        </div>
-      </div>
-      <div class="row" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
-        <div class="col-12 address-row">
-          <span class="title-xs" i18n="@@DeliverAddress">Deliver to</span>:
-          <span class="text-xs">{{getAddress(order.location)}}</span>
-        </div>
-      </div>
-
-      <div class="row order-detail">
-        <div class="col-7 items-col" *ngIf="order.type!=='MM'">
-          <div *ngFor="let item of order.items" class="text-sm row item-row">
-            <div class="col-7 product-col">{{item.product.name}}</div>
-            <div class="col-2 quantity-col">x {{item.quantity}}</div>
-            <div class="col-3 price-col">${{item.product.price | number : '1.2-2'}}</div>
-          </div>
-        </div>
-        <div class="col-7 items-col">
-          <div class="description-col">{{order.description}}</div>
-        </div>
-        <div class="col-5 text-sm total-col" *ngIf="order.total">
-          <div class="row">
+    <div class="order-list" *ngIf="!loading && orders && orders.length>0">
+      <!-- *ngFor="let order of orders;"  -->
+      <div class="list-item" *ngFor="let order of orders | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPageNumber, totalItems: nOrders }"
+        (click)="onSelect(order)" [class.highlight]="order._id === highlightedOrderId">
+        <div class="row first-row">
+          <div class="col-12 text-col">
             <div class="col-12">
-              <div class="title-xs">
-                <span i18n="@@ProductTotal">ProductTotal</span>:</div>
-              <div class="text-xs">&nbsp;${{order.price | number : '1.2-2'}}</div>
+              <span class="title-xs" i18n="@@Merchant">Merchant</span>:
+              <span class="text-xs">{{order.merchantName}}</span>
             </div>
             <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
-              <div class="title-xs">
-                <span i18n="@@DeliveryFee">Delivery Fee</span>:</div>
-              <div class="text-xs">&nbsp;${{order.deliveryCost | number : '1.2-2'}}</div>
-            </div>
-            <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
-              <div class="title-xs">
-                <span i18n="@@Subtotal">Subtotal</span>:</div>
-              <div class="text-xs">&nbsp;${{order.price + order.deliveryCost | number : '1.2-2'}}</div>
+              <span class="title-xs" i18n="@@DeliveryDate">Deliver Date</span>:
+              <span class="text-xs">{{toDateString(order.delivered)}}</span>
             </div>
             <div class="col-12">
-              <div class="title-xs">
-                <span i18n="@@Tax">Tax</span>:</div>
-              <div class="text-xs">&nbsp;${{order.tax | number : '1.2-2'}}</div>
-            </div>
-            <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
-              <div class="title-xs">
-                <span i18n="@@Tips">Tips</span>:</div>
-              <div class="text-xs">&nbsp;${{order.tips | number : '1.2-2'}}</div>
-            </div>
-            <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
-              <div class="title-xs">
-                <span i18n="@@DeliveryDiscount">Discount</span>:</div>
-              <div class="text-xs">-${{order.deliveryDiscount | number : '1.2-2'}}</div>
-            </div>
-            <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY && order.groupDiscount>0">
-              <div class="title-xs">
-                <span i18n="@@GroupDiscount">GroupDiscount</span>:</div>
-              <div class="text-xs">-${{order.groupDiscount | number : '1.2-2'}}</div>
-            </div>
-            <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY && order.overRangeCharge">
-              <div class="title-xs">
-                <span i18n="@@OverRangeCharge">Over Range Charge</span>:</div>
-              <div class="text-xs">${{order.overRangeCharge | number : '1.2-2'}}</div>
-            </div>
-            <div class="col-12">
-              <div class="title-xs">
-                <span i18n="@@Total">Total</span>:</div>
-              <div class="text-xs">&nbsp;${{ order.total | number : '1.2-2'}}</div>
+              <span class="title-xs" i18n="@@OrderDate">Order Date</span>:
+              <span class="text-xs">{{toDateString(order.created)}}</span>
             </div>
           </div>
         </div>
-      </div>
-      <div class="row btn-col" *ngIf="canChange(order)">
-        <!-- <div class="btn btn-sm btn-primary btn-change" i18n="@@Change" (click)="changeOrder(order)">Change</div> -->
-        <div class="btn btn-sm btn-primary btn-delete" i18n="@@Delete" (click)="deleteOrder(order)">Delete</div>
-      </div>
+        <div class="row" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
+          <div class="col-12 address-row">
+            <span class="title-xs" i18n="@@DeliverAddress">Deliver to</span>:
+            <span class="text-xs">{{getAddress(order.location)}}</span>
+          </div>
+        </div>
 
+        <div class="row order-detail">
+          <div class="col-7 items-col" *ngIf="order.type!=='MM'">
+            <div *ngFor="let item of order.items" class="text-sm row item-row">
+              <div class="col-7 product-col">{{item.product.name}}</div>
+              <div class="col-2 quantity-col">x {{item.quantity}}</div>
+              <div class="col-3 price-col">${{item.product.price | number : '1.2-2'}}</div>
+            </div>
+          </div>
+          <div class="col-7 items-col">
+            <div class="description-col">{{order.description}}</div>
+          </div>
+          <div class="col-5 text-sm total-col" *ngIf="order.total">
+            <div class="row">
+              <div class="col-12">
+                <div class="title-xs">
+                  <span i18n="@@ProductTotal">ProductTotal</span>:</div>
+                <div class="text-xs">&nbsp;${{order.price | number : '1.2-2'}}</div>
+              </div>
+              <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
+                <div class="title-xs">
+                  <span i18n="@@DeliveryFee">Delivery Fee</span>:</div>
+                <div class="text-xs">&nbsp;${{order.deliveryCost | number : '1.2-2'}}</div>
+              </div>
+              <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
+                <div class="title-xs">
+                  <span i18n="@@Subtotal">Subtotal</span>:</div>
+                <div class="text-xs">&nbsp;${{order.price + order.deliveryCost | number : '1.2-2'}}</div>
+              </div>
+              <div class="col-12">
+                <div class="title-xs">
+                  <span i18n="@@Tax">Tax</span>:</div>
+                <div class="text-xs">&nbsp;${{order.tax | number : '1.2-2'}}</div>
+              </div>
+              <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
+                <div class="title-xs">
+                  <span i18n="@@Tips">Tips</span>:</div>
+                <div class="text-xs">&nbsp;${{order.tips | number : '1.2-2'}}</div>
+              </div>
+              <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY">
+                <div class="title-xs">
+                  <span i18n="@@DeliveryDiscount">Discount</span>:</div>
+                <div class="text-xs">-${{order.deliveryDiscount | number : '1.2-2'}}</div>
+              </div>
+              <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY && order.groupDiscount>0">
+                <div class="title-xs">
+                  <span i18n="@@GroupDiscount">GroupDiscount</span>:</div>
+                <div class="text-xs">-${{order.groupDiscount | number : '1.2-2'}}</div>
+              </div>
+              <div class="col-12" *ngIf="order.type === OrderTypes.FOOD_DELIVERY && order.overRangeCharge">
+                <div class="title-xs">
+                  <span i18n="@@OverRangeCharge">Over Range Charge</span>:</div>
+                <div class="text-xs">${{order.overRangeCharge | number : '1.2-2'}}</div>
+              </div>
+              <div class="col-12">
+                <div class="title-xs">
+                  <span i18n="@@Total">Total</span>:</div>
+                <div class="text-xs">&nbsp;${{ order.total | number : '1.2-2'}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row btn-col" *ngIf="canChange(order)">
+          <!-- <div class="btn btn-sm btn-primary btn-change" i18n="@@Change" (click)="changeOrder(order)">Change</div> -->
+          <div class="btn btn-sm btn-primary btn-delete" i18n="@@Delete" (click)="deleteOrder(order)">Delete</div>
+        </div>
+
+      </div>
+      <pagination-controls (pageChange)="OnPageChange($event)"></pagination-controls>
     </div>
-    <pagination-controls (pageChange)="OnPageChange($event)"></pagination-controls>
+    <!-- class="order-list" -->
   </div>
-  <!-- class="order-list" -->
+  <app-footer [type]="'menu'" [menu]="'order-history'"></app-footer>
 </div>

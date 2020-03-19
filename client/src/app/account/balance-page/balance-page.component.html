@@ -7,91 +7,40 @@
     <div class="col-12 title-bg" i18n="@@BalanceDetail">BalanceDetail</div>
   </div>
 
-  <div class="balance-list">
-    <div class="row list-head">
-      <div class="col-3 title-xs" i18n="@@Date">Date</div>
-      <div class="col-3 title-xs" i18n="@@Description">Description</div>
-      <div class="col-2 title-xs" i18n="@@PayableIncrease">Payable Increase</div>
-      <div class="col-2 title-xs" i18n="@@PayableDecrease">Payable Decrease</div>
-      <div class="col-2 title-xs" i18n="@@Payable"> Payable</div>
-    </div>
+  <div class="page-body">
+    <div class="balance-list">
+      <div class="row list-head">
+        <div class="col-3 title-xs" i18n="@@Date">Date</div>
+        <div class="col-3 title-xs" i18n="@@Description">Description</div>
+        <div class="col-2 title-xs" i18n="@@PayableIncrease">Payable Increase</div>
+        <div class="col-2 title-xs" i18n="@@PayableDecrease">Payable Decrease</div>
+        <div class="col-2 title-xs" i18n="@@Payable"> Payable</div>
+      </div>
 
-
-    <!-- [class.highlight]="tr.id === highlightedId" -->
-    <div class="list-item" *ngFor="let tr of transactions | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPageNumber, totalItems: nTransactions }"
-      (click)="onSelect(tr)" >
-      <div class="row">
-        <div class="col-3">
-          <span class="text-xs">{{tr.date | date: 'MMMdE'}}</span>
-        </div>
-        <div class="col-3">
-          <span class="text-xs">{{tr.description.length > 13 ? ((tr.description | slice:0:11) + '..') : tr.description}}</span>
-        </div>
-        <div class="col-2">
-          <span class="text-xs">{{tr.consumed | number : '1.2-2'}}</span>
-        </div>
-        <div class="col-2">
-          <span class="text-xs">{{tr.paid | number : '1.2-2'}}</span>
-        </div>
-        <div class="col-2">
-          <span class="text-xs">{{tr.balance | number : '1.2-2'}}</span>
+      <!-- [class.highlight]="tr.id === highlightedId" -->
+      <div class="list-item" *ngFor="let tr of transactions | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPageNumber, totalItems: nTransactions }"
+        (click)="onSelect(tr)">
+        <div class="row">
+          <div class="col-3">
+            <span class="text-xs">{{tr.date | date: 'MMMdE'}}</span>
+          </div>
+          <div class="col-3">
+            <span class="text-xs">{{tr.description.length > 13 ? ((tr.description | slice:0:11) + '..') : tr.description}}</span>
+          </div>
+          <div class="col-2">
+            <span class="text-xs">{{tr.consumed | number : '1.2-2'}}</span>
+          </div>
+          <div class="col-2">
+            <span class="text-xs">{{tr.paid | number : '1.2-2'}}</span>
+          </div>
+          <div class="col-2">
+            <span class="text-xs">{{tr.balance | number : '1.2-2'}}</span>
+          </div>
         </div>
       </div>
+      <!-- end of list-item -->
+      <pagination-controls class="balance-pagination" maxSize="5" (pageChange)="OnPageChange($event)"></pagination-controls>
     </div>
-    <!-- end of list-item -->
-    <pagination-controls class="balance-pagination" maxSize="5" (pageChange)="OnPageChange($event)"></pagination-controls>
   </div>
+  <app-footer [type]="'menu'" [menu]="'account-setting'"></app-footer>
 </div>
-
-
-  <!-- <div class="payment-table-container mat-elevation-z8" *ngIf="dataSource">
-    <table mat-table [dataSource]="dataSource" matSort>
-  
-      <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@Date">Date</th>
-        <td mat-cell *matCellDef="let row"> {{row.date | date: 'MMMdE'}} </td>
-      </ng-container>
-  
-      <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef i18n="@@Description"> Description </th>
-        <td mat-cell *matCellDef="let row"> {{row.description}} </td>
-      </ng-container>
-  
-      <ng-container matColumnDef="consumed">
-        <th mat-header-cell *matHeaderCellDef i18n="@@PayableIncrease"> Payable Increase </th>
-        <td mat-cell *matCellDef="let row"> {{row.consumed | number : '1.2-2'}} </td>
-      </ng-container>
-  
-      <ng-container matColumnDef="paid">
-        <th mat-header-cell *matHeaderCellDef i18n="@@PayableDecrease"> Payable Decrease </th>
-        <td mat-cell *matCellDef="let row"> {{row.paid | number : '1.2-2'}} </td>
-      </ng-container>
-  
-      <ng-container matColumnDef="balance">
-        <th mat-header-cell *matHeaderCellDef i18n="@@Payable"> Payable </th>
-        <td mat-cell *matCellDef="let row" [style.color]="row.balance"> {{row.balance | number : '1.2-2'}} </td>
-      </ng-container>
-  
-      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-  </div> -->
-  <!-- <div class="detail-list">
-    <div *ngFor="let p of payments" class="row">
-      <div class="col-4 text-sm date-col">{{p.delivered | date: 'MMMd E' }}</div>
-
-      <div class="col-4 text-sm credit-col" *ngIf="p.type==='credit' && p.amount !==0">
-        <span i18n="@@Credit">Credit</span>:&nbsp;
-        <span>${{p.amount | number : '1.2-2'}}</span>
-      </div>
-
-      <div class="col-4 text-sm debit-col" *ngIf="p.type==='debit' && p.amount !==0">
-        <span i18n="@@Debit">Debit</span>:&nbsp;
-        <span>${{p.amount | number : '1.2-2'}}</span>
-      </div>
-    </div>
-  </div>
-  <div class="balance-block" *ngIf="balance">
-    <span i18n="@@CurrentBalance">Current Balance</span>:&nbsp;
-    <span>${{balance | number : '1.2-2'}}</span>
-  </div> -->

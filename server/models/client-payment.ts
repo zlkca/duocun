@@ -8,12 +8,13 @@ import https from 'https';
 // import NodeRSA from 'node-rsa';
 import { Md5 } from 'ts-md5';
 import moment, { now } from 'moment';
-import { Order, OrderType, PaymentStatus } from "../models/order";
+import { Order, OrderType, PaymentStatus, PaymentMethod } from "../models/order";
 import { Transaction, TransactionAction, IDbTransaction } from "./transaction";
 import { Merchant } from "./merchant";
 import { ClientCredit } from "./client-credit";
 import { CellApplication, CellApplicationStatus } from "./cell-application";
 import { EventLog } from "./event-log";
+import { resolve } from "url";
 
 // var fs = require('fs');
 // var util = require('util');
@@ -76,7 +77,7 @@ export class ClientPayment extends Model {
     // See your keys here: https://dashboard.stripe.com/account/apikeys
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
     stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: [PaymentMethod.CREDIT_CARD],
       line_items: [{
         name: 'T-shirt',
         description: 'Comfortable cotton t-shirt',
@@ -89,7 +90,7 @@ export class ClientPayment extends Model {
       cancel_url: 'https://example.com.cn/payment/cancel',
     }).then((session: any) => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(session.id, null, 3));
+      res.send(JSON.stringify(session.id, null, 3));
     });
   }
 
@@ -104,13 +105,14 @@ export class ClientPayment extends Model {
     }, function (err: any, ret: any) {
       res.setHeader('Content-Type', 'application/json');
       if (err) {
-        res.end(JSON.stringify({ customerId: ret.id }, null, 3));
+        res.send(JSON.stringify({ customerId: ret.id }, null, 3));
       } else {
-        res.end(JSON.stringify({ customerId: ret.id }, null, 3));
+        res.send(JSON.stringify({ customerId: ret.id }, null, 3));
       }
     });
   }
 
+  // v1
   // return rsp: IPaymentResponse
   stripeAddCredit(req: Request, res: Response) {
     const self = this;
@@ -150,17 +152,18 @@ export class ClientPayment extends Model {
 
       res.setHeader('Content-Type', 'application/json');
       if (!err) {
-        self.transactionModel.doAddCredit(accountId, accountName, paid, 'card', note).then((x: IDbTransaction) => {
-          res.end(JSON.stringify(rsp, null, 3));
+        self.transactionModel.doAddCredit(accountId, accountName, paid, PaymentMethod.CREDIT_CARD, note).then((x: IDbTransaction) => {
+          res.send(JSON.stringify(rsp, null, 3));
         });
       } else {
         self.eventLogModel.insertOne(eventLog).then(() => {
-          res.end(JSON.stringify(rsp, null, 3));
+          res.send(JSON.stringify(rsp, null, 3));
         });
       }
     });
   }
 
+  // v1
 // return rsp: IPaymentResponse
   stripePayOrder(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
@@ -202,16 +205,267 @@ export class ClientPayment extends Model {
         if (!err) {
           // update order and insert transactions
           self.orderEntity.doProcessPayment(order, TransactionAction.PAY_BY_CARD.code, paid, charge.id).then(() => {
-            res.end(JSON.stringify(rsp, null, 3));
+            res.send(JSON.stringify(rsp, null, 3));
           });
         } else {
           self.eventLogModel.insertOne(eventLog).then(() => {
-            res.end(JSON.stringify(rsp, null, 3));
+            res.send(JSON.stringify(rsp, null, 3));
           });
         }
       });
     });
   }
+
+  // v2
+  // return {url}
+  snappayPay(accountId: string, returnUrl: string, amount: number, description: string, metadata: any,
+    batchId: string, paymentMethod: string = 'WECHATPAY') {
+    
+    const data: any = { // the order matters
+      app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
+      // attach: metadata,                          // 127
+      charset: 'UTF-8',                          // Madatory
+      description: description,           // Service Mandatory
+      format: 'JSON',                            // Madatory
+      merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
+      method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
+      notify_url: 'https://duocun.com.cn/api/ClientPayments/snappayNotify', // 'https://duocun.com.cn/api/ClientPayments/snappayNotify',
+      out_order_no: batchId,                   // Service Mandatory
+      payment_method: 'WECHATPAY',             // paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
+      return_url: returnUrl,
+      trans_amount: amount,                    // Service Mandatory
+      // trans_currency: 'CAD',
+      version: '1.0'                           // Madatory
+    };
+    const self = this;
+    const params = this.snappaySignParams(data);
+    const options = {
+      hostname: 'open.snappay.ca',
+      port: 443,
+      path: '/api/gateway',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Content-Length': Buffer.byteLength(data)
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      const post_req = https.request(options, (res1: IncomingMessage) => {
+        let ss = '';
+        res1.on('data', (d) => { ss += d; });
+        res1.on('end', (r: any) => {
+          if (ss) { // { code, data, msg, total, psn, sign }
+            const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
+            const eventLog = {
+              accountId: accountId,
+              type: 'snappay',
+              code: ret ? ret.code : '',
+              decline_code: '',
+              message: ret ? ret.message : '',
+              created: moment().toISOString()
+            }
+            
+            const rsp: IPaymentResponse = {
+              status: (ret && ret.msg === 'success') ? ResponseStatus.SUCCESS : ResponseStatus.FAIL,
+              code: ret ? ret.code : '',                    // stripe/snappay code
+              decline_code: '',    // stripe decline_code
+              msg: ret ? ret.msg : '',                  // stripe/snappay retrun message
+              chargeId: '',            // stripe { chargeId:x }
+              url: (ret.data && ret.data[0]) ? ret.data[0].h5pay_url : ''   // snappay data[0].h5pay_url
+            }
+  
+            if (ret.msg === 'success') {
+              resolve(rsp);
+            } else {
+              self.eventLogModel.insertOne(eventLog).then(() => {
+                resolve(rsp);
+              });
+            }
+          } else {
+            const rsp: IPaymentResponse = {
+              status: ResponseStatus.FAIL,
+              code: 'UNKNOWN_ISSUE',  // snappay return code
+              decline_code: '',       // stripe decline_code
+              msg: 'UNKNOWN_ISSUE',   // snappay retrun message
+              chargeId: '',           // stripe { chargeId:x }
+              url: ''                 // for snappay data[0].h5pay_url
+            }
+            resolve(rsp);
+          }
+        });
+      });
+  
+      post_req.write(JSON.stringify(params));
+      post_req.end();
+    });
+    
+  }
+
+  // stripe new API
+  // metadata eg. { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
+  stripePay(accountId: string, amount: number, currency: string, description: string, metadata: any) {
+    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+    const self = this;
+
+    return new Promise((resolve, reject) => {
+      stripe.paymentIntents.create({
+        amount: Math.round((amount) * 100),
+        currency,
+        description,
+        metadata
+      }, function (err: IStripeError, paymentIntent: any) {
+        const eventLog = {
+          accountId,
+          type: err ? err.type : '',
+          code: err ? err.code : '',
+          decline_code: err ? err.decline_code : '',
+          message: err ? err.message : '',
+          created: moment().toISOString()
+        }
+
+        const rsp: IPaymentResponse = {
+          status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+          code: err ? err.code : '',                        // stripe/snappay code
+          decline_code: err ? err.decline_code : '',        // stripe decline_code
+          msg: err ? err.message : '',                      // stripe/snappay retrun message
+          chargeId: paymentIntent ? paymentIntent.id : '',  // stripe { chargeId:x }
+          url: ''                                           // for snappay data[0].h5pay_url
+        }
+
+        if (!err) {
+          resolve(rsp);
+        }else{
+          self.eventLogModel.insertOne(eventLog).then(() => {
+            resolve(rsp);
+          });
+        }
+      });
+    })
+      // const clientId = order.clientId.toString();
+      // const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
+    //     res.setHeader('Content-Type', 'application/json');
+    //     if (!err) {
+    //       // update order and insert transactions
+    //       self.orderEntity.doProcessPayment(order, TransactionAction.PAY_BY_CARD.code, paid, charge.id).then(() => {
+    //         res.send(JSON.stringify(rsp, null, 3));
+    //       });
+    //     } else {
+    //       self.eventLogModel.insertOne(eventLog).then(() => {
+    //         res.send(JSON.stringify(rsp, null, 3));
+    //       });
+    //     }
+    //   });
+    // });
+  }
+
+  getChargeSummary(orders: any[]){
+    let price = 0;
+    let cost = 0;
+
+    if (orders && orders.length > 0) {
+      orders.map((order: any) => {
+        order.items.map((x: any) => {
+          price += x.price * x.quantity;
+          cost += x.cost * x.quantity;
+        });
+      });
+    }
+
+    return {price, cost};
+  }
+
+  // v2 --- each order has a batchId
+  payBySnappay(req: Request, res: Response) {
+    const accountId = req.body.accountId;
+    const accountName = req.body.accountName;
+    const orders = req.body.orders;
+    const note = req.body.note;
+    const paymentMethod = PaymentMethod.WECHAT; // orders[0].paymentMethod;
+    let amount = +req.body.amount;
+
+    res.setHeader('Content-Type', 'application/json');
+
+    if(orders && orders.length > 0){  // pay order
+      const order = orders[0];
+      const orderType = order.type;
+      const clientId = order.clientId;
+      const orderIds = orders.map((order: any) => order._id);
+      const batchId = order.batchId;
+      const metadata = { orderIds };
+      const description = accountName + ' order from ' + order.merchantName;
+
+      let returnUrl;
+      if (orderType === OrderType.MOBILE_PLAN_SETUP) {
+        returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
+      }else if(orderType === OrderType.GROCERY){
+        returnUrl = 'https://duocun.com.cn/account?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
+      }else{
+        returnUrl = 'https://duocun.com.cn/account?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
+      }
+
+      // let { price, cost } = this.getChargeSummary(orders);
+      this.snappayPay(accountId, returnUrl, amount, description, metadata, batchId, paymentMethod).then((rsp: any) => {
+        res.send(JSON.stringify(rsp, null, 3));
+      });
+    }else{  // add credit
+      if(amount > 0){
+        const batchId = '-1';
+        const cc = {
+          accountId: accountId,
+          accountName: accountName,
+          total: Math.round(amount * 100) / 100,
+          paymentMethod: paymentMethod,
+          note: note,
+          status: 'N'
+        }
+  
+        this.clientCreditModel.insertOne(cc).then((c) => {
+          const returnUrl = 'https://duocun.com.cn?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=account_settings';
+          const metadata = { customerId: accountId, customerName: accountName };
+          const description = accountName + 'add credit';
+          this.snappayPay(accountId, returnUrl, amount, description, metadata, batchId, paymentMethod).then(rsp => {
+            res.send(JSON.stringify(rsp, null, 3));
+          });
+        });
+      } else{
+        res.send(JSON.stringify(null, null, 3));
+      }
+    }
+  }
+
+  // v2 --- each order has a batchId
+  payByCreditCard(req: Request, res: Response) {
+    const accountId = req.body.accountId;
+    const accountName = req.body.accountName;
+    const orders = req.body.orders;
+    const note = req.body.note;
+    let amount = +req.body.amount;
+    let metadata = {};
+    let description = '';
+    let batchId = '-1';
+
+    res.setHeader('Content-Type', 'application/json');
+
+    if(orders && orders.length > 0){  // pay order
+      const order = orders[0];
+      const orderIds = orders.map((order: any) => order._id);;
+      // let { price, cost } = this.getChargeSummary(orders); 
+      metadata = { orderIds };
+      description = accountName + ' order from ' + orders[0].merchantName;
+      batchId = order.batchId;
+    }else{
+      metadata = { customerId: accountId, customerName: accountName };
+      description = accountName + 'add credit';
+    }
+
+    this.stripePay(accountId, amount, 'cad', description, metadata).then((rsp: any) => {
+      this.orderEntity.processAfterPay(batchId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
+        res.send(JSON.stringify(rsp, null, 3));
+      });
+    });
+  }
+
 
   createLinkstring(data: any) {
     let s = '';
@@ -232,47 +486,54 @@ export class ClientPayment extends Model {
     // console.log('snappayNotify out_order_no' + b.out_order_no);
     // console.log('snappayNotify customer_paid_amount' + b.customer_paid_amount);
     // console.log('snappayNotify trans_amount' + b.trans_amount);
+    const batchId = req.body.out_order_no;
+    const amount = +req.body.trans_amount;
 
-    this.orderEntity.find({ _id: b.out_order_no }).then(orders => {
-      if (orders && orders.length > 0) {
-        const order = orders[0];
-        if (order.paymentStatus === PaymentStatus.UNPAID) {
-          const paid = +b.trans_amount;
-          // --------------------------------------------------------------------------------------
-          // 1.update payment status to 'paid'
-          // 2.add two transactions for place order and add another transaction for deposit to bank
-          // 3.update account balance
-          this.orderEntity.doProcessPayment(order,
-            TransactionAction.PAY_BY_WECHAT.code, paid, '').then(() => {
-            // res.send(ret);
-            const q = { accountId: order.clientId.toString(), status: CellApplicationStatus.APPLIED };
-            const d = { status: CellApplicationStatus.SETUP_PAID };
-            this.cellApplicationModel.findOne(q).then((ca: any) => {
-              if (ca) {
-                this.cellApplicationModel.updateOne(q, d).then(() => {
+    this.orderEntity.processAfterPay(batchId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
 
-                });
-              }
-            });
-          }, err => {
-            // res.send(ret);
-          });
-        }
-      } else { // not a order means this is adding credit
-        this.clientCreditModel.find({ _id: b.out_order_no }).then(ccs => {
-          if (ccs && ccs.length > 0) {
-            const cc = ccs[0];
-            if (cc.status === 'new') {
-              this.clientCreditModel.updateOne({ _id: cc._id }, { status: 'added' }).then(() => {
-                this.transactionModel.doAddCredit(cc.accountId.toString(), cc.accountName, cc.total, cc.paymentMethod, cc.note).then(() => {
-
-                });
-              });
-            }
-          }
-        });
-      }
     });
+
+    // this.orderEntity.find({ batchId: b.out_order_no }).then(orders => {
+    //   if (orders && orders.length > 0) {
+    //     // if orders is unpaid get total amount.
+    //     const order = orders[0];
+    //     if (order.paymentStatus === PaymentStatus.UNPAID) {
+    //       const paid = +b.trans_amount;
+    //       // --------------------------------------------------------------------------------------
+    //       // 1.update payment status to 'paid'
+    //       // 2.add two transactions for place order and add another transaction for deposit to bank
+    //       // 3.update account balance
+    //       this.orderEntity.doProcessPayment(order,
+    //         TransactionAction.PAY_BY_WECHAT.code, paid, '').then(() => {
+    //         // res.send(ret);
+    //         const q = { accountId: order.clientId.toString(), status: CellApplicationStatus.APPLIED };
+    //         const d = { status: CellApplicationStatus.SETUP_PAID };
+    //         this.cellApplicationModel.findOne(q).then((ca: any) => {
+    //           if (ca) {
+    //             this.cellApplicationModel.updateOne(q, d).then(() => {
+
+    //             });
+    //           }
+    //         });
+    //       }, err => {
+    //         // res.send(ret);
+    //       });
+    //     }
+    //   } else { // not a order means this is adding credit
+    //     this.clientCreditModel.find({ _id: b.out_order_no }).then(ccs => {
+    //       if (ccs && ccs.length > 0) {
+    //         const cc = ccs[0];
+    //         if (cc.status === 'new') {
+    //           this.clientCreditModel.updateOne({ _id: cc._id }, { status: 'added' }).then(() => {
+    //             this.transactionModel.doAddCredit(cc.accountId.toString(), cc.accountName, cc.total, cc.paymentMethod, cc.note).then(() => {
+
+    //             });
+    //           });
+    //         }
+    //       }
+    //     });
+    //   }
+    // });
   }
 
   // return rsp: IPaymentResponse
@@ -320,6 +581,7 @@ export class ClientPayment extends Model {
     return data;
   }
 
+  // v1
   snappayPayReq(res: Response, returnUrl: string, accountId: string, orderId: string, paymentMethod: string, paid: number, description: string) {
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
@@ -453,9 +715,9 @@ export class ClientPayment extends Model {
     stripe.refunds.create({ charge: chargeId }, function (err: any, re: any) {
       res.setHeader('Content-Type', 'application/json');
       if (err) {
-        res.end(JSON.stringify({ status: err.code, refundId: '' }, null, 3));
+        res.send(JSON.stringify({ status: err.code, refundId: '' }, null, 3));
       } else {
-        res.end(JSON.stringify({ status: re.status, refundId: re.id }, null, 3));
+        res.send(JSON.stringify({ status: re.status, refundId: re.id }, null, 3));
       }
     });
   }
@@ -499,7 +761,7 @@ export class ClientPayment extends Model {
 
   //   this.addGroupDiscount(clientId, merchantId, dateType, address).then((xs: any) => {
   //     res.setHeader('Content-Type', 'application/json');
-  //     res.end(JSON.stringify({ status: 'success' }, null, 3));
+  //     res.send(JSON.stringify({ status: 'success' }, null, 3));
   //   });
   // }
 
@@ -510,7 +772,7 @@ export class ClientPayment extends Model {
 
   //   this.removeGroupDiscount(delivered, address).then((xs: any) => {
   //     res.setHeader('Content-Type', 'application/json');
-  //     res.end(JSON.stringify({ status: 'success' }, null, 3));
+  //     res.send(JSON.stringify({ status: 'success' }, null, 3));
   //   });
   // }
 }

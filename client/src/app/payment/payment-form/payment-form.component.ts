@@ -49,7 +49,7 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
     // };
 
     // // Create an instance of the card Element.
-    // this.card = elements.create('card', { style });
+    // this.card = elements.create(PaymentMethod.CREDIT_CARD, { style });
 
     // // Add an instance of the card Element into the `card-element` <div>.
     // this.card.mount('#card-element');

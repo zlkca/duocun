@@ -1,18 +1,16 @@
-import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgRedux } from '../../../../node_modules/@angular-redux/store';
 import { IAppState } from '../../store';
 import { Router } from '../../../../node_modules/@angular/router';
-import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from '../../../../node_modules/@angular/material';
+import { MatSnackBar } from '../../../../node_modules/@angular/material';
 import { takeUntil } from '../../../../node_modules/rxjs/operators';
 import { Subject } from '../../../../node_modules/rxjs';
-import { CommandActions } from '../../shared/command.actions';
 import { environment } from '../../../environments/environment';
 import { AccountService } from '../../account/account.service';
 import { IAccount } from '../../account/account.model';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { AuthService } from '../../account/auth.service';
 import { PageActions } from '../../main/main.actions';
-import { ICommand } from '../../shared/command.reducers';
 
 declare var Stripe;
 
@@ -71,14 +69,6 @@ export class PhoneFormPageComponent implements OnInit, OnDestroy {
     this.rx.dispatch({
       type: PageActions.UPDATE_URL,
       payload: { name: 'phone-form', fromPage: 'account-setting' }
-    });
-
-    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
-      if (x.name === 'cancel-phone') {
-        // this.cancel();
-      } else if (x.name === 'save-phone') {
-        // this.save();
-      }
     });
 
 

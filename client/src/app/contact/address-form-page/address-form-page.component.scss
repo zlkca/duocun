@@ -1,12 +1,4 @@
-$cellphone: "(max-width:480px)";
-$mobile: "(max-width: 767px)";
-$tablet: "(min-width: 768px) and (max-width: 1199px)";
-$desktop: "(min-width: 1200px)";
-
-$green: rgb(24, 128, 56);
-$yellow: rgb(244, 160, 0);
-$red: rgb(219, 68, 55);
-$blue: #4285F3;
+@import '../../../base';
 
 $map-height: 360px;
 

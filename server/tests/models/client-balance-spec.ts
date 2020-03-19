@@ -14,48 +14,48 @@
 
 // //     const params: any[] = [
 // //       // prepaid
-// //       { balance: 15.56, paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: 6.06 },
-// //       { balance: 5.56,  paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: -3.94 },
-// //       { balance: 0,     paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: -9.5 },
-// //       { balance: -5.56, paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: -15.06 },
-// //       { balance: -15.56,paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: -25.06 },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: 6.06 },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: -3.94 },
+// //       { balance: 0,     paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: -9.5 },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: -15.06 },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: -25.06 },
 // //       // cash
-// //       { balance: 15.56, paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: 6.06 },
-// //       { balance: 5.56,  paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: -3.94 },
-// //       { balance: 0,     paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: -9.5 },
-// //       { balance: -5.56, paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: -15.06 },
-// //       { balance: -15.56,paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: -25.06 },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: 6.06 },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: -3.94 },
+// //       { balance: 0,     paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: -9.5 },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: -15.06 },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: -25.06 },
 
-// //       { balance: 15.56, paymentMethod: 'cash', bPaid: true, payable: 9.5, paid: 30, expected: 36.06 },
-// //       { balance: 5.56,  paymentMethod: 'cash', bPaid: true, payable: 9.5, paid: 30, expected: 26.06 },
-// //       { balance: 0,     paymentMethod: 'cash', bPaid: true, payable: 9.5, paid: 30, expected: 20.5 },
-// //       { balance: -5.56, paymentMethod: 'cash', bPaid: true, payable: 9.5, paid: 30, expected: 14.94 },
-// //       { balance: -15.56,paymentMethod: 'cash', bPaid: true, payable: 9.5, paid: 30, expected: 4.94 },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.CASH, bPaid: true, payable: 9.5, paid: 30, expected: 36.06 },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.CASH, bPaid: true, payable: 9.5, paid: 30, expected: 26.06 },
+// //       { balance: 0,     paymentMethod: PaymentMethod.CASH, bPaid: true, payable: 9.5, paid: 30, expected: 20.5 },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.CASH, bPaid: true, payable: 9.5, paid: 30, expected: 14.94 },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.CASH, bPaid: true, payable: 9.5, paid: 30, expected: 4.94 },
 // //       // card
-// //       { balance: 15.56, paymentMethod: 'card', bPaid: false, payable: 9.5, expected: null },
-// //       { balance: 5.56,  paymentMethod: 'card', bPaid: false, payable: 9.5, expected: null },
-// //       { balance: 0,     paymentMethod: 'card', bPaid: false, payable: 9.5, expected: null },
-// //       { balance: -5.56, paymentMethod: 'card', bPaid: false, payable: 9.5, expected: null },
-// //       { balance: -15.56,paymentMethod: 'card', bPaid: false, payable: 9.5, expected: null },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: false, payable: 9.5, expected: null },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: false, payable: 9.5, expected: null },
+// //       { balance: 0,     paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: false, payable: 9.5, expected: null },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: false, payable: 9.5, expected: null },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: false, payable: 9.5, expected: null },
 
-// //       { balance: 15.56, paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: 36.06 },
-// //       { balance: 5.56,  paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: 26.06 },
-// //       { balance: 0,     paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: 20.5 },
-// //       { balance: -5.56, paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: 14.94 },
-// //       { balance: -15.56,paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: 4.94 },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: 36.06 },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: 26.06 },
+// //       { balance: 0,     paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: 20.5 },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: 14.94 },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: 4.94 },
 
 // //       // wechat
-// //       { balance: 15.56, paymentMethod: 'WECHATPAY', bPaid: false, payable: 9.5, expected: null },
-// //       { balance: 5.56,  paymentMethod: 'WECHATPAY', bPaid: false, payable: 9.5, expected: null },
-// //       { balance: 0,     paymentMethod: 'WECHATPAY', bPaid: false, payable: 9.5, expected: null },
-// //       { balance: -5.56, paymentMethod: 'WECHATPAY', bPaid: false, payable: 9.5, expected: null },
-// //       { balance: -15.56,paymentMethod: 'WECHATPAY', bPaid: false, payable: 9.5, expected: null },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.WECHAT, bPaid: false, payable: 9.5, expected: null },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.WECHAT, bPaid: false, payable: 9.5, expected: null },
+// //       { balance: 0,     paymentMethod: PaymentMethod.WECHAT, bPaid: false, payable: 9.5, expected: null },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.WECHAT, bPaid: false, payable: 9.5, expected: null },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.WECHAT, bPaid: false, payable: 9.5, expected: null },
 
-// //       { balance: 15.56, paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: 36.06 },
-// //       { balance: 5.56,  paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: 26.06 },
-// //       { balance: 0,     paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: 20.5 },
-// //       { balance: -5.56, paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: 14.94 },
-// //       { balance: -15.56,paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: 4.94 },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: 36.06 },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: 26.06 },
+// //       { balance: 0,     paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: 20.5 },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: 14.94 },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: 4.94 },
 // //     ];
 
 // //     params.map(p => {
@@ -72,30 +72,30 @@
 
 // //     const params: any[] = [
 // //       // prepaid
-// //       { balance: 15.56, paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: 25.06 },
-// //       { balance: 5.56,  paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: 15.06 },
-// //       { balance: 0,     paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: 9.5 },
-// //       { balance: -5.56, paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: 3.94 },
-// //       { balance: -15.56,paymentMethod: 'prepaid', bPaid: false, payable: 9.5, expected: -6.06 },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: 25.06 },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: 15.06 },
+// //       { balance: 0,     paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: 9.5 },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: 3.94 },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.PREPAY, bPaid: false, payable: 9.5, expected: -6.06 },
 // //       // cash
-// //       { balance: 15.56, paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: 25.06 },
-// //       { balance: 5.56,  paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: 15.06 },
-// //       { balance: 0,     paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: 9.5 },
-// //       { balance: -5.56, paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: 3.94 },
-// //       { balance: -15.56,paymentMethod: 'cash', bPaid: false, payable: 9.5, expected: -6.06 },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: 25.06 },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: 15.06 },
+// //       { balance: 0,     paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: 9.5 },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: 3.94 },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.CASH, bPaid: false, payable: 9.5, expected: -6.06 },
 // //       // card
-// //       { balance: 15.56, paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: 25.06 },
-// //       { balance: 5.56,  paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: 15.06 },
-// //       { balance: 0,     paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: 9.5 },
-// //       { balance: -5.56, paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: 3.94 },
-// //       { balance: -15.56,paymentMethod: 'card', bPaid: true, payable: 9.5, paid: 30, expected: -6.06 },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: 25.06 },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: 15.06 },
+// //       { balance: 0,     paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: 9.5 },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: 3.94 },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.CREDIT_CARD, bPaid: true, payable: 9.5, paid: 30, expected: -6.06 },
 
 // //       // wechat
-// //       { balance: 15.56, paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: 25.06 },
-// //       { balance: 5.56,  paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: 15.06 },
-// //       { balance: 0,     paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: 9.5 },
-// //       { balance: -5.56, paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: 3.94 },
-// //       { balance: -15.56,paymentMethod: 'WECHATPAY', bPaid: true, payable: 9.5, paid: 30, expected: -6.06 },
+// //       { balance: 15.56, paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: 25.06 },
+// //       { balance: 5.56,  paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: 15.06 },
+// //       { balance: 0,     paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: 9.5 },
+// //       { balance: -5.56, paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: 3.94 },
+// //       { balance: -15.56,paymentMethod: PaymentMethod.WECHAT, bPaid: true, payable: 9.5, paid: 30, expected: -6.06 },
 // //     ];
 
 // //     params.map(p => {
@@ -112,10 +112,10 @@
 //     const cbo = new ClientBalance(db);
 
 //     const orders: IOrder[] = [
-//       { mode: 'test', clientId: 'a', clientName: 'a', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 1, total:1, paymentMethod: 'cash' },
-//       { mode: 'test', clientId: 'b', clientName: 'b', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:1, paymentMethod: 'cash' },
-//       { mode: 'test', clientId: 'c', clientName: 'c', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:1, paymentMethod: 'cash' },
-//       { mode: 'test', clientId: 'd', clientName: 'd', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:1, paymentMethod: 'cash' },
+//       { mode: 'test', clientId: 'a', clientName: 'a', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 1, total:1, paymentMethod: PaymentMethod.CASH },
+//       { mode: 'test', clientId: 'b', clientName: 'b', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:1, paymentMethod: PaymentMethod.CASH },
+//       { mode: 'test', clientId: 'c', clientName: 'c', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:1, paymentMethod: PaymentMethod.CASH },
+//       { mode: 'test', clientId: 'd', clientName: 'd', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:1, paymentMethod: PaymentMethod.CASH },
 //     ];
 
 //     const bs: IClientBalance[] = [
@@ -141,7 +141,7 @@
 //     const cbo = new ClientBalance(db);
 
 //     const orders: IOrder[] = [
-//       { mode: 'test', clientId: 'a', clientName: 'a', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:1, paymentMethod:'cash' },
+//       { mode: 'test', clientId: 'a', clientName: 'a', address:'abc', delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:1, paymentMethod:PaymentMethod.CASH },
 //     ];
 
 //     const bs: IClientBalance[] = [
@@ -388,7 +388,7 @@
 //         acs = rs;
 //         orders = [
 //           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', 
-//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5, paymentMethod: 'cash' },
+//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:9.5, paymentMethod: PaymentMethod.CASH },
 //         ];
   
 //         oo.insertMany(orders).then((os: any[]) => {

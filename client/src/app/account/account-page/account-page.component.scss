@@ -1,8 +1,4 @@
-$blue: #4285F3;
-$cellphone: "(max-width:480px)";
-$mobile: "(max-width: 767px)";
-$tablet: "(min-width: 768px) and (max-width: 1199px)";
-$desktop: "(min-width: 1200px)";
+@import '../../../base';
 
 .head-block{
   padding-bottom: 20px;

@@ -14,7 +14,7 @@ export class OrderSequence extends Model {
   generate(req: Request, res: Response) {
     this.reqSequence().then(index => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(index, null, 3));
+      res.send(JSON.stringify(index, null, 3));
     });
   }
 

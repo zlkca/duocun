@@ -4,11 +4,17 @@ import { Address } from '../account/account.model';
 import { GeoPoint } from '../location/location.model';
 import { Order } from '../order/order.model';
 
+export const MerchantType = {
+  RESTAURANT: 'R',
+  GROCERY: 'G',
+  FRESH: 'F',
+  TELECOM: 'T'
+};
 
-export enum MerchantType {
-  RESTAURANT = 1,
-  TELECOM
-}
+export const MerchantStatus = {
+  ACTIVE: 'A',
+  INACTIVE: 'I'
+};
 
 export interface IPhase {
   orderEnd: string; // hh:mm
@@ -24,7 +30,7 @@ export interface IMerchant {
   accountId: string;
   malls?: string[]; // mall id
   inRange?: boolean;
-  type: MerchantType;
+  type: string;
   created?: string;
   modified?: string;
 
@@ -56,7 +62,7 @@ export class Restaurant implements IMerchant {
   location: GeoPoint;
   accountId: string;
   malls: string[]; // mall id
-  type: MerchantType;
+  type: string;
   created: string;
   modified: string;
   isClosed?: boolean; // do not save to database

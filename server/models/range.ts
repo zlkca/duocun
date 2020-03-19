@@ -38,7 +38,7 @@ export class Range extends Model {
 
     this.inDeliveryRange(origin).then((r: any) => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(r, null, 3));
+      res.send(JSON.stringify(r, null, 3));
     });
   }
 
@@ -46,7 +46,7 @@ export class Range extends Model {
     const origin = req.body.origin;
     this.findAvailables(origin).then((rs: any) => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(rs, null, 3));
+      res.send(JSON.stringify(rs, null, 3));
     });
   }
 
@@ -162,7 +162,7 @@ export class Range extends Model {
     const origin = req.body.origin;
     this.getOverRange(origin).then((r: any) => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(r, null, 3));
+      res.send(JSON.stringify(r, null, 3));
     });
   }
 }

@@ -21,6 +21,7 @@ import { MallService } from '../mall/mall.service';
 import { PaginatePipe, NgxPaginationModule } from '../../../node_modules/ngx-pagination';
 import { PhoneVerifyDialogComponent } from './phone-verify-dialog/phone-verify-dialog.component';
 import { CartService } from '../cart/cart.service';
+import { PaymentModule } from '../payment/payment.module';
 
 @NgModule({
   imports: [
@@ -35,7 +36,8 @@ import { CartService } from '../cart/cart.service';
     MatButtonToggleModule,
     // MatProgressSpinnerModule,
     OrderRoutingModule,
-    SharedModule
+    SharedModule,
+    PaymentModule
   ],
   exports: [
   ],

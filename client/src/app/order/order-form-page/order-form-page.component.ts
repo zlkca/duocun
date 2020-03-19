@@ -8,7 +8,7 @@ import { IMall } from '../../mall/mall.model';
 import { Router, ActivatedRoute } from '../../../../node_modules/@angular/router';
 import { FormBuilder } from '../../../../node_modules/@angular/forms';
 import { OrderService } from '../order.service';
-import { IOrder, ICharge, OrderItem, OrderType, OrderStatus, PaymentStatus, PaymentError } from '../order.model';
+import { IOrder, ICharge, OrderItem, OrderType, OrderStatus } from '../order.model';
 import { PageActions } from '../../main/main.actions';
 import { MatSnackBar, MatDialog } from '../../../../node_modules/@angular/material';
 import { IDelivery } from '../../delivery/delivery.model';
@@ -19,14 +19,14 @@ import { LocationService } from '../../location/location.service';
 import { environment } from '../../../environments/environment';
 import { PaymentService } from '../../payment/payment.service';
 import { RangeService } from '../../range/range.service';
-import { ICommand } from '../../shared/command.reducers';
-import { CommandActions } from '../../shared/command.actions';
 import { AccountService } from '../../account/account.service';
 import { PhoneVerifyDialogComponent, AccountType } from '../phone-verify-dialog/phone-verify-dialog.component';
-import { CartService } from '../../cart/cart.service';
 import { CartActions } from '../../cart/cart.actions';
 import { IMerchant } from '../../merchant/merchant.model';
 import { IPaymentResponse, ResponseStatus } from '../../transaction/transaction.model';
+import { PaymentMethod, PaymentError, PaymentStatus } from '../../payment/payment.model';
+import { SharedService } from '../../shared/shared.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-order-form-page',
@@ -44,7 +44,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   delivery: IDelivery;
   address: string;    // for display
   balance: number;
-  paymentMethod = 'cash';
+  paymentMethod = PaymentMethod.CASH;
   card;
   stripe;
   loading = true;
@@ -56,6 +56,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   lang = environment.language;
   merchant: IMerchant;
 
+  PaymentMethod = PaymentMethod;
+
   constructor(
     private fb: FormBuilder,
     private rx: NgRedux<IAppState>,
@@ -63,7 +65,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private rangeSvc: RangeService,
     private orderSvc: OrderService,
-    private cartSvc: CartService,
+    private sharedSvc: SharedService,
     private locationSvc: LocationService,
     private accountSvc: AccountService,
     private paymentSvc: PaymentService,
@@ -94,67 +96,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     this.rx.select<IMerchant>('merchant').pipe(takeUntil(this.onDestroy$)).subscribe((m: IMerchant) => {
       this.merchant = m;
     });
-
-    // for modify order and update paymentMethod field
-    this.rx.select('order').pipe(takeUntil(this.onDestroy$)).subscribe((order: IOrder) => {
-      this.order = order;
-    });
-
-    // -----------------------------------------------------------
-    // trigger payment process from footer, button click handler
-    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
-      if (x.name === 'pay') {
-        this.loading = true;  // show loading ... animation
-        this.rx.dispatch({ type: CommandActions.SEND, payload: { name: '' } }); // clear command stack
-
-        const merchant = x.args.merchant;
-        const delivery = x.args.delivery;
-        const cart = x.args.cart;
-        const paymentMethod = x.args.paymentMethod;
-        const origin = delivery.origin;
-        const groupDiscount = 0; // bEligible ? 2 : 0;
-
-        self.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
-          if (account) {
-            this.paymentMethod = paymentMethod;
-            this.balance = account.balance;
-
-            if (origin) {
-              self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
-                this.charge = this.getSummary(cart, merchant, (r.distance * r.rate), groupDiscount);
-                if (account.type === AccountType.TEMP) { // For no logged in user who get the verification code, but didn't finish verify
-                  this.loading = false;
-                  this.bSubmitted = false;
-                  this.openPhoneVerifyDialog();
-                } else {
-                  if (!this.bSubmitted) {
-                    this.bSubmitted = true;
-                    self.doPay(account, self.merchant, self.charge, cart, delivery, paymentMethod).then((rt: any) => {
-                      this.showError(rt.err);
-                      this.loading = false; // hide loading ... animation
-                      this.bSubmitted = false;
-                      if (rt.err === PaymentError.NONE) {
-                        if (paymentMethod === 'WECHATPAY') {
-                          window.location.href = rt.url;
-                        } else {
-                          self.router.navigate(['order/history']);
-                        }
-                      }
-                    });
-                  }
-                }
-              });
-            } else { // no location, should never go here
-              this.loading = false;
-              console.log('pay command require origin');
-            }
-          } else { // didn't login
-            this.loading = false;
-            this.openPhoneVerifyDialog();
-          }
-        });
-      }
-    });
   }
 
   ngOnInit() {
@@ -172,9 +113,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         if (origin) {
           self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
             self.charge = self.getSummary(self.cart, self.merchant, (r.distance * r.rate), groupDiscount);
-            self.paymentMethod = self.order ? self.paymentMethod : 'cash';
+            self.paymentMethod = self.order ? self.paymentMethod : PaymentMethod.CASH;
             setTimeout(() => {
-              if (self.paymentMethod === 'card') {
+              if (self.paymentMethod === PaymentMethod.CREDIT_CARD) {
                 const rt = self.paymentSvc.initStripe('card-element', 'card-errors');
                 this.stripe = rt.stripe;
                 this.card = rt.card;
@@ -185,8 +126,9 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                   this.showError(rt.err);
                   this.loading = false; // hide loading ... animation
                   this.bSubmitted = false;
+
                   if (rt.err === PaymentError.NONE) {
-                    if (self.paymentMethod === 'WECHATPAY') {
+                    if (self.paymentMethod === PaymentMethod.WECHAT) {
                       window.location.href = rt.url;
                     } else {
                       self.router.navigate(['order/history']);
@@ -197,7 +139,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 self.loading = false;
                 this.bSubmitted = false;
               }
-
             }, 100);
           });
         } else {
@@ -219,7 +160,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           if (origin) {
             self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
               this.charge = this.getSummary(cart, merchant, (r.distance * r.rate), groupDiscount);
-              this.paymentMethod = (self.balance >= this.charge.total) ? 'prepaid' : self.paymentMethod;
+              this.paymentMethod = (self.balance >= this.charge.total) ? PaymentMethod.PREPAY : self.paymentMethod;
               this.rx.dispatch({
                 type: OrderActions.UPDATE_PAYMENT_METHOD,
                 payload: { paymentMethod: this.paymentMethod }
@@ -296,18 +237,24 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       };
     });
 
+    const sCreated = moment().toISOString();
+    const { deliverDate, deliverTime } = this.sharedSvc.getDeliveryDateTimeByPhase(sCreated, merchant.phases, delivery.dateType);
+    const status = (paymentMethod === PaymentMethod.CREDIT_CARD || paymentMethod === PaymentMethod.WECHAT) ?
+      OrderStatus.TEMP : OrderStatus.NEW; // prepay need Driver to confirm finished
+    const paymentStatus = paymentMethod === PaymentMethod.PREPAY ? PaymentStatus.PAID : PaymentStatus.UNPAID;
     const order: IOrder = {
       clientId: account._id,
       clientName: account.username,
       defaultPickupTime: account.pickup,
       merchantId: merchant._id,
       merchantName: this.lang === 'zh' ? merchant.name : merchant.nameEN,
-      items: items,
+      items,
       price: Math.round(charge.price * 100) / 100,
       cost: Math.round(charge.cost * 100) / 100,
-      // address: this.locationSvc.getAddrString(delivery.origin),
       location: delivery.origin,
-      note: note,
+      deliverDate,  // eg. 2020-12-03
+      deliverTime,  // eg. 11:20
+      note,
       deliveryCost: Math.round(merchant.deliveryCost * 100) / 100,
       deliveryDiscount: Math.round(merchant.deliveryCost * 100) / 100,
       groupDiscount: Math.round(charge.groupDiscount * 100) / 100,
@@ -316,11 +263,10 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       tax: Math.round(charge.tax * 100) / 100,
       tips: Math.round(charge.tips * 100) / 100,
       type: OrderType.FOOD_DELIVERY,
-      status: OrderStatus.NEW,
-      paymentStatus: PaymentStatus.UNPAID,
-      driverId: '',
-      paymentMethod: paymentMethod,
-      dateType: delivery.dateType // this.sharedSvc.getDateType(delivery.date)
+      status,
+      paymentStatus,
+      paymentMethod
+      // dateType: delivery.dateType // this.sharedSvc.getDateType(delivery.date)
     };
 
     return order;
@@ -342,7 +288,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       this.loading = false; // hide loading ... animation
       this.bSubmitted = false;
       if (rt.err === PaymentError.NONE) {
-        if (this.paymentMethod === 'WECHATPAY') {
+        if (this.paymentMethod === PaymentMethod.WECHAT) {
           window.location.href = rt.url;
         } else {
           this.router.navigate(['order/history']);
@@ -376,10 +322,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const self = this;
     const v = this.form.value;
     const order = self.createOrder(account, merchant, cart, delivery, charge, v.note, paymentMethod); // Create an unpaid order
+    const balance: number = account.balance;
+    const amount = Math.round((order.total - balance) * 100) / 100;
+    const note = v.note;
 
     this.accountSvc.update({ _id: account._id }, { type: 'client' }).pipe(takeUntil(self.onDestroy$)).subscribe(ret => { });
 
-    // tslint:disable-next-line:no-shadowed-variable
     return new Promise((resolve, reject) => {
       if (!account || !account.phone || !account.verified) {
         resolve({ err: PaymentError.PHONE_EMPTY });
@@ -390,25 +338,34 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       } else if (!(cart && cart.items && cart.items.length > 0)) {
         resolve({ err: PaymentError.CART_EMPTY });
       } else {
-        if (paymentMethod === 'card') {
-          this.paymentSvc.vaildateCardPay(this.stripe, this.card, 'card-errors').then((ret: any) => {
-            if (ret.err !== PaymentError.NONE) {
-              resolve({ err: ret.err });
-            } else {
-              self.handleCardPayment(account, ret.token, order, cart).then((r: any) => {
-                resolve({ err: r.err });
-              });
-            }
-          });
-        } else if (paymentMethod === 'cash' || paymentMethod === 'prepaid') {
-          self.handleWithCash(account, order, cart).then(r => {
+        this.orderSvc.placeOrders([order]).then(newOrders => {
+          if (paymentMethod === PaymentMethod.CREDIT_CARD) {
+            this.stripe.createPaymentMethod({
+              type: 'card',
+              card: this.card,
+              billing_details: {
+                name: account.username
+              }
+            }).then(result => {
+              if (result.error) {
+                // An error happened when collecting card details, show `result.error.message` in the payment form.
+                resolve({ err: PaymentError.BANK_CARD_FAIL });
+              } else {
+                this.paymentSvc.payByCreditCard(account._id, account.username, newOrders, amount, note).then((rsp: any) => {
+                  // const items: ICartItem[] = cart.items.filter(x => x.merchantId === order.merchantId);
+                  // self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
+                  resolve({ err: rsp.err });
+                });
+              }
+            });
+          } else if (paymentMethod === PaymentMethod.WECHAT) {
+            this.paymentSvc.payBySnappay(account._id, account.username, newOrders, amount, note).then((rsp: any) => {
+              resolve({ err: rsp.err, url: rsp.url });
+            });
+          } else { // PaymentMethod.CASH || PaymentMethod.PREPAY
             resolve({ err: PaymentError.NONE });
-          });
-        } else { // wechat, alipay
-          self.handleSnappayPayment(account, order, cart).then((r: any) => {
-            resolve({ err: r.err, url: r.url });
-          });
-        }
+          }
+        });
       }
     });
   }
@@ -432,14 +389,12 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           if (rsp.status === ResponseStatus.SUCCESS) {
             self.snackBar.open('', payHint, { duration: 2000 });
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } }); // should be clear cart ?
-            self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
           }
           const error = rsp.status === ResponseStatus.SUCCESS ? PaymentError.NONE : PaymentError.BANK_CARD_FAIL;
           resolve({ err: error });
         });
       });
     });
-
   }
 
   handleSnappayPayment(account: IAccount, order: IOrder, cart: ICart) {
@@ -459,7 +414,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         this.paymentSvc.snappayPayOrder(ret, payable).pipe(takeUntil(self.onDestroy$)).subscribe((rsp: IPaymentResponse) => {
           if (rsp.status === ResponseStatus.SUCCESS) {
             self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-            self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
           }
           const error = rsp.status === ResponseStatus.SUCCESS ? PaymentError.NONE : PaymentError.WECHATPAY_FAIL;
           resolve({ err: error, url: rsp.url });
@@ -483,7 +437,6 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
         self.orderSvc.update({ _id: orderId }, order).pipe(takeUntil(this.onDestroy$)).subscribe((r: IOrder) => {
           const items: ICartItem[] = self.cart.items.filter(x => x.merchantId === r.merchantId);
           self.rx.dispatch({ type: CartActions.REMOVE_FROM_CART, payload: { items: items } });
-          self.rx.dispatch({ type: OrderActions.CLEAR, payload: {} });
           self.snackBar.open('', orderSuccessHint, { duration: 2000 });
           resolve({ err: PaymentError.NONE, type: 'update', order: r });
         });
@@ -505,21 +458,21 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   onSelectPaymentMethod(paymentMethod) {
     this.paymentMethod = paymentMethod;
-    this.rx.dispatch({
-      type: OrderActions.UPDATE_PAYMENT_METHOD,
-      payload: { paymentMethod: this.paymentMethod }
-    });
-    if (paymentMethod === 'cash') {
-      // pass
-    } else if (paymentMethod === 'card') {
-      setTimeout(() => {
-        const rt = this.paymentSvc.initStripe('card-element', 'card-errors');
-        this.stripe = rt.stripe;
-        this.card = rt.card;
-      }, 100);
-    } else {
-      // pass
-    }
+    // this.rx.dispatch({
+    //   type: OrderActions.UPDATE_PAYMENT_METHOD,
+    //   payload: { paymentMethod: this.paymentMethod }
+    // });
+    // if (paymentMethod === PaymentMethod.CASH) {
+    //   // pass
+    // } else if (paymentMethod === PaymentMethod.CREDIT_CARD) {
+    // //   setTimeout(() => {
+    // //     const rt = this.paymentSvc.initStripe('card-element', 'card-errors');
+    // //     this.stripe = rt.stripe;
+    // //     this.card = rt.card;
+    // //   }, 100);
+    // // } else {
+    // //   // pass
+    // }
   }
 
   openPhoneVerifyDialog(): void {
@@ -541,5 +494,66 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   getAbs(n) {
     return Math.abs(n);
+  }
+
+  onPay(e) {
+    const self = this;
+    const merchant = e.merchant;
+    const delivery = e.delivery;
+    const cart = e.cart;
+    const paymentMethod = e.paymentMethod;
+    const origin = delivery.origin;
+    const groupDiscount = 0; // bEligible ? 2 : 0;
+
+    this.loading = true;  // show loading ... animation
+
+    this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
+      if (account) {
+        this.paymentMethod = paymentMethod;
+        this.balance = account.balance;
+
+        if (origin) {
+          self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
+            this.charge = this.getSummary(cart, merchant, (r.distance * r.rate), groupDiscount);
+            if (account.type === AccountType.TEMP) { // For no logged in user who get the verification code, but didn't finish verify
+              this.loading = false;
+              this.bSubmitted = false;
+              this.openPhoneVerifyDialog();
+            } else {
+              if (!this.bSubmitted) {
+                this.bSubmitted = true;
+                self.doPay(account, self.merchant, self.charge, cart, delivery, paymentMethod).then((rt: any) => {
+                  this.showError(rt.err);
+                  this.loading = false; // hide loading ... animation
+                  this.bSubmitted = false;
+
+                  if (rt.err === PaymentError.NONE) {
+
+                    this.rx.dispatch({ type: CartActions.CLEAR_CART, payload: [] });
+
+                    if (paymentMethod === PaymentMethod.WECHAT) {
+                      window.location.href = rt.url;
+                    } else {
+                      self.router.navigate(['order/history']);
+                    }
+                  }
+                });
+              }
+            }
+          });
+        } else { // no location, should never go here
+          this.loading = false;
+          console.log('pay command require origin');
+        }
+      } else { // didn't login
+        this.loading = false;
+        this.openPhoneVerifyDialog();
+      }
+    });
+  }
+
+  onCreditCardFormInit(e) {
+    this.stripe = e.stripe;
+    this.card = e.card;
   }
 }

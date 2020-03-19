@@ -28,10 +28,8 @@ export class Utils {
       res.send('');
     }
   }
-
-
-
-  getWechatAccessToken(authCode: string): Promise<string> {
+  
+  getWechatAccessToken(authCode: string): Promise<any> {
     const APP_ID = this.cfg.WECHAT.APP_ID;
     const SECRET = this.cfg.WECHAT.APP_SECRET;
     let url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' + APP_ID +
@@ -101,7 +99,7 @@ export class Utils {
   //     "privilege":[ "PRIVILEGE1" "PRIVILEGE2"     ],
   //     "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
   // }
-  getWechatUserInfo(accessToken: string, openId: string) {
+  getWechatUserInfo(accessToken: string, openId: string): Promise<any> {
     let url = 'https://api.weixin.qq.com/sns/userinfo?access_token=' + accessToken + '&openid=' + openId + '&lang=zh_CN';
 
     return new Promise((resolve, reject) => {

@@ -1,19 +1,13 @@
-$cellphone: "(max-width:480px)";
-$mobile: "(max-width: 767px)";
-$tablet: "(min-width: 768px) and (max-width: 1199px)";
-$desktop: "(min-width: 1200px)";
+@import '../../../base';
 
-$head-h: 60px;
 $tab-h: 0px; // 48px;
 $secondary-bg:#eee;
 
-$bottom-bar-h: 60px;
 $padding-w: 100px;
 $cat-w: 120px;
 
 .page{
   height: 100%;
-  overflow: scroll;
 }
 
 .restaurant-name{
@@ -30,7 +24,7 @@ $cat-w: 120px;
 //   height: calc(100% - 95px - 60px - 48px);
 // }
 
-.content-block{
+.page-body{
   position: fixed;
   top: $head-h;
   height: calc(100% - #{$head-h} - #{$bottom-bar-h});

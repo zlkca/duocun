@@ -53,7 +53,7 @@ export class Contact extends Model {
 
         this.accountModel.bulkUpdate(datas).then(() => {
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(1, null, 3));
+          res.send(JSON.stringify(1, null, 3));
         });
       });
     });

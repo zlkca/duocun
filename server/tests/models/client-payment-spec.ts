@@ -125,9 +125,9 @@
 
 //         orders = [
 //           { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', 
-//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:8.5, paymentMethod: 'cash' }, // new inserted
+//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:8.5, paymentMethod: PaymentMethod.CASH }, // new inserted
 //           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', 
-//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5, paymentMethod: 'cash' },
+//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5, paymentMethod: PaymentMethod.CASH },
 //         ];
         
 //         oo.insertMany(orders).then((os: any[]) => {
@@ -233,9 +233,9 @@
 
 //         orders = [
 //           { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', 
-//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:8.5, paymentMethod: 'cash' }, // new inserted
+//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:8.5, paymentMethod: PaymentMethod.CASH }, // new inserted
 //           { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', 
-//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5, paymentMethod: 'cash' },
+//           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5, paymentMethod: PaymentMethod.CASH },
 //         ];
         
 //         oo.insertMany(orders).then((os: any[]) => {
@@ -339,9 +339,9 @@
 
 // //         orders = [
 // //           { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', 
-// //           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:8.5, paymentMethod: 'cash' }, // new inserted
+// //           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:8.5, paymentMethod: PaymentMethod.CASH }, // new inserted
 // //           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', 
-// //           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5, paymentMethod: 'cash' },
+// //           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5, paymentMethod: PaymentMethod.CASH },
 // //         ];
         
 // //         oo.insertMany(orders).then((os: any[]) => {
@@ -446,9 +446,9 @@
 
 // //         orders = [
 // //           { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', 
-// //           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:8.5, paymentMethod: 'cash' }, // new inserted
+// //           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 2, total:8.5, paymentMethod: PaymentMethod.CASH }, // new inserted
 // //           { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', 
-// //           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5, paymentMethod: 'cash' },
+// //           delivered: '2019-04-23T15:45:00.000Z', groupDiscount: 0, total:9.5, paymentMethod: PaymentMethod.CASH },
 // //         ];
         
 // //         oo.insertMany(orders).then((os: any[]) => {

@@ -159,17 +159,17 @@ export class Log extends Model {
   }
 
   // getMyBalanceForAddOrder(balance: number, paymentMethod: string, bPaid: boolean, payable: number, paid: number) {
-  //   if (paymentMethod === 'prepaid') {
+  //   if (paymentMethod === PaymentMethod.PREPAY) {
   //     // return Math.round((balance - payable) * 100) / 100;
   //     return balance;
-  //   } else if (paymentMethod === 'cash') {
+  //   } else if (paymentMethod === PaymentMethod.CASH) {
   //     // if(bPaid){
   //     //   return Math.round((balance + paid - payable) * 100) / 100;
   //     // }else{
   //     //   return Math.round((balance - payable) * 100) / 100;
   //     // }
   //     return balance;
-  //   } else if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
+  //   } else if (paymentMethod === PaymentMethod.CREDIT_CARD || paymentMethod === PaymentMethod.WECHAT) {
   //     if (bPaid) {
   //       return Math.round((balance + paid - payable) * 100) / 100;
   //     } else { // pass
@@ -181,9 +181,9 @@ export class Log extends Model {
   // }
 
   // getMyBalanceForRemoveOrder(balance: number, paymentMethod: string, payable: number) {
-  //   if (paymentMethod === 'prepaid' || paymentMethod === 'cash') {
+  //   if (paymentMethod === PaymentMethod.PREPAY || paymentMethod === PaymentMethod.CASH) {
   //     return Math.round((balance + payable) * 100) / 100;
-  //   } else if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
+  //   } else if (paymentMethod === PaymentMethod.CREDIT_CARD || paymentMethod === PaymentMethod.WECHAT) {
   //     return Math.round((balance + payable) * 100) / 100;
   //   } else {
   //     return null; // no need to update balance

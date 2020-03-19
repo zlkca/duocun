@@ -4,7 +4,7 @@ import { ObjectID, ObjectId } from "mongodb";
 import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import moment from 'moment';
-import { IOrder, IOrderItem } from "./order";
+import { IOrder, IOrderItem, PaymentMethod } from "./order";
 import { EventLog } from "./event-log";
 
 const CASH_BANK_ID = '5c9511bb0851a5096e044d10';
@@ -53,6 +53,7 @@ export interface ITransaction {
   fromName: string;
   toId: string;
   toName: string;
+  batchId?: string;
   orderId?: string;
   orderType?: string;
   items?: IOrderItem[];
@@ -152,7 +153,6 @@ export class Transaction extends Model {
           });
         }
       });
-
     });
   }
 
@@ -160,13 +160,13 @@ export class Transaction extends Model {
     if (req.body instanceof Array) {
       this.insertMany(req.body).then((rs: any[]) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(rs, null, 3));
+        res.send(JSON.stringify(rs, null, 3));
       });
     } else {
       const tr = req.body;
       this.doInsertOne(tr).then(savedTr => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(savedTr, null, 3));
+        res.send(JSON.stringify(savedTr, null, 3));
       });
     }
   }
@@ -280,7 +280,7 @@ export class Transaction extends Model {
   getSales(req: Request, res: Response) {
     this.doGetSales().then(sales => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(sales, null, 3));
+      res.send(JSON.stringify(sales, null, 3));
     });
   }
 
@@ -320,21 +320,21 @@ export class Transaction extends Model {
   getCost(req: Request, res: Response) {
     this.doGetCost().then(cost => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(cost, null, 3));
+      res.send(JSON.stringify(cost, null, 3));
     });
   }
 
   getMerchantPay(req: Request, res: Response) {
     this.doGetMerchantPay().then(amount => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(amount, null, 3));
+      res.send(JSON.stringify(amount, null, 3));
     });
   }
 
   getSalary(req: Request, res: Response) {
     this.doGetSalary().then(amount => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(amount, null, 3));
+      res.send(JSON.stringify(amount, null, 3));
     });
   }
 
@@ -380,7 +380,7 @@ export class Transaction extends Model {
 
   //   this.doAddCredit(clientId, clientName, total, paymentMethod, note).then(x => {
   //     res.setHeader('Content-Type', 'application/json');
-  //     res.end(JSON.stringify(x, null, 3));
+  //     res.send(JSON.stringify(x, null, 3));
   //   });
   // }
 
@@ -390,11 +390,11 @@ export class Transaction extends Model {
     let actionCode = '';
     const amount = Math.round(total * 100) / 100;
 
-    if (paymentMethod === 'card') {
+    if (paymentMethod === PaymentMethod.CREDIT_CARD) {
       actionCode = TransactionAction.ADD_CREDIT_BY_CARD.code;
       toId = TD_BANK_ID;
       toName = TD_BANK_NAME;
-    } else if (paymentMethod === 'WECHATPAY') {
+    } else if (paymentMethod === PaymentMethod.WECHAT) {
       actionCode = TransactionAction.ADD_CREDIT_BY_WECHAT.code;
       toId = SNAPPAY_BANK_ID;
       toName = SNAPPAY_BANK_NAME;
@@ -596,10 +596,10 @@ export class Transaction extends Model {
     //     res.setHeader('Content-Type', 'application/json');
     //     if (datas && datas.length > 0) {
     //       this.bulkUpdate(datas).then(() => {
-    //         res.end(JSON.stringify('success', null, 3));
+    //         res.send(JSON.stringify('success', null, 3));
     //       });
     //     } else {
-    //       res.end(JSON.stringify(null, null, 3));
+    //       res.send(JSON.stringify(null, null, 3));
     //     }
 
     //   });
@@ -619,7 +619,7 @@ export class Transaction extends Model {
     //   });
     //   this.bulkUpdate(datas).then(() => {
     //     res.setHeader('Content-Type', 'application/json');
-    //     res.end(JSON.stringify('success', null, 3));
+    //     res.send(JSON.stringify('success', null, 3));
     //   });
     // });
   }
@@ -690,7 +690,7 @@ export class Transaction extends Model {
         });
 
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify('success', null, 3));
+        res.send(JSON.stringify('success', null, 3));
       });
     });
   }

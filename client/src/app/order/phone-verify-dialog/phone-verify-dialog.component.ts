@@ -188,7 +188,8 @@ export class PhoneVerifyDialogComponent implements OnInit, OnDestroy {
     }
 
     if (s) {
-      this.snackBar.open('', s, { duration: 1500 });
+      alert(s);
+      // this.snackBar.open('', s, { duration: 1500 });
     }
   }
 

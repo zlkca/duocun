@@ -21,10 +21,10 @@ export class DriverHour extends Model {
       res.setHeader('Content-Type', 'application/json');
       if (datas && datas.length > 0) {
         this.bulkUpdate(datas).then(() => {
-          res.end(JSON.stringify('success', null, 3));
+          res.send(JSON.stringify('success', null, 3));
         });
       } else {
-        res.end(JSON.stringify(null, null, 3));
+        res.send(JSON.stringify(null, null, 3));
       }
     });
   }

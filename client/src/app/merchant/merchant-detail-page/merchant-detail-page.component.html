@@ -3,7 +3,7 @@
     <div class="col-12 restaurant-name title-bg">{{restaurant.name}}</div>
   </div>
 
-  <div class="content-block">
+  <div class="page-body">
     <div class="cat-list">
       <app-vertical-tab [selected]="category" [items]="categories" (select)="onCategorySelect($event)"></app-vertical-tab>
     </div>
@@ -16,6 +16,7 @@
       </div>
     </div>
   </div>
+  <app-footer [type]="'restaurant'" (next)="onNext($event)"></app-footer>
 </div>
 
 <!-- <app-modal id="custom-modal-1">

@@ -4,6 +4,9 @@ import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { AuthService } from './account/auth.service';
 
+export const HttpStatus = {
+  OK: { code: 200, text: 'OK' }
+};
 
 @Injectable()
 export class EntityService {

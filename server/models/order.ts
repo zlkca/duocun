@@ -11,32 +11,55 @@ import { Product, IProduct } from "./product";
 import { CellApplication, CellApplicationStatus, ICellApplication } from "./cell-application";
 import { Log, Action, AccountType } from "./log";
 import { createObjectCsvWriter } from 'csv-writer';
+import { ObjectID } from "mongodb";
+import { ClientCredit } from "./client-credit";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
 const BANK_ID = '5c95019e0851a5096e044d0c';
 const BANK_NAME = 'TD Bank';
 
+export const PaymentError = {
+  NONE: 'N',
+  PHONE_EMPTY: 'PE',
+  LOCATION_EMPTY: 'LE',
+  DUPLICATED_SUBMIT: 'DS',
+  CART_EMPTY: 'CE',
+  BANK_CARD_EMPTY: 'BE',
+  INVALID_BANK_CARD: 'IB',
+  BANK_CARD_FAIL: 'BF',
+  WECHATPAY_FAIL: 'WF'
+};
+
 export const OrderType = {
   FOOD_DELIVERY: 'F',
   MOBILE_PLAN_SETUP: 'MS',
-  MOBILE_PLAN_MONTHLY: 'MM'
+  MOBILE_PLAN_MONTHLY: 'MM',
+  GROCERY: 'G'
 };
 
-export enum OrderStatus {
-  BAD = 1,
-  DELETED,
-  TEMP,         // generate a temp order for electronic order
-  NEW,
-  LOADED,               // The driver took the food from Merchant
-  DONE,                 // Finish delivery
-  MERCHANT_CHECKED      // VIEWED BY MERCHANT
-}
+export const OrderStatus = {
+  BAD: 'B',          // client return, compansate
+  DELETED: 'D',          // cancellation
+  TEMP: 'T',             // generate a temp order for electronic order
+  NEW: 'N',
+  LOADED: 'L',           // The driver took the food from Merchant
+  DONE: 'F',             // Finish delivery
+  MERCHANT_CHECKED: 'MC'  // VIEWED BY MERCHANT
+};
 
-export enum PaymentStatus {
-  UNPAID = 1,
-  PAID
-}
+export const PaymentMethod = {
+  CASH: 'CA',
+  WECHAT: 'W',
+  CREDIT_CARD: 'CC',
+  PREPAY: 'P'
+};
+
+export const PaymentStatus = {
+  UNPAID: 'U',
+  PAID: 'P'
+};
+
 
 export interface IOrderItem {
   productId: string;
@@ -55,19 +78,22 @@ export interface IOrder {
   clientId: string;
   clientName: string;
   clientPhoneNumber?: string;
-  // prepaidClient?: boolean;
   merchantId: string;
   merchantName: string;
   driverId?: string;
   driverName?: string;
   type?: string;        // OrderType
 
-  paymentStatus?: PaymentStatus;
-  status?: OrderStatus;
+  paymentStatus?: string;
+  status?: string;
 
   note?: string;
   address?: string;
   location: ILocation; // delivery address
+
+  deliverDate?: string;  // deliver date  2020-11-01
+  deliverTime?: string;  // deliver time 14:00:00
+
   delivered?: string;
   created?: string;
   modified?: string;
@@ -86,6 +112,7 @@ export interface IOrder {
   paymentMethod: string;
   chargeId?: string; // stripe chargeId
   transactionId?: string;
+  batchId?: string;
 
   mode?: string; // for unit test
   dateType?: string; // 'today', 'tomorrow'
@@ -104,6 +131,8 @@ export class Order extends Model {
   private transactionModel: Transaction;
   private cellApplicationModel: CellApplication;
   private logModel: Log;
+  clientCreditModel: ClientCredit;
+
   constructor(dbo: DB) {
     super(dbo, 'orders');
 
@@ -114,6 +143,7 @@ export class Order extends Model {
     this.transactionModel = new Transaction(dbo);
     this.cellApplicationModel = new CellApplication(dbo);
     this.logModel = new Log(dbo);
+    this.clientCreditModel = new ClientCredit(dbo);
   }
 
   list(req: Request, res: Response) {
@@ -235,17 +265,17 @@ export class Order extends Model {
 
     this.find(query).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
+      res.send(JSON.stringify(x, null, 3));
     });
   }
 
-  create(req: Request, res: Response) {
-    const order = req.body;
-    this.doInsertOne(order).then(savedOrder => {
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(savedOrder, null, 3));
-    });
-  }
+  // create(req: Request, res: Response) {
+  //   const order = req.body;
+  //   this.doInsertOne(order).then(savedOrder => {
+  //     res.setHeader('Content-Type', 'application/json');
+  //     res.send(JSON.stringify(savedOrder, null, 3));
+  //   });
+  // }
 
   // local --- local date time string '2019-11-03T11:20:00.000Z', local.isUTC() must be false.
   // sLocalTime     --- local hour and minute eg. '11:20'
@@ -335,104 +365,152 @@ export class Order extends Model {
   }
 
   createMobilePlanOrders() {
-    const self = this;
-    this.cellApplicationModel.joinFind({ status: CellApplicationStatus.STARTED }).then((cas: ICellApplication[]) => {
-      const accountIds: any[] = [];
-      cas.map((ca: ICellApplication) => {
-        accountIds.push(ca.accountId);
-        const items: IOrderItem[] = [{
-          productId: ca.productId.toString(),
-          productName: ca.product.name,
-          quantity: 1,
-          price: ca.product.price,
-          cost: ca.product.cost
-        }];
+    // const self = this;
+    // this.cellApplicationModel.joinFind({ status: CellApplicationStatus.STARTED }).then((cas: ICellApplication[]) => {
+    //   const accountIds: any[] = [];
+    //   cas.map((ca: ICellApplication) => {
+    //     accountIds.push(ca.accountId);
+    //     const items: IOrderItem[] = [{
+    //       productId: ca.productId.toString(),
+    //       productName: ca.product.name,
+    //       quantity: 1,
+    //       price: ca.product.price,
+    //       cost: ca.product.cost
+    //     }];
 
-        // orders.push(order);
-        setTimeout(() => {
-          const account: any = ca.account;
-          const merchant: any = ca.merchant;
+    //     // orders.push(order);
+    //     setTimeout(() => {
+    //       const account: any = ca.account;
+    //       const merchant: any = ca.merchant;
 
-          const order: IOrder = {
-            clientId: ca.accountId.toString(),
-            clientName: account ? account.username : 'N/A',
-            merchantId: ca.product.merchantId.toString(),
-            merchantName: merchant ? merchant.name : 'N/A',
-            items: items,
-            price: Math.round(+ca.product.price * 100) / 100,
-            cost: Math.round(+ca.product.cost * 100) / 100,
-            address: ca.address,
-            location: {
-              streetNumber: '30', streetName: 'Fulton Way', city: 'Toronto', province: 'ON', country: 'CA', postalCode: '',
-              subLocality: 'RichmondHill', placeId: 'ChIJlQu-m1fTKogRNj4OtKn7yD0', lat: 43.983012, lng: -79.3906583
-            }, // fix me!!!
-            note: 'Mobile Plan Monthly Fee',
-            deliveryCost: Math.round(0 * 100) / 100,
-            deliveryDiscount: Math.round(0 * 100) / 100,
-            groupDiscount: Math.round(0 * 100) / 100,
-            overRangeCharge: Math.round(0 * 100) / 100,
-            total: Math.round(+ca.product.price * 1.13 * 100) / 100,
-            tax: Math.round(+ca.product.price * 0.13 * 100) / 100,
-            tips: Math.round(0 * 100) / 100,
-            type: OrderType.MOBILE_PLAN_MONTHLY,
-            status: OrderStatus.NEW,
-            paymentMethod: 'recurring prepay'
-          };
+    //       const order: IOrder = {
+    //         clientId: ca.accountId.toString(),
+    //         clientName: account ? account.username : 'N/A',
+    //         merchantId: ca.product.merchantId.toString(),
+    //         merchantName: merchant ? merchant.name : 'N/A',
+    //         items: items,
+    //         price: Math.round(+ca.product.price * 100) / 100,
+    //         cost: Math.round(+ca.product.cost * 100) / 100,
+    //         address: ca.address,
+    //         location: {
+    //           streetNumber: '30', streetName: 'Fulton Way', city: 'Toronto', province: 'ON', country: 'CA', postalCode: '',
+    //           subLocality: 'RichmondHill', placeId: 'ChIJlQu-m1fTKogRNj4OtKn7yD0', lat: 43.983012, lng: -79.3906583
+    //         }, // fix me!!!
+    //         note: 'Mobile Plan Monthly Fee',
+    //         deliveryCost: Math.round(0 * 100) / 100,
+    //         deliveryDiscount: Math.round(0 * 100) / 100,
+    //         groupDiscount: Math.round(0 * 100) / 100,
+    //         overRangeCharge: Math.round(0 * 100) / 100,
+    //         total: Math.round(+ca.product.price * 1.13 * 100) / 100,
+    //         tax: Math.round(+ca.product.price * 0.13 * 100) / 100,
+    //         tips: Math.round(0 * 100) / 100,
+    //         type: OrderType.MOBILE_PLAN_MONTHLY,
+    //         status: OrderStatus.NEW,
+    //         paymentMethod: 'recurring prepay'
+    //       };
 
-          self.doInsertOne(order).then(() => {
+    //       self.doInsertOne(order).then(() => {
 
-          });
-        }, 500);
-      });
-    });
+    //       });
+    //     }, 500);
+    //   });
+    // });
   }
 
 
-  doInsertOne(order: IOrder) {
+  doInsertOneV2(order: IOrder, delivered: string): Promise<IOrder> {
     const location: ILocation = order.location;
-
     return new Promise((resolve, reject) => {
       this.sequenceModel.reqSequence().then((sequence: number) => {
         order.code = this.sequenceModel.getCode(location, sequence);
-        order.created = moment.utc().toISOString();
-
-        const orderType: any = order.type;
-        const dateType: any = order.dateType;
-        const clientId = order.clientId;
-        const merchantId = order.merchantId.toString();
-        const createdStr = order.created;
-
-        this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
-          const phases = merchant ? merchant.phases : [];
-          this.getDeliveryDateTime(orderType, dateType, clientId, phases, createdStr).then((utcDeliveredStr) => {
-            order.delivered = utcDeliveredStr;
-            delete order.dateType;
-
-            this.insertOne(order).then((savedOrder: IOrder) => {
-              const merchantName = order.merchantName;
-              const clientId: string = order.clientId.toString();
-              const clientName = order.clientName;
-              const cost = order.cost;
-              const total = order.total;
-              const delivered: any = order.delivered;
-
-              // temporary order didn't update transaction until paid
-              if (order.status === OrderStatus.TEMP) { // fix me
-                resolve(savedOrder);
-              } else {
-                const orderId: any = savedOrder._id;
-                const merchantAccountId = merchant.accountId.toString();
-                this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), orderType,
-                  merchantAccountId, merchantName, clientId, clientName, cost, total, delivered).then(() => {
-                  resolve(savedOrder);
-                });
-              }
-            });
-          });
+        order.created = moment().toISOString();
+        order.delivered = delivered;
+        this.insertOne(order).then((savedOrder: IOrder) => {
+          resolve(savedOrder);
         });
       });
     });
   }
+
+  reqPlaceOrders(req: Request, res: Response) {
+    const orders = req.body;
+    this.placeOrders(orders).then((savedOrders: any[]) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(savedOrders, null, 3));
+    });
+  }
+
+  // v2
+  // create order batch Id
+  async placeOrders(orders: IOrder[]) {
+    const savedOrders: IOrder[] = [];
+    const batchId = (new ObjectID()).toString();
+    if (orders && orders.length > 0) {
+      for (let i = 0; i < orders.length; i++) {
+        orders[i].batchId = batchId;
+        const order: IOrder = orders[i];
+        const date = moment(order.deliverDate).toISOString();
+        const deliverTime: any = order.deliverTime;
+        const delivered = this.getUtcTime(date, deliverTime).toISOString();
+        const savedOrder: IOrder = await this.doInsertOneV2(order, delivered);
+        savedOrders.push(savedOrder);
+      }
+      const paymentMethod = orders[0].paymentMethod;
+      if (paymentMethod === PaymentMethod.CASH || paymentMethod === PaymentMethod.PREPAY) {
+        await this.addDebitTransactions(savedOrders);
+      }else {
+        // bank card and wechat pay will process transaction after payment gateway paid
+      }
+    }
+    return savedOrders;
+  }
+
+
+  // doInsertOne(order: IOrder) {
+  //   const location: ILocation = order.location;
+
+  //   return new Promise((resolve, reject) => {
+  //     this.sequenceModel.reqSequence().then((sequence: number) => {
+  //       order.code = this.sequenceModel.getCode(location, sequence);
+  //       order.created = moment.utc().toISOString();
+
+  //       const orderType: any = order.type;
+  //       const dateType: any = order.dateType;
+  //       const clientId = order.clientId;
+  //       const merchantId = order.merchantId.toString();
+  //       const createdStr = order.created;
+
+  //       this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
+  //         const phases = merchant ? merchant.phases : [];
+  //         this.getDeliveryDateTime(orderType, dateType, clientId, phases, createdStr).then((utcDeliveredStr) => {
+  //           order.delivered = utcDeliveredStr;
+  //           delete order.dateType;
+
+  //           this.insertOne(order).then((savedOrder: IOrder) => {
+  //             const merchantName = order.merchantName;
+  //             const clientId: string = order.clientId.toString();
+  //             const clientName = order.clientName;
+  //             const cost = order.cost;
+  //             const total = order.total;
+  //             const delivered: any = order.delivered;
+
+  //             // temporary order didn't update transaction until paid
+  //             if (order.status === OrderStatus.TEMP) { // fix me
+  //               resolve(savedOrder);
+  //             } else {
+  //               const orderId: any = savedOrder._id;
+  //               const merchantAccountId = merchant.accountId.toString();
+  //               this.transactionModel.saveTransactionsForPlaceOrder(orderId.toString(), orderType,
+  //                 merchantAccountId, merchantName, clientId, clientName, cost, total, delivered).then(() => {
+  //                   resolve(savedOrder);
+  //                 });
+  //             }
+  //           });
+  //         });
+  //       });
+  //     });
+  //   });
+  // }
 
   doRemoveOne(orderId: string) {
     return new Promise((resolve, reject) => {
@@ -484,7 +562,7 @@ export class Order extends Model {
     const orderId = req.params.id;
     this.doRemoveOne(orderId).then(x => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(x, null, 3));
+      res.send(JSON.stringify(x, null, 3));
     });
   }
 
@@ -493,12 +571,12 @@ export class Order extends Model {
     if (req.body instanceof Array) {
       this.insertMany(req.body).then((x: any) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(x, null, 3));
+        res.send(JSON.stringify(x, null, 3));
       });
     } else {
       this.insertOne(req.body).then((ret: any) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(ret, null, 3));
+        res.send(JSON.stringify(ret, null, 3));
       });
     }
   }
@@ -579,7 +657,7 @@ export class Order extends Model {
     this.replaceById(req.body.id, req.body).then((x: any) => {
       res.setHeader('Content-Type', 'application/json');
       // io.emit('updateOrders', x);
-      res.end(JSON.stringify(x, null, 3));
+      res.send(JSON.stringify(x, null, 3));
     });
   }
 
@@ -617,7 +695,7 @@ export class Order extends Model {
 
   //   this.eligibleForGroupDiscount(clientId, merchantId, dateType, address).then((bEligible: boolean) => {
   //     res.setHeader('Content-Type', 'application/json');
-  //     res.end(JSON.stringify(bEligible, null, 3));
+  //     res.send(JSON.stringify(bEligible, null, 3));
   //   });
   // }
 
@@ -739,21 +817,21 @@ export class Order extends Model {
   //           //           const b = bs[0];
   //           //           this.clientBalanceEntity.updateOne({ accountId: order.clientId }, { amount: b.amount - 2 }).then(() => {
   //           //             res.setHeader('Content-Type', 'application/json');
-  //           //             res.end(JSON.stringify(x, null, 3));
+  //           //             res.send(JSON.stringify(x, null, 3));
   //           //           });
   //           //         } else {
   //           //           res.setHeader('Content-Type', 'application/json');
-  //           //           res.end(JSON.stringify(x, null, 3));
+  //           //           res.send(JSON.stringify(x, null, 3));
   //           //         }
   //           //       });
   //           //     });
   //           //   } else {
   //           //     res.setHeader('Content-Type', 'application/json');
-  //           //     res.end(JSON.stringify(x, null, 3));
+  //           //     res.send(JSON.stringify(x, null, 3));
   //           //   }
   //           // } else {
   //           //   res.setHeader('Content-Type', 'application/json');
-  //           //   res.end(JSON.stringify(x, null, 3));
+  //           //   res.send(JSON.stringify(x, null, 3));
   //           // }
   //           });
   //         });
@@ -761,7 +839,7 @@ export class Order extends Model {
   //     } else {
   //       cb();
   //       // res.setHeader('Content-Type', 'application/json');
-  //       // res.end(JSON.stringify(null, null, 3));
+  //       // res.send(JSON.stringify(null, null, 3));
   //     }
   //   });
   // }
@@ -789,24 +867,27 @@ export class Order extends Model {
   //   });
   // }
 
-  // deprecated
   //-------------------------------------------------------
-  // pickupTime (string) --- eg. '11:20', '12:00'
+  // admin API
+  // pickup  (string) --- eg. '11:20', '12:00'
+  // deliver (string) --- eg. '12:00'
   updateDeliveryTime(req: Request, res: Response) {
-    const pickupTime: string = req.body.pickup;
-    const orderId: string = req.body.orderId;
-    const delivered: string = this.getLocalTime(moment(), pickupTime).toISOString();
+    const pickup: string = req.body.pickup;
+    const deliver: string = req.body.deliver;
+    const order: IOrder = req.body.order;
+    const orderId = order._id;
+    const oldDelivered: any = order.delivered;
+    const delivered: string = this.getUtcTime(oldDelivered, deliver).toISOString();
 
-    this.updateOne({ _id: orderId }, { delivered: delivered }).then((result) => {
-      this.find({ _id: orderId }).then((orders: IOrder[]) => {
-        const order = orders[0];
+    this.updateOne({ _id: orderId }, { delivered, pickup, deliver }).then((result) => {
+      this.findOne({ _id: orderId }).then((order: IOrder) => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(order, null, 3));
+        res.send(JSON.stringify(order, null, 3));
       });
     });
   }
 
-
+  // v1 deprecated
   // --------------------------------------------------------------------------------------
   // process after payment gateway success
   // 1.update payment status to 'paid'
@@ -863,8 +944,79 @@ export class Order extends Model {
     });
   }
 
+  async addDebitTransactions(orders: IOrder[]) {
+    if (orders && orders.length > 0) {
+      const merchantId = orders[0].merchantId.toString();
+      const merchant = await this.merchantModel.findOne({ _id: merchantId });
+      for (let i = 0; i < orders.length; i++) {
+        const order: any = orders[i];
+        await this.transactionModel.saveTransactionsForPlaceOrder(
+          order._id.toString(),
+          order.type,
+          merchant.accountId.toString(),
+          merchant.name,
+          order.clientId.toString(),
+          order.clientName,
+          order.cost,
+          order.total,
+          order.delivered
+        );
+      }
+    }
+  }
 
+  async addCreditTransaction(batchId: string, clientId: string, clientName: string, amount: number, actionCode: string, delivered: string) {
+    const tr: ITransaction = {
+      fromId: clientId,
+      fromName: clientName,
+      toId: BANK_ID,
+      toName: BANK_NAME,
+      amount,
+      actionCode,
+      batchId,
+      delivered
+    };
 
+    const t = await this.transactionModel.doInsertOne(tr);
+    return t;
+  }
+
+  async updateOrderStatus(orders: IOrder[], chargeId: string, t: ITransaction) {
+    if (t) {
+      const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
+      const items = orders.map(order => { return { query: { _id: order._id }, data } });
+      await this.bulkUpdate(items);
+    }
+  }
+
+  // use for both snappay and stripe
+  // batchId --- order batchId
+  async processAfterPay(batchId: string, actionCode: string, amount: number, chargeId: string) {
+    const orders = await this.find({ batchId });
+    if (orders && orders.length > 0) {
+      const order = orders[0];
+      if (order.paymentStatus === PaymentStatus.UNPAID) {
+        // --------------------------------------------------------------------------------------
+        // 1.update payment status to 'paid' for the orders in batch
+        // 2.add two transactions for place order and add another transaction for deposit to bank
+        // 3.update account balance
+        await this.addDebitTransactions(orders);
+        const t: any = await this.addCreditTransaction(batchId, order.clientId.toString(), order.clientName, amount, actionCode, order.delivered);
+        await this.updateOrderStatus(orders, chargeId, t);
+      }
+    } else { // add credit
+      const credit = await this.clientCreditModel.findOne({ batchId });
+      if (credit) {
+        if (credit.status === 'new') {
+          await this.clientCreditModel.updateOne({ _id: credit._id }, { status: 'added' });
+        }
+        const accountId = credit.accountId.toString();
+        const accountName = credit.accountName;
+        const note = credit.note;
+        await this.transactionModel.doAddCredit(accountId, accountName, amount, PaymentMethod.CREDIT_CARD, note);
+      }
+    }
+  }
 
   //-----------------------------------------------------------------------------------------
   // change order status to 'paid', insert a new transaction and update corresponding balance
@@ -912,7 +1064,7 @@ export class Order extends Model {
     this.pay(toId, toName, received, orderId, note).then((order: any) => {
       // this.assignmentModel.updateOne({ 'orderId': orderId }, { status: 'done' }).then(() => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ status: 'success' }, null, 3));
+      res.send(JSON.stringify({ status: 'success' }, null, 3));
       // });
     });
   }
@@ -951,7 +1103,7 @@ export class Order extends Model {
       // this.barChartData = [{ data: vals, label: '订单数' }];
 
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ keys: keys, vals: vals }, null, 3));
+      res.send(JSON.stringify({ keys: keys, vals: vals }, null, 3));
     });
   }
 
@@ -987,7 +1139,7 @@ export class Order extends Model {
   reqClients(req: Request, res: Response) {
     this.getClients().then(rs => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(rs, null, 3));
+      res.send(JSON.stringify(rs, null, 3));
     });
   }
 
@@ -1097,10 +1249,10 @@ export class Order extends Model {
     res.setHeader('Content-Type', 'application/json');
     if (query) {
       this.getLatestViewed(query.delivered).then(rs => {
-        res.end(JSON.stringify(rs, null, 3));
+        res.send(JSON.stringify(rs, null, 3));
       });
     } else {
-      res.end(JSON.stringify([], null, 3));
+      res.send(JSON.stringify([], null, 3));
     }
 
   }
@@ -1157,7 +1309,7 @@ export class Order extends Model {
   reqStatisticsByClient(req: Request, res: Response) {
     this.getStatisticsByClient().then(rs => {
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify(rs, null, 3));
+      res.send(JSON.stringify(rs, null, 3));
     });
   }
 
@@ -1271,7 +1423,7 @@ export class Order extends Model {
 
         this.accountModel.bulkUpdate(datas).then(() => {
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify('success', null, 3));
+          res.send(JSON.stringify('success', null, 3));
         });
       });
     });
@@ -1286,14 +1438,16 @@ export class Order extends Model {
 
     //   this.accountModel.bulkUpdate(datas).then(() => {
     //     res.setHeader('Content-Type', 'application/json');
-    //     res.end(JSON.stringify('success', null, 3));
+    //     res.send(JSON.stringify('success', null, 3));
     //   });
     // });
   }
 
   fixCancelledTransaction(req: Request, res: Response) {
-    const q = { actionCode: TransactionAction.CANCEL_ORDER_FROM_MERCHANT, //'duocun cancel order from merchant',
-      orderId: { $exists: true } };
+    const q = {
+      actionCode: TransactionAction.CANCEL_ORDER_FROM_MERCHANT, //'duocun cancel order from merchant',
+      orderId: { $exists: true }
+    };
 
     this.transactionModel.find(q).then(ts => {
       const datas: any[] = [];
@@ -1325,7 +1479,7 @@ export class Order extends Model {
 
         this.transactionModel.bulkUpdate(datas).then(() => {
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify('success', null, 3));
+          res.send(JSON.stringify('success', null, 3));
         });
       });
     });

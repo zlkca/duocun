@@ -10,7 +10,10 @@ import { Account, IAccount } from './account.model';
 import { NgRedux } from '@angular-redux/store';
 import { AccountActions } from './account.actions';
 import { AuthService } from './auth.service';
-import { EntityService } from '../entity.service';
+import { EntityService, HttpStatus } from '../entity.service';
+
+import * as Cookies from 'js-cookie';
+const COOKIE_EXPIRY_DAYS = 365;
 
 export interface IAccessToken {
   'id'?: string;
@@ -96,5 +99,27 @@ export class AccountService extends EntityService {
     return this.http.get(url);
   }
 
+  // v2
+  setAccessTokenId(token) {
+    if (token) {
+      Cookies.set('duocun-token-id', token, { expires: COOKIE_EXPIRY_DAYS });
+    }
+  }
+
+  getAccessTokenId() {
+    const tokenId = Cookies.get('duocun-token-id');
+    return tokenId ? tokenId : null;
+  }
+
+  // v2
+  async wxLogin(authCode) {
+    const url = this.url + '/wxLogin?code=' + authCode;
+    const rsp: any = await this.http.get(url);
+    if (rsp.status === HttpStatus.OK.code) {
+      return rsp.data;
+    } else {
+      return null;
+    }
+  }
 }
 

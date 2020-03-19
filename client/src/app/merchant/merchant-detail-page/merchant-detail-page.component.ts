@@ -12,8 +12,6 @@ import { ICart, ICartItem } from '../../cart/cart.model';
 import { PageActions } from '../../main/main.actions';
 import { MatDialog } from '../../../../node_modules/@angular/material';
 import { QuitRestaurantDialogComponent } from '../quit-restaurant-dialog/quit-restaurant-dialog.component';
-import { ICommand } from '../../shared/command.reducers';
-import { CommandActions } from '../../shared/command.actions';
 import { IDelivery } from '../../delivery/delivery.model';
 import { environment } from '../../../environments/environment';
 import { CartActions } from '../../cart/cart.actions';
@@ -68,16 +66,6 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       // update quantity of cart items
       if (self.groups && self.groups.length > 0) {
         self.groups = this.mergeQuantityFromCart(self.groups, cart);
-      }
-    });
-
-    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
-      if (x.name === 'checkout-from-restaurant') {
-        this.rx.dispatch({
-          type: CommandActions.SEND,
-          payload: { name: '' }
-        });
-        this.checkout();
       }
     });
 
@@ -176,11 +164,6 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
 
   }
 
-
-  checkout() {
-    this.router.navigate(['order/form'], { queryParams: { fromPage: 'restaurant-detail' } });
-  }
-
   onCategorySelect(e) {
     this.category = e;
     this.list.nativeElement.querySelector('#cat' + e._id).scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -198,5 +181,9 @@ export class MerchantDetailPageComponent implements OnInit, OnDestroy {
       type: CartActions.REMOVE_FROM_CART,
       payload: e
     });
+  }
+
+  onNext(e) {
+    this.router.navigate(['order/form'], { queryParams: { fromPage: 'restaurant-detail' } });
   }
 }

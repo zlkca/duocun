@@ -207,85 +207,175 @@ export class Location extends Model {
     }
   }
 
-  // getLocationFromGeocode(geocodeResult): ILocation {
-  //   const addr = geocodeResult && geocodeResult.address_components;
-  //   const oLocation = geocodeResult.geometry.location;
-  //   if (addr && addr.length) {
-  //     const loc: ILocation = {
-  //       placeId: geocodeResult.place_id,
-  //       streetNumber: '',
-  //       streetName: '',
-  //       subLocality: '',
-  //       city: '',
-  //       province: '',
-  //       postalCode: '',
-  //       lat: typeof oLocation.lat === 'function' ? oLocation.lat() : oLocation.lat,
-  //       lng: typeof oLocation.lng === 'function' ? oLocation.lng() : oLocation.lng
-  //     };
+  geocodeToLocation(geocodeResult: any) { // : ILocation
+    const addr = geocodeResult && geocodeResult.address_components;
+    const oLocation = geocodeResult.geometry.location;
+    if (addr && addr.length) {
+      const loc: any = { // ILocation = {
+        placeId: geocodeResult.place_id,
+        streetNumber: '',
+        streetName: '',
+        subLocality: '',
+        city: '',
+        province: '',
+        postalCode: '',
+        lat: typeof oLocation.lat === 'function' ? oLocation.lat() : oLocation.lat,
+        lng: typeof oLocation.lng === 'function' ? oLocation.lng() : oLocation.lng
+      };
 
-  //     addr.forEach(compo => {
-  //       if (compo.types.indexOf('street_number') !== -1) {
-  //         loc.streetNumber = compo.short_name;
-  //       }
-  //       if (compo.types.indexOf('route') !== -1) {
-  //         loc.streetName = compo.short_name;
-  //       }
-  //       if (compo.types.indexOf('postal_code') !== -1) {
-  //         loc.postalCode = compo.short_name;
-  //       }
-  //       if (compo.types.indexOf('sublocality_level_1') !== -1 && compo.types.indexOf('sublocality') !== -1) {
-  //         loc.subLocality = compo.short_name;
-  //       }
-  //       if (compo.types.indexOf('locality') !== -1) {
-  //         loc.city = compo.short_name;
-  //       }
-  //       if (compo.types.indexOf('administrative_area_level_1') !== -1) {
-  //         loc.province = compo.short_name;
-  //       }
-  //     });
-  //     return loc;
-  //   } else {
-  //     return null;
-  //   }
-  // }
-
-  reqGeocodes(req: Request, res: Response) {
-    let key = this.cfg.GEOCODE_KEY;
-    // const latlng = (req.query.lat && req.query.lng) ? (req.query.lat + ',' + req.query.lng) : '';
-    const addr = req.params.address;
-    let url = 'https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=' + key;
-    // if (latlng) {
-    //   url += '&latlng=' + latlng;
-    // } else if (addr) {
-    //   url += '&address=' + addr;
-    // }
-
-    url += '&address=' + addr;
-
-    https.get(encodeURI(url), (res1: IncomingMessage) => {
-      let data = '';
-      res1.on('data', (d) => {
-        // process.stdout.write(d);
-        data += d;
-        // console.log('receiving: ' + d);
-      });
-
-      res1.on('end', () => {
-        // console.log('receiving done!');
-        if (data) {
-          const s = JSON.parse(data);
-          if (s.results && s.results.length > 0) {
-            res.send(s.results);
-          } else {
-            res.send([]);
-          }
-        } else {
-          res.send([]);
+      addr.forEach((compo: any) => {
+        if (compo.types.indexOf('street_number') !== -1) {
+          loc.streetNumber = compo.short_name;
+        }
+        if (compo.types.indexOf('route') !== -1) {
+          loc.streetName = compo.short_name;
+        }
+        if (compo.types.indexOf('postal_code') !== -1) {
+          loc.postalCode = compo.short_name;
+        }
+        if (compo.types.indexOf('sublocality_level_1') !== -1 && compo.types.indexOf('sublocality') !== -1) {
+          loc.subLocality = compo.short_name;
+        }
+        if (compo.types.indexOf('locality') !== -1) {
+          loc.city = compo.short_name;
+        }
+        if (compo.types.indexOf('administrative_area_level_1') !== -1) {
+          loc.province = compo.short_name;
         }
       });
+      return loc;
+    } else {
+      return null;
+    }
+  }
+
+  reqGeocodes(req: Request, res: Response) {
+    const addr = req.params.address;
+
+    this.getGeocodes(addr).then(rs => {
+      res.send(rs);
+    });
+  }
+  // onSelectPlace(place: IPlace) {
+  //   const self = this;
+  //   const address = place.structured_formatting.main_text + ', ' + place.structured_formatting.secondary_text;
+  //   if (place.type === 'suggest') { // 'suggest'
+  //     this.locationSvc.reqLocationByAddress(address).pipe(takeUntil(this.onDestroy$)).subscribe(xs => {
+  //       const r = this.locationSvc.getLocationFromGeocode(xs[0]);
+  //       self.placeSeleted.emit({address: address, location: r});
+  //     });
+  //   } else { // history
+  //     const r = place.location;
+  //     self.placeSeleted.emit({address: address, location: r});
+  //   }
+  // }
+  reqLocation(req: Request, res: Response) {
+    let query;
+    let fields;
+
+    if (req.headers) {
+      if (req.headers.filter && typeof req.headers.filter === 'string') {
+        query = req.headers.filter ? JSON.parse(req.headers.filter) : null;
+      }
+
+      if (req.headers.fields && typeof req.headers.fields === 'string') {
+        fields = JSON.parse(req.headers.fields);
+      }
+    }
+
+    if(query){
+      const accountId: string = query.accountId;
+      const address: string = query.address;
+      const placeId: string = query.placeId;
+
+      this.getLocation(accountId, placeId, address).then(r => {
+        res.send(r);
+      });
+    }else{
+      res.send();
+    }
+  }
+
+  getLocation(accountId: string, placeId: string, address: string) {
+    return new Promise((resolve, reject) => {
+      if(placeId){
+        this.find({placeId}).then(ds => {
+          if(ds && ds.length > 0){
+            const history = ds.find((d: any) => d.accountId.toString() === accountId);
+            if(history){
+              resolve(history.location);
+            } else {
+              const h = ds[0];
+              if(accountId){
+                this.insertOne({accountId, placeId: h.placeId, location: h.location}).then(r => {
+                  resolve(h.location);
+                });
+              }else{
+                resolve(h.location);
+              }
+            }
+          }else{
+            this.getGeocodes(address).then((rs: any[]) => {
+              if(rs && rs.length > 0){
+                const loc = this.geocodeToLocation(rs[0]);
+                if(accountId){
+                  this.insertOne({accountId, placeId: loc.placeId, location: loc}).then(r => {
+                    resolve(loc);
+                  });
+                }else{
+                  resolve(loc);
+                }
+              }else{
+                resolve();
+              }
+            });
+          }
+        });
+      } else { // should never go here
+        this.getGeocodes(address).then((rs: any[]) => {
+          if(rs && rs.length > 0){
+            const loc = this.geocodeToLocation(rs[0]);
+            if(accountId){
+              this.insertOne({accountId, placeId: loc.placeId, location: loc}).then(r => {
+                resolve(loc);
+              });
+            }else{
+              resolve(loc);
+            }
+          }else{
+            resolve();
+          }
+        });
+      }
     });
   }
 
+  getGeocodes(addr: string): Promise<any[]>{
+    const key = this.cfg.GEOCODE_KEY;
+    const url = 'https://maps.googleapis.com/maps/api/geocode/json?sensor=false&key=' + key + '&address=' + addr;
+
+    return new Promise((resolve, reject) => {
+      https.get(encodeURI(url), (res: IncomingMessage) => {
+        let data = '';
+        res.on('data', (d) => {
+          data += d;
+        });
+  
+        res.on('end', () => {
+          if (data) {
+            const s = JSON.parse(data);
+            if (s.results && s.results.length > 0) {
+              resolve(s.results);
+            } else {
+              resolve([]);
+            }
+          } else {
+            resolve([]);
+          }
+        });
+      });
+    });
+  }
 
   // tools
   updateLocations(req: Request, res: Response) {
@@ -300,7 +390,7 @@ export class Location extends Model {
 
       this.bulkUpdate(datas).then(() => {
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify('success', null, 3));
+        res.send(JSON.stringify('success', null, 3));
       });
     });
   }

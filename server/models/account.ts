@@ -160,7 +160,7 @@ export class Account extends Model {
         .then((message: any) => {
           if (r.accountId) {
             const cfg = new Config();
-            const tokenId = jwt.sign(r.accountId, cfg.JWT.SECRET); // SHA256
+            const tokenId = jwt.sign({id:r.accountId}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
             res.send(JSON.stringify(tokenId, null, 3));
           } else {
             res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
@@ -229,7 +229,7 @@ export class Account extends Model {
               } else {
                 if (account.verificationCode && code === account.verificationCode) {
                   const cfg = new Config();
-                  const tokenId = jwt.sign(account._id.toString(), cfg.JWT.SECRET); // SHA256
+                  const tokenId = jwt.sign({id:account._id.toString()}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
                   if (account.password) {
                     delete account.password;
                   }
@@ -319,9 +319,9 @@ export class Account extends Model {
 
     return new Promise((resolve, reject) => {
       if (tokenId && tokenId !== 'undefined' && tokenId !== 'null') {
-        const accountId = jwt.verify(tokenId, cfg.JWT.SECRET);
-        if (accountId) {
-          this.findOne({ _id: accountId }).then((account: IAccount) => {
+        const a : any = jwt.verify(tokenId, cfg.JWT.SECRET);
+        if (a.id) {
+          this.findOne({ _id: a.id }).then((account: IAccount) => {
             if (account) {
               delete account.password;
             }
@@ -344,7 +344,7 @@ export class Account extends Model {
       res.setHeader('Content-Type', 'application/json');
 
       const cfg = new Config();
-      const tokenId = jwt.sign(account._id.toString(), cfg.JWT.SECRET); // SHA256
+      const tokenId = jwt.sign({id:account._id.toString()}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
       res.send(JSON.stringify(tokenId, null, 3));
     });
   }
@@ -445,7 +445,7 @@ export class Account extends Model {
           if (r.verificationCode) {
             if (r.verificationCode === verificationCode) {
               const cfg = new Config();
-              const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
+              const tokenId = jwt.sign({id:r._id.toString()}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
               if (r.password) {
                 delete r.password;
               }
@@ -485,7 +485,7 @@ export class Account extends Model {
               if (matched) {
                 r.password = '';
                 const cfg = new Config();
-                const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
+                const tokenId = jwt.sign({id:r._id.toString()}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
                 resolve(tokenId);
               } else {
                 resolve();
@@ -527,11 +527,10 @@ export class Account extends Model {
     const authCode = req.query.code;
     utils.getWechatAccessToken(authCode).then((r: any) => {
       utils.getWechatUserInfo(r.access_token, r.openid).then((x: any) => { // IAccount
-        // try find
         this.doWechatSignup(x.openid, x.nickname, x.headimgurl, x.sex).then((account: IAccount) => {
           if (account) {
             const accountId = account._id.toString();
-            const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
+            const tokenId = jwt.sign({id:accountId}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
             res.send(JSON.stringify(tokenId, null, 3));
           } else {
             res.send(JSON.stringify('', null, 3));
@@ -546,6 +545,47 @@ export class Account extends Model {
       res.send(JSON.stringify('', null, 3));
     });
   }
+
+
+  // return {account, tokenId}
+  reqWxLogin(req: Request, res: Response) {
+    this.wxLogin(req.query.code).then(r => {
+      if(r){
+        res.send(JSON.stringify(r, null, 3));
+      }else{
+        res.send(JSON.stringify('', null, 3));
+      }
+    });
+  }
+
+  // code [string] --- wechat authentication code
+  async wxLogin(code: string) {
+    const utils = new Utils();
+    const cfg = new Config();
+    const r = await utils.getWechatAccessToken(code);
+    if(r && r.access_token && r.openid){
+      const x = await utils.getWechatUserInfo(r.access_token, r.openid);
+      if(x && x.openid){
+        const account = await this.doWechatSignup(x.openid, x.nickname, x.headimgurl, x.sex);
+        if(account){
+          const accountId = account._id.toString();
+          const tokenId = jwt.sign({id:accountId}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
+          if(account.password){
+            delete account.password;
+          }
+          return {account, tokenId};
+        }else{
+          return null;
+        }
+      }else{
+        return null;
+      }
+    }else{
+      return null;
+    }
+  }
+
+  
   // cb --- function(errors)
   // validateLoginPassword( user, hashedPassword, cb ){
   // 	const errors = [];
@@ -615,9 +655,9 @@ export class Account extends Model {
 
 
   // getMyBalanceForRemoveOrder(balance: number, paymentMethod: string, payable: number) {
-  //   if (paymentMethod === 'prepaid' || paymentMethod === 'cash') {
+  //   if (paymentMethod === PaymentMethod.PREPAY || paymentMethod === PaymentMethod.CASH) {
   //     return Math.round((balance + payable) * 100) / 100;
-  //   } else if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
+  //   } else if (paymentMethod === PaymentMethod.CREDIT_CARD || paymentMethod === PaymentMethod.WECHAT) {
   //     return Math.round((balance + payable) * 100) / 100;
   //   } else {
   //     return null; // no need to update balance

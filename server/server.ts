@@ -102,28 +102,28 @@ function setupSocket(server: any) {
   io.on('connection', function (socket: any) {
     console.log('server socket connected:' + socket.id);
 
-    socket.on('authentication', function (token: any) {
-      const cfg = new Config();
-      if (token) {
-        jwt.verify(token, cfg.JWT.SECRET, { algorithms: [cfg.JWT.ALGORITHM] }, (err, decoded: any) => {
-          if (err) {
-            console.log('socket authentication error:' + err);
-          }
-          if (decoded) {
-            console.log('socket authenticated:' + decoded.id);
-            if (decoded.id) {
-              socket.emit('authenticated', { userId: decoded.id });
-            }
-          }
-        });
-      } else {
-        console.log('socket authentication failed: access token is null.');
-      }
-    });
+    // socket.on('authentication', function (token: any) {
+    //   const cfg = new Config();
+    //   if (token) {
+    //     jwt.verify({ token }, cfg.JWT.SECRET, { algorithms: [cfg.JWT.ALGORITHM] }, (err, decoded: any) => {
+    //       if (err) {
+    //         console.log('socket authentication error:' + err);
+    //       }
+    //       if (decoded) {
+    //         console.log('socket authenticated:' + decoded.id);
+    //         if (decoded.id) {
+    //           socket.emit('authenticated', { userId: decoded.id });
+    //         }
+    //       }
+    //     });
+    //   } else {
+    //     console.log('socket authentication failed: access token is null.');
+    //   }
+    // });
 
-    socket.on('disconnect', () => {
-      console.log('server socket disconnect');
-    });
+    // socket.on('disconnect', () => {
+    //   console.log('server socket disconnect');
+    // });
   });
 }
 

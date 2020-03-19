@@ -418,9 +418,9 @@ function convertUTC() {
 
 //         orders = [
 //           { mode: 'test', clientId: rs[0].id.toString(), clientName: rs[0].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z',
-//             groupDiscount: 0, total:8.5, paymentMethod: 'cash' },
+//             groupDiscount: 0, total:8.5, paymentMethod: PaymentMethod.CASH },
 //           { mode: 'test', clientId: rs[1].id.toString(), clientName: rs[1].username, address:'abc', delivered: '2019-04-23T15:45:00.000Z',
-//             groupDiscount: 2, total:9.5, paymentMethod: 'cash' },
+//             groupDiscount: 2, total:9.5, paymentMethod: PaymentMethod.CASH },
 //         ];
 
 //         // const order = {clientId:c, delivered:x, address:y, groupDiscount: z};

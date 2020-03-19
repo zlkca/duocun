@@ -7,6 +7,7 @@ export const environment = {
 
   APP_URL: window.location.origin,
   MEDIA_URL: 'https://duocun.com.cn/media/', // window.location.origin + '/media/',
+  GROCERY_APP_URL: 'http://duocun.com.cn/grocery',
   APP: 'duocun',
   AUTH_PREFIX: '',
   GOOGLE_MAP: {

@@ -6,9 +6,14 @@ export function ClientPaymentRouter(db: DB){
   const router = express.Router();
   const controller = new ClientPayment(db);
 
+  // v2 api
+  router.post('/payByCreditCard', (req, res) => {controller.payByCreditCard(req, res); });
+  router.post('/payBySnappay', (req, res) => {controller.payBySnappay(req, res)});
+
   router.get('/session', (req, res) => {controller.createStripeSession(req, res); });
   // router.post('/checkout', (req, res) => {controller.checkout(req, res); });
 
+  // deprecated
   router.post('/stripeCreateCustomer', (req, res) => {controller.stripeCreateCustomer(req, res); });
   router.post('/stripePayOrder', (req, res) => {controller.stripePayOrder(req, res); });
   router.post('/stripeAddCredit', (req, res) => {controller.stripeAddCredit(req, res); });

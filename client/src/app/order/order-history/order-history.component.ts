@@ -121,25 +121,25 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   // deprecated
   changeOrder(order: IOrder) {
-    this.rx.dispatch({ type: OrderActions.UPDATE, payload: order });
-    this.rx.dispatch({
-      type: CartActions.UPDATE_FROM_CHANGE_ORDER,
-      payload: {
-        items: order.items,
-        merchantId: order.merchantId,
-        merchantName: order.merchantName,
-        deliveryCost: order.deliveryCost,
-        deliveryDiscount: order.deliveryDiscount,
-      }
-    });
-    this.rx.dispatch({
-      type: DeliveryActions.UPDATE_FROM_CHANGE_ORDER,
-      payload: {
-        origin: order.location,
-        date: moment(order.delivered)
-      }
-    });
-    this.router.navigate(['merchant/list/' + order.merchantId]);
+    // this.rx.dispatch({ type: OrderActions.UPDATE_ORDER, payload: order });
+    // this.rx.dispatch({
+    //   type: CartActions.UPDATE_FROM_CHANGE_ORDER,
+    //   payload: {
+    //     items: order.items,
+    //     merchantId: order.merchantId,
+    //     merchantName: order.merchantName,
+    //     deliveryCost: order.deliveryCost,
+    //     deliveryDiscount: order.deliveryDiscount,
+    //   }
+    // });
+    // this.rx.dispatch({
+    //   type: DeliveryActions.UPDATE_FROM_CHANGE_ORDER,
+    //   payload: {
+    //     origin: order.location,
+    //     date: moment(order.delivered)
+    //   }
+    // });
+    // this.router.navigate(['merchant/list/' + order.merchantId]);
   }
 
   deleteOrder(order: IOrder) {
@@ -210,7 +210,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.currentPageNumber = pageNumber;
     const query = { clientId: accountId, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
     this.orderSvc.loadPage(query, pageNumber, itemsPerPage).pipe(takeUntil(this.onDestroy$)).subscribe((ret: any) => {
-
       ret.orders.map(order => {
         order.description = this.getDescription(order);
         if (environment.language === 'en') {

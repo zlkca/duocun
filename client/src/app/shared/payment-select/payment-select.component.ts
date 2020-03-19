@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { environment } from '../../../environments/environment';
+import { PaymentMethod } from '../../payment/payment.model';
 
 @Component({
   selector: 'app-payment-select',
@@ -12,7 +13,7 @@ export class PaymentSelectComponent implements OnInit {
   @Input() selected: string;
 
   lang = environment.language;
-
+  PaymentMethod = PaymentMethod;
   constructor() {
 
   }
@@ -26,9 +27,9 @@ export class PaymentSelectComponent implements OnInit {
   }
 
   getIconColor(paymentMethod) {
-    if (paymentMethod === 'cash') {
+    if (paymentMethod === PaymentMethod.CASH) {
       return 'orange';
-    } else if (paymentMethod === 'WECHATPAY') {
+    } else if (paymentMethod === PaymentMethod.WECHAT) {
       return 'green';
     } else {
       return 'orange';

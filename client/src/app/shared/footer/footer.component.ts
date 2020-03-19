@@ -1,18 +1,18 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgRedux } from '@angular-redux/store';
-import { IAccount } from '../account/account.model';
-import { IAppState } from '../store';
-import { CommandActions } from '../shared/command.actions';
-import { takeUntil } from '../../../node_modules/rxjs/operators';
-import { Subject } from '../../../node_modules/rxjs';
-import { ICommand } from '../shared/command.reducers';
-import { ICart } from '../cart/cart.model';
-import { IDelivery } from '../delivery/delivery.model';
-import { AccountService } from '../account/account.service';
-import { IOrder } from '../order/order.model';
-import { environment } from '../../environments/environment.prod';
-import { IMerchant } from '../merchant/merchant.model';
+import { IAccount } from '../../account/account.model';
+import { IAppState } from '../../store';
+import { CommandActions } from '../../shared/command.actions';
+import { takeUntil } from '../../../../node_modules/rxjs/operators';
+import { Subject } from '../../../../node_modules/rxjs';
+import { ICommand } from '../../shared/command.reducers';
+import { ICart } from '../../cart/cart.model';
+import { IDelivery } from '../../delivery/delivery.model';
+import { AccountService } from '../../account/account.service';
+import { IOrder } from '../../order/order.model';
+import { environment } from '../../../environments/environment';
+import { IMerchant } from '../../merchant/merchant.model';
 
 @Component({
   selector: 'app-footer',
@@ -20,6 +20,14 @@ import { IMerchant } from '../merchant/merchant.model';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent implements OnInit, OnDestroy {
+
+  @Input() type;
+  @Input() menu;
+  @Output() next = new EventEmitter();
+  @Output() pay = new EventEmitter();
+  @Output() cancel = new EventEmitter();
+  @Output() save = new EventEmitter();
+
   year = 2019;
   account: IAccount;
   bHideNavMenu = false;
@@ -44,7 +52,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     private accountSvc: AccountService
   ) {
     const self = this;
-
+    this.selected = this.menu;
     // listen account changes from UI
     this.rx.select<IAccount>('account').pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => { // must be redux
       if (!account) {
@@ -100,11 +108,10 @@ export class FooterComponent implements OnInit, OnDestroy {
         self.inRange = x.args.inRange;
       }
     });
-
-
   }
 
   ngOnInit() {
+
   }
 
   ngOnDestroy() {
@@ -141,17 +148,18 @@ export class FooterComponent implements OnInit, OnDestroy {
       const hint = this.lang === 'en' ? 'Require login, please try place an order, we will bring you to signup process' :
       '登陆用户才能访问订单历史，请尝试重新进入并完成微信登陆';
       alert(hint);
-      // this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
-      //   this.account = account1;
-      //   this.selected = 'order';
-      //   this.router.navigate(['order/history']);
-      // });
     }
+    // this.selected = 'order';
+    // window.location.href = 'http://localhost:3001/history';
   }
 
   // toCart() {
   //   this.router.navigate(['cart']);
   // }
+  toGrocery() {
+    this.selected = 'grocery';
+    window.location.href = environment.GROCERY_APP_URL;
+  }
 
   toAccount() {
     if (this.account) {
@@ -161,12 +169,9 @@ export class FooterComponent implements OnInit, OnDestroy {
       const hint = this.lang === 'en' ? 'Require login, please try place an order, we will bring you to signup process' :
       '登陆用户才能访问订单历史，请尝试重新进入并完成微信登陆';
       alert(hint);
-      // this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account1: IAccount) => {
-      //   this.account = account1;
-      //   this.selected = 'account';
-      //   this.router.navigate(['account/settings']);
-      // });
     }
+    // this.selected = 'account';
+    // window.location.href = 'http://localhost:3001/account';
   }
 
   getColor(menu) {
@@ -176,34 +181,20 @@ export class FooterComponent implements OnInit, OnDestroy {
     // }
   }
 
-  cancelAddress() {
-    this.rx.dispatch({
-      type: CommandActions.SEND,
-      payload: { name: 'cancel-address', args: null }
-    });
-  }
-
-  saveAddress() {
-    this.rx.dispatch({
-      type: CommandActions.SEND,
-      payload: { name: 'save-address', args: null }
-    });
-  }
-
-  pay() {
-    this.rx.dispatch({
-      type: CommandActions.SEND,
-      payload: {
-        name: 'pay',
-        args: {
-          merchant: this.merchant,
-          cart: this.cart,
-          delivery: this.delivery,
-          paymentMethod: this.order.paymentMethod
-        }
-      }
-    });
-  }
+  // pay() {
+  //   this.rx.dispatch({
+  //     type: CommandActions.SEND,
+  //     payload: {
+  //       name: 'pay',
+  //       args: {
+  //         merchant: this.merchant,
+  //         cart: this.cart,
+  //         delivery: this.delivery,
+  //         paymentMethod: this.order.paymentMethod
+  //       }
+  //     }
+  //   });
+  // }
 
 
 
@@ -233,5 +224,26 @@ export class FooterComponent implements OnInit, OnDestroy {
       type: CommandActions.SEND,
       payload: { name: 'checkout-from-restaurant', args: null }
     });
+  }
+
+  onNext() {
+    this.next.emit();
+  }
+
+  onPay() {
+    this.pay.emit({
+      merchant: this.merchant,
+      cart: this.cart,
+      delivery: this.delivery,
+      paymentMethod: this.order.paymentMethod
+    });
+  }
+
+  onSave() {
+    this.save.emit();
+  }
+
+  onCancel() {
+    this.cancel.emit();
   }
 }

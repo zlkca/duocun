@@ -12,11 +12,12 @@ import moment from "moment";
 import { resolve } from "path";
 import { IAccount, Account } from "./account";
 
-// ------------- interface v2 ----------------
-export enum MerchantType {
-  RESTAURANT = 1,
-  TELECOM
-}
+export const MerchantType = {
+  RESTAURANT: 'R',
+  GROCERY: 'G',
+  FRESH: 'F',
+  TELECOM: 'T'
+};
 
 export interface IPhase {
   orderEnd: string; // hh:mm
@@ -36,7 +37,7 @@ export interface IMerchant {
   dow: string;          // day of week opening, eg. '1,2,3,4,5'
   pictures: string[];
   phases: IPhase[];
-  type: MerchantType;
+  type: string;
   created: string;
   modified: string;
 
@@ -63,7 +64,7 @@ export interface IDbMerchant {
   pictures: any[];
   closed: string[];
   dow: string;           // day of week opening, eg. '1,2,3,4,5'
-  type: MerchantType;
+  type: string;
   created: string;
   modified: string;
 
@@ -299,7 +300,6 @@ export class Merchant extends Model {
 
 
   // origin --- can be null
-  // query { status: 'active' }
   loadByDeliveryInfo(query: any, local: moment.Moment, origin?: ILocation): Promise<IMerchant[]> {
 
     return new Promise((resolve, reject) => {

@@ -55,13 +55,13 @@
       </div>
       <div class="col-12" *ngIf="lang==='zh'">
         <mat-button-toggle-group #group="matButtonToggleGroup" [value]="paymentMethod" (change)="onSelectPaymentMethod($event)">
-          <mat-button-toggle value="WECHATPAY" aria-label="Wechat">
+          <mat-button-toggle value="{{PaymentMethod.WECHAT}}" aria-label="Wechat">
             <div class="title">微信支付</div>
           </mat-button-toggle>
           <!-- <mat-button-toggle value="ALIPAY" aria-label="Ali" *ngIf="account.username==='li'">
         <div class="title">阿里支付</div>
       </mat-button-toggle> -->
-          <mat-button-toggle value="card" aria-label="Card">
+          <mat-button-toggle value="{{PaymentMethod.CREDIT_CARD}}" aria-label="Card">
             <div class="title" i18n="@@CreditCard">Credit/Debit Card</div>
           </mat-button-toggle>
         </mat-button-toggle-group>
@@ -70,7 +70,7 @@
 
     <div class="row card-row">
       <div class="col-12 card-wrapper">
-        <form id="payment-form1" onsubmit="return false;" *ngIf="paymentMethod==='card'">
+        <form id="payment-form1" onsubmit="return false;" *ngIf="paymentMethod===PaymentMethod.CREDIT_CARD">
           <div class="form-row">
             <label for="card-element1" class="label-sm" i18n="@@CreditCard">Credit/Debit Card</label>
             <div id="card-element1">

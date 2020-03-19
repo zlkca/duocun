@@ -1,6 +1,6 @@
-<footer>
-  <div class="row bottom-nav-menus" *ngIf="!bHideNavMenu">
-    <div class="menu" (click)="toHome()" [class.hightlighted]="selected==='home'">
+
+  <div class="row bottom-bar bottom-nav-menus" *ngIf="type==='menu'">
+    <div class="menu" (click)="toHome()" [class.active]="selected==='home'">
       <div class="icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
           <path fill='none' d="M0 0h24v24H0V0z"/>
@@ -10,7 +10,17 @@
       <div class="icon-text" i18n="@@Home">Home</div>
     </div>
 
-    <div class="menu" (click)="toOrder()" [class.hightlighted]="selected==='order-history'">
+    <!-- <div class="menu" (click)="toGrocery()" [class.active]="selected==='grocery'">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="none" d="M0 0h24v24H0V0z"/>
+          <path [style.fill]="getColor('grocery')" d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+        </svg>
+      </div>
+      <div class="icon-text" i18n="@@Grocery">Grocery</div>
+    </div> -->
+
+    <div class="menu" (click)="toOrder()" [class.active]="selected==='order-history'">
       <div class="icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
             <path fill="none" d="M0 0h24v24H0V0z"/>
@@ -19,15 +29,8 @@
       </div>
       <div class="icon-text" i18n="@@Order">Order</div>
     </div>
-    
-    <!-- <div class="menu" *ngIf="account && account.type !== 'super'" (click)="toCart()">
-      <div class="icon">
-        <img src="assets/outline-shopping_cart-24px.svg" alt="cart" />
-      </div>
-      <div class="icon-text" i18n="@@Cart">Cart</div>
-    </div> -->
 
-    <div class="menu" (click)="toAccount()" [class.hightlighted]="selected==='account-setting'">
+    <div class="menu" (click)="toAccount()" [class.active]="selected==='account-setting'">
       <div class="icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
             <path fill="none" d="M0 0h24v24H0V0z"/>
@@ -38,46 +41,39 @@
     </div>
   </div>
   
-  <div class="copyright">
+  <!-- <div class="copyright">
       <a href="#">Duocun Inc.</a> &#169;<span id="copyright-year">{{year}}</span>
-      <!-- <a href="index-5.html">Privacy Policy</a> -->
       <span class="created">Created by <a rel="nofollow" href="http://www.yocompute.com">yocompute.com</a></span>
+  </div> -->
+
+  <div class="row bottom-bar address-save-row" *ngIf="type === 'address-form'">
+    <div *ngIf="fromPage !== 'account-setting'" class="col-6 title-md cancel-col" (click)="onCancel()" >返回</div>
+    <div *ngIf="fromPage === 'account-setting'" class="col-6 title-md cancel-col" (click)="onCancel()" i18n="@@Cancel">Cancel</div>
+    <div *ngIf="(fromPage === 'account-setting') || (deliveryAddress && inRange)" class="col-6 title-md save-col" (click)="onSave()" i18n="@@NextStep">Next Step</div>
   </div>
 
-  <div class="row address-save-row" *ngIf="page === 'address-form'">
-    <div *ngIf="fromPage !== 'account-setting'" class="col-6 title-md cancel-col" (click)="cancelAddress()" >返回</div>
-    <div *ngIf="fromPage === 'account-setting'" class="col-6 title-md cancel-col" (click)="cancelAddress()" i18n="@@Cancel">Cancel</div>
-    <div *ngIf="(fromPage === 'account-setting') || (deliveryAddress && inRange)" class="col-6 title-md save-col" (click)="saveAddress()" i18n="@@NextStep">Next Step</div>
+  <div class="row cart-btn-row" *ngIf="type === 'cart-page' && cart.items.length > 0">
+    <div class="back-col col-6" (click)="cartBack()" i18n="@@Back">Back</div>
+    <div class="checkout-col col-6" (click)="checkoutFromCartPage()" i18n="@@NextStep">Next Step</div>
   </div>
 
-  <div class="row order-btn-row" *ngIf="page === 'order-form'">
+  <div class="row bottom-bar order" *ngIf="type === 'order'">
     <div class="title-md amount-col">
       &nbsp;
       <!-- ${{total | number : '1.2-2'}} -->
     </div>
-    <div class="title-md pay-col" (click)="pay()" i18n="@@ConfirmOrder">Confirm Order</div>
+    <div class="title-md bottom-btn pay" (click)="onPay()" i18n="@@ConfirmOrder">Confirm Order</div>
   </div>
 
-  <div class="row cart-btn-row" *ngIf="page === 'cart-page' && cart.items.length > 0">
-    <div class="back-col col-6" (click)="cartBack()" i18n="@@Back">Back</div>
-    <!-- <div class="price-col col-6"> <*ngIf="carts && carts.length>0"> -->
-      <!-- ${{carts[0].price | number : '1.2-2'}} -->
-    <!-- </div> -->
-    <div class="checkout-col col-6" (click)="checkoutFromCartPage()" i18n="@@NextStep">Next Step</div>
-  </div>
-
-  <div class="row restaurant-btn-row" *ngIf="page === 'restaurant-detail'">
-    <div class="cart-col">
-      <!-- <span class="fa-stack fa-2x has-badge" [attr.data-count]="quantity"> -->
+  <div class="row bottom-bar restaurant" *ngIf="type === 'restaurant'">
+    <!-- <div class="cart-col">
       <span>
         <span class="cart-quantity">{{quantity}}</span>
-        <!-- <i class="fa fa-shopping-cart fa-3x"></i> -->
         <img class="img-shopping-cart" src="assets/outline-shopping_cart-24px.svg" alt="cart" height="40px" width="40px" />
       </span>
-    </div>
+    </div> -->
     <div class="title-md amount-col">
       ${{productTotal | number : '1.2-2'}}
     </div>
-    <div *ngIf="quantity > 0" class="title-md checkout-col" (click)="checkoutFromRestaurant()" i18n="@@NextStep">Next Step</div>
+    <div *ngIf="quantity > 0" class="title-md bottom-btn checkout" (click)="onNext()" i18n="@@NextStep">Next Step</div>
   </div>
-</footer>

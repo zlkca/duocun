@@ -363,10 +363,6 @@ $content-padding: 300px;
   padding: 0px $content-padding;
 }
 
-.merchant-list {
-  padding: 10px $content-padding;
-}
-
 .dialog-head{
   height: 60px;
   width: 100%;
@@ -395,7 +391,6 @@ $content-padding: 300px;
 .page{
   margin: auto;
   padding: 0px $content-padding;
-  min-height: 560px;
   width: 100%;
 
   .row{
@@ -560,7 +555,6 @@ select:not([multiple]) {
     .page{
       padding: 0px;
       margin-top: 0px;
-      // min-height:500px;
       padding-bottom: $bottom-bar-height;
 
       .title-block, .content-block{
@@ -608,8 +602,6 @@ select:not([multiple]) {
     .page{
       padding: 0px;
       margin-top:0px;
-      min-height:460px;
-
       .title-block, .content-block{
         width: 100%;
       }
@@ -637,9 +629,7 @@ select:not([multiple]) {
   @media only screen
   and (max-width: 767px)
   and (orientation: landscape) {
-    .container{
-      max-width: 760px;
-    }
+
   }
 
 /* iphone XR 1792x828px at 326ppi */

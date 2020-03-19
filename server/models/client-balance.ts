@@ -80,17 +80,17 @@
 
 
 //   getMyBalanceForAddOrder(balance: number, paymentMethod: string, bPaid: boolean, payable: number, paid: number) {
-//     if (paymentMethod === 'prepaid') {
+//     if (paymentMethod === PaymentMethod.PREPAY) {
 //       // return Math.round((balance - payable) * 100) / 100;
 //       return balance;
-//     } else if (paymentMethod === 'cash') {
+//     } else if (paymentMethod === PaymentMethod.CASH) {
 //       // if(bPaid){
 //       //   return Math.round((balance + paid - payable) * 100) / 100;
 //       // }else{
 //       //   return Math.round((balance - payable) * 100) / 100;
 //       // }
 //       return balance;
-//     } else if (paymentMethod === 'card' || paymentMethod === 'WECHATPAY') {
+//     } else if (paymentMethod === PaymentMethod.CREDIT_CARD || paymentMethod === PaymentMethod.WECHAT) {
 //       if (bPaid) {
 //         return Math.round((balance + paid - payable) * 100) / 100;
 //       } else { // pass

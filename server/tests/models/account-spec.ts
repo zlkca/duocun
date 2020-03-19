@@ -33,7 +33,7 @@ describe('account doSignup a new account and getAccountByToken', () => {
 
   it('should return the new Account', (done) => {
     const clientId = account._id.toString();
-    const tokenId = jwt.sign(clientId, cfg.JWT.SECRET); // SHA256
+    const tokenId = jwt.sign({id:clientId}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
     accountModel.getAccountByToken(tokenId).then((x: IAccount) => {
       expect(x._id.toString()).to.equal(clientId);
       expect(x.username).to.equal(account.username);

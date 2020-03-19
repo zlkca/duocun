@@ -1,0 +1,65 @@
+$cellphone: "(max-width:480px)";
+$mobile: "(max-width: 767px)";
+$tablet: "(min-width: 768px) and (max-width: 1199px)";
+$desktop: "(min-width: 1200px)";
+
+$green: rgb(24, 128, 56);
+$yellow: rgb(244, 160, 0);
+$red: rgb(219, 68, 55);
+$blue: #4285F3;
+
+$primary-color: #4285F3;
+$inverse-font-color: white;
+$background-color: white;
+$border-color: #eee;
+
+$info-bg: rgb(69,69,69);
+$info-fg: white;
+
+$head-h: 60px;
+$bottom-bar-h: 60px;
+$bottom-btn-w: 125px;
+
+$content-padding: 300px;
+
+app-footer{
+  z-index: 9900;
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+}
+
+.bottom-bar{
+  width: calc(100% - #{$content-padding} - #{$content-padding});
+  height: $bottom-bar-h;
+  background: $background-color;
+  margin: 0px;
+  padding: 0px;
+  border-top: solid 1px $border-color;
+  border-right: solid 1px $border-color;
+  border-left: solid 1px $border-color;
+
+  .bottom-btn{
+    text-align: center;
+    color: $inverse-font-color;
+    background: $primary-color;
+    width: $bottom-btn-w;
+    padding-top: 15px;
+  }
+}
+
+@media #{$tablet}{
+  .bottom-bar{
+    width: 100%;
+    border-right: none;
+    border-left: none;
+  }
+}
+
+@media #{$mobile}{
+  .bottom-bar{
+    width: 100%;
+    border-right: none;
+    border-left: none;
+  }
+}

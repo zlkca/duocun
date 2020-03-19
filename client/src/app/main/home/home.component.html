@@ -1,6 +1,8 @@
 <div class="loading-spinner" *ngIf="loading">
   <app-progress-spinner></app-progress-spinner>
 </div>
+
+<div class="page">
 <div class="header-block" *ngIf="!loading">
   <app-header *ngIf="lang==='en'"></app-header>
   <div [ngClass]="inRange ? 'banner' : 'banner-up' ">
@@ -50,4 +52,7 @@
       </div>
     </div>
   </button>
+</div>
+
+<app-footer [type]="'menu'" [menu]="'home'"></app-footer>
 </div>

@@ -14,10 +14,10 @@ export function orderReducer(state: IOrder = { }, action: any) {
         ...state,
         paymentMethod: action.payload.paymentMethod
       };
-      case OrderActions.UPDATE:
+      case OrderActions.UPDATE_ORDER:
         return action.payload;
 
-      case OrderActions.CLEAR:
+      case OrderActions.CLEAR_ORDER:
         return null;
     }
   }
