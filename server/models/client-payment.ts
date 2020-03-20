@@ -17,6 +17,14 @@ import { EventLog } from "./event-log";
 import { resolve } from "url";
 import { ObjectID } from "mongodb";
 
+
+const CASH_BANK_ID = '5c9511bb0851a5096e044d10';
+const CASH_BANK_NAME = 'Cash Bank';
+const TD_BANK_ID = '5c95019e0851a5096e044d0c';
+const TD_BANK_NAME = 'TD Bank';
+const SNAPPAY_BANK_ID = '5e60139810cc1f34dea85349';
+const SNAPPAY_BANK_NAME = 'SnapPay Bank';
+
 // var fs = require('fs');
 // var util = require('util');
 // // var log_file = fs.createWriteStream('~/duocun-debug.log', {flags : 'w'}); // __dirname + 
@@ -419,13 +427,15 @@ export class ClientPayment extends Model {
 
       // let { price, cost } = this.getChargeSummary(orders);
       this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId, paymentMethod).then((rsp: any) => {
-        if(rsp && rsp.status === ResponseStatus.FAIL){
-          const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
-          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-        }else{
-          const r = {...rsp, err: PaymentError.NONE};
-          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-        }
+
+          if(rsp && rsp.status === ResponseStatus.FAIL){
+            const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
+            res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+          }else{
+            const r = {...rsp, err: PaymentError.NONE};
+            res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+          }
+        
       });
     }else{  // add credit
       if(amount > 0){
@@ -535,7 +545,17 @@ export class ClientPayment extends Model {
     const amount = +req.body.trans_amount;
 
     this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
+      const eventLog = {
+        accountId: SNAPPAY_BANK_ID,
+        type: 'debug',
+        code: '',
+        decline_code: '',
+        message: 'snappayNotify done',
+        created: moment().toISOString()
+      }
+      this.eventLogModel.insertOne(eventLog).then(() => {
 
+      });
     });
 
     // this.orderEntity.find({ paymentId: b.out_order_no }).then(orders => {

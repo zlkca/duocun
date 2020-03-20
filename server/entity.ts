@@ -468,7 +468,7 @@ export class Entity {
     return doc;
   }
 
-  bulkUpdate(items: any[], options?: any): Promise<DbResult> {
+  bulkUpdate(items: any[], options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
         const clonedArray: any[] = JSON.parse(JSON.stringify(items));
@@ -485,7 +485,7 @@ export class Entity {
 
         c.bulkWrite(a, (err, result: BulkWriteOpResultObject) => {
           if (err) {
-            reject({ status: DbStatus.FAIL, msg: err });
+            resolve({ status: DbStatus.FAIL, msg: err });
           } else {
             resolve({ status: DbStatus.SUCCESS, msg: '' });
           }

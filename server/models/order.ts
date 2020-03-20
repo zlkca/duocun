@@ -14,11 +14,19 @@ import { createObjectCsvWriter } from 'csv-writer';
 import { ObjectID } from "mongodb";
 import { ClientCredit } from "./client-credit";
 import { resolve } from "path";
+import { EventLog } from "./event-log";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
 const BANK_ID = '5c95019e0851a5096e044d0c';
 const BANK_NAME = 'TD Bank';
+
+const CASH_BANK_ID = '5c9511bb0851a5096e044d10';
+const CASH_BANK_NAME = 'Cash Bank';
+const TD_BANK_ID = '5c95019e0851a5096e044d0c';
+const TD_BANK_NAME = 'TD Bank';
+const SNAPPAY_BANK_ID = '5e60139810cc1f34dea85349';
+const SNAPPAY_BANK_NAME = 'SnapPay Bank';
 
 export const OrderType = {
   FOOD_DELIVERY: 'F',
@@ -121,6 +129,7 @@ export class Order extends Model {
   private cellApplicationModel: CellApplication;
   private logModel: Log;
   clientCreditModel: ClientCredit;
+  eventLogModel: EventLog;
 
   constructor(dbo: DB) {
     super(dbo, 'orders');
@@ -133,6 +142,7 @@ export class Order extends Model {
     this.cellApplicationModel = new CellApplication(dbo);
     this.logModel = new Log(dbo);
     this.clientCreditModel = new ClientCredit(dbo);
+    this.eventLogModel = new EventLog(dbo);
   }
 
   list(req: Request, res: Response) {
@@ -447,7 +457,7 @@ export class Order extends Model {
       const paymentMethod = orders[0].paymentMethod;
       if (paymentMethod === PaymentMethod.CASH || paymentMethod === PaymentMethod.PREPAY) {
         await this.addDebitTransactions(savedOrders);
-      }else {
+      } else {
         // bank card and wechat pay will process transaction after payment gateway paid
       }
     }
@@ -970,15 +980,25 @@ export class Order extends Model {
     return t;
   }
 
-  updateOrderStatus(orders: IOrder[], chargeId: string, t: ITransaction) {
+  updateOrderStatus(orders: IOrder[], chargeId: string, t: any) {
     return new Promise((resolve, reject) => {
       if (t) {
         const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
         const items = orders.map(order => { return { query: { _id: order._id }, data } });
-        this.bulkUpdate(items).then((r: any) => {
-          resolve(r);// { status: DbStatus.FAIL, msg: err }
+        this.bulkUpdate(items).then((r: any) => { // { status: DbStatus.FAIL, msg: err }
+          const eventLog = {
+            accountId: SNAPPAY_BANK_ID,
+            type: 'debug',
+            code: r.status,
+            decline_code: '',
+            message: 'updateOrderStatus: ' + r.msg,
+            created: moment().toISOString()
+          }
+          this.eventLogModel.insertOne(eventLog).then(() => {
+            resolve();
+          });
         });
-      }else{
+      } else {
         resolve();
       }
     });
@@ -986,32 +1006,48 @@ export class Order extends Model {
 
   // use for both snappay and stripe
   // paymentId --- order paymentId
-  async processAfterPay(paymentId: string, actionCode: string, amount: number, chargeId: string) {
-    const orders = await this.find({ paymentId });
-    if (orders && orders.length > 0) {
-      const order = orders[0];
-      if (order.paymentStatus === PaymentStatus.UNPAID) {
-        // --------------------------------------------------------------------------------------
-        // 1.update payment status to 'paid' for the orders in batch
-        // 2.add two transactions for place order and add another transaction for deposit to bank
-        // 3.update account balance
-        await this.addDebitTransactions(orders);
-        const t: any = await this.addCreditTransaction(paymentId, order.clientId.toString(), order.clientName, amount, actionCode, order.delivered);
-        await this.updateOrderStatus(orders, chargeId, t);
-      }
-    } else { // add credit for Wechat
-      const credit = await this.clientCreditModel.findOne({ paymentId });
-      if (credit) {
-        if (credit.status === PaymentStatus.UNPAID) {
-          await this.clientCreditModel.updateOne({ _id: credit._id }, { status: PaymentStatus.PAID });
-          const accountId = credit.accountId.toString();
-          const accountName = credit.accountName;
-          const note = credit.note;
-          const paymentMethod = credit.paymentMethod;
-          await this.transactionModel.doAddCredit(accountId, accountName, amount, paymentMethod, note);
+  processAfterPay(paymentId: string, actionCode: string, amount: number, chargeId: string) {
+    return new Promise((resolve, reject) => {
+      this.find({ paymentId }).then((orders: IOrder[]) => {
+        if (orders && orders.length > 0) {
+          const order = orders[0];
+          if (order.paymentStatus === PaymentStatus.UNPAID) {
+            // --------------------------------------------------------------------------------------
+            // 1.update payment status to 'paid' for the orders in batch
+            // 2.add two transactions for place order and add another transaction for deposit to bank
+            // 3.update account balance
+            this.addDebitTransactions(orders).then(() => {
+              const delivered: any = order.delivered;
+              this.addCreditTransaction(paymentId, order.clientId.toString(), order.clientName, amount, actionCode, delivered).then(t => {
+                this.updateOrderStatus(orders, chargeId, t).then(() => {
+                  resolve();
+                });
+              });
+            });
+          }
+        } else { // add credit for Wechat
+          this.clientCreditModel.findOne({ paymentId }).then((credit) => {
+            if (credit) {
+              if (credit.status === PaymentStatus.UNPAID) {
+                this.clientCreditModel.updateOne({ _id: credit._id }, { status: PaymentStatus.PAID }).then(() => {
+                  const accountId = credit.accountId.toString();
+                  const accountName = credit.accountName;
+                  const note = credit.note;
+                  const paymentMethod = credit.paymentMethod;
+                  this.transactionModel.doAddCredit(accountId, accountName, amount, paymentMethod, note).then(() => {
+                    resolve();
+                  });
+                });
+              } else {
+                resolve();
+              }
+            }else{
+              resolve();
+            }
+          });
         }
-      }
-    }
+      });
+    });
   }
 
   //-----------------------------------------------------------------------------------------
