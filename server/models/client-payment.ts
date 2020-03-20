@@ -437,7 +437,7 @@ export class ClientPayment extends Model {
           paymentMethod,
           note,
           paymentId,
-          status: 'N'
+          status: PaymentStatus.UNPAID
         }
   
         this.clientCreditModel.insertOne(cc).then((c) => {
@@ -495,7 +495,7 @@ export class ClientPayment extends Model {
         paymentMethod: PaymentMethod.CREDIT_CARD,
         note,
         paymentId,
-        status: 'N'
+        status: PaymentStatus.UNPAID
       }
 
       this.clientCreditModel.insertOne(cc).then((c) => {
@@ -582,6 +582,7 @@ export class ClientPayment extends Model {
     // });
   }
 
+  // v1 deprecated
   // return rsp: IPaymentResponse
   snappayAddCredit(req: Request, res: Response) {
     const paid = +req.body.paid;
