@@ -995,14 +995,14 @@ export class Order extends Model {
     } else { // add credit for Wechat
       const credit = await this.clientCreditModel.findOne({ paymentId });
       if (credit) {
-        if (credit.status === 'new') {
-          await this.clientCreditModel.updateOne({ _id: credit._id }, { status: 'added' });
+        if (credit.status === PaymentStatus.UNPAID) {
+          await this.clientCreditModel.updateOne({ _id: credit._id }, { status: PaymentStatus.PAID });
+          const accountId = credit.accountId.toString();
+          const accountName = credit.accountName;
+          const note = credit.note;
+          const paymentMethod = credit.paymentMethod;
+          await this.transactionModel.doAddCredit(accountId, accountName, amount, paymentMethod, note);
         }
-        const accountId = credit.accountId.toString();
-        const accountName = credit.accountName;
-        const note = credit.note;
-        const paymentMethod = credit.paymentMethod;
-        await this.transactionModel.doAddCredit(accountId, accountName, amount, paymentMethod, note);
       }
     }
   }

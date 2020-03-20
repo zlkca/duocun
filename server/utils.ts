@@ -21,7 +21,7 @@ export class Utils {
     let sha1 = crypto.createHash('sha1');
     let s = list.join('');
     let hash = sha1.update(s).digest('hex');
-    console.log(hash);
+    // console.log(hash);
     if (hash === signature) {
       res.send(echostr);
     } else {
@@ -46,7 +46,7 @@ export class Utils {
           // console.log('receiving done!');
           if (data) {
             const s = JSON.parse(data);
-            if (s.access_token) {
+            if (s && s.access_token) {
               resolve(s);
             } else {
               reject();
@@ -55,6 +55,7 @@ export class Utils {
             reject();
           }
         });
+
       });
     });
   }

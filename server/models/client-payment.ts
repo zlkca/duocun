@@ -124,7 +124,7 @@ export class ClientPayment extends Model {
     });
   }
 
-  // v1
+  // v1 deprecated
   // return rsp: IPaymentResponse
   stripeAddCredit(req: Request, res: Response) {
     const self = this;
@@ -175,7 +175,7 @@ export class ClientPayment extends Model {
     });
   }
 
-  // v1
+  // v1 deprecated
 // return rsp: IPaymentResponse
   stripePayOrder(req: Request, res: Response) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
@@ -569,8 +569,8 @@ export class ClientPayment extends Model {
     //     this.clientCreditModel.find({ _id: b.out_order_no }).then(ccs => {
     //       if (ccs && ccs.length > 0) {
     //         const cc = ccs[0];
-    //         if (cc.status === 'new') {
-    //           this.clientCreditModel.updateOne({ _id: cc._id }, { status: 'added' }).then(() => {
+    //         if (cc.status === PaymentStatus.Unpaid) {
+    //           this.clientCreditModel.updateOne({ _id: cc._id }, { status: PaymentStatus.PAID }).then(() => {
     //             this.transactionModel.doAddCredit(cc.accountId.toString(), cc.accountName, cc.total, cc.paymentMethod, cc.note).then(() => {
 
     //             });
@@ -595,7 +595,7 @@ export class ClientPayment extends Model {
       total: Math.round(paid * 100) / 100,
       paymentMethod: paymentMethod,
       note: note,
-      status: 'new'
+      status: PaymentStatus.UNPAID
     }
 
     this.clientCreditModel.insertOne(cc).then((c) => {
