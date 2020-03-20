@@ -529,6 +529,8 @@ export class Account extends Model {
     const utils = new Utils();
     const cfg = new Config();
     const authCode = req.query.code;
+    res.setHeader('Content-Type', 'application/json');
+
     utils.getWechatAccessToken(authCode).then((r: any) => {
       utils.getWechatUserInfo(r.access_token, r.openid).then((x: any) => { // IAccount
         this.doWechatSignup(x.openid, x.nickname, x.headimgurl, x.sex).then((account: IAccount) => {
@@ -553,6 +555,7 @@ export class Account extends Model {
 
   // return {account, tokenId}
   reqWxLogin(req: Request, res: Response) {
+    res.setHeader('Content-Type', 'application/json');
     this.wxLogin(req.query.code).then(r => {
       if(r){
         res.send(JSON.stringify(r, null, 3));
@@ -563,30 +566,35 @@ export class Account extends Model {
   }
 
   // code [string] --- wechat authentication code
-  async wxLogin(code: string) {
+  wxLogin(code: string) {
     const utils = new Utils();
     const cfg = new Config();
-    const r = await utils.getWechatAccessToken(code);
-    if(r && r.access_token && r.openid){
-      const x = await utils.getWechatUserInfo(r.access_token, r.openid);
-      if(x && x.openid){
-        const account = await this.doWechatSignup(x.openid, x.nickname, x.headimgurl, x.sex);
-        if(account){
-          const accountId = account._id.toString();
-          const tokenId = jwt.sign({id:accountId}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
-          if(account.password){
-            delete account.password;
-          }
-          return {account, tokenId};
+    return new Promise((resolve, reject) => {
+      utils.getWechatAccessToken(code).then((r: any) => {
+        if(r && r.access_token && r.openid){
+          utils.getWechatUserInfo(r.access_token, r.openid).then((x: any) => {
+            if(x && x.openid){
+              this.doWechatSignup(x.openid, x.nickname, x.headimgurl, x.sex).then((account: IAccount) => {
+                if(account){
+                  const accountId = account._id.toString();
+                  const tokenId = jwt.sign({id:accountId}, cfg.JWT.SECRET, {expiresIn: cfg.JWT.EXPIRY}); // SHA256
+                  if(account.password){
+                    delete account.password;
+                  }
+                  resolve( {account, tokenId} );
+                }else{
+                  resolve();
+                }
+              });
+            }else{
+              resolve();
+            }
+          });
         }else{
-          return null;
+          resolve();
         }
-      }else{
-        return null;
-      }
-    }else{
-      return null;
-    }
+      });
+    });
   }
 
   
