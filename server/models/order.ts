@@ -13,6 +13,7 @@ import { Log, Action, AccountType } from "./log";
 import { createObjectCsvWriter } from 'csv-writer';
 import { ObjectID } from "mongodb";
 import { ClientCredit } from "./client-credit";
+import { resolve } from "path";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
 const CASH_NAME = 'Cash';
@@ -969,12 +970,18 @@ export class Order extends Model {
     return t;
   }
 
-  async updateOrderStatus(orders: IOrder[], chargeId: string, t: ITransaction) {
-    if (t) {
-      const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
-      const items = orders.map(order => { return { query: { _id: order._id }, data } });
-      await this.bulkUpdate(items);
-    }
+  updateOrderStatus(orders: IOrder[], chargeId: string, t: ITransaction) {
+    return new Promise((resolve, reject) => {
+      if (t) {
+        const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
+        const items = orders.map(order => { return { query: { _id: order._id }, data } });
+        this.bulkUpdate(items).then((r: any) => {
+          resolve(r);// { status: DbStatus.FAIL, msg: err }
+        });
+      }else{
+        resolve();
+      }
+    });
   }
 
   // use for both snappay and stripe

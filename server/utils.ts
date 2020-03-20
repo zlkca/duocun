@@ -114,7 +114,7 @@ export class Utils {
           // console.log('receiving done!');
           if (data) {
             const s = JSON.parse(data);
-            if (s.openid) {
+            if (s && s.openid) {
               resolve(s);
             } else {
               reject();

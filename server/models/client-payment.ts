@@ -522,7 +522,6 @@ export class ClientPayment extends Model {
   }
 
 
-
   // This request could response multiple times !!!
   // return rsp: IPaymentResponse
   snappayNotify(req: Request, res: Response) {
@@ -582,6 +581,7 @@ export class ClientPayment extends Model {
     // });
   }
 
+
   // v1 deprecated
   // return rsp: IPaymentResponse
   snappayAddCredit(req: Request, res: Response) {
@@ -605,6 +605,8 @@ export class ClientPayment extends Model {
     });
   }
 
+
+  // deprecated
   // return rsp: IPaymentResponse
   snappayPayOrder(req: Request, res: Response) {
     const paid = req.body.paid;
