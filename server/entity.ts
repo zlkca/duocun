@@ -296,7 +296,13 @@ export class Entity {
         doc['categoryId'] = new ObjectID(catId);
       }
     }
-
+    if (doc && doc.hasOwnProperty('areaId')) {
+      const areaId = doc['areaId'];
+      if (typeof areaId === 'string' && areaId.length === 24) {
+        doc['areaId'] = new ObjectID(areaId);
+      }
+    }
+    
     if (doc && doc.hasOwnProperty('merchantId')) {
       let body = doc.merchantId;
       if (body && body.hasOwnProperty('$in')) {

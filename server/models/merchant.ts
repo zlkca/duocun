@@ -85,7 +85,7 @@ export class Merchant extends Model {
   distance: Distance;
   area: Area;
   range: Range;
-  
+
 
   constructor(dbo: DB) {
     super(dbo, 'merchants');
@@ -141,21 +141,21 @@ export class Merchant extends Model {
     });
   }
 
-  doGetByAccountId(merchantAccountId: string): Promise<IDbMerchant[]>{
+  doGetByAccountId(merchantAccountId: string): Promise<IDbMerchant[]> {
     return new Promise((resolve, reject) => {
-      this.accountModel.findOne({_id: merchantAccountId}).then(account => {
-        if(account && account.merchants && account.merchants.length>0){
+      this.accountModel.findOne({ _id: merchantAccountId }).then(account => {
+        if (account && account.merchants && account.merchants.length > 0) {
           const merchantIds: string[] = [];
           account.merchants.map((mId: string) => {
             merchantIds.push(mId);
           });
 
-          const query = this.convertIdFields({_id: {$in: merchantIds}});
+          const query = this.convertIdFields({ _id: { $in: merchantIds } });
 
           this.joinFind(query).then((ms: IDbMerchant[]) => {
             resolve(ms);
           });
-        }else{
+        } else {
           resolve([]);
         }
       });
@@ -306,25 +306,27 @@ export class Merchant extends Model {
       if (origin) {
         this.area.getArea(origin).then((area: IArea) => {
           const dow: number = local.day();
-          this.mallModel.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
-            this.joinFind(query).then((ms: IDbMerchant[]) => {
-              // if (area.code === 'DT') {
-              //   const merchants: IMerchant[] = [];
 
-              //   ms.map((r: IDbMerchant) => {
-              //     const mall: any = r.mall;
-              //     const scheduledMallId = scheduledMallIds.find((mId: any) => mId.toString() === mall._id.toString());
-              //     const merchant = this.toBasicRspObject(r);
+          if (area && area._id) {
+            this.mallModel.getScheduledMallIds(area._id.toString(), dow).then((scheduledMallIds: any[]) => {
+              this.joinFind(query).then((ms: IDbMerchant[]) => {
+                // if (area.code === 'DT') {
+                //   const merchants: IMerchant[] = [];
 
-              //     merchant.onSchedule = scheduledMallId ? true : false;
-              //     merchant.distance = area.distance; // km
-              //     merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
-              //     merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
-              //     merchant.isClosed = this.isClosed(local, r.closed, r.dow);
-              //     merchants.push(merchant);
-              //   });
-              //   resolve(merchants);
-              // } else {
+                //   ms.map((r: IDbMerchant) => {
+                //     const mall: any = r.mall;
+                //     const scheduledMallId = scheduledMallIds.find((mId: any) => mId.toString() === mall._id.toString());
+                //     const merchant = this.toBasicRspObject(r);
+
+                //     merchant.onSchedule = scheduledMallId ? true : false;
+                //     merchant.distance = area.distance; // km
+                //     merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
+                //     merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
+                //     merchant.isClosed = this.isClosed(local, r.closed, r.dow);
+                //     merchants.push(merchant);
+                //   });
+                //   resolve(merchants);
+                // } else {
                 this.mallModel.getRoadDistanceToMalls(origin).then((ds: IDistance[]) => {
                   const merchants: IMerchant[] = [];
 
@@ -335,7 +337,7 @@ export class Merchant extends Model {
                     const merchant = this.toBasicRspObject(r);
 
                     merchant.onSchedule = scheduledMallId ? true : false;
-                    merchant.distance = d ? Math.round((d.element.distance.value / 1000) * 100)/100 : 0;
+                    merchant.distance = d ? Math.round((d.element.distance.value / 1000) * 100) / 100 : 0;
                     merchant.orderEnded = this.isOrderEnded(moment(), local, area, r.phases);
                     merchant.orderEndTime = this.getOrderEndTime(r.phases, area);
                     merchant.isClosed = this.isClosed(local, r.closed, r.dow);
@@ -343,9 +345,12 @@ export class Merchant extends Model {
                   });
                   resolve(merchants);
                 });
-              // }
+                // }
+              });
             });
-          });
+          } else {
+            resolve([]);
+          }
         });
       } else { // no origin
         this.joinFind(query).then((ms: IDbMerchant[]) => {
@@ -358,7 +363,7 @@ export class Merchant extends Model {
             merchant.distance = 0;
             merchant.orderEnded = false;
             merchant.orderEndTime = this.getOrderEndTime(r.phases),
-            merchant.isClosed = false;
+              merchant.isClosed = false;
 
             merchants.push(merchant);
           });

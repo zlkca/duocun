@@ -16,8 +16,8 @@ export class ApiMiddleWare {
         || req.path === '/api/Accounts/verifyCode' || req.path === '/api/Accounts/sendVerifyMsg' || req.path === '/api/Accounts/verifyAndLogin'
         || (req.method === 'GET' && req.path.indexOf('/api/Accounts') !== -1)
         || req.path.indexOf('/api/Locations') !== -1
-        // || req.path.indexOf('/api/Locations/Places/') !== -1
-        // || req.path.indexOf('/api/Locations/Geocodes/') !== -1
+        || req.path.indexOf('/api/Restaurants') !== -1
+        || req.path.indexOf('/api/Products') !== -1
         || req.path === '/api/Restaurants' || req.path === '/api/Restaurants/qFind' || req.path === '/api/Restaurants/load'
         || req.path === '/api/Products' || req.path === '/api/Products/qFind' || req.path === '/api/Products/categorize'
         || req.path === '/api/Ranges' || req.path === '/api/Ranges/overRange' || req.path === '/api/Ranges/inRange'
@@ -25,6 +25,7 @@ export class ApiMiddleWare {
         || req.path.includes('.jpeg') || req.path.includes('.jpg') || req.path.includes('.png')){
         next();
       }else{
+        res.setHeader('Content-Type', 'application/json');
         const cfg = new Config();
         if (token) {
           try {
@@ -33,9 +34,11 @@ export class ApiMiddleWare {
             if(a && a.id){
               next();
             }else{
+              // return res.send(JSON.stringify({err: 401, msg:"Authorization: bad token"}, null, 3));
               return res.status(401).send("Authorization: bad token");
             }
           } catch (err) {
+            // return res.send(JSON.stringify({err: 401, msg:"Authorization: bad token"}, null, 3));
             return res.status(401).send("Authorization: bad token err=" + err);
           }
             

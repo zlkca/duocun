@@ -5,6 +5,13 @@ import { Request, Response } from "express";
 import { Distance } from "./distance";
 import { resolve } from "url";
 
+export const AppType = {
+  FOOD_DELIVERY: 'F',
+  GROCERY: 'G',
+  FRESH: 'F',
+  TELECOM: 'T'
+};
+
 export interface ILatLng {
   lat: number;
   lng: number;
@@ -19,6 +26,7 @@ export interface IArea {
   coords?: ILatLng[];
   distance?: number; // km
   rate?: number;
+  appType?: string;
 }
 
 export class Area extends Model {
@@ -28,7 +36,7 @@ export class Area extends Model {
     this.distanceModel = new Distance(dbo);
   }
 
-  // except downtown
+  // except downtown and appType == G
   getNearestArea(origin: ILatLng): Promise<IArea> {
     return new Promise((resolve, reject) => {
       this.find({ status: 'active' }).then((areas: IArea[]) => {
@@ -53,9 +61,9 @@ export class Area extends Model {
     return new Promise((resolve, reject) => {
       this.findOne({ code: 'DT' }).then((area: IArea) => {
         const coords: any = area.coords;
-        if(this.inPolygon(origin, coords)){
+        if (this.inPolygon(origin, coords)) {
           resolve(area);
-        }else{
+        } else {
           this.getNearestArea(origin).then(area => {
             resolve(area);
           });
@@ -64,13 +72,38 @@ export class Area extends Model {
     });
   }
 
+  // only for appType === G
+  getMyArea(origin: ILatLng): Promise<IArea> {
+    return new Promise((resolve, reject) => {
+      try {
+        this.find({ appType: AppType.GROCERY }).then((areas: IArea[]) => {
+          if (areas && areas.length > 0 && origin) {
+            let found = areas.find(area => {
+              if(area.coords && area.coords.length>0){
+                return this.inPolygon(origin, area.coords);
+              }else{
+                return false;
+              }
+            });
+            resolve(found);
+          } else {
+            resolve();
+          }
+        });
+      } catch (e) {
+        resolve();
+      }
+    });
+  }
+
+
   inDowntownArea(origin: ILatLng): Promise<IArea> {
     return new Promise((resolve, reject) => {
       this.findOne({ code: 'DT' }).then((area: IArea) => {
         const coords: any = area.coords;
-        if(this.inPolygon(origin, coords)){
+        if (this.inPolygon(origin, coords)) {
           resolve(area);
-        }else{
+        } else {
           resolve();
         }
       });

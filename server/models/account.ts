@@ -316,7 +316,6 @@ export class Account extends Model {
   // To do: test token is undefined or null
   getAccountByToken(tokenId: string): Promise<IAccount> {
     const cfg = new Config();
-
     return new Promise((resolve, reject) => {
       if (tokenId && tokenId !== 'undefined' && tokenId !== 'null') {
         try {
@@ -579,10 +578,7 @@ export class Account extends Model {
                   if (account) {
                     const accountId = account._id.toString();
                     const tokenId = jwt.sign({ id: accountId }, cfg.JWT.SECRET, { expiresIn: cfg.JWT.EXPIRY }); // SHA256
-                    if (account.password) {
-                      delete account.password;
-                    }
-                    resolve({ account, tokenId });
+                    resolve({ tokenId });
                   } else {
                     resolve();
                   }
@@ -595,7 +591,7 @@ export class Account extends Model {
             resolve();
           }
         });
-      } catch {
+      } catch (e) {
         resolve();
       }
     });
