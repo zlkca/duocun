@@ -143,4 +143,12 @@ export class Area extends Model {
     });
   }
 
+  reqMyArea(req: Request, res: Response) {
+    const origin = req.body.origin;
+    this.getMyArea(origin).then((area: IArea) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(area, null, 3));
+    });
+  }
+
 }

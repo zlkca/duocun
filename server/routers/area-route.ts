@@ -6,10 +6,11 @@ export function AreaRouter(db: DB) {
   const router = express.Router();
   const controller = new Area(db);
 
+  router.get('/my', (req, res) => { controller.reqMyArea(req, res); });
   router.get('/qFind', (req, res) => { controller.quickFind(req, res); });
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });
-
+  
   router.post('/nearest', (req, res) => {controller.getNearest(req, res); });
 
   router.post('/', (req, res) => { controller.create(req, res); });
