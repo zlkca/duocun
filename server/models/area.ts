@@ -144,8 +144,18 @@ export class Area extends Model {
   }
 
   reqMyArea(req: Request, res: Response) {
-    const origin = req.body.origin;
-    this.getMyArea(origin).then((area: IArea) => {
+    let data;
+    let fields;
+    if (req.headers) {
+      if (req.headers.data && typeof req.headers.data === 'string') {
+        data = (req.headers && req.headers.data) ? JSON.parse(req.headers.data) : null;
+      }
+
+      if (req.headers.fields && typeof req.headers.fields === 'string') {
+        fields = JSON.parse(req.headers.fields);
+      }
+    }
+    this.getMyArea(data.location).then((area: IArea) => {
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(area, null, 3));
     });
