@@ -21,6 +21,8 @@ export function TransactionRouter(db: DB){
   router.put('/', (req, res) => { controller.replace(req, res); });
 
   // tools
+  
+  router.patch('/updateAccount', (req, res) => { controller.updateAccount(req, res); });
   router.patch('/updateBalances', (req, res) => { controller.updateBalances(req, res); });
   // router.patch('/fixCancelTransactions', (req, res) => { controller.fixCancelTransactions(req, res); });
   // router.patch('/changeAccount', (req, res) => { controller.changeAccount(req, res); });

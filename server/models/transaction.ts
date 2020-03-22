@@ -6,6 +6,8 @@ import { Account, IAccount } from "./account";
 import moment from 'moment';
 import { IOrder, IOrderItem, PaymentMethod } from "./order";
 import { EventLog } from "./event-log";
+import { resolve } from "url";
+import { ResponseStatus } from "./client-payment";
 
 const CASH_BANK_ID = '5c9511bb0851a5096e044d10';
 const CASH_BANK_NAME = 'Cash Bank';
@@ -678,6 +680,84 @@ export class Transaction extends Model {
     }
   }
 
+
+  // Tools v2
+  sortTransactions(trs: any[]) {
+    return trs.sort((a: any, b: any) => {
+      const aMoment = moment(a.created);
+      const bMoment = moment(b.created);
+      if (aMoment.isSame(bMoment, 'day')) {
+        if (aMoment.isAfter(bMoment)) {
+          return 1; // a to bottom
+        } else {
+          return -1;
+        }
+      } else {
+        if (aMoment.isAfter(bMoment)) {
+          return 1;
+        } else {
+          return -1;
+        }
+      }
+    });
+  }
+
+  // ----------------------------------------------------
+  // update single account
+  updateBalance(accountId: string) {
+    return new Promise((resolve, reject) => {
+      const q = { '$or': [{ fromId: accountId }, { toId: accountId }] };
+      const datas: any[] = [];
+
+      this.find(q).then(trs => {
+
+        if (trs && trs.length > 0) {
+          let balance = 0;
+          let list = this.sortTransactions(trs);
+
+          list.map((t: ITransaction) => {
+            const oId: any = t._id;
+            if (t.fromId.toString() === accountId) {
+              balance += t.amount;
+              datas.push({
+                query: { _id: oId.toString() },
+                data: {
+                  fromBalance: Math.round(balance * 100) / 100
+                }
+              });
+            } else if (t.toId.toString() === accountId) {
+              balance -= t.amount;
+              datas.push({
+                query: { _id: oId.toString() },
+                data: {
+                  toBalance: Math.round(balance * 100) / 100,
+                }
+              });
+            }
+          });
+
+          balance = Math.round(balance * 100) / 100;
+
+          this.bulkUpdate(datas).then(() => {
+            this.accountModel.updateOne({ _id: accountId }, { balance: balance }).then(() => {
+              resolve({ status: ResponseStatus.SUCCESS });
+            });
+          });
+        } else {
+          resolve({ status: ResponseStatus.FAIL });
+        }
+      });
+    });
+  }
+
+  updateAccount(req: Request, res: Response) {
+    const accountId = req.body.accountId;
+
+    this.updateBalance(accountId).then((r) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(r, null, 3));
+    });
+  }
 
   updateBalances(req: Request, res: Response) {
     const self = this;
