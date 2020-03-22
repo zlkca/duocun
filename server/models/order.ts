@@ -271,7 +271,7 @@ export class Order extends Model {
   // admin modify order
   create(req: Request, res: Response) {
     const order = req.body;
-    this.doInsertOneV2(order).then(savedOrder => {
+    this.placeOrders([order]).then(savedOrder => {
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(savedOrder, null, 3));
     });
@@ -418,6 +418,7 @@ export class Order extends Model {
   }
 
 
+  // should not directly call this function, use placeOrders instead.
   doInsertOneV2(order: IOrder): Promise<IOrder> {
     const location: ILocation = order.location;
     const date = moment(order.deliverDate).format('YYYY-MM-DD');
@@ -429,7 +430,9 @@ export class Order extends Model {
         order.created = moment().toISOString();
         order.delivered = delivered;
         this.insertOne(order).then((savedOrder: IOrder) => {
-          resolve(savedOrder);
+          this.accountModel.updateOne({_id: order.clientId}, {type: 'client'}).then(() => {
+            resolve(savedOrder);
+          });
         });
       }else{
         this.sequenceModel.reqSequence().then((sequence: number) => {
@@ -437,7 +440,9 @@ export class Order extends Model {
           order.created = moment().toISOString();
           order.delivered = delivered;
           this.insertOne(order).then((savedOrder: IOrder) => {
-            resolve(savedOrder);
+            this.accountModel.updateOne({_id: order.clientId}, {type: 'client'}).then(() => {
+              resolve(savedOrder);
+            });
           });
         });
       }
