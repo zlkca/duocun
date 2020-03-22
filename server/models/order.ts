@@ -268,13 +268,14 @@ export class Order extends Model {
     });
   }
 
-  // create(req: Request, res: Response) {
-  //   const order = req.body;
-  //   this.doInsertOne(order).then(savedOrder => {
-  //     res.setHeader('Content-Type', 'application/json');
-  //     res.send(JSON.stringify(savedOrder, null, 3));
-  //   });
-  // }
+  // admin modify order
+  create(req: Request, res: Response) {
+    const order = req.body;
+    this.doInsertOneV2(order).then(savedOrder => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(savedOrder, null, 3));
+    });
+  }
 
   // local --- local date time string '2019-11-03T11:20:00.000Z', local.isUTC() must be false.
   // sLocalTime     --- local hour and minute eg. '11:20'
@@ -417,17 +418,29 @@ export class Order extends Model {
   }
 
 
-  doInsertOneV2(order: IOrder, delivered: string): Promise<IOrder> {
+  doInsertOneV2(order: IOrder): Promise<IOrder> {
     const location: ILocation = order.location;
+    const date = moment(order.deliverDate).format('YYYY-MM-DD');
+    const time: any = order.deliverTime;
+    const delivered = this.getUtcTime(date, time).toISOString();
+
     return new Promise((resolve, reject) => {
-      this.sequenceModel.reqSequence().then((sequence: number) => {
-        order.code = this.sequenceModel.getCode(location, sequence);
+      if(order.code){
         order.created = moment().toISOString();
         order.delivered = delivered;
         this.insertOne(order).then((savedOrder: IOrder) => {
           resolve(savedOrder);
         });
-      });
+      }else{
+        this.sequenceModel.reqSequence().then((sequence: number) => {
+          order.code = this.sequenceModel.getCode(location, sequence);
+          order.created = moment().toISOString();
+          order.delivered = delivered;
+          this.insertOne(order).then((savedOrder: IOrder) => {
+            resolve(savedOrder);
+          });
+        });
+      }
     });
   }
 
@@ -448,10 +461,8 @@ export class Order extends Model {
       for (let i = 0; i < orders.length; i++) {
         orders[i].paymentId = paymentId;
         const order: IOrder = orders[i];
-        const date = moment(order.deliverDate).toISOString();
-        const deliverTime: any = order.deliverTime;
-        const delivered = this.getUtcTime(date, deliverTime).toISOString();
-        const savedOrder: IOrder = await this.doInsertOneV2(order, delivered);
+
+        const savedOrder: IOrder = await this.doInsertOneV2(order);
         savedOrders.push(savedOrder);
       }
       const paymentMethod = orders[0].paymentMethod;

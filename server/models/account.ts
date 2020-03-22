@@ -413,7 +413,7 @@ export class Account extends Model {
               x = { ...x, ...updates };
               resolve(x);
             });
-          } else {
+          } else { // no account find
             const data = {
               username: username,
               imageurl: imageurl,
