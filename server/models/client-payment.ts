@@ -246,7 +246,7 @@ export class ClientPayment extends Model {
       app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
       // attach: metadata,                          // 127
       charset: 'UTF-8',                          // Madatory
-      description: description,           // Service Mandatory
+      description: description,                  // Service Mandatory
       format: 'JSON',                            // Madatory
       merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
@@ -415,7 +415,7 @@ export class ClientPayment extends Model {
       const orderIds = orders.map((order: any) => order._id);
       const paymentId = order.paymentId;
       const metadata = { orderIds };
-      const description = accountName + ' order from ' + order.merchantName;
+      const description = 'Order from ' + order.merchantName;
 
       let returnUrl;
       if (orderType === OrderType.MOBILE_PLAN_SETUP) {
@@ -461,7 +461,7 @@ export class ClientPayment extends Model {
             returnUrl = 'https://duocun.com.cn?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=account_settings';
           }
           const metadata = { customerId: accountId, customerName: accountName };
-          const description = accountName + 'add credit';
+          const description = 'Add credit to Duocun Inc.';
           this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId, paymentMethod).then((rsp: any) => {
             if(rsp && rsp.status === ResponseStatus.FAIL){
               const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
