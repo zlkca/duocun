@@ -421,7 +421,7 @@ export class ClientPayment extends Model {
       if (orderType === OrderType.MOBILE_PLAN_SETUP) {
         returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
       }else if(orderType === OrderType.GROCERY){
-        returnUrl = 'https://duocun.com.cn/grocery?cId=' + clientId  + '&page=history';
+        returnUrl = 'https://duocun.com.cn/grocery?clientId=' + clientId  + '&page=history';
       }else{
         returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
       }
@@ -456,7 +456,7 @@ export class ClientPayment extends Model {
           if (appType === AppType.TELECOM) {
             returnUrl = 'https://duocun.com.cn/cell?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=application_form';
           }else if(appType === AppType.GROCERY){
-            returnUrl = 'https://duocun.com.cn/grocery?cId=' + accountId + '&page=balance';
+            returnUrl = 'https://duocun.com.cn/grocery?clientId=' + accountId + '&page=balance';
           }else{
             returnUrl = 'https://duocun.com.cn?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=account_settings';
           }

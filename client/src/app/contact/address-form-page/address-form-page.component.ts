@@ -163,8 +163,6 @@ export class AddressFormPageComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
   getDistance(ds: IDistance[], mall: IMall) {
     const d = ds.find(r => r.destinationPlaceId === mall.placeId);
     return d ? d.element.distance.value : 0;

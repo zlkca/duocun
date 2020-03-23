@@ -54,6 +54,7 @@ export interface IOrder {
   payable?: number; // total - balance
   price?: number;
   cost?: number;
+  orderType?: string;
 
   defaultPickupTime?: string;
   dateType?: string; // 'today', 'tomorrow'

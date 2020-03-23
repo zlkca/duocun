@@ -23,7 +23,6 @@ import { AccountService } from '../../account/account.service';
 import { PhoneVerifyDialogComponent, AccountType } from '../phone-verify-dialog/phone-verify-dialog.component';
 import { CartActions } from '../../cart/cart.actions';
 import { IMerchant } from '../../merchant/merchant.model';
-import { IPaymentResponse, ResponseStatus } from '../../transaction/transaction.model';
 import { PaymentMethod, PaymentError, PaymentStatus, AppType } from '../../payment/payment.model';
 import { SharedService } from '../../shared/shared.service';
 import * as moment from 'moment';
@@ -269,7 +268,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       type: OrderType.FOOD_DELIVERY,
       status,
       paymentStatus,
-      paymentMethod
+      paymentMethod,
+      orderType: OrderType.FOOD_DELIVERY
       // dateType: delivery.dateType // this.sharedSvc.getDateType(delivery.date)
     };
 
@@ -362,7 +362,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               }
             });
           } else if (paymentMethod === PaymentMethod.WECHAT) {
-            this.paymentSvc.payBySnappay(AppType.FOOD_DELIVERY, account._id, account.username, newOrders, amount, note).then((rsp: any) => {
+            this.paymentSvc.payBySnappay(AppType.FOOD_DELIVERY, account._id, account.username, newOrders,
+               amount, note).then((rsp: any) => {
               resolve({ err: rsp.err, url: rsp.url });
             });
           } else { // PaymentMethod.CASH || PaymentMethod.PREPAY
@@ -483,6 +484,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
   getAbs(n) {
     return Math.abs(n);
   }
+
 
   onPay() {
     const self = this;
