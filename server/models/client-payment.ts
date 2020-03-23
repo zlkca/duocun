@@ -16,6 +16,7 @@ import { CellApplication, CellApplicationStatus } from "./cell-application";
 import { EventLog } from "./event-log";
 import { resolve } from "url";
 import { ObjectID } from "mongodb";
+import { AppType } from "./area";
 
 
 const CASH_BANK_ID = '5c9511bb0851a5096e044d10';
@@ -420,7 +421,7 @@ export class ClientPayment extends Model {
       if (orderType === OrderType.MOBILE_PLAN_SETUP) {
         returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
       }else if(orderType === OrderType.GROCERY){
-        returnUrl = 'https://duocun.com.cn/account/history?cId=' + clientId + '&app=' + appType;
+        returnUrl = 'https://duocun.com.cn/grocery?cId=' + clientId  + '&page=history';
       }else{
         returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
       }
@@ -451,8 +452,14 @@ export class ClientPayment extends Model {
         }
   
         this.clientCreditModel.insertOne(cc).then((c) => {
-          const returnUrl = 'https://duocun.com.cn?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=account_settings';
-          // const returnUrl = 'https://duocun.com.cn/account/balance?cId=' + accountId + '&app=' + appType;
+          let returnUrl;
+          if (appType === AppType.TELECOM) {
+            returnUrl = 'https://duocun.com.cn/cell?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=application_form';
+          }else if(appType === AppType.GROCERY){
+            returnUrl = 'https://duocun.com.cn/grocery?cId=' + accountId + '&page=balance';
+          }else{
+            returnUrl = 'https://duocun.com.cn?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=account_settings';
+          }
           const metadata = { customerId: accountId, customerName: accountName };
           const description = accountName + 'add credit';
           this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId, paymentMethod).then((rsp: any) => {
