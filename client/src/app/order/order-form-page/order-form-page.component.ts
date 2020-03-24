@@ -255,6 +255,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
       price: Math.round(charge.price * 100) / 100,
       cost: Math.round(charge.cost * 100) / 100,
       location: delivery.origin,
+      pickupTime: '11:20',
       deliverDate,  // eg. 2020-12-03
       deliverTime,  // eg. 11:20
       note,

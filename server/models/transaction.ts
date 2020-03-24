@@ -142,17 +142,17 @@ export class Transaction extends Model {
             });
           });
         } else {
-          const eventLog = {
-            accountId: fromId,
-            type: 'debug',
-            code: '',
-            decline_code: '',
-            message: 'fromId: ' + tr.fromId + ' toId: ' + tr.toId + ' actionCode: ' + tr.actionCode,
-            created: moment().toISOString()
-          }
-          this.eventLogModel.insertOne(eventLog).then(() => {
+          // const eventLog = {
+          //   accountId: fromId,
+          //   type: 'debug',
+          //   code: '',
+          //   decline_code: '',
+          //   message: 'fromId: ' + tr.fromId + ' toId: ' + tr.toId + ' actionCode: ' + tr.actionCode,
+          //   created: moment().toISOString()
+          // }
+          // this.eventLogModel.insertOne(eventLog).then(() => {
             resolve();
-          });
+          // });
         }
       });
     });

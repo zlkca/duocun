@@ -186,56 +186,56 @@ export class ClientPayment extends Model {
 
   // v1 deprecated
 // return rsp: IPaymentResponse
-  stripePayOrder(req: Request, res: Response) {
-    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
-    const token = req.body.token;
-    const orderId = req.body.orderId;
-    const paid = +req.body.paid;
-    const self = this;
-    self.orderEntity.findOne({ _id: orderId }).then(order => {
-      const clientId = order.clientId.toString();
-      const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
-      stripe.charges.create({
-        // customer: req.body.customerId,
-        amount: Math.round((paid) * 100),
-        currency: 'cad',
-        description: order.merchantName,
-        source: token.id,
-        metadata: metadata
-      }, function (err: IStripeError, charge: any) {
+  // stripePayOrder(req: Request, res: Response) {
+  //   const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+  //   const token = req.body.token;
+  //   const orderId = req.body.orderId;
+  //   const paid = +req.body.paid;
+  //   const self = this;
+  //   self.orderEntity.findOne({ _id: orderId }).then(order => {
+  //     const clientId = order.clientId.toString();
+  //     const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
+  //     stripe.charges.create({
+  //       // customer: req.body.customerId,
+  //       amount: Math.round((paid) * 100),
+  //       currency: 'cad',
+  //       description: order.merchantName,
+  //       source: token.id,
+  //       metadata: metadata
+  //     }, function (err: IStripeError, charge: any) {
 
-        const eventLog = {
-          accountId: clientId,
-          type: err ? err.type : '',
-          code: err ? err.code : '',
-          decline_code: err ? err.decline_code : '',
-          message: err ? err.message : '',
-          created: moment().toISOString()
-        }
+  //       const eventLog = {
+  //         accountId: clientId,
+  //         type: err ? err.type : '',
+  //         code: err ? err.code : '',
+  //         decline_code: err ? err.decline_code : '',
+  //         message: err ? err.message : '',
+  //         created: moment().toISOString()
+  //       }
   
-        const rsp: IPaymentResponse = {
-          status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
-          code: err ? err.code : '',                    // stripe/snappay code
-          decline_code: err ? err.decline_code : '',    // stripe decline_code
-          msg: err ? err.message : '',                  // stripe/snappay retrun message
-          chargeId: charge ? charge.id : '',            // stripe { chargeId:x }
-          url: ''                                       // for snappay data[0].h5pay_url
-        }
+  //       const rsp: IPaymentResponse = {
+  //         status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+  //         code: err ? err.code : '',                    // stripe/snappay code
+  //         decline_code: err ? err.decline_code : '',    // stripe decline_code
+  //         msg: err ? err.message : '',                  // stripe/snappay retrun message
+  //         chargeId: charge ? charge.id : '',            // stripe { chargeId:x }
+  //         url: ''                                       // for snappay data[0].h5pay_url
+  //       }
 
-        res.setHeader('Content-Type', 'application/json');
-        if (!err) {
-          // update order and insert transactions
-          self.orderEntity.doProcessPayment(order, TransactionAction.PAY_BY_CARD.code, paid, charge.id).then(() => {
-            res.send(JSON.stringify(rsp, null, 3));
-          });
-        } else {
-          self.eventLogModel.insertOne(eventLog).then(() => {
-            res.send(JSON.stringify(rsp, null, 3));
-          });
-        }
-      });
-    });
-  }
+  //       res.setHeader('Content-Type', 'application/json');
+  //       if (!err) {
+  //         // update order and insert transactions
+  //         self.orderEntity.doProcessPayment(order, TransactionAction.PAY_BY_CARD.code, paid, charge.id).then(() => {
+  //           res.send(JSON.stringify(rsp, null, 3));
+  //         });
+  //       } else {
+  //         self.eventLogModel.insertOne(eventLog).then(() => {
+  //           res.send(JSON.stringify(rsp, null, 3));
+  //         });
+  //       }
+  //     });
+  //   });
+  // }
 
   // v2
   // return {url}
@@ -250,7 +250,7 @@ export class ClientPayment extends Model {
       format: 'JSON',                            // Madatory
       merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
-      notify_url: 'https://duocun.com.cn/api/ClientPayments/snappayNotify', // 'https://duocun.com.cn/api/ClientPayments/snappayNotify',
+      notify_url: 'https://duocun.com.cn/api/ClientPayments/notify', // 'https://duocun.com.cn/api/ClientPayments/snappayNotify',
       out_order_no: paymentId,                   // Service Mandatory
       payment_method: 'WECHATPAY',             // paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
       return_url: returnUrl,
@@ -258,6 +258,7 @@ export class ClientPayment extends Model {
       // trans_currency: 'CAD',
       version: '1.0'                           // Madatory
     };
+
     const self = this;
     const params = this.snappaySignParams(data);
     const options = {
@@ -316,7 +317,6 @@ export class ClientPayment extends Model {
           }
         });
       });
-  
       post_req.write(JSON.stringify(params));
       post_req.end();
     });
@@ -415,15 +415,15 @@ export class ClientPayment extends Model {
       const orderIds = orders.map((order: any) => order._id);
       const paymentId = order.paymentId;
       const metadata = { orderIds };
-      const description = 'Order from ' + order.merchantName;
+      const description = order.merchantName;
 
       let returnUrl;
       if (orderType === OrderType.MOBILE_PLAN_SETUP) {
         returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
       }else if(orderType === OrderType.GROCERY){
-        returnUrl = 'https://duocun.com.cn/grocery?clientId=' + clientId  + '&page=history';
+        returnUrl = 'https://duocun.com.cn/grocery?cId=' + clientId  + '&p=h';
       }else{
-        returnUrl = 'https://duocun.com.cn?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=order_history';
+        returnUrl = 'https://duocun.com.cn?cId=' + clientId + '&p=h';
       }
 
       // let { price, cost } = this.getChargeSummary(orders);
@@ -456,12 +456,12 @@ export class ClientPayment extends Model {
           if (appType === AppType.TELECOM) {
             returnUrl = 'https://duocun.com.cn/cell?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=application_form';
           }else if(appType === AppType.GROCERY){
-            returnUrl = 'https://duocun.com.cn/grocery?clientId=' + accountId + '&page=balance';
+            returnUrl = 'https://duocun.com.cn/grocery?cId=' + accountId + '&p=b';
           }else{
-            returnUrl = 'https://duocun.com.cn?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=account_settings';
+            returnUrl = 'https://duocun.com.cn?cId=' + accountId + '&page=b';
           }
           const metadata = { customerId: accountId, customerName: accountName };
-          const description = 'Add credit to Duocun Inc.';
+          const description = 'Add Credit';
           this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId, paymentMethod).then((rsp: any) => {
             if(rsp && rsp.status === ResponseStatus.FAIL){
               const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
@@ -552,17 +552,17 @@ export class ClientPayment extends Model {
     const amount = +req.body.trans_amount;
 
     this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
-      const eventLog = {
-        accountId: SNAPPAY_BANK_ID,
-        type: 'debug',
-        code: '',
-        decline_code: '',
-        message: 'snappayNotify done',
-        created: moment().toISOString()
-      }
-      this.eventLogModel.insertOne(eventLog).then(() => {
+      // const eventLog = {
+      //   accountId: SNAPPAY_BANK_ID,
+      //   type: 'debug',
+      //   code: '',
+      //   decline_code: '',
+      //   message: 'snappayNotify done',
+      //   created: moment().toISOString()
+      // }
+      // this.eventLogModel.insertOne(eventLog).then(() => {
 
-      });
+      // });
     });
 
     // this.orderEntity.find({ paymentId: b.out_order_no }).then(orders => {
@@ -666,7 +666,7 @@ export class ClientPayment extends Model {
       format: 'JSON',                            // Madatory
       merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
-      notify_url: 'https://duocun.com.cn/api/ClientPayments/snappayNotify',
+      notify_url: 'https://duocun.com.cn/api/ClientPayments/notify',
       out_order_no: orderId,                   // Service Mandatory
       payment_method: paymentMethod,       // WECHATPAY, ALIPAY, UNIONPAY
       return_url: returnUrl,

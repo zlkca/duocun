@@ -122,63 +122,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
 
-
-
-    //   const origin = d.origin;
-    //   if (d && origin) {
-    //     self.deliveryAddress = self.locationSvc.getAddrString(d.origin);
-    //     self.placeForm.get('addr').patchValue(self.deliveryAddress);
-    //     if (self.deliveryAddress && self.bUpdateLocationList) {
-    //       self.getSuggestLocationList(self.deliveryAddress, false);
-    //       self.bAddressList = false;
-    //     }
-
-    //     this.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
-    //       this.inRange = inRange;
-    //       this.updateMap(origin, inRange);
-    //     });
-
-    //   } else {
-    //     this.location = null;
-    //     this.inRange = true;
-    //   }
-
-    //   if (d && d.date) { // moment
-    //     // self.selectedDate = d.dateType;
-    //     // self.phase = (d.dateType === 'today') ? 'today:lunch' : 'tomorrow:lunch';
-    //     self.date = d.date;
-    //   } else {
-    //     // self.selectedDate = 'today';
-    //     // self.phase = 'today:lunch';
-    //     // self.date = moment();
-    //     self.rx.dispatch({ type: DeliveryActions.UPDATE_DATE, payload: { date: moment(), dateType: 'today' } });
-    //   }
-    // });
-
-    this.loading = true;
-    this.routeUrl().then((origin: any) => {
-      // check range and update map or merchant list
-      if (origin) {
-        self.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
-          self.inRange = inRange;
-          if (inRange) {
-            self.loadRestaurants(origin, self.date.type).then(rs => {
-              self.loading = false;
-            });
-          } else {
-            self.updateMap(origin, inRange).then(() => {
-              self.merchants = [];
-              self.loading = false;
-            });
-          }
-        });
-      } else {
-        self.loadRestaurants(null, self.date.type).then(rs => {
-
-          self.loading = false;
-        });
+    this.places = []; // clear address list
+    this.rx.dispatch<IPageAction>({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
+    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
+      if (x.name === 'clear-location-list') {
+        this.places = [];
       }
     });
+
   }
 
   login(code) {
@@ -212,16 +163,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     return new Promise((resolve, reject) => {
       self.route.queryParamMap.pipe(takeUntil(this.onDestroy$)).subscribe(queryParams => {
         // if url has format '...?clientId=x&page=y', it is some procedure that re-enter the home page
-        const clientId = queryParams.get('clientId'); // use for after card pay, could be null
-        const page = queryParams.get('page');
+        const clientId = queryParams.get('cId'); // use for after card pay, could be null
+        const page = queryParams.get('p');
 
-        if (page === 'account_settings') { // for wechatpay add credit procedure
+        if (page === 'b') { // for wechatpay add credit procedure
           self.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
             self.rx.dispatch({ type: AccountActions.UPDATE, payload: accounts[0] });
             self.router.navigate(['account/balance']);
             resolve();
           });
-        } else if (page === 'order_history') { // for wechatpay procedure
+        } else if (page === 'h') { // for wechatpay procedure
           if (clientId) {
             self.bPayment = true;
             self.accountSvc.quickFind({ _id: clientId }).pipe(takeUntil(this.onDestroy$)).subscribe((accounts: IAccount[]) => {
@@ -232,6 +183,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
         } else {
           const code = queryParams.get('code');
+          this.loading = true;
           this.login(code).then((account: IAccount) => {
             if (account) { // if already use cookie to login
               self.account = account;
@@ -370,11 +322,27 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.places = []; // clear address list
-    this.rx.dispatch<IPageAction>({ type: PageActions.UPDATE_URL, payload: { name: 'home' } });
-    this.rx.select<ICommand>('cmd').pipe(takeUntil(this.onDestroy$)).subscribe((x: ICommand) => {
-      if (x.name === 'clear-location-list') {
-        this.places = [];
+    const self = this;
+    this.routeUrl().then((origin: any) => {
+      // check range and update map or merchant list
+      if (origin) {
+        self.rangeSvc.inDeliveryRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe(inRange => {
+          self.inRange = inRange;
+          if (inRange) {
+            self.loadRestaurants(origin, self.date.type).then(rs => {
+              self.loading = false;
+            });
+          } else {
+            self.updateMap(origin, inRange).then(() => {
+              self.merchants = [];
+              self.loading = false;
+            });
+          }
+        });
+      } else {
+        self.loadRestaurants(null, self.date.type).then(rs => {
+          self.loading = false;
+        });
       }
     });
   }

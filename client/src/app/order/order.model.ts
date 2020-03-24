@@ -32,6 +32,8 @@ export interface IOrder {
   type?: string;       // in db
   status?: string;
   paymentStatus?: string;
+
+  pickupTime?: string;
   deliverDate?: string;   // eg. 2025-01-03
   deliverTime?: string;   // eg. 14:00:01
 

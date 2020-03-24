@@ -21,7 +21,7 @@ export class ApiMiddleWare {
         || req.path === '/api/Restaurants' || req.path === '/api/Restaurants/qFind' || req.path === '/api/Restaurants/load'
         || req.path === '/api/Products' || req.path === '/api/Products/qFind' || req.path === '/api/Products/categorize'
         || req.path === '/api/Ranges' || req.path === '/api/Ranges/overRange' || req.path === '/api/Ranges/inRange'
-        || req.path === '/api/ClientPayments/snappayNotify'
+        || req.path === '/api/ClientPayments/notify'
         || req.path.includes('.jpeg') || req.path.includes('.jpg') || req.path.includes('.png')){
         next();
       }else{

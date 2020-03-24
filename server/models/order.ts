@@ -1002,17 +1002,17 @@ export class Order extends Model {
         const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
         const items = orders.map(order => { return { query: { _id: order._id }, data } });
         this.bulkUpdate(items).then((r: any) => { // { status: DbStatus.FAIL, msg: err }
-          const eventLog = {
-            accountId: SNAPPAY_BANK_ID,
-            type: 'debug',
-            code: r.status,
-            decline_code: '',
-            message: 'updateOrderStatus: ' + r.msg,
-            created: moment().toISOString()
-          }
-          this.eventLogModel.insertOne(eventLog).then(() => {
+          // const eventLog = {
+          //   accountId: SNAPPAY_BANK_ID,
+          //   type: 'debug',
+          //   code: r.status,
+          //   decline_code: '',
+          //   message: 'updateOrderStatus: ' + r.msg,
+          //   created: moment().toISOString()
+          // }
+          // this.eventLogModel.insertOne(eventLog).then(() => {
             resolve();
-          });
+          // });
         });
       } else {
         resolve();

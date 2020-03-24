@@ -33,10 +33,10 @@ export class PaymentService extends EntityService {
     return this.doPost(url, { token: token, paid: paid, accountId: account._id, accountName: account.username, note: note });
   }
 
-  stripePayOrder(orderId: string, paid: number, token: any): Observable<IPaymentResponse> {
-    const url = this.url + '/stripePayOrder';
-    return this.doPost(url, { token: token, orderId: orderId, paid: paid });
-  }
+  // stripePayOrder(orderId: string, paid: number, token: any): Observable<IPaymentResponse> {
+  //   const url = this.url + '/stripePayOrder';
+  //   return this.doPost(url, { token: token, orderId: orderId, paid: paid });
+  // }
 
   snappayAddCredit(account: IAccount, paid: number, paymentMethod: string, note: string): Observable<IPaymentResponse> {
     const url = this.url + '/snappayAddCredit';
