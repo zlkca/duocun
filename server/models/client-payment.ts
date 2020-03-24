@@ -254,7 +254,7 @@ export class ClientPayment extends Model {
       out_order_no: paymentId,                   // Service Mandatory
       payment_method: 'WECHATPAY',             // paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
       return_url: returnUrl,
-      trans_amount: amount,                    // Service Mandatory
+      trans_amount: Math.round(amount * 100) / 100,                    // Service Mandatory
       // trans_currency: 'CAD',
       version: '1.0'                           // Madatory
     };
