@@ -240,11 +240,10 @@ export class ClientPayment extends Model {
   // v2
   // return {url}
   snappayPay(accountId: string, returnUrl: string, amount: number, description: string, metadata: any,
-    paymentId: string, paymentMethod: string = 'WECHATPAY') {
+    paymentId: string) {
     
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
-      // attach: metadata,                          // 127
       charset: 'UTF-8',                          // Madatory
       description: description,                  // Service Mandatory
       format: 'JSON',                            // Madatory
@@ -296,8 +295,7 @@ export class ClientPayment extends Model {
               chargeId: '',            // stripe { chargeId:x }
               url: (ret.data && ret.data[0]) ? ret.data[0].h5pay_url : ''   // snappay data[0].h5pay_url
             }
-  
-            if (ret.msg === 'success') {
+            if (ret && ret.msg === 'success') {
               resolve(rsp);
             } else {
               self.eventLogModel.insertOne(eventLog).then(() => {
@@ -315,6 +313,30 @@ export class ClientPayment extends Model {
             }
             resolve(rsp);
           }
+        });
+      });
+
+      post_req.on('error', (error: any) => { // Reject on request error.
+        const rsp: IPaymentResponse = {
+          status: ResponseStatus.FAIL,
+          code: 'UNKNOWN_ISSUE',  // snappay return code
+          decline_code: '',       // stripe decline_code
+          msg: 'UNKNOWN_ISSUE',   // snappay retrun message
+          chargeId: '',           // stripe { chargeId:x }
+          url: ''                 // for snappay data[0].h5pay_url
+        }
+
+        const eventLog = {
+          accountId: accountId,
+          type: 'snappay',
+          code: 'Request Snappay',
+          decline_code: '',
+          message: JSON.stringify(error),
+          created: moment().toISOString()
+        }
+
+        self.eventLogModel.insertOne(eventLog).then(() => {
+          resolve(rsp);
         });
       });
       post_req.write(JSON.stringify(params));
@@ -404,7 +426,7 @@ export class ClientPayment extends Model {
     const orders = req.body.orders;
     const note = req.body.note;
     const paymentMethod = PaymentMethod.WECHAT; // orders[0].paymentMethod;
-    let amount = +req.body.amount;
+    let amount = Math.round((+req.body.amount)* 100)/100;
 
     res.setHeader('Content-Type', 'application/json');
 
@@ -412,9 +434,8 @@ export class ClientPayment extends Model {
       const order = orders[0];
       const orderType = order.type;
       const clientId = order.clientId;
-      const orderIds = orders.map((order: any) => order._id);
       const paymentId = order.paymentId;
-      const metadata = { orderIds };
+      const metadata = { paymentId };
       const description = order.merchantName;
 
       let returnUrl;
@@ -427,16 +448,14 @@ export class ClientPayment extends Model {
       }
 
       // let { price, cost } = this.getChargeSummary(orders);
-      this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId, paymentMethod).then((rsp: any) => {
-
-          if(rsp && rsp.status === ResponseStatus.FAIL){
-            const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
-            res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-          }else{
-            const r = {...rsp, err: PaymentError.NONE};
-            res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-          }
-        
+      this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId).then((rsp: any) => {
+        if(rsp && rsp.status === ResponseStatus.FAIL){
+          const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
+          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+        }else{
+          const r = {...rsp, err: PaymentError.NONE};
+          res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+        }
       });
     }else{  // add credit
       if(amount > 0){
@@ -462,7 +481,7 @@ export class ClientPayment extends Model {
           }
           const metadata = { customerId: accountId, customerName: accountName };
           const description = 'Add Credit';
-          this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId, paymentMethod).then((rsp: any) => {
+          this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId).then((rsp: any) => {
             if(rsp && rsp.status === ResponseStatus.FAIL){
               const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
               res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
