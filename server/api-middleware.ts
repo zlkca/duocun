@@ -29,9 +29,9 @@ export class ApiMiddleWare {
         const cfg = new Config();
         if (token) {
           try {
-            const a: any = jwt.verify(token, cfg.JWT.SECRET);
+            const accountId = jwt.verify(token, cfg.JWT.SECRET);
             // TODO: compare redis token
-            if(a && a.id){
+            if(accountId){
               next();
             }else{
               // return res.send(JSON.stringify({err: 401, msg:"Authorization: bad token"}, null, 3));
