@@ -162,10 +162,10 @@ export class Order extends Model {
   }
 
   joinFind(query: any): Promise<IOrder[]> {
-    if (query.hasOwnProperty('pickup')) {
-      query.delivered = this.getPickupDateTime(query['pickup']);
-      delete query.pickup;
-    }
+    // if (query.hasOwnProperty('pickup')) {
+    //   query.delivered = this.getPickupDateTime(query['pickup']);
+    //   delete query.pickup;
+    // }
     let q = query ? query : {};
 
     return new Promise((resolve, reject) => {

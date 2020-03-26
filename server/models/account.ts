@@ -169,6 +169,31 @@ export class Account extends Model {
     });
   }
 
+  sendClientMsg(req: Request, res: Response) {
+    const self = this;
+    const lang = req.body.lang;
+    const phone = req.body.phone;
+    const orderType = req.body.orderType;
+
+    res.setHeader('Content-Type', 'application/json');
+
+    let txt;
+    if(orderType === 'G'){
+      txt = lang === 'en' ? 'Reminder: Your delivery arrived.' : '多村提醒您: 您的订的货已送到, 请查收';
+    }else{
+      txt = lang === 'en' ? 'Reminder: Your delivery arrived.' : '多村提醒您: 您的订的餐已送到, 请查收';
+    }
+
+      self.twilioClient.messages.create({
+        body: txt,
+        from: '+16475591743',
+        to: "+1".concat(phone)
+      })
+      .then((message: any) => {
+        res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
+      });
+  }
+
   verifyAndLogin(req: Request, res: Response) {
     const loggedInAccountId = req.body.accountId;
     const phone = req.body.phone;

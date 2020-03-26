@@ -10,7 +10,7 @@ export function AccountRouter(db: DB){
   const merchantStuff = new MerchantStuff(db);
 
   router.get('/attributes', (req, res) => { attrModel.quickFind(req, res); });
-  
+
   // v1
   router.get('/wechatLogin', (req, res) => { controller.wechatLogin(req, res); });
 
@@ -28,6 +28,8 @@ export function AccountRouter(db: DB){
   router.patch('/', (req, res) => { controller.update(req, res); });
   router.delete('/', (req, res) => { controller.remove(req, res); });
 
+  
+  router.post('/sendClientMsg', (req, res) => { controller.sendClientMsg(req, res); });
   router.post('/verifyAndLogin', (req, res) => { controller.verifyAndLogin(req, res); });
   router.post('/verifyCode', (req, res) => { controller.verifyCode(req, res); });
   router.post('/sendVerifyMsg', (req, res) => { controller.sendVerifyMsg(req, res); });
