@@ -347,7 +347,7 @@ export class ClientPayment extends Model {
 
   // stripe new API
   // metadata eg. { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
-  stripePay(accountId: string, amount: number, currency: string, description: string, metadata: any) {
+  stripePay(paymentMethodId: string, accountId: string, amount: number, currency: string, description: string, metadata: any) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
     const self = this;
 
@@ -355,6 +355,10 @@ export class ClientPayment extends Model {
       stripe.paymentIntents.create({
         amount: Math.round((amount) * 100),
         currency,
+        customer: accountId.toString(),
+        payment_method: paymentMethodId,
+        error_on_requires_action: true,
+        confirm: true, 
         description,
         metadata
       }, function (err: IStripeError, paymentIntent: any) {
@@ -500,6 +504,7 @@ export class ClientPayment extends Model {
   // v2 --- each order has a paymentId
   payByCreditCard(req: Request, res: Response) {
     const appType = req.body.appType;
+    const paymentMethodId = req.body.paymentMethodId;
     const accountId = req.body.accountId;
     const accountName = req.body.accountName;
     const orders = req.body.orders;
@@ -516,14 +521,14 @@ export class ClientPayment extends Model {
       // const orderIds = orders.map((order: any) => order._id);;
       // let { price, cost } = this.getChargeSummary(orders); 
       metadata = { paymentId: order.paymentId };
-      description = accountName + ' order from ' + orders[0].merchantName;
+      description = accountName + ' pay ' + orders[0].merchantName;
       paymentId = order.paymentId;
     }else{
       metadata = { customerId: accountId, customerName: accountName };
       description = accountName + 'add credit';
     }
 
-    this.stripePay(accountId, amount, 'cad', description, metadata).then((rsp: any) => {
+    this.stripePay(paymentMethodId, accountId, amount, 'cad', description, metadata).then((rsp: any) => {
       const cc = {
         accountId,
         accountName,

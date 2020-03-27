@@ -356,7 +356,8 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 // An error happened when collecting card details, show `result.error.message` in the payment form.
                 resolve({ err: PaymentError.BANK_CARD_FAIL });
               } else {
-                this.paymentSvc.payByCreditCard(AppType.FOOD_DELIVERY, account._id, account.username, newOrders,
+                const paymentMethodId = result.paymentMethod.id;
+                this.paymentSvc.payByCreditCard(AppType.FOOD_DELIVERY, paymentMethodId, account._id, account.username, newOrders,
                   amount, note).then((rsp: any) => {
                   resolve({ err: rsp.err });
                 });

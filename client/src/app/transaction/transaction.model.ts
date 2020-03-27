@@ -14,6 +14,7 @@ export interface IPaymentResponse {
 
 
 export const TransactionAction = {
+  DECLINE_CREDIT_CARD: { code: 'DC', name: 'decline credit card payment' },
   PAY_DRIVER_CASH: { code: 'PDCH', name: 'client pay driver cash' }, // 'client pay cash', 'pay cash'
   PAY_BY_CARD: { code: 'PC', name: 'client pay by card' }, // 'pay by card'
   PAY_BY_WECHAT: { code: 'PW', name: 'client pay by wechat' }, // 'pay by wechat'
