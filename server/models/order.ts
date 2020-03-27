@@ -1300,19 +1300,24 @@ export class Order extends Model {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
     }
 
+    let fields: string[];
+    if (req.headers && req.headers.fields && typeof req.headers.fields === 'string') {
+      fields = (req.headers && req.headers.fields) ? JSON.parse(req.headers.fields) : null;
+    }  
+
     res.setHeader('Content-Type', 'application/json');
     if (query) {
-      this.getLatestViewed(query.delivered).then(rs => {
-        res.send(JSON.stringify(rs, null, 3));
+      this.getLatestViewed(query.delivered).then((rs: any[]) => {
+        const xs = this.filterArray(rs, fields);
+        res.send(JSON.stringify(xs, null, 3));
       });
     } else {
       res.send(JSON.stringify([], null, 3));
     }
-
   }
 
   // get all the orders that Merchant Viewed
-  getLatestViewed(delivered: string) {
+  getLatestViewed(delivered: string): Promise<any[]>{
     const range = { $gte: moment(delivered).startOf('day').toISOString(), $lte: moment(delivered).endOf('day').toISOString() };
     const query: any = {
       delivered: range,
