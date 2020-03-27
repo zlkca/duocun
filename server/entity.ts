@@ -29,6 +29,36 @@ export class Entity {
     this.collectionName = name;
   }
 
+
+  filter(doc: any, fields?: string[]) {
+    if (fields && fields.length > 0) {
+      const it: any = {};
+      fields.map((key: any) => {
+        it[key] = doc[key];
+      });
+      return it;
+    } else {
+      return doc;
+    }
+  }
+
+  filterArray(rs: any[], fields: string[]) {
+    if (fields && fields.length > 0) {
+      const xs: any[] = [];
+      if (rs && rs.length > 0) {
+        rs.map(r => {
+          const x = this.filter(r, fields);
+          xs.push(x);
+        });
+        return xs;
+      } else {
+        return xs;
+      }
+    } else {
+      return rs;
+    }
+  }
+
   getCollection(): Promise<Collection> {
     if (this.db) {
       const collection: Collection = this.db.collection(this.collectionName);
@@ -134,15 +164,8 @@ export class Entity {
       self.getCollection().then((c: Collection) => {
         query = this.convertIdFields(query);
         c.findOne(query, options, (err, doc) => {
-          if (fields && fields.length > 0) {
-            const it: any = {};
-            fields.map((key: any) => {
-              it[key] = doc[key];
-            });
-            resolve(it);
-          } else {
-            resolve(doc);
-          }
+          const r = this.filter(doc, fields);
+          resolve(r);
         });
       });
     });

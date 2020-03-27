@@ -17,6 +17,7 @@ import { EventLog } from "./event-log";
 import { resolve } from "url";
 import { ObjectID } from "mongodb";
 import { AppType } from "./area";
+import { Account } from "./account";
 
 
 const CASH_BANK_ID = '5c9511bb0851a5096e044d10';
@@ -44,11 +45,16 @@ export const PaymentError = {
   BANK_CARD_EMPTY: 'BE',
   INVALID_BANK_CARD: 'IB',
   BANK_CARD_FAIL: 'BF',
-  WECHATPAY_FAIL: 'WF'
+  WECHATPAY_FAIL: 'WF',
+  CREATE_BANK_CUSTOMER_FAIL: 'CBCF',
+  BANK_INSUFFICIENT_FUND: 'BIF',
+  BANK_CARD_DECLIEND: 'BCD',
+  INVALID_ACCOUNT: 'IA',
+  BANK_AUTHENTICATION_REQUIRED: 'BAR'
 };
 
 export const ResponseStatus = {
-  SUCCESS : 'S',
+  SUCCESS: 'S',
   FAIL: 'F'
 }
 
@@ -78,10 +84,10 @@ export class ClientPayment extends Model {
   clientCreditModel: ClientCredit;
   cellApplicationModel: CellApplication;
   eventLogModel: EventLog;
-
+  accountModel: Account;
   constructor(dbo: DB) {
     super(dbo, 'client_payments');
-
+    this.accountModel = new Account(dbo);
     this.orderEntity = new Order(dbo);
     this.merchantModel = new Merchant(dbo);
     this.transactionModel = new Transaction(dbo);
@@ -152,7 +158,7 @@ export class ClientPayment extends Model {
       source: token.id,
       metadata: { customerId: accountId, customerName: accountName },
     }, function (err: IStripeError, charge: any) {
-      
+
       const eventLog = {
         accountId: accountId,
         type: err ? err.type : '',
@@ -185,7 +191,7 @@ export class ClientPayment extends Model {
   }
 
   // v1 deprecated
-// return rsp: IPaymentResponse
+  // return rsp: IPaymentResponse
   // stripePayOrder(req: Request, res: Response) {
   //   const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
   //   const token = req.body.token;
@@ -212,7 +218,7 @@ export class ClientPayment extends Model {
   //         message: err ? err.message : '',
   //         created: moment().toISOString()
   //       }
-  
+
   //       const rsp: IPaymentResponse = {
   //         status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
   //         code: err ? err.code : '',                    // stripe/snappay code
@@ -241,7 +247,7 @@ export class ClientPayment extends Model {
   // return {url}
   snappayPay(accountId: string, returnUrl: string, amount: number, description: string, metadata: any,
     paymentId: string) {
-    
+
     const data: any = { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
       charset: 'UTF-8',                          // Madatory
@@ -286,7 +292,7 @@ export class ClientPayment extends Model {
               message: ret ? ret.message : '',
               created: moment().toISOString()
             }
-            
+
             const rsp: IPaymentResponse = {
               status: (ret && ret.msg === 'success') ? ResponseStatus.SUCCESS : ResponseStatus.FAIL,
               code: ret ? ret.code : '',                    // stripe/snappay code
@@ -342,26 +348,87 @@ export class ClientPayment extends Model {
       post_req.write(JSON.stringify(params));
       post_req.end();
     });
-    
+
   }
 
-  // stripe new API
-  // metadata eg. { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
-  stripePay(paymentMethodId: string, accountId: string, amount: number, currency: string, description: string, metadata: any) {
-    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
-    const self = this;
 
-    return new Promise((resolve, reject) => {
-      stripe.paymentIntents.create({
-        amount: Math.round((amount) * 100),
-        currency,
-        customer: accountId.toString(),
-        payment_method: paymentMethodId,
-        error_on_requires_action: true,
-        confirm: true, 
-        description,
-        metadata
-      }, function (err: IStripeError, paymentIntent: any) {
+  // stripe new API
+  async trySaveStripeCard(accountId: string, paymentMethodId: string) {
+    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+    const account = await this.accountModel.findOne({ _id: accountId }, null, ['_id', 'cardAccountId', 'cards']);
+    if (account) {
+      try {
+        if (account.cardAccountId) {
+          const customerId = account.cardAccountId;
+          if (account.cards) {
+            if (account.cards.indexOf(paymentMethodId) !== -1) { // has customerId and the same paymentMethodId, not need to create
+              // pass
+            } else { // has customerId but card didn't attached, attach the card
+              await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
+              const cards = [...account.cards, paymentMethodId];
+              await this.accountModel.updateOne({ _id: accountId }, { cards });
+            }
+          } else { // previous failed to save cards
+            await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
+            await this.accountModel.updateOne({ _id: accountId }, { cards: [paymentMethodId] });
+          }
+          return {customerId, err: PaymentError.NONE};
+        } else {
+          const customer = await stripe.customers.create({
+            payment_method: paymentMethodId
+          });
+          const customerId = customer.id;
+          if (customerId) {
+            await this.accountModel.updateOne({ _id: accountId }, { cardAccountId: customerId, cards: [paymentMethodId] });
+            return {customerId, err: PaymentError.NONE};
+          } else {
+            return {err: PaymentError.CREATE_BANK_CUSTOMER_FAIL};
+          }
+        }
+      } catch (e) { // code and message
+        let err = PaymentError.BANK_CARD_DECLIEND;
+        if(e.statusCode === 402){
+          err = PaymentError.BANK_INSUFFICIENT_FUND;
+        }
+        const eventLog = {
+          accountId,
+          type: e ? e.type : '',
+          code: e ? e.code : '',
+          decline_code: e ? e.decline_code : '',
+          message: e ? e.message : '',
+          created: moment().toISOString()
+        }
+        await this.eventLogModel.insertOne(eventLog);
+        console.log(e);
+        return {err};
+      }
+    } else {
+      return {err: PaymentError.INVALID_ACCOUNT};
+    }
+  }
+
+  // metadata eg. { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
+  async stripePay(paymentMethodId: string, accountId: string, amount: number, currency: string, description: string, metadata: any) {
+    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+    const rt = await this.trySaveStripeCard(accountId, paymentMethodId);
+    const customerId = rt.customerId;
+    if (rt.err === PaymentError.NONE && customerId) {
+      try {
+        await stripe.paymentIntents.create({
+          amount: Math.round((amount) * 100),
+          currency,
+          customer: customerId,
+          payment_method: paymentMethodId,
+          error_on_requires_action: true,
+          confirm: true,
+          description,
+          metadata
+        });
+        return { status: ResponseStatus.SUCCESS, err: rt.err };
+      } catch (err) {
+        console.log('Error code is: ', err.code);
+        const paymentIntentRetrieved = await stripe.paymentIntents.retrieve(err.raw.payment_intent.id);
+        console.log('PI retrieved: ', paymentIntentRetrieved.id);
         const eventLog = {
           accountId,
           type: err ? err.type : '',
@@ -370,27 +437,58 @@ export class ClientPayment extends Model {
           message: err ? err.message : '',
           created: moment().toISOString()
         }
-
-        const rsp: IPaymentResponse = {
-          status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
-          code: err ? err.code : '',                        // stripe/snappay code
-          decline_code: err ? err.decline_code : '',        // stripe decline_code
-          msg: err ? err.message : '',                      // stripe/snappay retrun message
-          chargeId: paymentIntent ? paymentIntent.id : '',  // stripe { chargeId:x }
-          url: ''                                           // for snappay data[0].h5pay_url
+        let error = PaymentError.BANK_CARD_DECLIEND;
+        if(err && err.code){
+          if(err.code === 'authentication_required'){
+            error = PaymentError.BANK_AUTHENTICATION_REQUIRED;
+          }
         }
+        await this.eventLogModel.insertOne(eventLog);
+        return { status: ResponseStatus.FAIL, err: error  };
+      }
+    } else {
+      return { status: ResponseStatus.FAIL, err: rt.err };
+    }
 
-        if (!err) {
-          resolve(rsp);
-        }else{
-          self.eventLogModel.insertOne(eventLog).then(() => {
-            resolve(rsp);
-          });
-        }
-      });
-    })
-      // const clientId = order.clientId.toString();
-      // const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
+    // stripe.paymentIntents.create({
+    //   amount: Math.round((amount) * 100),
+    //   currency,
+    //   customer: accountId.toString(),
+    //   payment_method: paymentMethodId,
+    //   error_on_requires_action: true,
+    //   confirm: true,
+    //   description,
+    //   metadata
+    // }, function (err: IStripeError, paymentIntent: any) {
+    //   const eventLog = {
+    //     accountId,
+    //     type: err ? err.type : '',
+    //     code: err ? err.code : '',
+    //     decline_code: err ? err.decline_code : '',
+    //     message: err ? err.message : '',
+    //     created: moment().toISOString()
+    //   }
+
+    //   const rsp: IPaymentResponse = {
+    //     status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+    //     code: err ? err.code : '',                        // stripe/snappay code
+    //     decline_code: err ? err.decline_code : '',        // stripe decline_code
+    //     msg: err ? err.message : '',                      // stripe/snappay retrun message
+    //     chargeId: paymentIntent ? paymentIntent.id : '',  // stripe { chargeId:x }
+    //     url: ''                                           // for snappay data[0].h5pay_url
+    //   }
+
+    //   if (!err) {
+    //     resolve(rsp);
+    //   } else {
+    //     self.eventLogModel.insertOne(eventLog).then(() => {
+    //       resolve(rsp);
+    //     });
+    //   }
+    // });
+    // })
+    // const clientId = order.clientId.toString();
+    // const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
     //     res.setHeader('Content-Type', 'application/json');
     //     if (!err) {
     //       // update order and insert transactions
@@ -406,7 +504,7 @@ export class ClientPayment extends Model {
     // });
   }
 
-  getChargeSummary(orders: any[]){
+  getChargeSummary(orders: any[]) {
     let price = 0;
     let cost = 0;
 
@@ -419,7 +517,7 @@ export class ClientPayment extends Model {
       });
     }
 
-    return {price, cost};
+    return { price, cost };
   }
 
   // v2 --- each order has a paymentId
@@ -430,11 +528,11 @@ export class ClientPayment extends Model {
     const orders = req.body.orders;
     const note = req.body.note;
     const paymentMethod = PaymentMethod.WECHAT; // orders[0].paymentMethod;
-    let amount = Math.round((+req.body.amount)* 100)/100;
+    let amount = Math.round((+req.body.amount) * 100) / 100;
 
     res.setHeader('Content-Type', 'application/json');
 
-    if(orders && orders.length > 0){  // pay order
+    if (orders && orders.length > 0) {  // pay order
       const order = orders[0];
       const orderType = order.type;
       const clientId = order.clientId;
@@ -445,24 +543,24 @@ export class ClientPayment extends Model {
       let returnUrl;
       if (orderType === OrderType.MOBILE_PLAN_SETUP) {
         returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
-      }else if(orderType === OrderType.GROCERY){
-        returnUrl = 'https://duocun.com.cn/grocery?cId=' + clientId  + '&p=h';
-      }else{
+      } else if (orderType === OrderType.GROCERY) {
+        returnUrl = 'https://duocun.com.cn/grocery?cId=' + clientId + '&p=h';
+      } else {
         returnUrl = 'https://duocun.com.cn?cId=' + clientId + '&p=h';
       }
 
       // let { price, cost } = this.getChargeSummary(orders);
       this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId).then((rsp: any) => {
-        if(rsp && rsp.status === ResponseStatus.FAIL){
-          const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
+        if (rsp && rsp.status === ResponseStatus.FAIL) {
+          const r = { ...rsp, err: PaymentError.WECHATPAY_FAIL };
           res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-        }else{
-          const r = {...rsp, err: PaymentError.NONE};
+        } else {
+          const r = { ...rsp, err: PaymentError.NONE };
           res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
         }
       });
-    }else{  // add credit
-      if(amount > 0){
+    } else {  // add credit
+      if (amount > 0) {
         const paymentId = new ObjectID().toString();
         const cc = {
           accountId,
@@ -473,29 +571,29 @@ export class ClientPayment extends Model {
           paymentId,
           status: PaymentStatus.UNPAID
         }
-  
+
         this.clientCreditModel.insertOne(cc).then((c) => {
           let returnUrl;
           if (appType === AppType.TELECOM) {
             returnUrl = 'https://duocun.com.cn/cell?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=application_form';
-          }else if(appType === AppType.GROCERY){
+          } else if (appType === AppType.GROCERY) {
             returnUrl = 'https://duocun.com.cn/grocery?cId=' + accountId + '&p=b';
-          }else{
+          } else {
             returnUrl = 'https://duocun.com.cn?cId=' + accountId + '&page=b';
           }
           const metadata = { customerId: accountId, customerName: accountName };
           const description = 'Add Credit';
           this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId).then((rsp: any) => {
-            if(rsp && rsp.status === ResponseStatus.FAIL){
-              const r = {...rsp, err: PaymentError.WECHATPAY_FAIL};
+            if (rsp && rsp.status === ResponseStatus.FAIL) {
+              const r = { ...rsp, err: PaymentError.WECHATPAY_FAIL };
               res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-            }else{
-              const r = {...rsp, err: PaymentError.NONE};
+            } else {
+              const r = { ...rsp, err: PaymentError.NONE };
               res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
             }
           });
         });
-      } else{
+      } else {
         res.send(JSON.stringify(null, null, 3));
       }
     }
@@ -516,14 +614,14 @@ export class ClientPayment extends Model {
 
     res.setHeader('Content-Type', 'application/json');
 
-    if(orders && orders.length > 0){  // pay order
+    if (orders && orders.length > 0) {  // pay order
       const order = orders[0];
       // const orderIds = orders.map((order: any) => order._id);;
       // let { price, cost } = this.getChargeSummary(orders); 
       metadata = { paymentId: order.paymentId };
       description = accountName + ' pay ' + orders[0].merchantName;
       paymentId = order.paymentId;
-    }else{
+    } else {
       metadata = { customerId: accountId, customerName: accountName };
       description = accountName + 'add credit';
     }
@@ -541,13 +639,7 @@ export class ClientPayment extends Model {
 
       this.clientCreditModel.insertOne(cc).then((c) => {
         this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
-          if(rsp && rsp.status === ResponseStatus.FAIL){
-            const r = {...rsp, err: PaymentError.BANK_CARD_FAIL};
-            res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-          }else{
-            const r = {...rsp, err: PaymentError.NONE};
-            res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
-          }
+          res.send(JSON.stringify(rsp, null, 3)); // IPaymentResponse
         });
       });
     });
@@ -724,7 +816,7 @@ export class ClientPayment extends Model {
             message: ret ? ret.message : '',
             created: moment().toISOString()
           }
-          
+
           const rsp: IPaymentResponse = {
             status: (ret && ret.msg === 'success') ? ResponseStatus.SUCCESS : ResponseStatus.FAIL,
             code: ret ? ret.code : '',                    // stripe/snappay code

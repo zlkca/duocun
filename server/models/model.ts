@@ -16,34 +16,6 @@ export class Model extends Entity {
     super(dbo, tableName);
   }
 
-  filter(doc: any, fields: string[]) {
-    if (fields && fields.length > 0) {
-      const it: any = {};
-      fields.map((key: any) => {
-        it[key] = doc[key];
-      });
-      return it;
-    } else {
-      return doc;
-    }
-  }
-
-  filterArray(rs: any[], fields: string[]) {
-    if (fields && fields.length > 0) {
-      const xs: any[] = [];
-      if (rs && rs.length > 0) {
-        rs.map(r => {
-          const x = this.filter(r, fields);
-          xs.push(x);
-        });
-        return xs;
-      } else {
-        return xs;
-      }
-    } else {
-      return rs;
-    }
-  }
 
   // Wrong !
   // m --- local moment object for date, m.isUTC() must be false
