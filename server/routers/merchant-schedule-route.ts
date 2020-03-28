@@ -6,6 +6,7 @@ export function MerchantScheduleRouter(db: DB){
   const router = express.Router();
   const controller = new MerchantSchedule(db);
 
+  router.get('/availableMerchants', (req, res) => { controller.getAvailableMerchants(req, res); });
   router.get('/availables', (req, res) => { controller.getAvailableSchedules(req, res); });
   router.get('/', (req, res) => { controller.list(req, res); });
   router.get('/:id', (req, res) => { controller.get(req, res); });

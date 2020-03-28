@@ -36,4 +36,29 @@ export class MerchantSchedule extends Model{
       }
     });
   }
+
+
+  getAvailableMerchants(req: Request, res: Response) {
+    let fields: any;
+    let data: any;
+    if (req.headers) {
+      if (req.headers.data && typeof req.headers.data === 'string') {
+        data = JSON.parse(req.headers.data);
+      }
+      if (req.headers.fields && typeof req.headers.fields === 'string') {
+        fields = JSON.parse(req.headers.fields);
+      }
+    }
+    
+    const areaId = data.areaId;
+    this.find({areaId}).then(mss =>{
+      if(mss && mss.length > 0){
+        const merchantIds = mss.map((ms: any) => ms.merchantId.toString());
+        res.send(JSON.stringify(merchantIds, null, 3));
+      }else{
+        res.send(JSON.stringify(null, null, 3));
+      }
+    });
+  }
+
 }
