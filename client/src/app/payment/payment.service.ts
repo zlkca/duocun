@@ -23,10 +23,10 @@ export class PaymentService extends EntityService {
     this.url = super.getBaseUrl() + 'ClientPayments';
   }
 
-  getSession(): Observable<any> {
-    const url = this.url + '/session';
-    return this.doGet(url);
-  }
+  // getSession(): Observable<any> {
+  //   const url = this.url + '/session';
+  //   return this.doGet(url);
+  // }
 
   stripeAddCredit(token: any, account: IAccount, paid: number, note: string): Observable<IPaymentResponse> {
     const url = this.url + '/stripeAddCredit';

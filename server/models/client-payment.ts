@@ -18,7 +18,7 @@ import { resolve } from "url";
 import { ObjectID } from "mongodb";
 import { AppType } from "./area";
 import { Account } from "./account";
-
+import { SystemConfig } from "./system-config";
 
 const CASH_BANK_ID = '5c9511bb0851a5096e044d10';
 const CASH_BANK_NAME = 'Cash Bank';
@@ -53,6 +53,11 @@ export const PaymentError = {
   BANK_AUTHENTICATION_REQUIRED: 'BAR'
 };
 
+export const PaymentAction = {
+  PAY: { code: 'P', text: 'Pay' },
+  ADD_CREDIT: {code: 'A', text: 'Add Credit'}
+}
+
 export const ResponseStatus = {
   SUCCESS: 'S',
   FAIL: 'F'
@@ -85,6 +90,8 @@ export class ClientPayment extends Model {
   cellApplicationModel: CellApplication;
   eventLogModel: EventLog;
   accountModel: Account;
+  cfgModel: SystemConfig;
+
   constructor(dbo: DB) {
     super(dbo, 'client_payments');
     this.accountModel = new Account(dbo);
@@ -94,261 +101,130 @@ export class ClientPayment extends Model {
     this.clientCreditModel = new ClientCredit(dbo);
     this.cellApplicationModel = new CellApplication(dbo);
     this.eventLogModel = new EventLog(dbo);
-
+    this.cfgModel = new SystemConfig(dbo);
     this.cfg = new Config();
   }
 
-  // deprecated
-  createStripeSession(req: Request, res: Response) {
-    // Set your secret key: remember to change this to your live secret key in production
-    // See your keys here: https://dashboard.stripe.com/account/apikeys
-    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
-    stripe.checkout.sessions.create({
-      payment_method_types: [PaymentMethod.CREDIT_CARD],
-      line_items: [{
-        name: 'T-shirt',
-        description: 'Comfortable cotton t-shirt',
-        images: ['https://example.com/t-shirt.png'],
-        amount: 600, // cents
-        currency: 'cad',
-        quantity: 1,
-      }],
-      success_url: 'https://duocun.com.cn/payment/success',
-      cancel_url: 'https://example.com.cn/payment/cancel',
-    }).then((session: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(session.id, null, 3));
-    });
-  }
+  // appCode --- '122':grocery, '123':food delivery
+  // actionCode --- P: Pay, A: Add credit
+  // paymentId --- paymentId represent a batch of orders
+  async getSnappayData(appCode: string, actionCode: string, paymentId: string, amount: number, description: string) {
+    const cfgs = await this.cfgModel.find({});
+    const cfg = cfgs[0];
+    const method = cfg.snappay.methods.find((m: any) => m.code = 'WECHATPAY');
+    const app = method.apps.find((a: any) => a.code === appCode);
+    const notify_url = app.notifyUrl;
+    const returnUrl = app.returnUrls.find((r: any) => r.action === actionCode);
+    const return_url = returnUrl.url;
+    const trans_amount = Math.round(amount * 100) / 100;
 
-  // deprecated
-  stripeCreateCustomer(req: Request, res: Response) {
-    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
-    stripe.customers.create({
-      source: req.body.source,
-      name: req.body.clientName,
-      phone: req.body.clientPhoneNumber,
-      metadata: { clientId: req.body.clientId },
-    }, function (err: any, ret: any) {
-      res.setHeader('Content-Type', 'application/json');
-      if (err) {
-        res.send(JSON.stringify({ customerId: ret.id }, null, 3));
-      } else {
-        res.send(JSON.stringify({ customerId: ret.id }, null, 3));
-      }
-    });
-  }
-
-  // v1 deprecated
-  // return rsp: IPaymentResponse
-  stripeAddCredit(req: Request, res: Response) {
-    const self = this;
-    const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
-    const token = req.body.token;
-    const accountId = req.body.accountId;
-    const accountName = req.body.accountName;
-    const paid = +req.body.paid;
-    const note = req.body.note;
-
-    stripe.charges.create({
-      // customer: req.body.customerId,
-      amount: Math.round((paid) * 100),
-      currency: 'cad',
-      description: 'client add credit by card',
-      source: token.id,
-      metadata: { customerId: accountId, customerName: accountName },
-    }, function (err: IStripeError, charge: any) {
-
-      const eventLog = {
-        accountId: accountId,
-        type: err ? err.type : '',
-        code: err ? err.code : '',
-        decline_code: err ? err.decline_code : '',
-        message: err ? err.message : '',
-        created: moment().toISOString()
-      }
-
-      const rsp: IPaymentResponse = {
-        status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
-        code: err ? err.code : '',                    // stripe/snappay code
-        decline_code: err ? err.decline_code : '',    // stripe decline_code
-        msg: err ? err.message : '',                  // stripe/snappay retrun message
-        chargeId: charge ? charge.id : '',            // stripe { chargeId:x }
-        url: ''                                       // for snappay data[0].h5pay_url
-      }
-
-      res.setHeader('Content-Type', 'application/json');
-      if (!err) {
-        self.transactionModel.doAddCredit(accountId, accountName, paid, PaymentMethod.CREDIT_CARD, note).then((x: IDbTransaction) => {
-          res.send(JSON.stringify(rsp, null, 3));
-        });
-      } else {
-        self.eventLogModel.insertOne(eventLog).then(() => {
-          res.send(JSON.stringify(rsp, null, 3));
-        });
-      }
-    });
-  }
-
-  // v1 deprecated
-  // return rsp: IPaymentResponse
-  // stripePayOrder(req: Request, res: Response) {
-  //   const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
-  //   const token = req.body.token;
-  //   const orderId = req.body.orderId;
-  //   const paid = +req.body.paid;
-  //   const self = this;
-  //   self.orderEntity.findOne({ _id: orderId }).then(order => {
-  //     const clientId = order.clientId.toString();
-  //     const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
-  //     stripe.charges.create({
-  //       // customer: req.body.customerId,
-  //       amount: Math.round((paid) * 100),
-  //       currency: 'cad',
-  //       description: order.merchantName,
-  //       source: token.id,
-  //       metadata: metadata
-  //     }, function (err: IStripeError, charge: any) {
-
-  //       const eventLog = {
-  //         accountId: clientId,
-  //         type: err ? err.type : '',
-  //         code: err ? err.code : '',
-  //         decline_code: err ? err.decline_code : '',
-  //         message: err ? err.message : '',
-  //         created: moment().toISOString()
-  //       }
-
-  //       const rsp: IPaymentResponse = {
-  //         status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
-  //         code: err ? err.code : '',                    // stripe/snappay code
-  //         decline_code: err ? err.decline_code : '',    // stripe decline_code
-  //         msg: err ? err.message : '',                  // stripe/snappay retrun message
-  //         chargeId: charge ? charge.id : '',            // stripe { chargeId:x }
-  //         url: ''                                       // for snappay data[0].h5pay_url
-  //       }
-
-  //       res.setHeader('Content-Type', 'application/json');
-  //       if (!err) {
-  //         // update order and insert transactions
-  //         self.orderEntity.doProcessPayment(order, TransactionAction.PAY_BY_CARD.code, paid, charge.id).then(() => {
-  //           res.send(JSON.stringify(rsp, null, 3));
-  //         });
-  //       } else {
-  //         self.eventLogModel.insertOne(eventLog).then(() => {
-  //           res.send(JSON.stringify(rsp, null, 3));
-  //         });
-  //       }
-  //     });
-  //   });
-  // }
-
-  // v2
-  // return {url}
-  snappayPay(accountId: string, returnUrl: string, amount: number, description: string, metadata: any,
-    paymentId: string) {
-
-    const data: any = { // the order matters
+    return { // the order matters
       app_id: this.cfg.SNAPPAY.APP_ID,           // Madatory
       charset: 'UTF-8',                          // Madatory
       description: description,                  // Service Mandatory
       format: 'JSON',                            // Madatory
       merchant_no: this.cfg.SNAPPAY.MERCHANT_ID, // Service Mandatory
       method: 'pay.h5pay', // pc+wechat: 'pay.qrcodepay', // PC+Ali: 'pay.webpay' qq browser+Wechat: pay.h5pay,
-      notify_url: 'https://duocun.com.cn/api/ClientPayments/notify', // 'https://duocun.com.cn/api/ClientPayments/snappayNotify',
+      notify_url,                                // 'https://duocun.com.cn/api/ClientPayments/notify',
       out_order_no: paymentId,                   // Service Mandatory
-      payment_method: 'WECHATPAY',             // paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
-      return_url: returnUrl,
-      trans_amount: Math.round(amount * 100) / 100,                    // Service Mandatory
+      payment_method: 'WECHATPAY',               // paymentMethod, // WECHATPAY, ALIPAY, UNIONPAY
+      return_url,
+      trans_amount,                             // Service Mandatory
       // trans_currency: 'CAD',
       version: '1.0'                           // Madatory
     };
+  }
 
+  // v2
+  // return {url}
+  snappayPay(accountId: string, appCode: string, actionCode: string, amount: number, description: string, paymentId: string) {
     const self = this;
-    const params = this.snappaySignParams(data);
-    const options = {
-      hostname: 'open.snappay.ca',
-      port: 443,
-      path: '/api/gateway',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Content-Length': Buffer.byteLength(data)
-      }
-    };
 
     return new Promise((resolve, reject) => {
-      const post_req = https.request(options, (res1: IncomingMessage) => {
-        let ss = '';
-        res1.on('data', (d) => { ss += d; });
-        res1.on('end', (r: any) => {
-          if (ss) { // { code, data, msg, total, psn, sign }
-            const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
-            const eventLog = {
-              accountId: accountId,
-              type: 'snappay',
-              code: ret ? ret.code : '',
-              decline_code: '',
-              message: ret ? ret.message : '',
-              created: moment().toISOString()
-            }
-
-            const rsp: IPaymentResponse = {
-              status: (ret && ret.msg === 'success') ? ResponseStatus.SUCCESS : ResponseStatus.FAIL,
-              code: ret ? ret.code : '',                    // stripe/snappay code
-              decline_code: '',    // stripe decline_code
-              msg: ret ? ret.msg : '',                  // stripe/snappay retrun message
-              chargeId: '',            // stripe { chargeId:x }
-              url: (ret.data && ret.data[0]) ? ret.data[0].h5pay_url : ''   // snappay data[0].h5pay_url
-            }
-            if (ret && ret.msg === 'success') {
-              resolve(rsp);
-            } else {
-              self.eventLogModel.insertOne(eventLog).then(() => {
-                resolve(rsp);
-              });
-            }
-          } else {
-            const rsp: IPaymentResponse = {
-              status: ResponseStatus.FAIL,
-              code: 'UNKNOWN_ISSUE',  // snappay return code
-              decline_code: '',       // stripe decline_code
-              msg: 'UNKNOWN_ISSUE',   // snappay retrun message
-              chargeId: '',           // stripe { chargeId:x }
-              url: ''                 // for snappay data[0].h5pay_url
-            }
-            resolve(rsp);
+      this.getSnappayData(appCode, actionCode, paymentId, amount, description).then(data => {
+        const params = this.snappaySignParams(data);
+        const options = {
+          hostname: 'open.snappay.ca',
+          port: 443,
+          path: '/api/gateway',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // 'Content-Length': Buffer.byteLength(data)
           }
+        };
+
+        const post_req = https.request(options, (res: IncomingMessage) => {
+          let ss = '';
+          res.on('data', (d) => { ss += d; });
+          res.on('end', (r: any) => {
+            if (ss) { // { code, data, msg, total, psn, sign }
+              const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
+              const eventLog = {
+                accountId: accountId,
+                type: 'snappay',
+                code: ret ? ret.code : '',
+                decline_code: '',
+                message: ret ? ret.message : '',
+                created: moment().toISOString()
+              }
+
+              const rsp: IPaymentResponse = {
+                status: (ret && ret.msg === 'success') ? ResponseStatus.SUCCESS : ResponseStatus.FAIL,
+                code: ret ? ret.code : '',                    // stripe/snappay code
+                decline_code: '',    // stripe decline_code
+                msg: ret ? ret.msg : '',                  // stripe/snappay retrun message
+                chargeId: '',            // stripe { chargeId:x }
+                url: (ret.data && ret.data[0]) ? ret.data[0].h5pay_url : ''   // snappay data[0].h5pay_url
+              }
+              if (ret && ret.msg === 'success') {
+                resolve(rsp);
+              } else {
+                self.eventLogModel.insertOne(eventLog).then(() => {
+                  resolve(rsp);
+                });
+              }
+            } else {
+              const rsp: IPaymentResponse = {
+                status: ResponseStatus.FAIL,
+                code: 'UNKNOWN_ISSUE',  // snappay return code
+                decline_code: '',       // stripe decline_code
+                msg: 'UNKNOWN_ISSUE',   // snappay retrun message
+                chargeId: '',           // stripe { chargeId:x }
+                url: ''                 // for snappay data[0].h5pay_url
+              }
+              resolve(rsp);
+            }
+          });
         });
-      });
 
-      post_req.on('error', (error: any) => { // Reject on request error.
-        const rsp: IPaymentResponse = {
-          status: ResponseStatus.FAIL,
-          code: 'UNKNOWN_ISSUE',  // snappay return code
-          decline_code: '',       // stripe decline_code
-          msg: 'UNKNOWN_ISSUE',   // snappay retrun message
-          chargeId: '',           // stripe { chargeId:x }
-          url: ''                 // for snappay data[0].h5pay_url
-        }
+        post_req.on('error', (error: any) => { // Reject on request error.
+          const rsp: IPaymentResponse = {
+            status: ResponseStatus.FAIL,
+            code: 'UNKNOWN_ISSUE',  // snappay return code
+            decline_code: '',       // stripe decline_code
+            msg: 'UNKNOWN_ISSUE',   // snappay retrun message
+            chargeId: '',           // stripe { chargeId:x }
+            url: ''                 // for snappay data[0].h5pay_url
+          }
 
-        const eventLog = {
-          accountId: accountId,
-          type: 'snappay',
-          code: 'Request Snappay',
-          decline_code: '',
-          message: JSON.stringify(error),
-          created: moment().toISOString()
-        }
+          const eventLog = {
+            accountId: accountId,
+            type: 'snappay',
+            code: 'Request Snappay',
+            decline_code: '',
+            message: JSON.stringify(error),
+            created: moment().toISOString()
+          }
 
-        self.eventLogModel.insertOne(eventLog).then(() => {
-          resolve(rsp);
+          self.eventLogModel.insertOne(eventLog).then(() => {
+            resolve(rsp);
+          });
         });
+        post_req.write(JSON.stringify(params));
+        post_req.end();
       });
-      post_req.write(JSON.stringify(params));
-      post_req.end();
     });
-
   }
 
 
@@ -372,7 +248,7 @@ export class ClientPayment extends Model {
             await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
             await this.accountModel.updateOne({ _id: accountId }, { cards: [paymentMethodId] });
           }
-          return {customerId, err: PaymentError.NONE};
+          return { customerId, err: PaymentError.NONE };
         } else {
           const customer = await stripe.customers.create({
             payment_method: paymentMethodId
@@ -380,14 +256,14 @@ export class ClientPayment extends Model {
           const customerId = customer.id;
           if (customerId) {
             await this.accountModel.updateOne({ _id: accountId }, { cardAccountId: customerId, cards: [paymentMethodId] });
-            return {customerId, err: PaymentError.NONE};
+            return { customerId, err: PaymentError.NONE };
           } else {
-            return {err: PaymentError.CREATE_BANK_CUSTOMER_FAIL};
+            return { err: PaymentError.CREATE_BANK_CUSTOMER_FAIL };
           }
         }
       } catch (e) { // code and message
         let err = PaymentError.BANK_CARD_DECLIEND;
-        if(e.statusCode === 402){
+        if (e.statusCode === 402) {
           err = PaymentError.BANK_INSUFFICIENT_FUND;
         }
         const eventLog = {
@@ -400,10 +276,10 @@ export class ClientPayment extends Model {
         }
         await this.eventLogModel.insertOne(eventLog);
         console.log(e);
-        return {err};
+        return { err };
       }
     } else {
-      return {err: PaymentError.INVALID_ACCOUNT};
+      return { err: PaymentError.INVALID_ACCOUNT };
     }
   }
 
@@ -438,70 +314,18 @@ export class ClientPayment extends Model {
           created: moment().toISOString()
         }
         let error = PaymentError.BANK_CARD_DECLIEND;
-        if(err && err.code){
-          if(err.code === 'authentication_required'){
+        if (err && err.code) {
+          if (err.code === 'authentication_required') {
             error = PaymentError.BANK_AUTHENTICATION_REQUIRED;
           }
         }
         await this.eventLogModel.insertOne(eventLog);
-        return { status: ResponseStatus.FAIL, err: error  };
+        return { status: ResponseStatus.FAIL, err: error };
       }
     } else {
       return { status: ResponseStatus.FAIL, err: rt.err };
     }
 
-    // stripe.paymentIntents.create({
-    //   amount: Math.round((amount) * 100),
-    //   currency,
-    //   customer: accountId.toString(),
-    //   payment_method: paymentMethodId,
-    //   error_on_requires_action: true,
-    //   confirm: true,
-    //   description,
-    //   metadata
-    // }, function (err: IStripeError, paymentIntent: any) {
-    //   const eventLog = {
-    //     accountId,
-    //     type: err ? err.type : '',
-    //     code: err ? err.code : '',
-    //     decline_code: err ? err.decline_code : '',
-    //     message: err ? err.message : '',
-    //     created: moment().toISOString()
-    //   }
-
-    //   const rsp: IPaymentResponse = {
-    //     status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
-    //     code: err ? err.code : '',                        // stripe/snappay code
-    //     decline_code: err ? err.decline_code : '',        // stripe decline_code
-    //     msg: err ? err.message : '',                      // stripe/snappay retrun message
-    //     chargeId: paymentIntent ? paymentIntent.id : '',  // stripe { chargeId:x }
-    //     url: ''                                           // for snappay data[0].h5pay_url
-    //   }
-
-    //   if (!err) {
-    //     resolve(rsp);
-    //   } else {
-    //     self.eventLogModel.insertOne(eventLog).then(() => {
-    //       resolve(rsp);
-    //     });
-    //   }
-    // });
-    // })
-    // const clientId = order.clientId.toString();
-    // const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
-    //     res.setHeader('Content-Type', 'application/json');
-    //     if (!err) {
-    //       // update order and insert transactions
-    //       self.orderEntity.doProcessPayment(order, TransactionAction.PAY_BY_CARD.code, paid, charge.id).then(() => {
-    //         res.send(JSON.stringify(rsp, null, 3));
-    //       });
-    //     } else {
-    //       self.eventLogModel.insertOne(eventLog).then(() => {
-    //         res.send(JSON.stringify(rsp, null, 3));
-    //       });
-    //     }
-    //   });
-    // });
   }
 
   getChargeSummary(orders: any[]) {
@@ -522,35 +346,24 @@ export class ClientPayment extends Model {
 
   // v2 --- each order has a paymentId
   payBySnappay(req: Request, res: Response) {
-    const appType = req.body.appType;
+    const appCode = req.body.appCode;
+    const orders = req.body.orders;
+    const actionCode = orders && orders.length > 0 ? PaymentAction.PAY.code : PaymentAction.ADD_CREDIT.code;
     const accountId = req.body.accountId;
     const accountName = req.body.accountName;
-    const orders = req.body.orders;
     const note = req.body.note;
     const paymentMethod = PaymentMethod.WECHAT; // orders[0].paymentMethod;
     let amount = Math.round((+req.body.amount) * 100) / 100;
 
     res.setHeader('Content-Type', 'application/json');
 
-    if (orders && orders.length > 0) {  // pay order
+    if (actionCode === PaymentAction.PAY.code) {  // pay order
       const order = orders[0];
-      const orderType = order.type;
-      const clientId = order.clientId;
       const paymentId = order.paymentId;
-      const metadata = { paymentId };
       const description = order.merchantName;
+      // returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
 
-      let returnUrl;
-      if (orderType === OrderType.MOBILE_PLAN_SETUP) {
-        returnUrl = 'https://duocun.com.cn/cell?clientId=' + clientId + '&paymentMethod=' + paymentMethod + '&page=application_form';
-      } else if (orderType === OrderType.GROCERY) {
-        returnUrl = 'https://duocun.com.cn/grocery?cId=' + clientId + '&p=h';
-      } else {
-        returnUrl = 'https://duocun.com.cn?cId=' + clientId + '&p=h';
-      }
-
-      // let { price, cost } = this.getChargeSummary(orders);
-      this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId).then((rsp: any) => {
+      this.snappayPay(accountId, appCode, actionCode, amount, description, paymentId).then((rsp: any) => {
         if (rsp && rsp.status === ResponseStatus.FAIL) {
           const r = { ...rsp, err: PaymentError.WECHATPAY_FAIL };
           res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
@@ -573,17 +386,8 @@ export class ClientPayment extends Model {
         }
 
         this.clientCreditModel.insertOne(cc).then((c) => {
-          let returnUrl;
-          if (appType === AppType.TELECOM) {
-            returnUrl = 'https://duocun.com.cn/cell?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=application_form';
-          } else if (appType === AppType.GROCERY) {
-            returnUrl = 'https://duocun.com.cn/grocery?cId=' + accountId + '&p=b';
-          } else {
-            returnUrl = 'https://duocun.com.cn?cId=' + accountId + '&page=b';
-          }
-          const metadata = { customerId: accountId, customerName: accountName };
-          const description = 'Add Credit';
-          this.snappayPay(accountId, returnUrl, amount, description, metadata, paymentId).then((rsp: any) => {
+          // returnUrl = 'https://duocun.com.cn/cell?clientId=' + accountId + '&paymentMethod=' + paymentMethod + '&page=application_form';
+          this.snappayPay(accountId, appCode, actionCode, amount, 'Add Credit', paymentId).then((rsp: any) => {
             if (rsp && rsp.status === ResponseStatus.FAIL) {
               const r = { ...rsp, err: PaymentError.WECHATPAY_FAIL };
               res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
@@ -601,7 +405,7 @@ export class ClientPayment extends Model {
 
   // v2 --- each order has a paymentId
   payByCreditCard(req: Request, res: Response) {
-    const appType = req.body.appType;
+    // const appType = req.body.appType;
     const paymentMethodId = req.body.paymentMethodId;
     const accountId = req.body.accountId;
     const accountName = req.body.accountName;
@@ -680,49 +484,207 @@ export class ClientPayment extends Model {
 
       // });
     });
-
-    // this.orderEntity.find({ paymentId: b.out_order_no }).then(orders => {
-    //   if (orders && orders.length > 0) {
-    //     // if orders is unpaid get total amount.
-    //     const order = orders[0];
-    //     if (order.paymentStatus === PaymentStatus.UNPAID) {
-    //       const paid = +b.trans_amount;
-    //       // --------------------------------------------------------------------------------------
-    //       // 1.update payment status to 'paid'
-    //       // 2.add two transactions for place order and add another transaction for deposit to bank
-    //       // 3.update account balance
-    //       this.orderEntity.doProcessPayment(order,
-    //         TransactionAction.PAY_BY_WECHAT.code, paid, '').then(() => {
-    //         // res.send(ret);
-    //         const q = { accountId: order.clientId.toString(), status: CellApplicationStatus.APPLIED };
-    //         const d = { status: CellApplicationStatus.SETUP_PAID };
-    //         this.cellApplicationModel.findOne(q).then((ca: any) => {
-    //           if (ca) {
-    //             this.cellApplicationModel.updateOne(q, d).then(() => {
-
-    //             });
-    //           }
-    //         });
-    //       }, err => {
-    //         // res.send(ret);
-    //       });
-    //     }
-    //   } else { // not a order means this is adding credit
-    //     this.clientCreditModel.find({ _id: b.out_order_no }).then(ccs => {
-    //       if (ccs && ccs.length > 0) {
-    //         const cc = ccs[0];
-    //         if (cc.status === PaymentStatus.Unpaid) {
-    //           this.clientCreditModel.updateOne({ _id: cc._id }, { status: PaymentStatus.PAID }).then(() => {
-    //             this.transactionModel.doAddCredit(cc.accountId.toString(), cc.accountName, cc.total, cc.paymentMethod, cc.note).then(() => {
-
-    //             });
-    //           });
-    //         }
-    //       }
-    //     });
-    //   }
-    // });
   }
+
+  // // deprecated
+  // createStripeSession(req: Request, res: Response) {
+  //   // Set your secret key: remember to change this to your live secret key in production
+  //   // See your keys here: https://dashboard.stripe.com/account/apikeys
+  //   const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+  //   stripe.checkout.sessions.create({
+  //     payment_method_types: [PaymentMethod.CREDIT_CARD],
+  //     line_items: [{
+  //       name: 'T-shirt',
+  //       description: 'Comfortable cotton t-shirt',
+  //       images: ['https://example.com/t-shirt.png'],
+  //       amount: 600, // cents
+  //       currency: 'cad',
+  //       quantity: 1,
+  //     }],
+  //     success_url: 'https://duocun.com.cn/payment/success',
+  //     cancel_url: 'https://example.com.cn/payment/cancel',
+  //   }).then((session: any) => {
+  //     res.setHeader('Content-Type', 'application/json');
+  //     res.send(JSON.stringify(session.id, null, 3));
+  //   });
+  // }
+
+  // // deprecated
+  // stripeCreateCustomer(req: Request, res: Response) {
+  //   const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+  //   stripe.customers.create({
+  //     source: req.body.source,
+  //     name: req.body.clientName,
+  //     phone: req.body.clientPhoneNumber,
+  //     metadata: { clientId: req.body.clientId },
+  //   }, function (err: any, ret: any) {
+  //     res.setHeader('Content-Type', 'application/json');
+  //     if (err) {
+  //       res.send(JSON.stringify({ customerId: ret.id }, null, 3));
+  //     } else {
+  //       res.send(JSON.stringify({ customerId: ret.id }, null, 3));
+  //     }
+  //   });
+  // }
+
+  // // v1 deprecated
+  // // return rsp: IPaymentResponse
+  // stripeAddCredit(req: Request, res: Response) {
+  //   const self = this;
+  //   const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+  //   const token = req.body.token;
+  //   const accountId = req.body.accountId;
+  //   const accountName = req.body.accountName;
+  //   const paid = +req.body.paid;
+  //   const note = req.body.note;
+
+  //   stripe.charges.create({
+  //     // customer: req.body.customerId,
+  //     amount: Math.round((paid) * 100),
+  //     currency: 'cad',
+  //     description: 'client add credit by card',
+  //     source: token.id,
+  //     metadata: { customerId: accountId, customerName: accountName },
+  //   }, function (err: IStripeError, charge: any) {
+
+  //     const eventLog = {
+  //       accountId: accountId,
+  //       type: err ? err.type : '',
+  //       code: err ? err.code : '',
+  //       decline_code: err ? err.decline_code : '',
+  //       message: err ? err.message : '',
+  //       created: moment().toISOString()
+  //     }
+
+  //     const rsp: IPaymentResponse = {
+  //       status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+  //       code: err ? err.code : '',                    // stripe/snappay code
+  //       decline_code: err ? err.decline_code : '',    // stripe decline_code
+  //       msg: err ? err.message : '',                  // stripe/snappay retrun message
+  //       chargeId: charge ? charge.id : '',            // stripe { chargeId:x }
+  //       url: ''                                       // for snappay data[0].h5pay_url
+  //     }
+
+  //     res.setHeader('Content-Type', 'application/json');
+  //     if (!err) {
+  //       self.transactionModel.doAddCredit(accountId, accountName, paid, PaymentMethod.CREDIT_CARD, note).then((x: IDbTransaction) => {
+  //         res.send(JSON.stringify(rsp, null, 3));
+  //       });
+  //     } else {
+  //       self.eventLogModel.insertOne(eventLog).then(() => {
+  //         res.send(JSON.stringify(rsp, null, 3));
+  //       });
+  //     }
+  //   });
+  // }
+
+  // v1 deprecated
+  // return rsp: IPaymentResponse
+  // stripePayOrder(req: Request, res: Response) {
+  //   const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
+  //   const token = req.body.token;
+  //   const orderId = req.body.orderId;
+  //   const paid = +req.body.paid;
+  //   const self = this;
+  //   self.orderEntity.findOne({ _id: orderId }).then(order => {
+  //     const clientId = order.clientId.toString();
+  //     const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
+  //     stripe.charges.create({
+  //       // customer: req.body.customerId,
+  //       amount: Math.round((paid) * 100),
+  //       currency: 'cad',
+  //       description: order.merchantName,
+  //       source: token.id,
+  //       metadata: metadata
+  //     }, function (err: IStripeError, charge: any) {
+
+  //       const eventLog = {
+  //         accountId: clientId,
+  //         type: err ? err.type : '',
+  //         code: err ? err.code : '',
+  //         decline_code: err ? err.decline_code : '',
+  //         message: err ? err.message : '',
+  //         created: moment().toISOString()
+  //       }
+
+  //       const rsp: IPaymentResponse = {
+  //         status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+  //         code: err ? err.code : '',                    // stripe/snappay code
+  //         decline_code: err ? err.decline_code : '',    // stripe decline_code
+  //         msg: err ? err.message : '',                  // stripe/snappay retrun message
+  //         chargeId: charge ? charge.id : '',            // stripe { chargeId:x }
+  //         url: ''                                       // for snappay data[0].h5pay_url
+  //       }
+
+  //       res.setHeader('Content-Type', 'application/json');
+  //       if (!err) {
+  //         // update order and insert transactions
+  //         self.orderEntity.doProcessPayment(order, TransactionAction.PAY_BY_CARD.code, paid, charge.id).then(() => {
+  //           res.send(JSON.stringify(rsp, null, 3));
+  //         });
+  //       } else {
+  //         self.eventLogModel.insertOne(eventLog).then(() => {
+  //           res.send(JSON.stringify(rsp, null, 3));
+  //         });
+  //       }
+  //     });
+  //   });
+  // }
+
+
+
+  // stripe.paymentIntents.create({
+  //   amount: Math.round((amount) * 100),
+  //   currency,
+  //   customer: accountId.toString(),
+  //   payment_method: paymentMethodId,
+  //   error_on_requires_action: true,
+  //   confirm: true,
+  //   description,
+  //   metadata
+  // }, function (err: IStripeError, paymentIntent: any) {
+  //   const eventLog = {
+  //     accountId,
+  //     type: err ? err.type : '',
+  //     code: err ? err.code : '',
+  //     decline_code: err ? err.decline_code : '',
+  //     message: err ? err.message : '',
+  //     created: moment().toISOString()
+  //   }
+
+  //   const rsp: IPaymentResponse = {
+  //     status: err ? ResponseStatus.FAIL : ResponseStatus.SUCCESS,
+  //     code: err ? err.code : '',                        // stripe/snappay code
+  //     decline_code: err ? err.decline_code : '',        // stripe decline_code
+  //     msg: err ? err.message : '',                      // stripe/snappay retrun message
+  //     chargeId: paymentIntent ? paymentIntent.id : '',  // stripe { chargeId:x }
+  //     url: ''                                           // for snappay data[0].h5pay_url
+  //   }
+
+  //   if (!err) {
+  //     resolve(rsp);
+  //   } else {
+  //     self.eventLogModel.insertOne(eventLog).then(() => {
+  //       resolve(rsp);
+  //     });
+  //   }
+  // });
+  // })
+  // const clientId = order.clientId.toString();
+  // const metadata = { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
+  //     res.setHeader('Content-Type', 'application/json');
+  //     if (!err) {
+  //       // update order and insert transactions
+  //       self.orderEntity.doProcessPayment(order, TransactionAction.PAY_BY_CARD.code, paid, charge.id).then(() => {
+  //         res.send(JSON.stringify(rsp, null, 3));
+  //       });
+  //     } else {
+  //       self.eventLogModel.insertOne(eventLog).then(() => {
+  //         res.send(JSON.stringify(rsp, null, 3));
+  //       });
+  //     }
+  //   });
+  // });
 
 
   // v1 deprecated

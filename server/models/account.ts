@@ -297,17 +297,21 @@ export class Account extends Model {
 
   list(req: Request, res: Response) {
     let query = {};
+    let fields: any[];
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
       query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+    if (req.headers && req.headers.fields && typeof req.headers.fields === 'string') {
+      fields = (req.headers && req.headers.fields) ? JSON.parse(req.headers.fields) : null;
     }
     query = this.convertIdFields(query);
     this.find(query).then(accounts => {
       accounts.map((account: any) => {
         delete account.password;
       });
-
+      const rs = this.filterArray(accounts, fields);
       res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(accounts, null, 3));
+      res.send(JSON.stringify(rs, null, 3));
     });
   }
 
