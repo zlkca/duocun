@@ -34,6 +34,10 @@ export class Entity {
     if (fields && fields.length > 0) {
       const it: any = {};
       fields.map((key: any) => {
+        // if(key.indexOf(':')!== -1){
+        //   const parentKey = key.split(':')[0];
+        //   const children = key.split(':')[1].split(',').map((c: any) => c.trim());
+        // }
         it[key] = doc[key];
       });
       return it;
@@ -42,7 +46,7 @@ export class Entity {
     }
   }
 
-  filterArray(rs: any[], fields: string[]) {
+  filterArray(rs: any[], fields?: string[]) {
     if (fields && fields.length > 0) {
       const xs: any[] = [];
       if (rs && rs.length > 0) {
@@ -179,22 +183,8 @@ export class Entity {
     return new Promise((resolve, reject) => {
       self.getCollection().then((c: Collection) => {
         c.find(query, options).toArray((err, docs) => {
-
-          if (fields && fields.length > 0) {
-            const rs: any[] = [];
-    
-            docs.map((x: any) => {
-              const it: any = {};
-              fields.map((key: any) => {
-                it[key] = x[key];
-              });
-    
-              rs.push(it);
-            });
-            resolve(rs);
-          } else {
-            resolve(docs);
-          }
+          const rs = this.filterArray(docs, fields);
+          resolve(rs);
         });
       });
     });
