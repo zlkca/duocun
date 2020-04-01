@@ -168,7 +168,7 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     res.send('upload file success');
   });
 
-
+  const accountRouter = new AccountRouter(dbo);
   app.use(apimw.auth);
 
   app.use('/' + ROUTE_PREFIX + '/Categories', CategoryRouter(dbo));
@@ -181,7 +181,8 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Pickups', PickupRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Drivers', DriverRouter(dbo));
 
-  app.use('/' + ROUTE_PREFIX + '/Accounts', AccountRouter(dbo));
+  app.use('/' + ROUTE_PREFIX + '/Accounts', accountRouter.init());
+
   app.use('/' + ROUTE_PREFIX + '/Distances', DistanceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Regions', RegionRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Orders', OrderRouter(dbo));

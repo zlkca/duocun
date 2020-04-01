@@ -19,6 +19,7 @@ export function OrderRouter(db: DB){
   router.put('/updatePurchaseTag', (req, res) => { controller.updatePurchaseTag(req, res)});
   router.put('/', (req, res) => { controller.replace(req, res); });
 
+  router.post('/checkWechatpay', (req, res) => { controller.checkWechatpay(req, res); });
   router.post('/bulk', (req, res) => { controller.reqPlaceOrders(req, res); });
   router.post('/payOrder', (req, res) => { controller.payOrder(req, res); });
   router.post('/', (req, res) => { controller.create(req, res); });

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+
 import { DB } from "../db";
 import { Model } from "./model";
 import bcrypt from "bcrypt";
@@ -6,7 +6,6 @@ import jwt from "jsonwebtoken";
 import { Config } from "../config";
 import { Utils } from "../utils";
 import moment from 'moment';
-import { resolve } from "../../node_modules/@types/q";
 
 const saltRounds = 10;
 export const VerificationError = {
@@ -84,6 +83,28 @@ export class Account extends Model {
     this.twilioClient = require('twilio')(this.cfg.TWILIO.SID, this.cfg.TWILIO.TOKEN);
   }
 
+  jwtSign(accountId: string) {
+    return jwt.sign(accountId, this.cfg.JWT.SECRET); // SHA256
+  }
+
+  // return message
+  async sendMessage(phone: string, text: string) {
+    return await this.twilioClient.messages.create({
+      body: text,
+      from: '+16475591743',
+      to: "+1".concat(phone)
+    });
+  }
+
+  // self.twilioClient.messages.create({
+  //   body: txt,
+  //   from: '+16475591743',
+  //   to: "+1".concat(phone)
+  // })
+  //   .then((message: any) => {
+  //     res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
+  //   });
+
   // try signup an account with phone number.
   // If this phone number is already used by an account, return that account.
   // Otherwise:
@@ -144,66 +165,79 @@ export class Account extends Model {
     });
   }
 
-  // req --- require accountId, username and phone fields
-  sendVerifyMsg(req: Request, res: Response) {
-    const self = this;
-    const lang = req.body.lang;
 
-    this.trySignup(req.body.accountId, req.body.phone).then((r: any) => {
-      res.setHeader('Content-Type', 'application/json');
 
-      self.twilioClient.messages.create({
-        body: (lang === 'en' ? 'Duocun Verification Code: ' : '多村外卖验证码: ') + r.verificationCode,
-        from: '+16475591743',
-        to: "+1".concat(r.phone)
-      })
-        .then((message: any) => {
-          if (r.accountId) {
-            const cfg = new Config();
-            const tokenId = jwt.sign( r.accountId , cfg.JWT.SECRET); // SHA256
-            res.send(JSON.stringify(tokenId, null, 3));
-          } else {
-            res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
-          }
-        });
-    });
-  }
 
-  sendClientMsg(req: Request, res: Response) {
-    const self = this;
-    const lang = req.body.lang;
-    const phone = req.body.phone;
-    const orderType = req.body.orderType;
+  // sendClientMsg2(req: Request, res: Response) {
+  //   const self = this;
+  //   const text = req.body.text;
+  //   const phone = req.body.phone;
+  //   const orderType = req.body.orderType;
 
-    res.setHeader('Content-Type', 'application/json');
+  //   res.setHeader('Content-Type', 'application/json');
 
-    let txt;
-    if(orderType === 'G'){
-      txt = lang === 'en' ? 'Reminder: Your delivery arrived.' : '多村提醒您: 您的订的货已送到, 请查收';
-    }else{
-      txt = lang === 'en' ? 'Reminder: Your delivery arrived.' : '多村提醒您: 您的订的餐已送到, 请查收';
+  //   let txt = '多村送菜提醒您: 您的收货地址缺少街道名或门牌号, 请把完整的收货地址发到 416-906-5468, 谢谢！';
+  //   self.twilioClient.messages.create({
+  //     body: txt,
+  //     from: '+16475591743',
+  //     to: "+1".concat(phone)
+  //   })
+  //     .then((message: any) => {
+  //       res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
+  //     });
+  // }
+
+  // result --- result from verify()
+  async updateAccountVerified(result: any) {
+    const verified = result.verified;
+    if (verified) {
+      const account = result.account;
+      const accountId = account._id.toString();
+      await this.updateOne({ _id: accountId }, { verified });
+      const cfg = new Config();
+      const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
+      return { ...result, tokenId: tokenId };
+    } else {
+      return { ...result, tokenId: null };
     }
-
-      self.twilioClient.messages.create({
-        body: txt,
-        from: '+16475591743',
-        to: "+1".concat(phone)
-      })
-      .then((message: any) => {
-        res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
-      });
   }
 
-  verifyAndLogin(req: Request, res: Response) {
-    const loggedInAccountId = req.body.accountId;
-    const phone = req.body.phone;
-    const code = req.body.code;
-
-    this.doVerifyAndLogin(phone, code, loggedInAccountId).then((r: any) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(r, null, 3));
-    });
+  async verifyPhoneNumber(phone: string, code: string, loggedInAccountId: string) {
+    const account = await this.findOne({ phone });
+    if (account && account.password) {
+      delete account.password;
+    }
+    if (loggedInAccountId) {
+      if (account) {
+        if (account._id.toString() !== loggedInAccountId) {
+          return { verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED, account };
+        } else {
+          if (account.verificationCode && (code === account.verificationCode)) {
+            return { verified: true, err: VerificationError.NONE, account };
+          } else {
+            return { verified: false, err: VerificationError.WRONG_CODE, account };
+          }
+        }
+      } else {
+        return { verified: false, err: VerificationError.NO_PHONE_NUMBER_BIND, account }; // please resend code
+      }
+    } else { // enter from web page 
+      if (account) {
+        if (account.openId) {
+          return { verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED, account };
+        } else {
+          if (account.verificationCode && code === account.verificationCode) {
+            return { verified: true, err: VerificationError.NONE, account }; // tokenId: tokenId, 
+          } else {
+            return { verified: false, err: VerificationError.WRONG_CODE, account };
+          }
+        }
+      } else {
+        return { verified: false, err: VerificationError.NO_PHONE_NUMBER_BIND, account }; // // please resend code
+      }
+    }
   }
+
 
   doVerifyAndLogin(phone: string, code: string, loggedInAccountId: string) {
     return new Promise((resolve, reject) => {
@@ -254,7 +288,7 @@ export class Account extends Model {
               } else {
                 if (account.verificationCode && code === account.verificationCode) {
                   const cfg = new Config();
-                  const tokenId = jwt.sign( account._id.toString() , cfg.JWT.SECRET); // SHA256
+                  const tokenId = jwt.sign(account._id.toString(), cfg.JWT.SECRET); // SHA256
                   if (account.password) {
                     delete account.password;
                   }
@@ -275,78 +309,22 @@ export class Account extends Model {
     });
   }
 
-  doVerifyPhone(phone: string, code: string) {
-    return new Promise((resolve, reject) => {
-      this.findOne({ phone: phone }).then((a: IAccount) => {
-        const verified = a && (a.verificationCode.toString() === code);
-        this.updateOne({ _id: a._id.toString() }, { verified: verified }).then((result) => {
-          resolve(verified);
-        });
-      });
-    });
-  }
+  // v1 --- deprecated
+  // doVerifyPhone(phone: string, code: string) {
+  //   return new Promise((resolve, reject) => {
+  //     this.findOne({ phone: phone }).then((a: IAccount) => {
+  //       const verified = a && (a.verificationCode.toString() === code);
+  //       this.updateOne({ _id: a._id.toString() }, { verified: verified }).then((result) => {
+  //         resolve(verified);
+  //       });
+  //     });
+  //   });
+  // }
 
-  verifyCode(req: Request, res: Response) {
-    const phone = req.body.phone;
-    let code = req.body.code;
-    this.doVerifyPhone(phone, code).then((verified) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(verified, null, 3));
-    });
-  }
 
-  list(req: Request, res: Response) {
-    let query = {};
-    let fields: any[];
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
-    if (req.headers && req.headers.fields && typeof req.headers.fields === 'string') {
-      fields = (req.headers && req.headers.fields) ? JSON.parse(req.headers.fields) : null;
-    }
-    query = this.convertIdFields(query);
-    this.find(query).then(accounts => {
-      accounts.map((account: any) => {
-        delete account.password;
-      });
-      const rs = this.filterArray(accounts, fields);
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(rs, null, 3));
-    });
-  }
 
-  shortList(req: Request, res: Response) {
-    let query = {};
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
-    query = this.convertIdFields(query);
-    this.find(query).then(accounts => {
-      const rs: any[] = [];
-      accounts.map((account: any) => {
-        delete account.password;
-        rs.push({ _id: account._id, username: account.username, phone: account.phone });
-      });
 
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(rs, null, 3));
-    });
-  }
 
-  getCurrentAccount(req: Request, res: Response) {
-    const tokenId: string = req.query.tokenId;
-
-    let fields: string[];
-    if (req.headers && req.headers.fields && typeof req.headers.fields === 'string') {
-      fields = (req.headers && req.headers.fields) ? JSON.parse(req.headers.fields) : null;
-    }
-    
-    this.getAccountByToken(tokenId).then(account => {
-      const r = this.filter(account, fields);
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(r, null, 3));
-    });
-  }
 
   // To do: test token is undefined or null
   getAccountByToken(tokenId: string): Promise<IAccount> {
@@ -374,18 +352,7 @@ export class Account extends Model {
     });
   }
 
-  signup(req: Request, res: Response) {
-    const phone = req.body.phone.toString();
-    const code: string = req.body.verificationCode.toString();
 
-    this.doSignup(phone, code).then((account: any) => {
-      res.setHeader('Content-Type', 'application/json');
-
-      const cfg = new Config();
-      const tokenId = jwt.sign( account._id.toString() , cfg.JWT.SECRET); // SHA256
-      res.send(JSON.stringify(tokenId, null, 3));
-    });
-  }
 
   createTmpAccount(phone: string, verificationCode: string): Promise<IAccount> {
     return new Promise((resolve, reject) => {
@@ -483,7 +450,7 @@ export class Account extends Model {
           if (r.verificationCode) {
             if (r.verificationCode === verificationCode) {
               const cfg = new Config();
-              const tokenId = jwt.sign( r._id.toString() , cfg.JWT.SECRET); // SHA256
+              const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
               if (r.password) {
                 delete r.password;
               }
@@ -523,7 +490,7 @@ export class Account extends Model {
               if (matched) {
                 r.password = '';
                 const cfg = new Config();
-                const tokenId = jwt.sign( r._id.toString() , cfg.JWT.SECRET); // SHA256
+                const tokenId = jwt.sign(r._id.toString(), cfg.JWT.SECRET); // SHA256
                 resolve(tokenId);
               } else {
                 resolve();
@@ -539,65 +506,6 @@ export class Account extends Model {
     });
   }
 
-  loginByPhone(req: Request, res: Response) {
-    const phone = req.body.phone;
-    const verificationCode = req.body.verificationCode;
-
-    this.doLoginByPhone(phone, verificationCode).then((tokenId: string) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(tokenId, null, 3));
-    });
-  }
-
-  login(req: Request, res: Response) {
-    const username = req.body.username;
-    const password = req.body.password;
-
-    this.doLogin(username, password).then((tokenId: string) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(tokenId, null, 3));
-    });
-  }
-
-  wechatLogin(req: Request, res: Response) {
-    const utils = new Utils();
-    const cfg = new Config();
-    const authCode = req.query.code;
-    res.setHeader('Content-Type', 'application/json');
-
-    utils.getWechatAccessToken(authCode).then((r: any) => {
-      utils.getWechatUserInfo(r.access_token, r.openid).then((x: any) => { // IAccount
-        this.doWechatSignup(x.openid, x.nickname, x.headimgurl, x.sex).then((account: IAccount) => {
-          if (account) {
-            const accountId = account._id.toString();
-            const tokenId = jwt.sign( accountId , cfg.JWT.SECRET); // SHA256
-            res.send(JSON.stringify(tokenId, null, 3));
-          } else {
-            res.send(JSON.stringify('', null, 3));
-          }
-        });
-      }, err => {
-        console.log(err);
-        res.send(JSON.stringify('', null, 3));
-      });
-    }, err => {
-      console.log(err);
-      res.send(JSON.stringify('', null, 3));
-    });
-  }
-
-
-  // return {account, tokenId}
-  reqWxLogin(req: Request, res: Response) {
-    res.setHeader('Content-Type', 'application/json');
-    this.wxLogin(req.query.code).then(r => {
-      if (r) {
-        res.send(JSON.stringify(r, null, 3));
-      } else {
-        res.send(JSON.stringify('', null, 3));
-      }
-    });
-  }
 
   // code [string] --- wechat authentication code
   wxLogin(code: string) {
@@ -612,7 +520,7 @@ export class Account extends Model {
                 this.doWechatSignup(x.openid, x.nickname, x.headimgurl, x.sex).then((account: IAccount) => {
                   if (account) {
                     const accountId = account._id.toString();
-                    const tokenId = jwt.sign( accountId , cfg.JWT.SECRET); // SHA256
+                    const tokenId = jwt.sign(accountId, cfg.JWT.SECRET); // SHA256
                     resolve({ tokenId });
                   } else {
                     resolve();

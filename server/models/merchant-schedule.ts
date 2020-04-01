@@ -2,6 +2,7 @@ import { DB } from "../db";
 import { Model } from "./model";
 import { Request, Response } from "express";
 import { Area } from "./area";
+import moment from 'moment';
 
 export class MerchantSchedule extends Model{
   areaModel: Area;
@@ -60,5 +61,4 @@ export class MerchantSchedule extends Model{
       }
     });
   }
-
 }

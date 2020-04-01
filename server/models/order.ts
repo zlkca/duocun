@@ -13,7 +13,7 @@ import { Log, Action, AccountType } from "./log";
 import { createObjectCsvWriter } from 'csv-writer';
 import { ObjectID } from "mongodb";
 import { ClientCredit } from "./client-credit";
-import { resolve } from "path";
+import fs from "fs";
 import { EventLog } from "./event-log";
 
 const CASH_ID = '5c9511bb0851a5096e044d10';
@@ -1630,5 +1630,57 @@ export class Order extends Model {
         console.log('The CSV file was written successfully');
       });
     });
+  }
+
+  checkWechatpay(req: Request, res: Response){
+    const results: any[] = [];
+    const parser = require('csv-parser');
+    fs.createReadStream('/Users/zlk/works/wechatpay.csv')
+      .pipe(parser())
+      .on('data', (data: any) => results.push(data))
+      .on('end', () => {
+        console.log(results);
+        
+        const paymentMap: any = {};
+        results.map(r => {
+          const paymentId = r['Merchant Order No.']
+          paymentMap[paymentId] = { paymentId, amount: +r['Total Paid'], created: r['Created Time'], orders:[], client:'', total: 0 };
+        });
+
+        const fields = ['_id', 'clientName', 'total', 'delivered'];
+        const start = moment('2020-03-23').toISOString();
+        const end = moment('2020-04-01').toISOString();
+        const qOrder = {created: {$gte: start, $lte: end}, paymentMethod: PaymentMethod.WECHAT, paymentStatus: PaymentStatus.PAID};
+        this.find(qOrder, fields).then(orders => {
+          orders.map((order: any) => {
+            const paymentId = order.paymentId.toString();
+            paymentMap[paymentId].total += order.total;
+            paymentMap[paymentId].orders.push(order);
+            paymentMap[paymentId].client = order.clientName;
+            const dt = paymentMap[paymentId].created.split(' ');
+            paymentMap[paymentId].date = dt[0].trim();
+            paymentMap[paymentId].time = dt[1].split('.')[0].trim();
+          });
+
+          // check
+          const ps: any[] = [];
+          Object.keys(paymentMap).map(paymentId => {
+            const p = paymentMap[paymentId];
+            if(p.total === p.amount){
+              p.status = 'valid';
+            }else{
+              p.status = 'invalid';
+            }
+            ps.push(p);
+          });
+          res.setHeader('Content-Type', 'application/json');
+          res.send(JSON.stringify(JSON.stringify(ps), null, 3));
+        });
+        // [
+        //   { NAME: 'Daffy Duck', AGE: '24' },
+        //   { NAME: 'Bugs Bunny', AGE: '22' }
+        // ]
+
+      });
   }
 }
