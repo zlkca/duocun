@@ -123,20 +123,24 @@ export class AccountRouter {
   sendVerifyMsg(req: Request, res: Response) {
     const self = this;
     const lang = req.body.lang;
+    const accountId = req.body.accountId;
+    const phone = req.body.phone;
 
-    this.accountModel.trySignup(req.body.accountId, req.body.phone).then((r: any) => {
+    this.accountModel.trySignupV2(accountId, phone).then((r: any) => {
       res.setHeader('Content-Type', 'application/json');
-
-      const text = (lang === 'en' ? 'Duocun Verification Code: ' : '多村外卖验证码: ') + r.verificationCode;
-      self.accountModel.sendMessage(r.phone, text).then(() => {
-        if (r.accountId) {
-          const cfg = new Config();
-          const tokenId = this.accountModel.jwtSign(r.accountId);
-          res.send(JSON.stringify(tokenId, null, 3));
-        } else {
-          res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
-        }
-      });
+      if (r.phone) {
+        const text = (lang === 'en' ? 'Duocun Verification Code: ' : '多村验证码: ') + r.verificationCode;
+        self.accountModel.sendMessage(r.phone, text).then(() => {
+          if (r.accountId) {
+            const tokenId = this.accountModel.jwtSign(r.accountId);
+            res.send(JSON.stringify(tokenId, null, 3));
+          } else {
+            res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
+          }
+        });
+      } else {
+        res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
+      }
     });
   }
 
