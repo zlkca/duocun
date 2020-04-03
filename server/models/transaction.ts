@@ -4,7 +4,7 @@ import { ObjectID, ObjectId } from "mongodb";
 import { Request, Response } from "express";
 import { Account, IAccount } from "./account";
 import moment from 'moment';
-import { IOrder, IOrderItem, PaymentMethod, PaymentStatus } from "./order";
+import { IOrderItem, PaymentMethod } from "./order";
 import { EventLog } from "./event-log";
 import { resolve } from "url";
 import { ResponseStatus } from "./client-payment";
@@ -101,6 +101,39 @@ export class Transaction extends Model {
     this.eventLogModel = new EventLog(dbo);
   }
 
+  // v2
+  async joinFindV2(query: any, fields: string[] = []) {
+    const ts = await this.find(query, fields);
+    // if (fields.indexOf('items') !== -1) {
+    // const ids = ts.map((t: any) => t.orderId);
+    // const orders = await this.orderModel.joinFindV2({ _id: { $in: ids } }, ['_id', 'items']);
+    // const orderMap: any = {};
+    // orders.map(order => { orderMap[order._id.toString()] = order.items; });
+    // ts.map((t: any) => t.items = orderMap[t.orderId.toString()]);
+    // // }
+    return ts;
+  }
+
+  listV2(req: Request, res: Response) {
+    let query = null;
+    let fields;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+    if (req.headers && req.headers.fields && typeof req.headers.fields === 'string') {
+      fields = (req.headers && req.headers.fields) ? JSON.parse(req.headers.fields) : null;
+    }
+
+    this.joinFindV2(query).then((rs: IDBTransaction[]) => {
+      res.setHeader('Content-Type', 'application/json');
+      if (rs) {
+        res.send(JSON.stringify(rs, null, 3));
+      } else {
+        res.send(JSON.stringify(null, null, 3))
+      }
+    });
+  }
+  // v1
   // use in admin, $in
   list(req: Request, res: Response) {
     let query = null;
@@ -153,7 +186,7 @@ export class Transaction extends Model {
           //   created: moment().toISOString()
           // }
           // this.eventLogModel.insertOne(eventLog).then(() => {
-            resolve();
+          resolve();
           // });
         }
       });
@@ -777,6 +810,6 @@ export class Transaction extends Model {
     });
   }
 
-  
+
 
 }

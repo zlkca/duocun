@@ -11,6 +11,7 @@ export class MerchantSchedule extends Model{
     this.areaModel = new Area(dbo);
   }
 
+  // v1
   getAvailableSchedules(req: Request, res: Response) {
     let fields: any;
     let data: any;

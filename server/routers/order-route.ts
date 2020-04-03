@@ -6,6 +6,10 @@ export function OrderRouter(db: DB){
   const router = express.Router();
   const controller = new Order(db);
 
+  // v2
+  router.get('/v2/transactions', (req, res) => { controller.reqTransactions(req, res); });
+
+  // v1
   router.get('/csv', (req, res) => { controller.reqCSV(req, res); });
   router.get('/clients', (req, res) => { controller.reqClients(req, res); });
   router.get('/statisticsByClient', (req, res) => { controller.reqStatisticsByClient(req, res); });

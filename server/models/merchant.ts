@@ -11,6 +11,7 @@ import { ObjectID, Collection, ObjectId } from "mongodb";
 import moment from "moment";
 import { resolve } from "path";
 import { IAccount, Account } from "./account";
+import { MerchantSchedule } from "./merchant-schedule";
 
 export const MerchantType = {
   RESTAURANT: 'R',
@@ -83,84 +84,68 @@ export class Merchant extends Model {
   mallModel: Mall;
   accountModel: Account;
   distance: Distance;
-  area: Area;
-  range: Range;
+  rangeModel: Range;
 
+  areaModel: Area;
+  scheduleModel: MerchantSchedule;
 
   constructor(dbo: DB) {
     super(dbo, 'merchants');
     this.mallModel = new Mall(dbo);
     this.accountModel = new Account(dbo);
     this.distance = new Distance(dbo);
-    this.area = new Area(dbo);
-    this.range = new Range(dbo);
+    this.areaModel = new Area(dbo);
+    this.rangeModel = new Range(dbo);
+    this.scheduleModel = new MerchantSchedule(dbo);
   }
 
-  list(req: Request, res: Response) {
-    let query = null;
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
-
-    query = this.convertIdFields(query);
-
-    this.joinFind(query).then((ms: IDbMerchant[]) => {
-      const rs: IMerchant[] = [];
-      ms.map(m => {
-        rs.push(this.toBasicRspObject(m));
-      });
-
-      res.setHeader('Content-Type', 'application/json');
-      if (rs) {
-        res.send(JSON.stringify(rs, null, 3));
+  // v2
+  async getMyMerchants(location: ILocation, query: any, fields: any[]) {
+    if(location && location.placeId){
+      const area = await this.areaModel.getMyArea(location);
+      if (area) {
+        const areaId = area._id.toString();
+        const schedules = await this.scheduleModel.find({ areaId });
+        const merchantIds = schedules.map((ms: any) => ms.merchantId.toString());
+        const q = { ...query, _id: { $in: merchantIds } };
+        return await this.find( q, fields);
       } else {
-        res.send(JSON.stringify(null, null, 3))
+        return [];
       }
-    });
-  }
-
-  getByAccountId(req: Request, res: Response) {
-    let query = null;
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }else{
+      return [];
     }
-    const merchantAccountId = query.id;
+  }
 
-    this.doGetByAccountId(merchantAccountId).then((ms: IDbMerchant[]) => {
-      const rs: IMerchant[] = [];
-      ms.map(m => {
-        rs.push(this.toBasicRspObject(m));
-      });
-
-      res.setHeader('Content-Type', 'application/json');
-      if (rs) {
-        res.send(JSON.stringify(rs, null, 3));
-      } else {
-        res.send(JSON.stringify(null, null, 3))
+  async getMySchedules(location: ILocation, merchantId: string, fields: any[]) {
+    if(location && location.placeId){
+      const area = await this.areaModel.getMyArea(location);
+      if(area){
+        const areaId = area._id.toString();
+        return await this.scheduleModel.find({merchantId, areaId});
+      }else{
+        return [];
       }
-    });
+    }else{
+      return [];
+    }
   }
 
-  doGetByAccountId(merchantAccountId: string): Promise<IDbMerchant[]> {
-    return new Promise((resolve, reject) => {
-      this.accountModel.findOne({ _id: merchantAccountId }).then(account => {
-        if (account && account.merchants && account.merchants.length > 0) {
-          const merchantIds: string[] = [];
-          account.merchants.map((mId: string) => {
-            merchantIds.push(mId);
-          });
-
-          const query = this.convertIdFields({ _id: { $in: merchantIds } });
-
-          this.joinFind(query).then((ms: IDbMerchant[]) => {
-            resolve(ms);
-          });
-        } else {
-          resolve([]);
-        }
+  async getByAccountId(merchantAccountId: string) {
+    const account = await this.accountModel.findOne({ _id: merchantAccountId });
+    if (account && account.merchants && account.merchants.length > 0) {
+      const merchantIds: string[] = [];
+      account.merchants.map((mId: string) => {
+        merchantIds.push(mId);
       });
-    });
+      const query = this.convertIdFields({ _id: { $in: merchantIds } });
+      return await this.joinFind(query);
+    } else {
+      return [];
+    }
   }
+  
+  // v1
 
   // only central area has late order end time in it's last phase
   isOrderEnded(t: moment.Moment, deliveryDate: moment.Moment, area: IArea, phases: IPhase[]) {
@@ -304,7 +289,7 @@ export class Merchant extends Model {
 
     return new Promise((resolve, reject) => {
       if (origin) {
-        this.area.getArea(origin).then((area: IArea) => {
+        this.areaModel.getArea(origin).then((area: IArea) => {
           const dow: number = local.day();
 
           if (area && area._id) {
@@ -373,24 +358,8 @@ export class Merchant extends Model {
     });
   }
 
-  // load restaurants
-  // origin --- ILocation object
-  // dateType --- string 'today', 'tomorrow'
-  load(req: Request, res: Response) {
-    const origin = req.body.origin;
-    const dateType = req.body.dateType;
-    const dt = dateType === 'today' ? moment() : moment().add(1, 'days');
-    let query = null;
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
 
-    this.loadByDeliveryInfo(query, dt, origin).then((rs: any) => {
-      if (rs) {
-        res.send(JSON.stringify(rs, null, 3));
-      } else {
-        res.send(JSON.stringify(null, null, 3))
-      }
-    });
-  }
+
+
+
 }

@@ -169,10 +169,15 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   });
 
   const accountRouter = new AccountRouter(dbo);
+  const merchantRouter = new MerchantRouter(dbo);
+  const areaRouter = new AreaRouter(dbo);
   app.use(apimw.auth);
+  
+  app.use('/' + ROUTE_PREFIX + '/Accounts', accountRouter.init());
+  app.use('/' + ROUTE_PREFIX + '/Restaurants', merchantRouter.init());
+  app.use('/' + ROUTE_PREFIX + '/Areas', areaRouter.init());
 
   app.use('/' + ROUTE_PREFIX + '/Categories', CategoryRouter(dbo));
-  app.use('/' + ROUTE_PREFIX + '/Restaurants', MerchantRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Products', ProductRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Contacts', ContactRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Ranges', RangeRouter(dbo));
@@ -181,7 +186,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
   app.use('/' + ROUTE_PREFIX + '/Pickups', PickupRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Drivers', DriverRouter(dbo));
 
-  app.use('/' + ROUTE_PREFIX + '/Accounts', accountRouter.init());
 
   app.use('/' + ROUTE_PREFIX + '/Distances', DistanceRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Regions', RegionRouter(dbo));
@@ -205,7 +209,6 @@ dbo.init(cfg.DATABASE).then(dbClient => {
 
   app.use('/' + ROUTE_PREFIX + '/CellApplications', CellApplicationRouter(dbo));
 
-  app.use('/' + ROUTE_PREFIX + '/Areas', AreaRouter(dbo));
 
   app.use(express.static(path.join(__dirname, '/../uploads')));
   app.set('port', process.env.PORT || SERVER.PORT);

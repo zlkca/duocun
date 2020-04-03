@@ -145,6 +145,84 @@ export class Order extends Model {
     this.eventLogModel = new EventLog(dbo);
   }
 
+  // v2
+  async joinFindV2(query: any, fields: any) {
+    let q = query ? query : {};
+    const rs = await this.find(q);
+    const clientAccountIds = rs.map((r: any) => r.clientId);
+    const merchantAccountIds = rs.map((r: any) => r.merchantId);
+    const driverAccounts = await this.accountModel.find({ type: 'driver' }, null, ['_id', 'username', 'phone']);
+    const clientAccounts = await this.accountModel.find({ _id: { $in: clientAccountIds } }, null, ['_id', 'username', 'phone']);
+    const merchantAccounts = await this.accountModel.find({ _id: { $in: merchantAccountIds } }, null, ['_id', 'username', 'merchants']);
+    const merchants = await this.merchantModel.find({});
+    const ps = await this.productModel.find({});
+    rs.map((order: any) => {
+      const items: any[] = [];
+
+      if (order.clientId) {
+        order.client = clientAccounts.find((a: any) => a._id.toString() === order.clientId.toString());
+      }
+
+      if (order.merchantId) {
+        order.merchant = merchants.find((m: any) => m._id.toString() === order.merchantId.toString());
+      }
+
+      if (order.merchant && order.merchant.accountId) {
+        const merchantAccount = merchantAccounts.find((a: any) => a && a._id.toString() === order.merchant.accountId.toString());
+        if (merchantAccount) {
+          order.merchantAccount = merchantAccount;
+        }
+      }
+
+      if (order.driverId) {
+        const driver = driverAccounts.find((a: IAccount) => a._id.toString() === order.driverId.toString());
+        order.driver = driver;
+      }
+
+      if (order.items) {
+        order.items.map((it: IOrderItem) => {
+          const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
+          if (product) {
+            items.push({ ...it, productName: product.name });
+          }
+        });
+        order.items = items;
+      }
+    });
+    return this.filterArray(rs, fields);
+  }
+
+  // get transactions with items
+  async findTransactions(query: any, fields: string[] = []) {
+    const ts = await this.transactionModel.find(query, fields);
+    if (fields.indexOf('items') !== -1) {
+      const ids = ts.map((t: any) => t.orderId);
+      const orders = await this.joinFindV2({ _id: { $in: ids } }, ['_id', 'items']);
+      const orderMap: any = {};
+      orders.map(order => { orderMap[order._id.toString()] = order.items; });
+      ts.map((t: any) => t.items = t.orderId ? orderMap[t.orderId.toString()] : []);
+    }
+    return this.filterArray(ts, fields);
+  }
+
+  reqTransactions(req: Request, res: Response) {
+    let query = null;
+    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
+      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
+    }
+
+    let fields: string[] = [];
+    if (req.headers && req.headers.fields && typeof req.headers.fields === 'string') {
+      fields = (req.headers && req.headers.fields) ? JSON.parse(req.headers.fields) : null;
+    }
+
+    res.setHeader('Content-Type', 'application/json');
+    this.findTransactions(query, fields).then(xs => {
+      res.send(JSON.stringify(xs, null, 3));
+    });
+  }
+
+  // v1
   list(req: Request, res: Response) {
     let query = null;
     if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
@@ -154,7 +232,7 @@ export class Order extends Model {
     let fields: string[];
     if (req.headers && req.headers.fields && typeof req.headers.fields === 'string') {
       fields = (req.headers && req.headers.fields) ? JSON.parse(req.headers.fields) : null;
-    }  
+    }
 
     this.joinFind(query).then(rs => {
       const xs = this.filterArray(rs, fields);
@@ -432,21 +510,21 @@ export class Order extends Model {
     const delivered = this.getUtcTime(date, time).toISOString();
 
     return new Promise((resolve, reject) => {
-      if(order.code){
+      if (order.code) {
         order.created = moment().toISOString();
         order.delivered = delivered;
         this.insertOne(order).then((savedOrder: IOrder) => {
-          this.accountModel.updateOne({_id: order.clientId}, {type: 'client'}).then(() => {
+          this.accountModel.updateOne({ _id: order.clientId }, { type: 'client' }).then(() => {
             resolve(savedOrder);
           });
         });
-      }else{
+      } else {
         this.sequenceModel.reqSequence().then((sequence: number) => {
           order.code = this.sequenceModel.getCode(location, sequence);
           order.created = moment().toISOString();
           order.delivered = delivered;
           this.insertOne(order).then((savedOrder: IOrder) => {
-            this.accountModel.updateOne({_id: order.clientId}, {type: 'client'}).then(() => {
+            this.accountModel.updateOne({ _id: order.clientId }, { type: 'client' }).then(() => {
               resolve(savedOrder);
             });
           });
@@ -1017,7 +1095,7 @@ export class Order extends Model {
           //   created: moment().toISOString()
           // }
           // this.eventLogModel.insertOne(eventLog).then(() => {
-            resolve();
+          resolve();
           // });
         });
       } else {
@@ -1063,7 +1141,7 @@ export class Order extends Model {
               } else {
                 resolve();
               }
-            }else{
+            } else {
               resolve();
             }
           });
@@ -1303,7 +1381,7 @@ export class Order extends Model {
     let fields: string[];
     if (req.headers && req.headers.fields && typeof req.headers.fields === 'string') {
       fields = (req.headers && req.headers.fields) ? JSON.parse(req.headers.fields) : null;
-    }  
+    }
 
     res.setHeader('Content-Type', 'application/json');
     if (query) {
@@ -1317,7 +1395,7 @@ export class Order extends Model {
   }
 
   // get all the orders that Merchant Viewed
-  getLatestViewed(delivered: string): Promise<any[]>{
+  getLatestViewed(delivered: string): Promise<any[]> {
     const range = { $gte: moment(delivered).startOf('day').toISOString(), $lte: moment(delivered).endOf('day').toISOString() };
     const query: any = {
       delivered: range,
@@ -1632,43 +1710,49 @@ export class Order extends Model {
     });
   }
 
-  checkWechatpay(req: Request, res: Response){
+  checkWechatpay(req: Request, res: Response) {
     const results: any[] = [];
     const parser = require('csv-parser');
-    fs.createReadStream('/Users/zlk/works/wechatpay.csv')
-      .pipe(parser())
+    const fd = fs.createReadStream('/Users/zlk/works/wechatpay.csv').pipe(parser())
       .on('data', (data: any) => results.push(data))
       .on('end', () => {
         console.log(results);
-        
+        // fd.close();
         const paymentMap: any = {};
         results.map(r => {
           const paymentId = r['Merchant Order No.']
-          paymentMap[paymentId] = { paymentId, amount: +r['Total Paid'], created: r['Created Time'], orders:[], client:'', total: 0 };
+          paymentMap[paymentId] = { paymentId, amount: +r['Total Paid'], created: r['Created Time'], orders: [], client: '', total: 0 };
         });
 
         const fields = ['_id', 'clientName', 'total', 'delivered'];
-        const start = moment('2020-03-23').toISOString();
-        const end = moment('2020-04-01').toISOString();
-        const qOrder = {created: {$gte: start, $lte: end}, paymentMethod: PaymentMethod.WECHAT, paymentStatus: PaymentStatus.PAID};
+        const s = '2020-04-01:00:00:00.000Z';
+        const e = '2020-04-03:00:00:00.000Z';
+        const start = moment.utc(s).startOf('day').toISOString();
+        const end = moment.utc(e).endOf('day').toISOString();
+        const qOrder = { created: { $gte: start, $lte: end }, paymentMethod: PaymentMethod.WECHAT };// paymentStatus: PaymentStatus.PAID
         this.find(qOrder, fields).then(orders => {
           orders.map((order: any) => {
             const paymentId = order.paymentId.toString();
-            paymentMap[paymentId].total += order.total;
-            paymentMap[paymentId].orders.push(order);
-            paymentMap[paymentId].client = order.clientName;
-            const dt = paymentMap[paymentId].created.split(' ');
-            paymentMap[paymentId].date = dt[0].trim();
-            paymentMap[paymentId].time = dt[1].split('.')[0].trim();
+            const payment = paymentMap[paymentId];
+            if (payment) {
+              paymentMap[paymentId].total += order.total;
+              paymentMap[paymentId].orders.push(order);
+              paymentMap[paymentId].client = order.clientName;
+              const dt = paymentMap[paymentId].created.split(' ');
+              paymentMap[paymentId].date = dt[0].trim();
+              paymentMap[paymentId].time = dt[1].split('.')[0].trim();
+            } else {
+              console.log(paymentId);
+            }
           });
 
           // check
           const ps: any[] = [];
           Object.keys(paymentMap).map(paymentId => {
             const p = paymentMap[paymentId];
-            if(p.total === p.amount){
+            if (p.total === p.amount) {
               p.status = 'valid';
-            }else{
+            } else {
               p.status = 'invalid';
             }
             ps.push(p);
@@ -1684,3 +1768,4 @@ export class Order extends Model {
       });
   }
 }
+

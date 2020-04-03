@@ -29,7 +29,7 @@ export class Entity {
     this.collectionName = name;
   }
 
-
+  // v2
   filter(doc: any, fields?: string[]) {
     if (fields && fields.length > 0) {
       const it: any = {};
@@ -63,6 +63,18 @@ export class Entity {
     }
   }
 
+  // quick find
+  async find(query: any, options?: any, fields?: any[]) {
+    const self = this;
+    query = this.convertIdFields(query);
+
+    const c = await self.getCollection();
+    const docs = await c.find(query, options).toArray();
+    const rs = this.filterArray(docs, fields);
+    return rs;
+  }
+
+  // v1
   getCollection(): Promise<Collection> {
     if (this.db) {
       const collection: Collection = this.db.collection(this.collectionName);
@@ -175,20 +187,7 @@ export class Entity {
     });
   }
 
-  // quick find
-  find(query: any, options?: any, fields?: any[]): Promise<any> {
-    const self = this;
-    query = this.convertIdFields(query);
 
-    return new Promise((resolve, reject) => {
-      self.getCollection().then((c: Collection) => {
-        c.find(query, options).toArray((err, docs) => {
-          const rs = this.filterArray(docs, fields);
-          resolve(rs);
-        });
-      });
-    });
-  }
 
   // deprecated
   replaceOne(query: any, doc: any, options?: any): Promise<any> {
@@ -209,12 +208,12 @@ export class Entity {
 
   updateOne(query: any, doc: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      if(Object.keys(doc).length === 0 && doc.constructor === Object){
+      if (Object.keys(doc).length === 0 && doc.constructor === Object) {
         resolve();
-      }else{
+      } else {
         query = this.convertIdFields(query);
         doc = this.convertIdFields(doc);
-    
+
         this.getCollection().then((c: Collection) => {
           c.updateOne(query, { $set: doc }, options, (err, r: any) => { // {n: 1, nModified: 0, ok: 1}
             resolve(r.result);
@@ -257,20 +256,20 @@ export class Entity {
     });
   }
 
-  getProperty(doc: any, p: string){
+  getProperty(doc: any, p: string) {
     let k = null;
-    if(doc){
+    if (doc) {
       const keys = Object.keys(doc);
       keys.map(key => {
-        if(key){
-          if(key.indexOf(p) !== -1){
+        if (key) {
+          if (key.indexOf(p) !== -1) {
             k = key;
             return k;
           }
         }
       });
       return k;
-    }else{
+    } else {
       return k;
     }
   }
@@ -315,7 +314,7 @@ export class Entity {
         doc['areaId'] = new ObjectID(areaId);
       }
     }
-    
+
     if (doc && doc.hasOwnProperty('merchantId')) {
       let body = doc.merchantId;
       if (body && body.hasOwnProperty('$in')) {
@@ -353,7 +352,7 @@ export class Entity {
         doc['merchantAccountId'] = new ObjectID(doc.merchantAccountId);
       }
     }
-    
+
     if (doc && doc.hasOwnProperty('clientId')) {
       const clientId = doc['clientId'];
       if (typeof clientId === 'string' && clientId.length === 24) {

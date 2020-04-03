@@ -14,9 +14,7 @@ import { Merchant } from "./merchant";
 import { ClientCredit } from "./client-credit";
 import { CellApplication, CellApplicationStatus } from "./cell-application";
 import { EventLog } from "./event-log";
-import { resolve } from "url";
 import { ObjectID } from "mongodb";
-import { AppType } from "./area";
 import { Account } from "./account";
 import { SystemConfig } from "./system-config";
 
@@ -55,7 +53,7 @@ export const PaymentError = {
 
 export const PaymentAction = {
   PAY: { code: 'P', text: 'Pay' },
-  ADD_CREDIT: {code: 'A', text: 'Add Credit'}
+  ADD_CREDIT: { code: 'A', text: 'Add Credit' }
 }
 
 export const ResponseStatus = {
@@ -113,8 +111,8 @@ export class ClientPayment extends Model {
     const cfg = cfgs[0];
     const method = cfg.snappay.methods.find((m: any) => m.code = 'WECHATPAY');
     const app = method.apps.find((a: any) => a.code === appCode);
-    const notify_url = app.notifyUrl;
-    const returnUrl = app.returnUrls.find((r: any) => r.action === actionCode);
+    const notify_url = app ? app.notifyUrl : 'https://duocun.com.cn/api/ClientPayments/Notify';
+    const returnUrl = app ? app.returnUrls.find((r: any) => r.action === actionCode) : {url: 'https://duocun.ca?cId='};
     const return_url = returnUrl.url + accountId;
     const trans_amount = Math.round(amount * 100) / 100;
 
@@ -303,8 +301,12 @@ export class ClientPayment extends Model {
         return { status: ResponseStatus.SUCCESS, err: rt.err };
       } catch (err) {
         console.log('Error code is: ', err.code);
-        const paymentIntentRetrieved = await stripe.paymentIntents.retrieve(err.raw.payment_intent.id);
-        console.log('PI retrieved: ', paymentIntentRetrieved.id);
+        if (err.raw && err.raw.payment_intent) {
+          const paymentIntentRetrieved = await stripe.paymentIntents.retrieve(err.raw.payment_intent.id);
+          // if(paymentIntentRetrieved){
+          //   console.log('PI retrieved: ', paymentIntentRetrieved.id);
+          // }
+        }
         const eventLog = {
           accountId,
           type: err ? err.type : '',

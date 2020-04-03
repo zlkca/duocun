@@ -50,7 +50,8 @@ export class OrderSequence extends Model {
 
   getCode(location: ILocation, n: number): string {
     const index = n > 9 ? n.toString().slice(-2) : ('0' + n);
-    const street = location.streetNumber + location.streetName.toUpperCase().replace(/\s/g, '');
+    const streetName = location.streetName;
+    const street = location.streetNumber + (streetName ? streetName.toUpperCase().replace(/\s/g, '') : '');
     return street.substring(0, 4) + index.substring(0, 2);
   }
 }

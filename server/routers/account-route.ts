@@ -24,18 +24,19 @@ export class AccountRouter {
   }
 
   init() {
+    // v2
+    this.router.get('/wxLogin', (req, res) => { this.reqWxLogin(req, res); });
+    this.router.get('/qFind', (req, res) => { this.list(req, res); }); // deprecated
+    this.router.get('/', (req, res) => { this.list(req, res); });
+    this.router.get('/current', (req, res) => { this.getCurrentAccount(req, res); });
+
+    // v1
     this.router.get('/attributes', (req, res) => { this.attrModel.quickFind(req, res); });
 
     // v1
     this.router.get('/wechatLogin', (req, res) => { this.wechatLogin(req, res); });
     // this.router.post('/verifyCode', (req, res) => { this.verifyCode(req, res); }); // deprecated
 
-    // v2
-    this.router.get('/wxLogin', (req, res) => { this.reqWxLogin(req, res); });
-    this.router.get('/qFind', (req, res) => { this.accountModel.quickFind(req, res); });
-    this.router.get('/shortList', (req, res) => { this.shortList(req, res); });
-    this.router.get('/', (req, res) => { this.accountModel.list(req, res); });
-    this.router.get('/current', (req, res) => { this.getCurrentAccount(req, res); });
     this.router.get('/:id', (req, res) => { this.accountModel.get(req, res); });
 
     this.router.post('/', (req, res) => { this.accountModel.create(req, res); });
@@ -199,28 +200,11 @@ export class AccountRouter {
     query = this.accountModel.convertIdFields(query);
     this.accountModel.find(query).then(accounts => {
       accounts.map((account: any) => {
-        delete account.password;
+        if(account && account.password){
+          delete account.password;
+        }
       });
       const rs = this.accountModel.filterArray(accounts, fields);
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(rs, null, 3));
-    });
-  }
-
-
-  shortList(req: Request, res: Response) {
-    let query = {};
-    if (req.headers && req.headers.filter && typeof req.headers.filter === 'string') {
-      query = (req.headers && req.headers.filter) ? JSON.parse(req.headers.filter) : null;
-    }
-    query = this.accountModel.convertIdFields(query);
-    this.accountModel.find(query).then(accounts => {
-      const rs: any[] = [];
-      accounts.map((account: any) => {
-        delete account.password;
-        rs.push({ _id: account._id, username: account.username, phone: account.phone });
-      });
-
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(rs, null, 3));
     });

@@ -1,9 +1,7 @@
 import { DB } from "../db";
 import { Model } from "./model";
 
-import { Request, Response } from "express";
 import { Distance } from "./distance";
-import { resolve } from "url";
 
 export const AppType = {
   FOOD_DELIVERY: 'F',
@@ -37,79 +35,41 @@ export class Area extends Model {
   }
 
   // except downtown and appType == G
-  getNearestArea(origin: ILatLng): Promise<IArea> {
-    return new Promise((resolve, reject) => {
-      this.find({ status: 'active' }).then((areas: IArea[]) => {
-        let selected: IArea = areas[0];
-        let shortest = this.distanceModel.getDirectDistance(origin, selected);
-        for (let i = 1; i < areas.length; i++) {
-          const area = areas[i];
-          const distance = this.distanceModel.getDirectDistance(origin, area);
-          if (shortest > distance) {
-            selected = area;
-            shortest = distance;
-          }
-        }
-        resolve(selected);
-      }, err => {
-        resolve();
-      });
-    });
-  }
-
-  getArea(origin: ILatLng): Promise<IArea> {
-    return new Promise((resolve, reject) => {
-      this.findOne({ code: 'DT' }).then((area: IArea) => {
-        const coords: any = area.coords;
-        if (this.inPolygon(origin, coords)) {
-          resolve(area);
-        } else {
-          this.getNearestArea(origin).then(area => {
-            resolve(area);
-          });
-        }
-      });
-    });
+  async getNearestArea(origin: ILatLng) {
+    const areas: any[] = await this.find({ status: 'active' });
+    let selected: IArea = areas[0];
+    let shortest = this.distanceModel.getDirectDistance(origin, selected);
+    for (let i = 1; i < areas.length; i++) {
+      const area = areas[i];
+      const distance = this.distanceModel.getDirectDistance(origin, area);
+      if (shortest > distance) {
+        selected = area;
+        shortest = distance;
+      }
+    }
+    return selected;
   }
 
   // only for appType === G
-  getMyArea(origin: ILatLng): Promise<IArea> {
-    return new Promise((resolve, reject) => {
-      try {
-        this.find({ appType: AppType.GROCERY }).then((areas: IArea[]) => {
-          if (areas && areas.length > 0 && origin) {
-            let found = areas.find(area => {
-              if(area.coords && area.coords.length>0){
-                return this.inPolygon(origin, area.coords);
-              }else{
-                return false;
-              }
-            });
-            resolve(found);
+  async getMyArea(origin: ILatLng) {
+    try {
+      const areas: IArea[] = await this.find({ appType: AppType.GROCERY });
+      if (areas && areas.length > 0 && origin) {
+        let found = areas.find((area: IArea) => {
+          if (area.coords && area.coords.length > 0) {
+            return this.inPolygon(origin, area.coords);
           } else {
-            resolve();
+            return false;
           }
         });
-      } catch (e) {
-        resolve();
+        return found;
+      } else {
+        return null;
       }
-    });
+    } catch (e) {
+      return null;
+    }
   }
-
-
-  inDowntownArea(origin: ILatLng): Promise<IArea> {
-    return new Promise((resolve, reject) => {
-      this.findOne({ code: 'DT' }).then((area: IArea) => {
-        const coords: any = area.coords;
-        if (this.inPolygon(origin, coords)) {
-          resolve(area);
-        } else {
-          resolve();
-        }
-      });
-    });
-  }
-
 
   inPolygon(point: ILatLng, vs: ILatLng[]) {
     // ray-casting algorithm based on
@@ -130,35 +90,26 @@ export class Area extends Model {
     return inside;
   };
 
-
-  getNearest(req: Request, res: Response) {
-    const origin = req.body.origin;
-    this.getNearestArea(origin).then((area: IArea) => {
-      res.setHeader('Content-Type', 'application/json');
-      if (!area) {
-        res.send(JSON.stringify({ status: 'fail', area: '' }, null, 3));
-      } else {
-        res.send(JSON.stringify({ status: 'success', area: area }, null, 3));
-      }
-    });
-  }
-
-  reqMyArea(req: Request, res: Response) {
-    let data;
-    let fields;
-    if (req.headers) {
-      if (req.headers.data && typeof req.headers.data === 'string') {
-        data = (req.headers && req.headers.data) ? JSON.parse(req.headers.data) : null;
-      }
-
-      if (req.headers.fields && typeof req.headers.fields === 'string') {
-        fields = JSON.parse(req.headers.fields);
-      }
+  // deprecated
+  async inDowntownArea(origin: ILatLng) {
+    const area = await this.findOne({ code: 'DT' });
+    const coords: any = area.coords;
+    if (this.inPolygon(origin, coords)) {
+      return(area);
+    } else {
+      return;
     }
-    this.getMyArea(data.location).then((area: IArea) => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(area, null, 3));
-    });
   }
 
+  // deprecated
+  async getArea(origin: ILatLng) {
+    const area = await this.findOne({ code: 'DT' });
+    const coords: any = area.coords;
+    if (this.inPolygon(origin, coords)) {
+      return area;
+    } else {
+      const area2 = await this.getNearestArea(origin);
+      return area2;
+    }
+  }
 }

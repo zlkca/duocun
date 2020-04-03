@@ -49,6 +49,7 @@ export interface IAddress{
 }
 
 export interface ILocation {
+  _id?: string;
   placeId: string;
   lat: number;
   lng: number;
@@ -153,18 +154,8 @@ export class Location extends Model {
   getHistoryLocations(query: any, fields: string[]): Promise<ILocation[]>{
     return new Promise((resolve, reject) => {
       this.find(query).then((xs: ILocation[]) => {
-        if (fields && fields.length > 0) {
-          const rs: any[] = xs.map((x: any) => {
-            const it: any = {};
-            fields.map((key: any) => {
-              it[key] = x[key];
-            });
-            return it;
-          });
-          resolve(rs);
-        } else {
-          resolve(xs);
-        }
+        const rs = this.filterArray(xs, fields);
+        resolve(rs);
       });
     });
   }
