@@ -91,19 +91,16 @@ export class Distance extends Model {
     const city = origin.city;
     const province = origin.province;
 
+    const address = streetNumber.split(' ').join('+') + '+'
+    + streetName.split(' ').join('+') + '+'
+    + (subLocality ? subLocality : city).split(' ').join('+') + '+'
+    + province;
 
+    const url = 'https://maps.googleapis.com/maps/api/distancematrix/json?&region=ca&origins='
+    + address + '&destinations=' + sDestinations + '&key=' + key;  
 
 
     return new Promise((resolve, reject) => {
-
-      if (streetName) {
-        const address = (streetNumber ? streetNumber.split(' ').join('+') + '+' : '')
-        + (streetName ? streetName.split(' ').join('+') + '+' : '')
-        + (subLocality ? subLocality : city).split(' ').join('+') + '+'
-        + province;
-
-        const url = 'https://maps.googleapis.com/maps/api/distancematrix/json?&region=ca&origins='
-        + address + '&destinations=' + sDestinations + '&key=' + key;  
 
         https.get(url, (res1: IncomingMessage) => {
           let data = '';
@@ -134,9 +131,6 @@ export class Distance extends Model {
             }
           });
         });
-      } else {
-        resolve([]);
-      }
     });
   }
 
