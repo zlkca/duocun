@@ -223,13 +223,13 @@ export class Entity {
     });
   }
 
-  updateMany(query: any, doc: any, options?: any): Promise<any> {
+  updateMany(query: any, data: any, options?: any): Promise<any> {
     query = this.convertIdFields(query);
-    doc = this.convertIdFields(doc);
+    data = this.convertIdFields(data);
 
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {
-        c.updateMany(query, { $set: doc }, options, (err, result: any) => {
+        c.updateMany(query, { $set: data }, options, (err, result: any) => {
           resolve(result);
         });
       });
