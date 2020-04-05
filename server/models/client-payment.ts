@@ -107,14 +107,14 @@ export class ClientPayment extends Model {
   // appCode --- '122':grocery, '123':food delivery
   // actionCode --- P: Pay, A: Add credit
   // paymentId --- paymentId represent a batch of orders
-  async getSnappayData(appCode: string, actionCode: string, accountId: string, paymentId: string, amount: number, description: string) {
-    const cfgs = await this.cfgModel.find({});
-    const cfg = cfgs[0];
-    const method = cfg.snappay.methods.find((m: any) => m.code = 'WECHATPAY');
-    const app = method.apps.find((a: any) => a.code === appCode);
+  getSnappayData(appCode: string, actionCode: string, accountId: string, paymentId: string, amount: number, description: string) {
+    // const cfgs = await this.cfgModel.find({});
+    // const cfg = cfgs[0];
+    // const method = cfg.snappay.methods.find((m: any) => m.code = 'WECHATPAY');
+    // const app = method.apps.find((a: any) => a.code === appCode);
     const notify_url = 'https://duocun.com.cn/api/ClientPayments/Notify'; // app ? app.notifyUrl : 
-    const returnUrl = app ? app.returnUrls.find((r: any) => r.action === actionCode) : { url: 'https://duocun.ca/grocery?p=h&cId=' };
-    const return_url = returnUrl.url + accountId;
+    // const returnUrl = app ? app.returnUrls.find((r: any) => r.action === actionCode) : { url: 'https://duocun.ca/grocery?p=h&cId=' };
+    const return_url = 'https://duocun.ca/grocery?p=h&cId=' + accountId; // returnUrl.url + accountId;
     const trans_amount = Math.round(amount * 100) / 100;
 
     return { // the order matters
@@ -140,89 +140,88 @@ export class ClientPayment extends Model {
     const self = this;
 
     return new Promise((resolve, reject) => {
-      this.getSnappayData(appCode, actionCode, accountId, paymentId, amount, description).then(data => {
-        const params = this.snappaySignParams(data);
-        const options = {
-          hostname: 'open.snappay.ca',
-          port: 443,
-          path: '/api/gateway',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            // 'Content-Length': Buffer.byteLength(data)
-          }
-        };
+      const data = this.getSnappayData(appCode, actionCode, accountId, paymentId, amount, description);
+      const params = this.snappaySignParams(data);
+      const options = {
+        hostname: 'open.snappay.ca',
+        port: 443,
+        path: '/api/gateway',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Content-Length': Buffer.byteLength(data)
+        }
+      };
 
-        const post_req = https.request(options, (res: IncomingMessage) => {
-          let ss = '';
-          res.on('data', (d) => { ss += d; });
-          res.on('end', (r: any) => {
-            if (ss) { // { code, data, msg, total, psn, sign }
-              const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
-              const eventLog = {
-                accountId: accountId,
-                type: 'snappay',
-                code: ret ? ret.code : '',
-                decline_code: '',
-                message: ret ? ret.message : '',
-                created: moment().toISOString()
-              }
-
-              const rsp: IPaymentResponse = {
-                status: (ret && ret.msg === 'success') ? ResponseStatus.SUCCESS : ResponseStatus.FAIL,
-                code: ret ? ret.code : '',                    // stripe/snappay code
-                decline_code: '',    // stripe decline_code
-                msg: ret ? ret.msg : '',                  // stripe/snappay retrun message
-                chargeId: '',            // stripe { chargeId:x }
-                url: (ret.data && ret.data[0]) ? ret.data[0].h5pay_url : ''   // snappay data[0].h5pay_url
-              }
-              if (ret && ret.msg === 'success') {
-                resolve(rsp);
-              } else {
-                self.eventLogModel.insertOne(eventLog).then(() => {
-                  resolve(rsp);
-                });
-              }
-            } else {
-              const rsp: IPaymentResponse = {
-                status: ResponseStatus.FAIL,
-                code: 'UNKNOWN_ISSUE',  // snappay return code
-                decline_code: '',       // stripe decline_code
-                msg: 'UNKNOWN_ISSUE',   // snappay retrun message
-                chargeId: '',           // stripe { chargeId:x }
-                url: ''                 // for snappay data[0].h5pay_url
-              }
-              resolve(rsp);
+      const post_req = https.request(options, (res: IncomingMessage) => {
+        let ss = '';
+        res.on('data', (d) => { ss += d; });
+        res.on('end', (r: any) => {
+          if (ss) { // { code, data, msg, total, psn, sign }
+            const ret = JSON.parse(ss); // s.data = {out_order_no:x, merchant_no:x, trans_status:x, h5pay_url}
+            const eventLog = {
+              accountId: accountId,
+              type: 'snappay',
+              code: ret ? ret.code : '',
+              decline_code: '',
+              message: ret ? ret.message : '',
+              created: moment().toISOString()
             }
-          });
-        });
 
-        post_req.on('error', (error: any) => { // Reject on request error.
-          const rsp: IPaymentResponse = {
-            status: ResponseStatus.FAIL,
-            code: 'UNKNOWN_ISSUE',  // snappay return code
-            decline_code: '',       // stripe decline_code
-            msg: 'UNKNOWN_ISSUE',   // snappay retrun message
-            chargeId: '',           // stripe { chargeId:x }
-            url: ''                 // for snappay data[0].h5pay_url
-          }
-
-          const eventLog = {
-            accountId: accountId,
-            type: 'snappay',
-            code: 'Request Snappay',
-            decline_code: '',
-            message: JSON.stringify(error),
-            created: moment().toISOString()
-          }
-
-          self.eventLogModel.insertOne(eventLog).then(() => {
+            const rsp: IPaymentResponse = {
+              status: (ret && ret.msg === 'success') ? ResponseStatus.SUCCESS : ResponseStatus.FAIL,
+              code: ret ? ret.code : '',                    // stripe/snappay code
+              decline_code: '',    // stripe decline_code
+              msg: ret ? ret.msg : '',                  // stripe/snappay retrun message
+              chargeId: '',            // stripe { chargeId:x }
+              url: (ret.data && ret.data[0]) ? ret.data[0].h5pay_url : ''   // snappay data[0].h5pay_url
+            }
+            if (ret && ret.msg === 'success') {
+              resolve(rsp);
+            } else {
+              self.eventLogModel.insertOne(eventLog).then(() => {
+                resolve(rsp);
+              });
+            }
+          } else {
+            const rsp: IPaymentResponse = {
+              status: ResponseStatus.FAIL,
+              code: 'UNKNOWN_ISSUE',  // snappay return code
+              decline_code: '',       // stripe decline_code
+              msg: 'UNKNOWN_ISSUE',   // snappay retrun message
+              chargeId: '',           // stripe { chargeId:x }
+              url: ''                 // for snappay data[0].h5pay_url
+            }
             resolve(rsp);
-          });
+          }
         });
-        post_req.write(JSON.stringify(params));
-        post_req.end();
       });
+
+      post_req.on('error', (error: any) => { // Reject on request error.
+        const rsp: IPaymentResponse = {
+          status: ResponseStatus.FAIL,
+          code: 'UNKNOWN_ISSUE',  // snappay return code
+          decline_code: '',       // stripe decline_code
+          msg: 'UNKNOWN_ISSUE',   // snappay retrun message
+          chargeId: '',           // stripe { chargeId:x }
+          url: ''                 // for snappay data[0].h5pay_url
+        }
+
+        const eventLog = {
+          accountId: accountId,
+          type: 'snappay',
+          code: 'Request Snappay',
+          decline_code: '',
+          message: JSON.stringify(error),
+          created: moment().toISOString()
+        }
+
+        self.eventLogModel.insertOne(eventLog).then(() => {
+          resolve(rsp);
+        });
+      });
+      post_req.write(JSON.stringify(params));
+      post_req.end();
     });
   }
 
