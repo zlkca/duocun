@@ -373,7 +373,7 @@ export class ClientPayment extends Model {
           res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
         } else {
 
-          this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
+          this.orderEntity.processSnapPayAfterPay(paymentId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
             // const eventLog = {
             //   accountId: accountId,
             //   type: 'Snappay',
@@ -383,8 +383,8 @@ export class ClientPayment extends Model {
             //   created: moment().toISOString()
             // }
             // this.eventLogModel.insertOne(eventLog).then(() => {
-              const r = { ...rsp, err: PaymentError.NONE };
-              res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
+            const r = { ...rsp, err: PaymentError.NONE };
+            res.send(JSON.stringify(r, null, 3)); // IPaymentResponse
             // });
           });
         }
@@ -460,7 +460,7 @@ export class ClientPayment extends Model {
 
       if (rsp.err === PaymentError.NONE) {
         this.clientCreditModel.insertOne(cc).then((c) => {
-          this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
+          this.orderEntity.processStripeAfterPay(paymentId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
             res.send(JSON.stringify(rsp, null, 3)); // IPaymentResponse
           });
         });
@@ -491,24 +491,30 @@ export class ClientPayment extends Model {
     // console.log('snappayNotify customer_paid_amount' + b.customer_paid_amount);
     // console.log('snappayNotify trans_amount' + b.trans_amount);
     const paymentId = req.body.out_order_no;
-    // const amount = +req.body.trans_amount;
-    
-    this.orderEntity.updateMany({paymentId}, {confirmed: true}, {multi: true}).then(rs => {
+    const amount = +req.body.trans_amount;
 
+    this.orderEntity.updateMany({ paymentId }, { confirmed: true }, { multi: true }).then(rs => {
+      this.orderEntity.findOne({ paymentId }).then(order => {
+        const delivered = order.delivered;
+        const actionCode = TransactionAction.PAY_BY_WECHAT.code;
+        this.orderEntity.addCreditTransaction(paymentId, order.clientId.toString(), order.clientName, amount, actionCode, delivered).then(() => {
+
+        });
+      });
     });
 
     // this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
-      // const eventLog = {
-      //   accountId: SNAPPAY_BANK_ID,
-      //   type: 'debug',
-      //   code: '',
-      //   decline_code: '',
-      //   message: 'snappayNotify done',
-      //   created: moment().toISOString()
-      // }
-      // this.eventLogModel.insertOne(eventLog).then(() => {
+    // const eventLog = {
+    //   accountId: SNAPPAY_BANK_ID,
+    //   type: 'debug',
+    //   code: '',
+    //   decline_code: '',
+    //   message: 'snappayNotify done',
+    //   created: moment().toISOString()
+    // }
+    // this.eventLogModel.insertOne(eventLog).then(() => {
 
-      // });
+    // });
     // });
   }
 

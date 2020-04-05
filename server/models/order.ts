@@ -1080,6 +1080,28 @@ export class Order extends Model {
     return t;
   }
 
+
+  updateSnappayOrderStatus(orders: IOrder[], chargeId: string) {
+    return new Promise((resolve, reject) => {
+      const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId }; // transactionId: t._id
+      const items = orders.map(order => { return { query: { _id: order._id }, data } });
+      this.bulkUpdate(items).then((r: any) => { // { status: DbStatus.FAIL, msg: err }
+        // const eventLog = {
+        //   accountId: SNAPPAY_BANK_ID,
+        //   type: 'debug',
+        //   code: r.status,
+        //   decline_code: '',
+        //   message: 'updateOrderStatus: ' + r.msg,
+        //   created: moment().toISOString()
+        // }
+        // this.eventLogModel.insertOne(eventLog).then(() => {
+        resolve();
+        // });
+      });
+    });
+  }
+
+
   updateOrderStatus(orders: IOrder[], chargeId: string, t: any) {
     return new Promise((resolve, reject) => {
       if (t) {
@@ -1104,9 +1126,55 @@ export class Order extends Model {
     });
   }
 
-  // use for both snappay and stripe
+
+
   // paymentId --- order paymentId
-  processAfterPay(paymentId: string, actionCode: string, amount: number, chargeId: string) {
+  processSnapPayAfterPay(paymentId: string, actionCode: string, amount: number, chargeId: string) {
+    return new Promise((resolve, reject) => {
+      this.find({ paymentId }).then((orders: IOrder[]) => {
+        if (orders && orders.length > 0) {
+          const order = orders[0];
+          if (order.paymentStatus === PaymentStatus.UNPAID) {
+            // --------------------------------------------------------------------------------------
+            // 1.update payment status to 'paid' for the orders in batch
+            // 2.add two transactions for place order and add another transaction for deposit to bank
+            // 3.update account balance
+            this.addDebitTransactions(orders).then(() => {
+              const delivered: any = order.delivered;
+              // this.addCreditTransaction(paymentId, order.clientId.toString(), order.clientName, amount, actionCode, delivered).then(t => {
+                this.updateSnappayOrderStatus(orders, chargeId).then(() => {
+                  resolve();
+                });
+              // });
+            });
+          }
+        } else { // add credit for Wechat
+          this.clientCreditModel.findOne({ paymentId }).then((credit) => {
+            if (credit) {
+              if (credit.status === PaymentStatus.UNPAID) {
+                this.clientCreditModel.updateOne({ _id: credit._id }, { status: PaymentStatus.PAID }).then(() => {
+                  const accountId = credit.accountId.toString();
+                  const accountName = credit.accountName;
+                  const note = credit.note;
+                  const paymentMethod = credit.paymentMethod;
+                  this.transactionModel.doAddCredit(accountId, accountName, amount, paymentMethod, note).then(() => {
+                    resolve();
+                  });
+                });
+              } else {
+                resolve();
+              }
+            } else {
+              resolve();
+            }
+          });
+        }
+      });
+    });
+  }
+
+  // paymentId --- order paymentId
+  processStripeAfterPay(paymentId: string, actionCode: string, amount: number, chargeId: string) {
     return new Promise((resolve, reject) => {
       this.find({ paymentId }).then((orders: IOrder[]) => {
         if (orders && orders.length > 0) {
