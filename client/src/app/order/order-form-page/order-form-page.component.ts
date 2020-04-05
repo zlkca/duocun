@@ -103,7 +103,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const self = this;
-    this.loading = true;  // show loading ... animation
+    // this.loading = true;  // show loading ... animation
 
     // trigger payment from the page of phone number verification
     if (this.fromPage === 'order-form') {
@@ -127,7 +127,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
               if (this.action === 'pay') {
                 self.doPay(account, this.merchant, this.charge, this.cart, this.delivery, this.paymentMethod).then((rt: any) => {
                   this.showError(rt.err);
-                  this.loading = false; // hide loading ... animation
+                  // this.loading = false; // hide loading ... animation
                   this.bSubmitted = false;
 
                   if (rt.err === PaymentError.NONE) {
@@ -139,13 +139,13 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                   }
                 });
               } else {
-                self.loading = false;
+                // self.loading = false;
                 this.bSubmitted = false;
               }
             }, 100);
           });
         } else {
-          self.loading = false;
+          // self.loading = false;
           console.log('getOverRange require origin');
         }
       });
@@ -169,14 +169,14 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 payload: { paymentMethod: this.paymentMethod }
               });
               this.afterGroupDiscount = Math.round((!groupDiscount ? this.charge.total : (this.charge.total - 2)) * 100) / 100;
-              self.loading = false;
+              // self.loading = false;
             });
           } else {
-            self.loading = false;
+            // self.loading = false;
             console.log('getOverRange need origin');
           }
         } else {
-          self.loading = false;
+          // self.loading = false;
         }
       });
     }
@@ -286,11 +286,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const delivery = this.delivery;
     const cart = this.cart;
     const paymentMethod = this.paymentMethod;
-    this.loading = true;  // show loading ... animation
+    // this.loading = true;  // show loading ... animation
     this.bSubmitted = true;
     this.doPay(account, merchant, charge, cart, delivery, paymentMethod).then((rt: any) => {
       this.showError(rt.err);
-      this.loading = false; // hide loading ... animation
+      // this.loading = false; // hide loading ... animation
       this.bSubmitted = false;
       if (rt.err === PaymentError.NONE) {
         if (this.paymentMethod === PaymentMethod.WECHAT) {
@@ -497,7 +497,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
     const origin = delivery.origin;
     const groupDiscount = 0; // bEligible ? 2 : 0;
 
-    this.loading = true;  // show loading ... animation
+    // this.loading = true;  // show loading ... animation
     this.accountSvc.getCurrentAccount().pipe(takeUntil(this.onDestroy$)).subscribe((account: IAccount) => {
       if (account) {
         this.balance = account.balance;
@@ -506,7 +506,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
           self.rangeSvc.getOverRange(origin).pipe(takeUntil(this.onDestroy$)).subscribe((r: any) => {
             this.charge = this.getSummary(cart, merchant, (r.distance * r.rate), groupDiscount);
             if (account.type === AccountType.TEMP) { // For no logged in user who get the verification code, but didn't finish verify
-              this.loading = false;
+              // this.loading = false;
               this.bSubmitted = false;
               this.openPhoneVerifyDialog();
             } else {
@@ -514,7 +514,7 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
                 this.bSubmitted = true;
                 self.doPay(account, self.merchant, self.charge, cart, delivery, paymentMethod).then((rt: any) => {
                   this.showError(rt.err);
-                  this.loading = false; // hide loading ... animation
+                  // this.loading = false; // hide loading ... animation
                   this.bSubmitted = false;
 
                   if (rt.err === PaymentError.NONE) {
@@ -532,11 +532,11 @@ export class OrderFormPageComponent implements OnInit, OnDestroy {
             }
           });
         } else { // no location, should never go here
-          this.loading = false;
+          // this.loading = false;
           console.log('pay command require origin');
         }
       } else { // didn't login
-        this.loading = false;
+        // this.loading = false;
         this.openPhoneVerifyDialog();
       }
     });

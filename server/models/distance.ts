@@ -84,50 +84,66 @@ export class Distance extends Model {
       ds.push(`${d.lat},${d.lng}`);
     });
     const sDestinations = ds.join('|');
-    const address = origin.streetNumber.split(' ').join('+') + '+'
-      + origin.streetName.split(' ').join('+') + '+'
-      + (origin.subLocality ? origin.subLocality : origin.city).split(' ').join('+') + '+'
-      + origin.province;
-    const url = 'https://maps.googleapis.com/maps/api/distancematrix/json?&region=ca&origins='
-      + address + '&destinations=' + sDestinations + '&key=' + key;
+
+    const streetName = origin.streetName;
+    const streetNumber = origin.streetNumber;
+    const subLocality = origin.subLocality;
+    const city = origin.city;
+    const province = origin.province;
+
+
+
 
     return new Promise((resolve, reject) => {
-      https.get(url, (res1: IncomingMessage) => {
-        let data = '';
-        res1.on('data', (d) => { data += d; });
-        res1.on('end', (rr: any) => {
-          if (data) {
-            const s = JSON.parse(data);
-            const rows = s.rows;
-            const distances: IDistance[] = [];
-            if (rows && rows.length > 0 && rows[0].elements && rows[0].elements.length > 0) {
-              for (let i = 0; i < destinations.length; i++) {
-                const destination = destinations[i];
 
-                distances.push({
-                  originPlaceId: origin.placeId,
-                  destinationPlaceId: destination.placeId,
-                  origin: origin,
-                  destination: destination, // destination is mall
-                  element: rows[0].elements[i],
-                });
+      if (streetName) {
+        const address = (streetNumber ? streetNumber.split(' ').join('+') + '+' : '')
+        + (streetName ? streetName.split(' ').join('+') + '+' : '')
+        + (subLocality ? subLocality : city).split(' ').join('+') + '+'
+        + province;
+
+        const url = 'https://maps.googleapis.com/maps/api/distancematrix/json?&region=ca&origins='
+        + address + '&destinations=' + sDestinations + '&key=' + key;  
+
+        https.get(url, (res1: IncomingMessage) => {
+          let data = '';
+          res1.on('data', (d) => { data += d; });
+          res1.on('end', (rr: any) => {
+            if (data) {
+              const s = JSON.parse(data);
+              const rows = s.rows;
+              const distances: IDistance[] = [];
+              if (rows && rows.length > 0 && rows[0].elements && rows[0].elements.length > 0) {
+                for (let i = 0; i < destinations.length; i++) {
+                  const destination = destinations[i];
+
+                  distances.push({
+                    originPlaceId: origin.placeId,
+                    destinationPlaceId: destination.placeId,
+                    origin: origin,
+                    destination: destination, // destination is mall
+                    element: rows[0].elements[i],
+                  });
+                }
+                resolve(distances);
+              } else {
+                resolve([]); // no distance
               }
-              resolve(distances);
             } else {
-              resolve([]); // no distance
+              resolve([]); // no data
             }
-          } else {
-            resolve([]); // no data
-          }
+          });
         });
-      });
+      } else {
+        resolve([]);
+      }
     });
   }
 
   dbHasAllPlaceIds(destIds: string[], dbDestIds: string[]) {
     let bFound = true;
 
-    if(destIds.length === 0 || dbDestIds.length === 0){
+    if (destIds.length === 0 || dbDestIds.length === 0) {
       return false;
     }
 

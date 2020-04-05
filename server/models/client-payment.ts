@@ -48,7 +48,8 @@ export const PaymentError = {
   BANK_INSUFFICIENT_FUND: 'BIF',
   BANK_CARD_DECLIEND: 'BCD',
   INVALID_ACCOUNT: 'IA',
-  BANK_AUTHENTICATION_REQUIRED: 'BAR'
+  BANK_AUTHENTICATION_REQUIRED: 'BAR',
+  PAYMENT_METHOD_ID_MISSING: 'IDM'
 };
 
 export const PaymentAction = {
@@ -112,7 +113,7 @@ export class ClientPayment extends Model {
     const method = cfg.snappay.methods.find((m: any) => m.code = 'WECHATPAY');
     const app = method.apps.find((a: any) => a.code === appCode);
     const notify_url = app ? app.notifyUrl : 'https://duocun.com.cn/api/ClientPayments/Notify';
-    const returnUrl = app ? app.returnUrls.find((r: any) => r.action === actionCode) : {url: 'https://duocun.ca?cId='};
+    const returnUrl = app ? app.returnUrls.find((r: any) => r.action === actionCode) : { url: 'https://duocun.ca?cId=' };
     const return_url = returnUrl.url + accountId;
     const trans_amount = Math.round(amount * 100) / 100;
 
@@ -263,6 +264,8 @@ export class ClientPayment extends Model {
         let err = PaymentError.BANK_CARD_DECLIEND;
         if (e.statusCode === 402) {
           err = PaymentError.BANK_INSUFFICIENT_FUND;
+        } else if (e.statusCode === 404) {
+          err = PaymentError.PAYMENT_METHOD_ID_MISSING;
         }
         const eventLog = {
           accountId,
@@ -443,11 +446,16 @@ export class ClientPayment extends Model {
         status: PaymentStatus.UNPAID
       }
 
-      this.clientCreditModel.insertOne(cc).then((c) => {
-        this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
-          res.send(JSON.stringify(rsp, null, 3)); // IPaymentResponse
+      if (rsp.err === PaymentError.NONE) {
+        this.clientCreditModel.insertOne(cc).then((c) => {
+          this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_CARD.code, amount, rsp.chargeId).then(() => {
+            res.send(JSON.stringify(rsp, null, 3)); // IPaymentResponse
+          });
         });
-      });
+      } else {
+        res.send(JSON.stringify(rsp, null, 3)); // IPaymentResponse
+      }
+
     });
   }
 

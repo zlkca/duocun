@@ -168,12 +168,11 @@ dbo.init(cfg.DATABASE).then(dbClient => {
     res.send('upload file success');
   });
 
-  const accountRouter = new AccountRouter(dbo);
   const merchantRouter = new MerchantRouter(dbo);
   const areaRouter = new AreaRouter(dbo);
   app.use(apimw.auth);
   
-  app.use('/' + ROUTE_PREFIX + '/Accounts', accountRouter.init());
+  app.use('/' + ROUTE_PREFIX + '/Accounts', AccountRouter(dbo));
   app.use('/' + ROUTE_PREFIX + '/Restaurants', merchantRouter.init());
   app.use('/' + ROUTE_PREFIX + '/Areas', areaRouter.init());
 

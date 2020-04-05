@@ -1710,6 +1710,64 @@ export class Order extends Model {
     });
   }
 
+  checkStripePay(req: Request, res: Response) {
+    const results: any[] = [];
+    const parser = require('csv-parser');
+    const fd = fs.createReadStream('/Users/zlk/works/stripepay.csv').pipe(parser())
+      .on('data', (data: any) => results.push(data))
+      .on('end', () => {
+        console.log(results);
+        // fd.close();
+        const paymentMap: any = {};
+        results.map(r => {
+          const paymentId = r['paymentId']
+          paymentMap[paymentId] = { paymentId, amount: +r['Amount'], created: r['Created'], orders: [], client: '', total: 0 };
+        });
+
+        const fields = ['_id', 'clientName', 'total', 'delivered'];
+        const s = '2020-04-01:00:00:00.000Z';
+        const e = '2020-04-06:00:00:00.000Z';
+        const start = moment.utc(s).startOf('day').toISOString();
+        const end = moment.utc(e).endOf('day').toISOString();
+        const qOrder = { created: { $gte: start, $lte: end }, paymentMethod: PaymentMethod.CREDIT_CARD };// paymentStatus: PaymentStatus.PAID
+        this.find(qOrder, fields).then(orders => {
+          orders.map((order: any) => {
+            const paymentId = order.paymentId.toString();
+            const payment = paymentMap[paymentId];
+            if (payment) {
+              paymentMap[paymentId].total += order.total;
+              paymentMap[paymentId].orders.push(order);
+              paymentMap[paymentId].client = order.clientName;
+              const dt = paymentMap[paymentId].created.split(' ');
+              paymentMap[paymentId].date = dt[0].trim();
+              paymentMap[paymentId].time = dt[1].split('.')[0].trim();
+            } else {
+              console.log(paymentId);
+            }
+          });
+
+          // check
+          const ps: any[] = [];
+          Object.keys(paymentMap).map(paymentId => {
+            const p = paymentMap[paymentId];
+            if (p.total === p.amount && p.total!==0) {
+              p.status = 'valid';
+            } else {
+              p.status = 'invalid';
+            }
+            ps.push(p);
+          });
+          res.setHeader('Content-Type', 'application/json');
+          res.send(JSON.stringify(JSON.stringify(ps), null, 3));
+        });
+        // [
+        //   { NAME: 'Daffy Duck', AGE: '24' },
+        //   { NAME: 'Bugs Bunny', AGE: '22' }
+        // ]
+
+      });
+  }
+
   checkWechatpay(req: Request, res: Response) {
     const results: any[] = [];
     const parser = require('csv-parser');
@@ -1726,7 +1784,7 @@ export class Order extends Model {
 
         const fields = ['_id', 'clientName', 'total', 'delivered'];
         const s = '2020-04-01:00:00:00.000Z';
-        const e = '2020-04-03:00:00:00.000Z';
+        const e = '2020-04-06:00:00:00.000Z';
         const start = moment.utc(s).startOf('day').toISOString();
         const end = moment.utc(e).endOf('day').toISOString();
         const qOrder = { created: { $gte: start, $lte: end }, paymentMethod: PaymentMethod.WECHAT };// paymentStatus: PaymentStatus.PAID
@@ -1750,7 +1808,7 @@ export class Order extends Model {
           const ps: any[] = [];
           Object.keys(paymentMap).map(paymentId => {
             const p = paymentMap[paymentId];
-            if (p.total === p.amount) {
+            if (p.total === p.amount && p.total!==0) {
               p.status = 'valid';
             } else {
               p.status = 'invalid';
