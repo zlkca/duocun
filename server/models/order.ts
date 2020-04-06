@@ -54,7 +54,8 @@ export const PaymentMethod = {
 
 export const PaymentStatus = {
   UNPAID: 'U',
-  PAID: 'P'
+  PAID: 'P',
+  RECEIVING: 'RI'
 };
 
 
@@ -611,50 +612,42 @@ export class Order extends Model {
   //   });
   // }
 
-  doRemoveOne(orderId: string) {
-    return new Promise((resolve, reject) => {
-      this.find({ _id: orderId }).then(docs => {
-        if (docs && docs.length > 0) {
-          const order = docs[0];
-          this.updateOne({ _id: orderId }, { status: OrderStatus.DELETED }).then(x => {
-            // temporary order didn't update transaction until paid
-            if (order.status === OrderStatus.TEMP) {
-              resolve(order);
-            } else {
-              const merchantId: string = order.merchantId.toString();
-              const merchantName = order.merchantName;
-              const clientId: string = order.clientId.toString();
-              const clientName = order.clientName;
-              const cost = order.cost;
-              const total = order.total;
-              const delivered = order.delivered;
+  async doRemoveOne(orderId: string) {
+    // return new Promise((resolve, reject) => {
+    const docs = await this.find({ _id: orderId });
+    if (docs && docs.length > 0) {
+      const order = docs[0];
+      const x = await this.updateOne({ _id: orderId }, { status: OrderStatus.DELETED });
+      // temporary order didn't update transaction until paid
+      if (order.status === OrderStatus.TEMP) {
+        return order;
+      } else {
+        const merchantId: string = order.merchantId.toString();
+        const merchantName = order.merchantName;
+        const clientId: string = order.clientId.toString();
+        const clientName = order.clientName;
+        const cost = order.cost;
+        const total = order.total;
+        const delivered = order.delivered;
 
-              this.productModel.find({}).then(ps => {
-                const items: IOrderItem[] = [];
-                order.items.map((it: IOrderItem) => {
-                  const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
-                  if (product) {
-                    items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, product: product });
-                  }
-                });
+        const ps = await this.productModel.find({});
+        const items: IOrderItem[] = [];
+        order.items.map((it: IOrderItem) => {
+          const product = ps.find((p: any) => p && p._id.toString() === it.productId.toString());
+          if (product) {
+            items.push({ productId: it.productId, quantity: it.quantity, price: it.price, cost: it.cost, product: product });
+          }
+        });
 
-                this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
-                  this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' }).then(() => { // This will affect balance calc
-                    const merchantAccountId = merchant.accountId.toString();
-                    this.transactionModel.saveTransactionsForRemoveOrder(orderId, merchantAccountId, merchantName, clientId, clientName,
-                      cost, total, delivered, items).then(() => {
-                        resolve(order);
-                      });
-                  });
-                });
-              });
-            }
-          });
-        } else { // should never be here
-          resolve();
-        }
-      });
-    });
+        const merchant = await this.merchantModel.findOne({ _id: merchantId });
+        await this.transactionModel.updateMany({ orderId: orderId }, { status: 'del' });// This will affect balance calc
+        const merchantAccountId = merchant.accountId.toString();
+        await this.transactionModel.saveTransactionsForRemoveOrder(orderId, merchantAccountId, merchantName, clientId, clientName, cost, total, delivered, items);
+        return order;
+      }
+    } else { // should never be here
+      return;
+    }
   }
 
   removeOrder(req: Request, res: Response) {
@@ -799,43 +792,43 @@ export class Order extends Model {
   // }
 
   // deprecated
-  eligibleForGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string): Promise<boolean> {
-    const date = dateType === 'today' ? moment() : moment().add(1, 'day');
-    const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
-    const query = { delivered: range, address: address, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
+  // eligibleForGroupDiscount(clientId: string, merchantId: string, dateType: string, address: string) {
+  // const date = dateType === 'today' ? moment() : moment().add(1, 'day');
+  // const range = { $gte: date.startOf('day').toISOString(), $lte: date.endOf('day').toISOString() };
+  // const query = { delivered: range, address: address, status: { $nin: [OrderStatus.BAD, OrderStatus.DELETED, OrderStatus.TEMP] } };
 
-    return new Promise((resolve, reject) => {
-      this.find(query).then(orders => {
-        const groups = this.groupBy(orders, 'clientId');
-        const clientIds = Object.keys(groups);
+  // return new Promise((resolve, reject) => {
+  //   this.find(query).then(orders => {
+  //     const groups = this.groupBy(orders, 'clientId');
+  //     const clientIds = Object.keys(groups);
 
-        if (clientIds && clientIds.length > 0) {
-          const found = clientIds.find(x => x === clientId);
-          if (found) {
-            if (clientIds.length === 1) { // only me
-              resolve(false);
-            } else { // > 1, has other clients
-              const os = groups[clientId];
-              if (os && os.length > 0) {
-                const hasGroupDiscount = os.find((x: any) => x.groupDiscount !== 0);
-                if (hasGroupDiscount) {
-                  resolve(false);
-                } else {
-                  resolve(true);
-                }
-              } else {
-                resolve(true); // [] should not happen
-              }
-            }
-          } else {
-            resolve(true);
-          }
-        } else {
-          resolve(false);
-        }
-      });
-    });
-  }
+  //     if (clientIds && clientIds.length > 0) {
+  //       const found = clientIds.find(x => x === clientId);
+  //       if (found) {
+  //         if (clientIds.length === 1) { // only me
+  //           resolve(false);
+  //         } else { // > 1, has other clients
+  //           const os = groups[clientId];
+  //           if (os && os.length > 0) {
+  //             const hasGroupDiscount = os.find((x: any) => x.groupDiscount !== 0);
+  //             if (hasGroupDiscount) {
+  //               resolve(false);
+  //             } else {
+  //               resolve(true);
+  //             }
+  //           } else {
+  //             resolve(true); // [] should not happen
+  //           }
+  //         }
+  //       } else {
+  //         resolve(true);
+  //       }
+  //     } else {
+  //       resolve(false);
+  //     }
+  //   });
+  // });
+  // }
 
   // deprecated
   //--------------------------------------------------------------------------------
@@ -992,64 +985,62 @@ export class Order extends Model {
   // 1.update payment status to 'paid'
   // 2.add two transactions for place order and add another transaction for deposit to bank
   // 3.update account balance
-  doProcessPayment(order: IOrder, actionCode: string, paid: number, chargeId: string) {
-    const orderId: any = order._id;
-    const orderType: any = order.type;
-    const merchantId: string = order.merchantId.toString();
-    const merchantName = order.merchantName;
-    const clientId: string = order.clientId.toString();
-    const clientName = order.clientName;
-    const cost = order.cost;
-    const total = order.total;
-    const delivered: any = order.delivered;
+  // doProcessPayment(order: IOrder, actionCode: string, paid: number, chargeId: string) {
+  //   const orderId: any = order._id;
+  //   const orderType: any = order.type;
+  //   const merchantId: string = order.merchantId.toString();
+  //   const merchantName = order.merchantName;
+  //   const clientId: string = order.clientId.toString();
+  //   const clientName = order.clientName;
+  //   const cost = order.cost;
+  //   const total = order.total;
+  //   const delivered: any = order.delivered;
 
-    const tr: ITransaction = {
-      fromId: clientId,
-      fromName: clientName,
-      toId: BANK_ID,
-      toName: BANK_NAME,
-      actionCode: actionCode,
-      amount: Math.round(paid * 100) / 100,
-      delivered: delivered
-    };
+  //   const tr: ITransaction = {
+  //     fromId: clientId,
+  //     fromName: clientName,
+  //     toId: BANK_ID,
+  //     toName: BANK_NAME,
+  //     actionCode: actionCode,
+  //     amount: Math.round(paid * 100) / 100,
+  //     delivered: delivered
+  //   };
 
-    return new Promise((resolve, reject) => {
-      this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
-        const merchantAccountId = merchant.accountId.toString();
+  //   return new Promise((resolve, reject) => {
+  //     this.merchantModel.findOne({ _id: merchantId }).then((merchant: IDbMerchant) => {
+  //       const merchantAccountId = merchant.accountId.toString();
+  //       this.transactionModel.saveTransactionsForPlaceOrder(
+  //         orderId.toString(),
+  //         orderType,
+  //         merchantAccountId,
+  //         merchantName,
+  //         clientId,
+  //         clientName,
+  //         cost,
+  //         total,
+  //         delivered
+  //       ).then(() => {
+  //         this.transactionModel.doInsertOne(tr).then(t => {
+  //           if (t) {
+  //             // change the status tmp to new !!!
+  //             const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
+  //             this.updateOne({ _id: orderId }, data).then((r: any) => { // result eg. {n: 1, nModified: 0, ok: 1}
+  //               resolve(r);
+  //             });
+  //           } else {
+  //             resolve();
+  //           }
+  //         });
+  //       });
+  //     });
+  //   });
+  // }
+  saveTransactionsForPlaceOrder(orders: any[], merchant: any) {
+    let promises = [];
+    for (let i = 0; i < orders.length; i++) {
+      const order = orders[i];
+      promises.push(
         this.transactionModel.saveTransactionsForPlaceOrder(
-          orderId.toString(),
-          orderType,
-          merchantAccountId,
-          merchantName,
-          clientId,
-          clientName,
-          cost,
-          total,
-          delivered
-        ).then(() => {
-          this.transactionModel.doInsertOne(tr).then(t => {
-            if (t) {
-              // change the status tmp to new !!!
-              const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
-              this.updateOne({ _id: orderId }, data).then((r: any) => { // result eg. {n: 1, nModified: 0, ok: 1}
-                resolve(r);
-              });
-            } else {
-              resolve();
-            }
-          });
-        });
-      });
-    });
-  }
-
-  async addDebitTransactions(orders: IOrder[]) {
-    if (orders && orders.length > 0) {
-      const merchantId = orders[0].merchantId.toString();
-      const merchant = await this.merchantModel.findOne({ _id: merchantId });
-      for (let i = 0; i < orders.length; i++) {
-        const order: any = orders[i];
-        await this.transactionModel.saveTransactionsForPlaceOrder(
           order._id.toString(),
           order.type,
           merchant.accountId.toString(),
@@ -1059,9 +1050,25 @@ export class Order extends Model {
           order.cost,
           order.total,
           order.delivered
-        );
-      }
+        )
+      );
     }
+    return Promise.all(promises);
+  }
+
+  addDebitTransactions(orders: IOrder[]) {
+    return new Promise((resolve, reject) => {
+      if (orders && orders.length > 0) {
+        const merchantId = orders[0].merchantId.toString();
+        this.merchantModel.findOne({ _id: merchantId }).then(merchant => {
+          this.saveTransactionsForPlaceOrder(orders, merchant).then(() => {
+            resolve();
+          });
+        });
+      } else {
+        resolve();
+      }
+    });
   }
 
   async addCreditTransaction(paymentId: string, clientId: string, clientName: string, amount: number, actionCode: string, delivered: string) {
@@ -1105,8 +1112,11 @@ export class Order extends Model {
   updateOrderStatus(orders: IOrder[], chargeId: string, t: any) {
     return new Promise((resolve, reject) => {
       if (t) {
-        const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, chargeId: chargeId, transactionId: t._id };
-        const items = orders.map(order => { return { query: { _id: order._id }, data } });
+        const items = orders.map(order => {
+          const paymentStatus = order.paymentMethod === PaymentMethod.WECHAT ? PaymentStatus.RECEIVING : PaymentStatus.PAID;
+          const data = { status: OrderStatus.NEW, paymentStatus, chargeId: chargeId, transactionId: t._id };
+          return { query: { _id: order._id }, data }
+        });
         this.bulkUpdate(items).then((r: any) => { // { status: DbStatus.FAIL, msg: err }
           // const eventLog = {
           //   accountId: SNAPPAY_BANK_ID,
@@ -1772,7 +1782,7 @@ export class Order extends Model {
           const ps: any[] = [];
           Object.keys(paymentMap).map(paymentId => {
             const p = paymentMap[paymentId];
-            if (p.total === p.amount && p.total!==0) {
+            if (p.total === p.amount && p.total !== 0) {
               p.status = 'valid';
             } else {
               p.status = 'invalid';
@@ -1789,6 +1799,56 @@ export class Order extends Model {
 
       });
   }
+
+  async getUnregisteredWechatPay(wechats: any[]) {
+    const paymentMap: any = {};
+    const paymentIds: any[] = [];
+    wechats.map(r => {
+      const paymentId = r['Merchant Order No.'];
+      const amount = +r['Total Paid'];
+      const created = (r['Created Time'] + '00Z').replace(/\s/, 'T');
+      paymentMap[paymentId] = { paymentId, amount, created, orders: [], client: '', total: 0 };
+      paymentIds.push(paymentId);
+    });
+
+    const q = {
+      paymentId: { $in: paymentIds },
+      status: {$nin: [OrderStatus.BAD, OrderStatus.DELETED]},
+      paymentStatus: PaymentStatus.UNPAID
+    }; // , OrderStatus.TEMP
+    const trs = await this.find(q);
+    const pids = paymentIds.filter(pId => !trs.find((t: any) => t.paymentId.toString() === pId));
+
+    const orderMap: any = {};
+    trs.map(order => {
+      pids.map(pid => {
+        if(pid === order.paymentId.toString()){
+          orderMap[pid] = order;
+        }
+      });
+    });
+    const rs = pids.map(pid => paymentMap[pid]);
+
+    return rs.map(r => {
+      const order = orderMap[r.paymentId];
+      const client = order ? order.clientName : 'N/A';
+      return {...r, status:'invalid', date: r.created.split('T')[0], client }});
+  }
+
+  reqMissingWechatPayments(req: Request, res: Response) {
+    const results: any[] = [];
+    const parser = require('csv-parser');
+    const fd = fs.createReadStream('/Users/zlk/works/wechatpay.csv').pipe(parser())
+      .on('data', (data: any) => results.push(data))
+      .on('end', () => {
+
+        this.getUnregisteredWechatPay(results).then((ps) => {
+          res.setHeader('Content-Type', 'application/json');
+          res.send(JSON.stringify(JSON.stringify(ps), null, 3));
+        });
+      });
+  }
+
 
   checkWechatpay(req: Request, res: Response) {
     const results: any[] = [];
@@ -1830,7 +1890,7 @@ export class Order extends Model {
           const ps: any[] = [];
           Object.keys(paymentMap).map(paymentId => {
             const p = paymentMap[paymentId];
-            if (p.total === p.amount && p.total!==0) {
+            if (p.total === p.amount && p.total !== 0) {
               p.status = 'valid';
             } else {
               p.status = 'invalid';

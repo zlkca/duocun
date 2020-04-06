@@ -490,12 +490,23 @@ export class ClientPayment extends Model {
     // console.log('snappayNotify out_order_no' + b.out_order_no);
     // console.log('snappayNotify customer_paid_amount' + b.customer_paid_amount);
     // console.log('snappayNotify trans_amount' + b.trans_amount);
+    // const amount = +req.body.trans_amount;
     const paymentId = req.body.out_order_no;
-    const amount = +req.body.trans_amount;
+    this.find({paymentId}).then(orders => {
+      let bPaid = true;
+      orders.map(order => {
+        if(order.paymentStatus !== PaymentStatus.PAID){
+          bPaid = false;
+        }
+      });
+      if(!bPaid){
+        const paymentStatus = PaymentStatus.PAID;
+        this.orderEntity.updateMany({ paymentId }, { paymentStatus }, { multi: true }).then(rs => {
 
-    this.orderEntity.updateMany({ paymentId }, { confirmed: true }, { multi: true }).then(rs => {
-
+        });
+      }
     });
+
 
     // this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
     // const eventLog = {

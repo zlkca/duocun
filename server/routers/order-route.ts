@@ -8,6 +8,8 @@ export function OrderRouter(db: DB){
 
   // v2
   router.get('/v2/transactions', (req, res) => { controller.reqTransactions(req, res); });
+  // tools
+  router.post('/missingWechatpayments', (req, res) => { controller.reqMissingWechatPayments(req, res); });
 
   // v1
   router.get('/csv', (req, res) => { controller.reqCSV(req, res); });
@@ -39,6 +41,7 @@ export function OrderRouter(db: DB){
   router.delete('/:id', (req, res) => { controller.removeOrder(req, res); });
 
   // router.post('/checkGroupDiscount', (req, res) => { controller.checkGroupDiscount(req, res); });
+
 
   return router;
 };

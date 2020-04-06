@@ -6,7 +6,6 @@ import { Account, IAccount } from "./account";
 import moment from 'moment';
 import { IOrderItem, PaymentMethod } from "./order";
 import { EventLog } from "./event-log";
-import { resolve } from "url";
 import { ResponseStatus } from "./client-payment";
 
 import fs from 'fs';
@@ -210,7 +209,7 @@ export class Transaction extends Model {
 
 
   saveTransactionsForPlaceOrder(orderId: string, orderType: string, merchantAccountId: string, merchantName: string,
-    clientId: string, clientName: string, cost: number, total: number, delivered: string) {
+    clientId: string, clientName: string, cost: number, total: number, delivered: string): Promise<string> {
 
     return new Promise((resolve, reject) => {
       const t1: ITransaction = {

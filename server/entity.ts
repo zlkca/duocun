@@ -296,6 +296,25 @@ export class Entity {
     }
 
     if (doc && doc.hasOwnProperty('paymentId')) {
+      let body = doc.paymentId;
+      if (body && body.hasOwnProperty('$in')) {
+        let a = body['$in'];
+        const arr: any[] = [];
+        a.map((id: any) => {
+          if (typeof id === "string" && id.length === 24) {
+            arr.push(new ObjectID(id));
+          } else {
+            arr.push(id);
+          }
+        });
+
+        doc['paymentId'] = { $in: arr };
+      } else if (typeof body === "string" && body.length === 24) {
+        doc['paymentId'] = new ObjectID(doc.paymentId);
+      }
+    }
+
+    if (doc && doc.hasOwnProperty('paymentId')) {
       const paymentId = doc['paymentId'];
       if (typeof paymentId === 'string' && paymentId.length === 24) {
         doc['paymentId'] = new ObjectID(paymentId);
