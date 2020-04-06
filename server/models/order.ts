@@ -1127,54 +1127,8 @@ export class Order extends Model {
   }
 
 
-
   // paymentId --- order paymentId
-  processSnapPayAfterPay(paymentId: string, actionCode: string, amount: number, chargeId: string) {
-    return new Promise((resolve, reject) => {
-      this.find({ paymentId }).then((orders: IOrder[]) => {
-        if (orders && orders.length > 0) {
-          const order = orders[0];
-          if (order.paymentStatus === PaymentStatus.UNPAID) {
-            // --------------------------------------------------------------------------------------
-            // 1.update payment status to 'paid' for the orders in batch
-            // 2.add two transactions for place order and add another transaction for deposit to bank
-            // 3.update account balance
-            this.addDebitTransactions(orders).then(() => {
-              const delivered: any = order.delivered;
-              // this.addCreditTransaction(paymentId, order.clientId.toString(), order.clientName, amount, actionCode, delivered).then(t => {
-                this.updateSnappayOrderStatus(orders, chargeId).then(() => {
-                  resolve();
-                });
-              // });
-            });
-          }
-        } else { // add credit for Wechat
-          this.clientCreditModel.findOne({ paymentId }).then((credit) => {
-            if (credit) {
-              if (credit.status === PaymentStatus.UNPAID) {
-                this.clientCreditModel.updateOne({ _id: credit._id }, { status: PaymentStatus.PAID }).then(() => {
-                  const accountId = credit.accountId.toString();
-                  const accountName = credit.accountName;
-                  const note = credit.note;
-                  const paymentMethod = credit.paymentMethod;
-                  this.transactionModel.doAddCredit(accountId, accountName, amount, paymentMethod, note).then(() => {
-                    resolve();
-                  });
-                });
-              } else {
-                resolve();
-              }
-            } else {
-              resolve();
-            }
-          });
-        }
-      });
-    });
-  }
-
-  // paymentId --- order paymentId
-  processStripeAfterPay(paymentId: string, actionCode: string, amount: number, chargeId: string) {
+  processAfterPay(paymentId: string, actionCode: string, amount: number, chargeId: string) {
     return new Promise((resolve, reject) => {
       this.find({ paymentId }).then((orders: IOrder[]) => {
         if (orders && orders.length > 0) {
