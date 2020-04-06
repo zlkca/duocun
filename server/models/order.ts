@@ -1827,17 +1827,20 @@ export class Order extends Model {
     const vals = Object.keys(trMap).map(pId => trMap[pId]);
     const rs = vals.filter(t => t.nTrs > 1 && t.paymentId !== 'x');
 
+    const clientIds: any[] = [];
     const trIds: any[] = [];
     rs.map(r => {
       if (r.nTrs > 1) {
         for (let i = 1; i < r.transactions.length; i++) {
           trIds.push(r.transactions[i]._id);
         }
+        clientIds.push(r.transactions[0].fromId.toString());
       }
     });
     await this.transactionModel.deleteMany({ _id: { $in: trIds } });
 
-    this.transactionModel.updateBalanceByAccountId
+    return clientIds;
+    // return rs;
   }
 
   loadWechatPayments(): Promise<any[]> {
@@ -1861,6 +1864,15 @@ export class Order extends Model {
 
   reqDupWechatPayments(req: Request, res: Response) {
     this.findDupWechatPay().then((ps) => {
+      const self = this;
+      const clientIds = ps;
+      this.transactionModel.find({}).then(ts => {
+        clientIds.map((cId) => {
+          setTimeout(() => {
+            self.transactionModel.updateBalanceByAccountId(cId, ts);
+          }, 1000);
+        });
+      });
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(JSON.stringify(ps), null, 3));
     });
