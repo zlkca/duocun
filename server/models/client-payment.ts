@@ -112,7 +112,7 @@ export class ClientPayment extends Model {
     // const cfg = cfgs[0];
     // const method = cfg.snappay.methods.find((m: any) => m.code = 'WECHATPAY');
     // const app = method.apps.find((a: any) => a.code === appCode);
-    const notify_url = 'https://duocun.com.cn/api/ClientPayments/Notify'; // app ? app.notifyUrl : 
+    const notify_url = 'https://duocun.com.cn/api/ClientPayments/notify'; // app ? app.notifyUrl : 
     // const returnUrl = app ? app.returnUrls.find((r: any) => r.action === actionCode) : { url: 'https://duocun.ca/grocery?p=h&cId=' };
     const return_url = 'https://duocun.ca/grocery?p=h&cId=' + accountId; // returnUrl.url + accountId;
     const trans_amount = Math.round(amount * 100) / 100;
