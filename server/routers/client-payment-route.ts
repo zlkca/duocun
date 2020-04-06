@@ -2,13 +2,13 @@ import express from "express";
 import { DB } from "../db";
 import { ClientPayment } from "../models/client-payment";
 
-export function ClientPaymentRouter(db: DB){
+export function ClientPaymentRouter(db: DB) {
   const router = express.Router();
   const controller = new ClientPayment(db);
 
   // v2 api
-  router.post('/payByCreditCard', (req, res) => {controller.payByCreditCard(req, res); });
-  router.post('/payBySnappay', (req, res) => {controller.payBySnappay(req, res)});
+  router.post('/payByCreditCard', (req, res) => { controller.payByCreditCard(req, res); });
+  router.post('/payBySnappay', (req, res) => { controller.payBySnappay(req, res) });
 
   // router.get('/session', (req, res) => {controller.createStripeSession(req, res); });
   // router.post('/checkout', (req, res) => {controller.checkout(req, res); });
@@ -21,8 +21,8 @@ export function ClientPaymentRouter(db: DB){
 
 
   router.post('/snappayAddCredit', (req, res) => { controller.snappayAddCredit(req, res); });
-  router.post('/notify', (req, res) => {controller.snappayNotify(req, res); });
-  router.post('/snappayPayOrder', (req, res) => {controller.snappayPayOrder(req, res); });
+  router.post('/notify', (req, res) => { controller.snappayNotify(req, res); });
+  router.post('/snappayPayOrder', (req, res) => { controller.snappayPayOrder(req, res); });
   // router.post('/snappayRefund', (req, res) => {controller.snappayRefund(req, res); });
 
 

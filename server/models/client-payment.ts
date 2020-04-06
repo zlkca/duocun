@@ -498,6 +498,7 @@ export class ClientPayment extends Model {
   // return rsp: IPaymentResponse
   snappayNotify(req: Request, res: Response) {
     const b = req.body;
+
     // console.log('snappayNotify trans_status:' + b.trans_status);
     // console.log('snappayNotify trans_no:' + b.trans_no);
     // console.log('snappayNotify out_order_no' + b.out_order_no);
@@ -505,6 +506,21 @@ export class ClientPayment extends Model {
     // console.log('snappayNotify trans_amount' + b.trans_amount);
     // const amount = +req.body.trans_amount;
     const paymentId = req.body.out_order_no;
+
+    const eventLog = {
+      accountId: SNAPPAY_BANK_ID,
+      type: 'debug',
+      code: JSON.stringify(req.body),
+      decline_code: '',
+      message: 'snappay notify received, paymentId:' + paymentId,
+      created: moment().toISOString()
+    }
+    this.eventLogModel.insertOne(eventLog).then(() => {
+      // res.setHeader('Content-Type', 'application/json');
+      // res.send(JSON.stringify('notify success', null, 3));
+    });
+
+
     this.find({ paymentId }).then(orders => {
       let bPaid = true;
       orders.map(order => {
@@ -524,7 +540,8 @@ export class ClientPayment extends Model {
             created: moment().toISOString()
           }
           this.eventLogModel.insertOne(eventLog).then(() => {
-
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify('notify success', null, 3));
           });
         });
       }
