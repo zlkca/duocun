@@ -606,7 +606,7 @@ export class Entity {
     });
   }
 
-  // deprecated
+
   deleteMany(query: any, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       this.getCollection().then((c: Collection) => {

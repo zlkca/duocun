@@ -1100,7 +1100,7 @@ export class Order extends Model {
         //   type: 'debug',
         //   code: r.status,
         //   decline_code: '',
-        //   message: 'updateOrderStatus: ' + r.msg,
+        //   message: 'updateOrdersAsPaid: ' + r.msg,
         //   created: moment().toISOString()
         // }
         // this.eventLogModel.insertOne(eventLog).then(() => {
@@ -1111,23 +1111,23 @@ export class Order extends Model {
   }
 
 
-  async updateOrderStatus(orders: IOrder[], chargeId: string, t: any) {
+  async updateOrdersAsPaid(orders: IOrder[], t: any) {
     if (t) {
       const items = orders.map(order => {
-        const paymentStatus = order.paymentMethod === PaymentMethod.WECHAT ? PaymentStatus.RECEIVING : PaymentStatus.PAID;
-        const data = { status: OrderStatus.NEW, paymentStatus, chargeId: chargeId, transactionId: t._id };
+        const paymentStatus = PaymentStatus.PAID;
+        const data = { status: OrderStatus.NEW, paymentStatus, transactionId: t._id };
         return { query: { _id: order._id }, data }
       });
-      await this.bulkUpdate(items); // .then((r: any) => { // { status: DbStatus.FAIL, msg: err }
-        // const eventLog = {
-        //   accountId: SNAPPAY_BANK_ID,
-        //   type: 'debug',
-        //   code: r.status,
-        //   decline_code: '',
-        //   message: 'updateOrderStatus: ' + r.msg,
-        //   created: moment().toISOString()
-        // }
-        // this.eventLogModel.insertOne(eventLog).then(() => {
+      await this.bulkUpdate(items);
+      // const eventLog = {
+      //   accountId: SNAPPAY_BANK_ID,
+      //   type: 'debug',
+      //   code: r.status,
+      //   decline_code: '',
+      //   message: 'updateOrdersAsPaid: ' + r.msg,
+      //   created: moment().toISOString()
+      // }
+      // await this.eventLogModel.insertOne(eventLog);
       return;
     } else {
       return;
@@ -1146,12 +1146,16 @@ export class Order extends Model {
         // 1.update payment status to 'paid' for the orders in batch
         // 2.add two transactions for place order and add another transaction for deposit to bank
         // 3.update account balance
-        await this.addDebitTransactions(orders); // .then(() => {
-        const delivered: any = order.delivered;
-        const clientId = order.clientId.toString();
-        const t = await this.addCreditTransaction(paymentId, clientId, order.clientName, amount, actionCode, delivered); // .then(t => {
-        await this.updateOrderStatus(orders, chargeId, t); // .then(() => {
-        return;
+        if (order.paymentMethod !== PaymentMethod.WECHAT) {
+          await this.addDebitTransactions(orders); // .then(() => {
+          const delivered: any = order.delivered;
+          const clientId = order.clientId.toString();
+          const t = await this.addCreditTransaction(paymentId, clientId, order.clientName, amount, actionCode, delivered); // .then(t => {
+          await this.updateOrdersAsPaid(orders, t); // .then(() => {
+          return;
+        } else {
+          return;
+        }
       }
     } else { // add credit for Wechat
       const credit = await this.clientCreditModel.findOne({ paymentId }); // .then((credit) => {
@@ -1794,17 +1798,17 @@ export class Order extends Model {
   async findDupWechatPay() {
     const actionCode = TransactionAction.PAY_BY_WECHAT.code;
     const trs: any[] = await this.transactionModel.find({ actionCode });
-    const ws: any[] = await this.loadWechatPayments();
+    // const ws: any[] = await this.loadWechatPayments();
 
     const trMap: any = {};
     trs.map((tr: any) => {
       const paymentId = tr.paymentId ? tr.paymentId.toString() : 'x';
       trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '' };
     });
-    ws.map((w: any) => {
-      const paymentId = w.paymentId;
-      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '' };
-    });
+    // ws.map((w: any) => {
+    //   const paymentId = w.paymentId;
+    //   trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '' };
+    // });
 
     // process
     trs.map((tr: any) => {
@@ -1814,14 +1818,26 @@ export class Order extends Model {
       trMap[paymentId].created = tr.created.split('.')[0];
     });
 
-    ws.map((w: any) => {
-      const paymentId = w.paymentId;
-      trMap[paymentId].nWs++;
-      trMap[paymentId].ws.push(w);
-    });
+    // ws.map((w: any) => {
+    //   const paymentId = w.paymentId;
+    //   trMap[paymentId].nWs++;
+    //   trMap[paymentId].ws.push(w);
+    // });
 
     const vals = Object.keys(trMap).map(pId => trMap[pId]);
-    return vals.filter(t => t.nTrs > 1 && t.paymentId !== 'x');
+    const rs = vals.filter(t => t.nTrs > 1 && t.paymentId !== 'x');
+
+    const trIds: any[] = [];
+    rs.map(r => {
+      if (r.nTrs > 1) {
+        for (let i = 1; i < r.transactions.length; i++) {
+          trIds.push(r.transactions[i]._id);
+        }
+      }
+    });
+    await this.transactionModel.deleteMany({ _id: { $in: trIds } });
+
+    this.transactionModel.updateBalanceByAccountId
   }
 
   loadWechatPayments(): Promise<any[]> {
