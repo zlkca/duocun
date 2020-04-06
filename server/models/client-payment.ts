@@ -492,34 +492,34 @@ export class ClientPayment extends Model {
     // console.log('snappayNotify trans_amount' + b.trans_amount);
     // const amount = +req.body.trans_amount;
     const paymentId = req.body.out_order_no;
-    this.find({paymentId}).then(orders => {
+    this.find({ paymentId }).then(orders => {
       let bPaid = true;
       orders.map(order => {
-        if(order.paymentStatus !== PaymentStatus.PAID){
+        if (order.paymentStatus !== PaymentStatus.PAID) {
           bPaid = false;
         }
       });
-      if(!bPaid){
+      if (!bPaid) {
         const paymentStatus = PaymentStatus.PAID;
         this.orderEntity.updateMany({ paymentId }, { paymentStatus }, { multi: true }).then(rs => {
+          const eventLog = {
+            accountId: SNAPPAY_BANK_ID,
+            type: 'debug',
+            code: '',
+            decline_code: '',
+            message: 'snappay notify received, paymentId:' + paymentId,
+            created: moment().toISOString()
+          }
+          this.eventLogModel.insertOne(eventLog).then(() => {
 
+          });
         });
       }
     });
 
 
     // this.orderEntity.processAfterPay(paymentId, TransactionAction.PAY_BY_WECHAT.code, amount, '').then(() => {
-    // const eventLog = {
-    //   accountId: SNAPPAY_BANK_ID,
-    //   type: 'debug',
-    //   code: '',
-    //   decline_code: '',
-    //   message: 'snappayNotify done',
-    //   created: moment().toISOString()
-    // }
-    // this.eventLogModel.insertOne(eventLog).then(() => {
 
-    // });
     // });
   }
 
