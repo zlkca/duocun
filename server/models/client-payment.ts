@@ -153,6 +153,19 @@ export class ClientPayment extends Model {
         }
       };
 
+      const eventLog = {
+        accountId: accountId,
+        type: 'debug',
+        code: JSON.stringify(params),
+        decline_code: '',
+        message: 'snappay send req, paymentId:' + paymentId,
+        created: moment().toISOString()
+      }
+      this.eventLogModel.insertOne(eventLog).then(() => {
+
+      });
+
+
       const post_req = https.request(options, (res: IncomingMessage) => {
         let ss = '';
         res.on('data', (d) => { ss += d; });
