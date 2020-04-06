@@ -541,7 +541,7 @@ export class ClientPayment extends Model {
           }
           this.eventLogModel.insertOne(eventLog).then(() => {
             res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify('notify success', null, 3));
+            res.send({code: '0'}); // must return as snappay gateway required
           });
         });
       }
