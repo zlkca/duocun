@@ -10,7 +10,7 @@ export function OrderRouter(db: DB){
   router.get('/v2/transactions', (req, res) => { controller.reqTransactions(req, res); });
   // tools
   router.post('/missingWechatpayments', (req, res) => { controller.reqMissingWechatPayments(req, res); });
-  router.post('/missingPaidWechat', (req, res) => { controller.reqMissingPaidWechat(req, res); });
+  router.post('/missingPaid', (req, res) => { controller.reqFixMissingPaid(req, res); });
   router.post('/dupWechatPayments', (req, res) => { controller.reqDupWechatPayments(req, res); });
   
   // v1

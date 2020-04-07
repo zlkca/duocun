@@ -1791,10 +1791,10 @@ export class Order extends Model {
       });
   }
 
-  async findMissingPaidWechat() {
-    const actionCode = TransactionAction.PAY_BY_WECHAT.code;
+  async findMissingPaid() {
+    const actionCode = TransactionAction.PAY_BY_CARD.code;
     const trs: any[] = await this.transactionModel.find({ actionCode });
-    const ws: any[] = await this.loadWechatPayments();
+    const ws: any[] = await this.loadCCPayments(); // this.loadWechatPayments();
 
     const trMap: any = {};
     trs.map((tr: any) => {
@@ -1803,7 +1803,7 @@ export class Order extends Model {
     });
     ws.map((w: any) => {
       const paymentId = w.paymentId;
-      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client: '', cId: '',  nOrders:0, orders:[] };
+      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: w.createdDate, client: w.Description, cId: '',  nOrders:0, orders:[] };
     });
 
     // process
@@ -1819,13 +1819,14 @@ export class Order extends Model {
       const paymentId = w.paymentId;
       trMap[paymentId].nWs++;
       trMap[paymentId].ws.push(w);
+      trMap[paymentId].created = w.created.split('.')[0];
     });
 
     const vals = Object.keys(trMap).map(pId => trMap[pId]);
     const rs = vals.filter(t => t.nTrs < t.nWs && t.paymentId !== 'x');
     const pIds = rs.map(r => r.paymentId);
 
-    const orders: any[] = await this.joinFind({ paymentId: {$in: pIds} });
+    const orders: any[] = await this.find({ paymentId: {$in: pIds} }); // joinFind Not working
 
     orders.map(order => {
       const paymentId = order.paymentId.toString();
@@ -1837,19 +1838,19 @@ export class Order extends Model {
     const rs2 = vals2.filter(t => t.nTrs < t.nWs && t.paymentId !== 'x');
 
     // fixing ...
-    await this.addCreditTransactions(rs2);
-    const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, deliverDate: '2021-04-07' };
-    await this.updateOrdersAsPaid(orders, data);
+    // await this.addCreditTransactions(rs2);
+    // const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, deliverDate: '2021-04-07' };
+    // await this.updateOrdersAsPaid(orders, data);
 
 
-    const clientIds: any[] = [];
-    rs2.map(r => {
-      if (r.nTrs > 1) {
-        clientIds.push(r.cId);
-      }
-    });
-    return clientIds;
-    // return rs2;
+    // const clientIds: any[] = [];
+    // rs2.map(r => {
+    //   if (r.nTrs > 1) {
+    //     clientIds.push(r.cId);
+    //   }
+    // });
+    // return clientIds;
+    return rs2;
   }
 
   // rs --- [{paymentId, orders[]}]
@@ -1930,7 +1931,8 @@ export class Order extends Model {
     const results: any[] = [];
     const parser = require('csv-parser');
     return new Promise((resolve, reject) => {
-      const fd = fs.createReadStream('/home/ubuntu/wechatpay.csv').pipe(parser())
+      // /User/zlk/works/
+      fs.createReadStream('/home/ubuntu/wechatpay.csv').pipe(parser())
         .on('data', (data: any) => results.push(data))
         .on('end', () => {
           const rs: any[] = results.map(r => {
@@ -1945,17 +1947,37 @@ export class Order extends Model {
     });
   }
 
-  reqMissingPaidWechat(req: Request, res: Response) {
-    this.findMissingPaidWechat().then((ps) => {
-      const self = this;
-      const clientIds = ps;
-      this.transactionModel.find({}).then(ts => {
-        clientIds.map((cId) => {
-          setTimeout(() => {
-            self.transactionModel.updateBalanceByAccountId(cId, ts);
-          }, 1000);
+  loadCCPayments(): Promise<any[]> {
+    const results: any[] = [];
+    const parser = require('csv-parser');
+    return new Promise((resolve, reject) => {
+      fs.createReadStream('/Users/zlk/works/cc_payments.csv').pipe(parser())
+        .on('data', (data: any) => results.push(data))
+        .on('end', () => {
+          const rs: any[] = results.map(r => {
+            const paymentId = r['paymentId (metadata)'];
+            const amount = +r['Amount'];
+            const description = +r['Description'];
+            const createdDate = r['Created (UTC)'].split(' ')[0];
+            const created = (r['Created (UTC)'] + ':00.000Z').replace(/\s/, 'T');
+            return { paymentId, amount, createdDate, created, description };
+          });
+          resolve(rs);
         });
-      });
+    });
+  }
+
+  reqFixMissingPaid(req: Request, res: Response) {
+    this.findMissingPaid().then((ps) => {
+      // const self = this;
+      // const clientIds = ps;
+      // this.transactionModel.find({}).then(ts => {
+      //   clientIds.map((cId) => {
+      //     setTimeout(() => {
+      //       self.transactionModel.updateBalanceByAccountId(cId, ts);
+      //     }, 1000);
+      //   });
+      // });
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(JSON.stringify(ps), null, 3));
     });
