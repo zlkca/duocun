@@ -247,20 +247,30 @@ export class ClientPayment extends Model {
     if (account) {
       try {
         if (account.cardAccountId) {
-          const customerId = account.cardAccountId;
-          if (account.cards) {
-            if (account.cards.indexOf(paymentMethodId) !== -1) { // has customerId and the same paymentMethodId, not need to create
-              // pass
-            } else { // has customerId but card didn't attached, attach the card
-              await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
-              const cards = [...account.cards, paymentMethodId];
-              await this.accountModel.updateOne({ _id: accountId }, { cards });
-            }
-          } else { // previous failed to save cards
-            await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
-            await this.accountModel.updateOne({ _id: accountId }, { cards: [paymentMethodId] });
+          // const customerId = account.cardAccountId;
+          // if (account.cards) {
+          //   if (account.cards.indexOf(paymentMethodId) !== -1) { // has customerId and the same paymentMethodId, not need to create
+          //     // pass
+          //   } else { // has customerId but card didn't attached, attach the card
+          //     await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
+          //     const cards = [...account.cards, paymentMethodId];
+          //     await this.accountModel.updateOne({ _id: accountId }, { cards });
+          //   }
+          // } else { // previous failed to save cards
+          //   await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
+          //   await this.accountModel.updateOne({ _id: accountId }, { cards: [paymentMethodId] });
+          // }
+          // return { customerId, err: PaymentError.NONE };
+          const customer = await stripe.customers.create({
+            payment_method: paymentMethodId
+          });
+          const customerId = customer.id;
+          if (customerId) {
+            await this.accountModel.updateOne({ _id: accountId }, { cardAccountId: customerId, cards: [paymentMethodId] });
+            return { customerId, err: PaymentError.NONE };
+          } else {
+            return { err: PaymentError.CREATE_BANK_CUSTOMER_FAIL };
           }
-          return { customerId, err: PaymentError.NONE };
         } else {
           const customer = await stripe.customers.create({
             payment_method: paymentMethodId
