@@ -8,43 +8,43 @@ import { Utils } from "../utils";
 import { Config } from "../config";
 import { Model } from "../models/model";
 
-export function AccountRouter(db: DB){
+export function AccountRouter(db: DB) {
   const router = express.Router();
   const controller = new AccountController(db);
 
-// v2
-router.get('/wxLogin', (req, res) => { controller.reqWxLogin(req, res); });
-router.get('/qFind', (req, res) => { controller.list(req, res); }); // deprecated
-router.get('/', (req, res) => { controller.list(req, res); });
-router.get('/current', (req, res) => { controller.getCurrentAccount(req, res); });
+  // v2
+  router.get('/wxLogin', (req, res) => { controller.reqWxLogin(req, res); });
+  router.get('/qFind', (req, res) => { controller.list(req, res); }); // deprecated
+  router.get('/', (req, res) => { controller.list(req, res); });
+  router.get('/current', (req, res) => { controller.getCurrentAccount(req, res); });
 
-// v1
-// router.get('/attributes', (req, res) => { this.attrModel.quickFind(req, res); });
+  // v1
+  // router.get('/attributes', (req, res) => { this.attrModel.quickFind(req, res); });
 
-// v1
-router.get('/wechatLogin', (req, res) => { controller.wechatLogin(req, res); });
-// router.post('/verifyCode', (req, res) => { controller.verifyCode(req, res); }); // deprecated
+  // v1
+  router.get('/wechatLogin', (req, res) => { controller.wechatLogin(req, res); });
+  // router.post('/verifyCode', (req, res) => { controller.verifyCode(req, res); }); // deprecated
 
-router.get('/:id', (req, res) => { controller.get(req, res); }); // fix me
+  router.get('/:id', (req, res) => { controller.get(req, res); }); // fix me
 
-// router.post('/', (req, res) => { controller.create(req, res); });
-// router.put('/', (req, res) => { controller.replace(req, res); });
-// router.patch('/', (req, res) => { controller.update(req, res); });
-// router.delete('/', (req, res) => { controller.remove(req, res); });
+  // router.post('/', (req, res) => { controller.create(req, res); });
+  // router.put('/', (req, res) => { controller.replace(req, res); });
+  // router.patch('/', (req, res) => { controller.update(req, res); });
+  // router.delete('/', (req, res) => { controller.remove(req, res); });
 
-// router.post('/sendClientMsg2', (req, res) => { controller.sendClientMsg2(req, res); });
-router.post('/sendClientMsg', (req, res) => { controller.sendClientMsg(req, res); });
-router.post('/verifyPhoneNumber', (req, res) => { controller.verifyPhoneNumber(req, res); });
-router.post('/sendVerifyMsg', (req, res) => { controller.sendVerifyMsg(req, res); });
-router.post('/applyMerchant', (req, res) => { controller.merchantStuff.applyMerchant(req, res); });
-router.post('/getMerchantApplication', (req, res) => { controller.merchantStuff.getApplication(req, res); });
+  // router.post('/sendClientMsg2', (req, res) => { controller.sendClientMsg2(req, res); });
+  router.post('/sendClientMsg', (req, res) => { controller.sendClientMsg(req, res); });
+  router.post('/verifyPhoneNumber', (req, res) => { controller.verifyPhoneNumber(req, res); });
+  router.post('/sendVerifyMsg', (req, res) => { controller.sendVerifyMsg(req, res); });
+  router.post('/applyMerchant', (req, res) => { controller.merchantStuff.applyMerchant(req, res); });
+  router.post('/getMerchantApplication', (req, res) => { controller.merchantStuff.getApplication(req, res); });
 
-router.post('/login', (req, res) => { controller.login(req, res); });
-router.post('/loginByPhone', (req, res) => { controller.loginByPhone(req, res); });
-router.route('/signup').post((req, res) => { controller.signup(req, res); });
+  router.post('/login', (req, res) => { controller.login(req, res); });
+  router.post('/loginByPhone', (req, res) => { controller.loginByPhone(req, res); });
+  router.route('/signup').post((req, res) => { controller.signup(req, res); });
 
 
-return router;
+  return router;
 };
 
 export class AccountController extends Model {
@@ -135,7 +135,7 @@ export class AccountController extends Model {
       res.setHeader('Content-Type', 'application/json');
       if (r.phone) {
         const text = (lang === 'en' ? 'Duocun Verification Code: ' : '多村验证码: ') + r.verificationCode;
-        self.accountModel.sendMessage(r.phone, text).then(() => {
+        this.accountModel.sendMessage(r.phone, text).then(() => {
           if (r.accountId) {
             const tokenId = this.accountModel.jwtSign(r.accountId);
             res.send(JSON.stringify(tokenId, null, 3));
@@ -147,6 +147,7 @@ export class AccountController extends Model {
         res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
       }
     });
+
   }
 
   verifyPhoneNumber(req: Request, res: Response) {
@@ -204,7 +205,7 @@ export class AccountController extends Model {
     query = this.accountModel.convertIdFields(query);
     this.accountModel.find(query).then(accounts => {
       accounts.map((account: any) => {
-        if(account && account.password){
+        if (account && account.password) {
           delete account.password;
         }
       });

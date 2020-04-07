@@ -105,7 +105,7 @@ export class Account extends Model {
   //     res.send(JSON.stringify('', null, 3)); // sign up fail, please contact admin
   //   });
 
-  getRandomCode(){
+  getRandomCode() {
     const d1 = Math.floor(Math.random() * 10).toString();
     const d2 = Math.floor(Math.random() * 10).toString();
     const d3 = Math.floor(Math.random() * 10).toString();
@@ -113,44 +113,50 @@ export class Account extends Model {
     return (d1 + d2 + d3 + d4).toString();
   }
 
-  async trySignupV2(accountId: string, rawPhone: any){
-    if(!accountId && !rawPhone){
-      return {accountId: '', phone: '', verificationCode: '', verified: false};
-    }else{
+  async trySignupV2(accountId: string, rawPhone: any) {
+    if (!accountId && !rawPhone) { // doesn't have phone and account
+      return { accountId: '', phone: '', verificationCode: '', verified: false };
+    } else if (!rawPhone && accountId) { // has account
+      const x = await this.findOne({ _id: accountId });
+      if (x && x.phone) {
+        const code = this.getRandomCode();
+        return { accountId, phone: x.phone, verificationCode: code, verified: false };
+      } else {
+        return { accountId, phone: '', verificationCode: '', verified: false };
+      }
+    } else if (rawPhone && !accountId) { // has phone and no account
       const code = this.getRandomCode();
       let phone = rawPhone.substring(0, 2) === '+1' ? rawPhone.substring(2) : rawPhone;
       phone = phone.match(/\d+/g).join('');
-      const account = await this.findOne({ phone });
-      if(account){
+      const data = {
+        username: phone,
+        type: 'client', // tmp user are those verified phone but did not signup under agreement
+        balance: 0,
+        phone,
+        verificationCode: code,
+        verified: false,
+        attributes: [],
+        created: moment().toISOString()
+      };
+      await this.insertOne(data);
+      const x = await this.findOne({ phone });
+      return { accountId: x._id.toString(), phone: phone, verificationCode: code, verified: false };
+    } else { // has both phone and account
+      const code = this.getRandomCode();
+      let phone = rawPhone.substring(0, 2) === '+1' ? rawPhone.substring(2) : rawPhone;
+      phone = phone.match(/\d+/g).join('');
+      const occupiedAccount = await this.findOne({ phone });
+      if (occupiedAccount) {
         const data = { phone, verificationCode: code };
-        await this.updateOne({ _id: account._id.toString() }, data);
-        return { accountId: account._id.toString(), phone, verificationCode: code };
-      } else{
-        if (accountId) { // account exist, change account phone number
-          const data = { phone: phone, verificationCode: code, verified: false };
-          await this.updateOne({ _id: accountId }, data);
-          return { accountId, phone, verificationCode: code, verified: false };
-        } else { // account and phone number do not exist, create temp account
-          const data = {
-            username: phone,
-            type: 'tmp', // tmp user are those verified phone but did not signup under agreement
-            balance: 0,
-            phone,
-            verificationCode: code,
-            verified: false,
-            attributes: [],
-            created: moment().toISOString()
-          };
-          const x = await this.insertOne(data);
-          if(x){
-            return { accountId: x._id.toString(), phone: phone, verificationCode: code, verified: false };
-          }else{
-            return { accountId: '', phone: phone, verificationCode: code, verified: false };
-          }
-        }
+        await this.updateOne({ _id: occupiedAccount._id.toString() }, data); // replace with new phone number & code
+        return { accountId: occupiedAccount._id.toString(), phone, verificationCode: code, verified: false };
+      } else { // use existing account
+        const account = await this.findOne({ _id: accountId });
+        return { accountId: account._id.toString(), phone: phone, verificationCode: code, verified: false };
       }
     }
   }
+
   // try signup an account with phone number.
   // If this phone number is already used by an account, return that account.
   // Otherwise:

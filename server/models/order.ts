@@ -1827,20 +1827,20 @@ export class Order extends Model {
     const vals = Object.keys(trMap).map(pId => trMap[pId]);
     const rs = vals.filter(t => t.nTrs > 1 && t.paymentId !== 'x');
 
-    const clientIds: any[] = [];
-    const trIds: any[] = [];
-    rs.map(r => {
-      if (r.nTrs > 1) {
-        for (let i = 1; i < r.transactions.length; i++) {
-          trIds.push(r.transactions[i]._id);
-        }
-        clientIds.push(r.transactions[0].fromId.toString());
-      }
-    });
-    await this.transactionModel.deleteMany({ _id: { $in: trIds } });
+    // const clientIds: any[] = [];
+    // const trIds: any[] = [];
+    // rs.map(r => {
+    //   if (r.nTrs > 1) {
+    //     for (let i = 1; i < r.transactions.length; i++) {
+    //       trIds.push(r.transactions[i]._id);
+    //     }
+    //     clientIds.push(r.transactions[0].fromId.toString());
+    //   }
+    // });
+    // await this.transactionModel.deleteMany({ _id: { $in: trIds } });
 
-    return clientIds;
-    // return rs;
+    // return clientIds;
+    return rs;
   }
 
   loadWechatPayments(): Promise<any[]> {
