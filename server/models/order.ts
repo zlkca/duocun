@@ -1953,7 +1953,8 @@ export class Order extends Model {
     const results: any[] = [];
     const parser = require('csv-parser');
     return new Promise((resolve, reject) => {
-      fs.createReadStream('/Users/zlk/works/cc_payments.csv').pipe(parser())
+      // fs.createReadStream('/Users/zlk/works/cc_payments.csv').pipe(parser())
+      fs.createReadStream('/home/ubuntu/cc_payments.csv').pipe(parser())
         .on('data', (data: any) => results.push(data))
         .on('end', () => {
           const rs: any[] = results.map(r => {
