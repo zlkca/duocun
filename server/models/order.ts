@@ -1791,17 +1791,21 @@ export class Order extends Model {
       });
   }
 
-  async reverseTransactions(actionCode: any) {
-    const orders = await this.find({ deliverDate: '2021-04-07', status:'T' });
-    // const tIds: any[] = [];
-    // const orderIds = orders.map(order => order._id);
-    // const created = { $gte: '2020-04-07T06:23:09.000Z', $lte: '2020-04-07T06:23:15.000Z' };
-    // const actionCode = { $in: ['OFM', 'OFD'] };
-    // const orderId = { $in: orderIds };
-    // const ts = await this.transactionModel.find({ orderId, actionCode, created });
-    // ts.map((t: any) => {
-    //   tIds.push(t._id);
-    // });
+  async reverseTransactions() {
+    const orders = await this.find({ deliverDate: '2021-04-07' });
+    const orderIds = orders.map(order => order._id.toString());
+    const trMap: any = {};
+    orders.map(order => {
+      trMap[order._id.toString()] = { nTrs: 0, order };
+    })
+    const actionCode = 'OFM';
+    const ts = await this.transactionModel.find({ orderId: { $in: orderIds }, actionCode });
+    ts.map(t => {
+      trMap[t.orderId.toString()].nTrs++;
+    });
+
+    const ids = Object.keys(trMap).filter(orderId => trMap[orderId].nTrs === 0);
+    return ids.map(oid => trMap[oid].order);
     // const ws: any[] = await this.loadWechatPayments();
     // const trMap: any = {};
     // ws.map((w: any) => {
@@ -1822,7 +1826,9 @@ export class Order extends Model {
 
     // await this.transactionModel.deleteMany({ _id: { $in: tIds } });
     // await this.addCreditTransactions(rs);
-    return orders;
+    // return orders;
+
+    // saveTransactionsForPlaceOrder(orders: any[], merchant: any) 
   }
 
 
@@ -1967,7 +1973,7 @@ export class Order extends Model {
     const parser = require('csv-parser');
     return new Promise((resolve, reject) => {
       // fs.createReadStream('/Users/zlk/works/wechatpay.csv').pipe(parser())
-        fs.createReadStream('/home/ubuntu/wechatpay.csv').pipe(parser())
+      fs.createReadStream('/home/ubuntu/wechatpay.csv').pipe(parser())
         .on('data', (data: any) => results.push(data))
         .on('end', () => {
           const rs: any[] = results.map(r => {
@@ -2004,10 +2010,26 @@ export class Order extends Model {
   }
 
   reqFixMissingPaid(req: Request, res: Response) {
-    const ps: any[] = [];
+    // const ps: any[] = [];
     const self = this;
     const actionCode: any = TransactionAction.PAY_BY_WECHAT.code;
-    this.reverseTransactions(actionCode).then((rs) => {
+    this.reverseTransactions().then((ps) => {
+      this.merchantModel.find({}).then(merchants => {
+        ps.map(order => {
+          const merchant = merchants.find(m => m._id.toString() === order.merchantId.toString())
+          self.transactionModel.saveTransactionsForPlaceOrder(
+            order._id.toString(),
+            order.type,
+            merchant.accountId.toString(),
+            merchant.name,
+            order.clientId.toString(),
+            order.clientName,
+            order.cost,
+            order.total,
+            order.delivered
+          )
+        })
+      });
 
       // rs.map(r => {
       //   setTimeout(() => {
@@ -2024,18 +2046,17 @@ export class Order extends Model {
       //   }, 100);
       // });
 
-      // setTimeout(() => {
-        const clientIds = rs.map((r: any) => r.clientId);
+      setTimeout(() => {
+        const clientIds = ps.map((r: any) => r.clientId);
         self.transactionModel.find({}).then(ts => {
           clientIds.map((cId) => {
-            setTimeout(() => {
-              self.transactionModel.updateBalanceByAccountId(cId, ts);
-            }, 100);
+            self.transactionModel.updateBalanceByAccountId(cId, ts);
           });
+
           res.setHeader('Content-Type', 'application/json');
           res.send(JSON.stringify(JSON.stringify(ps), null, 3));
         });
-      // }, 20000);
+      }, 10000);
     });
 
     // this.findMissingPaid(actionCode).then((ps) => {
