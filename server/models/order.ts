@@ -1112,21 +1112,21 @@ export class Order extends Model {
 
 
   async updateOrdersAsPaid(orders: IOrder[], data: any) {
-      const items = orders.map(order => {
-        // const data = { status: OrderStatus.NEW, paymentStatus };
-        return { query: { _id: order._id }, data }
-      });
-      await this.bulkUpdate(items);
-      // const eventLog = {
-      //   accountId: SNAPPAY_BANK_ID,
-      //   type: 'debug',
-      //   code: r.status,
-      //   decline_code: '',
-      //   message: 'updateOrdersAsPaid: ' + r.msg,
-      //   created: moment().toISOString()
-      // }
-      // await this.eventLogModel.insertOne(eventLog);
-      return;
+    const items = orders.map(order => {
+      // const data = { status: OrderStatus.NEW, paymentStatus };
+      return { query: { _id: order._id }, data }
+    });
+    await this.bulkUpdate(items);
+    // const eventLog = {
+    //   accountId: SNAPPAY_BANK_ID,
+    //   type: 'debug',
+    //   code: r.status,
+    //   decline_code: '',
+    //   message: 'updateOrdersAsPaid: ' + r.msg,
+    //   created: moment().toISOString()
+    // }
+    // await this.eventLogModel.insertOne(eventLog);
+    return;
   }
 
 
@@ -1791,35 +1791,59 @@ export class Order extends Model {
       });
   }
 
-  async reverseTransactions(){
-    const orders = await this.find({deliverDate:'2021-04-07'});
-      const tIds: any[] = [];
-      const orderIds = orders.map(order => order._id);
-      const created = { $gte: '2020-04-07T06:23:09.000Z', $lte: '2020-04-07T06:23:15.000Z' };
-      const actionCode = { $in: ['OFM', 'OFD']};
-      const orderId = { $in: orderIds };
-      const ts = await this.transactionModel.find({orderId, actionCode, created});
-      ts.map((t: any) => {
-        tIds.push(t._id);
-      });
-      await this.transactionModel.deleteMany({_id: {$in: tIds }});
-      return orders;
+  async reverseTransactions(actionCode: any) {
+    const orders = await this.find({ deliverDate: '2021-04-07' });
+    // const tIds: any[] = [];
+    // const orderIds = orders.map(order => order._id);
+    // const created = { $gte: '2020-04-07T06:23:09.000Z', $lte: '2020-04-07T06:23:15.000Z' };
+    // const actionCode = { $in: ['OFM', 'OFD'] };
+    // const orderId = { $in: orderIds };
+    // const ts = await this.transactionModel.find({ orderId, actionCode, created });
+    // ts.map((t: any) => {
+    //   tIds.push(t._id);
+    // });
+    const ws: any[] = await this.loadWechatPayments();
+    const trMap: any = {};
+    ws.map((w: any) => {
+      const paymentId = w.paymentId;
+      const amount = w.amount;
+      trMap[paymentId] = { paymentId, amount };
+    });
+    const rs = orders.map(r => {
+      return {
+        paymentId: r.paymentId.toString(),
+        clientId: r.clientId,
+        clientName: r.clientName,
+        amount: trMap[r.paymentId.toString()].amount,
+        actionCode,
+        delivered: r.delivered
+      };
+    });
+
+    // await this.transactionModel.deleteMany({ _id: { $in: tIds } });
+    // await this.addCreditTransactions(rs);
+    return rs;
   }
 
 
-  async findMissingPaid() {
-    const actionCode = TransactionAction.PAY_BY_CARD.code;
+  async findMissingPaid(actionCode: any) {
+
     const trs: any[] = await this.transactionModel.find({ actionCode });
-    const ws: any[] = await this.loadCCPayments(); // this.loadWechatPayments();
+    const ws: any[] = await this.loadWechatPayments(); // this.loadCCPayments(); // 
 
     const trMap: any = {};
     trs.map((tr: any) => {
       const paymentId = tr.paymentId ? tr.paymentId.toString() : 'x';
-      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client: '', cId: '', nOrders:0, orders:[] };
+      const clientName = tr.fromName;
+      const clientId = tr.fromId;
+      const delivered = tr.delivered;
+      trMap[paymentId] = { paymentId, amount: 0, delivered, nTrs: 0, transactions: [], clientName, clientId, nOrders: 0, orders: [] };
     });
     ws.map((w: any) => {
       const paymentId = w.paymentId;
-      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: w.createdDate, client: w.Description, cId: '',  nOrders:0, orders:[] };
+      const amount = w.amount;
+      const data = trMap[paymentId];
+      trMap[paymentId] = { ...data, paymentId, amount, actionCode, nWs: 0, ws: [], created: w.createdDate, description: w.Description };
     });
 
     // process
@@ -1828,7 +1852,6 @@ export class Order extends Model {
       trMap[paymentId].nTrs++;
       trMap[paymentId].transactions.push(tr);
       trMap[paymentId].created = tr.created.split('.')[0];
-      trMap[paymentId].client = tr.fromName;
     });
 
     ws.map((w: any) => {
@@ -1840,21 +1863,21 @@ export class Order extends Model {
 
     const vals = Object.keys(trMap).map(pId => trMap[pId]);
     const rs = vals.filter(t => t.nTrs < t.nWs && t.paymentId !== 'x');
-    const pIds = rs.map(r => r.paymentId);
+    // const pIds = rs.map(r => r.paymentId);
 
-    const orders: any[] = await this.find({ paymentId: {$in: pIds} }); // joinFind Not working
+    // const orders: any[] = await this.find({ paymentId: { $in: pIds } }); // joinFind Not working
 
-    orders.map(order => {
-      const paymentId = order.paymentId.toString();
-      trMap[paymentId].nOrders++;
-      trMap[paymentId].orders.push(order);
-      trMap[paymentId].cId = order.clientId.toString()
-    });
-    const vals2 = Object.keys(trMap).map(pId => trMap[pId]);
-    const rs2 = vals2.filter(t => t.nTrs < t.nWs && t.paymentId !== 'x');
+    // orders.map(order => {
+    //   const paymentId = order.paymentId.toString();
+    //   trMap[paymentId].nOrders++;
+    //   trMap[paymentId].orders.push(order);
+    //   trMap[paymentId].cId = order.clientId.toString()
+    // });
+    // const vals2 = Object.keys(trMap).map(pId => trMap[pId]);
+    // const rs2 = vals2.filter(t => t.nTrs < t.nWs && t.paymentId !== 'x');
 
     // fixing ...
-    // await this.addCreditTransactions(rs2);
+    // await this.addCreditTransactions(rs);
     // const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, deliverDate: '2021-04-07' };
     // await this.updateOrdersAsPaid(orders, data);
 
@@ -1866,7 +1889,7 @@ export class Order extends Model {
     //   }
     // });
     // return clientIds;
-    return rs2;
+    return rs;
   }
 
   // rs --- [{paymentId, orders[]}]
@@ -1874,22 +1897,16 @@ export class Order extends Model {
     let promises = [];
     for (let i = 0; i < rs.length; i++) {
       const r = rs[i];
-      for(let j=0; j<r.orders.length; j++){
-        const order = r.orders[j];
-        promises.push(
-          this.transactionModel.saveTransactionsForPlaceOrder(
-            order._id.toString(),
-            order.type,
-            order.merchant.accountId.toString(),
-            order.merchant.name,
-            order.clientId.toString(),
-            order.clientName,
-            order.cost,
-            order.total,
-            order.delivered
-          )
+      promises.push(
+        this.addCreditTransaction(
+          r.paymentId,
+          r.clientId,
+          r.clientName,
+          r.amount,
+          r.actionCode,
+          r.delivered
         )
-      }
+      );
     }
     return Promise.all(promises);
   }
@@ -1903,11 +1920,11 @@ export class Order extends Model {
     const trMap: any = {};
     trs.map((tr: any) => {
       const paymentId = tr.paymentId ? tr.paymentId.toString() : 'x';
-      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client:'' };
+      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client: '' };
     });
     ws.map((w: any) => {
       const paymentId = w.paymentId;
-      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client:'' };
+      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client: '' };
     });
 
     // process
@@ -1949,8 +1966,8 @@ export class Order extends Model {
     const results: any[] = [];
     const parser = require('csv-parser');
     return new Promise((resolve, reject) => {
-      // /User/zlk/works/
-      fs.createReadStream('/home/ubuntu/wechatpay.csv').pipe(parser())
+      // fs.createReadStream('/Users/zlk/works/wechatpay.csv').pipe(parser())
+        fs.createReadStream('/home/ubuntu/wechatpay.csv').pipe(parser())
         .on('data', (data: any) => results.push(data))
         .on('end', () => {
           const rs: any[] = results.map(r => {
@@ -1989,28 +2006,50 @@ export class Order extends Model {
   reqFixMissingPaid(req: Request, res: Response) {
     const ps: any[] = [];
     const self = this;
-    this.reverseTransactions().then((orders) => {
-      const clientIds = orders.map(order => order.clientId);
-      this.transactionModel.find({}).then(ts => {
-        clientIds.map((cId) => {
-          setTimeout(() => {
-            self.transactionModel.updateBalanceByAccountId(cId, ts);
-          }, 1000);
-        });
+    const actionCode: any = TransactionAction.PAY_BY_WECHAT.code;
+    this.reverseTransactions(actionCode).then((rs) => {
+
+      rs.map(r => {
+        setTimeout(() => {
+          self.addCreditTransaction(
+            r.paymentId.toString(),
+            r.clientId.toString(),
+            r.clientName,
+            r.amount,
+            r.actionCode,
+            r.delivered
+          ).then(() => {
+
+          });
+        }, 100);
       });
+
+      setTimeout(() => {
+        const clientIds = rs.map((r: any) => r.clientId);
+        self.transactionModel.find({}).then(ts => {
+          clientIds.map((cId) => {
+            setTimeout(() => {
+              self.transactionModel.updateBalanceByAccountId(cId, ts);
+            }, 1000);
+          });
+          res.setHeader('Content-Type', 'application/json');
+          res.send(JSON.stringify(JSON.stringify(ps), null, 3));
+        });
+      }, 20000);
     });
-    // this.findMissingPaid().then((ps) => {
-      // const self = this;
-      // const clientIds = ps;
-      // this.transactionModel.find({}).then(ts => {
-      //   clientIds.map((cId) => {
-      //     setTimeout(() => {
-      //       self.transactionModel.updateBalanceByAccountId(cId, ts);
-      //     }, 1000);
-      //   });
-      // });
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(JSON.stringify(ps), null, 3));
+
+    // this.findMissingPaid(actionCode).then((ps) => {
+    //   const self = this;
+    //   const clientIds = ps;
+    //   this.transactionModel.find({}).then(ts => {
+    //     clientIds.map((cId) => {
+    //       setTimeout(() => {
+    //         self.transactionModel.updateBalanceByAccountId(cId, ts);
+    //       }, 1000);
+    //     });
+    //   });
+    //   res.setHeader('Content-Type', 'application/json');
+    //   res.send(JSON.stringify(JSON.stringify(ps), null, 3));
     // });
   }
 
