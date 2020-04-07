@@ -177,7 +177,7 @@ export class ClientPayment extends Model {
                 type: 'snappay',
                 code: ret ? ret.code : '',
                 decline_code: '',
-                message: ret ? ret.message : '',
+                message: ret ? ret.msg : '',
                 created: moment().toISOString()
               }
 
