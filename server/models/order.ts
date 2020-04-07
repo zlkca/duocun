@@ -1111,11 +1111,9 @@ export class Order extends Model {
   }
 
 
-  async updateOrdersAsPaid(orders: IOrder[], t: any) {
-    if (t) {
+  async updateOrdersAsPaid(orders: IOrder[], data: any) {
       const items = orders.map(order => {
-        const paymentStatus = PaymentStatus.PAID;
-        const data = { status: OrderStatus.NEW, paymentStatus, transactionId: t._id };
+        // const data = { status: OrderStatus.NEW, paymentStatus };
         return { query: { _id: order._id }, data }
       });
       await this.bulkUpdate(items);
@@ -1129,9 +1127,6 @@ export class Order extends Model {
       // }
       // await this.eventLogModel.insertOne(eventLog);
       return;
-    } else {
-      return;
-    }
   }
 
 
@@ -1150,8 +1145,9 @@ export class Order extends Model {
           await this.addDebitTransactions(orders); // .then(() => {
           const delivered: any = order.delivered;
           const clientId = order.clientId.toString();
-          const t = await this.addCreditTransaction(paymentId, clientId, order.clientName, amount, actionCode, delivered); // .then(t => {
-          await this.updateOrdersAsPaid(orders, t); // .then(() => {
+          await this.addCreditTransaction(paymentId, clientId, order.clientName, amount, actionCode, delivered); // .then(t => {
+          const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID };
+          await this.updateOrdersAsPaid(orders, data); // .then(() => {
           return;
         } else {
           return;
@@ -1795,7 +1791,93 @@ export class Order extends Model {
       });
   }
 
-  async findDupWechatPay() {
+  async findMissingPaidWechat() {
+    const actionCode = TransactionAction.PAY_BY_WECHAT.code;
+    const trs: any[] = await this.transactionModel.find({ actionCode });
+    const ws: any[] = await this.loadWechatPayments();
+
+    const trMap: any = {};
+    trs.map((tr: any) => {
+      const paymentId = tr.paymentId ? tr.paymentId.toString() : 'x';
+      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client: '', cId: '', nOrders:0, orders:[] };
+    });
+    ws.map((w: any) => {
+      const paymentId = w.paymentId;
+      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client: '', cId: '',  nOrders:0, orders:[] };
+    });
+
+    // process
+    trs.map((tr: any) => {
+      const paymentId = tr.paymentId ? tr.paymentId.toString() : 'x';
+      trMap[paymentId].nTrs++;
+      trMap[paymentId].transactions.push(tr);
+      trMap[paymentId].created = tr.created.split('.')[0];
+      trMap[paymentId].client = tr.fromName;
+    });
+
+    ws.map((w: any) => {
+      const paymentId = w.paymentId;
+      trMap[paymentId].nWs++;
+      trMap[paymentId].ws.push(w);
+    });
+
+    const vals = Object.keys(trMap).map(pId => trMap[pId]);
+    const rs = vals.filter(t => t.nTrs < t.nWs && t.paymentId !== 'x');
+    const pIds = rs.map(r => r.paymentId);
+
+    const orders: any[] = await this.joinFind({ paymentId: {$in: pIds} });
+
+    orders.map(order => {
+      const paymentId = order.paymentId.toString();
+      trMap[paymentId].nOrders++;
+      trMap[paymentId].orders.push(order);
+      trMap[paymentId].cId = order.clientId.toString()
+    });
+    const vals2 = Object.keys(trMap).map(pId => trMap[pId]);
+    const rs2 = vals2.filter(t => t.nTrs < t.nWs && t.paymentId !== 'x');
+
+    // fixing ...
+    await this.addCreditTransactions(rs2);
+    const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID, deliverDate: '2021-04-07' };
+    await this.updateOrdersAsPaid(orders, data);
+
+
+    const clientIds: any[] = [];
+    rs2.map(r => {
+      if (r.nTrs > 1) {
+        clientIds.push(r.cId);
+      }
+    });
+    return clientIds;
+    // return rs2;
+  }
+
+  // rs --- [{paymentId, orders[]}]
+  addCreditTransactions(rs: any[]) {
+    let promises = [];
+    for (let i = 0; i < rs.length; i++) {
+      const r = rs[i];
+      for(let j=0; j<r.orders.length; j++){
+        const order = r.orders[j];
+        promises.push(
+          this.transactionModel.saveTransactionsForPlaceOrder(
+            order._id.toString(),
+            order.type,
+            order.merchant.accountId.toString(),
+            order.merchant.name,
+            order.clientId.toString(),
+            order.clientName,
+            order.cost,
+            order.total,
+            order.delivered
+          )
+        )
+      }
+    }
+    return Promise.all(promises);
+  }
+
+  async findMissingUnpaidWechat() {
     const actionCode = TransactionAction.PAY_BY_WECHAT.code;
     const trs: any[] = await this.transactionModel.find({ actionCode });
     // const ws: any[] = await this.loadWechatPayments();
@@ -1827,6 +1909,7 @@ export class Order extends Model {
     const vals = Object.keys(trMap).map(pId => trMap[pId]);
     const rs = vals.filter(t => t.nTrs > 1 && t.paymentId !== 'x');
 
+    // fixing ...
     // const clientIds: any[] = [];
     // const trIds: any[] = [];
     // rs.map(r => {
@@ -1847,7 +1930,7 @@ export class Order extends Model {
     const results: any[] = [];
     const parser = require('csv-parser');
     return new Promise((resolve, reject) => {
-      const fd = fs.createReadStream('/Users/zlk/works/wechatpay.csv').pipe(parser())
+      const fd = fs.createReadStream('/home/ubuntu/wechatpay.csv').pipe(parser())
         .on('data', (data: any) => results.push(data))
         .on('end', () => {
           const rs: any[] = results.map(r => {
@@ -1862,8 +1945,24 @@ export class Order extends Model {
     });
   }
 
+  reqMissingPaidWechat(req: Request, res: Response) {
+    this.findMissingPaidWechat().then((ps) => {
+      const self = this;
+      const clientIds = ps;
+      this.transactionModel.find({}).then(ts => {
+        clientIds.map((cId) => {
+          setTimeout(() => {
+            self.transactionModel.updateBalanceByAccountId(cId, ts);
+          }, 1000);
+        });
+      });
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(JSON.stringify(ps), null, 3));
+    });
+  }
+
   reqDupWechatPayments(req: Request, res: Response) {
-    this.findDupWechatPay().then((ps) => {
+    this.findMissingUnpaidWechat().then((ps) => {
       const self = this;
       const clientIds = ps;
       this.transactionModel.find({}).then(ts => {

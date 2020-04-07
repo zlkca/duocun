@@ -8,7 +8,7 @@ import https from 'https';
 // import NodeRSA from 'node-rsa';
 import { Md5 } from 'ts-md5';
 import moment, { now } from 'moment';
-import { Order, OrderType, PaymentStatus, PaymentMethod } from "../models/order";
+import { Order, OrderType, PaymentStatus, PaymentMethod, OrderStatus } from "../models/order";
 import { Transaction, TransactionAction, IDbTransaction } from "./transaction";
 import { Merchant } from "./merchant";
 import { ClientCredit } from "./client-credit";
@@ -176,8 +176,8 @@ export class ClientPayment extends Model {
                 accountId: accountId,
                 type: 'snappay',
                 code: ret ? ret.code : '',
-                decline_code: '',
-                message: ret ? ret.msg : '',
+                decline_code: 'sign:' + ( ret ? ret.sign : 'N/A'),
+                message: ret ? ret.msg : 'N/A',
                 created: moment().toISOString()
               }
 
@@ -535,7 +535,8 @@ export class ClientPayment extends Model {
         const actionCode = TransactionAction.PAY_BY_WECHAT.code;
         this.orderEntity.addDebitTransactions(orders).then(() => {
           this.orderEntity.addCreditTransaction(paymentId, clientId, order.clientName, amount, actionCode, delivered).then(t => {
-            this.orderEntity.updateOrdersAsPaid(orders, t).then(() => {
+            const data = { status: OrderStatus.NEW, paymentStatus: PaymentStatus.PAID };
+            this.orderEntity.updateOrdersAsPaid(orders, data).then(() => {
               res.setHeader('Content-Type', 'application/json');
               res.send({ code: '0' }); // must return as snappay gateway required
             });
