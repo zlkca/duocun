@@ -260,7 +260,7 @@ export class Account extends Model {
       delete account.password;
     }
     if (loggedInAccountId) {
-      if (account) {
+      if (account) { // phone has account
         if (account._id.toString() !== loggedInAccountId) {
           return { verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED, account };
         } else {
@@ -294,8 +294,8 @@ export class Account extends Model {
   doVerifyAndLogin(phone: string, code: string, loggedInAccountId: string) {
     return new Promise((resolve, reject) => {
       if (loggedInAccountId) { // logged in
-        this.findOne({ phone: phone }).then((account: IAccount) => {
-          if (account) {
+        this.findOne({ phone }).then((account: IAccount) => {
+          if (account) { // phone has an account
             if (account._id.toString() !== loggedInAccountId) {
               resolve({ verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED });
             } else {
@@ -316,7 +316,8 @@ export class Account extends Model {
               }
             }
           } else {
-            resolve({ verified: false, err: VerificationError.NO_PHONE_NUMBER_BIND });
+            // resolve({ verified: false, err: VerificationError.NO_PHONE_NUMBER_BIND });
+            resolve({ verified: true, err: VerificationError.NONE, account: account });
           }
         });
       } else { // loggedInAccountId = ''
