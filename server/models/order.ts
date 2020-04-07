@@ -1791,6 +1791,22 @@ export class Order extends Model {
       });
   }
 
+  async reverseTransactions(){
+    const orders = await this.find({deliverDate:'2021-04-07'});
+      const tIds: any[] = [];
+      const orderIds = orders.map(order => order._id);
+      const created = { $gte: '2020-04-07T06:23:09.000Z', $lte: '2020-04-07T06:23:15.000Z' };
+      const actionCode = { $in: ['OFM', 'OFD']};
+      const orderId = { $in: orderIds };
+      const ts = await this.transactionModel.find({orderId, actionCode, created});
+      ts.map((t: any) => {
+        tIds.push(t._id);
+      });
+      await this.transactionModel.deleteMany({_id: {$in: tIds }});
+      return orders;
+  }
+
+
   async findMissingPaid() {
     const actionCode = TransactionAction.PAY_BY_CARD.code;
     const trs: any[] = await this.transactionModel.find({ actionCode });
@@ -1971,7 +1987,19 @@ export class Order extends Model {
   }
 
   reqFixMissingPaid(req: Request, res: Response) {
-    this.findMissingPaid().then((ps) => {
+    const ps: any[] = [];
+    const self = this;
+    this.reverseTransactions().then((orders) => {
+      const clientIds = orders.map(order => order.clientId);
+      this.transactionModel.find({}).then(ts => {
+        clientIds.map((cId) => {
+          setTimeout(() => {
+            self.transactionModel.updateBalanceByAccountId(cId, ts);
+          }, 1000);
+        });
+      });
+    });
+    // this.findMissingPaid().then((ps) => {
       // const self = this;
       // const clientIds = ps;
       // this.transactionModel.find({}).then(ts => {
@@ -1983,7 +2011,7 @@ export class Order extends Model {
       // });
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(JSON.stringify(ps), null, 3));
-    });
+    // });
   }
 
   reqFixMissingUnpaid(req: Request, res: Response) {
