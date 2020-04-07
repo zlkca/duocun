@@ -256,7 +256,9 @@ export class Account extends Model {
   }
 
   verifyPhoneNumber(phone: string, code: string, loggedInAccountId: string) {
-    return new Promise((resolve, reject) => { 
+    return new Promise((resolve, reject) => {
+      const cfg = new Config();
+      
       this.findOne({ phone }).then((account) => {
         if (account && account.password) {
           delete account.password;
@@ -267,13 +269,15 @@ export class Account extends Model {
               resolve({ verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED, account });
             } else {
               if (account.verificationCode && (code === account.verificationCode)) {
-                resolve({ verified: true, err: VerificationError.NONE, account });
+                const tokenId = jwt.sign(account._id.toString(), cfg.JWT.SECRET); // SHA256
+                resolve({ verified: true, err: VerificationError.NONE, account, tokenId });
               } else {
                 resolve({ verified: false, err: VerificationError.WRONG_CODE, account });
               }
             }
           } else {
-            resolve({ verified: true, err: VerificationError.NONE, account }); // please resend code
+            const tokenId = jwt.sign(loggedInAccountId, cfg.JWT.SECRET); // SHA256
+            resolve({ verified: true, err: VerificationError.NONE, account, tokenId }); // please resend code
           }
         } else { // enter from web page 
           if (account) {
@@ -281,7 +285,8 @@ export class Account extends Model {
               resolve( { verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED, account });
             } else {
               if (account.verificationCode && code === account.verificationCode) {
-                resolve( { verified: true, err: VerificationError.NONE, account }); // tokenId: tokenId, 
+                const tokenId = jwt.sign(account._id.toString(), cfg.JWT.SECRET); // SHA256
+                resolve( { verified: true, err: VerificationError.NONE, account, tokenId }); // tokenId: tokenId, 
               } else {
                 resolve( { verified: false, err: VerificationError.WRONG_CODE, account });
               }
