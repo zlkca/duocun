@@ -1802,27 +1802,27 @@ export class Order extends Model {
     // ts.map((t: any) => {
     //   tIds.push(t._id);
     // });
-    const ws: any[] = await this.loadWechatPayments();
-    const trMap: any = {};
-    ws.map((w: any) => {
-      const paymentId = w.paymentId;
-      const amount = w.amount;
-      trMap[paymentId] = { paymentId, amount };
-    });
-    const rs = orders.map(r => {
-      return {
-        paymentId: r.paymentId.toString(),
-        clientId: r.clientId,
-        clientName: r.clientName,
-        amount: trMap[r.paymentId.toString()].amount,
-        actionCode,
-        delivered: r.delivered
-      };
-    });
+    // const ws: any[] = await this.loadWechatPayments();
+    // const trMap: any = {};
+    // ws.map((w: any) => {
+    //   const paymentId = w.paymentId;
+    //   const amount = w.amount;
+    //   trMap[paymentId] = { paymentId, amount };
+    // });
+    // const rs = orders.map(r => {
+    //   return {
+    //     paymentId: r.paymentId.toString(),
+    //     clientId: r.clientId,
+    //     clientName: r.clientName,
+    //     amount: trMap[r.paymentId.toString()].amount,
+    //     actionCode,
+    //     delivered: r.delivered
+    //   };
+    // });
 
     // await this.transactionModel.deleteMany({ _id: { $in: tIds } });
     // await this.addCreditTransactions(rs);
-    return rs;
+    return orders;
   }
 
 
@@ -2009,22 +2009,22 @@ export class Order extends Model {
     const actionCode: any = TransactionAction.PAY_BY_WECHAT.code;
     this.reverseTransactions(actionCode).then((rs) => {
 
-      rs.map(r => {
-        setTimeout(() => {
-          self.addCreditTransaction(
-            r.paymentId.toString(),
-            r.clientId.toString(),
-            r.clientName,
-            r.amount,
-            r.actionCode,
-            r.delivered
-          ).then(() => {
+      // rs.map(r => {
+      //   setTimeout(() => {
+      //     self.addCreditTransaction(
+      //       r.paymentId.toString(),
+      //       r.clientId.toString(),
+      //       r.clientName,
+      //       r.amount,
+      //       r.actionCode,
+      //       r.delivered
+      //     ).then(() => {
 
-          });
-        }, 100);
-      });
+      //     });
+      //   }, 100);
+      // });
 
-      setTimeout(() => {
+      // setTimeout(() => {
         const clientIds = rs.map((r: any) => r.clientId);
         self.transactionModel.find({}).then(ts => {
           clientIds.map((cId) => {
@@ -2035,7 +2035,7 @@ export class Order extends Model {
           res.setHeader('Content-Type', 'application/json');
           res.send(JSON.stringify(JSON.stringify(ps), null, 3));
         });
-      }, 20000);
+      // }, 20000);
     });
 
     // this.findMissingPaid(actionCode).then((ps) => {
