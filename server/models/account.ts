@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { Config } from "../config";
 import { Utils } from "../utils";
 import moment from 'moment';
+import { resolve } from "dns";
 
 const saltRounds = 10;
 export const VerificationError = {
@@ -254,40 +255,43 @@ export class Account extends Model {
     }
   }
 
-  async verifyPhoneNumber(phone: string, code: string, loggedInAccountId: string) {
-    const account = await this.findOne({ phone });
-    if (account && account.password) {
-      delete account.password;
-    }
-    if (loggedInAccountId) {
-      if (account) { // phone has account
-        if (account._id.toString() !== loggedInAccountId) {
-          return { verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED, account };
-        } else {
-          if (account.verificationCode && (code === account.verificationCode)) {
-            return { verified: true, err: VerificationError.NONE, account };
+  verifyPhoneNumber(phone: string, code: string, loggedInAccountId: string) {
+    return new Promise((resolve, reject) => { 
+      this.findOne({ phone }).then((account) => {
+        if (account && account.password) {
+          delete account.password;
+        }
+        if (loggedInAccountId) {
+          if (account) { // phone has account
+            if (account._id.toString() !== loggedInAccountId) {
+              resolve({ verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED, account });
+            } else {
+              if (account.verificationCode && (code === account.verificationCode)) {
+                resolve({ verified: true, err: VerificationError.NONE, account });
+              } else {
+                resolve({ verified: false, err: VerificationError.WRONG_CODE, account });
+              }
+            }
           } else {
-            return { verified: false, err: VerificationError.WRONG_CODE, account };
+            resolve({ verified: true, err: VerificationError.NONE, account }); // please resend code
+          }
+        } else { // enter from web page 
+          if (account) {
+            if (account.openId) {
+              resolve( { verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED, account });
+            } else {
+              if (account.verificationCode && code === account.verificationCode) {
+                resolve( { verified: true, err: VerificationError.NONE, account }); // tokenId: tokenId, 
+              } else {
+                resolve( { verified: false, err: VerificationError.WRONG_CODE, account });
+              }
+            }
+          } else {
+            resolve( { verified: false, err: VerificationError.NO_PHONE_NUMBER_BIND, account }); // // please resend code
           }
         }
-      } else {
-        return { verified: false, err: VerificationError.NO_PHONE_NUMBER_BIND, account }; // please resend code
-      }
-    } else { // enter from web page 
-      if (account) {
-        if (account.openId) {
-          return { verified: false, err: VerificationError.PHONE_NUMBER_OCCUPIED, account };
-        } else {
-          if (account.verificationCode && code === account.verificationCode) {
-            return { verified: true, err: VerificationError.NONE, account }; // tokenId: tokenId, 
-          } else {
-            return { verified: false, err: VerificationError.WRONG_CODE, account };
-          }
-        }
-      } else {
-        return { verified: false, err: VerificationError.NO_PHONE_NUMBER_BIND, account }; // // please resend code
-      }
-    }
+      });
+    });
   }
 
 
