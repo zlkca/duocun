@@ -11,7 +11,7 @@ export function OrderRouter(db: DB){
   // tools
   router.post('/missingWechatpayments', (req, res) => { controller.reqMissingWechatPayments(req, res); });
   router.post('/missingPaid', (req, res) => { controller.reqFixMissingPaid(req, res); });
-  router.post('/dupWechatPayments', (req, res) => { controller.reqDupWechatPayments(req, res); });
+  router.post('/missingUnpaid', (req, res) => { controller.reqFixMissingUnpaid(req, res); });
   
   // v1
   router.get('/csv', (req, res) => { controller.reqCSV(req, res); });

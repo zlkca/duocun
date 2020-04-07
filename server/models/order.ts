@@ -1878,20 +1878,21 @@ export class Order extends Model {
     return Promise.all(promises);
   }
 
-  async findMissingUnpaidWechat() {
-    const actionCode = TransactionAction.PAY_BY_WECHAT.code;
+  async findMissingUnpaid() {
+    const actionCode = TransactionAction.PAY_BY_CARD.code;
     const trs: any[] = await this.transactionModel.find({ actionCode });
+    const ws: any[] = await this.loadCCPayments();
     // const ws: any[] = await this.loadWechatPayments();
 
     const trMap: any = {};
     trs.map((tr: any) => {
       const paymentId = tr.paymentId ? tr.paymentId.toString() : 'x';
-      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '' };
+      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client:'' };
     });
-    // ws.map((w: any) => {
-    //   const paymentId = w.paymentId;
-    //   trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '' };
-    // });
+    ws.map((w: any) => {
+      const paymentId = w.paymentId;
+      trMap[paymentId] = { paymentId, nTrs: 0, transactions: [], nWs: 0, ws: [], created: '', client:'' };
+    });
 
     // process
     trs.map((tr: any) => {
@@ -1899,32 +1900,33 @@ export class Order extends Model {
       trMap[paymentId].nTrs++;
       trMap[paymentId].transactions.push(tr);
       trMap[paymentId].created = tr.created.split('.')[0];
+      trMap[paymentId].client = tr.fromName;
     });
 
-    // ws.map((w: any) => {
-    //   const paymentId = w.paymentId;
-    //   trMap[paymentId].nWs++;
-    //   trMap[paymentId].ws.push(w);
-    // });
+    ws.map((w: any) => {
+      const paymentId = w.paymentId;
+      trMap[paymentId].nWs++;
+      trMap[paymentId].ws.push(w);
+    });
 
     const vals = Object.keys(trMap).map(pId => trMap[pId]);
-    const rs = vals.filter(t => t.nTrs > 1 && t.paymentId !== 'x');
+    const rs = vals.filter(t => t.nTrs > t.nWs && t.paymentId !== 'x');
 
     // fixing ...
-    // const clientIds: any[] = [];
-    // const trIds: any[] = [];
-    // rs.map(r => {
-    //   if (r.nTrs > 1) {
-    //     for (let i = 1; i < r.transactions.length; i++) {
-    //       trIds.push(r.transactions[i]._id);
-    //     }
-    //     clientIds.push(r.transactions[0].fromId.toString());
-    //   }
-    // });
-    // await this.transactionModel.deleteMany({ _id: { $in: trIds } });
+    const clientIds: any[] = [];
+    const trIds: any[] = [];
+    rs.map(r => {
+      if (r.nTrs > r.nWs) {
+        for (let i = 0; i < r.transactions.length; i++) { // !!! index !!!!!
+          trIds.push(r.transactions[i]._id);
+        }
+        clientIds.push(r.transactions[0].fromId.toString());
+      }
+    });
+    await this.transactionModel.deleteMany({ _id: { $in: trIds } });
 
-    // return clientIds;
-    return rs;
+    return clientIds;
+    // return rs;
   }
 
   loadWechatPayments(): Promise<any[]> {
@@ -1983,8 +1985,8 @@ export class Order extends Model {
     });
   }
 
-  reqDupWechatPayments(req: Request, res: Response) {
-    this.findMissingUnpaidWechat().then((ps) => {
+  reqFixMissingUnpaid(req: Request, res: Response) {
+    this.findMissingUnpaid().then((ps) => {
       const self = this;
       const clientIds = ps;
       this.transactionModel.find({}).then(ts => {
