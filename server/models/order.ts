@@ -1792,7 +1792,7 @@ export class Order extends Model {
   }
 
   async reverseTransactions(actionCode: any) {
-    const orders = await this.find({ deliverDate: '2021-04-07' });
+    const orders = await this.find({ deliverDate: '2021-04-07', status:'T' });
     // const tIds: any[] = [];
     // const orderIds = orders.map(order => order._id);
     // const created = { $gte: '2020-04-07T06:23:09.000Z', $lte: '2020-04-07T06:23:15.000Z' };
@@ -2030,7 +2030,7 @@ export class Order extends Model {
           clientIds.map((cId) => {
             setTimeout(() => {
               self.transactionModel.updateBalanceByAccountId(cId, ts);
-            }, 1000);
+            }, 100);
           });
           res.setHeader('Content-Type', 'application/json');
           res.send(JSON.stringify(JSON.stringify(ps), null, 3));
