@@ -660,9 +660,22 @@ export class Transaction extends Model {
     // });
   }
 
-  updateBalanceByAccountId(accountId: string, transactions: ITransaction[]) {
-    const trs = transactions.filter(t => t.fromId.toString() === accountId || t.toId.toString() === accountId);
+  // v2 api
+  updateBalanceList(accountIds: string[]){
+    const self = this;
+    this.find({}).then(ts => {
+      accountIds.map((id: string) => {
+        setTimeout(() => {
+          self.updateBalanceByAccountId(id, ts).then(() => {
+            
+          });
+        }, 500);
+      });
+    });
+  }
 
+  // const trs = transactions.filter(t => t.fromId.toString() === accountId || t.toId.toString() === accountId);
+  async updateBalanceByAccountId(accountId: string, trs: ITransaction[]) {
     if (trs && trs.length > 0) {
       let balance = 0;
       const list = trs.sort((a: any, b: any) => {
@@ -706,11 +719,9 @@ export class Transaction extends Model {
       });
 
       balance = Math.round(balance * 100) / 100;
-      this.bulkUpdate(datas).then(() => {
-        this.accountModel.updateOne({ _id: accountId }, { balance: balance }).then(() => {
-          // console.log('Finish update ' + accountId);
-        });
-      });
+      await this.bulkUpdate(datas);
+      await this.accountModel.updateOne({ _id: accountId }, { balance: balance });
+      return;
     }
   }
 
@@ -799,7 +810,9 @@ export class Transaction extends Model {
       this.find({}).then(ts => {
         accounts.map((a: IAccount) => {
           setTimeout(() => {
-            self.updateBalanceByAccountId(a._id.toString(), ts);
+            self.updateBalanceByAccountId(a._id.toString(), ts).then(() => {
+
+            });
           }, 500);
         });
 

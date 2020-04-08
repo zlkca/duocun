@@ -243,68 +243,74 @@ export class ClientPayment extends Model {
   // stripe new API
   async trySaveStripeCard(accountId: string, paymentMethodId: string) {
     const stripe = require('stripe')(this.cfg.STRIPE.API_KEY);
-    const account = await this.accountModel.findOne({ _id: accountId }, null, ['_id', 'cardAccountId', 'cards']);
-    if (account) {
-      try {
-        if (account.cardAccountId) {
-          // const customerId = account.cardAccountId;
-          // if (account.cards) {
-          //   if (account.cards.indexOf(paymentMethodId) !== -1) { // has customerId and the same paymentMethodId, not need to create
-          //     // pass
-          //   } else { // has customerId but card didn't attached, attach the card
-          //     await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
-          //     const cards = [...account.cards, paymentMethodId];
-          //     await this.accountModel.updateOne({ _id: accountId }, { cards });
-          //   }
-          // } else { // previous failed to save cards
-          //   await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
-          //   await this.accountModel.updateOne({ _id: accountId }, { cards: [paymentMethodId] });
-          // }
-          // return { customerId, err: PaymentError.NONE };
-          const customer = await stripe.customers.create({
-            payment_method: paymentMethodId
-          });
-          const customerId = customer.id;
-          if (customerId) {
-            await this.accountModel.updateOne({ _id: accountId }, { cardAccountId: customerId, cards: [paymentMethodId] });
-            return { customerId, err: PaymentError.NONE };
-          } else {
-            return { err: PaymentError.CREATE_BANK_CUSTOMER_FAIL };
-          }
-        } else {
-          const customer = await stripe.customers.create({
-            payment_method: paymentMethodId
-          });
-          const customerId = customer.id;
-          if (customerId) {
-            await this.accountModel.updateOne({ _id: accountId }, { cardAccountId: customerId, cards: [paymentMethodId] });
-            return { customerId, err: PaymentError.NONE };
-          } else {
-            return { err: PaymentError.CREATE_BANK_CUSTOMER_FAIL };
-          }
-        }
-      } catch (e) { // code and message
-        let err = PaymentError.BANK_CARD_DECLIEND;
-        if (e.statusCode === 402) {
-          err = PaymentError.BANK_INSUFFICIENT_FUND;
-        } else if (e.statusCode === 404) {
-          err = PaymentError.PAYMENT_METHOD_ID_MISSING;
-        }
-        const eventLog = {
-          accountId,
-          type: e ? e.type : '',
-          code: e ? e.code : '',
-          decline_code: e ? e.decline_code : '',
-          message: e ? e.message : '',
-          created: moment().toISOString()
-        }
-        await this.eventLogModel.insertOne(eventLog);
-        console.log(e);
-        return { err };
-      }
-    } else {
-      return { err: PaymentError.INVALID_ACCOUNT };
-    }
+    const customer = await stripe.customers.create({
+      payment_method: paymentMethodId
+    });
+    const customerId = customer.id;
+    return { customerId, err: PaymentError.NONE };
+
+    // const account = await this.accountModel.findOne({ _id: accountId }, null, ['_id', 'cardAccountId', 'cards']);
+    // if (account) {
+    //   try {
+    //     if (account.cardAccountId) {
+    //       const customerId = account.cardAccountId;
+    //       if (account.cards) {
+    //         if (account.cards.indexOf(paymentMethodId) !== -1) { // has customerId and the same paymentMethodId, not need to create
+    //           // pass
+    //         } else { // has customerId but card didn't attached, attach the card
+    //           await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
+    //           const cards = [...account.cards, paymentMethodId];
+    //           await this.accountModel.updateOne({ _id: accountId }, { cards });
+    //         }
+    //       } else { // previous failed to save cards
+    //         await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
+    //         await this.accountModel.updateOne({ _id: accountId }, { cards: [paymentMethodId] });
+    //       }
+    //       return { customerId, err: PaymentError.NONE };
+    //       const customer = await stripe.customers.create({
+    //         payment_method: paymentMethodId
+    //       });
+    //       const customerId = customer.id;
+    //       if (customerId) {
+    //         await this.accountModel.updateOne({ _id: accountId }, { cardAccountId: customerId, cards: [paymentMethodId] });
+    //         return { customerId, err: PaymentError.NONE };
+    //       } else {
+    //         return { err: PaymentError.CREATE_BANK_CUSTOMER_FAIL };
+    //       }
+    //     } else {
+    //       const customer = await stripe.customers.create({
+    //         payment_method: paymentMethodId
+    //       });
+    //       const customerId = customer.id;
+    //       if (customerId) {
+    //         await this.accountModel.updateOne({ _id: accountId }, { cardAccountId: customerId, cards: [paymentMethodId] });
+    //         return { customerId, err: PaymentError.NONE };
+    //       } else {
+    //         return { err: PaymentError.CREATE_BANK_CUSTOMER_FAIL };
+    //       }
+    //     }
+    //   } catch (e) { // code and message
+    //     let err = PaymentError.BANK_CARD_DECLIEND;
+    //     if (e.statusCode === 402) {
+    //       err = PaymentError.BANK_INSUFFICIENT_FUND;
+    //     } else if (e.statusCode === 404) {
+    //       err = PaymentError.PAYMENT_METHOD_ID_MISSING;
+    //     }
+    //     const eventLog = {
+    //       accountId,
+    //       type: e ? e.type : '',
+    //       code: e ? e.code : '',
+    //       decline_code: e ? e.decline_code : '',
+    //       message: e ? e.message : '',
+    //       created: moment().toISOString()
+    //     }
+    //     await this.eventLogModel.insertOne(eventLog);
+    //     console.log(e);
+    //     return { err };
+    //   }
+    // } else {
+    //   return { err: PaymentError.INVALID_ACCOUNT };
+    // }
   }
 
   // metadata eg. { orderId: orderId, customerId: clientId, customerName: order.clientName, merchantName: order.merchantName };
@@ -347,7 +353,7 @@ export class ClientPayment extends Model {
             error = PaymentError.BANK_AUTHENTICATION_REQUIRED;
           }
         }
-        await this.eventLogModel.insertOne(eventLog);
+        await this.eventLogModel.insertOne(eventLog); // save
         return { status: ResponseStatus.FAIL, err: error };
       }
     } else {
